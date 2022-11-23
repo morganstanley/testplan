@@ -11,10 +11,10 @@ from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.utils import logger, path
 from testplan.common.utils.callable import arity
-from testplan.common.utils.validation import is_subclass, has_method
+from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser
-from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
+from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.local import LocalRunner
 from testplan.testing import filtering, ordering

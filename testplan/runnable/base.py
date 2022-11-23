@@ -1,45 +1,59 @@
 """Tests runner module."""
+import datetime
+import inspect
 import os
 import random
 import re
 import time
-import datetime
 import uuid
-import inspect
 import webbrowser
 from collections import OrderedDict
+from pathlib import Path
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
 
 import pytz
-from schema import Or, And, Use
+from schema import And, Or, Use
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
-    RunnableConfig,
-    RunnableStatus,
-    RunnableResult,
     Runnable,
+    RunnableConfig,
+    RunnableResult,
+    RunnableStatus,
 )
 from testplan.common.exporters import BaseExporter, ExporterResult
+from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
-from testplan.common.utils import logger
-from testplan.common.utils import strings
+from testplan.common.utils import logger, strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
+from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
+from testplan.exporters.testing.base import Exporter
 from testplan.report import (
-    TestReport,
-    TestGroupReport,
-    Status,
     ReportCategories,
+    Status,
+    TestGroupReport,
+    TestReport,
 )
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
 from testplan.runners.pools.tasks import Task, TaskResult
 from testplan.runners.pools.tasks.base import is_task_target
-from testplan.testing import listing, filtering, ordering, tagging
-from testplan.testing.base import TestResult
+from testplan.testing import filtering, listing, ordering, tagging
+from testplan.testing.base import Test, TestResult
 
 
 def get_exporters(values):
@@ -86,6 +100,18 @@ def result_for_failed_task(original_result):
     result.report.logger.error(original_result.reason)
     result.report.status_override = Status.ERROR
     return result
+
+
+def validate_lines(d: dict) -> bool:
+    for v in d.values():
+        if not (
+            isinstance(v, list) and all(map(lambda x: isinstance(x, int), v))
+        ) and not (isinstance(v, str) and v.strip() == "*"):
+            raise ValueError(
+                f'Unexpected value "{v}" of type {type(v)} for lines, '
+                'list of integer or string literal "*" expected.'
+            )
+    return True
 
 
 class TestRunnerConfig(RunnableConfig):
@@ -162,6 +188,19 @@ class TestRunnerConfig(RunnableConfig):
                 Or(str, lambda x: inspect.ismodule(x))
             ],
             ConfigOption("label", default=None): Or(None, str),
+            ConfigOption("tracing_tests", default=None): Or(
+                And(
+                    dict,
+                    Use(
+                        lambda d: {
+                            str(Path(k).resolve()): v for k, v in d.items()
+                        }
+                    ),
+                    validate_lines,
+                ),
+                None,
+            ),
+            ConfigOption("tracing_tests_output", default="-"): str,
         }
 
 
@@ -293,7 +332,8 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
-        self._tests = OrderedDict()  # uid to resource, in definition order
+        # uid to resource, in definition order
+        self._tests: Mapping[str, str] = OrderedDict()
 
         self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
@@ -362,18 +402,25 @@ class TestRunner(Runnable):
             exporters.append(
                 test_exporters.WebServerExporter(ui_port=self.cfg.ui_port)
             )
+        if (
+            self.cfg.interactive_port is None
+            and self.cfg.tracing_tests is not None
+        ):
+            exporters.append(test_exporters.CoveredTestsExporter())
         return exporters
 
-    def add_environment(self, env, resource=None):
+    def add_environment(
+        self, env: EnvironmentCreator, resource: Optional[Environments] = None
+    ):
         """
         Adds an environment to the target resource holder.
 
         :param env: Environment creator instance.
         :type env: Subclass of
-          :py:class:`~testplan.environment.EnvironmentCreator`
+            :py:class:`~testplan.environment.EnvironmentCreator`
         :param resource: Target environments holder resource.
-        :param resource: Subclass of
-          :py:class:`~testplan.environment.Environments`
+        :type resource: Subclass of
+            :py:class:`~testplan.environment.Environments`
         :return: Environment uid.
         :rtype: ``str``
         """
@@ -387,7 +434,9 @@ class TestRunner(Runnable):
         resource.add(target, env_uid)
         return env_uid
 
-    def add_resource(self, resource, uid=None):
+    def add_resource(
+        self, resource: Executor, uid: Optional[str] = None
+    ) -> str:
         """
         Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
@@ -399,13 +448,14 @@ class TestRunner(Runnable):
         :return: Resource uid assigned.
         :rtype:  ``str``
         """
+        # NOTE: expose the config to the executors
         resource.parent = self
         resource.cfg.parent = self.cfg
         return self.resources.add(
             resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
         )
 
-    def add_exporters(self, exporters):
+    def add_exporters(self, exporters: List[Exporter]):
         """
         Add a list of
         :py:class:`report exporters <testplan.exporters.testing.base.Exporter>`
@@ -416,7 +466,7 @@ class TestRunner(Runnable):
         """
         self.cfg.exporters.extend(get_exporters(exporters))
 
-    def add_remote_service(self, remote_service):
+    def add_remote_service(self, remote_service: RemoteService):
         """
         Adds a remote service
         :py:class:`~testplan.common.remote.remote_service.RemoteService`
@@ -441,25 +491,37 @@ class TestRunner(Runnable):
             self.logger.debug(f"Stopping Remote Server {name}")
             rmt_svc.stop()
 
-    def schedule(self, task=None, resource=None, **options):
+    def schedule(
+        self,
+        task: Optional[Task] = None,
+        resource: Optional[str] = None,
+        **options,
+    ) -> Optional[str]:
         """
         Schedules a serializable
         :py:class:`~testplan.runners.pools.tasks.base.Task` in a task runner
         :py:class:`~testplan.runners.pools.base.Pool` executor resource.
 
-        :param task: Input task.
-        :param task: :py:class:`~testplan.runners.pools.tasks.base.Task`
-        :param resource: Target pool resource.
-        :param resource: :py:class:`~testplan.runners.pools.base.Pool`
+        :param task: Input task, if it is None, a new Task will be constructed
+            using the options parameter.
+        :type task: :py:class:`~testplan.runners.pools.tasks.base.Task`
+        :param resource: Name of the target executor, which is usually a remote Pool,
+            the by default None is indicating using local executor.
+        :type resource: ``str`` or ``NoneType``
         :param options: Task input options.
-        :param options: ``dict``
+        :type options: ``dict``
         :return uid: Assigned uid for task.
-        :rtype: ``str``
+        :rtype: ``str`` or ``NoneType``
         """
 
         return self.add(task or Task(**options), resource=resource)
 
-    def schedule_all(self, path=".", name_pattern=r".*\.py$", resource=None):
+    def schedule_all(
+        self,
+        path: str = ".",
+        name_pattern: Union[str, Pattern] = r".*\.py$",
+        resource: Optional[str] = None,
+    ):
         """
         Discover task targets under path in the modules that matches name pattern,
         create task objects from them and schedule them to resource (usually pool)
@@ -470,8 +532,9 @@ class TestRunner(Runnable):
         :type path: ``str``
         :param name_pattern: a regex pattern to match the file name.
         :type name_pattern: ``str``
-        :param resource: Target pool resource, default is None (local execution)
-        :type resource: :py:class:`~testplan.runners.pools.base.Pool`
+        :param resource: Name of the target executor, which is usually a remote Pool,
+            the by default None is indicating using local executor.
+        :type resource: ``str`` or ``NoneType``
         """
 
         def schedule_task(task_kwargs, resource):
@@ -529,7 +592,11 @@ class TestRunner(Runnable):
                         else:
                             schedule_task(task_arguments, resource=resource)
 
-    def add(self, target, resource=None):
+    def add(
+        self,
+        target: Union[Test, Task, Callable],
+        resource: Optional[str] = None,
+    ) -> Optional[str]:
         """
         Adds a :py:class:`runnable <testplan.common.entity.base.Runnable>`
         test entity, or a :py:class:`~testplan.runners.pools.tasks.base.Task`,
@@ -539,13 +606,14 @@ class TestRunner(Runnable):
         :param target: Test target.
         :type target: :py:class:`~testplan.common.entity.base.Runnable` or
             :py:class:`~testplan.runners.pools.tasks.base.Task` or ``callable``
-        :param resource: Test executor resource.
-        :type resource: :py:class:`~testplan.runners.base.Executor`
+        :param resource: Name of the target executor, which is usually a remote Pool,
+            the by default None is indicating using local executor.
+        :type resource: ``str`` or ``NoneType``
         :return: Assigned uid for test.
         :rtype: ``str`` or ```NoneType``
         """
         local_runner = self.resources.first()
-        resource = resource or local_runner
+        resource: Union[Executor, str, None] = resource or local_runner
 
         if resource not in self.resources:
             raise RuntimeError(
@@ -553,12 +621,14 @@ class TestRunner(Runnable):
             )
 
         # Get the real test entity and verify if it should be added
-        runnable = self._verify_test_target(target)
-        if not runnable:
+        target_test = self._verify_test_target(target)
+        if not target_test:
             return None
 
-        uid = runnable.uid()
-        part = getattr(getattr(runnable, "cfg", {"part": None}), "part", None)
+        uid = target_test.uid()
+        part = getattr(
+            getattr(target_test, "cfg", {"part": None}), "part", None
+        )
 
         # Uid of test entity MUST be unique, generally the uid of a test entity
         # is the same as its name. When a test entity is split into multi-parts
@@ -574,20 +644,20 @@ class TestRunner(Runnable):
                 'Multitest part named "{}" already added.'.format(uid)
             )
         if part:
-            if runnable.name in self._tests:
+            if target_test.name in self._tests:
                 raise ValueError(
                     '{} with uid "{}" already added.'.format(
-                        self._tests[runnable.name], runnable.name
+                        self._tests[target_test.name], target_test.name
                     )
                 )
-            self._part_instance_names.add(runnable.name)
+            self._part_instance_names.add(target_test.name)
 
         # When running interactively, add all real test entities into the local
         # runner even if they were scheduled into a pool. It greatly simplifies
         # the interactive runner if it only has to deal with the local runner.
         if self.cfg.interactive_port is not None:
             self._tests[uid] = local_runner
-            self.resources[local_runner].add(runnable, uid)
+            self.resources[local_runner].add(target_test, uid)
             return uid
 
         # Reset the task uid which will be used for test result transport in
@@ -603,17 +673,19 @@ class TestRunner(Runnable):
         self.resources[resource].add(target, uid)
         return uid
 
-    def _verify_test_target(self, target):
+    def _verify_test_target(
+        self, target: Union[Test, Task, Callable]
+    ) -> Optional[Test]:
         """
         Determines if a test target should be added for execution.
         Returns the real test entity if it should run, otherwise None.
         """
         # The target added into TestRunner can be: 1> a real test entity
         # 2> a task wraps a test entity 3> a callable returns a test entity
-        if isinstance(target, Runnable):
-            runnable = target
+        if isinstance(target, Test):
+            target_test = target
         elif isinstance(target, Task):
-            runnable = target.materialize()
+            target_test = target.materialize()
             if self.cfg.interactive_port is not None and isinstance(
                 target._target, str
             ):
@@ -624,21 +696,21 @@ class TestRunner(Runnable):
                     )
                 )
         elif callable(target):
-            runnable = target()
+            target_test = target()
         else:
             raise TypeError(
                 "Unrecognized test target of type {}".format(type(target))
             )
 
-        if isinstance(runnable, Runnable):
-            runnable.parent = self
-            runnable.cfg.parent = self.cfg
+        if isinstance(target_test, Runnable):
+            target_test.parent = self
+            target_test.cfg.parent = self.cfg
 
         if type(self.cfg.test_filter) is not filtering.Filter:
-            should_run = runnable.should_run()
+            should_run = target_test.should_run()
             self.logger.debug(
                 "Should run %s? %s",
-                runnable.name,
+                target_test.name,
                 "Yes" if should_run else "No",
             )
             if not should_run:
@@ -646,12 +718,12 @@ class TestRunner(Runnable):
 
         # "--list" option means always not executing tests
         if self.cfg.test_lister is not None:
-            self.cfg.test_lister.log_test_info(runnable)
+            self.cfg.test_lister.log_test_info(target_test)
             return None
 
-        return runnable
+        return target_test
 
-    def _add_step(self, step, *args, **kwargs):
+    def _add_step(self, step: Callable, *args, **kwargs):
         if self.cfg.test_lister is None:
             super(TestRunner, self)._add_step(step, *args, **kwargs)
 
@@ -831,7 +903,9 @@ class TestRunner(Runnable):
 
         return step_result
 
-    def _merge_reports(self, test_report_lookup):
+    def _merge_reports(
+        self, test_report_lookup: Dict[str, List[Tuple[bool, Any]]]
+    ):
         """
         Merge report of MultiTest parts into test runner report.
         Return True if all parts are found and can be successfully merged.

@@ -5,8 +5,7 @@ import time
 from testplan.common.utils.path import is_subdir, pwd, change_directory
 from .base import Executor
 from testplan.runners.pools import tasks
-from testplan.common import entity
-from testplan.testing.base import TestResult
+from testplan.testing.base import Test, TestResult
 from testplan.report import TestGroupReport, Status, ReportCategories
 
 
@@ -31,7 +30,7 @@ class LocalRunner(Executor):
 
         # Inspect the input type. Tasks must be materialized before
         # they can be run.
-        if isinstance(target, entity.Runnable):
+        if isinstance(target, Test):
             runnable = target
         elif isinstance(target, tasks.Task):
             task_path = target._path
@@ -43,11 +42,16 @@ class LocalRunner(Executor):
                 "Cannot execute target of type {}".format(type(target))
             )
 
-        if isinstance(runnable, entity.Runnable):
-            if not runnable.parent:
-                runnable.parent = self
-            if not runnable.cfg.parent:
-                runnable.cfg.parent = self.cfg
+        # guard
+        if not isinstance(runnable, Test):
+            raise TypeError(
+                "Cannot execute target of type {}".format(type(runnable))
+            )
+        # pass the ball
+        if not runnable.parent:
+            runnable.parent = self
+        if not runnable.cfg.parent:
+            runnable.cfg.parent = self.cfg
 
         # for task discovery used with a monorepo project
         if task_path and not is_subdir(task_path, pwd()):

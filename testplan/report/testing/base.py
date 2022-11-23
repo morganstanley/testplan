@@ -53,6 +53,7 @@ import itertools
 import traceback
 
 from collections import Counter
+from typing import Optional
 
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase,
@@ -643,6 +644,8 @@ class TestGroupReport(BaseReportGroup):
         # Can be True For group report in category "testsuite"
         self.strict_order = strict_order
 
+        self.covered_lines: Optional[dict] = None
+
     def __str__(self):
         return (
             '{kls}(name="{name}", category="{category}", id="{uid}"),'
@@ -820,6 +823,8 @@ class TestCaseReport(Report):
         self._runtime_status = RuntimeStatus.READY
         self.category = ReportCategories.TESTCASE
         self.status_reason = status_reason
+
+        self.covered_lines: Optional[dict] = None
 
     def _get_comparison_attrs(self):
         return super(TestCaseReport, self)._get_comparison_attrs() + [

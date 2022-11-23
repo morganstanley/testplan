@@ -5,32 +5,33 @@ import concurrent
 import functools
 import itertools
 import os
+from typing import Callable, Optional
 
-from schema import Or, And, Use
+from schema import And, Or, Use
 
-from testplan.common import config
-from testplan.common import entity
-from testplan.common.utils import interface
-from testplan.common.utils import validation
-from testplan.common.utils import timing
+from testplan.common import config, entity
 from testplan.common.utils import callable as callable_utils
-from testplan.common.utils import strings
-
-from testplan.testing import tagging
-from testplan.testing import filtering
+from testplan.common.utils import (
+    interface,
+    strings,
+    timing,
+    validation,
+    watcher,
+)
+from testplan.common.utils.composer import compose_contexts
+from testplan.report import (
+    ReportCategories,
+    RuntimeStatus,
+    Status,
+    TestCaseReport,
+    TestGroupReport,
+)
 from testplan.testing import base as testing_base
-from testplan.testing.multitest.entries import base as entries_base
+from testplan.testing import filtering, tagging
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
+from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import report_target
-
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    Status,
-    RuntimeStatus,
-    ReportCategories,
-)
 
 
 def iterable_suites(obj):
@@ -179,7 +180,7 @@ class MultiTest(testing_base.Test):
         know which part of the total it is. Only works with Multitest.
     :type part: ``tuple`` of (``int``, ``int``)
     :param multi_part_uid: Custom function to overwrite the uid of test entity
-       if `part` attribute is defined, otherwise use default implementation.
+        if `part` attribute is defined, otherwise use default implementation.
     :type multi_part_uid: ``callable``
     :param result: Result class definition for result object made available
         from within the testcases.
@@ -254,6 +255,8 @@ class MultiTest(testing_base.Test):
             self._log_status, indent=testing_base.TEST_INST_INDENT
         )
 
+        self.watcher = watcher.Watcher()
+
     @property
     def pre_post_step_report(self):
         if self._pre_post_step_report is None:
@@ -285,6 +288,21 @@ class MultiTest(testing_base.Test):
             )
         else:
             return self.cfg.name
+
+    def setup(self):
+        """
+        Multitest pre-running routines.
+
+        Here related resources haven't been set up while all necessary wires have been connected.
+        """
+
+        # watch line features depends on configuration from the outside world
+        if (
+            self.cfg.parent is not None
+            and self.cfg.tracing_tests is not None
+            and self.cfg.interactive_port is None
+        ):
+            self.watcher.set_watching_lines(self.cfg.tracing_tests)
 
     def get_test_context(self):
         """
@@ -717,11 +735,13 @@ class MultiTest(testing_base.Test):
         testsuite_report = self._new_testsuite_report(testsuite)
 
         with testsuite_report.timer.record("run"):
-            setup_report = self._setup_testsuite(testsuite)
+            with self.watcher.save_covered_lines_to(testsuite_report):
+                setup_report = self._setup_testsuite(testsuite)
             if setup_report is not None:
                 testsuite_report.append(setup_report)
                 if setup_report.failed:
-                    teardown_report = self._teardown_testsuite(testsuite)
+                    with self.watcher.save_covered_lines_to(testsuite_report):
+                        teardown_report = self._teardown_testsuite(testsuite)
                     if teardown_report is not None:
                         testsuite_report.append(teardown_report)
                     return testsuite_report
@@ -745,12 +765,18 @@ class MultiTest(testing_base.Test):
             )
 
             if parallel_cases and not should_stop:
-                testcase_reports = self._run_parallel_testcases(
-                    testsuite, parallel_cases
-                )
-                testsuite_report.extend(testcase_reports)
+                with self.watcher.disabled(
+                    self.logger,
+                    "No coverage data will be collected for parallelly "
+                    "executed testcases.",
+                ):
+                    testcase_reports = self._run_parallel_testcases(
+                        testsuite, parallel_cases
+                    )
+                    testsuite_report.extend(testcase_reports)
 
-            teardown_report = self._teardown_testsuite(testsuite)
+            with self.watcher.save_covered_lines_to(testsuite_report):
+                teardown_report = self._teardown_testsuite(testsuite)
             if teardown_report is not None:
                 testsuite_report.append(teardown_report)
 
@@ -955,7 +981,13 @@ class MultiTest(testing_base.Test):
 
         return method_report
 
-    def _run_case_related(self, method, testcase, resources, case_result):
+    def _run_case_related(
+        self,
+        method: Callable,
+        testcase,
+        resources: RuntimeEnvironment,
+        case_result: result.Result,
+    ):
         try:
             interface.check_signature(
                 method, ["self", "name", "env", "result"]
@@ -973,6 +1005,7 @@ class MultiTest(testing_base.Test):
             )
 
         time_restriction = getattr(method, "timeout", None)
+
         if time_restriction:
             # pylint: disable=unbalanced-tuple-unpacking
             executed, execution_result = timing.timeout(
@@ -985,13 +1018,18 @@ class MultiTest(testing_base.Test):
             method(*method_args)
 
     def _run_testcase(
-        self, testcase, pre_testcase, post_testcase, testcase_report=None
+        self,
+        testcase,
+        pre_testcase: Callable,
+        post_testcase: Callable,
+        testcase_report: Optional[TestCaseReport] = None,
     ):
         """Runs a testcase method and returns its report."""
+
         testcase_report = testcase_report or self._new_testcase_report(
             testcase
         )
-        case_result = self.cfg.result(
+        case_result: result.Result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
 
@@ -1005,7 +1043,10 @@ class MultiTest(testing_base.Test):
         resources = RuntimeEnvironment(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):
-            with testcase_report.logged_exceptions():
+            with compose_contexts(
+                testcase_report.logged_exceptions(),
+                self.watcher.save_covered_lines_to(testcase_report),
+            ):
                 if pre_testcase and callable(pre_testcase):
                     self._run_case_related(
                         pre_testcase, testcase, resources, case_result
@@ -1024,7 +1065,10 @@ class MultiTest(testing_base.Test):
                 else:
                     testcase(resources, case_result)
 
-            with testcase_report.logged_exceptions():
+            with compose_contexts(
+                testcase_report.logged_exceptions(),
+                self.watcher.save_covered_lines_to(testcase_report),
+            ):
                 if post_testcase and callable(post_testcase):
                     self._run_case_related(
                         post_testcase, testcase, resources, case_result
@@ -1089,9 +1133,12 @@ class MultiTest(testing_base.Test):
                 else (self.resources, case_result)
             )
 
-            with testcase_report.timer.record("run"):
-                with testcase_report.logged_exceptions():
-                    func(*args)
+            with compose_contexts(
+                testcase_report.timer.record("run"),
+                testcase_report.logged_exceptions(),
+                self.watcher.save_covered_lines_to(self.report),
+            ):
+                func(*args)
 
             testcase_report.extend(case_result.serialized_entries)
             testcase_report.attachments.extend(case_result.attachments)

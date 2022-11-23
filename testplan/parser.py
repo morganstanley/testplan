@@ -4,13 +4,14 @@ This module encodes the argument and option names, types, and behaviours.
 """
 import argparse
 import copy
+import json
 import sys
 from typing import Dict
 
 from testplan import defaults
 from testplan.common.utils import logger
-from testplan.report.testing import styles, ReportTagsAction
-from testplan.testing import listing, filtering, ordering
+from testplan.report.testing import ReportTagsAction, styles
+from testplan.testing import filtering, listing, ordering
 
 
 class HelpParser(argparse.ArgumentParser):
@@ -114,6 +115,27 @@ class TestplanParser:
             type=int,
             help="Enables interactive mode. A port may be specified, otherwise"
             " the port defaults to {}.".format(defaults.WEB_SERVER_PORT),
+        )
+
+        general_group.add_argument(
+            "--trace-tests",
+            metavar="PATH",
+            type=_read_json_file,
+            dest="tracing_tests",
+            help="Enable the tracing tests feature. A JSON file containing "
+            "file names and line numbers to be watched by the tracer must be "
+            "specified.",
+        )
+
+        general_group.add_argument(
+            "--trace-tests-output",
+            metavar="PATH",
+            default="-",
+            type=str,
+            dest="tracing_tests_output",
+            help="Specify output file for tests impacted by change in "
+            "Testplan pattern format (see --trace-tests). Will be ignored "
+            "if --trace-tests is not specified. Default to standard output.",
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -392,3 +414,8 @@ class LogLevelAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         """Store the log level value corresponding to the level's name."""
         setattr(namespace, self.dest, self.LEVELS[values])
+
+
+def _read_json_file(file: str) -> dict:
+    with open(file, "r") as fp:
+        return json.load(fp)
