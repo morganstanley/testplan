@@ -6,18 +6,22 @@ An assertion object will call ``evaluate`` on instantiation and will
 use the result of that call to set its ``passed`` attribute.
 """
 
+import cmath
+import collections
+import decimal
+import numbers
+import operator
 import os
 import re
-import operator
-import collections
-import numbers
-import decimal
-import cmath
+import subprocess
+import sys
+import tempfile
 
 import lxml
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
+from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.strings import map_to_str
 from testplan.common.utils.table import TableEntry
 
@@ -645,18 +649,65 @@ class LineDiff(Assertion):
         )
 
     def evaluate(self):
-        self.delta = list(
-            difflib.diff(
-                self.first,
-                self.second,
-                ignore_space_change=self.ignore_space_change,
-                ignore_whitespaces=self.ignore_whitespaces,
-                ignore_blank_lines=self.ignore_blank_lines,
-                unified=self.unified,
-                context=self.context,
-            )
-        )
+        if sys.platform != "win32":
+            self.delta = self._diff_process().splitlines(True)
+        else:
+            self.delta = list(self._diff_difflib())
         return self.delta == []
+
+    def _diff_difflib(self):
+        out = difflib.diff(
+            self.first,
+            self.second,
+            ignore_space_change=self.ignore_space_change,
+            ignore_whitespaces=self.ignore_whitespaces,
+            ignore_blank_lines=self.ignore_blank_lines,
+            unified=self.unified,
+            context=self.context,
+        )
+        return out
+
+    def _diff_process(self):
+        first = "".join(self.first)
+        second = "".join(self.second)
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            mode="w",
+        ) as first_file:
+            first_file.write(first)
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            mode="w",
+        ) as second_file:
+            second_file.write(second)
+
+        cmd = ["/usr/bin/diff"]
+        if self.ignore_space_change:
+            cmd.append("-b")
+        if self.ignore_whitespaces:
+            cmd.append("-w")
+        if self.ignore_blank_lines:
+            cmd.append("-B")
+        if self.unified:
+            cmd.append("-u")
+        if self.context:
+            cmd.append("-c")
+        cmd.extend([first_file.name, second_file.name])
+
+        handler = subprocess_popen(
+            cmd,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,  # otherwise we get a byte stream
+        )
+        out, err = handler.communicate()
+        if handler.returncode == 2:
+            raise RuntimeError(err)
+
+        os.unlink(first_file.name)
+        os.unlink(second_file.name)
+
+        return out
 
 
 ColumnContainComparison = collections.namedtuple(

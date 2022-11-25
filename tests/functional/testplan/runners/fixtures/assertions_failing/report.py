@@ -1,6 +1,7 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
 import os
 import re
+import sys
 
 from testplan.report import (
     TestReport,
@@ -525,6 +526,35 @@ expected_report = TestReport(
                                     "unified": 2,
                                     "context": False,
                                     "delta": [
+                                        re.compile(
+                                            r"^--- /tmp/tmp.+\t.+{}$".format(
+                                                os.linesep
+                                            )
+                                        ),
+                                        re.compile(
+                                            r"^\+\+\+ /tmp/tmp.+\t.+{}$".format(
+                                                os.linesep
+                                            )
+                                        ),
+                                        "@@ -1,9 +1,9 @@{}".format(os.linesep),
+                                        f" 1{os.linesep}",
+                                        f" 1{os.linesep}",
+                                        f" 1{os.linesep}",
+                                        f"-abc{os.linesep}",
+                                        f"+ abc{os.linesep}",
+                                        f" uv w{os.linesep}",
+                                        f"-xyz{os.linesep}",
+                                        f"-2{os.linesep}",
+                                        f"+xy z{os.linesep}",
+                                        f" 2{os.linesep}",
+                                        f" 2{os.linesep}",
+                                        f"+3{os.linesep}",
+                                        r"\ No newline at end of file{}".format(
+                                            os.linesep
+                                        ),
+                                    ]
+                                    if sys.platform != "win32"
+                                    else [
                                         re.compile(
                                             r"^--- a.text\t.+ UTC{}$".format(
                                                 os.linesep
