@@ -681,7 +681,7 @@ class LineDiff(Assertion):
         ) as second_file:
             second_file.write(second)
 
-        cmd = ["/usr/bin/diff"]
+        cmd = ["diff"]
         if self.ignore_space_change:
             cmd.append("-b")
         if self.ignore_whitespaces:
