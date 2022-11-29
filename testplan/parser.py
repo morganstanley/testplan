@@ -215,6 +215,15 @@ Test filter, runs tests that match ALL of the given tags.
         )
 
         report_group.add_argument(
+            "--report-filter",
+            nargs="?",
+            metavar="FILTER",
+            dest="reporting_filter",
+            type=str,
+            help="Testcase-level filters to be applied on Testplan report.",
+        )
+
+        report_group.add_argument(
             "--pdf",
             dest="pdf_path",
             default=self._default_options["pdf_path"],
