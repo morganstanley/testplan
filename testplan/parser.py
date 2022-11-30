@@ -10,7 +10,11 @@ from typing import Dict
 
 from testplan import defaults
 from testplan.common.utils import logger
-from testplan.report.testing import ReportTagsAction, styles
+from testplan.report.testing import (
+    ReportFilterAction,
+    ReportTagsAction,
+    styles,
+)
 from testplan.testing import filtering, listing, ordering
 
 
@@ -224,6 +228,20 @@ Test filter, runs tests that match ALL of the given tags.
         )
 
         report_group.add_argument(
+            "--omit-passed",
+            nargs=0,
+            action=ReportFilterAction.use_filter("p"),
+            help="",
+        )
+
+        report_group.add_argument(
+            "--omit-skipped",
+            nargs=0,
+            action=ReportFilterAction.use_filter("s"),
+            help="",
+        )
+
+        report_group.add_argument(
             "--pdf",
             dest="pdf_path",
             default=self._default_options["pdf_path"],
@@ -404,6 +422,9 @@ that match ALL of the given tags.
 
         if args["list"] and not args["test_lister"]:
             args["test_lister"] = listing.NameLister()
+
+        if args.get("reporting_filter_override"):
+            args["reporting_filter"] = args["reporting_filter_override"]
 
         return args
 

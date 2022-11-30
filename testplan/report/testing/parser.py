@@ -39,3 +39,27 @@ class ReportTagsAction(argparse.Action):
         items.append(tag_arg)
 
         setattr(namespace, self.dest, items)
+
+
+class ReportFilterAction(argparse.Action):
+    """
+    Argparse action serving higher-precedence shortcuts for report filters.
+    """
+
+    def __init__(self, filter_rep: str, *args, **kwargs):
+        self.filter_rep = filter_rep
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        curr = ""
+        try:
+            curr = getattr(namespace, "reporting_filter_override")
+        except AttributeError:
+            pass
+        setattr(namespace, "reporting_filter_override", curr + self.filter_rep)
+
+    @staticmethod
+    def use_filter(filter_rep: str):
+        return lambda *args, **kwargs: ReportFilterAction(
+            filter_rep, *args, **kwargs
+        )
