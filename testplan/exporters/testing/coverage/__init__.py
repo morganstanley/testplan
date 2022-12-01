@@ -5,8 +5,9 @@ Coverage data related exporter.
 
 import pathlib
 import sys
+from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Generator, Mapping, OrderedDict, TextIO, Tuple
+from typing import Generator, Mapping, TextIO, Tuple
 
 from testplan.common.exporters import ExporterConfig
 from testplan.exporters.testing.base import Exporter

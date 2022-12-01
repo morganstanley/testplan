@@ -51,12 +51,7 @@ class ReportFilterAction(argparse.Action):
         super().__init__(*args, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        curr = ""
-        try:
-            curr = getattr(namespace, "reporting_filter_override")
-        except AttributeError:
-            pass
-        setattr(namespace, "reporting_filter_override", curr + self.filter_rep)
+        setattr(namespace, "reporting_filter", self.filter_rep)
 
     @staticmethod
     def use_filter(filter_rep: str):

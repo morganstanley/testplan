@@ -795,8 +795,6 @@ class MultiTest(testing_base.Test):
         pre_testcase = getattr(testsuite, "pre_testcase", None)
         post_testcase = getattr(testsuite, "post_testcase", None)
 
-        print(testcases)
-
         for testcase in testcases:
             if not self.active:
                 break

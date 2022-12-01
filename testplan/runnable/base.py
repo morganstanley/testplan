@@ -781,7 +781,7 @@ class TestRunner(Runnable):
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self._record_end)  # needs to happen before export
-        self._add_step(self._transform_report)
+        self._add_step(self._pre_exporters)
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
@@ -1005,8 +1005,8 @@ class TestRunner(Runnable):
                 self.cfg.name, self._result.test_report.status
             )
 
-    def _transform_report(self):
-        """TODO"""
+    def _pre_exporters(self):
+        # Apply report filter if one exists
         if self.cfg.reporting_filter is not None:
             self._result.test_report = self.cfg.reporting_filter(
                 self._result.test_report

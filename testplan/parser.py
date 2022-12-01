@@ -138,8 +138,8 @@ class TestplanParser:
             type=str,
             dest="tracing_tests_output",
             help="Specify output file for tests impacted by change in "
-            "Testplan pattern format (see --trace-tests). Will be ignored "
-            "if --trace-tests is not specified. Default to standard output.",
+            'Testplan pattern format (see "--trace-tests"). Will be ignored '
+            'if "--trace-tests" is not specified. Default to standard output.',
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -218,27 +218,32 @@ Test filter, runs tests that match ALL of the given tags.
             )
         )
 
-        report_group.add_argument(
+        report_filter_group = report_group.add_mutually_exclusive_group()
+        report_filter_group.add_argument(
             "--report-filter",
-            nargs="?",
             metavar="FILTER",
             dest="reporting_filter",
             type=str,
-            help="Testcase-level filters to be applied on Testplan report.",
+            help="Invoke testcase-level report filters based on testcase "
+            "execution result. This filter will be a string with each "
+            "character representing one result of which testcase to "
+            "include in or to exclude from the report.",
         )
 
-        report_group.add_argument(
+        report_filter_group.add_argument(
             "--omit-passed",
             nargs=0,
             action=ReportFilterAction.use_filter("p"),
-            help="",
+            help='Equivalent to "--report-filter=p", cannot be used with '
+            '"--report-filter" together.',
         )
 
-        report_group.add_argument(
+        report_filter_group.add_argument(
             "--omit-skipped",
             nargs=0,
             action=ReportFilterAction.use_filter("s"),
-            help="",
+            help='Equivalent to "--report-filter=s", cannot be used with '
+            '"--report-filter" together.',
         )
 
         report_group.add_argument(
@@ -422,9 +427,6 @@ that match ALL of the given tags.
 
         if args["list"] and not args["test_lister"]:
             args["test_lister"] = listing.NameLister()
-
-        if args.get("reporting_filter_override"):
-            args["reporting_filter"] = args["reporting_filter_override"]
 
         return args
 

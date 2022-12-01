@@ -412,7 +412,9 @@ class BaseReportGroup(ReportGroup):
                 if predicate(entry):
                     entries.append(entry)
             else:
-                raise NotImplementedError(f"what's {entry} here?")
+                raise TypeError(
+                    f"Unexpected entry {entry} of type {type(entry)} here."
+                )
 
         report_obj.entries = entries
         report_obj.status_override = Status.precedent(statuses)
