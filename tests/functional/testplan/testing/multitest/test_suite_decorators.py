@@ -5,21 +5,21 @@ from unittest import mock
 import pytest
 from schema import SchemaError
 
+from testplan.common.utils.callable import post, pre
 from testplan.defaults import MAX_TEST_NAME_LENGTH
-from testplan.testing.multitest import MultiTest
-from testplan.testing.multitest.suite import (
-    testcase,
-    testsuite,
-    skip_if,
-    skip_if_testcase,
-)
-from testplan.common.utils.callable import pre, post
 from testplan.report import (
-    TestReport,
-    TestGroupReport,
-    TestCaseReport,
     ReportCategories,
     Status,
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
+)
+from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.suite import (
+    skip_if,
+    skip_if_testcase,
+    testcase,
+    testsuite,
 )
 
 
@@ -27,9 +27,6 @@ from testplan.report import (
 class Suite1:
     def setup(self, env, result):
         result.equal(2, 2)
-
-    def teardown(self, env):
-        pass
 
     def pre_testcase(self, name, env, result):
         result.equal(2, 2)
@@ -86,6 +83,7 @@ class Suite2:
     def case5(self, env, result):
         result.equal(1, 2)
 
+    # case5 is ERROR instead of FAILED, case6 won't be recorded
     @skip_if(lambda testsuite: True)
     @testcase
     def case6(self, env, result):
@@ -95,6 +93,12 @@ class Suite2:
 @skip_if_testcase(lambda testsuite: True)
 @testsuite(name="Skipped Suite")  # No testcase runs in this suite
 class Suite3:
+    def setup(self, env, result):
+        result.equal(1, 1)
+
+    def teardown(self, env):
+        pass
+
     @testcase
     def case1(self, env, result):
         result.equal(1, 2)
@@ -115,19 +119,21 @@ def test_basic_multitest(mockplan):
 
     assert res.run is True
     assert isinstance(res.test_results["MTest"].report, TestGroupReport)
-    assert len(res.test_results["MTest"].report.entries) == 3
+    assert len(res.test_results["MTest"].report.entries) == 4
     assert isinstance(mockplan.report, TestReport)
     assert len(mockplan.report.entries) == 1  # 1 Multitest
 
     mt_entry = mockplan.report.entries[0]
     assert isinstance(mt_entry, TestGroupReport)
-    assert len(mt_entry.entries) == 3  # 2 Suites
+    assert len(mt_entry.entries) == 4  # 4 Suites
     assert mt_entry.entries[0].name == "Test Suite"
     assert mt_entry.entries[0].uid == "Test Suite"
     assert mt_entry.entries[1].name == "Suite2__0"
     assert mt_entry.entries[1].uid == "Suite2__0"
     assert mt_entry.entries[2].name == "Suite2__1"
     assert mt_entry.entries[2].uid == "Suite2__1"
+    assert mt_entry.entries[3].uid == "Skipped Suite"
+    assert mt_entry.entries[3].uid == "Skipped Suite"
 
     for st_entry in mt_entry.entries:
         assert isinstance(st_entry, TestGroupReport)

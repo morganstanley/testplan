@@ -47,6 +47,7 @@ from testplan.report import (
     TestGroupReport,
     TestReport,
 )
+from testplan.report.filter import ReportingFilter
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
@@ -201,6 +202,9 @@ class TestRunnerConfig(RunnableConfig):
                 None,
             ),
             ConfigOption("tracing_tests_output", default="-"): str,
+            ConfigOption("reporting_filter", default=None): Or(
+                And(str, Use(ReportingFilter.parse)), None
+            ),
         }
 
 
@@ -777,6 +781,7 @@ class TestRunner(Runnable):
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self._record_end)  # needs to happen before export
+        self._add_step(self._pre_exporters)
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
@@ -998,6 +1003,13 @@ class TestRunner(Runnable):
         else:
             self.logger.log_test_status(
                 self.cfg.name, self._result.test_report.status
+            )
+
+    def _pre_exporters(self):
+        # Apply report filter if one exists
+        if self.cfg.reporting_filter is not None:
+            self._result.test_report = self.cfg.reporting_filter(
+                self._result.test_report
             )
 
     def _invoke_exporters(self):
