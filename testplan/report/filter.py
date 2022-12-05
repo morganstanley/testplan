@@ -1,5 +1,9 @@
+try:
+    from typing import Self  # >= 3.11
+except ImportError:
+    from typing_extensions import Self  # < 3.11
+
 from schema import And
-from typing_extensions import Self
 
 from testplan.common.config.base import ConfigOption
 from testplan.common.entity import Entity

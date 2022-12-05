@@ -221,13 +221,18 @@ Test filter, runs tests that match ALL of the given tags.
         report_filter_group = report_group.add_mutually_exclusive_group()
         report_filter_group.add_argument(
             "--report-filter",
-            metavar="FILTER",
+            metavar="{E,F,I,P,S,U,X,A,B,C,...}",
             dest="reporting_filter",
             type=str,
-            help="Invoke testcase-level report filters based on testcase "
-            "execution result. This filter will be a string with each "
-            "character representing one result of which testcase to "
-            "include in or to exclude from the report.",
+            help="Only include testcases with execution result Error (E), "
+            "Failed (F), Incomplete (I), Passed (P), Skipped (S), "
+            "Unstable (U), Unknown (X), XFail (A), XPass (B) and "
+            "XPass-Strict (C) in Testplan report. Use lower-case characters "
+            'to exclude certain testcases from the report. Use "PS" will '
+            'select passed and skipped testcases only, and use "ps" will '
+            "select all the testcases that are not passed and not skipped. "
+            "Note using upper-case and lower-case letters together is not "
+            "allowed due to potential ambiguity.",
         )
 
         report_filter_group.add_argument(
