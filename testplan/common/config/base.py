@@ -228,6 +228,6 @@ class Config:
         ]
 
         for p in parents:
-            update_options(target=config_options, source=p.get_options())
+            update_options(target=config_options, source=p.get_options.__func__(cls))
 
         return Schema(config_options, ignore_extra_keys=cls.ignore_extra_keys)
