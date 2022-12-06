@@ -1042,6 +1042,19 @@ class MultiTest(testing_base.Test):
         runtime_info.testcase.report = testcase_report
         resources = RuntimeEnvironment(self.resources, runtime_info)
 
+        # specially handle skipped testcases
+        if hasattr(testcase, "__should_skip__"):
+            with compose_contexts(
+                testcase_report.timer.record("run"),
+                testcase_report.logged_exceptions(),
+            ):
+                testcase(resources, case_result)
+            testcase_report.extend(case_result.serialized_entries)
+            testcase_report.runtime_status = RuntimeStatus.FINISHED
+            if self.get_stdout_style(testcase_report.passed).display_testcase:
+                self.log_testcase_status(testcase_report)
+            return testcase_report
+
         with testcase_report.timer.record("run"):
             with compose_contexts(
                 testcase_report.logged_exceptions(),

@@ -385,6 +385,13 @@ Command line
                             "extended-summary" - Display assertion details for failing tests, testcase level statuses for the rest.
 
                             "detailed" - Display details of all tests & assertions.
+      --report-filter       Only include testcases with execution result Error (E), Failed (F), Incomplete (I), Passed (P), Skipped (S),
+                            Unstable (U), Unknown (X), XFail (A), XPass (B) and XPass-Strict (C) in Testplan report. Use lower-case characters
+                            to exclude certain testcases from the report. Use "PS" will select passed and skipped testcases only, and use "ps" will
+                            select all the testcases that are not passed and not skipped. Note using upper-case and lower-case letters together
+                            is not allowed due to potential ambiguity.
+      --omit-passed         Equivalent to "--report-filter=p", cannot be used with "--report-filter" together.
+      --omit-skipped        Equivalent to "--report-filter=s", cannot be used with "--report-filter" together.
       --pdf                 Path for PDF report.
       --json                Path for JSON report.
       --xml                 Directory path for XML reports.

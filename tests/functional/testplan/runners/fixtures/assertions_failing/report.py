@@ -3,15 +3,15 @@ import os
 import re
 import sys
 
+from testplan.common.utils.testing import check_iterable
 from testplan.report import (
-    TestReport,
-    TestGroupReport,
-    TestCaseReport,
     ReportCategories,
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
 )
 
-from .suites import always_true, always_false, ERROR_MSG, error_func
-from testplan.common.utils.testing import check_iterable
+from .suites import ERROR_MSG, always_false, always_true, error_func
 
 
 def check_row_comparison_data(expected_data):
@@ -527,12 +527,12 @@ expected_report = TestReport(
                                     "context": False,
                                     "delta": [
                                         re.compile(
-                                            r"^--- /tmp/tmp.+\t.+{}$".format(
+                                            r"^--- /.+/tmp.+\t.+{}$".format(
                                                 os.linesep
                                             )
                                         ),
                                         re.compile(
-                                            r"^\+\+\+ /tmp/tmp.+\t.+{}$".format(
+                                            r"^\+\+\+ /.+/tmp.+\t.+{}$".format(
                                                 os.linesep
                                             )
                                         ),

@@ -137,7 +137,6 @@ def multitest_after_stop(env):
 
 
 def test_trace_tests_invalid_input(subject_path):
-    mt_name = "InvalidInputMultitest"
     with pytest.raises(
         schema.SchemaError, match=r".*of type <class \\'list\\'>.*"
     ):

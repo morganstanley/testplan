@@ -43,24 +43,21 @@ We will have a report tree like:
                                                        after GTest is run
     ...
 """
-import os
-import sys
 import copy
 import getpass
-import platform
 import hashlib
 import itertools
+import os
+import platform
+import sys
 import traceback
-
 from collections import Counter
-from typing import Optional
+from typing import Callable, Optional
 
-from testplan.common.report import (
-    ExceptionLogger as ExceptionLoggerBase,
-    Report,
-    ReportGroup,
-    SkipTestcaseException,
-)
+from typing_extensions import Self
+
+from testplan.common.report import ExceptionLogger as ExceptionLoggerBase
+from testplan.common.report import Report, ReportGroup, SkipTestcaseException
 from testplan.common.utils import timing
 from testplan.testing import tagging
 
@@ -394,6 +391,38 @@ class BaseReportGroup(ReportGroup):
             result.propagate_tag_indices()
         return result
 
+    def filter_cases(
+        self, predicate: Callable[["ReportGroup"], bool], is_root: bool = False
+    ) -> Self:
+        """
+        Case-level filter with status retained
+        """
+        report_obj = copy.deepcopy(self) if is_root else self
+        statuses = []
+        entries = []
+
+        for entry in report_obj.entries:
+            if isinstance(entry, BaseReportGroup):
+                statuses.append(entry.status)
+                entry = entry.filter_cases(predicate)
+                if len(entry):
+                    entries.append(entry)
+            elif isinstance(entry, TestCaseReport):
+                statuses.append(entry.status)
+                if predicate(entry):
+                    entries.append(entry)
+            else:
+                raise TypeError(
+                    f"Unexpected entry {entry} of type {type(entry)} here."
+                )
+
+        report_obj.entries = entries
+        report_obj.status_override = Status.precedent(statuses)
+        if is_root:
+            report_obj.build_index(recursive=True)
+
+        return report_obj
+
     def filter_by_tags(self, tag_value, all_tags=False):
         """Shortcut method for filtering the report by given tags."""
 
@@ -471,7 +500,7 @@ class TestReport(BaseReportGroup):
         information=None,
         timeout=None,
         label=None,
-        **kwargs
+        **kwargs,
     ):
         self._tags_index = None
         self.meta = meta or {}
@@ -616,7 +645,7 @@ class TestGroupReport(BaseReportGroup):
         fix_spec_path=None,
         env_status=None,
         strict_order=False,
-        **kwargs
+        **kwargs,
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
 
@@ -806,7 +835,7 @@ class TestCaseReport(Report):
         suite_related=False,
         status_override=None,
         status_reason=None,
-        **kwargs
+        **kwargs,
     ):
         super(TestCaseReport, self).__init__(name=name, **kwargs)
 
@@ -835,12 +864,12 @@ class TestCaseReport(Report):
         ]
 
     @property
-    def passed(self):
+    def passed(self) -> bool:
         """Shortcut for getting if report status should be considered passed."""
         return Status.STATUS_CATEGORY[self.status] == Status.PASSED
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         """
         Shortcut for checking if report status should be considered failed.
         """
@@ -850,21 +879,21 @@ class TestCaseReport(Report):
         )
 
     @property
-    def unstable(self):
+    def unstable(self) -> bool:
         """
         Shortcut for checking if report status should be considered unstable.
         """
         return Status.STATUS_CATEGORY[self.status] == Status.UNSTABLE
 
     @property
-    def unknown(self):
+    def unknown(self) -> bool:
         """
         Shortcut for checking if report status is unknown.
         """
         return Status.STATUS_CATEGORY[self.status] == Status.UNKNOWN
 
     @property
-    def status(self):
+    def status(self) -> Status:
         """
         Entries in this context correspond to serialized (raw)
         assertions / custom logs in dictionary form.

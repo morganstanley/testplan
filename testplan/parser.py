@@ -10,7 +10,11 @@ from typing import Dict
 
 from testplan import defaults
 from testplan.common.utils import logger
-from testplan.report.testing import ReportTagsAction, styles
+from testplan.report.testing import (
+    ReportFilterAction,
+    ReportTagsAction,
+    styles,
+)
 from testplan.testing import filtering, listing, ordering
 
 
@@ -134,8 +138,8 @@ class TestplanParser:
             type=str,
             dest="tracing_tests_output",
             help="Specify output file for tests impacted by change in "
-            "Testplan pattern format (see --trace-tests). Will be ignored "
-            "if --trace-tests is not specified. Default to standard output.",
+            'Testplan pattern format (see "--trace-tests"). Will be ignored '
+            'if "--trace-tests" is not specified. Default to standard output.',
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -212,6 +216,39 @@ Test filter, runs tests that match ALL of the given tags.
             **styles.StyleArg.get_parser_context(
                 default=self._default_options["stdout_style"]
             )
+        )
+
+        report_filter_group = report_group.add_mutually_exclusive_group()
+        report_filter_group.add_argument(
+            "--report-filter",
+            metavar="{E,F,I,P,S,U,X,A,B,C,...}",
+            dest="reporting_filter",
+            type=str,
+            help="Only include testcases with execution result Error (E), "
+            "Failed (F), Incomplete (I), Passed (P), Skipped (S), "
+            "Unstable (U), Unknown (X), XFail (A), XPass (B) and "
+            "XPass-Strict (C) in Testplan report. Use lower-case characters "
+            'to exclude certain testcases from the report. Use "PS" will '
+            'select passed and skipped testcases only, and use "ps" will '
+            "select all the testcases that are not passed and not skipped. "
+            "Note using upper-case and lower-case letters together is not "
+            "allowed due to potential ambiguity.",
+        )
+
+        report_filter_group.add_argument(
+            "--omit-passed",
+            nargs=0,
+            action=ReportFilterAction.use_filter("p"),
+            help='Equivalent to "--report-filter=p", cannot be used with '
+            '"--report-filter" together.',
+        )
+
+        report_filter_group.add_argument(
+            "--omit-skipped",
+            nargs=0,
+            action=ReportFilterAction.use_filter("s"),
+            help='Equivalent to "--report-filter=s", cannot be used with '
+            '"--report-filter" together.',
         )
 
         report_group.add_argument(

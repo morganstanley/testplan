@@ -1,15 +1,15 @@
 """Multitest testsuite/testcase module."""
-import types
-import copy
 import collections
+import copy
 import functools
-import itertools
 import inspect
+import itertools
+import types
 import warnings
+from typing import Optional
 
 from testplan import defaults
-from testplan.common.utils import interface
-from testplan.common.utils import strings
+from testplan.common.utils import interface, strings
 from testplan.testing import tagging
 
 from . import parametrization
@@ -191,11 +191,50 @@ def set_testsuite_testcases(suite):
                 " parametrized testcases.".format(testcase_method.name)
             )
 
-        if not any(skip_func(suite) for skip_func in testcase_method.__skip__):
+        skip_reason: Optional[str] = None
+        for skip_func in testcase_method.__skip__:
+            if skip_func(suite):
+                skip_reason = (
+                    f'File "{inspect.getsourcefile(skip_func)}",\n'
+                    f"line {inspect.getsourcelines(skip_func)[1]},\n"
+                    f"{skip_func.__qualname__} evaluated to true, "
+                    "skipping execution"
+                )
+                break
+
+        if skip_reason:
+            # replace the original testcase with testcase holding result.skip
+            setattr(
+                suite,
+                testcase,
+                _gen_skipped_case(skip_reason, testcase_method),
+            )
+            testcases.append(testcase)
+            testcase_names.add(testcase_method.name)
+        else:
             testcases.append(testcase)
             testcase_names.add(testcase_method.name)
 
     setattr(suite, "__testcases__", testcases)
+
+
+def _gen_skipped_case(skip_reason, orig_case):
+    """
+    Generate a new testcase with body replaced by "result.skip".
+    """
+
+    def _f(_, result):
+        result.skip(skip_reason)
+
+    # since the original name has been already validated
+    _f.name = orig_case.name
+    _f.__name__ = orig_case.__name__
+    _f.__doc__ = orig_case.__doc__
+    _f.__tags__ = orig_case.__tags__
+    _f.__tags_index__ = orig_case.__tags_index__
+    _f.__should_skip__ = True
+    _mark_function_as_testcase(_f)
+    return _f
 
 
 def get_testcase_desc(suite, testcase_name):
