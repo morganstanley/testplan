@@ -190,15 +190,7 @@ class TestRunnerConfig(RunnableConfig):
             ],
             ConfigOption("label", default=None): Or(None, str),
             ConfigOption("tracing_tests", default=None): Or(
-                And(
-                    dict,
-                    Use(
-                        lambda d: {
-                            str(Path(k).resolve()): v for k, v in d.items()
-                        }
-                    ),
-                    validate_lines,
-                ),
+                And(dict, validate_lines),
                 None,
             ),
             ConfigOption("tracing_tests_output", default="-"): str,
