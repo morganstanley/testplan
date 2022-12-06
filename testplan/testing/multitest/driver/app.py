@@ -37,6 +37,7 @@ class AppConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.app.App` resource.
     """
+
     @staticmethod
     def default_metadata_extractor(driver) -> DriverMetadata:
         return DriverMetadata(

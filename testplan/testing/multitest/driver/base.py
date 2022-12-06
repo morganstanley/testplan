@@ -113,6 +113,7 @@ class DriverConfig(ResourceConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.base.Driver` resource.
     """
+
     @staticmethod
     def default_metadata_extractor(driver) -> DriverMetadata:
         return DriverMetadata(
@@ -141,9 +142,9 @@ class DriverConfig(ResourceConfig):
             ConfigOption("post_start", default=None): validate_func("driver"),
             ConfigOption("pre_stop", default=None): validate_func("driver"),
             ConfigOption("post_stop", default=None): validate_func("driver"),
-            ConfigOption("metadata_extractor", default=cls.default_metadata_extractor): validate_func(
-                "driver"
-            ),
+            ConfigOption(
+                "metadata_extractor", default=cls.default_metadata_extractor
+            ): validate_func("driver"),
         }
 
 
