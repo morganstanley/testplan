@@ -97,7 +97,7 @@ class DriverMetadata:
     conn_info: List[Connection] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
-        """http://testplan-db.ms.com/testplan/00d49bb9e2084c59b26755e4f5afbef1
+        """
         Returns the metadata of the driver except for the connections.
         """
         data = self.driver_metadata
