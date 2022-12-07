@@ -4,7 +4,7 @@ Easy-to-use wrapper around Coverage.py for Python source code tracing
 
 from contextlib import contextmanager
 from logging import Logger
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Set, Union
 
 try:
     from typing import Literal  # >= 3.8
@@ -49,7 +49,7 @@ class Watcher:
                 include=[f"*{k}" for k in self._watching_lines.keys()],
             )
 
-    def _get_common_lines(self, data: CoverageData) -> Dict[str, List[int]]:
+    def _get_common_lines(self, data: CoverageData) -> Dict[str, Set[int]]:
         r = {}
         for covered_file in data.measured_files():
             for f_name, f_lines in self._watching_lines.items():
@@ -60,7 +60,7 @@ class Watcher:
                     else:
                         common_lines = covered_lines.intersection(f_lines)
                     if common_lines:
-                        r[f_name] = sorted(list(common_lines))
+                        r[f_name] = common_lines
         return r
 
     @contextmanager
@@ -102,4 +102,15 @@ class Watcher:
                 self._tracer.stop()
                 data = self._tracer.get_data()
                 if data is not None and data.measured_files():
-                    report.covered_lines = self._get_common_lines(data) or None
+                    common_lines = self._get_common_lines(data)
+                    # set or merge the common lines
+                    if len(common_lines):
+                        if report.covered_lines is None:
+                            report.covered_lines = common_lines
+                        else:
+                            for k, v in common_lines.items():
+                                report.covered_lines[
+                                    k
+                                ] = report.covered_lines.get(k, set()).union(
+                                    set(v)
+                                )
