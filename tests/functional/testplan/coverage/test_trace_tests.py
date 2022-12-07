@@ -30,6 +30,8 @@ def get_lines(symb):
 def temp_file_name():
     tmp_d = tempfile.mkdtemp()
     tmp_f = os.path.join(tmp_d, "tmp_file")
+    with open(tmp_f, "w"):
+        pass
     try:
         yield tmp_f
     finally:
@@ -93,12 +95,12 @@ class ParallelSuite:
 @mt.testsuite
 class WithPrePostSuite:
     def pre_testcase(self, name, env, result):
-        a = NotImplemented
-        result.equal(unbox(box(a)), a)
+        li = to_lazy([NotImplemented])
+        result.equal(lazy_len(li), 1)
 
     def post_testcase(self, name, env, result):
-        something_irrelevant = NotImplemented
-        result.equal(something_irrelevant, NotImplemented)
+        a = NotImplemented
+        result.equal(unbox(box(a)), a)
 
     @mt.testcase
     def relevant_case(self, env, result):
@@ -212,7 +214,7 @@ def test_trace_tests_case_with_pre_post(subject_path, temp_file_name):
     mt_name = "WithPrePostMultitest"
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
-        tracing_tests={subject_path: get_lines(box) + get_lines(unbox)},
+        tracing_tests={subject_path: get_lines(unlazy) + get_lines(to_lazy)},
         tracing_tests_output=temp_file_name,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[WithPrePostSuite()]))
