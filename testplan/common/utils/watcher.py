@@ -4,7 +4,6 @@ Easy-to-use wrapper around Coverage.py for Python source code tracing
 
 from contextlib import contextmanager
 from logging import Logger
-from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 try:
@@ -18,6 +17,20 @@ from testplan.report.testing.base import TestCaseReport, TestGroupReport
 
 
 class Watcher:
+    """
+    Utility class for testcase execution tracing.
+
+    NOTE: We should use absolute path of files since matching by part of path
+    NOTE: might include unwanted files for tracing, i.e. "*a.py" will match on
+    NOTE: both a.py and some/deep/path/a.py. If the input files are absolute
+    NOTE: paths, we can do exact match for local runners and replace local
+    NOTE: workspace path with remote workspace path before doing exact match
+    NOTE: for remote runners. However, currently we cannot simply interpret the
+    NOTE: relative paths as paths under current working directory, and we don't
+    NOTE: have a global workspace. Here we just use matching by part of path as
+    NOTE: a workaround.
+    """
+
     def __init__(self):
         self._disabled: bool = False
         self._watching_lines: Optional[
@@ -32,14 +45,15 @@ class Watcher:
             self._watching_lines = watching_lines
             # we explicitly disable writing coverage data to file
             self._tracer = Coverage(
-                data_file=None, include=[*self._watching_lines.keys()]
+                data_file=None,
+                include=[f"*{k}" for k in self._watching_lines.keys()],
             )
 
     def _get_common_lines(self, data: CoverageData) -> Dict[str, List[int]]:
         r = {}
         for covered_file in data.measured_files():
             for f_name, f_lines in self._watching_lines.items():
-                if covered_file == f_name:
+                if covered_file.endswith(f_name):
                     covered_lines = set(data.lines(covered_file))
                     if isinstance(f_lines, str) and f_lines == "*":
                         common_lines = covered_lines
