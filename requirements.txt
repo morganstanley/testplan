@@ -1,12 +1,11 @@
 -e .
 pylint
 scikit-learn
-black==21.12b0; python_version >= '3.6'
+black>=22.1.0
 kazoo
 confluent-kafka
 plotly
 pandas
 numpy
 sphinx-click
-click <= 7.1.2
-memoization
+click
