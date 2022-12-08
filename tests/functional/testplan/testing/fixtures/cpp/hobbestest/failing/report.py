@@ -15,15 +15,15 @@ expected_report = TestReport(
                             name="MultiDestination",
                             entries=[
                                 {
-                                    u"category": u"DEFAULT",
-                                    u"description": u"MultiDestination",
-                                    u"line_no": None,
-                                    u"content": u"[Hog/MultiDestination]: Failed to connect to log consumer for group "
-                                    u"'Space' on socket '/var/tmp/hstore.Space.sk' (Unable to connect socket: "
-                                    u"Connection refused)",
-                                    u"meta_type": u"assertion",
-                                    u"passed": False,
-                                    u"type": "RawAssertion",
+                                    "category": "DEFAULT",
+                                    "description": "MultiDestination",
+                                    "line_no": None,
+                                    "content": "[Hog/MultiDestination]: Failed to connect to log consumer for group "
+                                    "'Space' on socket '/var/tmp/hstore.Space.sk' (Unable to connect socket: "
+                                    "Connection refused)",
+                                    "meta_type": "assertion",
+                                    "passed": False,
+                                    "type": "RawAssertion",
                                 }
                             ],
                         ),
@@ -31,14 +31,14 @@ expected_report = TestReport(
                             name="KillAndResume",
                             entries=[
                                 {
-                                    u"category": u"DEFAULT",
-                                    u"description": u"KillAndResume",
-                                    u"line_no": None,
-                                    u"content": u"[Hog/KillAndResume]: Expression false, expected true: c.compileFn<bool()>"
-                                    u'("f0.seq[0:] == [3,2,1,0]")() (Hog.C:372)',
-                                    u"meta_type": u"assertion",
-                                    u"passed": False,
-                                    u"type": "RawAssertion",
+                                    "category": "DEFAULT",
+                                    "description": "KillAndResume",
+                                    "line_no": None,
+                                    "content": "[Hog/KillAndResume]: Expression false, expected true: c.compileFn<bool()>"
+                                    '("f0.seq[0:] == [3,2,1,0]")() (Hog.C:372)',
+                                    "meta_type": "assertion",
+                                    "passed": False,
+                                    "type": "RawAssertion",
                                 }
                             ],
                         ),
@@ -46,13 +46,13 @@ expected_report = TestReport(
                             name="RestartEngine",
                             entries=[
                                 {
-                                    u"category": u"DEFAULT",
-                                    u"description": u"RestartEngine",
-                                    u"line_no": None,
-                                    u"content": u"18.4997s",
-                                    u"meta_type": u"assertion",
-                                    u"passed": True,
-                                    u"type": "RawAssertion",
+                                    "category": "DEFAULT",
+                                    "description": "RestartEngine",
+                                    "line_no": None,
+                                    "content": "18.4997s",
+                                    "meta_type": "assertion",
+                                    "passed": True,
+                                    "type": "RawAssertion",
                                 }
                             ],
                         ),
@@ -60,13 +60,13 @@ expected_report = TestReport(
                             name="Cleanup",
                             entries=[
                                 {
-                                    u"category": u"DEFAULT",
-                                    u"description": u"Cleanup",
-                                    u"line_no": None,
-                                    u"content": u"140.089ms",
-                                    u"meta_type": u"assertion",
-                                    u"passed": True,
-                                    u"type": "RawAssertion",
+                                    "category": "DEFAULT",
+                                    "description": "Cleanup",
+                                    "line_no": None,
+                                    "content": "140.089ms",
+                                    "meta_type": "assertion",
+                                    "passed": True,
+                                    "type": "RawAssertion",
                                 }
                             ],
                         ),
@@ -81,13 +81,13 @@ expected_report = TestReport(
                             name="syncClientAPI",
                             entries=[
                                 {
-                                    u"category": u"DEFAULT",
-                                    u"description": u"syncClientAPI",
-                                    u"line_no": None,
-                                    u"content": u"4.66587s",
-                                    u"meta_type": u"assertion",
-                                    u"passed": True,
-                                    u"type": "RawAssertion",
+                                    "category": "DEFAULT",
+                                    "description": "syncClientAPI",
+                                    "line_no": None,
+                                    "content": "4.66587s",
+                                    "meta_type": "assertion",
+                                    "passed": True,
+                                    "type": "RawAssertion",
                                 }
                             ],
                         ),
@@ -95,13 +95,13 @@ expected_report = TestReport(
                             name="asyncClientAPI",
                             entries=[
                                 {
-                                    u"category": u"DEFAULT",
-                                    u"description": u"asyncClientAPI",
-                                    u"line_no": None,
-                                    u"content": u"1.4305s",
-                                    u"meta_type": u"assertion",
-                                    u"passed": True,
-                                    u"type": "RawAssertion",
+                                    "category": "DEFAULT",
+                                    "description": "asyncClientAPI",
+                                    "line_no": None,
+                                    "content": "1.4305s",
+                                    "meta_type": "assertion",
+                                    "passed": True,
+                                    "type": "RawAssertion",
                                 }
                             ],
                         ),
@@ -116,13 +116,13 @@ expected_report = TestReport(
                             name="Lists",
                             entries=[
                                 {
-                                    u"category": u"DEFAULT",
-                                    u"description": u"Lists",
-                                    u"line_no": None,
-                                    u"content": u"2.98303s",
-                                    u"meta_type": u"assertion",
-                                    u"passed": True,
-                                    u"type": "RawAssertion",
+                                    "category": "DEFAULT",
+                                    "description": "Lists",
+                                    "line_no": None,
+                                    "content": "2.98303s",
+                                    "meta_type": "assertion",
+                                    "passed": True,
+                                    "type": "RawAssertion",
                                 }
                             ],
                         )
