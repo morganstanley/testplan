@@ -24,6 +24,7 @@ plotly
 rpyc
 coverage
 memoization
+typing_extensions
 
 # Documentation
 # ---------------

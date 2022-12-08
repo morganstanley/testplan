@@ -39,6 +39,7 @@ REQUIRED = [
     "numpy",
     "memoization",
     "coverage",
+    "typing_extensions",
 ]
 
 WEB_UI_PACKAGE_DIR = "testplan/web_ui/"
