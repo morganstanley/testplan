@@ -2,9 +2,10 @@
 
 import argparse
 import collections
-import operator
 import fnmatch
-from enum import Enum, unique
+import operator
+from enum import Enum
+from typing import Callable, List, Type
 
 from testplan.testing import tagging
 
@@ -30,7 +31,7 @@ class BaseFilter:
     e.g. (FilterA(...) & FilterB(...)) | ~FilterC(...)
     """
 
-    def filter(self, test, suite, case):
+    def filter(self, test, suite, case) -> bool:
         raise NotImplementedError
 
     def __or__(self, other):
@@ -55,13 +56,13 @@ class Filter(BaseFilter):
 
     category = "common"
 
-    def filter_test(self, test):
+    def filter_test(self, test) -> bool:
         return True
 
-    def filter_suite(self, suite):
+    def filter_suite(self, suite) -> bool:
         return True
 
-    def filter_case(self, case):
+    def filter_case(self, case) -> bool:
         return True
 
     def filter(self, test, suite, case):
@@ -79,7 +80,9 @@ class Filter(BaseFilter):
         return all(results)
 
 
-def flatten_filters(metafilter_kls, filters):
+def flatten_filters(
+    metafilter_kls: Type["MetaFilter"], filters: List["Filter"]
+) -> List[Filter]:
     """
     This is used for flattening nested filters of same type
 
@@ -112,7 +115,6 @@ class MetaFilter(BaseFilter):
 
     def __init__(self, *filters):
         self.filters = flatten_filters(self.__class__, filters)
-        self._composed_filter = None
 
     def __repr__(self):
         return "{}({})".format(
@@ -130,19 +132,13 @@ class MetaFilter(BaseFilter):
             isinstance(other, self.__class__) and other.filters == self.filters
         )
 
-    def compose(self, filters):
+    def composed_filter(self, _test, _suite, _case) -> bool:
         raise NotImplementedError
 
-    @property
-    def composed_filter(self):
-        if self._composed_filter is None:
-            self._composed_filter = self.compose(self.filters)
-        return self._composed_filter
-
     def filter(self, test, suite, case):
-        # pylint: disable=not-callable
+        # we might intentionally use another overriden method name
+        # to distinguish MetaFilter from Filter, or shall we?
         return self.composed_filter(test, suite, case)
-        # pylint: enable=not-callable
 
 
 class Or(MetaFilter):
@@ -152,14 +148,8 @@ class Or(MetaFilter):
 
     operator_str = "|"
 
-    def compose(self, filters):
-        def composed_filter(test, suite, case):
-            for filter_obj in filters:
-                if filter_obj.filter(test, suite, case):
-                    return True
-            return False
-
-        return composed_filter
+    def composed_filter(self, test, suite, case):
+        return any(f.filter(test, suite, case) for f in self.filters)
 
 
 class And(MetaFilter):
@@ -169,21 +159,15 @@ class And(MetaFilter):
 
     operator_str = "&"
 
-    def compose(self, filters):
-        def composed_filter(test, suite, case):
-            for filter_obj in filters:
-                if not filter_obj.filter(test, suite, case):
-                    return False
-            return True
-
-        return composed_filter
+    def composed_filter(self, test, suite, case):
+        return all(f.filter(test, suite, case) for f in self.filters)
 
 
 class Not(BaseFilter):
     """Meta filter that returns the inverse of the original filter result."""
 
     def __init__(self, filter_obj):
-        self.filter_obj = filter_obj
+        self.filter_obj: Filter = filter_obj
 
     def __repr__(self):
         return "{}({})".format(self.__class__.__name__, self.filter_obj)
@@ -208,13 +192,19 @@ class BaseTagFilter(Filter):
         self.tags_orig = tags
         self.tags = tagging.validate_tag_value(tags)
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, self.__class__)
+            and self.tags_orig == other.tags_orig
+        )
+
     def __repr__(self):
         return '{}(tags="{}")'.format(self.__class__.__name__, self.tags_orig)
 
-    def get_match_func(self):
+    def get_match_func(self) -> Callable:
         raise NotImplementedError
 
-    def _check_tags(self, obj, tag_getter):
+    def _check_tags(self, obj, tag_getter) -> bool:
         return self.get_match_func()(
             tag_arg_dict=self.tags, target_tag_dict=tag_getter(obj)
         )
@@ -274,10 +264,17 @@ class Pattern(Filter):
         patterns = self.parse_pattern(pattern)
         self.test_pattern, self.suite_pattern, self.case_pattern = patterns
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, self.__class__)
+            and self.pattern == other.pattern
+            and self.match_definition == other.match_definition
+        )
+
     def __repr__(self):
         return '{}(pattern="{}")'.format(self.__class__.__name__, self.pattern)
 
-    def parse_pattern(self, pattern):
+    def parse_pattern(self, pattern: str) -> List[str]:
         # ":" or "::" can be used as delimiter
         patterns = [s for s in pattern.split(self.DELIMITER) if s]
 
@@ -317,7 +314,7 @@ class Pattern(Filter):
         return name_match
 
     @classmethod
-    def any(cls, *patterns):
+    def any(cls, *patterns: str):
         """
         Shortcut for filtering against multiple patterns.
 

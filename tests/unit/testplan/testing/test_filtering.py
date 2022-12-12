@@ -1,8 +1,9 @@
+import pickle
+
 import pytest
 
-from testplan.testing.multitest import MultiTest, testsuite, testcase
-
 from testplan.testing import filtering
+from testplan.testing.multitest import MultiTest, testcase, testsuite
 
 
 @testsuite(tags="foo")
@@ -138,6 +139,13 @@ class TestTags:
         filter_obj = filtering.Tags(tags=tags)
         assert bool(filter_obj.filter_case(testcase_obj)) == expected
 
+    @pytest.mark.parametrize(
+        "tags", (("foo", {"color": "red"}, ("foo", "bar", "baz")))
+    )
+    def test_pickle(self, tags):
+        filter_obj = filtering.Tags(tags=tags)
+        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+
 
 class TestTagsAll:
     @pytest.mark.parametrize(
@@ -205,6 +213,13 @@ class TestTagsAll:
     def test_filter_case(self, tags, testcase_obj, expected):
         filter_obj = filtering.TagsAll(tags=tags)
         assert bool(filter_obj.filter_case(testcase_obj)) == expected
+
+    @pytest.mark.parametrize(
+        "tags", (("foo", {"color": "red"}, ("foo", "bar", "baz")))
+    )
+    def test_pickle(self, tags):
+        filter_obj = filtering.TagsAll(tags=tags)
+        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
 
 
 class TestPattern:
@@ -291,6 +306,19 @@ class TestPattern:
         with pytest.raises(ValueError):
             filtering.Pattern("foo:bar:baz:bat")
 
+    @pytest.mark.parametrize(
+        "pattern",
+        (
+            "*",
+            "*:*:*",
+            "*:*:test_o*",
+            "XXX:YYY:test_one",
+        ),
+    )
+    def test_pickle(self, pattern):
+        filter_obj = filtering.Pattern(pattern=pattern)
+        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+
 
 class DummyFilter(filtering.Filter):
     """Mock filter to be used with meta filter comparisons"""
@@ -340,3 +368,9 @@ class TestFilterCompositions:
     def test_not(self):
         assert ~AlphaFilter() == filtering.Not(AlphaFilter())
         assert AlphaFilter() == ~~AlphaFilter()
+
+    def test_pickle(self):
+        assert pickle.loads(pickle.dumps(~AlphaFilter())) == ~AlphaFilter()
+        assert pickle.loads(
+            pickle.dumps(AlphaFilter() & (BetaFilter() | GammaFilter()))
+        ) == AlphaFilter() & (BetaFilter() | GammaFilter())

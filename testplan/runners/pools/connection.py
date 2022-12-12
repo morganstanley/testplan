@@ -1,15 +1,20 @@
 """Connections module."""
 
-import pickle
-import warnings
-import time
-import queue
 import abc
+import pickle
+import queue
+import time
+import warnings
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import zmq
 
 from testplan.common import entity
 from testplan.common.utils import logger
+from testplan.runners.pools.communication import Message
+
+if TYPE_CHECKING:
+    from testplan.runners.pools.base import Worker
 
 
 class Client(logger.Loggable, metaclass=abc.ABCMeta):
@@ -32,7 +37,7 @@ class Client(logger.Loggable, metaclass=abc.ABCMeta):
         self.active = False
 
     @abc.abstractmethod
-    def send(self, message):
+    def send(self, message: Message):
         """
         Sends a message to server
         :param message: Message to be sent.
@@ -42,11 +47,15 @@ class Client(logger.Loggable, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def receive(self):
+    def receive(self) -> Optional[Message]:
         """Receives response to the message sent"""
         pass
 
-    def send_and_receive(self, message, expect=None):
+    def send_and_receive(
+        self,
+        message: Message,
+        expect: Union[None, Tuple, List, Message] = None,
+    ) -> Optional[Message]:
         """
         Send and receive shortcut. Optionally assert that the response is
         of the type expected. I.e For a TaskSending message, an Ack is
@@ -97,12 +106,12 @@ class QueueClient(Client):
     def __init__(self, recv_sleep=0.05):
         super(QueueClient, self).__init__()
         self._recv_sleep = recv_sleep
-        self.requests = None
+        self.requests: Optional[queue.Queue] = None
 
         # single-producer(pool) single-consumer(worker) FIFO queue
         self.responses = []
 
-    def connect(self, requests):
+    def connect(self, requests: queue.Queue):
         """
         Connect to the request queue of Pool
         :param requests: request queue of pool that worker should write to.
@@ -126,7 +135,7 @@ class QueueClient(Client):
         if self.active:
             self.requests.put(message)
 
-    def receive(self):
+    def receive(self) -> Message:
         """
         Worker receives response to the message sent, this method blocks.
         :return: Response to the message sent.
@@ -138,7 +147,7 @@ class QueueClient(Client):
             except IndexError:
                 time.sleep(self._recv_sleep)
 
-    def respond(self, message):
+    def respond(self, message: Message):
         """
         Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
         worker request.
@@ -190,7 +199,7 @@ class ZMQClient(Client):
         self._context = None
         self._address = None
 
-    def send(self, message):
+    def send(self, message: Message):
         """
         Worker sends a message.
 
@@ -201,7 +210,7 @@ class ZMQClient(Client):
         if self.active:
             self._sock.send(pickle.dumps(message))
 
-    def receive(self):
+    def receive(self) -> Optional[Message]:
         """
         Worker tries to receive the response to the message sent until timeout.
 
@@ -252,7 +261,7 @@ class ZMQClientProxy:
         self.connection = None
         self.address = None
 
-    def respond(self, message):
+    def respond(self, message: Message):
         """
         Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
         worker request.
@@ -288,7 +297,7 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def register(self, worker):
+    def register(self, worker: "Worker"):
         """
         Register a new worker. Workers should be registered after the
         connection manager is started and will be automatically unregistered
@@ -301,7 +310,7 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
             )
 
     @abc.abstractmethod
-    def accept(self):
+    def accept(self) -> Optional[Message]:
         """
         Accepts a new message from worker. This method should not block - if
         no message is queued for receiving it should return None.
@@ -333,7 +342,7 @@ class QueueServer(Server):
         super(QueueServer, self).register(worker)
         worker.transport.connect(self.requests)
 
-    def accept(self):
+    def accept(self) -> Optional[Message]:
         """
         Accepts the next request in the request queue.
 
@@ -424,7 +433,7 @@ class ZMQServer(Server):
         super(ZMQServer, self).register(worker)
         worker.transport.connect(self)
 
-    def accept(self):
+    def accept(self) -> Optional[Message]:
         """
         Accepts a new message from worker. Doesn't block if no message is
         queued for receiving.

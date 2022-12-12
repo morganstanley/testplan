@@ -1,29 +1,24 @@
 """Worker pool executor base classes."""
-import os
+import datetime
 import numbers
+import os
+import pprint
+import queue
 import threading
 import time
-import datetime
-import pprint
 import traceback
-import queue
+from typing import Optional, Tuple
 
-from schema import Or, And
+from schema import And, Or
 
-from testplan.common.config import ConfigOption
 from testplan.common import entity
-from testplan.common.remote.remote_resource import RemoteResource
-from testplan.common.utils.path import (
-    rebase_path,
-    pwd,
-    is_subdir,
-    change_directory,
-)
+from testplan.common.config import ConfigOption
+from testplan.common.utils import strings
+from testplan.common.utils.path import change_directory, is_subdir, pwd
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
-from testplan.common.utils import strings
-from testplan.runners.base import Executor, ExecutorConfig
 from testplan.report import ReportCategories
+from testplan.runners.base import Executor, ExecutorConfig
 
 from .communication import Message
 from .connection import QueueClient, QueueServer
@@ -267,7 +262,9 @@ class PoolConfig(ExecutorConfig):
         return {
             "name": str,
             ConfigOption("size", default=4): And(int, lambda x: x > 0),
-            ConfigOption("worker_type", default=Worker): object,
+            ConfigOption("worker_type", default=Worker): lambda x: issubclass(
+                x, Worker
+            ),
             ConfigOption("worker_heartbeat", default=None): Or(
                 int, float, None
             ),
@@ -413,7 +410,7 @@ class Pool(Executor):
 
             time.sleep(self.cfg.active_loop_sleep)
 
-    def handle_request(self, request):
+    def handle_request(self, request: Message):
         """
         Handles a worker request. I.e TaskPull, TaskResults, Heartbeat etc.
 
@@ -422,7 +419,7 @@ class Pool(Executor):
         """
 
         sender_index = request.sender_metadata["index"]
-        worker = self._workers[sender_index]
+        worker: Worker = self._workers[sender_index]
 
         self.logger.debug(
             "Pool %s received message from worker %s - %s, %s",
@@ -461,7 +458,9 @@ class Pool(Executor):
             )
             worker.respond(response.make(Message.Ack))
 
-    def _handle_cfg_request(self, worker, _, response):
+    def _handle_cfg_request(
+        self, worker: Worker, _: Message, response: Message
+    ):
         """Handle a ConfigRequest from a worker."""
         options = []
         cfg = self.cfg
@@ -472,7 +471,9 @@ class Pool(Executor):
 
         worker.respond(response.make(Message.ConfigSending, data=options))
 
-    def _handle_taskpull_request(self, worker, request, response):
+    def _handle_taskpull_request(
+        self, worker: Worker, request: Message, response: Message
+    ):
         """Handle a TaskPullRequest from a worker."""
         tasks = []
 
@@ -534,7 +535,9 @@ class Pool(Executor):
         worker.requesting = request.data
         worker.respond(response.make(Message.Ack))
 
-    def _handle_taskresults(self, worker, request, response):
+    def _handle_taskresults(
+        self, worker: Worker, request: Message, response: Message
+    ):
         """Handle a TaskResults message from a worker."""
 
         def task_should_rerun():
@@ -598,7 +601,9 @@ class Pool(Executor):
             self._results[uid] = task_result
             self.ongoing.remove(uid)
 
-    def _handle_heartbeat(self, worker, request, response):
+    def _handle_heartbeat(
+        self, worker: Worker, request: Message, response: Message
+    ):
         """Handle a Heartbeat message received from a worker."""
         worker.last_heartbeat = time.time()
         self.logger.debug(
@@ -607,7 +612,9 @@ class Pool(Executor):
         )
         worker.respond(response.make(Message.Ack, data=worker.last_heartbeat))
 
-    def _handle_setupfailed(self, worker, request, response):
+    def _handle_setupfailed(
+        self, worker: Worker, request: Message, response: Message
+    ):
         """Handle a SetupFailed message received from a worker."""
         self.logger.test_info(
             "Worker %s setup failed:%s%s", worker, os.linesep, request.data
@@ -615,7 +622,7 @@ class Pool(Executor):
         worker.respond(response.make(Message.Ack))
         self._decommission_worker(worker, "Aborting {}, setup failed.")
 
-    def _decommission_worker(self, worker, message):
+    def _decommission_worker(self, worker: Worker, message: str):
         """
         Decommission a worker by move all assigned task back to pool
         """
@@ -709,7 +716,9 @@ class Pool(Executor):
                 self.logger.test_info("%s is not alive, exit monitor.", self)
                 break
 
-    def _query_worker_status(self, worker):
+    def _query_worker_status(
+        self, worker: Worker
+    ) -> Tuple[str, Optional[str]]:
         """
         Query the current status of a worker. If heartbeat monitoring is
         enabled, check the last heartbeat time is within threshold.
@@ -757,7 +766,7 @@ class Pool(Executor):
 
         return "active", None
 
-    def _handle_inactive(self, worker, reason):
+    def _handle_inactive(self, worker: Worker, reason: str) -> bool:
         """
         Handle an inactive worker.
 
@@ -789,7 +798,7 @@ class Pool(Executor):
 
         return False
 
-    def _discard_task(self, uid, reason):
+    def _discard_task(self, uid, reason: str):
         self.logger.critical(
             "Discard task %s of %s - %s", self._input[uid], self, reason
         )
