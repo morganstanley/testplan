@@ -71,8 +71,15 @@ class Connection:
 
     name: str
     protocol: str
-    port: Union[int, ContextValue]
+    identifier: Union[int, str, ContextValue]
     direction: Direction
+
+    def to_dict(self):
+        return {
+            "protocol": self.protocol,
+            "identifier": self.identifier,
+            "direction": self.direction,
+        }
 
 
 @dataclass
@@ -93,7 +100,12 @@ class DriverMetadata:
         """
         Returns the metadata of the driver except for the connections.
         """
-        return self.driver_metadata
+        data = self.driver_metadata
+        if self.conn_info:
+            data["Connections"] = {
+                conn.name: conn.to_dict() for conn in self.conn_info
+            }
+        return data
 
 
 class DriverConfig(ResourceConfig):
@@ -101,6 +113,13 @@ class DriverConfig(ResourceConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.base.Driver` resource.
     """
+
+    @staticmethod
+    def default_metadata_extractor(driver) -> DriverMetadata:
+        return DriverMetadata(
+            name=driver.name,
+            driver_metadata={"class": driver.__class__.__name__},
+        )
 
     @classmethod
     def get_options(cls):
@@ -123,9 +142,9 @@ class DriverConfig(ResourceConfig):
             ConfigOption("post_start", default=None): validate_func("driver"),
             ConfigOption("pre_stop", default=None): validate_func("driver"),
             ConfigOption("post_stop", default=None): validate_func("driver"),
-            ConfigOption("metadata_extractor", default=None): validate_func(
-                "driver"
-            ),
+            ConfigOption(
+                "metadata_extractor", default=cls.default_metadata_extractor
+            ): validate_func("driver"),
         }
 
 
@@ -453,11 +472,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         :return: driver metadata
         """
-        if self.cfg.metadata_extractor is None:
-            return DriverMetadata(
-                name=self.name,
-                driver_metadata={"class": self.__class__.__name__},
-            )
         # pylint: disable=not-callable
         return self.cfg.metadata_extractor(self)
         # pylint: enable=not-callable

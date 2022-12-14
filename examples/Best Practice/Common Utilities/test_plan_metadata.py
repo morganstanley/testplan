@@ -45,13 +45,12 @@ def metadata_extractor_server(driver: TCPServer) -> DriverMetadata:
         driver_metadata={
             "class": driver.__class__.__name__,
             "host": driver.host or driver.cfg.host,
-            "port": driver.port or driver.cfg.port,
         },
         conn_info=[
             Connection(
                 name="data_port",
                 protocol="TCP",
-                port=driver.port or driver.cfg.port,
+                identifier=driver.port or driver.cfg.port,
                 direction=Direction.listening,
             )
         ],
@@ -70,13 +69,12 @@ def metadata_extractor_client(driver: TCPClient) -> DriverMetadata:
         driver_metadata={
             "class": driver.__class__.__name__,
             "host": driver.host or driver.cfg.host,
-            "port": driver.server_port or driver.cfg.port,
         },
         conn_info=[
             Connection(
                 name="to_server",
                 protocol="TCP",
-                port=driver.server_port or driver.cfg.port,
+                identifier=driver.server_port or driver.cfg.port,
                 direction=Direction.connecting,
             )
         ],
