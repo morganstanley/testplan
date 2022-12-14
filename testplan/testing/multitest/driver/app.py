@@ -19,6 +19,7 @@ except ImportError:
 from schema import Or
 
 from testplan.common.config import ConfigOption
+from testplan.common.config.base import validate_func
 from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, makedirs, archive
 from testplan.common.utils.context import is_context, expand, ContextValue
@@ -26,7 +27,7 @@ from testplan.common.utils.process import subprocess_popen, kill_process
 from testplan.common.utils.timing import wait
 from testplan.common.utils.documentation_helper import emphasized
 
-from .base import Driver, DriverConfig
+from .base import Driver, DriverConfig, DriverMetadata
 
 IS_WIN = platform.system() == "Windows"
 
@@ -36,6 +37,17 @@ class AppConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.app.App` resource.
     """
+
+    @staticmethod
+    def default_metadata_extractor(driver) -> DriverMetadata:
+        return DriverMetadata(
+            name=driver.name,
+            driver_metadata={
+                "class": driver.__class__.__name__,
+                "outpath": driver.outpath,
+                "errpath": driver.errpath,
+            },
+        )
 
     @classmethod
     def get_options(cls):
