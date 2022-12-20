@@ -22,6 +22,7 @@ from typing import (
 
 import pytz
 from schema import And, Or, Use
+from memoization import cached
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -664,7 +665,6 @@ class TestRunner(Runnable):
         # a pool executor, it makes logging or debugging easier.
         if isinstance(target, Task):
             target._uid = uid
-
         # In batch mode the original target is added into executors, it can be:
         # 1> A runnable object (generally a test entity or customized by user)
         # 2> A callable that returns a runnable object
