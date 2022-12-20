@@ -19,6 +19,7 @@ from testplan.common.utils import (
     watcher,
 )
 from testplan.common.utils.composer import compose_contexts
+from testplan.common.utils.path import change_directory
 from testplan.report import (
     ReportCategories,
     RuntimeStatus,
@@ -262,7 +263,6 @@ class MultiTest(testing_base.Test):
         if self._pre_post_step_report is None:
             self._pre_post_step_report = TestGroupReport(
                 name="Before/After Step Checks",
-                uid="Before/After Step Checks",
                 category=ReportCategories.TESTSUITE,
             )
             self._pre_post_step_report.status = Status.PASSED
@@ -369,6 +369,9 @@ class MultiTest(testing_base.Test):
         A testing process that creates a full structured report without
         any assertion entry. Initial status of each entry can be set.
         """
+        self._pre_post_step_report = (
+            None  # TODO: this needs to be more generic
+        )
         suites_to_run = self.test_context
         self.result.report = self._new_test_report()
 
@@ -578,8 +581,8 @@ class MultiTest(testing_base.Test):
             self._wrap_run_step(
                 label="before_start", func=self.cfg.before_start
             )()
-
-        self.resources.start()
+        with change_directory(self._discover_path):
+            self.resources.start()
 
         if self.cfg.after_start:
             self._wrap_run_step(
@@ -1229,6 +1232,17 @@ class MultiTest(testing_base.Test):
                 testcase, pre_testcase, post_testcase
             )
             yield testcase_report, parent_uids
+
+    def set_part(
+        self,
+        part: tuple,
+    ) -> None:
+        """
+        :param part: Enable the part feature and execute only a part of the
+            total testcases for an existing Multitest.
+        """
+        self._cfg.part = part
+        self._init_test_report()
 
 
 def _need_threadpool(testsuites):

@@ -23,6 +23,7 @@ from typing import (
 
 import pytz
 from schema import And, Or, Use
+from memoization import cached
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -55,6 +56,7 @@ from testplan.runners.pools.tasks import Task, TaskResult
 from testplan.runners.pools.tasks.base import is_task_target
 from testplan.testing import filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
+from testplan.testing.multitest import MultiTest
 
 
 def get_exporters(values):
@@ -330,8 +332,6 @@ class TestRunner(Runnable):
         super(TestRunner, self).__init__(**options)
         # uid to resource, in definition order
         self._tests: Mapping[str, str] = OrderedDict()
-
-        self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
@@ -351,6 +351,8 @@ class TestRunner(Runnable):
         self.remote_services = {}
         self.runid_filename = uuid.uuid4().hex
         self.define_runpath()
+        self._runnable_uids = set()
+        self._verified_targets = {}  # target object id -> runnable uid
 
     @property
     def report(self):
@@ -487,6 +489,95 @@ class TestRunner(Runnable):
             self.logger.debug(f"Stopping Remote Server {name}")
             rmt_svc.stop()
 
+    def discover(
+        self,
+        path: str = ".",
+        name_pattern: Union[str, Pattern] = r".*\.py$",
+    ) -> List[Task]:
+        """
+        Discover task targets under path in the modules that matches name pattern,
+        and return the created Task object.
+
+        :param path: the root path to start a recursive walk and discover,
+            default is current directory.
+        :param name_pattern: a regex pattern to match the file name.
+        :return: A list of Task objects
+        """
+
+        self.logger.test_info(
+            "Discovering task target with file name pattern '%s' under '%s'",
+            name_pattern,
+            path,
+        )
+        regex = re.compile(name_pattern)
+        tasks = []
+
+        for root, dirs, files in os.walk(path or "."):
+            for filename in files:
+                if not regex.match(filename):
+                    continue
+
+                filepath = os.path.join(root, filename)
+                module = filename.split(".")[0]
+
+                with import_tmp_module(module, root) as mod:
+                    for attr in dir(mod):
+                        target = getattr(mod, attr)
+                        if not is_task_target(target):
+                            continue
+
+                        self.logger.debug(
+                            "Discovered task target %s::%s", filepath, attr
+                        )
+                        task_arguments = dict(
+                            target=attr,
+                            module=module,
+                            path=root,
+                            **target.__task_kwargs__,
+                        )
+
+                        if target.__target_params__:
+                            for param in target.__target_params__:
+                                if isinstance(param, dict):
+                                    task_arguments["args"] = None
+                                    task_arguments["kwargs"] = param
+                                elif isinstance(param, (tuple, list)):
+                                    task_arguments["args"] = param
+                                    task_arguments["kwargs"] = None
+                                else:
+                                    raise TypeError(
+                                        "task_target's parameters can only"
+                                        " contain dict/tuple/list, but"
+                                        " received: {param}"
+                                    )
+                        self.logger.debug(
+                            "Task created with arguments: %s", task_arguments
+                        )
+                        task = Task(**task_arguments)
+                        uid = self._verify_test_target(task)
+
+                        # nothing to run
+                        if not uid:
+                            continue
+
+                        if getattr(target, "__multitest_parts__", None):
+
+                            # TODO: add auto parts and smart scheduling here
+
+                            num_of_parts = target.__multitest_parts__
+                            for i in range(num_of_parts):
+                                task_arguments["part"] = (i, num_of_parts)
+                                self.logger.debug(
+                                    "Task created with arguments: %s",
+                                    task_arguments,
+                                )
+                                tasks.append(Task(**task_arguments))
+
+                        else:
+                            tasks.append(task)
+
+        return tasks
+
     def schedule(
         self,
         task: Optional[Task] = None,
@@ -533,60 +624,9 @@ class TestRunner(Runnable):
         :type resource: ``str`` or ``NoneType``
         """
 
-        def schedule_task(task_kwargs, resource):
-            self.logger.debug("Task created with arguments: %s", task_kwargs)
-            self.add(Task(**task_kwargs), resource=resource)
-
-        self.logger.test_info(
-            "Discovering task target with file name pattern '%s' under '%s'",
-            name_pattern,
-            path,
-        )
-        regex = re.compile(name_pattern)
-
-        for root, dirs, files in os.walk(path or "."):
-            for filename in files:
-                if not regex.match(filename):
-                    continue
-
-                filepath = os.path.join(root, filename)
-                module = filename.split(".")[0]
-
-                with import_tmp_module(module, root) as mod:
-                    for attr in dir(mod):
-                        target = getattr(mod, attr)
-                        if not is_task_target(target):
-                            continue
-
-                        self.logger.debug(
-                            "Discovered task target %s::%s", filepath, attr
-                        )
-                        task_arguments = dict(
-                            target=attr,
-                            module=module,
-                            path=root,
-                            **target.__task_kwargs__,
-                        )
-
-                        if target.__target_params__:
-                            for param in target.__target_params__:
-                                if isinstance(param, dict):
-                                    task_arguments["args"] = None
-                                    task_arguments["kwargs"] = param
-                                elif isinstance(param, (tuple, list)):
-                                    task_arguments["args"] = param
-                                    task_arguments["kwargs"] = None
-                                else:
-                                    raise TypeError(
-                                        "task_target's parameters can only"
-                                        " contain dict/tuple/list, but"
-                                        " received: {param}"
-                                    )
-                                schedule_task(
-                                    task_arguments, resource=resource
-                                )
-                        else:
-                            schedule_task(task_arguments, resource=resource)
+        tasks = self.discover(path=path, name_pattern=name_pattern)
+        for task in tasks:
+            self.add(task, resource=resource)
 
     def add(
         self,
@@ -617,54 +657,23 @@ class TestRunner(Runnable):
             )
 
         # Get the real test entity and verify if it should be added
-        target_test = self._verify_test_target(target)
-        if not target_test:
+        uid = self._verify_test_target(target)
+        if not uid:
             return None
-
-        uid = target_test.uid()
-        part = getattr(
-            getattr(target_test, "cfg", {"part": None}), "part", None
-        )
-
-        # Uid of test entity MUST be unique, generally the uid of a test entity
-        # is the same as its name. When a test entity is split into multi-parts
-        # the uid will change (e.g. with a postfix), however its name should be
-        # different from uids of all non-part entities, and its uid cannot be
-        # the same as the name of any test entity.
-        if uid in self._tests:
-            raise ValueError(
-                '{} with uid "{}" already added.'.format(self._tests[uid], uid)
-            )
-        if uid in self._part_instance_names:
-            raise ValueError(
-                'Multitest part named "{}" already added.'.format(uid)
-            )
-        if part:
-            if target_test.name in self._tests:
-                raise ValueError(
-                    '{} with uid "{}" already added.'.format(
-                        self._tests[target_test.name], target_test.name
-                    )
-                )
-            self._part_instance_names.add(target_test.name)
-
-        # When running interactively, add all real test entities into the local
-        # runner even if they were scheduled into a pool. It greatly simplifies
-        # the interactive runner if it only has to deal with the local runner.
-        if self.cfg.interactive_port is not None:
-            self._tests[uid] = local_runner
-            self.resources[local_runner].add(target_test, uid)
-            return uid
 
         # Reset the task uid which will be used for test result transport in
         # a pool executor, it makes logging or debugging easier.
         if isinstance(target, Task):
             target._uid = uid
-
         # In batch mode the original target is added into executors, it can be:
         # 1> A runnable object (generally a test entity or customized by user)
         # 2> A callable that returns a runnable object
         # 3> A task that wrapped a runnable object
+        if uid in self._tests:
+            raise ValueError(
+                '{} with uid "{}" already added.'.format(self._tests[uid], uid)
+            )
+
         self._tests[uid] = resource
         self.resources[resource].add(target, uid)
         return uid
@@ -673,11 +682,22 @@ class TestRunner(Runnable):
         self, target: Union[Test, Task, Callable]
     ) -> Optional[Test]:
         """
-        Determines if a test target should be added for execution.
-        Returns the real test entity if it should run, otherwise None.
+        Materialize the test target, and:
+        - check uniqueness
+        - check against filter
+        - check against lister
+        - check runnable type
+        - cut conner for interactive mode
+        Return the runnable uid if it should run, otherwise None.
         """
         # The target added into TestRunner can be: 1> a real test entity
         # 2> a task wraps a test entity 3> a callable returns a test entity
+        key = id(target)
+        if key in self._verified_targets:
+            return self._verified_targets[key]
+        else:
+            self._verified_targets[key] = None
+
         if isinstance(target, Test):
             target_test = target
         elif isinstance(target, Task):
@@ -702,6 +722,16 @@ class TestRunner(Runnable):
             target_test.parent = self
             target_test.cfg.parent = self.cfg
 
+        # verify runnable is unique
+        uid = target_test.uid()
+        if uid in self._runnable_uids:
+            raise RuntimeError(
+                f"Runnable with uid {uid} has already been verified"
+            )
+        else:
+            self._runnable_uids.add(uid)
+
+        # if filter is defined
         if type(self.cfg.test_filter) is not filtering.Filter:
             should_run = target_test.should_run()
             self.logger.debug(
@@ -712,12 +742,28 @@ class TestRunner(Runnable):
             if not should_run:
                 return None
 
-        # "--list" option means always not executing tests
+        # "--list" option always means not executing tests
         if self.cfg.test_lister is not None:
             self.cfg.test_lister.log_test_info(target_test)
             return None
 
-        return target_test
+        if getattr(target, "__multitest_parts__", None):
+            if not isinstance(target_test, MultiTest):
+                raise TypeError(
+                    "multitest_parts specified in @task_target,"
+                    " but the Runnable is not a MultiTest"
+                )
+
+        # cut corner for interactive mode as we already have the runnable
+        # so add it to local runner and continue
+        if self.cfg.interactive_port is not None:
+            local_runner = self.resources.first()
+            self._tests[uid] = local_runner
+            self.resources[local_runner].add(target_test, uid)
+            return None
+
+        self._verified_targets[key] = uid
+        return uid
 
     def _add_step(self, step: Callable, *args, **kwargs):
         if self.cfg.test_lister is None:
