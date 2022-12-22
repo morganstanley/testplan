@@ -23,7 +23,6 @@ from typing import (
 
 import pytz
 from schema import And, Or, Use
-from memoization import cached
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -546,7 +545,7 @@ class TestRunner(Runnable):
                                     task_arguments["kwargs"] = None
                                 else:
                                     raise TypeError(
-                                        "task_target's parameters can only"
+                                        f"task_target's parameters can only"
                                         " contain dict/tuple/list, but"
                                         " received: {param}"
                                     )
@@ -665,6 +664,7 @@ class TestRunner(Runnable):
         # a pool executor, it makes logging or debugging easier.
         if isinstance(target, Task):
             target._uid = uid
+
         # In batch mode the original target is added into executors, it can be:
         # 1> A runnable object (generally a test entity or customized by user)
         # 2> A callable that returns a runnable object
@@ -692,7 +692,12 @@ class TestRunner(Runnable):
         """
         # The target added into TestRunner can be: 1> a real test entity
         # 2> a task wraps a test entity 3> a callable returns a test entity
-        key = id(target)
+
+        if hasattr(target, "uid"):
+            key = target.uid()
+        else:
+            key = id(target)
+
         if key in self._verified_targets:
             return self._verified_targets[key]
         else:
@@ -731,6 +736,8 @@ class TestRunner(Runnable):
         else:
             self._runnable_uids.add(uid)
 
+        self._verified_targets[key] = uid
+
         # if filter is defined
         if type(self.cfg.test_filter) is not filtering.Filter:
             should_run = target_test.should_run()
@@ -762,7 +769,6 @@ class TestRunner(Runnable):
             self.resources[local_runner].add(target_test, uid)
             return None
 
-        self._verified_targets[key] = uid
         return uid
 
     def _add_step(self, step: Callable, *args, **kwargs):
