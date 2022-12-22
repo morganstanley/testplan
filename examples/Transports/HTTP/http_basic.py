@@ -1,5 +1,5 @@
 """Tests HTTP requests between a server and a client."""
-import json, time
+import json
 
 from testplan.common.utils.context import context
 
@@ -70,7 +70,11 @@ class HTTPTestsuite:
         result.log("Client sends POST request")
         # Create some JSON.
         json_content = {"this": ["is", "another", "json", "object"]}
-        env.http_client.post(api="/random/text", json=json_content, headers={'Content-Type': 'application/json'})
+        env.http_client.post(
+            api="/random/text",
+            json=json_content,
+            headers={"Content-Type": "application/json"},
+        )
 
         received_request_data = env.http_server.receive()
         result.log("Server got POST request: {}".format(received_request_data))

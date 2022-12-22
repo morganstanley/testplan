@@ -15,6 +15,96 @@ from testplan.common.utils.strings import slugify
 
 from ..base import Driver, DriverConfig
 
+_CONTENT_TYPE_KEY = "Content-Type"
+_CONTENT_LENGTH_KEY = "Content-Length"
+
+
+class ReceivedRequest:
+    """
+    Stores information of requests received by the HTTP Server.
+    """
+
+    def __init__(
+        self,
+        method: str,
+        path_url: str,
+        headers: dict,
+        raw_data: bytes,
+        raw_requestline: bytes,
+        requestline: str,
+        request_version: str,
+    ) -> None:
+        """
+        Constructs a new received request
+
+        :param method: method of the request, eg.: GET, POST, HEAD...
+        :param path_url: URL of the request
+        :param headers: Dictionary of HTTP Headers sent with the request
+        :param raw_data: Data sent in the body of the request in original bytes format
+        :param raw_requestline: The first line of the request containing
+            the method, URL and version in original bytes format
+        :param requestline: The first line of the request containing
+            the method, URL and version in string format
+        :param request_version: Human-readable string of the protocol version
+        """
+
+        # Default empty dict for headers.
+        headers = {} if headers is None else headers
+
+        self.method = method
+        self.path_url = path_url
+        self.headers = headers
+        self.raw_data = raw_data
+        self.raw_requestline = raw_requestline
+        self.requestline = requestline
+        self.request_version = request_version
+
+    def __str__(self) -> str:
+        """
+        String representation of the first line of the request.
+        """
+        return self.requestline
+
+    @property
+    def content_type(self) -> Optional[str]:
+        if _CONTENT_TYPE_KEY in self.headers:
+            return self.headers[_CONTENT_TYPE_KEY]
+        else:
+            return None
+
+    @property
+    def json(self) -> Optional[dict]:
+        if (
+            self.raw_data is not None
+            and self.content_type == "application/json"
+        ):
+            return json.loads(self.raw_data)
+        else:
+            return None
+
+
+class HTTPResponse:
+    """
+    HTTPResponse containing the status code, headers and content.
+    """
+
+    def __init__(
+        self,
+        status_code: int = None,
+        headers: dict = None,
+        content: list = None,
+    ) -> None:
+        """
+        Constructs a HTTPResponse
+
+        :param status_code: The returned status code.
+        :param headers: A dictionary containing the header keywords and values.
+        :param content: A list of strings to be sent back.
+        """
+        self.status_code = status_code or 200
+        self.headers = headers or {_CONTENT_TYPE_KEY: "text/plain"}
+        self.content = content or []
+
 
 class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
     """
@@ -22,20 +112,17 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
     message in response.
     """
 
-    def _send_header(self, status_code=200, headers=None):
+    def _send_header(
+        self, status_code: int = 200, headers: dict = None
+    ) -> None:
         """
         Send a header response.
 
         :param status_code: The returned status code.
-        :type status_code: ``int``
         :param headers: The returned headers.
-        :type headers: ``dict``
-
-        :return: ``None``
-        :rtype: ``NoneType``
         """
         if headers is None:
-            headers = {"Content-type": "text/plain"}
+            headers = {_CONTENT_TYPE_KEY: "text/plain"}
         self.send_response(code=int(status_code))
         for keyword, value in headers.items():
             self.send_header(keyword, value)
@@ -55,29 +142,28 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
                 pass
             self.wfile.write(line)
 
-    def _parse_request(self):
+    def _parse_request(self) -> None:
         """
         Put the request into the HTTPServer's requests queue. Get the response
         from the HTTPServer's response queue. If there is no response send an
         error message back.
-
-        :return: ``None``
-        :rtype: ``NoneType``
         """
         raw_content = None
 
-        if 'Content-Length' in self.headers:
-            raw_content = self.rfile.read(int(self.headers['Content-Length']))
+        if _CONTENT_LENGTH_KEY in self.headers:
+            raw_content = self.rfile.read(
+                int(self.headers[_CONTENT_LENGTH_KEY])
+            )
 
         response = self.get_response(
             ReceivedRequest(
-                headers = self.headers,
-                path_url = self.path,
-                raw_data = raw_content,
-                raw_requestline = self.raw_requestline,
-                requestline = self.requestline,
-                method = self.command,
-                request_version = self.request_version
+                headers=self.headers,
+                path_url=self.path,
+                raw_data=raw_content,
+                raw_requestline=self.raw_requestline,
+                requestline=self.requestline,
+                method=self.command,
+                request_version=self.request_version,
             )
         )
 
@@ -98,14 +184,12 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         """Log messages from the BaseHTTPRequestHandler class."""
         self.server.log_callback("BASE CLASS: {}".format(format % args))
 
-    def get_response(self, request):
+    def get_response(self, request: ReceivedRequest) -> HTTPResponse:
         """
         Parse the request and return the response.
 
         :param request: The request path.
-        :type request: ``ReceivedRequest()``
         :return: Http response.
-        :rtype: ``HTTPResponse``
         """
         self.server.requests.put(request)
 
@@ -160,48 +244,6 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         """Handles a OPTIONS request."""
         self._parse_request()
         self.server.log_callback("Sending response to OPTIONS request.")
-
-
-class ReceivedRequest():
-
-    def __init__(
-            self,
-            method=None,
-            path_url=None,
-            headers=None,
-            raw_data=None,
-            raw_requestline=None,
-            requestline=None,
-            request_version=None
-    ):
-
-        # Default empty dict for headers.
-        headers = {} if headers is None else headers
-
-        self.method = method
-        self.path_url = path_url
-        self.headers = headers
-        self.raw_data = raw_data
-        self.raw_requestline = raw_requestline
-        self.requestline = requestline
-        self.request_version = request_version
-
-    def __str__(self):
-        return self.requestline
-
-    @property
-    def content_type(self):
-        if 'Content-Type' in self.headers:
-            return self.headers['Content-Type']
-        else:
-            return None
-
-    @property
-    def json(self):
-        if self.raw_data is not None and self.content_type == 'application/json':
-            return json.loads(self.raw_data)
-        else:
-            return None
 
 
 class HTTPServerConfig(DriverConfig):
@@ -315,42 +357,37 @@ class HTTPServer(Driver):
         """
         self.queue_response(response)
 
-    def get_request(self):
+    def get_request(self) -> Optional[str]:
         """
         Get a request sent to the HTTPServer, if the requests queue is empty
         return None.
 
         :return: A request from the queue or ``None``
-        :rtype: ``str`` or ``NoneType``
         """
         try:
             return self.requests.get(False).path_url
         except queue.Empty:
             return None
 
-    def get_full_request(self):
+    def get_full_request(self) -> Optional[ReceivedRequest]:
         """
         Get a request sent to the HTTPServer, if the requests queue is empty
         return None.
 
         :return: A request from the queue or ``None``
-        :rtype: ``ReceivedRequest`` or ``NoneType``
         """
         try:
             return self.requests.get(False)
         except queue.Empty:
             return None
 
-    def receive(self, timeout=None):
+    def receive(self, timeout: int = None) -> Optional[ReceivedRequest]:
         """
-        Wait to receive a response.
+        Wait to receive a request.
 
-        :param timeout: Number of seconds to wait for a response,
+        :param timeout: Number of seconds to wait for a request,
           overrides timeout from init.
-        :type timeout: ``int``
-
-        :return: A request response or ``None``
-        :rtype: ``ReceivedRequest`` or ``NoneType``
+        :return: A request or ``None``
         """
         timeout = timeout if timeout is not None else self.timeout
         timeout += time.time()
@@ -416,24 +453,6 @@ class HTTPServer(Driver):
         """Abort logic that stops the server."""
         super(HTTPServer, self).aborting()
         self._stop()
-
-
-class HTTPResponse:
-    """
-    HTTPResponse containing the status code, headers and content.
-
-    :param status_code: The returned status code.
-    :type status_code: ``int``
-    :param headers: A dictionary containing the header keywords and values.
-    :type headers: ``dict``
-    :param content: A list of strings to be sent back.
-    :type content: ``list``
-    """
-
-    def __init__(self, status_code=None, headers=None, content=None):
-        self.status_code = status_code or 200
-        self.headers = headers or {"Content-type": "text/plain"}
-        self.content = content or []
 
 
 class _HTTPServerThread(Thread):
