@@ -2,6 +2,7 @@
 
 import time
 import queue
+import json
 import http.server as http_server
 from threading import Thread
 from typing import Optional
@@ -63,7 +64,23 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         :return: ``None``
         :rtype: ``NoneType``
         """
-        response = self.get_response(request=self.path)
+        raw_content = None
+
+        if 'Content-Length' in self.headers:
+            raw_content = self.rfile.read(int(self.headers['Content-Length']))
+
+        response = self.get_response(
+            ReceivedRequest(
+                headers = self.headers,
+                path_url = self.path,
+                raw_data = raw_content,
+                raw_requestline = self.raw_requestline,
+                requestline = self.requestline,
+                method = self.command,
+                request_version = self.request_version
+            )
+        )
+
         if not isinstance(response, HTTPResponse):
             raise TypeError("Response must be of type HTTPResponse")
 
@@ -86,7 +103,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         Parse the request and return the response.
 
         :param request: The request path.
-        :type request: ``str``
+        :type request: ``ReceivedRequest()``
         :return: Http response.
         :rtype: ``HTTPResponse``
         """
@@ -143,6 +160,48 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         """Handles a OPTIONS request."""
         self._parse_request()
         self.server.log_callback("Sending response to OPTIONS request.")
+
+
+class ReceivedRequest():
+
+    def __init__(
+            self,
+            method=None,
+            path_url=None,
+            headers=None,
+            raw_data=None,
+            raw_requestline=None,
+            requestline=None,
+            request_version=None
+    ):
+
+        # Default empty dict for headers.
+        headers = {} if headers is None else headers
+
+        self.method = method
+        self.path_url = path_url
+        self.headers = headers
+        self.raw_data = raw_data
+        self.raw_requestline = raw_requestline
+        self.requestline = requestline
+        self.request_version = request_version
+
+    def __str__(self):
+        return self.requestline
+
+    @property
+    def content_type(self):
+        if 'Content-Type' in self.headers:
+            return self.headers['Content-Type']
+        else:
+            return None
+
+    @property
+    def json(self):
+        if self.raw_data is not None and self.content_type == 'application/json':
+            return json.loads(self.raw_data)
+        else:
+            return None
 
 
 class HTTPServerConfig(DriverConfig):
@@ -265,9 +324,51 @@ class HTTPServer(Driver):
         :rtype: ``str`` or ``NoneType``
         """
         try:
+            return self.requests.get(False).path_url
+        except queue.Empty:
+            return None
+
+    def get_full_request(self):
+        """
+        Get a request sent to the HTTPServer, if the requests queue is empty
+        return None.
+
+        :return: A request from the queue or ``None``
+        :rtype: ``ReceivedRequest`` or ``NoneType``
+        """
+        try:
             return self.requests.get(False)
         except queue.Empty:
             return None
+
+    def receive(self, timeout=None):
+        """
+        Wait to receive a response.
+
+        :param timeout: Number of seconds to wait for a response,
+          overrides timeout from init.
+        :type timeout: ``int``
+
+        :return: A request response or ``None``
+        :rtype: ``ReceivedRequest`` or ``NoneType``
+        """
+        timeout = timeout if timeout is not None else self.timeout
+        timeout += time.time()
+        request = None
+
+        while time.time() < timeout:
+            try:
+                request = self.requests.get(False)
+            except queue.Empty:
+                self.logger.debug("Waiting for request...")
+                request = None
+            else:
+                self.requests.task_done()
+                self.logger.debug("Received request.")
+                break
+            time.sleep(self.interval)
+
+        return request
 
     def starting(self):
         """Start the HTTPServer."""
