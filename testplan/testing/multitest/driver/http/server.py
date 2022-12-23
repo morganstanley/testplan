@@ -67,6 +67,11 @@ class ReceivedRequest:
 
     @property
     def content_type(self) -> Optional[str]:
+        """
+        Returns the request's content type
+
+        :return Content type header or None
+        """
         if _CONTENT_TYPE_KEY in self.headers:
             return self.headers[_CONTENT_TYPE_KEY]
         else:
@@ -74,6 +79,11 @@ class ReceivedRequest:
 
     @property
     def json(self) -> Optional[dict]:
+        """
+        Returns the request's data in JSON format if exists
+
+        :return Request's data in JSON format or None
+        """
         if (
             self.raw_data is not None
             and self.content_type == "application/json"
@@ -453,6 +463,17 @@ class HTTPServer(Driver):
         """Abort logic that stops the server."""
         super(HTTPServer, self).aborting()
         self._stop()
+
+    def flush_request_queue(self) -> None:
+        """Flush the received messages queue."""
+        timeout = time.time() + (5 * self.timeout)
+        while not self.requests.empty() and time.time() < timeout:
+            try:
+                self.requests.get(block=False)
+            except queue.Empty:
+                self.logger.debug("Requests queue flushed.")
+            else:
+                self.requests.task_done()
 
 
 class _HTTPServerThread(Thread):

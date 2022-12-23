@@ -62,27 +62,28 @@ class HTTPTestsuite:
         """
         Client makes a request, server received and responds back.
         """
+        # Create some JSON.
+        json_content = {"this": ["is", "another", "json", "object"]}
+
         # The HTTPClient sends a POST request with some data to some section of the API. The
         # HTTPServer will respond with the same message in it's response queue
         # no matter the HTTP method (GET, POST etc.) or the section of the API
         # it has been sent.
-
         result.log("Client sends POST request")
-        # Create some JSON.
-        json_content = {"this": ["is", "another", "json", "object"]}
         env.http_client.post(
             api="/random/text",
             json=json_content,
             headers={"Content-Type": "application/json"},
         )
 
-        received_request_data = env.http_server.receive()
-        result.log("Server got POST request: {}".format(received_request_data))
+        # The HTTP Server receives the request
+        received_request = env.http_server.receive()
+        result.log("Server got POST request: {}".format(received_request))
 
         # We are verifying the JSON sent back is the same as the one sent by the
         # HTTPServer.
         result.dict.match(
-            received_request_data.json, json_content, "JSON sent to the server"
+            received_request.json, json_content, "JSON sent to the server"
         )
 
         # We then prepare an HTTPResponse. Headers are added as a dictionary and
