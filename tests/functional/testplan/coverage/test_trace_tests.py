@@ -41,7 +41,9 @@ def temp_file_name():
 
 @pytest.fixture(scope="module")
 def subject_path():
-    yield os.path.join(os.path.dirname(__file__), "subject_module.py")
+    yield os.path.realpath(
+        os.path.join(os.path.dirname(__file__), "subject_module.py")
+    )
 
 
 @mt.testsuite

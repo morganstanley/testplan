@@ -13,10 +13,11 @@ except ImportError:
 
 from coverage import Coverage, CoverageData
 
+from testplan.common.utils.logger import Loggable
 from testplan.report.testing.base import TestCaseReport, TestGroupReport
 
 
-class Watcher:
+class Watcher(Loggable):
     """
     Utility class for testcase execution tracing.
 
@@ -32,6 +33,7 @@ class Watcher:
     """
 
     def __init__(self):
+        super().__init__()
         self._disabled: bool = False
         self._watching_lines: Optional[
             Dict[str, Union[List[int], Literal["*"]]]
@@ -43,6 +45,9 @@ class Watcher:
     ):
         if watching_lines:
             self._watching_lines = watching_lines
+            self.logger.debug(
+                f"Now tracing following files: {list(self._watching_lines.keys())}"
+            )
             # we explicitly disable writing coverage data to file
             self._tracer = Coverage(
                 data_file=None,
