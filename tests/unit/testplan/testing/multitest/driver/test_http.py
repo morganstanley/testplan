@@ -117,7 +117,7 @@ class TestHTTP:
             headers={_CONTENT_TYPE_KEY: _CONTENT_TYPE},
         )
 
-        r = http_server.receive(timeout=10)
+        r = http_server.receive(timeout=30)
 
         assert _CONTENT_TYPE == r.headers[_CONTENT_TYPE_KEY]
         assert json_content == r.json
