@@ -113,8 +113,8 @@ def slugify(value):
     :rtype: ``str``
     """
     value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore")
-    value = re.sub(br"[^\w\s-]", b"", value).strip().lower()
-    return re.sub(br"[-\s]+", b"-", value).decode("ascii")
+    value = re.sub(rb"[^\w\s-]", b"", value).strip().lower()
+    return re.sub(rb"[-\s]+", b"-", value).decode("ascii")
 
 
 def uuid4():

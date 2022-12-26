@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
-      BLACK_VERSION: "20.8b1"
+      BLACK_VERSION: "22.10.0"
       LINT_PYTHON_VERSION: "3.7"
     steps:
       - name: Checkout repository
