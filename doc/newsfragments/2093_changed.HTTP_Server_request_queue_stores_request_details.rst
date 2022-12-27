@@ -1,1 +1,1 @@
-:py:meth:`HTTP Server <testplan.testing.multitest.driver.http.server>` now able to store detailed information (eg.: data and headers) in the request queue when a client sends a request.
+:py:class:`HTTP Server <testplan.testing.multitest.driver.http.server.HTTPServer>` now able to store detailed information (eg.: data and headers) in the request queue when a client sends a request.

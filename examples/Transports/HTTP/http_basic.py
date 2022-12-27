@@ -29,7 +29,7 @@ class HTTPTestsuite:
 
         # Need to do a receive otherwise it will ruin our next testcase
         received_request = env.http_server.receive()
-        result.log("Server got GET request: {}".format(received_request))
+        result.log(f"Server got GET request: {received_request}")
 
         # Create some JSON.
         json_content = {"this": ["is", "a", "json", "object"]}
@@ -78,7 +78,7 @@ class HTTPTestsuite:
 
         # The HTTP Server receives the request
         received_request = env.http_server.receive()
-        result.log("Server got POST request: {}".format(received_request))
+        result.log(f"Server got POST request: {received_request}")
 
         # We are verifying the JSON sent back is the same as the one sent by the
         # HTTPServer.
