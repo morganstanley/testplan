@@ -3,7 +3,6 @@
 Setup testplan and dependencies.
 """
 import ast
-import sys
 from pathlib import Path, PurePosixPath
 
 from setuptools import setup, find_packages
@@ -21,29 +20,26 @@ REQUIRED = [
     "lxml",
     "python-dateutil",
     "reportlab",
-    "marshmallow==3.11.1",
+    "marshmallow",
     "termcolor",
     "colorama",
     "pyzmq",
     "terminaltables",
-    "pyparsing",
-    "cycler",
     "requests>=2.4.3",
     "flask>2.0.0",
-    "werkzeug>2.0.0,<2.2.0",
+    "werkzeug>2.0.0",
     "flask_restx",
     "cheroot",
     "boltons",
-    "validators==0.14.0",
+    "validators",
     "Pillow",
     "plotly",
     "rpyc",
     "matplotlib",
     "numpy",
-    "pandas",
-    "scipy",
     "memoization",
     "coverage",
+    "typing_extensions",
 ]
 
 WEB_UI_PACKAGE_DIR = "testplan/web_ui/"

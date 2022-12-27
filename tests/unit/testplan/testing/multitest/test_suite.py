@@ -240,7 +240,7 @@ def test_skip_if_signature():
         ("foo", "foo"),
         ("  foo  \n    bar\n\n", "  foo\n  bar"),
         ("\t\tfoo  \n   bar\n\n", "  foo\n bar"),
-        (u"  foo\n    bar\n\n", u"  foo\nbar"),
+        ("  foo\n    bar\n\n", "  foo\nbar"),
     ),
 )
 def test_format_description(text, expected):
