@@ -27,8 +27,64 @@ class HTTPTestsuite:
         result.log("Client sends GET request")
         env.http_client.get(api="/random/text")
 
+        # Need to do a receive otherwise it will ruin our next testcase
+        received_request = env.http_server.receive()
+        result.log(f"Server got GET request: {received_request}")
+
         # Create some JSON.
         json_content = {"this": ["is", "a", "json", "object"]}
+
+        # We then prepare an HTTPResponse. Headers are added as a dictionary and
+        # content as a list. For this example we just indicate that the content
+        # type is JSON and dump the JSON as a string so it can be sent.
+        prepared_response = HTTPResponse(
+            headers={"Content-type": "application/json"},
+            content=[json.dumps(json_content)],
+        )
+
+        # The HTTPServer then responds. Under the hood this adds the response to
+        # the HTTPServer's response queue which will be immediately sent as the
+        # HTTPClient has already sent a request.
+        result.log("Server receives request and sends response")
+        env.http_server.respond(prepared_response)
+
+        # The HTTPClient then receives the HTTPServer's response.
+        response = env.http_client.receive()
+
+        # We are verifying the JSON sent back is the same as the one sent by the
+        # HTTPServer.
+        result.dict.match(
+            response.json(), json_content, "JSON response from server"
+        )
+
+    @testcase
+    def post_and_response(self, env, result):
+        """
+        Client makes a request, server received and responds back.
+        """
+        # Create some JSON.
+        json_content = {"this": ["is", "another", "json", "object"]}
+
+        # The HTTPClient sends a POST request with some data to some section of the API. The
+        # HTTPServer will respond with the same message in it's response queue
+        # no matter the HTTP method (GET, POST etc.) or the section of the API
+        # it has been sent.
+        result.log("Client sends POST request")
+        env.http_client.post(
+            api="/random/text",
+            json=json_content,
+            headers={"Content-Type": "application/json"},
+        )
+
+        # The HTTP Server receives the request
+        received_request = env.http_server.receive()
+        result.log(f"Server got POST request: {received_request}")
+
+        # We are verifying the JSON sent back is the same as the one sent by the
+        # HTTPServer.
+        result.dict.match(
+            received_request.json, json_content, "JSON sent to the server"
+        )
 
         # We then prepare an HTTPResponse. Headers are added as a dictionary and
         # content as a list. For this example we just indicate that the content
