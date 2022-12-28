@@ -7,7 +7,9 @@ from collections import OrderedDict
 
 import pickle
 import copy
+from typing import Union, Tuple, Optional
 
+from testplan.common.entity import Runnable
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import rebase_path, is_subdir, pwd
@@ -52,42 +54,33 @@ class Task:
     :param target: A runnable or a string path to a runnable or
                    a callable to a runnable or a string path to a callable
                    to a runnable.
-    :type target: ``str`` path or runnable ``object``
     :param module: Module name that contains the task target definition.
-    :type module: ``str``
     :param path: Path to module, default is current working directory.
-    :type path: ``str``
     :param args: Args of target for task materialization.
-    :type args: ``tuple``
     :param kwargs: Kwargs of target for task materialization.
-    :type kwargs: ``kwargs``
     :param uid: Task uid.
-    :type uid: ``str``
     :param rerun: Rerun the task up to user specified times until it passes,
         by default 0 (no rerun). To enable task rerun feature, set to positive
         value no greater than 3.
-    :type rerun: ``int``
     :param weight: Affects task scheduling - the larger the weight, the sooner
         task will be assigned to a worker. Default weight is 0, tasks with the
         same weight will be scheduled in the order they are added.
-    :type weight: ``int``
     :param part: part param that will be propagate to MultiTest
-    :type part: ``tuple`` of (``int``, ``int``)
     """
 
     MAX_RERUN_LIMIT = 3
 
     def __init__(
         self,
-        target=None,
-        module=None,
-        path=None,
-        args=None,
-        kwargs=None,
-        uid=None,
-        rerun=0,
-        weight=0,
-        part=None,
+        target: Optional[Union[str, Runnable]] = None,
+        module: Optional[str] = None,
+        path: Optional[str] = None,
+        args: Optional[tuple] = None,
+        kwargs: Optional[dict] = None,
+        uid: Optional[str] = None,
+        rerun: int = 0,
+        weight: int = 0,
+        part: Optional[Tuple[int, int]] = None,
     ):
         self._target = target
         self._module = module

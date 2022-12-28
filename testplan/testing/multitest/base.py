@@ -5,7 +5,7 @@ import concurrent
 import functools
 import itertools
 import os
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from schema import And, Or, Use
 
@@ -1235,7 +1235,7 @@ class MultiTest(testing_base.Test):
 
     def set_part(
         self,
-        part: tuple,
+        part: Tuple[int, int],
     ) -> None:
         """
         :param part: Enable the part feature and execute only a part of the

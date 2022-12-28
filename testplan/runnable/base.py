@@ -680,14 +680,14 @@ class TestRunner(Runnable):
 
     def _verify_test_target(
         self, target: Union[Test, Task, Callable]
-    ) -> Optional[Test]:
+    ) -> Optional[str]:
         """
         Materialize the test target, and:
         - check uniqueness
         - check against filter
         - check against lister
         - check runnable type
-        - cut conner for interactive mode
+        - cut corner for interactive mode
         Return the runnable uid if it should run, otherwise None.
         """
         # The target added into TestRunner can be: 1> a real test entity
