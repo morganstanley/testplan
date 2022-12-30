@@ -142,6 +142,16 @@ class TestplanParser:
             'if "--trace-tests" is not specified. Default to standard output.',
         )
 
+        general_group.add_argument(
+            "--xfail-tests",
+            metavar="PATH",
+            type=_read_json_file,
+            help="Read a list of known to fail testcases from a JSON file"
+            "each entry looks like: "
+            '{"<Multitest>:<TestSuite>:<testcase>": '
+            '{"reason": <value>, "strict": <value>} }',
+        )
+
         filter_group = parser.add_argument_group("Filtering")
 
         filter_group.add_argument(
@@ -374,6 +384,7 @@ that match ALL of the given tags.
             help="Specifies log level for file logs. Set to None to disable "
             "file logging.",
         )
+
         report_group.add_argument(
             "--label",
             default=None,

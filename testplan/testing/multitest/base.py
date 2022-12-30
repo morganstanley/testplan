@@ -4,6 +4,7 @@ import collections.abc
 import concurrent
 import functools
 import itertools
+import json
 import os
 from typing import Callable, Optional, Tuple
 
@@ -360,6 +361,24 @@ class MultiTest(testing_base.Test):
                 ]
 
             if testcases_to_run:
+                if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:
+                    for testcase in testcases_to_run:
+                        testcase_instance = ":".join(
+                            [
+                                self.name,
+                                suite.__class__.__name__,
+                                testcase.name,
+                            ]
+                        )
+                        data = self.cfg.xfail_tests.get(
+                            testcase_instance, None
+                        )
+                        if data is not None:
+                            testcase.__xfail__ = {
+                                "reason": data["reason"],
+                                "strict": data["strict"],
+                            }
+
                 ctx.append((suite, testcases_to_run))
 
         return ctx
