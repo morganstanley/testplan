@@ -8,4 +8,4 @@ plotly
 pandas
 numpy
 sphinx-click
-click
+click>=8.1.0
