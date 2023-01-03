@@ -219,7 +219,6 @@ class Worker(WorkerBase):
         :rtype: :py:class:`~testplan.runners.pools.tasks.base.TaskResult`
         """
         try:
-            task_path = getattr(task, "_rebased_path")
             runnable = task.materialize()
 
             if isinstance(runnable, entity.Runnable):
@@ -228,12 +227,7 @@ class Worker(WorkerBase):
                 if not runnable.cfg.parent:
                     runnable.cfg.parent = self.cfg
 
-            # for task discovery used with a monorepo project
-            if task_path and not is_subdir(task_path, pwd()):
-                with change_directory(os.path.abspath(task_path)):
-                    result = runnable.run()
-            else:
-                result = runnable.run()
+            result = runnable.run()
 
         except BaseException:
             task_result = TaskResult(

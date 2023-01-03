@@ -74,17 +74,19 @@ def change_directory(directory):
     :param directory: Directory to change into.
     :type directory: ``str``
     """
-    old_directory = os.getcwd()
-    directory = fix_home_prefix(directory)
-    os.chdir(directory)
-    if "PWD" in os.environ:
-        os.environ["PWD"] = directory
+    if directory:  # in case we get a None directory, do nothing
+        old_directory = os.getcwd()
+        directory = fix_home_prefix(directory)
+        os.chdir(directory)
+        if "PWD" in os.environ:
+            os.environ["PWD"] = directory
     try:
         yield
     finally:
-        os.chdir(old_directory)
-        if "PWD" in os.environ:
-            os.environ["PWD"] = old_directory
+        if directory:
+            os.chdir(old_directory)
+            if "PWD" in os.environ:
+                os.environ["PWD"] = old_directory
 
 
 def makedirs(path):
