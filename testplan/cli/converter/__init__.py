@@ -15,7 +15,7 @@ def convert() -> None:
     pass
 
 
-@convert.resultcallback()
+@convert.result_callback()
 def run_actions(
     actions: Sequence[Union[ParseSingleAction, ProcessResultAction]]
 ) -> None:
