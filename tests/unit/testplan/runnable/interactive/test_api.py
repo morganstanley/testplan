@@ -31,11 +31,9 @@ def example_report():
     """Create a new report skeleton."""
     return report.TestReport(
         name="Interactive API Test",
-        uid="Interactive API Test",
         entries=[
             report.TestGroupReport(
                 name="MTest1",
-                uid="MTest1",
                 category=report.ReportCategories.MULTITEST,
                 env_status=entity.ResourceStatus.STOPPED,
                 parent_uids=["Interactive API Test"],

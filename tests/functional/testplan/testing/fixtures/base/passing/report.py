@@ -8,7 +8,6 @@ from testplan.testing.multitest.entries.assertions import RawAssertion
 
 testcase_report = TestCaseReport(
     name="ExitCodeCheck",
-    uid="ExitCodeCheck",
     suite_related=True,
     entries=[
         {

@@ -48,9 +48,6 @@ class DummyTest(Test):
         self.resources.add(DummyDriver(), uid=self.name)
         self.resources.add(DummyDriver())
 
-    def uid(self):
-        return self.name or super(DummyTest, self).uid()
-
     def run_tests(self):
         self._result.custom = "{}Result[{}]".format(
             self.__class__.__name__, self.name

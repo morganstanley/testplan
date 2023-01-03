@@ -1,0 +1,3 @@
+:py:meth:`@task_target <testplan.runners.pools.tasks.base.task_target>` gets a ``multitest_parts`` parameter, and
+it will create multiple multitest parts instances from the target. Note that this feature does not apply to interactive
+mode. The :ref:`downloadable example <example_discover>` has been updated with this new usage.

@@ -57,7 +57,7 @@ class Report:
         self.name = name
         self.description = description
 
-        self.uid = uid or strings.uuid4()
+        self.uid = uid or name
         self.entries = entries or []
 
         self.logs = []

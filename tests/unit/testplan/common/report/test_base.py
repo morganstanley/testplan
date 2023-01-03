@@ -2,6 +2,7 @@ import logging
 import functools
 import re
 from unittest import mock
+import uuid
 
 import pytest
 
@@ -89,8 +90,8 @@ class TestReport:
         """Should raise ValueError on failure"""
 
         # These will have different ids
-        rep_1 = DummyReport()
-        rep_2 = DummyReport()
+        rep_1 = DummyReport(uid=1)
+        rep_2 = DummyReport(uid=2)
 
         with pytest.raises(AttributeError):
             rep_1._check_report(rep_2)
@@ -161,7 +162,7 @@ class TestReportGroup:
         report `ids` as keys and child report as values.
         """
         parent = DummyReportGroup()
-        children = [DummyReport() for idx in range(3)]
+        children = [DummyReport(uid=idx) for idx in range(3)]
 
         assert parent._index == {}
 
@@ -175,11 +176,11 @@ class TestReportGroup:
     def test_build_index_recursive(self):
         """Recursive index build should propagate to all children."""
         child_1, child_2, child_3, child_4 = [
-            DummyReport() for idx in range(4)
+            DummyReport(uid=idx) for idx in range(4)
         ]
 
-        parent_1 = DummyReportGroup()
-        parent_2 = DummyReportGroup()
+        parent_1 = DummyReportGroup(uid=0)
+        parent_2 = DummyReportGroup(uid=1)
         grand_parent = DummyReportGroup()
 
         assert grand_parent._index == {}
