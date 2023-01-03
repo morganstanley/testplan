@@ -19,7 +19,7 @@ display.help = display_command.help
 display.params = display_command.params
 
 
-@display.resultcallback()
+@display.result_callback()
 def run_actions(parse_action, **kwargs):
 
     result = parse_action()

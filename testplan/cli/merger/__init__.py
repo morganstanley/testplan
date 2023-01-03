@@ -46,7 +46,7 @@ def is_parse_action(action: object) -> bool:
     return isinstance(action, (ParseSingleAction, ParseMultipleAction))
 
 
-@merge.resultcallback()
+@merge.result_callback()
 def run_actions(actions) -> None:
     """ """
     # phase1 read inputs
