@@ -25,6 +25,7 @@ rpyc
 coverage
 memoization
 typing_extensions
+click>=8.1.0
 
 # Documentation
 # ---------------
