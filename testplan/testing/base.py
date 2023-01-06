@@ -17,6 +17,7 @@ from testplan.common.entity import (
     RunnableConfig,
 )
 from testplan.common.utils import strings
+from testplan.common.utils.path import change_directory
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
@@ -144,6 +145,7 @@ class Test(Runnable):
 
         self._test_context = None
         self._init_test_report()
+        self._discover_path = None
 
     def __str__(self):
         return "{}[{}]".format(self.__class__.__name__, self.name)
@@ -152,7 +154,6 @@ class Test(Runnable):
         return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
-            uid=self.uid(),
             category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
             env_status=ResourceStatus.STOPPED,
@@ -408,17 +409,25 @@ class Test(Runnable):
         for testsuite, testcases in suites_to_run:
             testsuite_report = TestGroupReport(
                 name=testsuite,
-                uid=testsuite,
                 category=ReportCategories.TESTSUITE,
             )
 
             for testcase in testcases:
-                testcase_report = TestCaseReport(name=testcase, uid=testcase)
+                testcase_report = TestCaseReport(name=testcase)
                 testsuite_report.append(testcase_report)
 
             self.result.report.append(testsuite_report)
 
         return self.result
+
+    def set_discover_path(self, path: str) -> None:
+        """
+        If the Test is materialized from a task that is discovered outside pwd(),
+        this might be needed for binary/library path derivation to work properly.
+        :param path: the absolute path where the task has been discovered
+        """
+
+        self._discover_path = path
 
 
 class ProcessRunnerTestConfig(TestConfig):
@@ -587,6 +596,7 @@ class ProcessRunnerTest(Test):
         :return: Result returned by `parse_test_context`.
         :rtype: ``list`` of ``list``
         """
+
         cmd = list_cmd or self.list_command()
         if not cmd:
             return [(self._DEFAULT_SUITE_NAME, ())]
@@ -753,7 +763,6 @@ class ProcessRunnerTest(Test):
 
         testcase_report = TestCaseReport(
             name=self._VERIFICATION_TESTCASE_NAME,
-            uid=self._VERIFICATION_TESTCASE_NAME,
             suite_related=True,
             entries=[
                 RawAssertion(
@@ -782,7 +791,6 @@ class ProcessRunnerTest(Test):
 
         suite_report = TestGroupReport(
             name=self._VERIFICATION_SUITE_NAME,
-            uid=self._VERIFICATION_SUITE_NAME,
             category=ReportCategories.TESTSUITE,
             entries=[testcase_report],
         )
@@ -870,12 +878,10 @@ class ProcessRunnerTest(Test):
 
         testcase_report = TestCaseReport(
             name=self._VERIFICATION_TESTCASE_NAME,
-            uid=self._VERIFICATION_TESTCASE_NAME,
             suite_related=True,
         )
         testsuite_report = TestGroupReport(
             name=self._VERIFICATION_SUITE_NAME,
-            uid=self._VERIFICATION_SUITE_NAME,
             category=ReportCategories.TESTSUITE,
             entries=[testcase_report],
         )

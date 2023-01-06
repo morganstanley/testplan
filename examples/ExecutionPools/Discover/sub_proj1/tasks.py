@@ -33,3 +33,23 @@ def make_multitest(name, part_tuple=None, suites=None):
         name=name, suites=[cls() for cls in suites], part=part_tuple
     )
     return test
+
+
+# an alternative way of specifying parts for multitest
+@task_target(
+    parameters=(
+        dict(
+            name="Proj1-Suite1-Again",
+            suites=[sub_proj1.suites.Suite1],
+        ),
+    ),
+    # instruct testplan to split each multitest task into parts
+    multitest_parts=2,
+    # additional args of Task class
+    rerun=1,
+    weight=1,
+)
+def make_multitest(name, suites=None):
+    # a test target shall only return 1 runnable object
+    test = MultiTest(name=name, suites=[cls() for cls in suites])
+    return test

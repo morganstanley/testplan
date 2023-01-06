@@ -490,6 +490,7 @@ def main():
         actual_reports=actual_reports,
         ignore=["file_path", "line_no", "machine_time", "utc_time"],
     )
+
     assert plan.i.report.passed is True
 
 

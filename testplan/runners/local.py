@@ -26,14 +26,12 @@ class LocalRunner(Executor):
         """Execute item implementation."""
         # First retrieve the input from its UID.
         target = self._input[uid]
-        task_path = None
 
         # Inspect the input type. Tasks must be materialized before
         # they can be run.
         if isinstance(target, Test):
             runnable = target
         elif isinstance(target, tasks.Task):
-            task_path = target._path
             runnable = target.materialize()
         elif callable(target):
             runnable = target()
@@ -53,12 +51,7 @@ class LocalRunner(Executor):
         if not runnable.cfg.parent:
             runnable.cfg.parent = self.cfg
 
-        # for task discovery used with a monorepo project
-        if task_path and not is_subdir(task_path, pwd()):
-            with change_directory(os.path.abspath(task_path)):
-                result = runnable.run()
-        else:
-            result = runnable.run()
+        result = runnable.run()
 
         self._results[uid] = result
 
