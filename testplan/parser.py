@@ -146,8 +146,8 @@ class TestplanParser:
             "--xfail-tests",
             metavar="PATH",
             type=_read_json_file,
-            help="Read a list of known to fail testcases from a JSON file"
-            "each entry looks like: "
+            help="Read a list of known to fail testcases from a JSON file "
+            "with each entry looks like: "
             '{"<Multitest>:<TestSuite>:<testcase>": '
             '{"reason": <value>, "strict": <value>} }',
         )
