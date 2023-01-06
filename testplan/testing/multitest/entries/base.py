@@ -75,6 +75,7 @@ class Group:
     meta_type = "assertion"
 
     def __init__(self, entries, description=None):
+        self.utc_time = utcnow()
         self.description = description
         self.entries = entries
 

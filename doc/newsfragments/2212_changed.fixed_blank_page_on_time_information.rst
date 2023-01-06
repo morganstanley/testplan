@@ -1,0 +1,1 @@
+Fixed the problem when time information on UI turned the page blank due to missing UTC time field of Group objects.

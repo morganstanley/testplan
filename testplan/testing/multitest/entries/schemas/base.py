@@ -42,6 +42,7 @@ class BaseSchema(Schema):
 @registry.bind(base.Group, base.Summary)
 class GroupSchema(Schema):
     type = custom_fields.ClassName()
+    utc_time = custom_fields.UTCDateTime()
     passed = fields.Boolean()
     meta_type = fields.String()
     description = custom_fields.Unicode(allow_none=True)
