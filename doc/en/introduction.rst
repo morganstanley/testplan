@@ -338,6 +338,7 @@ Command line
       --trace-tests         Enable the tracing tests feature. A JSON file containing file names and line numbers to be watched by the tracer must be specified.
       --trace-tests-output
                             Specify output file for tests impacted by change in Testplan pattern format (see --trace-tests). Will be ignored if --trace-tests is not specified. Default to standard output.
+      --xfail-tests         Read a list of known to fail testcases from a JSON file with each entry looks like: {"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>} }
 
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.

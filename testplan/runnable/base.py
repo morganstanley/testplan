@@ -8,7 +8,6 @@ import time
 import uuid
 import webbrowser
 from collections import OrderedDict
-from pathlib import Path
 from typing import (
     Any,
     Callable,
@@ -198,6 +197,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("reporting_filter", default=None): Or(
                 And(str, Use(ReportingFilter.parse)), None
             ),
+            ConfigOption("xfail_tests", default=None): Or(dict, None),
         }
 
 
