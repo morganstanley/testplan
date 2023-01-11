@@ -1262,6 +1262,11 @@ class MultiTest(testing_base.Test):
         self._cfg.part = part
         self._init_test_report()
 
+    def unset_part(self) -> None:
+        """Disable part feature"""
+        self._cfg.part = None
+        self._init_test_report()
+
 
 def _need_threadpool(testsuites):
     """
