@@ -25,7 +25,7 @@ class ZMQServerConfig(DriverConfig):
             ConfigOption("host", default="localhost"): str,
             ConfigOption("port", default=0): Use(int),
             ConfigOption("message_pattern", default=zmq.PAIR): Or(
-                zmq.PAIR, zmq.REP, zmq.PUB, zmq.PUSH
+                zmq.PAIR, zmq.REP, zmq.PUB, zmq.PUSH, zmq.ROUTER
             ),
         }
 
@@ -117,6 +117,40 @@ class ZMQServer(Driver):
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.recv,
+            kwargs={"flags": zmq.NOBLOCK},
+            timeout=timeout,
+            raise_on_timeout=True,
+        )
+
+    def send_multipart(self, data, timeout=30):
+        """
+        Try to send the message until it either sends or hits timeout.
+
+        :param timeout: Timeout to retry sending the message
+        :type timeout: ``int``
+        """
+        return retry_until_timeout(
+            exception=zmq.ZMQError,
+            item=self._socket.send_multipart,
+            kwargs={"msg_parts": data, "flags": zmq.NOBLOCK},
+            timeout=timeout,
+            raise_on_timeout=True,
+        )
+
+    def receive_multipart(self, timeout=30):
+        """
+        Try to send the message until it either has been received or
+        hits timeout.
+
+        :param timeout: Timeout to retry receiving the message
+        :type timeout: ``int``
+
+        :return: The received message
+        :rtype: ``object`` or ``str`` or ``zmq.sugar.frame.Frame``
+        """
+        return retry_until_timeout(
+            exception=zmq.ZMQError,
+            item=self._socket.recv_multipart,
             kwargs={"flags": zmq.NOBLOCK},
             timeout=timeout,
             raise_on_timeout=True,

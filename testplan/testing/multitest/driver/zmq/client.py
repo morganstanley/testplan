@@ -27,7 +27,7 @@ class ZMQClientConfig(DriverConfig):
             "hosts": Or(*make_iterables([str, ContextValue])),
             "ports": Or(*make_iterables([int, ContextValue])),
             ConfigOption("message_pattern", default=zmq.PAIR): Or(
-                zmq.PAIR, zmq.REQ, zmq.SUB, zmq.PULL
+                zmq.PAIR, zmq.REQ, zmq.SUB, zmq.PULL, zmq.DEALER
             ),
             ConfigOption("connect_at_start", default=True): bool,
         }
