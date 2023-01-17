@@ -64,7 +64,7 @@ class ZookeeperStandalone(Driver):
         host: Optional[str] = None,
         port: int = 2181,
         env: Optional[dict] = None,
-        **options
+        **options,
     ):
         super(ZookeeperStandalone, self).__init__(
             name=name,
@@ -73,7 +73,7 @@ class ZookeeperStandalone(Driver):
             host=host,
             port=port,
             env=env,
-            **options
+            **options,
         )
         self._host = host
         self._port = port
