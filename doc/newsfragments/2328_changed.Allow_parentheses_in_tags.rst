@@ -1,0 +1,1 @@
+Changed tag acceptance pattern to allow using parentheses in simple and named tags.
