@@ -1,6 +1,8 @@
 """System process utilities module."""
 
 import time
+from enum import Enum, auto
+
 import psutil
 import warnings
 
@@ -183,6 +185,19 @@ def subprocess_popen(
         raise
 
 
+def _log_subprocess_output(logger, stdout, stderr):
+    if stdout:
+        logger.debug("Stdout:\n%s", stdout)
+    if stderr:
+        logger.debug("Stderr:\n%s", stderr)
+
+
+class LogDetailsOption(Enum):
+    LOG_ALWAYS = auto()
+    LOG_ON_ERROR = auto()
+    NEVER_LOG = auto()
+
+
 def execute_cmd(
     cmd,
     label=None,
@@ -191,6 +206,7 @@ def execute_cmd(
     stderr=None,
     logger=None,
     env=None,
+    detailed_log: LogDetailsOption = LogDetailsOption.LOG_ON_ERROR,
 ):
     """
     Execute a subprocess command.
@@ -205,6 +221,11 @@ def execute_cmd(
     :param stderr: Optional file-like object to redirect stderr to.
     :param logger: Optional logger object as logging destination.
     :param env: Optional dict object as environment variables.
+    :param detailed_log: Enum to determine when stdout and stderr outputs should
+           be logged.
+           LOG_ALWAYS - Outputs are logged on success and failure.
+           LOG_ON_ERROR - Outputs are logged on failure.
+           NEVER_LOG - Outputs are never logged.
     :return: Return code of the command.
     """
     if not logger:
@@ -228,21 +249,18 @@ def execute_cmd(
     logger.debug("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
-    handler = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, env=env)
-    stdout, stderr = handler.communicate()
+    handler = subprocess.Popen(
+        cmd, stdout=stdout, stderr=stderr, env=env, text=True
+    )
+    output, error = handler.communicate()
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
         logger.debug(
             "Failed executing command [%s] after %.2f sec.", label, elapsed
         )
-
-        if stdout:
-            logger.debug("Stdout:\n%s", stdout)
-
-        if stderr:
-            logger.debug("Stderr:\n%s", stderr)
-
+        if detailed_log is not LogDetailsOption.NEVER_LOG:
+            _log_subprocess_output(logger, output, error)
         if check:
             raise RuntimeError(
                 "Command '{}' returned with non-zero exit code {}".format(
@@ -251,6 +269,8 @@ def execute_cmd(
             )
     else:
         logger.debug("Command [%s] finished in %.2f sec", label, elapsed)
+        if detailed_log is LogDetailsOption.LOG_ALWAYS:
+            _log_subprocess_output(logger, output, error)
 
     return handler.returncode
 
