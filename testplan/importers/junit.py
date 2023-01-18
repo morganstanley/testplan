@@ -74,9 +74,7 @@ class JUnitResultImporter(ThreePhaseFileImporter):
                     else:
                         case_report_name = case_name
                 else:
-                    case_report_name = (
-                        f"{case_class.split('.')[-1]}::{case_name}"
-                    )
+                    case_report_name = f"{case_class}::{case_name}"
 
                 case_report = TestCaseReport(name=case_report_name)
 
