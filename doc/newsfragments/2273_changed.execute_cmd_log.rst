@@ -1,0 +1,1 @@
+:py:meth:`execute_cmd <testplan.common.utils.process.execute_cmd>` can log output in case of succes as well, driven by a parameter.
