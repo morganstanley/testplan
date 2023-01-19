@@ -1,0 +1,1 @@
+Fix XML rendering issue with result.log on WebUI.
