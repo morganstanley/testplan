@@ -19,7 +19,7 @@ import {
   UncontrolledDropdown,
   Table,
 } from "reactstrap";
-import linkifyUrls from 'linkify-urls';
+import Linkify from "linkify-react";
 
 
 import FilterBox from "../Toolbar/FilterBox";
@@ -517,15 +517,11 @@ const getInfoTable = (report) => {
 
     let cell = undefined;
     if (!linkifyIgnore.includes(item[0])) {
-        cell = < div dangerouslySetInnerHTML = {
-            {
-                __html: linkifyUrls(item[1], {
-                    attributes: {
-                        target: "_blank"
-                    }
-                })
-            }
-        }/>;
+      cell = (
+        <Linkify as="div" options={{ target: "_blank" }}>
+          {item[1]}
+        </Linkify>
+      );
     } else {
         cell = item[1];
     }

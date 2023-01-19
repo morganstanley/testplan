@@ -6,7 +6,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import Button from '@material-ui/core/Button';
-import linkifyUrls from 'linkify-urls';
+import Linkify from "linkify-react";
 
 library.add(faLayerGroup);
 
@@ -145,16 +145,22 @@ class AssertionHeader extends Component {
         </Tooltip>
       </> : <></>;
 
-    const description = this.props.assertion.description ?
-      (this.props.assertion.type === 'Log' ? < span dangerouslySetInnerHTML={
-        {
-          __html: linkifyUrls(this.props.assertion.description + " ", {
-            attributes: {
-              target: "_blank"
-            }
-          })
-        }
-      } /> : this.props.assertion.description + " ") : "";
+    const description = this.props.assertion.description ? (
+      this.props.assertion.type === "Log" ? (
+        <Linkify options={{
+          target: "_blank",
+          validate: {
+            url: (value) => /^https?:\/\//.test(value),
+          },
+        }}>
+          {this.props.assertion.description}
+        </Linkify>
+      ) : (
+        this.props.assertion.description + " "
+      )
+    ) : (
+      ""
+    );
 
     return (
       <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
