@@ -549,31 +549,65 @@ class TestRunner(Runnable):
                                         " contain dict/tuple/list, but"
                                         " received: {param}"
                                     )
-                        self.logger.debug(
-                            "Task created with arguments: %s", task_arguments
-                        )
-                        task = Task(**task_arguments)
-                        uid = self._verify_test_target(task)
-
-                        # nothing to run
-                        if not uid:
-                            continue
-
-                        if getattr(target, "__multitest_parts__", None):
-
-                            # TODO: add auto parts and smart scheduling here
-
-                            num_of_parts = target.__multitest_parts__
-                            for i in range(num_of_parts):
-                                task_arguments["part"] = (i, num_of_parts)
+                                task_arguments["part"] = None
                                 self.logger.debug(
                                     "Task created with arguments: %s",
                                     task_arguments,
                                 )
-                                tasks.append(Task(**task_arguments))
+                                task = Task(**task_arguments)
+                                uid = self._verify_test_target(task)
 
+                                # nothing to run
+                                if not uid:
+                                    continue
+
+                                if getattr(
+                                    target, "__multitest_parts__", None
+                                ):
+
+                                    # TODO: add auto parts and smart scheduling here
+
+                                    num_of_parts = target.__multitest_parts__
+                                    for i in range(num_of_parts):
+                                        task_arguments["part"] = (
+                                            i,
+                                            num_of_parts,
+                                        )
+                                        self.logger.debug(
+                                            "Task created with arguments: %s",
+                                            task_arguments,
+                                        )
+                                        tasks.append(Task(**task_arguments))
+
+                                else:
+                                    tasks.append(task)
                         else:
-                            tasks.append(task)
+                            self.logger.debug(
+                                "Task created with arguments: %s",
+                                task_arguments,
+                            )
+                            task = Task(**task_arguments)
+                            uid = self._verify_test_target(task)
+
+                            # nothing to run
+                            if not uid:
+                                continue
+
+                            if getattr(target, "__multitest_parts__", None):
+
+                                # TODO: add auto parts and smart scheduling here
+
+                                num_of_parts = target.__multitest_parts__
+                                for i in range(num_of_parts):
+                                    task_arguments["part"] = (i, num_of_parts)
+                                    self.logger.debug(
+                                        "Task created with arguments: %s",
+                                        task_arguments,
+                                    )
+                                    tasks.append(Task(**task_arguments))
+
+                            else:
+                                tasks.append(task)
 
         return tasks
 
@@ -924,8 +958,7 @@ class TestRunner(Runnable):
                             runnable = resource_result.task.materialize()
                             runnable.parent = self
                             runnable.cfg.parent = self.cfg
-                            runnable.cfg._options["part"] = None
-                            runnable._test_context = None
+                            runnable.unset_part()
                             report = runnable.dry_run().report
 
                         else:
