@@ -3439,13 +3439,18 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
       }
     >
       <pre>
-        <div
-          dangerouslySetInnerHTML={
+        <Linkify
+          options={
             Object {
-              "__html": "This is a log message, it will be displayed along with other assertion details.",
+              "target": "_blank",
+              "validate": Object {
+                "url": [Function],
+              },
             }
           }
-        />
+        >
+          This is a log message, it will be displayed along with other assertion details.
+        </Linkify>
       </pre>
     </Col>
   </Row>
