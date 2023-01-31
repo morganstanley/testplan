@@ -463,10 +463,22 @@ class XMLCheckRenderer(AssertionRenderer):
 
 @registry.bind(assertions.Fail)
 class FailRenderer(AssertionRenderer):
-    def get_header_text(self, entry):
-        """Always return text in red as it is an explicit failure."""
-        return Color.red(entry.description)
+    def get_header(self, entry):
+        if entry.description:
+            return Color.red(entry.description)
+        elif isinstance(entry.message, str):
+            return Color.red(str(entry.message))
+        else:
+            return self.get_default_header(entry)
 
+    def get_assertion_details(self, entry):
+        if isinstance(entry.message, str):
+            if entry.description:
+                return Color.red(str(entry.message))
+            else:
+                return None
+        else:
+            return pprint.pformat(entry.message)
 
 @registry.bind(assertions.EqualSlices)
 class EqualSlicesRenderer(AssertionRenderer):

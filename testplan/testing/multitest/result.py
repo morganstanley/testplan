@@ -1608,7 +1608,7 @@ class Result:
         return entry
 
     @assertion
-    def fail(self, description, category=None, flag=None):
+    def fail(self, message, description, category=None, flag=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.
         The message will be included by email exporter. Most common usage is
@@ -1629,7 +1629,7 @@ class Result:
         :return: ``False``
         :rtype: ``bool``
         """
-        entry = assertions.Fail(description, category=category, flag=flag)
+        entry = assertions.Fail(message=message, description=description, category=category, flag=flag)
 
         return entry
 
