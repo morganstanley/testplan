@@ -72,7 +72,7 @@ class Assertion(BaseEntry):
 
     meta_type = "assertion"
 
-    def __init__(self, description=None, category=None, flag=None): 
+    def __init__(self, description=None, category=None, flag=None):
         super(Assertion, self).__init__(
             description=description, category=category, flag=flag
         )
@@ -122,7 +122,9 @@ class IsFalse(IsTrue):
 
 
 class Fail(Assertion):
-    def __init__(self, description=None, category=None, flag=None, message=None):
+    def __init__(
+        self, description=None, category=None, flag=None, message=None
+    ):
         if isinstance(message, str):
             self.message = message
         elif isinstance(message, bytes):
@@ -138,8 +140,7 @@ class Fail(Assertion):
         super(Fail, self).__init__(
             description=description, category=category, flag=flag
         )
-        
-                
+
     def evaluate(self):
         return False
 

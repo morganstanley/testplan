@@ -480,6 +480,7 @@ class FailRenderer(AssertionRenderer):
         else:
             return pprint.pformat(entry.message)
 
+
 @registry.bind(assertions.EqualSlices)
 class EqualSlicesRenderer(AssertionRenderer):
     """

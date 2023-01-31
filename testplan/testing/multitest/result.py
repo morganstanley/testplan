@@ -1629,7 +1629,12 @@ class Result:
         :return: ``False``
         :rtype: ``bool``
         """
-        entry = assertions.Fail(message=message, description=description, category=category, flag=flag)
+        entry = assertions.Fail(
+            message=message,
+            description=description,
+            category=category,
+            flag=flag,
+        )
 
         return entry
 
