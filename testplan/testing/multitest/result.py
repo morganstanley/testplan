@@ -1608,7 +1608,7 @@ class Result:
         return entry
 
     @assertion
-    def fail(self, message, description, category=None, flag=None):
+    def fail(self, message, description=None, category=None, flag=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.
         The message will be included by email exporter. Most common usage is

@@ -1,5 +1,6 @@
 """Loggers for assertion objects"""
 import os
+import pprint
 import re
 
 from terminaltables import AsciiTable
