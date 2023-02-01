@@ -2,20 +2,21 @@
 Driver for Zookeeper server
 """
 import os
+import socket
+from typing import Optional
 
 from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.path import (
-    makeemptydirs,
-    makedirs,
-    instantiate,
     StdFiles,
+    instantiate,
+    makedirs,
+    makeemptydirs,
 )
 from testplan.common.utils.process import execute_cmd
-from testplan.testing.multitest.driver.base import DriverConfig, Driver
-
+from testplan.testing.multitest.driver.base import Driver, DriverConfig
 
 ZK_SERVER = "/usr/share/zookeeper/bin/zkServer.sh"
 
@@ -31,6 +32,7 @@ class ZookeeperStandaloneConfig(DriverConfig):
         return {
             ConfigOption("cfg_template"): str,
             ConfigOption("binary"): str,
+            ConfigOption("host"): Or(None, str),
             ConfigOption("port"): int,
             ConfigOption("env", default=None): Or(None, dict),
         }
@@ -56,21 +58,24 @@ class ZookeeperStandalone(Driver):
 
     def __init__(
         self,
-        name,
-        cfg_template,
-        binary=ZK_SERVER,
-        port=2181,
-        env=None,
-        **options
+        name: str,
+        cfg_template: str,
+        binary: str = ZK_SERVER,
+        host: Optional[str] = None,
+        port: int = 2181,
+        env: Optional[dict] = None,
+        **options,
     ):
         super(ZookeeperStandalone, self).__init__(
             name=name,
             cfg_template=cfg_template,
             binary=binary,
+            host=host,
             port=port,
             env=env,
-            **options
+            **options,
         )
+        self._host = host
         self._port = port
         self.env = self.cfg.env.copy() if self.cfg.env else {}
         self.config = None
@@ -82,19 +87,26 @@ class ZookeeperStandalone(Driver):
 
     @emphasized
     @property
-    def port(self):
-        """Port to listen on."""
-        return self._port
-
-    @port.setter
-    def port(self, port):
-        self._port = port
+    def host(self) -> Optional[str]:
+        """Host to bind to."""
+        return self._host
 
     @emphasized
     @property
-    def connection_str(self):
+    def port(self) -> int:
+        """Port to listen on."""
+        return self._port
+
+    @emphasized
+    @property
+    def connection_str(self) -> str:
         """Connection string."""
-        return "{}:{}".format("localhost", self.port)
+        if self._host is None:
+            raise RuntimeError(
+                "Host not resolved yet, should only be accessed "
+                "after driver is started."
+            )
+        return "{}:{}".format(self._host, self._port)
 
     def pre_start(self):
         """
@@ -112,6 +124,7 @@ class ZookeeperStandalone(Driver):
             else:
                 makeemptydirs(directory)
         self.config = os.path.join(self.runpath, "etc", "zookeeper.cfg")
+        self._host = self._host or socket.getfqdn()
         if self._port == 0:
             raise RuntimeError("Zookeeper doesn't support random port")
         instantiate(self.cfg.cfg_template, self.context_input(), self.config)
