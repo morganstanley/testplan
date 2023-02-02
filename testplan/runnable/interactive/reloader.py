@@ -288,17 +288,18 @@ class ModuleReloader(logger.Loggable):
         """
         # Walk the graph using depth-first search order.
         visited_nodes = set()
+        reloaded_nodes = set()
 
         # We never want to reload the __main__ module, so we start the
         # recursion from each immediate dependency in turn.
         for dep in self._dep_graph.dependencies:
             if dep not in visited_nodes:
                 self._reload_recur(
-                    dep, modified_modules, suite_instances, visited_nodes
+                    dep, modified_modules, suite_instances, visited_nodes, reloaded_nodes
                 )
 
     def _reload_recur(
-        self, mod_node, modified_modules, suite_instances, visited_nodes
+        self, mod_node, modified_modules, suite_instances, visited_nodes, reloaded_nodes
     ):
         """
         Recursively walk the graph of dependencies, reloading all modified
@@ -317,8 +318,12 @@ class ModuleReloader(logger.Loggable):
         :return: Whether the module was reloaded.
         :rtype: ``bool``
         """
+
+        if mod_node in reloaded_nodes:
+            return True # we already reloaded this
         if mod_node in visited_nodes:
-            raise RuntimeError("Already visited {}".format(mod_node))
+            return False # we already decided not need reload
+
         visited_nodes.add(mod_node)
 
         # Reload this module's dependencies if necessary. Check if any
@@ -326,13 +331,13 @@ class ModuleReloader(logger.Loggable):
         # module too if so. Note that we must use a list comprehension inside
         # the any call to avoid short-circuiting as soon as a dependency is
         # reloaded.
+
         dep_reloaded = any(
             [
                 self._reload_recur(
-                    dep, modified_modules, suite_instances, visited_nodes
+                    dep, modified_modules, suite_instances, visited_nodes, reloaded_nodes
                 )
                 for dep in mod_node.dependencies
-                if dep not in visited_nodes
             ]
         )
 
@@ -344,6 +349,7 @@ class ModuleReloader(logger.Loggable):
             if mod_node.name in suite_instances:
                 mod_node.update_suites(suite_instances)
             self._last_reload_time[mod_node.name] = time.time()
+            reloaded_nodes.add(mod_node)
             return True
         else:
             return False
