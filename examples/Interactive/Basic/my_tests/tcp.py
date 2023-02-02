@@ -20,4 +20,3 @@ class TCPSuite:
         bytes_sent = env.server.send_text(str(VALUE))
         received = env.client.receive_text(size=bytes_sent)
         result.equal(received, "1", "Client received")
-

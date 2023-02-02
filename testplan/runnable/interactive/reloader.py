@@ -295,11 +295,20 @@ class ModuleReloader(logger.Loggable):
         for dep in self._dep_graph.dependencies:
             if dep not in visited_nodes:
                 self._reload_recur(
-                    dep, modified_modules, suite_instances, visited_nodes, reloaded_nodes
+                    dep,
+                    modified_modules,
+                    suite_instances,
+                    visited_nodes,
+                    reloaded_nodes,
                 )
 
     def _reload_recur(
-        self, mod_node, modified_modules, suite_instances, visited_nodes, reloaded_nodes
+        self,
+        mod_node,
+        modified_modules,
+        suite_instances,
+        visited_nodes,
+        reloaded_nodes,
     ):
         """
         Recursively walk the graph of dependencies, reloading all modified
@@ -320,9 +329,9 @@ class ModuleReloader(logger.Loggable):
         """
 
         if mod_node in reloaded_nodes:
-            return True # we already reloaded this
+            return True  # we already reloaded this
         if mod_node in visited_nodes:
-            return False # we already decided not need reload
+            return False  # we already decided not need reload
 
         visited_nodes.add(mod_node)
 
@@ -335,7 +344,11 @@ class ModuleReloader(logger.Loggable):
         dep_reloaded = any(
             [
                 self._reload_recur(
-                    dep, modified_modules, suite_instances, visited_nodes, reloaded_nodes
+                    dep,
+                    modified_modules,
+                    suite_instances,
+                    visited_nodes,
+                    reloaded_nodes,
                 )
                 for dep in mod_node.dependencies
             ]
