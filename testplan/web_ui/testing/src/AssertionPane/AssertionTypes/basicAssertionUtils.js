@@ -2,7 +2,7 @@ import React, {Fragment} from 'react';
 import {hashCode} from '../../Common/utils';
 import {GREEN, RED} from '../../Common/defaults';
 import _ from 'lodash';
-import linkifyUrls from 'linkify-urls';
+import Linkify from "linkify-react";
 
 /** @module basicAssertionUtils */
 
@@ -42,24 +42,24 @@ function prepareLogContent(assertion, defaultContent) {
       ) {
       decodedMsg = bytearray.length ? String.fromCodePoint(...bytearray) : "";
     } else {
-      decodedMsg = assertion.message;
+      decodedMsg = (
+      <Linkify options={{
+        target: "_blank",
+        validate: {
+          url: (value) => /^https?:\/\//.test(value),
+        },
+      }}>
+        {assertion.message}
+      </Linkify>
+      );
     }
   }
     
-  decodedMsg = < div dangerouslySetInnerHTML = {
-    {
-      __html: linkifyUrls(_.escape(decodedMsg), {
-        attributes: {
-          target: "_blank"
-        }
-      })
-    }
-  }/>;
 
   const preContent = (
     <pre>
       {decodedMsg}
-     </pre>
+    </pre>
   );
 
   return {

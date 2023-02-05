@@ -185,6 +185,7 @@ class ZMQClient(Client):
 
     def connect(self):
         """Connect to a ZMQ Server"""
+        # pylint: disable=abstract-class-instantiated
         self._context = zmq.Context()
         self._sock = self._context.socket(zmq.REQ)
         self._sock.connect("tcp://{}".format(self._address))
@@ -385,6 +386,7 @@ class ZMQServer(Server):
         if self.parent is None:
             raise RuntimeError("Parent pool was not set - cannot start.")
 
+        # pylint: disable=abstract-class-instantiated
         self._zmq_context = zmq.Context()
         self._sock = self._zmq_context.socket(zmq.REP)
         if self.parent.cfg.port == 0:
