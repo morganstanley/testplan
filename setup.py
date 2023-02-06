@@ -36,7 +36,6 @@ REQUIRED = [
     "plotly",
     "rpyc",
     "matplotlib",
-    "numpy",
     "memoization",
     "coverage",
     "typing_extensions",
