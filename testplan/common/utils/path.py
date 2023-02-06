@@ -65,6 +65,9 @@ def default_runpath(entity):
     )
 
 
+PWD = "PWD"
+
+
 @contextlib.contextmanager
 def change_directory(directory):
     """
@@ -74,19 +77,23 @@ def change_directory(directory):
     :param directory: Directory to change into.
     :type directory: ``str``
     """
+
     if directory:  # in case we get a None directory, do nothing
         old_directory = os.getcwd()
+        old_pwd = os.environ.get(PWD, None)
         directory = fix_home_prefix(directory)
         os.chdir(directory)
-        if "PWD" in os.environ:
-            os.environ["PWD"] = directory
+        if old_pwd:
+            os.environ[PWD] = directory
     try:
         yield
     finally:
         if directory:
             os.chdir(old_directory)
-            if "PWD" in os.environ:
-                os.environ["PWD"] = old_directory
+            if old_pwd:
+                os.environ[PWD] = old_pwd
+            elif PWD in os.environ:
+                del os.environ[PWD]
 
 
 def makedirs(path):
