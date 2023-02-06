@@ -1,8 +1,6 @@
 """Basic local executor."""
-import os
 import time
 
-from testplan.common.utils.path import is_subdir, pwd, change_directory
 from .base import Executor
 from testplan.runners.pools import tasks
 from testplan.testing.base import Test, TestResult
