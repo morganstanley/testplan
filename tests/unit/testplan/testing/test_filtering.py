@@ -30,11 +30,11 @@ class Beta:
     def test_one(self, env, result):
         pass
 
-    @testcase(tags={"color": "blue", "speed": "slow"})
+    @testcase(tags={"color": "blue", "speed (-)_tag": "slow"})
     def test_two(self, env, result):
         pass
 
-    @testcase(tags={"color": "yellow", "speed": "fast"})
+    @testcase(tags={"color": "yellow (-)_tag", "speed (-)_tag": "fast"})
     def test_three(self, env, result):
         pass
 
@@ -45,7 +45,7 @@ class Gamma:
     def test_one(self, env, result):
         pass
 
-    @testcase(tags={"speed": "fast"})
+    @testcase(tags={"speed (-)_tag": "fast"})
     def test_two(self, env, result):
         pass
 
@@ -83,12 +83,16 @@ class TestTags:
             ({"color": "blue"}, multitest_A, True),
             (("bar", "baz"), multitest_F, True),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 multitest_F,
                 True,
             ),
             (
-                {"color": "orange", "simple": "bat", "speed": "medium"},
+                {"color": "orange", "simple": "bat", "speed (-)_tag": "medium"},
                 multitest_F,
                 False,
             ),
@@ -104,12 +108,16 @@ class TestTags:
             ("foo", Alpha(), True),
             (("foo", "something", "else"), Alpha(), True),
             ("bar", Alpha(), False),
-            ({"color": ("blue", "yellow")}, Alpha(), True),
-            ({"color": ("blue", "yellow")}, Beta(), True),
+            ({"color": ("blue", "yellow (-)_tag")}, Alpha(), True),
+            ({"color": ("blue", "yellow (-)_tag")}, Beta(), True),
             ({"color": "blue"}, Alpha(), True),
             (("bar", "baz"), Gamma(), True),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 Gamma(),
                 False,
             ),
@@ -127,7 +135,7 @@ class TestTags:
             ({"color": "blue"}, Alpha().test_two, False),
             (("foo", "baz"), Beta().test_one, False),
             (
-                {"simple": ("foo", "baz"), "speed": "slow"},
+                {"simple": ("foo", "baz"), "speed (-)_tag": "slow"},
                 Beta().test_two,
                 True,
             ),
@@ -157,12 +165,16 @@ class TestTagsAll:
             ({"color": "blue"}, multitest_A, True),
             (("bar", "baz"), multitest_F, True),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 multitest_F,
                 True,
             ),
             (
-                {"color": "orange", "simple": "bat", "speed": "medium"},
+                {"color": "orange", "simple": "bat", "speed (-)_tag": "medium"},
                 multitest_F,
                 False,
             ),
@@ -178,12 +190,16 @@ class TestTagsAll:
             ("foo", Alpha(), True),
             (("foo", "something", "else"), Alpha(), False),
             ("bar", Alpha(), False),
-            ({"color": ("blue", "yellow")}, Alpha(), False),
-            ({"color": ("blue", "yellow")}, Beta(), True),
+            ({"color": ("blue", "yellow (-)_tag")}, Alpha(), False),
+            ({"color": ("blue", "yellow (-)_tag")}, Beta(), True),
             ({"color": "blue"}, Alpha(), True),
             (("bar", "baz"), Gamma(), False),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 Gamma(),
                 False,
             ),
@@ -200,9 +216,9 @@ class TestTagsAll:
             ({"color": "red"}, Alpha().test_two, True),
             ({"color": "blue"}, Alpha().test_two, False),
             (("foo", "baz"), Beta().test_one, False),
-            ({"simple": "bar", "speed": "slow"}, Beta().test_two, True),
+            ({"simple": "bar", "speed (-)_tag": "slow"}, Beta().test_two, True),
             (
-                {"simple": ("foo", "baz"), "speed": "slow"},
+                {"simple": ("foo", "baz"), "speed (-)_tag": "slow"},
                 Beta().test_two,
                 False,
             ),
