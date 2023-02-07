@@ -35,13 +35,13 @@ class BatchReport extends React.Component {
     this.setError = this.setError.bind(this);
     this.setReport = this.setReport.bind(this);
     this.getReport = this.getReport.bind(this);
-    this.handleNavFilter = this.handleNavFilter.bind(this);  // exclusive to batch
-    this.updateFilter = this.updateFilter.bind(this);  // exclusive to batch
+    this.handleNavFilter = this.handleNavFilter.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
     this.updateTreeView = this.updateTreeView.bind(this);
-    this.updateTagsDisplay = this.updateTagsDisplay.bind(this);  // exclusive to batch
+    this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
     this.updatePathDisplay = this.updatePathDisplay.bind(this);
-    this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);  // exclusive to batch
+    this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
     this.updateAssertionStatus = this.updateAssertionStatus.bind(this);

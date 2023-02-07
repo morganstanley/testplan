@@ -85,7 +85,7 @@ const renderNavigation = (props) => {
     handleClick={props.handleClick}
     envCtrlCallback={props.envCtrlCallback}
     url={props.url}
-  />
+  />;
 };
 
 export default InteractiveNav;

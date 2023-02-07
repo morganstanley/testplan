@@ -52,11 +52,11 @@ class InteractiveReport extends React.Component {
     this.setReport = this.setReport.bind(this);
     this.getReport = this.getReport.bind(this);
     this.updateTreeView = this.updateTreeView.bind(this);
-    this.resetReport = this.resetReport.bind(this);  //exclusive to interactive
-    this.abortTestplan = this.abortTestplan.bind(this);  //exclusive to interactive
-    this.handleClick = this.handleClick.bind(this);  //exclusive to interactive
-    this.envCtrlCallback = this.envCtrlCallback.bind(this);  //exclusive to interactive
-    this.reloadCode = this.reloadCode.bind(this);  //exclusive to interactive
+    this.resetReport = this.resetReport.bind(this);
+    this.abortTestplan = this.abortTestplan.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.envCtrlCallback = this.envCtrlCallback.bind(this);
+    this.reloadCode = this.reloadCode.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
     this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
@@ -154,7 +154,6 @@ class InteractiveReport extends React.Component {
    */
   updateTreeView(treeView) {
     this.setState({ treeView: treeView });
-    console.log("Updating treeView to:", treeView)
   }
 
   /**
