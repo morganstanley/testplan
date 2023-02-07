@@ -51,11 +51,12 @@ class InteractiveReport extends React.Component {
     this.setError = this.setError.bind(this);
     this.setReport = this.setReport.bind(this);
     this.getReport = this.getReport.bind(this);
-    this.resetReport = this.resetReport.bind(this);
-    this.abortTestplan = this.abortTestplan.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-    this.envCtrlCallback = this.envCtrlCallback.bind(this);
-    this.reloadCode = this.reloadCode.bind(this);
+    this.updateTreeView = this.updateTreeView.bind(this);
+    this.resetReport = this.resetReport.bind(this);  //exclusive to interactive
+    this.abortTestplan = this.abortTestplan.bind(this);  //exclusive to interactive
+    this.handleClick = this.handleClick.bind(this);  //exclusive to interactive
+    this.envCtrlCallback = this.envCtrlCallback.bind(this);  //exclusive to interactive
+    this.reloadCode = this.reloadCode.bind(this);  //exclusive to interactive
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
     this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
@@ -71,6 +72,7 @@ class InteractiveReport extends React.Component {
       report: null,
       loading: false,
       error: null,
+      treeView: true,
       resetting: false,
       reloading: false,
       aborting: false,
@@ -142,6 +144,17 @@ class InteractiveReport extends React.Component {
       });
       return { ...prev, assertionStatus };
     });
+  }
+
+  /**
+   * Update the flag for whether to use tree view navigation or the default one.
+   *
+   * @param {boolean} treeView.
+   * @public
+   */
+  updateTreeView(treeView) {
+    this.setState({ treeView: treeView });
+    console.log("Updating treeView to:", treeView)
   }
 
   /**
@@ -697,7 +710,7 @@ updateTimeDisplay(displayTime) {
           handleNavFilter={null}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
-          updateTreeViewFunc={noop}
+          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={noop}
           updatePathDisplayFunc={this.updatePathDisplay}
           updateTimeDisplayFunc={this.updateTimeDisplay}
@@ -724,10 +737,12 @@ updateTimeDisplay(displayTime) {
           navListWidth={this.state.navWidth}
           report={this.state.report}
           selected={selectedEntries}
+          treeView={this.state.treeView}
           filter={null}
           displayEmpty={true}
           displayTags={false}
           displayTime={false}          
+          // envCtrlCallback and handleClick are passed down to InteractiveNav
           handleClick={this.handleClick}
           envCtrlCallback={this.envCtrlCallback}
           handleColumnResizing={this.handleColumnResizing}

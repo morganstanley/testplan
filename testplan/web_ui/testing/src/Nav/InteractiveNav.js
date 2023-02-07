@@ -5,6 +5,7 @@ import base64url from 'base64url';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import InteractiveNavList from "./InteractiveNavList";
+import InteractiveTreeViewNav from './InteractiveTreeView';
 import {
   GetSelectedUid,
   GetInteractiveNavEntries,
@@ -25,7 +26,6 @@ import {
  * with the main Nav component, which will need to be eliminated.
  */
 const InteractiveNav = (props) => {
-  const navEntries = GetInteractiveNavEntries(props.selected);
   const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
 
   return (
@@ -35,20 +35,7 @@ const InteractiveNav = (props) => {
         url={props.url}
         uidEncoder = {base64url}
       />
-      <InteractiveNavList
-        width={props.navListWidth}
-        entries={navEntries}
-        breadcrumbLength={breadCrumbEntries.length}        
-        handleColumnResizing={props.handleColumnResizing}
-        filter={null}
-        displayEmpty={true}
-        displayTags={false}
-        displayTime={false}
-        selectedUid={GetSelectedUid(props.selected)}
-        handleClick={props.handleClick}
-        envCtrlCallback={props.envCtrlCallback}
-        url={props.url}
-      />
+      {renderNavigation(props)}
     </>
   );
 };
@@ -56,6 +43,49 @@ const InteractiveNav = (props) => {
 InteractiveNav.propTypes = {
   /** Testplan report */
   report: PropTypes.object,
+  /** Flag to display tree view or default view */
+  treeView: PropTypes.bool,
+};
+
+const renderNavigation = (props) => {
+  //const navEntries = GetInteractiveNavEntries(props.selected);
+  const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
+
+  if (props.treeView) {
+    const navEntries = props.report ? props.report.entries : [];
+    return <InteractiveTreeViewNav
+      width={props.navListWidth}
+      entries={navEntries}
+      breadcrumbLength={breadCrumbEntries.length}
+      handleColumnResizing={props.handleColumnResizing}
+      filter={null}
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      selected={props.selected}
+      selectedUid={GetSelectedUid(props.selected)}
+      handleClick={props.handleClick}
+      envCtrlCallback={props.envCtrlCallback}
+      url={props.url}
+    />;
+  }
+
+  const navEntries = GetInteractiveNavEntries(props.selected);
+  
+  return <InteractiveNavList
+    width={props.navListWidth}
+    entries={navEntries}
+    breadcrumbLength={breadCrumbEntries.length}
+    handleColumnResizing={props.handleColumnResizing}
+    filter={null}
+    displayEmpty={true}
+    displayTags={false}
+    displayTime={false}
+    selectedUid={GetSelectedUid(props.selected)}
+    handleClick={props.handleClick}
+    envCtrlCallback={props.envCtrlCallback}
+    url={props.url}
+  />
 };
 
 export default InteractiveNav;
