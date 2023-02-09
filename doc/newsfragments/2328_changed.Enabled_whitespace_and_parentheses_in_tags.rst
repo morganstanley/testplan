@@ -1,1 +1,0 @@
-Enabled whitespace and parentheses in tags.
