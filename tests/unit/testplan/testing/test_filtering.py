@@ -92,7 +92,11 @@ class TestTags:
                 True,
             ),
             (
-                {"color": "orange", "simple": "bat", "speed (-)_tag": "medium"},
+                {
+                    "color": "orange",
+                    "simple": "bat",
+                    "speed (-)_tag": "medium",
+                },
                 multitest_F,
                 False,
             ),
@@ -174,7 +178,11 @@ class TestTagsAll:
                 True,
             ),
             (
-                {"color": "orange", "simple": "bat", "speed (-)_tag": "medium"},
+                {
+                    "color": "orange",
+                    "simple": "bat",
+                    "speed (-)_tag": "medium",
+                },
                 multitest_F,
                 False,
             ),
@@ -216,7 +224,11 @@ class TestTagsAll:
             ({"color": "red"}, Alpha().test_two, True),
             ({"color": "blue"}, Alpha().test_two, False),
             (("foo", "baz"), Beta().test_one, False),
-            ({"simple": "bar", "speed (-)_tag": "slow"}, Beta().test_two, True),
+            (
+                {"simple": "bar", "speed (-)_tag": "slow"},
+                Beta().test_two,
+                True,
+            ),
             (
                 {"simple": ("foo", "baz"), "speed (-)_tag": "slow"},
                 Beta().test_two,
