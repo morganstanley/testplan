@@ -3,13 +3,15 @@
  * test environments and run tests interactively. Requires the Testplan
  * interactive API backend to be running.
  */
-import React from 'react';
+// React needs to be in scope for JSX
+import React from "react";
 import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
 import base64url from 'base64url';
 
+import BaseReport from "./BaseReport";
 import Toolbar from '../Toolbar/Toolbar.js';
 import {
   ReloadButton,
@@ -34,7 +36,6 @@ import {
 
 import { POLL_MS } from '../Common/defaults.js';
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
-import { generateURLWithParameters } from "../Common/utils";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -44,55 +45,28 @@ const api_prefix = "/api/v1/interactive";
  * the tests are run interactively. Tests can be run by clicking buttons in
  * the UI.
  */
-class InteractiveReport extends React.Component {
+class InteractiveReport extends BaseReport {
 
   constructor(props) {
     super(props);
-    this.setError = this.setError.bind(this);
     this.setReport = this.setReport.bind(this);
     this.getReport = this.getReport.bind(this);
-    this.updateTreeView = this.updateTreeView.bind(this);
+    this.resetAssertionStatus = this.resetAssertionStatus.bind(this);
     this.resetReport = this.resetReport.bind(this);
     this.abortTestplan = this.abortTestplan.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-    this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.reloadCode = this.reloadCode.bind(this);
-    this.handleColumnResizing = this.handleColumnResizing.bind(this);
-    this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
-    this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
-    this.resetAssertionStatus = this.resetAssertionStatus.bind(this);
-    this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
-    this.updatePathDisplay = this.updatePathDisplay.bind(this);
+    this.envCtrlCallback = this.envCtrlCallback.bind(this);
+    this.handleClick = this.handleClick.bind(this);
 
-    defaultAssertionStatus.updateGlobalExpand = this.updateGlobalExpand;
-    defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
 
     this.state = {
+      ...this.state,
       navWidth: `${INTERACTIVE_COL_WIDTH}em`,
-      report: null,
-      loading: false,
-      error: null,
-      treeView: true,
       resetting: false,
       reloading: false,
       aborting: false,
-      displayTime: false,
-      displayPath: false,
       assertionStatus: defaultAssertionStatus,
     };
-  }
-
-  /**
-   * Fetch the Testplan report once the component has mounted.
-   * @public
-   */
-  componentDidMount() {
-    this.setState({ loading: true }, this.getReport);
-  }
-
-  setError(error) {
-    console.log(error);
-    this.setState({error: error, loading: false});
   }
 
   setReport(report) {
@@ -106,57 +80,6 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Update the global expand status
-   *
-   * @param {String} status - the new global expand status
-   */
-  updateGlobalExpand(status) {
-    this.setState((prev) => {
-      const assertionStatus = prev.assertionStatus;
-      assertionStatus.globalExpand = {
-        status: status,
-        time: new Date().getTime(),
-      };
-      return { ...prev, assertionStatus };
-    });
-    const newUrl = generateURLWithParameters(
-      window.location,
-      window.location.pathname,
-      { expand: status }
-    );
-    this.props.history.push(newUrl);
-  }
-
-  /**
-   * Update the expand status of assertions
-   *
-   * @param {Array} uids - the array of assertion unique id
-   * @param {String} status - the new expand status of assertions
-   */
-  updateAssertionStatus(uids, status) {
-    this.setState((prev) => {
-      const assertionStatus = prev.assertionStatus;
-      uids.forEach((uid) => {
-        assertionStatus.assertions[uid] = {
-          status: status,
-          time: new Date().getTime(),
-        };
-      });
-      return { ...prev, assertionStatus };
-    });
-  }
-
-  /**
-   * Update the flag for whether to use tree view navigation or the default one.
-   *
-   * @param {boolean} treeView.
-   * @public
-   */
-  updateTreeView(treeView) {
-    this.setState({ treeView: treeView });
-  }
-
-  /**
    * reset the expand status of assertions
    */
   resetAssertionStatus() {
@@ -166,26 +89,6 @@ class InteractiveReport extends React.Component {
       return { ...prev, assertionStatus };
     });
   }
-
-/**
-   * Update file path and line number display of each assertion.
-   *
-   * @param {boolean} displayPath.
-   * @public
-   */
- updatePathDisplay(displayPath) {
-  this.setState({ displayPath: displayPath });
-}
-
-/**
- * Update execution time display of each navigation entry and each assertion.
- *
- * @param {boolean} displayTime.
- * @public
- */
-updateTimeDisplay(displayTime) {
-  this.setState({ displayTime: displayTime });
-}
 
   /**
    * Fetch the Testplan interactive report and start polling for updates.
@@ -490,13 +393,6 @@ updateTimeDisplay(displayTime) {
     delete newEntry.entry_uids;
 
     return newEntry;
-  }
-
-  /**
-   * Handle resizing event and update NavList & Center Pane.
-   */
-  handleColumnResizing(navWidth) {
-    this.setState({navWidth: navWidth});
   }
 
   /**
