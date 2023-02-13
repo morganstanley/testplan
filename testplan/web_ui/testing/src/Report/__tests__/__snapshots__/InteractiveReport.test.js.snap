@@ -34,7 +34,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <InteractiveNav
+  <Nav
     displayEmpty={true}
     displayTags={false}
     displayTime={false}
@@ -42,6 +42,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     filter={null}
     handleClick={[Function]}
     handleColumnResizing={[Function]}
+    interactive={true}
     navListWidth="28em"
     report={
       Object {
@@ -521,7 +522,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <InteractiveNav
+  <Nav
     displayEmpty={true}
     displayTags={false}
     displayTime={false}
@@ -529,6 +530,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     filter={null}
     handleClick={[Function]}
     handleColumnResizing={[Function]}
+    interactive={true}
     navListWidth="28em"
     report={
       Object {
@@ -844,7 +846,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <InteractiveNav
+  <Nav
     displayEmpty={true}
     displayTags={false}
     displayTime={false}
@@ -852,6 +854,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     filter={null}
     handleClick={[Function]}
     handleColumnResizing={[Function]}
+    interactive={true}
     navListWidth="28em"
     report={
       Object {
@@ -1177,7 +1180,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <InteractiveNav
+  <Nav
     displayEmpty={true}
     displayTags={false}
     displayTime={false}
@@ -1185,6 +1188,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     filter={null}
     handleClick={[Function]}
     handleColumnResizing={[Function]}
+    interactive={true}
     navListWidth="28em"
     report={
       Object {
@@ -1666,7 +1670,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <InteractiveNav
+  <Nav
     displayEmpty={true}
     displayTags={false}
     displayTime={false}
@@ -1674,6 +1678,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     filter={null}
     handleClick={[Function]}
     handleColumnResizing={[Function]}
+    interactive={true}
     navListWidth="28em"
     report={
       Object {
@@ -2151,7 +2156,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <InteractiveNav
+  <Nav
     displayEmpty={true}
     displayTags={false}
     displayTime={false}
@@ -2159,6 +2164,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     filter={null}
     handleClick={[Function]}
     handleColumnResizing={[Function]}
+    interactive={true}
     navListWidth="28em"
     report={
       Object {
@@ -2636,7 +2642,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <InteractiveNav
+  <Nav
     displayEmpty={true}
     displayTags={false}
     displayTime={false}
@@ -2644,6 +2650,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     filter={null}
     handleClick={[Function]}
     handleColumnResizing={[Function]}
+    interactive={true}
     navListWidth="28em"
     report={
       Object {

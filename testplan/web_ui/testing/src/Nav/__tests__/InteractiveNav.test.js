@@ -3,10 +3,10 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 
-import InteractiveNav from '../InteractiveNav.js';
+import Nav from '../Nav.js';
 import {FakeInteractiveReport} from '../../Common/sampleReports.js';
 
-describe('InteractiveNav', () => {
+describe('Nav', () => {
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
@@ -19,7 +19,8 @@ describe('InteractiveNav', () => {
 
   it('shallow renders and matches snapshot', () => {
     const renderedNav = shallow(
-      <InteractiveNav
+      <Nav
+        interactive={true}
         report={FakeInteractiveReport}
         selected={[FakeInteractiveReport]}
         filter={null}

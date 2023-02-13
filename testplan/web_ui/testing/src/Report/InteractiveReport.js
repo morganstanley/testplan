@@ -19,7 +19,7 @@ import {
   AbortButton,
   SaveButton
 } from '../Toolbar/InteractiveButtons';
-import InteractiveNav from '../Nav/InteractiveNav.js';
+import Nav from '../Nav/Nav.js';
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import { FakeInteractiveReport } from '../Common/sampleReports.js';
 import {
@@ -628,7 +628,8 @@ class InteractiveReport extends BaseReport {
             <SaveButton key="save-button"/>
           ]}
         />
-        <InteractiveNav
+        <Nav
+          interactive={true}
           navListWidth={this.state.navWidth}
           report={this.state.report}
           selected={selectedEntries}
