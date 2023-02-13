@@ -10069,6 +10069,7 @@ ZeroDivisionError: integer division or modulo by zero
         entries={Array []}
         filter={null}
         handleColumnResizing={[Function]}
+        interactive={false}
         selected={Array []}
         selectedUid={null}
         url="/testplan/:uid/:selection*"

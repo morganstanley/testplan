@@ -4,7 +4,6 @@ import base64url from 'base64url';
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import NavList from "./NavList";
 import TreeViewNav from "./TreeView";
-import InteractiveTreeViewNav from './InteractiveTreeView';
 import {
     GetSelectedUid,
     GetNavEntries,
@@ -66,6 +65,7 @@ const renderNavigation = (props) => {
         const breadCrumbEntries = props.selected;
         const navEntries = props.report ? props.report.entries : [];
         return <TreeViewNav
+            interactive={false}
             width={props.navListWidth}
             entries={navEntries}
             breadcrumbLength={breadCrumbEntries.length}
@@ -101,7 +101,8 @@ const renderNavigation = (props) => {
     else if (props.treeView && props.interactive) {
         const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
         const navEntries = props.report ? props.report.entries : [];
-        return <InteractiveTreeViewNav
+        return <TreeViewNav
+            interactive={true}
             width={props.navListWidth}
             entries={navEntries}
             breadcrumbLength={breadCrumbEntries.length}
