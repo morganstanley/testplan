@@ -22,8 +22,7 @@ import { generateSelectionPath } from "./path";
 
 import { COLUMN_WIDTH, defaultFixSpec } from "../Common/defaults";
 import { fakeReportAssertions } from "../Common/fakeReport";
-import { generateURLWithParameters } from "../Common/utils";
-import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+import { AssertionContext } from "../Common/context";
 
 /**
  * BatchReport component:

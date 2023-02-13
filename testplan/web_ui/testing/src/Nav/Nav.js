@@ -23,8 +23,10 @@ import {
  *     environments.
  */
 const Nav = (props) => {
-    const breadCrumbEntries = props.interactive ? GetNavBreadcrumbs(props.selected) : props.selected;
-    const encoder = props.interactive ? base64url : null
+    const breadCrumbEntries = props.interactive ? (
+        GetNavBreadcrumbs(props.selected)
+    ) : props.selected;
+    const encoder = props.interactive ? base64url : null;
     return (
         <>
         <NavBreadcrumbs

@@ -20,7 +20,8 @@ class BaseReport extends React.Component {
         this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
         this.updatePathDisplay = this.updatePathDisplay.bind(this);
 
-        defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
+        defaultAssertionStatus.updateAssertionStatus
+            = this.updateAssertionStatus;
         defaultAssertionStatus.updateGlobalExpand = this.updateGlobalExpand;
 
         this.state = {
