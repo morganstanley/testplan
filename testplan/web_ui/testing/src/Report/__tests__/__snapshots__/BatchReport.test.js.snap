@@ -465,6 +465,7 @@ exports[`BatchReport loads a more complex report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -1839,6 +1840,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -3509,6 +3511,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -5139,6 +5142,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -6790,6 +6794,7 @@ exports[`BatchReport loads a simple report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -7818,6 +7823,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -10035,6 +10041,7 @@ ZeroDivisionError: integer division or modulo by zero
       displayTime={false}
       filter={null}
       handleColumnResizing={[Function]}
+      interactive={false}
       navListWidth="22em"
       report={null}
       selected={Array []}

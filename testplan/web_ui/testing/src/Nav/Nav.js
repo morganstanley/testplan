@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import base64url from 'base64url';
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import NavList from "./NavList";
-import InteractiveNavList from "./InteractiveNavList";
 import TreeViewNav from "./TreeView";
 import InteractiveTreeViewNav from './InteractiveTreeView';
 import {
@@ -84,6 +83,7 @@ const renderNavigation = (props) => {
         const breadCrumbEntries = props.selected;
         const navEntries = GetNavEntries(props.selected);
         return <NavList
+            interactive={false}
             width={props.navListWidth}
             entries={navEntries}
             breadcrumbLength={breadCrumbEntries.length}
@@ -93,6 +93,8 @@ const renderNavigation = (props) => {
             displayTags={props.displayTags}
             displayTime={props.displayTime}
             selectedUid={GetSelectedUid(props.selected)}
+            handleClick={props.handleClick}
+            envCtrlCallback={props.envCtrlCallback}
             url={props.url}
         />;
     }
@@ -118,7 +120,8 @@ const renderNavigation = (props) => {
     else if (!props.treeView && props.interactive) {
         const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
         const navEntries = GetInteractiveNavEntries(props.selected);
-        return <InteractiveNavList
+        return <NavList
+            interactive={true}
             width={props.navListWidth}
             entries={navEntries}
             breadcrumbLength={breadCrumbEntries.length}

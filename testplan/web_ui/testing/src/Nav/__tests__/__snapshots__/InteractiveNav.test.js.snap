@@ -99,7 +99,7 @@ exports[`Nav shallow renders and matches snapshot 1`] = `
     }
     uidEncoder={[Function]}
   />
-  <InteractiveNavList
+  <NavList
     breadcrumbLength={1}
     displayEmpty={true}
     displayTags={false}
@@ -184,6 +184,7 @@ exports[`Nav shallow renders and matches snapshot 1`] = `
     envCtrlCallback={[MockFunction]}
     filter={null}
     handleClick={[MockFunction]}
+    interactive={true}
     selectedUid="_dev"
   />
 </Fragment>

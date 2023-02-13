@@ -251,6 +251,7 @@ class BatchReport extends BaseReport {
           updateTimeDisplayFunc={this.updateTimeDisplay}
         />
         <Nav
+          interactive={false}
           navListWidth={this.state.navWidth}
           report={this.state.filteredReport.report}
           selected={selectedEntries}
