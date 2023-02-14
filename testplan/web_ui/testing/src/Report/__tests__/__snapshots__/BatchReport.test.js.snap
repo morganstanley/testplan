@@ -10125,6 +10125,7 @@ ZeroDivisionError: integer division or modulo by zero
                     doubleClickCallback={[Function]}
                     entries={Array []}
                     filter={null}
+                    interactive={false}
                     url="/testplan/:uid/:selection*"
                   />
                 </ul>
