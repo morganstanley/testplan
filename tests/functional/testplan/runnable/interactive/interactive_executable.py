@@ -128,6 +128,7 @@ TEST_SUITE_MODULES = [
                 "meta_type": "assertion",
                 "category": "DEFAULT",
                 "description": "Save a message into report",
+                "message": None,
                 "passed": False,
                 "flag": "DEFAULT",
             },
