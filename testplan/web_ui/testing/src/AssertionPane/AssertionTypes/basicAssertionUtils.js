@@ -270,7 +270,6 @@ function prepareFailContent(assertion, defaultContent) {
       );
     }
   }
-    
 
   const preContent = (
     <pre>
