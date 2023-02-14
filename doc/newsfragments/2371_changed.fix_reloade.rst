@@ -1,0 +1,1 @@
+Fixed an issue with interactive mode reload that might skip some affected modules if a dependency is changed.

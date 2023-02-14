@@ -21,7 +21,7 @@ class AlphaSuite:
         pass
 
 
-@testsuite(tags={"color": "yellow"})
+@testsuite(tags={"color (-)_tag": "yellow (-)_tag"})
 class BetaSuite:
     @testcase
     def test_method_0(self, env, result):
@@ -76,7 +76,7 @@ report_for_multitest_without_tags = TestGroupReport(
         TestGroupReport(
             name="BetaSuite",
             category="testsuite",
-            tags={"color": {"yellow"}},
+            tags={"color (-)_tag": {"yellow (-)_tag"}},
             entries=[
                 TestCaseReport(name="test_method_0"),
                 TestCaseReport(name="test_method_1", tags={"simple": {"foo"}}),
@@ -140,7 +140,7 @@ report_for_multitest_with_tags = TestGroupReport(
         TestGroupReport(
             name="BetaSuite",
             category="testsuite",
-            tags={"color": {"yellow"}},
+            tags={"color (-)_tag": {"yellow (-)_tag"}},
             entries=[
                 TestCaseReport(name="test_method_0"),
                 TestCaseReport(name="test_method_1", tags={"simple": {"foo"}}),

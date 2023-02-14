@@ -3,7 +3,6 @@ import tempfile
 import uuid
 
 import matplotlib
-import numpy as np
 from reportlab.lib.units import inch
 from reportlab.platypus import Image
 
@@ -127,9 +126,9 @@ def plot_graph(source, graph_type):
         elif graph_type == "Scatter":
             plot.scatter(x_values, y_values, color=colour, label=entry)
         elif graph_type == "Bar":
-            x = np.arange(len(x_values))
+            x = list(range(len(x_values)))
             ax.bar(
-                x + starting_placement,
+                [_x + starting_placement for _x in x],
                 y_values,
                 single_bar_width,
                 color=colour,

@@ -17,7 +17,6 @@ from testplan.common.entity import (
     RunnableConfig,
 )
 from testplan.common.utils import strings
-from testplan.common.utils.path import change_directory
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
