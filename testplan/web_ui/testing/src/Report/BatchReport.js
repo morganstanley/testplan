@@ -13,6 +13,7 @@ import {
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
+  findFirstFailure,
   filterReport,
   getSelectedUIDsFromPath,
 } from "./reportUtils";
@@ -85,7 +86,7 @@ class BatchReport extends React.Component {
       filteredReport.report.status === "failed"
       || filteredReport.report.status === "error"
     )
-      ? this.findFirstFailure(filteredReport.report)
+      ? findFirstFailure(filteredReport.report)
       : [filteredReport.report.uid];
 
     const redirectPath = this.props.match.params.selection
@@ -184,28 +185,6 @@ class BatchReport extends React.Component {
 
   updateReportUID(report, uid) {
     return { ...report, uid };
-  }
-
-  /**
-    * Auto-select the first failed entry in the report when it is first loaded.
-    * @param {reportNode} reportEntry - the current report entry to select from.
-    * @return {Array[string]} List of UIDs of the currently selected entries.
-    */
-  findFirstFailure(reportEntry) {
-    const selection = [reportEntry.uid];
-    if (reportEntry.category === "testcase"
-      || reportEntry.entries.length === 0) {
-      return selection;
-    } else {
-      for (let entry in reportEntry.entries) {
-        if (reportEntry.entries[entry].status === "failed"
-          || reportEntry.entries[entry].status === "error") {
-          return selection.concat(
-            this.findFirstFailure(reportEntry.entries[entry])
-          );
-        }
-      }
-    }
   }
 
   /**
