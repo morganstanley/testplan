@@ -1613,7 +1613,7 @@ class Result:
         description: str,
         message: str = None,
         category: str = None,
-        flag: bool = None
+        flag: bool = None,
     ) -> assertions.Fail:
         """
         Failure assertion, can be used for explicitly failing a testcase.
