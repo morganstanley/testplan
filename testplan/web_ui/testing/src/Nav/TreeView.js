@@ -255,9 +255,15 @@ const createNavEntry = (props, entry) => {
                 envStatus={entry.env_status}
                 type={entry.category}
                 caseCountPassed={entry.counter.passed}
-                caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
-                handleClick={(e, action) => props.handleClick(e, entry, action)}
-                envCtrlCallback={(e, action) => props.envCtrlCallback(e, entry, action)}
+                caseCountFailed={
+                    entry.counter.failed + (entry.counter.error || 0)
+                }
+                handleClick={
+                    (e, action) => props.handleClick(e, entry, action)
+                }
+                envCtrlCallback={
+                    (e, action) => props.envCtrlCallback(e, entry, action)
+                }
                 suiteRelated={entry.suite_related}
                 action={entry.action}
             />
@@ -271,7 +277,9 @@ const createNavEntry = (props, entry) => {
                 status={entry.status}
                 type={entry.category}
                 caseCountPassed={entry.counter.passed}
-                caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
+                caseCountFailed={
+                    entry.counter.failed + (entry.counter.error || 0)
+                }
                 executionTime={(entry.timer && entry.timer.run) ? (
                 (new Date(entry.timer.run.end)).getTime() -
                 (new Date(entry.timer.run.start)).getTime()) : null}
