@@ -28,7 +28,6 @@ import {
   fakeReportAssertionsError
 } from "../Common/fakeReport";
 import { generateURLWithParameters } from "../Common/utils";
-import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 
 /**
  * BatchReport component:

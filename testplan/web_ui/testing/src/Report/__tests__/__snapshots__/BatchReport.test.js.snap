@@ -1265,35 +1265,6 @@ exports[`BatchReport loads a failed simple report 1`] = `
             "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
           ],
         },
-        "timer": Object {
-          "run": Object {
-            "end": "2018-10-15T14:30:11.296158+00:00",
-            "start": "2018-10-15T14:30:10.998071+00:00",
-          },
-        },
-        "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
-        "uids": Array [
-          "520a92e4-325e-4077-93e6-55d7091a3f83",
-        ],
-      }
-    }
-    status="failed"
-    updateEmptyDisplayFunc={[Function]}
-    updateExpandStatusFunc={[Function]}
-    updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
-    updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
-  />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    filter={null}
-    handleColumnResizing={[Function]}
-    interactive={false}
-    navListWidth="22em"
         Object {
           "category": "testcase",
           "description": null,
@@ -1959,6 +1930,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -5006,6 +4978,7 @@ exports[`BatchReport loads a passed simple report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -6035,6 +6008,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -9343,6 +9317,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -9508,99 +9483,6 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                   "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
                 ],
               },
-            ],
-            "logs": Array [],
-            "name": "Primary",
-            "name_type_index": Array [
-              "Primary|multitest",
-              "Sample Testplan|testplan",
-              "AlphaSuite|testsuite",
-              "test_equality_passing|testcase",
-            ],
-            "status": "failed",
-            "status_override": null,
-            "tags": Object {
-              "simple": Array [
-                "server",
-              ],
-            },
-            "tags_index": Object {
-              "colour": Array [
-                "white",
-              ],
-              "simple": Array [
-                "server",
-              ],
-            },
-            "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
-            },
-            "type": "TestGroupReport",
-            "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
-            "uids": Array [
-              "520a92e4-325e-4077-93e6-55d7091a3f83",
-              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
-            ],
-          },
-        ],
-        "meta": Object {},
-        "name": "Sample Testplan",
-        "name_type_index": Array [
-          "Sample Testplan|testplan",
-          "Primary|multitest",
-          "AlphaSuite|testsuite",
-          "test_equality_passing|testcase",
-        ],
-        "status": "failed",
-        "status_override": null,
-        "tags_index": Object {
-          "colour": Array [
-            "white",
-          ],
-          "simple": Array [
-            "server",
-          ],
-        },
-        "timer": Object {
-          "run": Object {
-            "end": "2018-10-15T14:30:11.296158+00:00",
-            "start": "2018-10-15T14:30:10.998071+00:00",
-          },
-        },
-        "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
-        "uids": Array [
-          "520a92e4-325e-4077-93e6-55d7091a3f83",
-        ],
-      }
-    }
-    status="failed"
-    updateEmptyDisplayFunc={[Function]}
-    updateExpandStatusFunc={[Function]}
-    updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
-    updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
-  />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    filter={null}
-    handleColumnResizing={[Function]}
-    interactive={false}
-    navListWidth="22em"
-    report={
-      Object {
-        "category": "testplan",
-        "entries": Array [
-          Object {
-            "category": "multitest",
-            "description": null,
-            "entries": Array [
               Object {
                 "category": "testsuite",
                 "description": null,
