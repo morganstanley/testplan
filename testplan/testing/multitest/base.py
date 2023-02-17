@@ -594,6 +594,13 @@ class MultiTest(testing_base.Test):
         this method handles running the before/after_start callables if
         required.
         """
+        # Need to clean up pre/post steps report in the following scenario:
+        #   - resources are started
+        #   - stopped
+        #   - started again
+        # Reason is that dry_run only applies for state reset while appending of
+        #   the report group happens only in static run we cannot capture
+        self._pre_post_step_report = None
         self.make_runpath_dirs()
         if self.cfg.before_start:
             self._wrap_run_step(
