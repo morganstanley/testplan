@@ -14,7 +14,6 @@ from schema import And, Or
 from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.utils import strings
-from testplan.common.utils.path import change_directory, is_subdir, pwd
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.report import ReportCategories

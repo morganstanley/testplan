@@ -126,7 +126,7 @@ class MockModuleFinder:
 
         self.import_hook("mod_a", self.modules["__main__"])
         self.import_hook("mod_b", self.modules["__main__"])
-        self.import_hook("mod_b", self.modules["mod_a"])
+        # self.import_hook("mod_b", self.modules["mod_a"])
         self.import_hook("mod_c", self.modules["mod_a"])
         self.import_hook("mod_d", self.modules["mod_a"])
         self.import_hook("mod_d", self.modules["mod_b"])
@@ -202,7 +202,7 @@ def test_dependency_reload(mock_reload_env):
                                    /    \
                                   /      \
                                  V       V
-                                 A -----> B
+                                 A        B
                                 / \        \
                                /   ---      \
                               V       |     V
@@ -228,16 +228,11 @@ def test_dependency_reload(mock_reload_env):
     reload_obj.reload(tests=[])
     mock_reload.assert_called_once_with(MOCK_SYSMODULES["mod_a"])
 
-    # Now modify mod_b instead. Both modules B and A should be reloaded.
+    # Now modify mod_b instead. Only mod_a needs reloading.
     mock_stat.modified_files = {MOCK_MODULES["mod_b"]}
     mock_reload.reset_mock()
     reload_obj.reload(tests=[])
-    mock_reload.assert_has_calls(
-        [
-            mock.call(MOCK_SYSMODULES["mod_b"]),
-            mock.call(MOCK_SYSMODULES["mod_a"]),
-        ]
-    )
+    mock_reload.assert_called_once_with(MOCK_SYSMODULES["mod_b"])
 
     # Now modify mod_c. Both C and A should be reloaded.
     mock_stat.modified_files = {MOCK_MODULES["mod_c"]}
@@ -250,15 +245,15 @@ def test_dependency_reload(mock_reload_env):
         ]
     )
 
-    # Now modify mod_d. We expect to reload module D first, then B, then A.
+    # Now modify mod_d. We expect to reload module D first, then A, then B.
     mock_stat.modified_files = {MOCK_MODULES["mod_d"]}
     mock_reload.reset_mock()
     reload_obj.reload(tests=[])
     mock_reload.assert_has_calls(
         [
             mock.call(MOCK_SYSMODULES["mod_d"]),
-            mock.call(MOCK_SYSMODULES["mod_b"]),
             mock.call(MOCK_SYSMODULES["mod_a"]),
+            mock.call(MOCK_SYSMODULES["mod_b"]),
         ]
     )
 
@@ -297,8 +292,6 @@ def _check_dep_graph(dep_graph):
         dep_graph.graph_string
         == """__main__ ->
   mod_a ->
-    mod_b ->
-      mod_d
     mod_c
     mod_d
   mod_b ->
@@ -310,18 +303,12 @@ def _check_dep_graph(dep_graph):
 
     # Check mod_b
     assert dep_graph.dependencies[1].name == "mod_b"
-    assert dep_graph.dependencies[1] is (
-        dep_graph.dependencies[0].dependencies[0]
-    )
 
     # Check mod_c
-    assert dep_graph.dependencies[0].dependencies[1].name == "mod_c"
+    assert dep_graph.dependencies[0].dependencies[0].name == "mod_c"
 
     # Check mod_d
-    assert dep_graph.dependencies[0].dependencies[2].name == "mod_d"
-    assert dep_graph.dependencies[0].dependencies[2] is (
-        dep_graph.dependencies[0].dependencies[0].dependencies[0]
-    )
-    assert dep_graph.dependencies[0].dependencies[2] is (
+    assert dep_graph.dependencies[0].dependencies[1].name == "mod_d"
+    assert dep_graph.dependencies[0].dependencies[1] is (
         dep_graph.dependencies[1].dependencies[0]
     )

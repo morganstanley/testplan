@@ -262,7 +262,451 @@ const TESTPLAN_REPORT = {
     },
   ],
 };
+// More complex error report.
+var fakeReportAssertionsError = {
+    "category": "testplan",
+    "tags_index": {},
+    "meta": {},
+    "information": [
+        [
+            "user",
+            "yifan"
+        ],
+        [
+            "command_line_string",
+            "oss/examples/Assertions/Basic/test_plan.py --json example.json"
+        ],
+        [
+            "python_version",
+            "3.7.1"
+        ],
+        [
+            "job_url",
+            "http://www.google.com"
+        ],
+        [
+            "hostname",
+            "ivapp1336972.devin3.ms.com"
+        ],
+        [
+            "embedded_job_url",
+            "This is the job url : http://www.google.com. Click here"
+        ],
+    ],
+    "counter": {
+        "passed": 2,
+        "failed": 1,
+        "total": 3
+    },
+    "uid": "_dev",
+    "attachments": {},
+    "status": "error",
+    "timer": {
+        "run": {
+            "end": "2020-01-10T03:06:59.348924+00:00",
+            "start": "2020-01-10T03:06:58.537339+00:00"
+        }
+    },
+    "runtime_status": "ready",
+    "name": "Assertions Example",
+    "status_override": null,
+    "entries": [
+        {
+            "description": null,
+            "counter": {
+                "passed": 1,
+                "failed": 1,
+                "total": 2
+            },
+            "name": "Assertions Test",
+            "tags": {},
+            "env_status": "STOPPED",
+            "type": "TestGroupReport",
+            "status_reason": null,
+            "runtime_status": "finished",
+            "fix_spec_path": null,
+            "part": null,
+            "uid": "99aef9f5-6957-4842-a6fa-e0cd9e358473",
+            "status": "error",
+            "parent_uids": [
+                "Assertions Example"
+            ],
+            "timer": {
+                "run": {
+                    "end": "2020-01-10T05:06:59.141338+00:00",
+                    "start": "2020-01-10T03:04:58.629871+00:00"
+                }
+            },
+            "hash": 3697482064019099674,
+            "status_override": "error",
+            "logs": [],
+            "category": "multitest",
+            "entries": [
+                {
+                    "description": null,
+                    "counter": {
+                        "passed": 2,
+                        "failed": 0,
+                        "total": 2
+                    },
+                    "name": "SampleSuite",
+                    "tags": {},
+                    "env_status": null,
+                    "type": "TestGroupReport",
+                    "status_reason": null,
+                    "runtime_status": "finished",
+                    "fix_spec_path": null,
+                    "part": null,
+                    "uid": "9f98c732-d040-4a13-84e1-563adcd9dd32",
+                    "status": "passed",
+                    "parent_uids": [
+                        "Assertions Example",
+                        "Assertions Test"
+                    ],
+                    "timer": {
+                        "run": {
+                            "end": "2020-01-10T03:06:59.135813+00:00",
+                            "start": "2020-01-10T01:06:59.135813+00:00"
+                        }
+                    },
+                    "hash": -4958192469702756289,
+                    "status_override": null,
+                    "logs": [],
+                    "category": "testsuite",
+                    "entries": [
+                        {
+                            "category": "testcase",
+                            "logs": [],
+                            "description": null,
+                            "suite_related": false,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "status_reason": null,
+                            "type": "TestCaseReport",
+                            "uid": "cd31b565-3702-4540-a140-ff9fd480e8ce",
+                            "status": "passed",
+                            "parent_uids": [
+                                "Assertions Example",
+                                "Assertions Test",
+                                "SampleSuite"
+                            ],
+                            "timer": {
+                                "run": {
+                                    "end": "2020-01-10T03:06:58.963478+00:00",
+                                    "start": "2020-01-10T03:06:58.954190+00:00"
+                                }
+                            },
+                            "hash": -6066149844839810607,
+                            "runtime_status": "finished",
+                            "name": "test_raised_exceptions",
+                            "status_override": null,
+                            "tags": {},
+                            "entries": [
+                                {
+                                    "category": "DEFAULT",
+                                    "description": null,
+                                    "meta_type": "assertion",
+                                    "pattern": null,
+                                    "type": "ExceptionRaised",
+                                    "utc_time": "2020-01-10T03:06:58.954270+00:00",
+                                    "func_match": true,
+                                    "raised_exception": [
+                                        "<class 'KeyError'>",
+                                        "'bar'"
+                                    ],
+                                    "exception_match": true,
+                                    "expected_exceptions": [
+                                        "KeyError"
+                                    ],
+                                    "passed": true,
+                                    "pattern_match": true,
+                                    "machine_time": "2020-01-10T11:06:58.954275+00:00",
+                                    "func": null,
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 112
+                                },
+                                {
+                                    "category": "DEFAULT",
+                                    "description": "Exception raised with custom pattern.",
+                                    "meta_type": "assertion",
+                                    "pattern": "foobar",
+                                    "type": "ExceptionRaised",
+                                    "utc_time": "2020-01-10T03:06:58.955863+00:00",
+                                    "func_match": true,
+                                    "raised_exception": [
+                                        "<class 'ValueError'>",
+                                        "abc foobar xyz"
+                                    ],
+                                    "exception_match": true,
+                                    "expected_exceptions": [
+                                        "ValueError"
+                                    ],
+                                    "passed": true,
+                                    "pattern_match": true,
+                                    "machine_time": "2020-01-10T11:06:58.955871+00:00",
+                                    "func": null,
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 121
+                                },
+                                {
+                                    "category": "DEFAULT",
+                                    "description": "Exception raised with custom func.",
+                                    "meta_type": "assertion",
+                                    "pattern": null,
+                                    "type": "ExceptionRaised",
+                                    "utc_time": "2020-01-10T03:06:58.957489+00:00",
+                                    "func_match": true,
+                                    "raised_exception": [
+                                        "<class '__main__.SampleSuite.test_raised_exceptions.<locals>.MyException'>",
+                                        "4"
+                                    ],
+                                    "exception_match": true,
+                                    "expected_exceptions": [
+                                        "MyException"
+                                    ],
+                                    "passed": true,
+                                    "pattern_match": true,
+                                    "machine_time": "2020-01-10T11:06:58.957497+00:00",
+                                    "func": "<function SampleSuite.test_raised_exceptions.<locals>.custom_func at 0x7f9cfc64fea0>",
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 139
+                                },
+                                {
+                                    "category": "DEFAULT",
+                                    "description": null,
+                                    "meta_type": "assertion",
+                                    "pattern": null,
+                                    "type": "ExceptionNotRaised",
+                                    "utc_time": "2020-01-10T03:06:58.958956+00:00",
+                                    "func_match": true,
+                                    "raised_exception": [
+                                        "<class 'KeyError'>",
+                                        "'bar'"
+                                    ],
+                                    "exception_match": false,
+                                    "expected_exceptions": [
+                                        "TypeError"
+                                    ],
+                                    "passed": true,
+                                    "pattern_match": true,
+                                    "machine_time": "2020-01-10T11:06:58.958964+00:00",
+                                    "func": null,
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 146
+                                },
+                                {
+                                    "category": "DEFAULT",
+                                    "description": "Exception not raised with custom pattern.",
+                                    "meta_type": "assertion",
+                                    "pattern": "foobar",
+                                    "type": "ExceptionNotRaised",
+                                    "utc_time": "2020-01-10T03:06:58.960503+00:00",
+                                    "func_match": true,
+                                    "raised_exception": [
+                                        "<class 'ValueError'>",
+                                        "abc"
+                                    ],
+                                    "exception_match": true,
+                                    "expected_exceptions": [
+                                        "ValueError"
+                                    ],
+                                    "passed": true,
+                                    "pattern_match": null,
+                                    "machine_time": "2020-01-10T11:06:58.960510+00:00",
+                                    "func": null,
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 157
+                                },
+                                {
+                                    "category": "DEFAULT",
+                                    "description": "Exception not raised with custom func.",
+                                    "meta_type": "assertion",
+                                    "pattern": null,
+                                    "type": "ExceptionNotRaised",
+                                    "utc_time": "2020-01-10T03:06:58.962023+00:00",
+                                    "func_match": false,
+                                    "raised_exception": [
+                                        "<class '__main__.SampleSuite.test_raised_exceptions.<locals>.MyException'>",
+                                        "5"
+                                    ],
+                                    "exception_match": true,
+                                    "expected_exceptions": [
+                                        "MyException"
+                                    ],
+                                    "passed": true,
+                                    "pattern_match": true,
+                                    "machine_time": "2020-01-10T11:06:58.962031+00:00",
+                                    "func": "<function SampleSuite.test_raised_exceptions.<locals>.custom_func at 0x7f9cfc64fea0>",
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 165
+                                }
+                            ]
+                        },
+                        {
+                            "category": "testcase",
+                            "logs": [],
+                            "description": null,
+                            "suite_related": false,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "status_reason": null,
+                            "type": "TestCaseReport",
+                            "uid": "52a8a7d9-80e6-4f7f-8eef-065bb25d38f8",
+                            "status": "passed",
+                            "parent_uids": [
+                                "Assertions Example",
+                                "Assertions Test",
+                                "SampleSuite"
+                            ],
+                            "timer": {
+                                "run": {
+                                    "end": "2020-01-10T03:06:59.129247+00:00",
+                                    "start": "2020-01-10T03:06:59.123570+00:00"
+                                }
+                            },
+                            "hash": -5041530229790182508,
+                            "runtime_status": "finished",
+                            "name": "test_xml_namespace",
+                            "status_override": null,
+                            "tags": {},
+                            "entries": [
+                                {
+                                    "category": "DEFAULT",
+                                    "description": "Simple XML check for existence of xpath.",
+                                    "meta_type": "assertion",
+                                    "type": "XMLCheck",
+                                    "utc_time": "2020-01-10T03:06:59.123813+00:00",
+                                    "namespaces": null,
+                                    "data": [],
+                                    "passed": true,
+                                    "xml": "<Root>\n                <Test>Foo</Test>\n            </Root>\n",
+                                    "machine_time": "2020-01-10T11:06:59.123821+00:00",
+                                    "tags": null,
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 751,
+                                    "message": "xpath: `/Root/Test` exists in the XML.",
+                                    "xpath": "/Root/Test"
+                                },
+                                {
+                                    "category": "DEFAULT",
+                                    "description": "XML check for tags in the given xpath.",
+                                    "meta_type": "assertion",
+                                    "type": "XMLCheck",
+                                    "utc_time": "2020-01-10T03:06:59.125438+00:00",
+                                    "namespaces": null,
+                                    "data": [
+                                        [
+                                            "Value1",
+                                            null,
+                                            null,
+                                            null
+                                        ],
+                                        [
+                                            "Value2",
+                                            null,
+                                            null,
+                                            null
+                                        ]
+                                    ],
+                                    "passed": true,
+                                    "xml": "<Root>\n                <Test>Value1</Test>\n                <Test>Value2</Test>\n            </Root>\n",
+                                    "machine_time": "2020-01-10T11:06:59.125447+00:00",
+                                    "tags": [
+                                        "Value1",
+                                        "Value2"
+                                    ],
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 765,
+                                    "message": null,
+                                    "xpath": "/Root/Test"
+                                },
+                                {
+                                    "category": "DEFAULT",
+                                    "description": "XML check with namespace matching.",
+                                    "meta_type": "assertion",
+                                    "type": "XMLCheck",
+                                    "utc_time": "2020-01-10T03:06:59.127250+00:00",
+                                    "namespaces": {
+                                        "a": "http://testplan"
+                                    },
+                                    "data": [
+                                        [
+                                            "Hello world!",
+                                            null,
+                                            null,
+                                            "REGEX(Hello*)"
+                                        ]
+                                    ],
+                                    "passed": true,
+                                    "xml": "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">\n                <SOAP-ENV:Header/>\n                <SOAP-ENV:Body>\n                    <ns0:message xmlns:ns0=\"http://testplan\">Hello world!</ns0:message>\n                </SOAP-ENV:Body>\n            </SOAP-ENV:Envelope>\n",
+                                    "machine_time": "2020-01-10T11:06:59.127259+00:00",
+                                    "tags": [
+                                        "re.compile('Hello*')"
+                                    ],
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "line_no": 784,
+                                    "message": null,
+                                    "xpath": "//*/a:message"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "description": null,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 0
+                    },
+                    "name": "ErrorSuite",
+                    "tags": {},
+                    "env_status": null,
+                    "type": "TestGroupReport",
+                    "status_reason": null,
+                    "runtime_status": "finished",
+                    "fix_spec_path": null,
+                    "part": null,
+                    "uid": "826ee3d4-0dea-412b-9652-86f5847706d9",
+                    "status": "error",
+                    "parent_uids": [
+                        "Assertions Example",
+                        "Assertions Test"
+                    ],
+                    "timer": {
+                        "run": {
+                            "end": "2020-01-10T03:06:59.135813+00:00",
+                            "start": "2020-01-10T01:06:59.135813+00:00"
+                        }
+                    },
+                    "hash": -4958192469702756289,
+                    "status_override": null,
+                    "logs": [
+                        {
+                            "message": "Some error message\nTraceback (most recent call last):\n  File \"..common/fakeReport.js\", line 266, in someFunc()\nThis error report is in fakeReportAssertionsError\n",
+                            "funcName": "someFunc",
+                            "levelno": 42,
+                            "lineno": 42,
+                            "uid": "_dev_error",
+                            "levelname": "ERROR",
+                            "created": "2020-01-10T03:06:59.135813+00:00"
+                        }
+                    ],
+                    "category": "testsuite",
+                    "entries": []
+                }
+            ]
+        }
+    ]
+}
 
+  
 var fakeReportAssertions = {
     "category": "testplan",
     "tags_index": {},
@@ -4651,5 +5095,6 @@ const taggedReport = {
 export {
   TESTPLAN_REPORT,
   fakeReportAssertions,
+  fakeReportAssertionsError,
   taggedReport
 }

@@ -15,14 +15,20 @@ import {
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
+  findFirstFailure,
   filterReport,
   getSelectedUIDsFromPath,
 } from "./reportUtils";
 import { generateSelectionPath } from "./path";
 
 import { COLUMN_WIDTH, defaultFixSpec } from "../Common/defaults";
-import { fakeReportAssertions } from "../Common/fakeReport";
 import { AssertionContext } from "../Common/context";
+import {
+  fakeReportAssertions,
+  fakeReportAssertionsError
+} from "../Common/fakeReport";
+import { generateURLWithParameters } from "../Common/utils";
+import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 
 /**
  * BatchReport component:
@@ -57,23 +63,30 @@ class BatchReport extends BaseReport {
       processedReport,
       this.state.filteredReport.filter
     );
+    
+    const firstFailedUID = (
+      filteredReport.report.status === "failed"
+      || filteredReport.report.status === "error"
+    )
+      ? findFirstFailure(filteredReport.report)
+      : [filteredReport.report.uid];
 
     const redirectPath = this.props.match.params.selection
       ? null
-      : generateSelectionPath(this.props.match.path, [
-        filteredReport.report.uid,
-      ]);
+      : generateSelectionPath(
+        this.props.match.path,
+        firstFailedUID
+      );
+    
+    if (redirectPath) {
+      this.props.history.replace(redirectPath);
+    };
 
     this.setState(
       {
         report: processedReport,
         filteredReport,
         loading: false,
-      },
-      () => {
-        if (redirectPath) {
-          this.props.history.replace(redirectPath);
-        }
       }
     );
   }
@@ -97,47 +110,58 @@ class BatchReport extends BaseReport {
       .catch((error) => {
         console.log(error);
       });
-    if (uid === "_dev") {
-      var fakeReport = this.updateReportUID(fakeReportAssertions, uid);
-      setTimeout(() => this.setReport(fakeReport), 1500);
-    } else {
-      axios
-        .get(`/api/v1/reports/${uid}`)
-        .then((response) => {
-          const rawReport = response.data;
-          if (rawReport.version === 2) {
-            const assertionsReq = axios.get(
-              `/api/v1/reports/${uid}/attachments/${rawReport.assertions_file}`,
-              { transformResponse: parseToJson }
-            );
-            const structureReq = axios.get(
-              `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
-              { transformResponse: parseToJson }
-            );
-            axios
-              .all([assertionsReq, structureReq])
-              .then(
-                axios.spread((assertionsRes, structureRes) => {
-                  if (!assertionsRes.data) {
-                    console.error(assertionsRes);
-                    alert(
-                      "Failed to parse assertion datails!\n" +
-                      "Please report this issue to the Testplan team."
+    switch (uid) {
+      case "_dev":
+        setTimeout(() => this.setReport(
+          this.updateReportUID(fakeReportAssertions, uid)), 1500
+        );
+        break;
+      case "_dev_error":
+        setTimeout(() => this.setReport(
+          this.updateReportUID(fakeReportAssertionsError, uid)), 1500
+        );
+        break;
+      default:
+        axios
+          .get(`/api/v1/reports/${uid}`)
+          .then((response) => {
+            const rawReport = response.data;
+            if (rawReport.version === 2) {
+              const assertionsReq = axios.get(
+                `/api/v1/reports/${uid}/attachments/` +
+                `${rawReport.assertions_file}`,
+                { transformResponse: parseToJson }
+              );
+              const structureReq = axios.get(
+                `/api/v1/reports/${uid}/attachments/` +
+                `${rawReport.structure_file}`,
+                { transformResponse: parseToJson }
+              );
+              axios
+                .all([assertionsReq, structureReq])
+                .then(
+                  axios.spread((assertionsRes, structureRes) => {
+                    if (!assertionsRes.data) {
+                      console.error(assertionsRes);
+                      alert(
+                        "Failed to parse assertion datails!\n" +
+                        "Please report this issue to the Testplan team."
+                      );
+                    }
+                    const mergedReport = MergeSplittedReport(
+                      rawReport,
+                      assertionsRes.data,
+                      structureRes.data
                     );
-                  }
-                  const mergedReport = MergeSplittedReport(
-                    rawReport,
-                    assertionsRes.data,
-                    structureRes.data
-                  );
-                  this.setReport(this.updateReportUID(mergedReport, uid));
-                })
-              ).catch(this.setError);
-          } else {
-            this.setReport(this.updateReportUID(rawReport, uid));
-          }
-        })
-        .catch(this.setError);
+                    this.setReport(this.updateReportUID(mergedReport, uid));
+                  })
+                ).catch(this.setError);
+            } else {
+              this.setReport(this.updateReportUID(rawReport, uid));
+            }
+          })
+          .catch(this.setError);
+        break;
     }
   }
 
