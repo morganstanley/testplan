@@ -14,8 +14,6 @@ import {
 
 /**
  * Render a vertical list of all the currently selected entries children.
-  * Render a vertical list of all the currently selected entries children for
- * an interactive report.
  */
 const NavList = (props) => {
     let navButtons;
