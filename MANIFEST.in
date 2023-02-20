@@ -1,5 +1,0 @@
-graft testplan/web_ui/testing
-prune **/node_modules
-prune testplan/web_ui/testing/build
-prune tests
-

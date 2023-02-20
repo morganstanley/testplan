@@ -171,12 +171,6 @@ Documentation
 For complete documentation that includes downloadable examples, visit this
 `link <http://testplan.readthedocs.io>`_.
 
-To generate the documentation locally:
-
-.. code-block:: bash
-
-    $ cd doc/en
-    python sphinx-build -b html . ./html
 
 Contribution
 ============
