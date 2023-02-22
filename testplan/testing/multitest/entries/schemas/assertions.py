@@ -46,6 +46,11 @@ class EqualSchema(FuncAssertionSchema):
     type_expected = fields.String()
 
 
+@registry.bind(asr.Fail)
+class FailSchema(AssertionSchema):
+    message = fields.Raw()
+
+
 @registry.bind(asr.IsClose)
 class ApproximateEqualitySchema(AssertionSchema):
 
