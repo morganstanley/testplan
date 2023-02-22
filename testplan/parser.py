@@ -183,7 +183,7 @@ Test filter, supports glob notation & multiple arguments.
             type=_read_text_file,
             action=filtering.PatternAction,
             help="""\
-Test filter supplied in a file, with one filter per line.
+Test filter supplied in a file, with one pattern per line.
 
 --patterns-file <File>
 """,
