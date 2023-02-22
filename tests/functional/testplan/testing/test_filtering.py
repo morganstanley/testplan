@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 import pytest
@@ -55,8 +56,14 @@ class Gamma:
 
 @pytest.fixture
 def filter_file():
-    with tempfile.NamedTemporaryFile("w+") as f:
-        yield f
+    f = tempfile.NamedTemporaryFile(delete=False)
+    f.close()
+    try:
+        fp = open(f.name, "w+")
+        yield fp
+    finally:
+        fp.close()
+        os.unlink(f.name)
 
 
 @pytest.mark.parametrize(
