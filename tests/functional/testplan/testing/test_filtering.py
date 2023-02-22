@@ -1,13 +1,11 @@
+import tempfile
+
 import pytest
 
-from testplan.testing.multitest import MultiTest, testsuite, testcase
-
 from testplan import TestplanMock
-from testplan.common.utils.testing import (
-    argv_overridden,
-    check_report_context,
-)
+from testplan.common.utils.testing import argv_overridden, check_report_context
 from testplan.testing import filtering
+from testplan.testing.multitest import MultiTest, testcase, testsuite
 
 
 @testsuite(tags="foo")
@@ -53,6 +51,12 @@ class Gamma:
     @testcase(tags={"color": ("red", "green")})
     def test_three(self, env, result):
         pass
+
+
+@pytest.fixture
+def filter_file():
+    with tempfile.NamedTemporaryFile("w+") as f:
+        yield f
 
 
 @pytest.mark.parametrize(
@@ -253,7 +257,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
         # Pattern and tag filters will be wrapped by All
         (
             (
-                "--pattern",
+                "--patterns",
                 "*:*:test_one",
                 "*:*:test_three",
                 "--tags",
@@ -286,6 +290,54 @@ def test_command_line_filtering(cmdline_args, report_ctx):
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
+
+    if not test_report.entries:
+        assert plan.result.success
+
+
+@pytest.mark.parametrize(
+    "lines, report_ctx",
+    (
+        # Case 1, empty file, nothing matched
+        ([], []),
+        # Case 2, single line of pattern
+        (
+            ["XXX:*:test_two"],
+            [("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])])],
+        ),
+        # Case 3, multiple lines of pattern
+        (
+            ["XXX:*:test_two", "YYY:*:test_three"],
+            [
+                ("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])]),
+                ("YYY", (("Gamma", ["test_three"]),)),
+            ],
+        ),
+    ),
+)
+def test_command_line_filtering_file(lines, report_ctx, request):
+    # special case of test_command_line_filtering, with filter in a temp file
+
+    # NOTE: to use fixture in parametrized tests
+    filter_file = request.getfixturevalue("filter_file")
+    for l in lines:
+        filter_file.write(l + "\n")
+    filter_file.flush()
+
+    multitest_x = MultiTest(name="XXX", suites=[Alpha(), Beta()])
+    multitest_y = MultiTest(name="YYY", suites=[Gamma()])
+
+    with argv_overridden("--patterns-file", filter_file.name):
+        plan = TestplanMock(name="plan", parse_cmdline=True)
+        plan.add(multitest_x)
+        plan.add(multitest_y)
+        plan.run()
+
+    test_report = plan.report
+    check_report_context(
+        test_report,
+        report_ctx,
+    )
 
     if not test_report.entries:
         assert plan.result.success
