@@ -8,6 +8,8 @@ Also provided is a predefined testsuite that can be included in user's
 """
 
 __all__ = [
+    "DriverLogCollector",
+    "callable_wrapper",
     "get_hardware_info",
     "log_pwd",
     "log_hardware",
@@ -26,13 +28,85 @@ import psutil
 import shutil
 import socket
 import sys
-from typing import Dict
+from typing import Dict, Callable
 
 from testplan.common.entity import Environment
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import pwd
 from testplan.testing.multitest import testsuite, testcase
 from testplan.testing.multitest.result import Result
+
+
+class DriverLogCollector:
+    """
+    Customizable file collector class used for collecting driver logs.
+    """
+
+    def __init__(
+        self,
+        name: str = "DriverLogCollector",
+        path: str = None,
+        description: str = "logs",
+        ignore: list = None,
+        file_pattern: list = None,
+        recursive: bool = True,
+        failure_only: bool = True,
+    ) -> None:
+        """
+        Attaches a file to the report.
+
+        :param name: Name of the object shown in the report.
+        :param path: Path to the file or directory be to attached.
+        :param description: Text description for the assertion.
+        :param ignore: List of patterns of file name to ignore when
+            attaching a directory.
+        :param file_pattern: List of patterns of file name to include when
+            attaching a directory.
+        :param recursive: Recursively traverse sub-directories and attach
+            all files, default is to only attach files in top directory.
+        :param failure_only: Only collect files on failure.
+        """
+
+        self.__name__ = name
+        self.path = path
+        self.description = description
+        self.ignore = ignore
+        self.file_pattern = file_pattern or ["stdout*", "stderr*"]
+        self.recursive = recursive
+        self.failure_only = failure_only
+
+    def __call__(
+        self,
+        env: Environment,
+        result: Result,
+    ) -> None:
+        """
+        Attaches log files to the report for each driver.
+        """
+
+        if not env.parent.report.passed or not self.failure_only:
+            for driver in env:
+                result.attach(
+                    path=self.path or driver.runpath,
+                    description=f"Driver: {driver.name} - {self.description}",
+                    only=self.file_pattern,
+                    recursive=self.recursive,
+                    ignore=self.ignore,
+                )
+
+
+def callable_wrapper(*args: Callable) -> Callable:
+    """
+    Wraps multiple callable objects (like testcases or log collectors) together.
+
+    :return: wrapped callable object
+    """
+
+    def wrapper(env, result):
+        for func in args:
+            func(env, result)
+
+    return wrapper
 
 
 def get_hardware_info() -> Dict:
@@ -134,28 +208,10 @@ def attach_log(result: Result) -> None:
             return
 
 
-def attach_driver_logs_if_failed(
-    env: Environment,
-    result: Result,
-) -> None:
-    """
-    Attaches stdout and stderr files to the report for each driver.
-
-    :param env: environment
-    :param result: testcase result
-    """
-    if not env.parent.report.passed:
-        for driver in env:
-            std = getattr(driver, "std")
-            if std:
-                result.attach(
-                    std.out_path,
-                    description="Driver: {} stdout".format(driver.name),
-                )
-                result.attach(
-                    std.err_path,
-                    description="Driver: {} stderr".format(driver.name),
-                )
+attach_driver_logs_if_failed = callable_wrapper(
+    DriverLogCollector(file_pattern=["stdout*"], description="stdout"),
+    DriverLogCollector(file_pattern=["stderr*"], description="stderr"),
+)
 
 
 def clean_runpath_if_passed(

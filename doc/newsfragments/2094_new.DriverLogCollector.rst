@@ -1,0 +1,1 @@
+Allow users to customize logfile collecting for drivers with new :py:class:`DriverLogCollector <testplan.common.utils.helper.DriverLogCollector>` class. Also added a new function wrapper for combining multiple callable objects (like logfile collectors and testcases) together: :py:meth:`callable_wrapper <testplan.common.utils.helper.callable_wrapper>`.
