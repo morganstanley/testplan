@@ -343,20 +343,22 @@ Command line
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.
 
-                            --pattern <Multitest Name>
+                            --patterns <Multitest Name>
 
-                            --pattern <Multitest Name 1> <Multitest Name 2>
+                            --patterns <Multitest Name 1> <Multitest Name 2>
 
-                            --pattern <Multitest Name 1> --pattern <Multitest Name 2>
+                            --patterns <Multitest Name 1> --patterns <Multitest Name 2>
 
-                            --pattern <Multitest Name>:<Suite Name>
+                            --patterns <Multitest Name>:<Suite Name>
 
-                            --pattern <Multitest Name>:<Suite Name>:<Testcase name>
+                            --patterns <Multitest Name>:<Suite Name>:<Testcase name>
 
-                            --pattern <Multitest Name>:\*:<Testcase name>
+                            --patterns <Multitest Name>:\*:<Testcase name>
 
-                            --pattern \*:<Suite Name>:<Testcase name>
+                            --patterns \*:<Suite Name>:<Testcase name>
+      --patterns-file       Test filter supplied in a file, with one pattern per line.
 
+                            --patterns-file <File>
       --tags                Test filter, runs tests that match ANY of the given tags.
 
                             --tags <tag_name_1> --tags <tag_name 2>

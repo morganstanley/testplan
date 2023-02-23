@@ -330,11 +330,15 @@ class PatternAction(argparse.Action):
 
     In:
 
-    --pattern foo bar --pattern baz
+    .. code-block:: bash
+
+        --pattern foo bar --pattern baz
 
     Out:
 
-    [Pattern('foo'), Pattern('bar'), Pattern('baz')]
+    .. code-block:: python
+
+        [Pattern('foo'), Pattern('bar'), Pattern('baz')]
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
