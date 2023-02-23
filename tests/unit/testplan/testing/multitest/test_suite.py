@@ -188,8 +188,8 @@ def incorrect_case_signature2():
 def test_testcase_signature():
     pattern = re.compile(
         (
-            r".*Expected case1\(self, env, result\), "
-            r"not case1\(self, envs, result\).*"
+            r".*Expected arguments for case1 are \['self', 'env', 'result'\], "
+            r"not \['self', 'envs', 'result'\].*"
         )
     )
     should_raise(
@@ -197,8 +197,8 @@ def test_testcase_signature():
     )
     pattern = re.compile(
         (
-            r".*Expected case1\(self, env, result\), "
-            r"not case1\(self, env, results\).*"
+            r".*Expected arguments for case1 are \['self', 'env', 'result'\], "
+            r"not \['self', 'env', 'results'\].*"
         )
     )
     should_raise(
@@ -217,7 +217,7 @@ def incorrent_skip_if_signature1():
 
 def test_skip_if_signature():
     pattern = re.compile(
-        r".*Expected <lambda>\(testsuite\), not <lambda>\(_\).*"
+        r".*Expected arguments for <lambda> are \['testsuite'\], not \['_'\].*"
     )
     try:
         should_raise(

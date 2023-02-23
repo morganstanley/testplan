@@ -35,6 +35,6 @@ def check_signature(
     funcparams = list(signature(func).parameters.keys())
     if funcparams != args_list:
         raise MethodSignatureMismatch(
-            f"Expected {args_list}, not {funcparams} with {func}"
+            f"Expected arguments for {func.__name__} are {args_list}, not {funcparams}"
         )
     return True

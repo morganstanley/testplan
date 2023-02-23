@@ -9,7 +9,6 @@ Also provided is a predefined testsuite that can be included in user's
 
 __all__ = [
     "DriverLogCollector",
-    "callable_wrapper",
     "get_hardware_info",
     "log_pwd",
     "log_hardware",
@@ -61,7 +60,7 @@ class DriverLogCollector:
         :param ignore: List of patterns of file name to ignore when
             attaching a directory.
         :param file_pattern: List of patterns of file name to include when
-            attaching a directory.
+            attaching a directory. (Defaults: "stdout*", "stderr*")
         :param recursive: Recursively traverse sub-directories and attach
             all files, default is to only attach files in top directory.
         :param failure_only: Only collect files on failure.
@@ -93,20 +92,6 @@ class DriverLogCollector:
                     recursive=self.recursive,
                     ignore=self.ignore,
                 )
-
-
-def callable_wrapper(*args: Callable) -> Callable:
-    """
-    Wraps multiple callable objects (like testcases or log collectors) together.
-
-    :return: wrapped callable object
-    """
-
-    def wrapper(env, result):
-        for func in args:
-            func(env, result)
-
-    return wrapper
 
 
 def get_hardware_info() -> Dict:
@@ -208,10 +193,25 @@ def attach_log(result: Result) -> None:
             return
 
 
-attach_driver_logs_if_failed = callable_wrapper(
-    DriverLogCollector(file_pattern=["stdout*"], description="stdout"),
-    DriverLogCollector(file_pattern=["stderr*"], description="stderr"),
-)
+def attach_driver_logs_if_failed(
+    env: Environment,
+    result: Result,
+) -> None:
+    """
+    Attaches stdout and stderr files to the report for each driver.
+    :param env: environment
+    :param result: testcase result
+    """
+
+    stdout_logger = DriverLogCollector(
+        file_pattern=["stdout*"], description="stdout"
+    )
+    stderr_logger = DriverLogCollector(
+        file_pattern=["stderr*"], description="stderr"
+    )
+
+    stdout_logger(env, result)
+    stderr_logger(env, result)
 
 
 def clean_runpath_if_passed(
