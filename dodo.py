@@ -38,6 +38,7 @@ def task_install_ui_deps():
         "targets": [target],
         "actions": [UICommand("pnpm install")],
         "clean": [(shutil.rmtree, (target,))],
+        "doc": "Install UI dependencies (use pnpm/node)",
     }
 
 
@@ -52,6 +53,7 @@ def task_build_ui():
             UICommand("pnpm build"),
         ],
         "clean": [(shutil.rmtree, (target,))],
+        "doc": "Build the UI bundle",
     }
 
 
@@ -64,11 +66,15 @@ def task_black():
         "params": [
             {"name": "update", "short": "u", "type": bool, "default": False}
         ],
+        "doc": "Run blcak formatter check. Usi it before commit :)",
     }
 
 
 def task_pylint():
-    return {"actions": ["pylint --rcfile pylintrc testplan"]}
+    return {
+        "actions": ["pylint --rcfile pylintrc testplan"],
+        "doc": "Run pylint",
+    }
 
 
 def task_lint_ui():
@@ -76,11 +82,15 @@ def task_lint_ui():
         "file_dep": TESTPLAN_UI_SOURCES,
         "actions": [UICommand("pnpm lint", env=updated_env({"CI": "true"}))],
         "task_dep": ["install_ui_deps"],
+        "doc": "Run lint on UI javascript code",
     }
 
 
 def task_crlf_check():
-    yield {"name": None}
+    yield {
+        "name": None,
+        "doc": "Check that no crlf in source files",
+    }
     if platform.system() == "Linux":
         yield {
             "name": "linux",
@@ -91,7 +101,11 @@ def task_crlf_check():
 
 
 def task_lint():
-    return {"actions": None, "task_dep": ["black", "pylint", "crlf_check"]}
+    return {
+        "actions": None,
+        "task_dep": ["black", "pylint", "crlf_check"],
+        "doc": "Run lint on python and javascript code",
+    }
 
 
 def task_test_ui():
@@ -105,15 +119,24 @@ def task_test_ui():
             )
         ],
         "task_dep": ["install_ui_deps"],
+        "doc": "Test the UI code",
     }
 
 
 def task_test():
-    return {"actions": ["pytest tests --verbose"], "verbosity": 2}
+    return {
+        "actions": ["pytest tests --verbose"],
+        "verbosity": 2,
+        "doc": "Test the python code",
+    }
 
 
 def task_build():
-    return {"actions": ["python -m build -w"], "task_dep": ["build_ui"]}
+    return {
+        "actions": ["python -m build -w"],
+        "task_dep": ["build_ui"],
+        "doc": "Build a wheel package",
+    }
 
 
 def task_build_dev():
@@ -124,6 +147,7 @@ def task_build_dev():
             )
         ],
         "task_dep": ["build_ui"],
+        "doc": "Build a dev package (just a version number difference)",
     }
 
 
@@ -145,4 +169,5 @@ def task_build_docs():
                 "default": False,
             }
         ],
+        "doc": "Build the documentation",
     }

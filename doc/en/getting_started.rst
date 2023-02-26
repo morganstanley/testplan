@@ -78,7 +78,7 @@ Working with the source
 -----------------------
  
 You will need a working python 3.7+ interrpreter preferably a venv, and for the interactive ui you need node installed. 
-We are using doit as the taskrunner `doit list` can show all the commands.
+We are using `doit <https://pydoit.org/contents.html>`_ as the taskrunner ``doit list`` can show all the commands.
 
   .. code-block:: text
       
