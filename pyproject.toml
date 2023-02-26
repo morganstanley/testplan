@@ -108,6 +108,11 @@
 
     news_fragments_directory = 'doc/newsfragments'
     unreleased = true
-    news_file = 'doc/en/news_template.rst'
+    news_file = 'doc/news_template.rst'
+    template = 'doc/news_version_template.rst'
     latest = false
     update = true
+
+[tool.releaseherald.filename_metadata_extractor]
+    type="re"
+    pattern='''^(((?P<id>\d+)_?)?((?P<type>changed|new|deprecated|removed))?\.)?.*$'''

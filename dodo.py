@@ -3,6 +3,7 @@ from pathlib import Path
 import platform
 import shutil
 from typing import Dict
+import webbrowser
 
 from doit.action import CmdAction
 
@@ -123,4 +124,25 @@ def task_build_dev():
             )
         ],
         "task_dep": ["build_ui"],
+    }
+
+
+def task_build_docs():
+    def open_browser(open_browser):
+        if open_browser:
+            webbrowser.open(str(Path("doc/en/html/index.html").absolute()))
+
+    return {
+        "actions": [
+            CmdAction("python -m sphinx -b html . html", cwd=Path("doc/en")),
+            open_browser,
+        ],
+        "params": [
+            {
+                "name": "open_browser",
+                "short": "o",
+                "type": bool,
+                "default": False,
+            }
+        ],
     }
