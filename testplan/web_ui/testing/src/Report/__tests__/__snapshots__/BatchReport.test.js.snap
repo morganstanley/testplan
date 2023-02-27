@@ -294,6 +294,7 @@ exports[`BatchReport loads a failed simple report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -1929,6 +1930,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -3242,6 +3244,7 @@ exports[`BatchReport loads a more complex report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -4975,6 +4978,7 @@ exports[`BatchReport loads a passed simple report 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -6004,6 +6008,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -7678,6 +7683,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -9311,6 +9317,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -11139,6 +11146,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
+    interactive={false}
     navListWidth="22em"
     report={
       Object {
@@ -13356,6 +13364,7 @@ ZeroDivisionError: integer division or modulo by zero
       displayTime={false}
       filter={null}
       handleColumnResizing={[Function]}
+      interactive={false}
       navListWidth="22em"
       report={null}
       selected={Array []}
@@ -13364,6 +13373,7 @@ ZeroDivisionError: integer division or modulo by zero
     >
       <NavBreadcrumbs
         entries={Array []}
+        uidEncoder={null}
         url="/testplan/:uid/:selection*"
       >
         <div
@@ -13382,6 +13392,7 @@ ZeroDivisionError: integer division or modulo by zero
         entries={Array []}
         filter={null}
         handleColumnResizing={[Function]}
+        interactive={false}
         selected={Array []}
         selectedUid={null}
         url="/testplan/:uid/:selection*"
@@ -13437,6 +13448,7 @@ ZeroDivisionError: integer division or modulo by zero
                     doubleClickCallback={[Function]}
                     entries={Array []}
                     filter={null}
+                    interactive={false}
                     url="/testplan/:uid/:selection*"
                   />
                 </ul>

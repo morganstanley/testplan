@@ -1787,7 +1787,9 @@ exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
           "xl",
         ]
       }
-    />
+    >
+      <pre />
+    </Col>
   </Row>
   <Row
     tag="div"

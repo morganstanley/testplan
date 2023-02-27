@@ -1,5 +1,6 @@
 """Loggers for assertion objects"""
 import os
+import pprint
 import re
 
 from terminaltables import AsciiTable
@@ -463,9 +464,17 @@ class XMLCheckRenderer(AssertionRenderer):
 
 @registry.bind(assertions.Fail)
 class FailRenderer(AssertionRenderer):
-    def get_header_text(self, entry):
-        """Always return text in red as it is an explicit failure."""
+    def get_header(self, entry):
         return Color.red(entry.description)
+
+    def get_assertion_details(self, entry):
+        if isinstance(entry.message, str):
+            if entry.description:
+                return Color.red(str(entry.message))
+            else:
+                return None
+        else:
+            return pprint.pformat(entry.message)
 
 
 @registry.bind(assertions.EqualSlices)

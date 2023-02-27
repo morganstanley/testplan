@@ -3,7 +3,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 
-import InteractiveNavList from '../InteractiveNavList.js';
+import NavList from '../NavList.js';
 import {FakeInteractiveReport} from '../../Common/sampleReports.js';
 import { PropagateIndices } from '../../Report/reportUtils.js';
 
@@ -21,7 +21,8 @@ describe('InteractiveNavList', () => {
   it('shallow renders and matches snapshot', () => {
     const entries = PropagateIndices(FakeInteractiveReport).entries
     const renderedNavList = shallow(
-      <InteractiveNavList
+      <NavList
+        interactive={true}
         entries={entries}
         breadcrumbLength={1}
         width={'28em'}

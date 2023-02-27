@@ -1608,7 +1608,13 @@ class Result:
         return entry
 
     @assertion
-    def fail(self, description, category=None, flag=None):
+    def fail(
+        self,
+        description: str,
+        message: str = None,
+        category: str = None,
+        flag: bool = None,
+    ) -> assertions.Fail:
         """
         Failure assertion, can be used for explicitly failing a testcase.
         The message will be included by email exporter. Most common usage is
@@ -1620,16 +1626,16 @@ class Result:
                 result.fail('Unexpected failure: {}'.format(...))
 
         :param description: Text description of the failure.
-        :type description: ``str``
         :param category: Custom category that will be used for summarization.
-        :type category: ``str``
-        :param flag: Custom flag of the assertion which is reserved and can
-            be used for some special purpose.
-        :param flag: ``str`` or ``NoneType``
+        :param flag: custom flag - reserved parameter
         :return: ``False``
-        :rtype: ``bool``
         """
-        entry = assertions.Fail(description, category=category, flag=flag)
+        entry = assertions.Fail(
+            description=description,
+            message=message,
+            category=category,
+            flag=flag,
+        )
 
         return entry
 
