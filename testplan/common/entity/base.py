@@ -192,9 +192,9 @@ class Environment:
         fetch_msg = "\n".join(resource.fetch_error_log())
 
         msg = message.format(
-            resource.cfg.name,
-            traceback.format_exc(),
-            fetch_msg,
+            resource_name=resource.cfg.name,
+            traceback_exc=traceback.format_exc(),
+            fetch_msg=fetch_msg,
         )
         resource.logger.error(msg)
         msg_store[resource] = msg
@@ -213,7 +213,7 @@ class Environment:
                 resource.start()
             except Exception:
                 self._record_resource_exception(
-                    message="While starting resource [{}]\n{}\n{}",
+                    message="While starting resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -234,7 +234,7 @@ class Environment:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
                 self._record_resource_exception(
-                    message="While waiting for resource [{}] to start\n{}\n{}",
+                    message="While waiting for resource [{resource_name}] to start\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -300,7 +300,7 @@ class Environment:
                 resource.stop()
             except Exception:
                 self._record_resource_exception(
-                    message="While stopping resource [{}]\n{}\n{}",
+                    message="While stopping resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.stop_exceptions,
                 )
