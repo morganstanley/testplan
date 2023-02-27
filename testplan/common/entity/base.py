@@ -189,8 +189,8 @@ class Environment:
         )
 
     def _fetch_log_messages(self, resource, message):
-        if hasattr(resource, 'fetch_error_log'):
-            fetch_msg = '\n'.join(resource.fetch_error_log())
+        if hasattr(resource, "fetch_error_log"):
+            fetch_msg = "\n".join(resource.fetch_error_log())
             msg = f"{message}\n{fetch_msg}\n"
             return msg
 
