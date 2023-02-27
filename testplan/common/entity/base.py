@@ -188,6 +188,14 @@ class Environment:
             for resource in self._resources
         )
 
+    def _fetch_log_messages(self, resource, message):
+        if hasattr(resource, 'fetch_error_log'):
+            fetch_msg = '\n'.join(resource.fetch_error_log())
+            msg = f"{message}\n{fetch_msg}\n"
+            return msg
+
+        return message
+
     def start(self):
         """
         Starts all resources sequentially and log errors.
@@ -204,6 +212,7 @@ class Environment:
                 msg = "While starting resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
+                msg = self._fetch_log_messages(resource=resource, message=msg)
                 resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
 
@@ -225,6 +234,7 @@ class Environment:
                 msg = "While waiting for resource [{}] to start\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
+                msg = self._fetch_log_messages(resource=resource, message=msg)
                 resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
 
@@ -291,6 +301,7 @@ class Environment:
                 msg = "While stopping resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
+                msg = self._fetch_log_messages(resource=resource, message=msg)
                 resource.logger.error(msg)
                 self.stop_exceptions[resource] = msg
                 # Resource status should be STOPPED even it failed to stop
@@ -1398,6 +1409,14 @@ class Resource(Entity):
         Steps to be executed right after resource is stopped.
         """
         pass
+
+    def fetch_error_log(self) -> List[str]:
+        """
+        Fetch error message from the log files of resource.
+
+        :return: text from log file
+        """
+        return []
 
     def _wait_started(self, timeout=None):
         """
