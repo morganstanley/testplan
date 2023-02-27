@@ -188,13 +188,16 @@ class Environment:
             for resource in self._resources
         )
 
-    def _fetch_log_messages(self, resource, message):
-        if hasattr(resource, "fetch_error_log"):
-            fetch_msg = "\n".join(resource.fetch_error_log())
-            msg = f"{message}\n{fetch_msg}\n"
-            return msg
+    def _record_resource_exception(self, message, resource, msg_store):
+        fetch_msg = "\n".join(resource.fetch_error_log())
 
-        return message
+        msg = message.format(
+            resource.cfg.name,
+            traceback.format_exc(),
+            fetch_msg,
+        )
+        resource.logger.error(msg)
+        msg_store[resource] = msg
 
     def start(self):
         """
@@ -209,12 +212,11 @@ class Environment:
             try:
                 resource.start()
             except Exception:
-                msg = "While starting resource [{}]\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While starting resource [{}]\n{}\n{}",
+                    resource=resource,
+                    msg_store=self.start_exceptions,
                 )
-                msg = self._fetch_log_messages(resource=resource, message=msg)
-                resource.logger.error(msg)
-                self.start_exceptions[resource] = msg
 
                 failover = resource.failover()
                 if failover:
@@ -231,12 +233,11 @@ class Environment:
             try:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
-                msg = "While waiting for resource [{}] to start\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While waiting for resource [{}] to start\n{}\n{}",
+                    resource=resource,
+                    msg_store=self.start_exceptions,
                 )
-                msg = self._fetch_log_messages(resource=resource, message=msg)
-                resource.logger.error(msg)
-                self.start_exceptions[resource] = msg
 
                 failover = resource.failover()
                 if failover:
@@ -298,12 +299,12 @@ class Environment:
             try:
                 resource.stop()
             except Exception:
-                msg = "While stopping resource [{}]\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While stopping resource [{}]\n{}\n{}",
+                    resource=resource,
+                    msg_store=self.stop_exceptions,
                 )
-                msg = self._fetch_log_messages(resource=resource, message=msg)
-                resource.logger.error(msg)
-                self.stop_exceptions[resource] = msg
+
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
             else:
