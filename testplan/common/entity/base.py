@@ -1413,9 +1413,10 @@ class Resource(Entity):
 
     def fetch_error_log(self) -> List[str]:
         """
-        Fetch error message from the log files of resource.
+        Override this method in Resource subclasses to automatically add any
+        useful logs into the report, in case of startup/shutdown exception.
 
-        :return: text from log file
+        :return: text from log files
         """
         return []
 
