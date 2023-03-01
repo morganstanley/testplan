@@ -1,10 +1,12 @@
 """
 This module provides helper functions that will add common information of
- Testplan execution to test report.
+Testplan execution to test report.
+
 They could be used directly in testcases or provided to
- pre/pose_start/stop hooks.
+pre/pose_start/stop hooks.
+
 Also provided is a predefined testsuite that can be included in user's
- Multitest directly.
+Multitest directly.
 """
 
 __all__ = [
@@ -27,7 +29,7 @@ import psutil
 import shutil
 import socket
 import sys
-from typing import Dict, Callable
+from typing import Dict
 
 from testplan.common.entity import Environment
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -37,37 +39,31 @@ from testplan.testing.multitest.result import Result
 
 
 class DriverLogCollector:
+
     """
     Customizable file collector class used for collecting driver logs.
+
+    :param name: Name of the object shown in the report.
+    :param description: Text description for the assertion.
+    :param ignore: List of patterns of file name to ignore when
+        attaching a directory.
+    :param file_pattern: List of patterns of file name to include when
+        attaching a directory. (Defaults: "stdout*", "stderr*")
+    :param recursive: Recursively traverse sub-directories and attach
+        all files, default is to only attach files in top directory.
+    :param failure_only: Only collect files on failure.
     """
 
     def __init__(
         self,
         name: str = "DriverLogCollector",
-        path: str = None,
         description: str = "logs",
         ignore: list = None,
         file_pattern: list = None,
         recursive: bool = True,
         failure_only: bool = True,
     ) -> None:
-        """
-        Attaches a file to the report.
-
-        :param name: Name of the object shown in the report.
-        :param path: Path to the file or directory be to attached.
-        :param description: Text description for the assertion.
-        :param ignore: List of patterns of file name to ignore when
-            attaching a directory.
-        :param file_pattern: List of patterns of file name to include when
-            attaching a directory. (Defaults: "stdout*", "stderr*")
-        :param recursive: Recursively traverse sub-directories and attach
-            all files, default is to only attach files in top directory.
-        :param failure_only: Only collect files on failure.
-        """
-
         self.__name__ = name
-        self.path = path
         self.description = description
         self.ignore = ignore
         self.file_pattern = file_pattern or ["stdout*", "stderr*"]
@@ -86,7 +82,7 @@ class DriverLogCollector:
         if not env.parent.report.passed or not self.failure_only:
             for driver in env:
                 result.attach(
-                    path=self.path or driver.runpath,
+                    path=driver.runpath,
                     description=f"Driver: {driver.name} - {self.description}",
                     only=self.file_pattern,
                     recursive=self.recursive,
@@ -199,10 +195,10 @@ def attach_driver_logs_if_failed(
 ) -> None:
     """
     Attaches stdout and stderr files to the report for each driver.
+
     :param env: environment
     :param result: testcase result
     """
-
     stdout_logger = DriverLogCollector(
         file_pattern=["stdout*"], description="stdout"
     )

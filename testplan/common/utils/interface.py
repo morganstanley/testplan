@@ -31,7 +31,6 @@ def check_signature(
 
     :return: ``None`` or ``True``
     """
-
     funcparams = list(signature(func).parameters.keys())
     if funcparams != args_list:
         raise MethodSignatureMismatch(
