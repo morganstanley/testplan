@@ -1,7 +1,7 @@
 """Validates methods signature."""
 
-from typing import Union, Optional
 from inspect import signature
+from typing import Union, Optional
 
 
 class NoSuchMethodInClass(Exception):
@@ -20,16 +20,15 @@ class MethodSignatureMismatch(Exception):
     pass
 
 
-def check_signature(
-    func: callable, args_list: Union[list, str]
-) -> Optional[bool]:
+def check_signature(func: callable, args_list: Union[list, str]) -> bool:
     """
     Checks if the given function's signature matches the given list of args
 
     :param func: function whose signature to check
     :param args_list: list of arg names to match as signature
 
-    :return: ``None`` or ``True``
+    :return: ``True`` if the signature is matching
+    :raises MethodSignatureMismatch: if the given function's signature differs from the provided
     """
     funcparams = list(signature(func).parameters.keys())
     if funcparams != args_list:

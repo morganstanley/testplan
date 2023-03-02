@@ -20,6 +20,7 @@ Example:
     .. code-block:: python
 
       from testplan.common.utils import helper
+
       log_collector = helper.DriverLogCollector(
           name="custom_log_collector",
           file_pattern=["*.log"],

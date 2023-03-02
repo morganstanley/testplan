@@ -29,7 +29,7 @@ import psutil
 import shutil
 import socket
 import sys
-from typing import Dict
+from typing import Dict, List
 
 from testplan.common.entity import Environment
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -58,8 +58,8 @@ class DriverLogCollector:
         self,
         name: str = "DriverLogCollector",
         description: str = "logs",
-        ignore: list = None,
-        file_pattern: list = None,
+        ignore: List[str] = None,
+        file_pattern: List[str] = None,
         recursive: bool = True,
         failure_only: bool = True,
     ) -> None:
