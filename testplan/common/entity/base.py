@@ -188,6 +188,17 @@ class Environment:
             for resource in self._resources
         )
 
+    def _record_resource_exception(self, message, resource, msg_store):
+        fetch_msg = "\n".join(resource.fetch_error_log())
+
+        msg = message.format(
+            resource_name=resource.cfg.name,
+            traceback_exc=traceback.format_exc(),
+            fetch_msg=fetch_msg,
+        )
+        resource.logger.error(msg)
+        msg_store[resource] = msg
+
     def start(self):
         """
         Starts all resources sequentially and log errors.
@@ -201,11 +212,11 @@ class Environment:
             try:
                 resource.start()
             except Exception:
-                msg = "While starting resource [{}]\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While starting resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.start_exceptions,
                 )
-                resource.logger.error(msg)
-                self.start_exceptions[resource] = msg
 
                 failover = resource.failover()
                 if failover:
@@ -222,11 +233,11 @@ class Environment:
             try:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
-                msg = "While waiting for resource [{}] to start\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While waiting for resource [{resource_name}] to start\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.start_exceptions,
                 )
-                resource.logger.error(msg)
-                self.start_exceptions[resource] = msg
 
                 failover = resource.failover()
                 if failover:
@@ -288,11 +299,12 @@ class Environment:
             try:
                 resource.stop()
             except Exception:
-                msg = "While stopping resource [{}]\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While stopping resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.stop_exceptions,
                 )
-                resource.logger.error(msg)
-                self.stop_exceptions[resource] = msg
+
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
             else:
@@ -1398,6 +1410,15 @@ class Resource(Entity):
         Steps to be executed right after resource is stopped.
         """
         pass
+
+    def fetch_error_log(self) -> List[str]:
+        """
+        Override this method in Resource subclasses to automatically add any
+        useful logs into the report, in case of startup/shutdown exception.
+
+        :return: text from log files
+        """
+        return []
 
     def _wait_started(self, timeout=None):
         """

@@ -979,12 +979,10 @@ class MultiTest(testing_base.Test):
         )
 
         try:
-            interface.check_signature(
-                testsuite_method, ["self", "env", "result"]
-            )
+            interface.check_signature(testsuite_method, ["env", "result"])
             method_args = (self.resources, case_result)
         except interface.MethodSignatureMismatch:
-            interface.check_signature(testsuite_method, ["self", "env"])
+            interface.check_signature(testsuite_method, ["env"])
             method_args = (self.resources,)
 
         with method_report.timer.record("run"):
@@ -1017,13 +1015,11 @@ class MultiTest(testing_base.Test):
         case_result: result.Result,
     ):
         try:
-            interface.check_signature(
-                method, ["self", "name", "env", "result"]
-            )
+            interface.check_signature(method, ["name", "env", "result"])
             method_args = (testcase.name, resources, case_result)
         except interface.MethodSignatureMismatch:
             interface.check_signature(
-                method, ["self", "name", "env", "result", "kwargs"]
+                method, ["name", "env", "result", "kwargs"]
             )
             method_args = (
                 testcase.name,

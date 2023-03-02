@@ -1,13 +1,16 @@
 """
 This module provides helper functions that will add common information of
- Testplan execution to test report.
+Testplan execution to test report.
+
 They could be used directly in testcases or provided to
- pre/pose_start/stop hooks.
+pre/pose_start/stop hooks.
+
 Also provided is a predefined testsuite that can be included in user's
- Multitest directly.
+Multitest directly.
 """
 
 __all__ = [
+    "DriverLogCollector",
     "get_hardware_info",
     "log_pwd",
     "log_hardware",
@@ -26,13 +29,65 @@ import psutil
 import shutil
 import socket
 import sys
-from typing import Dict
+from typing import Dict, List
 
 from testplan.common.entity import Environment
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import pwd
 from testplan.testing.multitest import testsuite, testcase
 from testplan.testing.multitest.result import Result
+
+
+class DriverLogCollector:
+
+    """
+    Customizable file collector class used for collecting driver logs.
+
+    :param name: Name of the object shown in the report.
+    :param description: Text description for the assertion.
+    :param ignore: List of patterns of file name to ignore when
+        attaching a directory.
+    :param file_pattern: List of patterns of file name to include when
+        attaching a directory. (Defaults: "stdout*", "stderr*")
+    :param recursive: Recursively traverse sub-directories and attach
+        all files, default is to only attach files in top directory.
+    :param failure_only: Only collect files on failure.
+    """
+
+    def __init__(
+        self,
+        name: str = "DriverLogCollector",
+        description: str = "logs",
+        ignore: List[str] = None,
+        file_pattern: List[str] = None,
+        recursive: bool = True,
+        failure_only: bool = True,
+    ) -> None:
+        self.__name__ = name
+        self.description = description
+        self.ignore = ignore
+        self.file_pattern = file_pattern or ["stdout*", "stderr*"]
+        self.recursive = recursive
+        self.failure_only = failure_only
+
+    def __call__(
+        self,
+        env: Environment,
+        result: Result,
+    ) -> None:
+        """
+        Attaches log files to the report for each driver.
+        """
+
+        if not env.parent.report.passed or not self.failure_only:
+            for driver in env:
+                result.attach(
+                    path=driver.runpath,
+                    description=f"Driver: {driver.name} - {self.description}",
+                    only=self.file_pattern,
+                    recursive=self.recursive,
+                    ignore=self.ignore,
+                )
 
 
 def get_hardware_info() -> Dict:
@@ -144,18 +199,15 @@ def attach_driver_logs_if_failed(
     :param env: environment
     :param result: testcase result
     """
-    if not env.parent.report.passed:
-        for driver in env:
-            std = getattr(driver, "std")
-            if std:
-                result.attach(
-                    std.out_path,
-                    description="Driver: {} stdout".format(driver.name),
-                )
-                result.attach(
-                    std.err_path,
-                    description="Driver: {} stderr".format(driver.name),
-                )
+    stdout_logger = DriverLogCollector(
+        file_pattern=["stdout*"], description="stdout"
+    )
+    stderr_logger = DriverLogCollector(
+        file_pattern=["stderr*"], description="stderr"
+    )
+
+    stdout_logger(env, result)
+    stderr_logger(env, result)
 
 
 def clean_runpath_if_passed(

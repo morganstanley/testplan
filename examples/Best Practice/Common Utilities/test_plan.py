@@ -51,10 +51,20 @@ def before_start_fn(env, result):
 
 def after_stop_fn(env, result):
     # Attach drivers' log files if the multitest failed.
-    helper.attach_driver_logs_if_failed(env, result)
+    stdout_logger = helper.DriverLogCollector(
+        file_pattern=["stdout*"], description="stdout"
+    )
+    stderr_logger = helper.DriverLogCollector(
+        file_pattern=["stderr*"], description="stderr"
+    )
+
+    stdout_logger(env, result)
+    stderr_logger(env, result)
 
     # Delete Multitest level runpath if the multitest passed.
-    helper.clean_runpath_if_passed(env, result)
+    # This function cleans the the runpath before the exporters
+    # have chance collecting the files, hence commented out.
+    # helper.clean_runpath_if_passed(env, result)
 
 
 @test_plan(name="Example using helper")
