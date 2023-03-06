@@ -1,0 +1,55 @@
+.changed {
+    display: inline-block;
+    font-size: 0.8em;
+    width: auto;
+    min-width: 8em;
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    color: white;
+    text-transform: uppercase;
+    margin-right: 0.5em;
+    margin-bottom: 0.2em;
+    background-color: purple;
+}
+
+.new {
+    display: inline-block;
+    font-size: 0.8em;
+    width: auto;
+    min-width: 8em;
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    color: white;
+    text-transform: uppercase;
+    margin-right: 0.5em;
+    margin-bottom: 0.2em;
+    background-color: green;
+}
+
+.deprecated {
+    display: inline-block;
+    font-size: 0.8em;
+    width: auto;
+    min-width: 8em;
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    color: white;
+    text-transform: uppercase;
+    margin-right: 0.5em;
+    margin-bottom: 0.2em;
+    background-color: orange;
+}
+
+.removed {
+    display: inline-block;
+    font-size: 0.8em;
+    width: auto;
+    min-width: 8em;
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    color: white;
+    text-transform: uppercase;
+    margin-right: 0.5em;
+    margin-bottom: 0.2em;
+    background-color: red;
+}

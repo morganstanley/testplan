@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.11'
 
       - run: pip install --upgrade bumpver
       - run: pip install ./releaseherald
@@ -26,7 +26,7 @@ jobs:
       - run: bumpver update
       - run: bumpver show --env > new-version.txt
       - run: releaseherald generate --latest --no-update -t news.rst
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: new-version
           path: |
@@ -38,16 +38,16 @@ jobs:
     needs: cut-new-version
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: git pull origin
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: new-version
       - name: Get Version
         id: get_version
         run: |
           eval $(cat new-version.txt)
-          echo ::set-output name=new_version::${CURRENT_VERSION}
+          echo "new_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/build-package
       - uses: ./.github/actions/create-release
         with:

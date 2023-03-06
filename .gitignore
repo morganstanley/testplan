@@ -50,3 +50,5 @@ Thumbs.db
 /pip-wheel-metadata
 node_modules/
 yarn-error.log
+
+.doit.db.*
