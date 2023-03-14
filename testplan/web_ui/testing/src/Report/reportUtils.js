@@ -265,7 +265,7 @@ const getAssertions = (selectedEntries, displayTime) => {
           (format(new Date(
             idx === -1 ? links[i].utc_time :
               links[i].utc_time.substring(0, idx)),
-            "hh:mm:ss.SSS")
+            "HH:mm:ss.SSS")
           ) + " UTC" : "");
       }
       for (let i = 0; i < links.length - 1; ++i) {
