@@ -21,17 +21,16 @@ def driver_calls(*drivers):
 
 class CustomDriver(Driver):
     def __init__(self, name, callback=None, *args, **options):
-        def pre_start(driver):
-            if callback:
-                callback(PRE, driver.name)
+        super().__init__(name, **options)
+        self._callback = callback
 
-        def post_start(driver):
-            if callback:
-                callback(POST, driver.name)
+    def pre_start(self):
+        self._callback(PRE, self.name)
+        super().pre_start()
 
-        super().__init__(
-            name, pre_start=pre_start, post_start=post_start, **options
-        )
+    def post_start(self):
+        self._callback(POST, self.name)
+        super().post_start()
 
 
 def test_legacy_driver_scheduling(mocker):
@@ -96,7 +95,7 @@ def test_unidentified_driver_exception():
     c = CustomDriver("c")
     env.add(a)
     env.add(b)
-    with pytest.raises(ValueError, match=r".*drivers must be declared.*"):
+    with pytest.raises(ValueError, match=r".*not being declared.*"):
         env.set_dependency(DriverDepGraph({a, b, c}, {(a, b)}))
 
 

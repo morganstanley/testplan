@@ -154,12 +154,14 @@ class TestEnvironment(Environment):
                 self._resources[d.uid()]
             ):
                 raise ValueError(
-                    "All the drivers must be declared in the `environment` parameter."
+                    f"Driver {d} used in `dependency` parameter "
+                    "while not being declared in `environment` parameter."
                 )
         for d in self._resources.values():
             if d.async_start is not UNSET:
                 raise ValueError(
-                    "Driver `async_start` should not be set if driver dependency specified."
+                    f"`async_start` parameter of driver {d} should not "
+                    "be set if driver dependency is specified."
                 )
 
         self._dependency = dependency
