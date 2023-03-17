@@ -173,8 +173,10 @@ class TestEnvironment(Environment):
         for d_uid in self._resources.keys():
             self._variables[d_uid] = DriverVariable(d_uid)
 
+        # specify optimize objective
         self._problem += lpSum([v.start for v in self._variables.values()])
         for side_a, side_b in self._dependency.edges:
+            # add linear constraints
             self._problem += self._gen_dep_constraint(side_a, side_b)
 
         # use built-in lp solver

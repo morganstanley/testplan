@@ -4,18 +4,20 @@ Drivers
 Configuration
 =============
 
-MultiTest provides a dynamic driver configuration system, around the two
+Testplan provides a dynamic driver configuration system, around the three
 following properties:
 
     * Drivers can depend on other drivers.
     * Driver configuration is not required to exist until the driver starts.
+    * Testplan can automatically schedule drivers based on the dependencies.
 
-Dependencies between drivers are expressed very simply: any driver in the
-environment list passed to MultiTest is allowed to depend on any other driver
-appearing earlier than itself in the list.
-
-Specifying dependencies this way is sufficiently flexible to cover all cases
-while remaining simple enough to understand and easily express.
+Users can choose whether to specifiy driver dependencies explicitly with the
+dependency argument. If dependency is not set, the dependencies between drivers
+will be interpreted as following: any driver in the environment list passed
+to MultiTest is allowed to depend on any other driver appearing earlier than
+itself in the list. With the dependency argument being used, Testplan could
+possibly schedule more drivers to start simultaneously, to reduce the overall
+test running time.
 
 Dependent values can be created either through the
 :py:func:`context() <testplan.common.utils.context.context>` call, or using
@@ -35,15 +37,38 @@ attributes and methods can be used inside the template.
     #  |            | <------ |               | <------ |             |
     #  --------------         -----------------         ---------------
 
+    # Without the dependency argument set, the order of drivers in the
+    # environment argument matters, i.e. "Application" must appear
+    # after "Service", "Client" must appear after "Application".
+
     environment=[
         Service(name='service'),
         Application(name='app',
                     host=context('service', '{{host}}')
-                    port=context('service', '{{port}}'))
+                    port=context('service', '{{port}}')),
         Client(name='client',
                host=context('app', '{{host}}')
                port=context('app', '{{port}}'))
     ]
+
+    # Or with the dependency argument set, the order of drivers in the
+    # environment argument no longer matters.
+
+    client = Client(name='client',
+                    host=context('app', '{{host}}')
+                    port=context('app', '{{port}}'))
+    application = Application(name='app',
+                              host=context('service', '{{host}}')
+                              port=context('service', '{{port}}'))
+    service = Service(name='service')
+
+    environment=[
+        client, application, service
+    ],
+    dependency={
+        service: application,
+        application: client
+    }
 
 
 Context
@@ -98,7 +123,7 @@ applications.
     # Client will have access to the server host, port
     # after server starts.
 
-    [
+    environment=[
         TCPServer('server'),
         TCPClient(
             'client1',

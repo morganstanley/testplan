@@ -1,26 +1,41 @@
 import os
-import time
+import tempfile
 from collections import defaultdict
 
 import pytest
 from pytest_test_filters import skip_on_windows
 
+from testplan.runners.pools.process import ProcessPool
 from testplan.testing.base import ProcessRunnerTest
 from testplan.testing.multitest.driver.base import Driver
 
 
+@pytest.fixture
+def named_temp_file():
+    tmp_d = tempfile.mkdtemp()
+    tmp_f = os.path.join(tmp_d, "tmp_file")
+    with open(tmp_f, "w"):
+        pass
+    try:
+        yield tmp_f
+    finally:
+        os.remove(tmp_f)
+        os.rmdir(tmp_d)
+
+
 class MyDriver(Driver):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, temp_file, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pre_start_time = None
-        self.post_start_time = None
+        self.temp_file = temp_file
 
     def pre_start(self):
-        self.pre_start_time = time.time()
+        with open(self.temp_file, "a") as f:
+            f.write(f"{self.name}_PRE\n")
         super().pre_start()
 
     def post_start(self):
-        self.post_start_time = time.time()
+        with open(self.temp_file, "a") as f:
+            f.write(f"{self.name}_POST\n")
         super().post_start()
 
 
@@ -38,8 +53,12 @@ binary_path = os.path.join(
 
 
 class DriverGeneratorDict(dict):
+    def __init__(self, temp_file, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.temp_file = temp_file
+
     def __missing__(self, key):
-        self[key] = MyDriver(key)
+        self[key] = MyDriver(self.temp_file, key)
         return self[key]
 
 
@@ -52,26 +71,32 @@ class DriverGeneratorDict(dict):
         [("a", "b"), ("c", "d"), ("a", "d"), ("c", "b")],
     ],
 )
-def test_testing_environment(mockplan, driver_dependencies):
+def test_testing_environment(mockplan, driver_dependencies, named_temp_file):
 
-    drivers = DriverGeneratorDict()
+    drivers = DriverGeneratorDict(named_temp_file)
     dependency = defaultdict(list)
     predicates = list()
     for side_a, side_b in driver_dependencies:
         dependency[drivers[side_a]].append(drivers[side_b])
         predicates.append(
-            lambda: drivers[side_a].post_start_time
-            < drivers[side_b].pre_start_time
+            lambda line_of: line_of[f"{drivers[side_a].name}_POST"]
+            < line_of[f"{drivers[side_b].name}_PRE"]
         )
 
-    mockplan.add(
-        DummyTest(
+    mockplan.add_resource(ProcessPool(name="I'm not local."))
+    mockplan.schedule(
+        target=DummyTest(
             name="MyTest",
             binary=binary_path,
             environment=list(drivers.values()),
             dependency=dependency,
-        )
+        ),
+        resource="I'm not local.",
     )
-    assert mockplan.run().run is True
+    assert mockplan.run().success is True
+
+    with open(named_temp_file, "r") as f:
+        lines = f.read().splitlines()
+
     for pred in predicates:
-        assert pred()
+        assert pred(dict(zip(lines, range(len(lines)))))

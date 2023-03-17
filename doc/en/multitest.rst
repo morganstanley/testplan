@@ -128,6 +128,15 @@ A MultiTest instance can be constructed from the following parameters:
   would typically be defined, as well as drivers for the interfaces that are
   required for interacting with it, such as network connections.
 
+* **Dependency**: The dependency is a dict with both keys and values of
+  :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>` or
+  iterable collection of
+  :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`.
+  Drivers on the value side should only start after drivers on the key side are
+  fully started. When specified, Testplan will try to schedule more drivers
+  starting parallelly based on the dependencies. Click
+  :ref:`here <drivers_basic>` for more information.
+
 * **Runtime Information**: The environment always contains a member called
   ``runtime_info`` which contains information about the current state of the
   run. See: :py:class:`MultiTestRuntimeInfo <testplan.testing.multitest.base.MultiTestRuntimeInfo>`
