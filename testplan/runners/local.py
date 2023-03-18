@@ -1,5 +1,6 @@
 """Basic local executor."""
 import time
+from typing import List
 
 from .base import Executor
 from testplan.runners.pools import tasks
@@ -116,3 +117,9 @@ class LocalRunner(Executor):
                 "Test [{}] discarding due to {} abort.".format(uid, self.uid())
             )
             self._results[uid] = result
+
+    def get_current_status(self) -> List[str]:
+        """Get current status of LocalRunner"""
+        msgs = [f"{self.name} status: {self.status.tag}"]
+        msgs.extend(super(LocalRunner, self).get_current_status())
+        return msgs

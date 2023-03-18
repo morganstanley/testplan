@@ -3,6 +3,7 @@
 import threading
 
 from collections import OrderedDict
+from typing import List
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
@@ -37,6 +38,10 @@ class Executor(Resource):
         self._input = OrderedDict()
         self._results = OrderedDict()
         self.ongoing = []
+
+    @property
+    def name(self):
+        return self.__class__.__name__
 
     @property
     def results(self):
@@ -112,3 +117,25 @@ class Executor(Resource):
     def pending_work(self):
         """Resource has pending work."""
         return len(self.ongoing) > 0
+
+    def get_current_status(self) -> List[str]:
+        """
+        Get current status of Executor. Subclasses can override this method and
+        implement a well suited method to get their current status.
+        """
+        msgs = []
+        if self.added_items:
+            msgs.append(f"{self.name} {self.cfg.name} added items:")
+            for item in self.added_items:
+                msgs.append(f"\t{item}")
+        else:
+            msgs.append(f"No added items in {self.name}")
+
+        if self.ongoing:
+            msgs.append(f"{self.name} {self.cfg.name} pending items:")
+            for item in self.ongoing:
+                msgs.append(f"\t{item}")
+        else:
+            msgs.append(f"No pending items in {self.name}")
+
+        return msgs

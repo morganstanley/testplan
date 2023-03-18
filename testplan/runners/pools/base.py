@@ -7,7 +7,7 @@ import queue
 import threading
 import time
 import traceback
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from schema import And, Or
 
@@ -934,3 +934,38 @@ class Pool(Executor):
 
     def record_execution(self, uid):
         self._executed_tests.append(uid)
+
+    def get_current_status(self) -> List[str]:
+        """Get current status of Pool."""
+        msgs = super(Pool, self).get_current_status()
+
+        size = self.unassigned.qsize()
+
+        if size:
+            msgs.append(f"{self.name} {self.cfg.name} unassigned tasks:")
+            for _ in range(size):
+                _, task = self.unassigned.get()
+                msgs.append(f"\t{task}")
+        else:
+            msgs.append(
+                f"\t{self.name} {self.cfg.name} all tasks assigned to workers."
+            )
+
+        if self._workers:
+            msgs.append(
+                f"Workers in {self.name} {self.cfg.name} with status and waiting assigned tasks:"
+            )
+            for worker in self._workers:
+                status, reason = self._query_worker_status(worker)
+                msgs.append(f"\t{worker.uid()}")
+                msgs.append(f"\t\tStatus: {status}, Reason: {reason}")
+                if worker.assigned:
+                    msgs.append(
+                        f"\t\tWaiting for completion of tasks: {worker.assigned}"
+                    )
+                else:
+                    msgs.append(f"\t\tNo tasks to complete.")
+        else:
+            msgs.append(f"No workers in {self.name} {self.cfg.name}.")
+
+        return msgs

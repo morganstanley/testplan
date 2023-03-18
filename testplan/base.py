@@ -2,7 +2,11 @@
 import argparse
 import os
 import random
+import signal
+import sys
 import tempfile
+import traceback
+import threading
 
 from schema import And
 
@@ -17,7 +21,18 @@ from testplan.parser import TestplanParser
 from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.local import LocalRunner
+from testplan.runners.base import Executor
 from testplan.testing import filtering, ordering
+
+
+def pdb_drop_handler(sig, frame):
+    """
+    Drop into pdb
+    """
+    print("Received SIGUSR1, dropping into pdb")
+    import pdb
+
+    pdb.set_trace()
 
 
 class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
@@ -302,6 +317,41 @@ class Testplan(entity.RunnableManager):
             options[key] = self._processed_args[key]
         return options
 
+    def _print_current_status(self, sig, frame):
+        """
+        Print stack frames of all threads
+        """
+
+        print("Received SIGUSR2, printing current status")
+        id2name = dict([(th.ident, th.name) for th in threading.enumerate()])
+
+        msgs = ["Stack frames of all threads"]
+        for thread_id, stack in sorted(
+            sys._current_frames().items(), reverse=True
+        ):
+            msgs.append(
+                "{}# Thread: {}({})".format(
+                    os.linesep, id2name.get(thread_id, ""), thread_id
+                )
+            )
+            for filename, lineno, name, line in traceback.extract_stack(stack):
+                msgs.append(
+                    'File: "{}", line {}, in {}'.format(filename, lineno, name)
+                )
+                if line:
+                    msgs.append("  {}".format(line.strip()))
+
+        msg = os.linesep.join(msgs)
+        print(msg)
+
+        msgs = ["State of tests"]
+        for resource in self.resources:
+            if isinstance(resource, Executor):
+                msgs.extend(resource.get_current_status())
+
+        msg = os.linesep.join(msgs)
+        print(msg)
+
     def run(self):
         """
         Runs the tests added and returns the result object.
@@ -309,6 +359,11 @@ class Testplan(entity.RunnableManager):
         :return: Result containing tests and execution steps results.
         :rtype: :py:class:`~testplan.base.TestplanResult`
         """
+        if hasattr(signal, "SIGUSR1"):
+            signal.signal(signal.SIGUSR1, pdb_drop_handler)
+        if hasattr(signal, "SIGUSR2"):
+            signal.signal(signal.SIGUSR2, self._print_current_status)
+
         result = super(Testplan, self).run()
         if isinstance(result, TestRunnerResult):
             testplan_result = TestplanResult()
