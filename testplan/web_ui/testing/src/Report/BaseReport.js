@@ -29,7 +29,10 @@ class BaseReport extends React.Component {
         this.state = {
             navWidth: null,
             report: null,
-            filteredReport: { filter: { text: null, filters: null }, report: null },
+            filteredReport: {
+                filter: { text: null, filters: null },
+                report: null,
+            },
             loading: false,
             error: null,
             treeView: true,
