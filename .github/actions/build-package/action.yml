@@ -1,26 +1,25 @@
-name: 'Build package'
-description: 'Build testplan package'
+name: "Build package"
+description: "Build testplan package"
+inputs:
+  is_dev_build:
+    description: "If true generate dev buildnumber"
+    required: true
+    default: false
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
-    - uses: actions/setup-node@v2
+        python-version: "3.11"
+    - uses: actions/setup-node@v3
       with:
-        node-version: '14'
-    - uses: pnpm/action-setup@v2.1.0
+        node-version: "14"
+    - uses: pnpm/action-setup@v2.2.4
       with:
         version: 6.30.1
-
-    - run: pip install --upgrade setuptools build
+    - run: |        
+        pip install --upgrade pip
+        pip install --upgrade -r requirements-build.txt        
       shell: bash
-    - run: |
-        cd testplan/web_ui/testing
-        pnpm install
-        pnpm config set enable-pre-post-scripts true
-        CI=false pnpm build
-        cd -
-      shell: bash  
-    - run: python -m build -w
+    - run: CI=false doit -v2 build${{ (inputs.is_dev_build == 'true' && '_dev') || '' }}
       shell: bash

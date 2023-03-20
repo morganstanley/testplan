@@ -15,13 +15,17 @@ jobs:
       security-events: write
       pull-requests: read
     steps:
-    - uses: actions/checkout@v2
-    - uses: ./.github/actions/build-package     
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: true
-        title: "Development Build"
-        files: |
-          dist/testplan-*-py3-none-any.whl
+      - uses: actions/checkout@v3
+      - run: pip install --upgrade bumpver
+      - run: bumpver update --no-commit
+      - uses: ./.github/actions/build-package
+        with:
+          is_dev_build: true
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            dist/testplan-*-py3-none-any.whl

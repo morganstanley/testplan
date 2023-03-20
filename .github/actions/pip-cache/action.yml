@@ -4,7 +4,7 @@ runs:
   using: "composite"
   steps:
     - name: Restore Pip Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}

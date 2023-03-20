@@ -10,7 +10,7 @@ jobs:
       is_source_changed: ${{steps.check_source_change.outputs.changed}}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Check if any source changed
@@ -31,16 +31,16 @@ jobs:
 
   success:
     name: PR Tets Completed
-    needs: [is_source_changed, Test]
+    needs: [is_source_changed, test]
     runs-on: ubuntu-latest
     if: always() && needs.is_source_changed.result == 'success' && (needs.is_source_changed.outputs.is_source_changed == 'false' || needs.Test.result == 'success')
     steps:
       - run: echo ${{needs.is_source_changed.result}} ${{needs.is_source_changed.outputs.is_source_changed}} ${{needs.Test.result}}
       - run: true
 
-  lint:
-    name: Run lint on code
-    needs: [ is_source_changed ]
+  lint_python:
+    name: Run lint on python code
+    needs: [is_source_changed]
     runs-on: ubuntu-latest
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
@@ -48,9 +48,9 @@ jobs:
       LINT_PYTHON_VERSION: "3.7"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Python ${{ env.LINT_PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.LINT_PYTHON_VERSION }}
       - name: Restore pip cache
@@ -58,43 +58,75 @@ jobs:
       - name: Setup
         run: |
           pip install -r requirements.txt -U
-          pip install black==$BLACK_VERSION pylint
       - name: Lint
+        run: doit lint
+
+  build_ui:
+    name: Build UI (with test and lint)
+    needs: [is_source_changed]
+    runs-on: ubuntu-latest
+    if: needs.is_source_changed.outputs.is_source_changed == 'true'
+    env:
+      REACT_APP_API_BASE_URL: "/fake/api/endpoint"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "14.x"
+      - name: Restore pip cache
+        uses: ./.github/actions/pip-cache
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 6.30.1
+      - name: Setup
         run: |
-          python3 -m black --check .
-          ./scripts/utils/crlf_check.sh
-          pylint --rcfile pylintrc testplan
+          pip install -r requirements-build.txt -U
+      - name: Build
+        run: |
+            doit lint_ui
+            CI=false doit build_ui            
+            doit test_ui
+      - name: Archive ui artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ui_bundle
+          path: testplan/web_ui/testing/build
+          retention-days: 1
 
   test:
     name: Test
-    needs: [lint]
+    needs: [lint_python, build_ui]
     runs-on: ${{ matrix.os }}
     env:
-      REACT_APP_API_BASE_URL: "/fake/api/endpoint"
       CI: ""
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: [3.7, 3.8, '3.10', 3.11]
+      fail-fast: false
 
     steps:
       - run: echo "BUILD ${{ matrix.os }} ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore pip cache
         uses: ./.github/actions/pip-cache
-      - name: Set up Node
-        uses: actions/setup-node@v2
+      - name: Download ui bundle
+        uses: actions/download-artifact@v3
         with:
-          node-version: '14.x'
-      - name: Set up PNPM
-        uses: pnpm/action-setup@v2.1.0
-        with:
-          version: 6.30.1
+          name: ui_bundle
+          path: testplan/web_ui/testing/build
       - name: Set up Zookeeper for tests
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
@@ -107,13 +139,5 @@ jobs:
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
       - name: Install dependencies
         run: pip install -r requirements.txt -U
-      - name: Build & Test UI
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: | 
-          python install-testplan-ui --verbose --dev
-          cd testplan/web_ui/testing
-          CI=true pnpm lint
-          CI=true pnpm test
-          cd -
       - name: Test Python
-        run: pytest tests --verbose
+        run: doit test
