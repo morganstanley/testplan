@@ -201,6 +201,29 @@ describe('BatchReport', () => {
     });
   });
 
+  it('loads a report with selection at Testcase level and Time Information enanbled', done => {
+    moxios.stubRequest('/api/v1/metadata/fix-spec/tags', {
+      status: 200, response: {}
+    })
+    const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83", "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8/08d4c671-d55d-49d4-96ba-dc654d12be26/f73bd6ea-d378-437b-a5db-00d9e427f36a");
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83");
+      request.respondWith({
+        status: 200,
+        response: TESTPLAN_REPORT,
+      }).then(() => {
+        batchReport.setState({displayTime: true});
+        batchReport.update();
+        const props = batchReport.instance().props;
+        expect(props.history.location.pathname).toBe(`/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/8c3c7e6b-48e8-40cd-86db-8c8aed2592c8/08d4c671-d55d-49d4-96ba-dc654d12be26/f73bd6ea-d378-437b-a5db-00d9e427f36a`)
+        handleRedirect(batchReport);
+        expect(batchReport).toMatchSnapshot();
+        done();
+      });
+    });
+  });
+
   it('renders an error message when Testplan report cannot be found.', done => {
     const batchReport = renderBatchReport();
     moxios.wait(function () {
