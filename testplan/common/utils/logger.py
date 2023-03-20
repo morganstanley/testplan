@@ -22,9 +22,11 @@ from testplan.report import Status
 CRITICAL = logging.CRITICAL  # 50
 ERROR = logging.ERROR  # 40
 WARNING = logging.WARNING  # 30
+# TODO: EXPORTER_INFO, TEST_INFO, DRIVER_INFO to be deco'ed.
 EXPORTER_INFO = 29
 TEST_INFO = 28
 DRIVER_INFO = 27
+USER_INFO = 25
 INFO = logging.INFO  # 20
 DEBUG = logging.DEBUG  # 10
 
@@ -39,7 +41,7 @@ LOGFILE_FORMAT = (
 class TestplanLogger(logging.Logger):
     """
     Custom Logger class for Testplan. Adds extra logging levels and
-    corresponding methods for EXPORTER_INFO, TEST_INFO and DRIVER_INFO levels.
+    corresponding methods for EXPORTER_INFO, TEST_INFO, DRIVER_INFO, and USER_INFO levels.
     """
 
     _TEST_STATUS_FORMAT = "%(indent)s[%(name)s] -> %(pass_label)s"
@@ -47,7 +49,12 @@ class TestplanLogger(logging.Logger):
     # In addition to the built-in log levels, we add some extras.
     _CUSTOM_LEVELS = {
         level_name: globals()[level_name]
-        for level_name in ("EXPORTER_INFO", "TEST_INFO", "DRIVER_INFO")
+        for level_name in (
+            "EXPORTER_INFO",
+            "TEST_INFO",
+            "DRIVER_INFO",
+            "USER_INFO",
+        )
     }
 
     # As well as storing the log levels as global constants, we also store them
@@ -85,6 +92,10 @@ class TestplanLogger(logging.Logger):
     def driver_info(self, msg, *args, **kwargs):
         """Log 'msg % args' with severity 'DRIVER_INFO'"""
         self._custom_log(DRIVER_INFO, msg, *args, **kwargs)
+
+    def user_info(self, msg, *args, **kwargs):
+        """Log 'msg % args' with severity 'USER_INFO'"""
+        self._custom_log(USER_INFO, msg, *args, **kwargs)
 
     def log_test_status(self, name, status, indent=0, level=TEST_INFO):
         """Shortcut to log a pass/fail status for a test."""
