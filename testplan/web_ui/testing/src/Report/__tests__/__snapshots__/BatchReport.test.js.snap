@@ -8851,6 +8851,1669 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
 </div>
 `;
 
+exports[`BatchReport loads a report with selection at Testcase level and Time Information enanbled 1`] = `
+<div
+  className="batchReport_3hmsj"
+>
+  <Toolbar
+    expandStatus="default"
+    filterBoxWidth="22em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    report={
+      Object {
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "passed",
+                    "status_override": null,
+                    "tags": Object {
+                      "colour": Array [
+                        "white",
+                      ],
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "colour": Array [
+                        "white",
+                      ],
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:11.132214+00:00",
+                        "start": "2018-10-15T14:30:11.010072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
+                  },
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:11.510098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "timeInfoArray": Array [],
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:11.510094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing2",
+                    "name_type_index": Array [
+                      "test_equality_passing2|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "failed",
+                    "status_override": null,
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:11.632214+00:00",
+                        "start": "2018-10-15T14:30:11.510072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    ],
+                  },
+                ],
+                "logs": Array [],
+                "name": "AlphaSuite",
+                "name_type_index": Array [
+                  "AlphaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                  "test_equality_passing2|testcase",
+                ],
+                "status": "failed",
+                "status_override": null,
+                "tags": Object {
+                  "simple": Array [
+                    "server",
+                  ],
+                },
+                "tags_index": Object {
+                  "colour": Array [
+                    "white",
+                  ],
+                  "simple": Array [
+                    "server",
+                  ],
+                },
+                "timer": Object {
+                  "run": Object {
+                    "end": "2018-10-15T14:30:11.158224+00:00",
+                    "start": "2018-10-15T14:30:11.009872+00:00",
+                  },
+                },
+                "type": "TestGroupReport",
+                "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
+              },
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "BetaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "passed",
+                    "status_override": null,
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:11.132214+00:00",
+                        "start": "2018-10-15T14:30:11.010072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                      "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    ],
+                  },
+                ],
+                "logs": Array [],
+                "name": "BetaSuite",
+                "name_type_index": Array [
+                  "BetaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
+                "status": "passed",
+                "status_override": null,
+                "tags": Object {
+                  "simple": Array [
+                    "server",
+                    "client",
+                  ],
+                },
+                "tags_index": Object {
+                  "simple": Array [
+                    "server",
+                    "client",
+                  ],
+                },
+                "timer": Object {
+                  "run": Object {
+                    "end": "2018-10-15T14:30:11.158224+00:00",
+                    "start": "2018-10-15T14:30:11.009872+00:00",
+                  },
+                },
+                "type": "TestGroupReport",
+                "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                ],
+              },
+            ],
+            "logs": Array [],
+            "name": "Primary",
+            "name_type_index": Array [
+              "Primary|multitest",
+              "Sample Testplan|testplan",
+              "AlphaSuite|testsuite",
+              "test_equality_passing|testcase",
+              "test_equality_passing2|testcase",
+              "BetaSuite|testsuite",
+            ],
+            "status": "failed",
+            "status_override": null,
+            "tags": Object {
+              "simple": Array [
+                "server",
+              ],
+            },
+            "tags_index": Object {
+              "colour": Array [
+                "white",
+              ],
+              "simple": Array [
+                "server",
+                "client",
+              ],
+            },
+            "timer": Object {
+              "run": Object {
+                "end": "2018-10-15T14:30:11.159661+00:00",
+                "start": "2018-10-15T14:30:11.009705+00:00",
+              },
+            },
+            "type": "TestGroupReport",
+            "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
+          },
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "timeInfoArray": Array [
+                          0,
+                          "14:30:12.010 UTC",
+                          "(122ms)",
+                        ],
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:12.010094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "GammaSuite|testsuite",
+                      "Secondary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "passed",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:12.132214+00:00",
+                        "start": "2018-10-15T14:30:12.010072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                      "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                      "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    ],
+                  },
+                ],
+                "logs": Array [],
+                "name": "GammaSuite",
+                "name_type_index": Array [
+                  "GammaSuite|testsuite",
+                  "Secondary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
+                "status": "passed",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {
+                  "run": Object {
+                    "end": "2018-10-15T14:30:12.158224+00:00",
+                    "start": "2018-10-15T14:30:12.009872+00:00",
+                  },
+                },
+                "type": "TestGroupReport",
+                "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                  "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                ],
+              },
+            ],
+            "logs": Array [],
+            "name": "Secondary",
+            "name_type_index": Array [
+              "Secondary|multitest",
+              "Sample Testplan|testplan",
+              "GammaSuite|testsuite",
+              "test_equality_passing|testcase",
+            ],
+            "status": "passed",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {
+              "run": Object {
+                "end": "2018-10-15T14:30:12.159661+00:00",
+                "start": "2018-10-15T14:30:12.009705+00:00",
+              },
+            },
+            "type": "TestGroupReport",
+            "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            ],
+          },
+        ],
+        "meta": Object {},
+        "name": "Sample Testplan",
+        "name_type_index": Array [
+          "Sample Testplan|testplan",
+          "Primary|multitest",
+          "AlphaSuite|testsuite",
+          "test_equality_passing|testcase",
+          "test_equality_passing2|testcase",
+          "BetaSuite|testsuite",
+          "Secondary|multitest",
+          "GammaSuite|testsuite",
+        ],
+        "status": "failed",
+        "status_override": null,
+        "tags_index": Object {
+          "colour": Array [
+            "white",
+          ],
+          "simple": Array [
+            "server",
+            "client",
+          ],
+        },
+        "timer": Object {
+          "run": Object {
+            "end": "2018-10-15T14:30:11.296158+00:00",
+            "start": "2018-10-15T14:30:10.998071+00:00",
+          },
+        },
+        "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
+      }
+    }
+    status="failed"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <Nav
+    displayEmpty={true}
+    displayTags={false}
+    displayTime={true}
+    filter={null}
+    handleColumnResizing={[Function]}
+    interactive={false}
+    navListWidth="22em"
+    report={
+      Object {
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "passed",
+                    "status_override": null,
+                    "tags": Object {
+                      "colour": Array [
+                        "white",
+                      ],
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "colour": Array [
+                        "white",
+                      ],
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:11.132214+00:00",
+                        "start": "2018-10-15T14:30:11.010072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
+                  },
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:11.510098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "timeInfoArray": Array [],
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:11.510094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing2",
+                    "name_type_index": Array [
+                      "test_equality_passing2|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "failed",
+                    "status_override": null,
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:11.632214+00:00",
+                        "start": "2018-10-15T14:30:11.510072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    ],
+                  },
+                ],
+                "logs": Array [],
+                "name": "AlphaSuite",
+                "name_type_index": Array [
+                  "AlphaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                  "test_equality_passing2|testcase",
+                ],
+                "status": "failed",
+                "status_override": null,
+                "tags": Object {
+                  "simple": Array [
+                    "server",
+                  ],
+                },
+                "tags_index": Object {
+                  "colour": Array [
+                    "white",
+                  ],
+                  "simple": Array [
+                    "server",
+                  ],
+                },
+                "timer": Object {
+                  "run": Object {
+                    "end": "2018-10-15T14:30:11.158224+00:00",
+                    "start": "2018-10-15T14:30:11.009872+00:00",
+                  },
+                },
+                "type": "TestGroupReport",
+                "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
+              },
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "BetaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "passed",
+                    "status_override": null,
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:11.132214+00:00",
+                        "start": "2018-10-15T14:30:11.010072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                      "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    ],
+                  },
+                ],
+                "logs": Array [],
+                "name": "BetaSuite",
+                "name_type_index": Array [
+                  "BetaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
+                "status": "passed",
+                "status_override": null,
+                "tags": Object {
+                  "simple": Array [
+                    "server",
+                    "client",
+                  ],
+                },
+                "tags_index": Object {
+                  "simple": Array [
+                    "server",
+                    "client",
+                  ],
+                },
+                "timer": Object {
+                  "run": Object {
+                    "end": "2018-10-15T14:30:11.158224+00:00",
+                    "start": "2018-10-15T14:30:11.009872+00:00",
+                  },
+                },
+                "type": "TestGroupReport",
+                "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                ],
+              },
+            ],
+            "logs": Array [],
+            "name": "Primary",
+            "name_type_index": Array [
+              "Primary|multitest",
+              "Sample Testplan|testplan",
+              "AlphaSuite|testsuite",
+              "test_equality_passing|testcase",
+              "test_equality_passing2|testcase",
+              "BetaSuite|testsuite",
+            ],
+            "status": "failed",
+            "status_override": null,
+            "tags": Object {
+              "simple": Array [
+                "server",
+              ],
+            },
+            "tags_index": Object {
+              "colour": Array [
+                "white",
+              ],
+              "simple": Array [
+                "server",
+                "client",
+              ],
+            },
+            "timer": Object {
+              "run": Object {
+                "end": "2018-10-15T14:30:11.159661+00:00",
+                "start": "2018-10-15T14:30:11.009705+00:00",
+              },
+            },
+            "type": "TestGroupReport",
+            "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
+          },
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "passing equality",
+                        "first": 1,
+                        "label": "==",
+                        "line_no": 24,
+                        "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                        "meta_type": "assertion",
+                        "passed": true,
+                        "second": 1,
+                        "timeInfoArray": Array [
+                          0,
+                          "14:30:12.010 UTC",
+                          "(122ms)",
+                        ],
+                        "type": "Equal",
+                        "utc_time": "2018-10-15T14:30:12.010094+00:00",
+                      },
+                    ],
+                    "logs": Array [],
+                    "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "GammaSuite|testsuite",
+                      "Secondary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
+                    "status": "passed",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {
+                      "run": Object {
+                        "end": "2018-10-15T14:30:12.132214+00:00",
+                        "start": "2018-10-15T14:30:12.010072+00:00",
+                      },
+                    },
+                    "type": "TestCaseReport",
+                    "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                      "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                      "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    ],
+                  },
+                ],
+                "logs": Array [],
+                "name": "GammaSuite",
+                "name_type_index": Array [
+                  "GammaSuite|testsuite",
+                  "Secondary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
+                "status": "passed",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {
+                  "run": Object {
+                    "end": "2018-10-15T14:30:12.158224+00:00",
+                    "start": "2018-10-15T14:30:12.009872+00:00",
+                  },
+                },
+                "type": "TestGroupReport",
+                "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                  "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                ],
+              },
+            ],
+            "logs": Array [],
+            "name": "Secondary",
+            "name_type_index": Array [
+              "Secondary|multitest",
+              "Sample Testplan|testplan",
+              "GammaSuite|testsuite",
+              "test_equality_passing|testcase",
+            ],
+            "status": "passed",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {
+              "run": Object {
+                "end": "2018-10-15T14:30:12.159661+00:00",
+                "start": "2018-10-15T14:30:12.009705+00:00",
+              },
+            },
+            "type": "TestGroupReport",
+            "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            ],
+          },
+        ],
+        "meta": Object {},
+        "name": "Sample Testplan",
+        "name_type_index": Array [
+          "Sample Testplan|testplan",
+          "Primary|multitest",
+          "AlphaSuite|testsuite",
+          "test_equality_passing|testcase",
+          "test_equality_passing2|testcase",
+          "BetaSuite|testsuite",
+          "Secondary|multitest",
+          "GammaSuite|testsuite",
+        ],
+        "status": "failed",
+        "status_override": null,
+        "tags_index": Object {
+          "colour": Array [
+            "white",
+          ],
+          "simple": Array [
+            "server",
+            "client",
+          ],
+        },
+        "timer": Object {
+          "run": Object {
+            "end": "2018-10-15T14:30:11.296158+00:00",
+            "start": "2018-10-15T14:30:10.998071+00:00",
+          },
+        },
+        "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "category": "testplan",
+          "entries": Array [
+            Object {
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing",
+                      "name_type_index": Array [
+                        "test_equality_passing|testcase",
+                        "AlphaSuite|testsuite",
+                        "Primary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {
+                        "colour": Array [
+                          "white",
+                        ],
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "tags_index": Object {
+                        "colour": Array [
+                          "white",
+                        ],
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.132214+00:00",
+                          "start": "2018-10-15T14:30:11.010072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                        "736706ef-ba65-475d-96c5-f2855f431028",
+                      ],
+                    },
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:11.510098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "timeInfoArray": Array [],
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:11.510094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing2",
+                      "name_type_index": Array [
+                        "test_equality_passing2|testcase",
+                        "AlphaSuite|testsuite",
+                        "Primary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "failed",
+                      "status_override": null,
+                      "tags": Object {
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "tags_index": Object {
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.632214+00:00",
+                          "start": "2018-10-15T14:30:11.510072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                        "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                      ],
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "AlphaSuite",
+                  "name_type_index": Array [
+                    "AlphaSuite|testsuite",
+                    "Primary|multitest",
+                    "Sample Testplan|testplan",
+                    "test_equality_passing|testcase",
+                    "test_equality_passing2|testcase",
+                  ],
+                  "status": "failed",
+                  "status_override": null,
+                  "tags": Object {
+                    "simple": Array [
+                      "server",
+                    ],
+                  },
+                  "tags_index": Object {
+                    "colour": Array [
+                      "white",
+                    ],
+                    "simple": Array [
+                      "server",
+                    ],
+                  },
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:11.158224+00:00",
+                      "start": "2018-10-15T14:30:11.009872+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  ],
+                },
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing",
+                      "name_type_index": Array [
+                        "test_equality_passing|testcase",
+                        "BetaSuite|testsuite",
+                        "Primary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {
+                        "simple": Array [
+                          "server",
+                          "client",
+                        ],
+                      },
+                      "tags_index": Object {
+                        "simple": Array [
+                          "server",
+                          "client",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.132214+00:00",
+                          "start": "2018-10-15T14:30:11.010072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                        "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                      ],
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "BetaSuite",
+                  "name_type_index": Array [
+                    "BetaSuite|testsuite",
+                    "Primary|multitest",
+                    "Sample Testplan|testplan",
+                    "test_equality_passing|testcase",
+                  ],
+                  "status": "passed",
+                  "status_override": null,
+                  "tags": Object {
+                    "simple": Array [
+                      "server",
+                      "client",
+                    ],
+                  },
+                  "tags_index": Object {
+                    "simple": Array [
+                      "server",
+                      "client",
+                    ],
+                  },
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:11.158224+00:00",
+                      "start": "2018-10-15T14:30:11.009872+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                  ],
+                },
+              ],
+              "logs": Array [],
+              "name": "Primary",
+              "name_type_index": Array [
+                "Primary|multitest",
+                "Sample Testplan|testplan",
+                "AlphaSuite|testsuite",
+                "test_equality_passing|testcase",
+                "test_equality_passing2|testcase",
+                "BetaSuite|testsuite",
+              ],
+              "status": "failed",
+              "status_override": null,
+              "tags": Object {
+                "simple": Array [
+                  "server",
+                ],
+              },
+              "tags_index": Object {
+                "colour": Array [
+                  "white",
+                ],
+                "simple": Array [
+                  "server",
+                  "client",
+                ],
+              },
+              "timer": Object {
+                "run": Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              },
+              "type": "TestGroupReport",
+              "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              ],
+            },
+            Object {
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "timeInfoArray": Array [
+                            0,
+                            "14:30:12.010 UTC",
+                            "(122ms)",
+                          ],
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:12.010094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing",
+                      "name_type_index": Array [
+                        "test_equality_passing|testcase",
+                        "GammaSuite|testsuite",
+                        "Secondary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {},
+                      "tags_index": Object {},
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:12.132214+00:00",
+                          "start": "2018-10-15T14:30:12.010072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                        "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                        "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                      ],
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "GammaSuite",
+                  "name_type_index": Array [
+                    "GammaSuite|testsuite",
+                    "Secondary|multitest",
+                    "Sample Testplan|testplan",
+                    "test_equality_passing|testcase",
+                  ],
+                  "status": "passed",
+                  "status_override": null,
+                  "tags": Object {},
+                  "tags_index": Object {},
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:12.158224+00:00",
+                      "start": "2018-10-15T14:30:12.009872+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                    "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                  ],
+                },
+              ],
+              "logs": Array [],
+              "name": "Secondary",
+              "name_type_index": Array [
+                "Secondary|multitest",
+                "Sample Testplan|testplan",
+                "GammaSuite|testsuite",
+                "test_equality_passing|testcase",
+              ],
+              "status": "passed",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {
+                "run": Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              },
+              "type": "TestGroupReport",
+              "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+              ],
+            },
+          ],
+          "meta": Object {},
+          "name": "Sample Testplan",
+          "name_type_index": Array [
+            "Sample Testplan|testplan",
+            "Primary|multitest",
+            "AlphaSuite|testsuite",
+            "test_equality_passing|testcase",
+            "test_equality_passing2|testcase",
+            "BetaSuite|testsuite",
+            "Secondary|multitest",
+            "GammaSuite|testsuite",
+          ],
+          "status": "failed",
+          "status_override": null,
+          "tags_index": Object {
+            "colour": Array [
+              "white",
+            ],
+            "simple": Array [
+              "server",
+              "client",
+            ],
+          },
+          "timer": Object {
+            "run": Object {
+              "end": "2018-10-15T14:30:11.296158+00:00",
+              "start": "2018-10-15T14:30:10.998071+00:00",
+            },
+          },
+          "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+          ],
+        },
+        Object {
+          "category": "multitest",
+          "description": null,
+          "entries": Array [
+            Object {
+              "category": "testsuite",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "testcase",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "DEFAULT",
+                      "description": "passing equality",
+                      "first": 1,
+                      "label": "==",
+                      "line_no": 24,
+                      "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                      "meta_type": "assertion",
+                      "passed": true,
+                      "second": 1,
+                      "timeInfoArray": Array [
+                        0,
+                        "14:30:12.010 UTC",
+                        "(122ms)",
+                      ],
+                      "type": "Equal",
+                      "utc_time": "2018-10-15T14:30:12.010094+00:00",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "test_equality_passing",
+                  "name_type_index": Array [
+                    "test_equality_passing|testcase",
+                    "GammaSuite|testsuite",
+                    "Secondary|multitest",
+                    "Sample Testplan|testplan",
+                  ],
+                  "status": "passed",
+                  "status_override": null,
+                  "tags": Object {},
+                  "tags_index": Object {},
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:12.132214+00:00",
+                      "start": "2018-10-15T14:30:12.010072+00:00",
+                    },
+                  },
+                  "type": "TestCaseReport",
+                  "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                    "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                    "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                  ],
+                },
+              ],
+              "logs": Array [],
+              "name": "GammaSuite",
+              "name_type_index": Array [
+                "GammaSuite|testsuite",
+                "Secondary|multitest",
+                "Sample Testplan|testplan",
+                "test_equality_passing|testcase",
+              ],
+              "status": "passed",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {
+                "run": Object {
+                  "end": "2018-10-15T14:30:12.158224+00:00",
+                  "start": "2018-10-15T14:30:12.009872+00:00",
+                },
+              },
+              "type": "TestGroupReport",
+              "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                "08d4c671-d55d-49d4-96ba-dc654d12be26",
+              ],
+            },
+          ],
+          "logs": Array [],
+          "name": "Secondary",
+          "name_type_index": Array [
+            "Secondary|multitest",
+            "Sample Testplan|testplan",
+            "GammaSuite|testsuite",
+            "test_equality_passing|testcase",
+          ],
+          "status": "passed",
+          "status_override": null,
+          "tags": Object {},
+          "tags_index": Object {},
+          "timer": Object {
+            "run": Object {
+              "end": "2018-10-15T14:30:12.159661+00:00",
+              "start": "2018-10-15T14:30:12.009705+00:00",
+            },
+          },
+          "type": "TestGroupReport",
+          "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+            "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+          ],
+        },
+        Object {
+          "category": "testsuite",
+          "description": null,
+          "entries": Array [
+            Object {
+              "category": "testcase",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "DEFAULT",
+                  "description": "passing equality",
+                  "first": 1,
+                  "label": "==",
+                  "line_no": 24,
+                  "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                  "meta_type": "assertion",
+                  "passed": true,
+                  "second": 1,
+                  "timeInfoArray": Array [
+                    0,
+                    "14:30:12.010 UTC",
+                    "(122ms)",
+                  ],
+                  "type": "Equal",
+                  "utc_time": "2018-10-15T14:30:12.010094+00:00",
+                },
+              ],
+              "logs": Array [],
+              "name": "test_equality_passing",
+              "name_type_index": Array [
+                "test_equality_passing|testcase",
+                "GammaSuite|testsuite",
+                "Secondary|multitest",
+                "Sample Testplan|testplan",
+              ],
+              "status": "passed",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {
+                "run": Object {
+                  "end": "2018-10-15T14:30:12.132214+00:00",
+                  "start": "2018-10-15T14:30:12.010072+00:00",
+                },
+              },
+              "type": "TestCaseReport",
+              "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+              ],
+            },
+          ],
+          "logs": Array [],
+          "name": "GammaSuite",
+          "name_type_index": Array [
+            "GammaSuite|testsuite",
+            "Secondary|multitest",
+            "Sample Testplan|testplan",
+            "test_equality_passing|testcase",
+          ],
+          "status": "passed",
+          "status_override": null,
+          "tags": Object {},
+          "tags_index": Object {},
+          "timer": Object {
+            "run": Object {
+              "end": "2018-10-15T14:30:12.158224+00:00",
+              "start": "2018-10-15T14:30:12.009872+00:00",
+            },
+          },
+          "type": "TestGroupReport",
+          "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+            "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "08d4c671-d55d-49d4-96ba-dc654d12be26",
+          ],
+        },
+        Object {
+          "category": "testcase",
+          "description": null,
+          "entries": Array [
+            Object {
+              "category": "DEFAULT",
+              "description": "passing equality",
+              "first": 1,
+              "label": "==",
+              "line_no": 24,
+              "machine_time": "2018-10-15T15:30:12.010098+00:00",
+              "meta_type": "assertion",
+              "passed": true,
+              "second": 1,
+              "timeInfoArray": Array [
+                0,
+                "14:30:12.010 UTC",
+                "(122ms)",
+              ],
+              "type": "Equal",
+              "utc_time": "2018-10-15T14:30:12.010094+00:00",
+            },
+          ],
+          "logs": Array [],
+          "name": "test_equality_passing",
+          "name_type_index": Array [
+            "test_equality_passing|testcase",
+            "GammaSuite|testsuite",
+            "Secondary|multitest",
+            "Sample Testplan|testplan",
+          ],
+          "status": "passed",
+          "status_override": null,
+          "tags": Object {},
+          "tags_index": Object {},
+          "timer": Object {
+            "run": Object {
+              "end": "2018-10-15T14:30:12.132214+00:00",
+              "start": "2018-10-15T14:30:12.010072+00:00",
+            },
+          },
+          "type": "TestCaseReport",
+          "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+            "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "08d4c671-d55d-49d4-96ba-dc654d12be26",
+            "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+          ],
+        },
+      ]
+    }
+    treeView={true}
+    url="/testplan/:uid/:selection*"
+  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <AssertionPane
+      assertions={
+        Array [
+          Object {
+            "category": "DEFAULT",
+            "description": "passing equality",
+            "first": 1,
+            "label": "==",
+            "line_no": 24,
+            "machine_time": "2018-10-15T15:30:12.010098+00:00",
+            "meta_type": "assertion",
+            "passed": true,
+            "second": 1,
+            "timeInfoArray": Array [
+              0,
+              "14:30:12.010 UTC",
+              "(122ms)",
+            ],
+            "type": "Equal",
+            "utc_time": "2018-10-15T14:30:12.010094+00:00",
+          },
+        ]
+      }
+      descriptionEntries={Array []}
+      displayPath={false}
+      filter={null}
+      key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+      left="22em"
+      logs={Array []}
+      reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
+      testcaseUid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+    />
+  </ContextProvider>
+</div>
+`;
+
 exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
 <div
   className="batchReport_3hmsj"
