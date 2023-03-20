@@ -1,18 +1,22 @@
 """Tasks and task results base module."""
 
+import copy
 import inspect
 import os
 import warnings
 from collections import OrderedDict
-
-import pickle
-import copy
-from typing import Union, Tuple, Optional
+from typing import Optional, Tuple, Union
 
 from testplan.common.entity import Runnable
+from testplan.common.serialization import (
+    TestplanDeserializationError,
+    TestplanSerializationError,
+    deserialize,
+    serialize,
+)
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
-from testplan.common.utils.path import rebase_path, is_subdir, pwd
+from testplan.common.utils.path import is_subdir, pwd, rebase_path
 from testplan.testing.multitest import MultiTest
 
 
@@ -275,25 +279,22 @@ class Task:
                     )
             return tgt
 
-    def dumps(self, check_loadable=False):
+    def dumps(self):
         """Serialize a task."""
         data = {}
         for attr in self.all_attrs:
             data[attr] = getattr(self, attr)
         try:
-            serialized = pickle.dumps(data)
-            if check_loadable is True:
-                pickle.loads(serialized)
-            return serialized
-        except Exception as exc:
-            raise TaskSerializationError(str(exc))
+            return serialize(data)
+        except TestplanSerializationError as exc:
+            raise TaskSerializationError() from exc
 
     def loads(self, obj):
         """De-serialize a dumped task."""
         try:
-            data = pickle.loads(obj)
-        except Exception as exc:
-            raise TaskDeserializationError(str(exc))
+            data = deserialize(obj)
+        except TestplanDeserializationError as exc:
+            raise TaskDeserializationError() from exc
         for attr, value in data.items():
             setattr(self, attr, value)
         return self
@@ -359,25 +360,22 @@ class TaskResult:
     def all_attrs(self):
         return ("_task", "_status", "_reason", "_result", "_follow", "_uid")
 
-    def dumps(self, check_loadable=False):
+    def dumps(self):
         """Serialize a task result."""
         data = {}
         for attr in self.all_attrs:
             data[attr] = getattr(self, attr)
         try:
-            serialized = pickle.dumps(data)
-            if check_loadable is True:
-                pickle.loads(serialized)
-            return serialized
-        except Exception as exc:
-            raise TaskSerializationError(str(exc))
+            return serialize(data)
+        except TestplanSerializationError as exc:
+            raise TaskSerializationError() from exc
 
     def loads(self, obj):
         """De-serialize a dumped task result."""
         try:
-            data = pickle.loads(obj)
-        except Exception as exc:
-            raise TaskDeserializationError(str(exc))
+            data = deserialize(obj)
+        except TestplanDeserializationError as exc:
+            raise TaskDeserializationError() from exc
         for attr, value in data.items():
             setattr(self, attr, value)
         return self
