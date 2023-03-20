@@ -118,10 +118,13 @@ class Executor(Resource):
         """Resource has pending work."""
         return len(self.ongoing) > 0
 
-    def get_current_status(self) -> List[str]:
+    def get_current_status_for_debug(self) -> List[str]:
         """
-        Get current status of Executor. Subclasses can override this method and
-        implement a well suited method to get their current status.
+        Get information about items in Executor for debugging. Subclasses can override this method and
+        implement a well suited method to get items current status.
+
+        :return: Status of items in Executor.
+        :rtype: ``List[str]``
         """
         msgs = []
         if self.added_items:

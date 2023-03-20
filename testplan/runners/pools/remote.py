@@ -426,8 +426,13 @@ class RemotePool(Pool):
             self.pool.terminate()
             self.pool = None
 
-    def get_current_status(self) -> List[str]:
-        """Get current status of RemotePool."""
+    def get_current_status_for_debug(self) -> List[str]:
+        """
+        Get Hosts and Workers infromation for debugging.
+
+        :return: Status information of Hosts and Workers.
+        :rtype: ``List[str]``
+        """
         msgs = [f"Hosts and number of workers in {self.name}:"]
 
         for host, number_of_workers in self.cfg.hosts.items():
@@ -435,5 +440,5 @@ class RemotePool(Pool):
                 f"\t Host: {host}, Number of workers: {number_of_workers}"
             )
 
-        msgs.extend(super(RemotePool, self).get_current_status())
+        msgs.extend(super().get_current_status_for_debug())
         return msgs

@@ -935,21 +935,28 @@ class Pool(Executor):
     def record_execution(self, uid):
         self._executed_tests.append(uid)
 
-    def get_current_status(self) -> List[str]:
-        """Get current status of Pool."""
-        msgs = super(Pool, self).get_current_status()
+    def get_current_status_for_debug(self) -> List[str]:
+        """
+        Get information about tasks and workers in Pool for debugging.
 
-        size = self.unassigned.qsize()
+        :return: Tasks and Workers information.
+        :rtype: ``List[str]``
+        """
 
-        if size:
-            msgs.append(f"{self.name} {self.cfg.name} unassigned tasks:")
-            for _ in range(size):
-                _, task = self.unassigned.get()
+        msgs = []
+        if self.added_items:
+            msgs.append(f"{self.name} {self.cfg.name} added tasks:")
+            for task in self.added_items:
                 msgs.append(f"\t{task}")
         else:
-            msgs.append(
-                f"\t{self.name} {self.cfg.name} all tasks assigned to workers."
-            )
+            msgs.append(f"No added tasks in {self.name}")
+
+        if self.ongoing:
+            msgs.append(f"{self.name} {self.cfg.name} pending tasks:")
+            for task in self.ongoing:
+                msgs.append(f"\t{task}")
+        else:
+            msgs.append(f"No pending tasks in {self.name}")
 
         if self._workers:
             msgs.append(

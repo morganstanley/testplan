@@ -221,7 +221,7 @@ class Testplan(entity.RunnableManager):
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
         label=None,
-        **options
+        **options,
     ):
 
         # Set mutable defaults.
@@ -278,7 +278,7 @@ class Testplan(entity.RunnableManager):
             interactive_handler=interactive_handler,
             extra_deps=extra_deps,
             label=label,
-            **options
+            **options,
         )
 
         # By default, a LocalRunner is added to store and execute the tests.
@@ -319,27 +319,26 @@ class Testplan(entity.RunnableManager):
 
     def _print_current_status(self, sig, frame):
         """
-        Print stack frames of all threads
+        Print stack frames of all threads and status information of
+        resources.
         """
 
         print("Received SIGUSR2, printing current status")
-        id2name = dict([(th.ident, th.name) for th in threading.enumerate()])
+        id2name = dict(
+            [(thread.ident, thread.name) for thread in threading.enumerate()]
+        )
 
         msgs = ["Stack frames of all threads"]
         for thread_id, stack in sorted(
             sys._current_frames().items(), reverse=True
         ):
             msgs.append(
-                "{}# Thread: {}({})".format(
-                    os.linesep, id2name.get(thread_id, ""), thread_id
-                )
+                f"{os.linesep}# Thread: {id2name.get(thread_id, '')}({thread_id})"
             )
             for filename, lineno, name, line in traceback.extract_stack(stack):
-                msgs.append(
-                    'File: "{}", line {}, in {}'.format(filename, lineno, name)
-                )
+                msgs.append(f'File: "{filename}", line {lineno}, in {name}')
                 if line:
-                    msgs.append("  {}".format(line.strip()))
+                    msgs.append(f"  {line.strip()}")
 
         msg = os.linesep.join(msgs)
         print(msg)
@@ -347,7 +346,7 @@ class Testplan(entity.RunnableManager):
         msgs = ["State of tests"]
         for resource in self.resources:
             if isinstance(resource, Executor):
-                msgs.extend(resource.get_current_status())
+                msgs.extend(resource.get_current_status_for_debug())
 
         msg = os.linesep.join(msgs)
         print(msg)
@@ -415,7 +414,7 @@ class Testplan(entity.RunnableManager):
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
         label=None,
-        **options
+        **options,
     ):
         """
         Decorator that will be used for wrapping `main` methods in test scripts.
@@ -471,7 +470,7 @@ class Testplan(entity.RunnableManager):
                     interactive_handler=interactive_handler,
                     extra_deps=extra_deps,
                     label=label,
-                    **options
+                    **options,
                 )
                 try:
                     if arity(definition) == 2:
