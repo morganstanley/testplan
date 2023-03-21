@@ -354,6 +354,7 @@ class Testplan(entity.RunnableManager):
     def run(self):
         """
         Runs the tests added and returns the result object.
+        Also handles usr1 and usr2 signals.
 
         :return: Result containing tests and execution steps results.
         :rtype: :py:class:`~testplan.base.TestplanResult`

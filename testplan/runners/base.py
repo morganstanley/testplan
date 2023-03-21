@@ -40,7 +40,8 @@ class Executor(Resource):
         self.ongoing = []
 
     @property
-    def name(self):
+    def class_name(self):
+        """Returns the class name."""
         return self.__class__.__name__
 
     @property
@@ -120,25 +121,25 @@ class Executor(Resource):
 
     def get_current_status_for_debug(self) -> List[str]:
         """
-        Get information about items in Executor for debugging. Subclasses can override this method and
+        Gets information about items in ``Executor`` for debugging. Subclasses can override this method and
         implement a well suited method to get items current status.
 
-        :return: Status of items in Executor.
+        :return: Status of items in ``Executor``.
         :rtype: ``List[str]``
         """
         msgs = []
         if self.added_items:
-            msgs.append(f"{self.name} {self.cfg.name} added items:")
+            msgs.append(f"{self.class_name} {self.cfg.name} added items:")
             for item in self.added_items:
                 msgs.append(f"\t{item}")
         else:
-            msgs.append(f"No added items in {self.name}")
+            msgs.append(f"No added items in {self.class_name}")
 
         if self.ongoing:
-            msgs.append(f"{self.name} {self.cfg.name} pending items:")
+            msgs.append(f"{self.class_name} {self.cfg.name} pending items:")
             for item in self.ongoing:
                 msgs.append(f"\t{item}")
         else:
-            msgs.append(f"No pending items in {self.name}")
+            msgs.append(f"No pending items in {self.class_name}")
 
         return msgs

@@ -120,11 +120,11 @@ class LocalRunner(Executor):
 
     def get_current_status_for_debug(self) -> List[str]:
         """
-        Get current status of LocalRunner for debugging.
+        Get current status of ``LocalRunner`` for debugging.
 
-        :return: Status of LocalRunner.
+        :return: Status of ``LocalRunner``.
         :rtype: ``List[str]``
         """
-        msgs = [f"{self.name} status: {self.status.tag}"]
+        msgs = [f"{self.class_name} status: {self.status.tag}"]
         msgs.extend(super().get_current_status_for_debug())
         return msgs

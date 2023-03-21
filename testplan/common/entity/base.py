@@ -1632,8 +1632,6 @@ class RunnableManager(Entity):
         try:
             for sig in self._cfg.abort_signals:
                 signal.signal(sig, self._handle_abort)
-            # TODO: breaks test internally
-
         except ValueError:
             self.logger.warning(
                 "Not able to install signal handler -"

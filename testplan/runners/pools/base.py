@@ -937,30 +937,30 @@ class Pool(Executor):
 
     def get_current_status_for_debug(self) -> List[str]:
         """
-        Get information about tasks and workers in Pool for debugging.
+        Get information about tasks and workers in ``Pool`` for debugging.
 
-        :return: Tasks and Workers information.
+        :return: ``Tasks`` and ``Workers`` information.
         :rtype: ``List[str]``
         """
 
         msgs = []
         if self.added_items:
-            msgs.append(f"{self.name} {self.cfg.name} added tasks:")
+            msgs.append(f"{self.class_name} {self.cfg.name} added tasks:")
             for task in self.added_items:
                 msgs.append(f"\t{task}")
         else:
-            msgs.append(f"No added tasks in {self.name}")
+            msgs.append(f"No added tasks in {self.class_name}")
 
         if self.ongoing:
-            msgs.append(f"{self.name} {self.cfg.name} pending tasks:")
+            msgs.append(f"{self.class_name} {self.cfg.name} pending tasks:")
             for task in self.ongoing:
                 msgs.append(f"\t{task}")
         else:
-            msgs.append(f"No pending tasks in {self.name}")
+            msgs.append(f"No pending tasks in {self.class_name}")
 
         if self._workers:
             msgs.append(
-                f"Workers in {self.name} {self.cfg.name} with status and waiting assigned tasks:"
+                f"Workers in {self.class_name} {self.cfg.name} with status and waiting assigned tasks:"
             )
             for worker in self._workers:
                 status, reason = self._query_worker_status(worker)
@@ -973,6 +973,6 @@ class Pool(Executor):
                 else:
                     msgs.append(f"\t\tNo tasks to complete.")
         else:
-            msgs.append(f"No workers in {self.name} {self.cfg.name}.")
+            msgs.append(f"No workers in {self.class_name} {self.cfg.name}.")
 
         return msgs

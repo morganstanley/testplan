@@ -428,12 +428,12 @@ class RemotePool(Pool):
 
     def get_current_status_for_debug(self) -> List[str]:
         """
-        Get Hosts and Workers infromation for debugging.
+        Gets ``Hosts`` and ``Workers`` infromation for debugging.
 
         :return: Status information of Hosts and Workers.
         :rtype: ``List[str]``
         """
-        msgs = [f"Hosts and number of workers in {self.name}:"]
+        msgs = [f"Hosts and number of workers in {self.class_name}:"]
 
         for host, number_of_workers in self.cfg.hosts.items():
             msgs.append(
