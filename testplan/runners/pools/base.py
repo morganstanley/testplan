@@ -7,7 +7,7 @@ import queue
 import threading
 import time
 import traceback
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from schema import And, Or
 
@@ -934,3 +934,45 @@ class Pool(Executor):
 
     def record_execution(self, uid):
         self._executed_tests.append(uid)
+
+    def get_current_status_for_debug(self) -> List[str]:
+        """
+        Get information about tasks and workers in ``Pool`` for debugging.
+
+        :return: ``Tasks`` and ``Workers`` information.
+        :rtype: ``List[str]``
+        """
+
+        msgs = []
+        if self.added_items:
+            msgs.append(f"{self.class_name} {self.cfg.name} added tasks:")
+            for task in self.added_items:
+                msgs.append(f"\t{task}")
+        else:
+            msgs.append(f"No added tasks in {self.class_name}")
+
+        if self.ongoing:
+            msgs.append(f"{self.class_name} {self.cfg.name} pending tasks:")
+            for task in self.ongoing:
+                msgs.append(f"\t{task}")
+        else:
+            msgs.append(f"No pending tasks in {self.class_name}")
+
+        if self._workers:
+            msgs.append(
+                f"Workers in {self.class_name} {self.cfg.name} with status and waiting assigned tasks:"
+            )
+            for worker in self._workers:
+                status, reason = self._query_worker_status(worker)
+                msgs.append(f"\t{worker.uid()}")
+                msgs.append(f"\t\tStatus: {status}, Reason: {reason}")
+                if worker.assigned:
+                    msgs.append(
+                        f"\t\tWaiting for completion of tasks: {worker.assigned}"
+                    )
+                else:
+                    msgs.append(f"\t\tNo tasks to complete.")
+        else:
+            msgs.append(f"No workers in {self.class_name} {self.cfg.name}.")
+
+        return msgs

@@ -204,6 +204,7 @@ License information `here <https://github.com/morganstanley/testplan/blob/main/L
    pools
    remote
    exotic_features
+   signal_handler
 
 .. toctree::
    :caption: Tools
