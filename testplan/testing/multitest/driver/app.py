@@ -281,7 +281,7 @@ class App(Driver):
         if self.cfg.install_files:
             self._install_files()
 
-    def starting(self)  -> None:
+    def starting(self) -> None:
         """Starts the application binary."""
         super(App, self).starting()
 
