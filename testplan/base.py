@@ -359,10 +359,16 @@ class Testplan(entity.RunnableManager):
         :return: Result containing tests and execution steps results.
         :rtype: :py:class:`~testplan.base.TestplanResult`
         """
-        if hasattr(signal, "SIGUSR1"):
-            signal.signal(signal.SIGUSR1, pdb_drop_handler)
-        if hasattr(signal, "SIGUSR2"):
-            signal.signal(signal.SIGUSR2, self._print_current_status)
+        try:
+            if hasattr(signal, "SIGUSR1"):
+                signal.signal(signal.SIGUSR1, pdb_drop_handler)
+            if hasattr(signal, "SIGUSR2"):
+                signal.signal(signal.SIGUSR2, self._print_current_status)
+        except ValueError:
+            self.logger.warning(
+                "Not able to install signal handler -"
+                " signal only works in main thread"
+            )
 
         result = super(Testplan, self).run()
         if isinstance(result, TestRunnerResult):
