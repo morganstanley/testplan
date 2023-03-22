@@ -312,8 +312,8 @@ class App(Driver):
             )
         except Exception:
             self.logger.error(
-                "Error while App[%s] driver executed command: %s",
-                self.cfg.name,
+                "Error while %s driver executed command: %s",
+                self,
                 cmd if self.cfg.shell else " ".join(cmd),
             )
             if self.proc is not None:
@@ -336,7 +336,7 @@ class App(Driver):
             extract_values_result = self.extract_values()
             if proc_result is not None and not extract_values_result:
                 raise RuntimeError(
-                    f"App {self.name} has unexpectedly stopped with: {proc_result}"
+                    f"{self} has unexpectedly stopped with: {proc_result}"
                 )
             return extract_values_result
 
@@ -355,9 +355,7 @@ class App(Driver):
         try:
             self._retcode = kill_process(self.proc)
         except Exception as exc:
-            warnings.warn(
-                "On killing driver {} process - {}".format(self.cfg.name, exc)
-            )
+            warnings.warn(f"On killing driver {self} process - {exc}")
             self._retcode = self.proc.poll() if self.proc else 0
         self.proc = None
         if self.std:
@@ -368,7 +366,7 @@ class App(Driver):
             self.cfg.expected_retcode != self.retcode
         ):
             err_msg = (
-                f"App driver error: {self.name},"
+                f"App driver error: {self},"
                 f" expected return code is {self.cfg.expected_retcode},"
                 f" but actual return code is {self.retcode}"
             )
@@ -438,7 +436,7 @@ class App(Driver):
         """Abort logic to force kill the child binary."""
         if self.proc:
             self.logger.debug(
-                "Killing process id %s of App %s" % self.proc.pid, self.name
+                "Killing process id %s of App %s", self.proc.pid, self.name
             )
             kill_process(self.proc)
         if self.std:
