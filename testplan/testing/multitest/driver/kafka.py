@@ -4,7 +4,7 @@ Driver for Kafka server
 import os
 import re
 import socket
-from typing import Optional
+from typing import List, Optional
 
 from schema import Or
 
@@ -82,14 +82,24 @@ class KafkaStandalone(app.App):
 
     @emphasized
     @property
-    def host(self) -> Optional[str]:
+    def host(self) -> str:
         """Host to bind to."""
+        if self.status != self.STATUS.STARTED:
+            raise RuntimeError(
+                "Driver not started yet, should only be accessed "
+                "after driver is started."
+            )
         return self._host
 
     @emphasized
     @property
     def port(self) -> int:
         """Port to listen on."""
+        if self.status != self.STATUS.STARTED:
+            raise RuntimeError(
+                "Driver not started yet, should only be accessed "
+                "after driver is started."
+            )
         return self._port
 
     def pre_start(self):
@@ -106,11 +116,12 @@ class KafkaStandalone(app.App):
         instantiate(self.cfg.cfg_template, self.context_input(), self.config)
 
     @property
-    def cmd(self):
+    def cmd(self) -> List[str]:
         return [self.cfg.binary, self.config]
 
-    def started_check(self, timeout=None):
+    def started_check(self, timeout: Optional[float] = None):
         """Driver started status condition check."""
 
         super(KafkaStandalone, self).started_check(timeout)
         self._port = int(self.extracts["port"])
+        self.logger.info("%s listening on %s:%s", self, self._host, self._port)

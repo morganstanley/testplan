@@ -1,19 +1,21 @@
 """JUnit test runner."""
 
 import os
-from schema import Or
+
 from lxml import etree
+from schema import Or
+
 from testplan.common.config import ConfigOption
-from testplan.testing.base import ProcessRunnerTestConfig, ProcessRunnerTest
+from testplan.report import (
+    ReportCategories,
+    RuntimeStatus,
+    TestCaseReport,
+    TestGroupReport,
+)
+from testplan.testing.base import ProcessRunnerTest, ProcessRunnerTestConfig
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries.base import CodeLog
 from testplan.testing.multitest.entries.schemas.base import registry
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    ReportCategories,
-    RuntimeStatus,
-)
 
 
 class JUnitConfig(ProcessRunnerTestConfig):
@@ -197,7 +199,7 @@ class JUnit(ProcessRunnerTest):
             )
 
         if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
-            self.logger.debug(
+            self.logger.info(
                 'Should run testcases in pattern "%s", but cannot run'
                 " individual testcases thus will run the whole test suite",
                 testcase_pattern,
