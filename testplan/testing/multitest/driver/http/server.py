@@ -443,10 +443,10 @@ class HTTPServer(Driver):
         while not hasattr(self._server_thread.server, "server_port"):
             time.sleep(0.1)
         self._host, self._port = self._server_thread.server.server_address
-        self.logger.debug(
-            "Started HTTPServer listening on http://{host}:{port}".format(
-                host=self.host, port=self.port
-            )
+        self.logger.info(
+            "Started HTTPServer listening on http://%s:%s",
+            self.host,
+            self.port,
         )
 
     def _stop(self):
