@@ -289,9 +289,9 @@ class FixClient(Driver):
                 "Timed out waiting for message for %s seconds.", timeout
             )
             raise TimeoutException(
-                "Timed out waiting for message on %s. %s",
-                self.cfg.name,
-                timeout_info.msg(),
+                "Timed out waiting for message on {0}. {1}".format(
+                    self.cfg.name, timeout_info.msg()
+                )
             )
         self.logger.info("Received msg %s.", received)
         return received
