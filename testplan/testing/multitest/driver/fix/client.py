@@ -230,7 +230,7 @@ class FixClient(Driver):
         self.logger.info("Received logon response %s.", rcv)
         if 35 not in rcv or rcv[35] != "A":
             self.logger.debug("Unexpected logon response.")
-            raise Exception("Unexpected logon response : %s.", rcv)
+            raise Exception("Unexpected logon response : {0}.".format(rcv))
 
     def logoff(self):
         """
@@ -240,12 +240,11 @@ class FixClient(Driver):
         rcv = self._client.receive(timeout=self.cfg.logoff_timeout)
         self.logger.info("Received logoff response %s.", rcv)
         if 35 not in rcv or rcv[35] != "5":
-            self.logger.debug("Unexpected logoff response %s", rcv)
             self.logger.error(
-                "Fixclient %s: received unexpected logoff response : %s",
-                self.cfg.name,
-                rcv,
+                "Fixclient %s: received unexpected logoff response.",
+                self.cfg.name
             )
+            self.logger.debug("Unexpected logoff response %s", rcv)
 
     def send(self, msg):
         """

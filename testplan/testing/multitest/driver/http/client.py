@@ -114,7 +114,7 @@ class HTTPClient(Driver):
         self.interval = self.cfg.interval
         self.responses = queue.Queue()
         port_ = ":{}".format(self.port) if self.port else self.port
-        self.logger.debug(
+        self.logger.info(
             "Started HTTPClient sending requests to %s://%s%s",
             self.protocol,
             self.host,
