@@ -7,7 +7,7 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Generator, Mapping, TextIO, Tuple, Union
+from typing import Generator, Mapping, TextIO, Tuple, Optional
 
 from testplan.common.exporters import ExporterConfig
 from testplan.exporters.testing.base import Exporter
@@ -28,7 +28,7 @@ class CoveredTestsExporter(Exporter):
     def __init__(self, name: str = "Covered Tests Exporter", **options):
         super(CoveredTestsExporter, self).__init__(name=name, **options)
 
-    def export(self, report: TestReport) -> Union[None, str]:
+    def export(self, report: TestReport) -> Optional[str]:
         if len(report):
             # here we use an OrderedDict as an ordered set
             results = OrderedDict()

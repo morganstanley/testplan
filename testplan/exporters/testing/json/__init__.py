@@ -7,7 +7,7 @@ import hashlib
 import json
 import os
 import pathlib
-from typing import Union
+from typing import Optional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -69,7 +69,7 @@ class JSONExporter(Exporter):
     def __init__(self, name="JSON exporter", **options):
         super(JSONExporter, self).__init__(name=name, **options)
 
-    def export(self, source: TestReport) -> Union[None, str]:
+    def export(self, source: TestReport) -> Optional[str]:
 
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 

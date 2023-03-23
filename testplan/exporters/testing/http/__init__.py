@@ -4,7 +4,7 @@ must be able to handle POST request and receive data in JSON format.
 """
 
 import json
-from typing import Any, Tuple, Union
+from typing import Any, Tuple, Union, Optional
 
 import requests
 from schema import Or, And, Use
@@ -93,7 +93,7 @@ class HTTPExporter(Exporter):
 
         return response, errmsg
 
-    def export(self, source: TestReport) -> Union[None, str]:
+    def export(self, source: TestReport) -> Optional[str]:
         http_url = self.cfg.http_url
         test_plan_schema = TestReportSchema()
         data = test_plan_schema.dump(source)

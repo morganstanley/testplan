@@ -1,6 +1,6 @@
 """TODO."""
 import traceback
-from typing import Union
+from typing import Optional
 
 from testplan.common.config import Config, Configurable
 from testplan.report import TestReport
@@ -58,5 +58,5 @@ class BaseExporter(Configurable):
         """Exporter configuration."""
         return self._cfg
 
-    def export(self, source: TestReport) -> Union[None, str]:
+    def export(self, source: TestReport) -> Optional[str]:
         raise NotImplementedError("Exporter must define export().")

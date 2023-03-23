@@ -8,7 +8,7 @@ import time
 import traceback
 import uuid
 import warnings
-from typing import Union
+from typing import Optional
 from urllib.request import pathname2url
 
 from schema import Or
@@ -228,7 +228,7 @@ class PDFExporter(Exporter):
         template.build(tables)
         return str(pdf_path)
 
-    def export(self, source: TestReport) -> Union[None, str]:
+    def export(self, source: TestReport) -> Optional[str]:
         if len(source):
             pdf_path = self.create_pdf(source)
             self.logger.user_info("PDF generated at %s", pdf_path)

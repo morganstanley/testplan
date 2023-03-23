@@ -6,14 +6,13 @@ how to integrate it with your test plan.
 """
 import os
 import sys
-from typing import Union
-
-from testplan.report import TestReport
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+from typing import Optional
 
 from testplan import test_plan
-from testplan.exporters.testing import Exporter
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.exporters.testing import Exporter
+from testplan.report import TestReport
+from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 
 @testsuite
@@ -75,7 +74,7 @@ class TextFileExporter(Exporter):
     def get_text_content(self, source):
         raise NotImplementedError
 
-    def export(self, source: TestReport) -> Union[None, str]:
+    def export(self, source: TestReport) -> Optional[str]:
         with open(self.file_path, "w+") as report_file:
             report_file.write(self.get_text_content(source))
             TESTPLAN_LOGGER.user_info(
