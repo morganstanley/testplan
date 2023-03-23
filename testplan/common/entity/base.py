@@ -64,12 +64,11 @@ class Environment:
         self._resources[uid] = item
         return uid
 
-    def remove(self, uid: str):
+    def remove(self, uid: str) -> None:
         """
         Removes resource with the given uid from the environment.
 
         :param uid: Unique identifier.
-        :type uid: ``str``
         """
         del self._resources[uid]
 
@@ -208,7 +207,7 @@ class Environment:
                     pass
 
             else:
-                resource.logger.debug("%s started", resource)
+                resource.logger.user_info("%s started", resource)
 
     def start_in_pool(self, pool):
         """
@@ -242,7 +241,7 @@ class Environment:
         for resource in resources_to_wait_for:
             if resource not in self.start_exceptions:
                 resource.wait(resource.STATUS.STARTED)
-                resource.logger.debug("%s started", resource)
+                resource.logger.user_info("%s started", resource)
 
     def stop(self, is_reversed=False):
         """
@@ -276,7 +275,7 @@ class Environment:
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
             resource.wait(resource.STATUS.STOPPED)
-            resource.logger.debug("%s stopped", resource)
+            resource.logger.user_info("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
         """
@@ -312,7 +311,7 @@ class Environment:
                         lambda: resource.status == resource.STATUS.STOPPED,
                         timeout=resource.cfg.status_wait_timeout,
                     )
-                resource.logger.debug("%s stopped", resource)
+                resource.logger.user_info("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
@@ -591,10 +590,10 @@ class Entity(logger.Loggable):
             if dep is not None:
                 self._abort_entity(dep)
 
-        self.logger.debug("Aborting %s", self)
+        self.logger.user_info("Aborting %s", self)
         self.aborting()
         self._aborted = True
-        self.logger.debug("Aborted %s", self)
+        self.logger.user_info("Aborted %s", self)
 
     def abort_dependencies(self):
         """
@@ -695,7 +694,7 @@ class Entity(logger.Loggable):
 
         self._scratch = os.path.join(self._runpath, "scratch")
 
-        self.logger.debug(
+        self.logger.user_info(
             "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
         )
 
@@ -1011,9 +1010,8 @@ class Runnable(Entity):
             res = step(*args, **kwargs)
         except Exception as exc:
             self.logger.error(
-                "Exception on %s[%s], step %s - %s",
-                self.__class__.__name__,
-                self.uid(),
+                "Exception on %s, step %s - %s",
+                self,
                 step.__name__,
                 str(exc),
             )
@@ -1105,7 +1103,7 @@ class Runnable(Entity):
                         f"{self} already has an active {self._ihandler}"
                     )
 
-                self.logger.test_info("Starting %s in interactive mode", self)
+                self.logger.user_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
                     target=self, http_port=self.cfg.interactive_port
                 )
@@ -1292,7 +1290,7 @@ class Resource(Entity):
         method.
         """
         if not self.active:
-            self.logger.warning(f"Start %s but it is aborting / aborted", self)
+            self.logger.warning("Start %s but it is aborting / aborted", self)
             return
 
         if (
@@ -1300,11 +1298,11 @@ class Resource(Entity):
             or self.status == self.STATUS.STARTED
         ):
             self.logger.debug(
-                "start() has been called on %r, skip starting", self
+                "start() has been called on %s, skip starting", self
             )
             return
 
-        self.logger.debug("Starting %s", self)
+        self.logger.user_info("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
         if self.cfg.pre_start:
@@ -1313,7 +1311,7 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STARTED)
-            self.logger.debug("%s started", self)
+            self.logger.user_info("%s started", self)
 
     def stop(self):
         """
@@ -1323,22 +1321,22 @@ class Resource(Entity):
         method.
         """
         if self.aborted:
-            self.logger.warning(f"Stop %s but it has already aborted", self)
+            self.logger.warning("Stop %s but it has already aborted", self)
 
         if self.status == self.STATUS.NONE:
-            self.logger.debug("%r not started, skip stopping", self)
+            self.logger.user_info("%r not started, skip stopping", self)
             return
 
         if (
             self.status == self.STATUS.STOPPING
             or self.status == self.STATUS.STOPPED
         ):
-            self.logger.debug(
-                "stop() has been called on %r, skip stopping", self
+            self.logger.user_info(
+                "stop() has been called on %s, skip stopping", self
             )
             return
 
-        self.logger.debug("Stopping %s", self)
+        self.logger.user_info("Stopping %s", self)
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
         if self.cfg.pre_stop:
@@ -1347,7 +1345,7 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
-            self.logger.debug("%s stopped", self)
+            self.logger.user_info("%s stopped", self)
 
     def pre_start(self):
         """

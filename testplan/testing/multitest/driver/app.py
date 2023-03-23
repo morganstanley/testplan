@@ -288,7 +288,7 @@ class App(Driver):
         cmd = " ".join(self.cmd) if self.cfg.shell else self.cmd
         cwd = self.cfg.working_dir or self.runpath
         try:
-            self.logger.user_info(
+            self.logger.info(
                 "%(driver)s driver command: %(cmd)s\n"
                 "\tRunpath: %(runpath)s\n"
                 "\tOut file: %(out)s\n"
