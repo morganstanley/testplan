@@ -7,7 +7,7 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Generator, Mapping, TextIO, Tuple
+from typing import Generator, Mapping, TextIO, Tuple, Union
 
 from testplan.common.exporters import ExporterConfig
 from testplan.exporters.testing.base import Exporter
@@ -28,7 +28,7 @@ class CoveredTestsExporter(Exporter):
     def __init__(self, name: str = "Covered Tests Exporter", **options):
         super(CoveredTestsExporter, self).__init__(name=name, **options)
 
-    def export(self, report: TestReport):
+    def export(self, report: TestReport) -> Union[None, str]:
         if len(report):
             # here we use an OrderedDict as an ordered set
             results = OrderedDict()
@@ -40,13 +40,11 @@ class CoveredTestsExporter(Exporter):
                     f,
                     fn,
                 ):
-                    self.logger.exporter_info(
-                        f"Impacted tests output to {fn}."
-                    )
+                    self.logger.user_info(f"Impacted tests output to {fn}.")
                     for k in results.keys():
                         f.write(":".join(k) + "\n")
                 return self.cfg.tracing_tests_output
-            self.logger.exporter_info("No impacted tests found.")
+            self.logger.user_info("No impacted tests found.")
             return None
         return None
 

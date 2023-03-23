@@ -2,6 +2,7 @@
 Web server exporter for test reports, it opens a local http web server
 which can display the test result.
 """
+from typing import Union
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -65,7 +66,7 @@ class WebServerExporter(Exporter):
             return self._server.web_server_thread
         return None
 
-    def export(self, source: TestReport):
+    def export(self, source: TestReport) -> Union[None, str]:
 
         if len(source):
             exporter = JSONExporter(
@@ -82,7 +83,7 @@ class WebServerExporter(Exporter):
 
             return self.cfg.json_path
         else:
-            self.logger.exporter_info(
+            self.logger.user_info(
                 "Skipping starting web server for empty report: %s",
                 source.name,
             )

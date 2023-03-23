@@ -8,9 +8,12 @@ import time
 import traceback
 import uuid
 import warnings
+from typing import Union
 from urllib.request import pathname2url
 
 from schema import Or
+
+from testplan.report import TestReport
 
 try:
     from reportlab.platypus import SimpleDocTemplate
@@ -204,7 +207,7 @@ class PDFExporter(Exporter):
             pdf_path = pdf_path.with_name(
                 f"{pdf_path.stem}_{int(time.time())}{pdf_path.suffix}"
             )
-            self.logger.exporter_info("File %s exists!", self.cfg.pdf_path)
+            self.logger.error("File %s exists!", self.cfg.pdf_path)
 
         template = SimpleDocTemplate(
             filename=str(pdf_path),
@@ -225,15 +228,15 @@ class PDFExporter(Exporter):
         template.build(tables)
         return str(pdf_path)
 
-    def export(self, source):
+    def export(self, source: TestReport) -> Union[None, str]:
         if len(source):
             pdf_path = self.create_pdf(source)
-            self.logger.exporter_info("PDF generated at %s", pdf_path)
+            self.logger.user_info("PDF generated at %s", pdf_path)
 
             self.url = f"file:{pathname2url(pdf_path)}"
             return pdf_path
         else:
-            self.logger.exporter_info(
+            self.logger.user_info(
                 "Skipping PDF creation for empty report: %s", source.name
             )
             return None
