@@ -113,12 +113,12 @@ class HTTPClient(Driver):
         self.timeout = self.cfg.timeout
         self.interval = self.cfg.interval
         self.responses = queue.Queue()
+        port_ = ":{}".format(self.port) if self.port else self.port
         self.logger.debug(
-            "Started HTTPClient sending requests to {}://{}{}".format(
-                self.protocol,
-                self.host,
-                ":{}".format(self.port) if self.port else self.port,
-            )
+            "Started HTTPClient sending requests to %s://%s%s",
+            self.protocol,
+            self.host,
+            port_,
         )
 
     def stopping(self):
@@ -157,8 +157,8 @@ class HTTPClient(Driver):
             api=api,
         )
         timeout = kwargs.pop("timeout", timeout)
-        self.logger.debug(
-            "Sending {} request: {}".format(http_method.__name__.upper(), url)
+        self.logger.info(
+            "Sending %s request: %s", http_method.__name__.upper(), url
         )
         response = http_method(url=url, timeout=timeout, **kwargs)
         if not drop_response.is_set():
@@ -303,7 +303,7 @@ class HTTPClient(Driver):
                 response = None
             else:
                 self.responses.task_done()
-                self.logger.debug("Received response.")
+                self.logger.info("Received response.")
                 break
             time.sleep(self.interval)
 
