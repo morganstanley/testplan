@@ -364,11 +364,8 @@ class Testplan(entity.RunnableManager):
                 signal.signal(signal.SIGUSR1, pdb_drop_handler)
             if hasattr(signal, "SIGUSR2"):
                 signal.signal(signal.SIGUSR2, self._print_current_status)
-        except ValueError:
-            self.logger.warning(
-                "Not able to install signal handler -"
-                " signal only works in main thread"
-            )
+        except Exception:
+            pass
 
         result = super(Testplan, self).run()
         if isinstance(result, TestRunnerResult):
