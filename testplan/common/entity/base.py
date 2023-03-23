@@ -1324,7 +1324,7 @@ class Resource(Entity):
             self.logger.warning("Stop %s but it has already aborted", self)
 
         if self.status == self.STATUS.NONE:
-            self.logger.user_info("%r not started, skip stopping", self)
+            self.logger.user_info("%s not started, skip stopping", self)
             return
 
         if (

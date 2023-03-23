@@ -435,9 +435,7 @@ class App(Driver):
     def aborting(self) -> None:
         """Abort logic to force kill the child binary."""
         if self.proc:
-            self.logger.debug(
-                "Killing process id %s of App %s", self.proc.pid, self.name
-            )
+            self.logger.debug("Killing process id %s of %s", self.proc.pid, self)
             kill_process(self.proc)
         if self.std:
             self.std.close()
