@@ -39,7 +39,7 @@ def _rollback_on_error(func):
             return func(self, *args)
         except Exception as exc:
             self.logger.error(
-                "Exception while executing: {}{}{}".format(args, os.sep, exc)
+                "Exception while executing: %s%s%s", args, os.sep, exc
             )
             self.db.rollback()
             raise

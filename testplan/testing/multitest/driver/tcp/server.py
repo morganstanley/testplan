@@ -162,9 +162,8 @@ class TCPServer(Driver):
         self._port = self._server.port
 
         self.logger.info(
-            "%s(%s) listening on %s:%s",
-            type(self).__name__,
-            self.name,
+            "%s listening on %s:%s",
+            self,
             self.host,
             self.port,
         )

@@ -187,13 +187,12 @@ class FixServer(Driver):
         """
         received = None
         timeout_info = TimeoutExceptionInfo()
+        timeout_ = timeout or 0
         try:
-            received = self._server.receive(conn_name, timeout=timeout or 0)
+            received = self._server.receive(conn_name, timeout=timeout_)
         except queue.Empty:
             self.logger.debug(
-                "Timed out waiting for message for {} seconds".format(
-                    timeout or 0
-                )
+                "Timed out waiting for message for %s seconds", timeout_
             )
             if timeout is not None:
                 raise TimeoutException(
@@ -202,8 +201,8 @@ class FixServer(Driver):
                     )
                 )
 
-        self.logger.debug(
-            "Received from connection {} msg {}".format(conn_name, received)
+        self.logger.info(
+            "Received from connection %s msg %s", conn_name, received
         )
         return received
 
