@@ -242,7 +242,7 @@ class FixClient(Driver):
         if 35 not in rcv or rcv[35] != "5":
             self.logger.error(
                 "Fixclient %s: received unexpected logoff response.",
-                self.cfg.name
+                self.cfg.name,
             )
             self.logger.debug("Unexpected logoff response %s", rcv)
 
