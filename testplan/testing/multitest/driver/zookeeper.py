@@ -89,10 +89,9 @@ class ZookeeperStandalone(Driver):
     @property
     def host(self) -> str:
         """Host to bind to."""
-        if self.status != self.STATUS.STARTED:
+        if self._host is None:
             raise RuntimeError(
-                "Driver not started yet, should only be accessed "
-                "after driver is started."
+                "Host not resolved yet, shouldn't be accessed now."
             )
         return self._host
 
@@ -100,21 +99,15 @@ class ZookeeperStandalone(Driver):
     @property
     def port(self) -> int:
         """Port to listen on."""
-        if self.status != self.STATUS.STARTED:
-            raise RuntimeError(
-                "Driver not started yet, should only be accessed "
-                "after driver is started."
-            )
         return self._port
 
     @emphasized
     @property
     def connection_str(self) -> str:
         """Connection string."""
-        if self.status != self.STATUS.STARTED:
+        if self._host is None:
             raise RuntimeError(
-                "Driver not started yet, should only be accessed "
-                "after driver is started."
+                "Host not resolved yet, shouldn't be accessed now."
             )
         return "{}:{}".format(self._host, self._port)
 

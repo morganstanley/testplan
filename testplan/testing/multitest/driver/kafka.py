@@ -84,10 +84,9 @@ class KafkaStandalone(app.App):
     @property
     def host(self) -> str:
         """Host to bind to."""
-        if self.status != self.STATUS.STARTED:
+        if self._host is None:
             raise RuntimeError(
-                "Driver not started yet, should only be accessed "
-                "after driver is started."
+                "Host not resolved yet, shouldn't be accessed now."
             )
         return self._host
 
@@ -95,11 +94,6 @@ class KafkaStandalone(app.App):
     @property
     def port(self) -> int:
         """Port to listen on."""
-        if self.status != self.STATUS.STARTED:
-            raise RuntimeError(
-                "Driver not started yet, should only be accessed "
-                "after driver is started."
-            )
         return self._port
 
     def pre_start(self):
