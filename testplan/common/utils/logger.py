@@ -97,7 +97,7 @@ class TestplanLogger(logging.Logger):
         """Log 'msg % args' with severity 'USER_INFO'"""
         self._custom_log(USER_INFO, msg, *args, **kwargs)
 
-    def log_test_status(self, name, status, indent=0, level=TEST_INFO):
+    def log_test_status(self, name, status, indent=0, level=USER_INFO):
         """Shortcut to log a pass/fail status for a test."""
         if Status.STATUS_CATEGORY[status] == Status.PASSED:
             pass_label = Color.green(status.title())
@@ -145,7 +145,7 @@ def _initial_setup():
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_formatter = logging.Formatter("%(message)s")
     stdout_handler.setFormatter(stdout_formatter)
-    stdout_handler.setLevel(TEST_INFO)
+    stdout_handler.setLevel(USER_INFO)
     root_logger.addHandler(stdout_handler)
     root_logger.propagate = False
 
