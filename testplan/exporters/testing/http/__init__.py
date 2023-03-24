@@ -4,7 +4,7 @@ must be able to handle POST request and receive data in JSON format.
 """
 
 import json
-from typing import Any, Tuple, Union
+from typing import Any, Tuple, Union, Optional
 
 import requests
 from schema import Or, And, Use
@@ -12,6 +12,7 @@ from schema import Or, And, Use
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
 from testplan.common.utils.validation import is_valid_url
+from testplan.report import TestReport
 from testplan.report.testing.schemas import TestReportSchema
 from ..base import Exporter
 
@@ -92,16 +93,15 @@ class HTTPExporter(Exporter):
 
         return response, errmsg
 
-    def export(self, source) -> Union[None, str]:
-        """TODO"""
+    def export(self, source: TestReport) -> Optional[str]:
         http_url = self.cfg.http_url
         test_plan_schema = TestReportSchema()
         data = test_plan_schema.dump(source)
         _, errmsg = self._upload_report(http_url, data)
 
         if errmsg:
-            self.logger.exporter_info(errmsg)
+            self.logger.error(errmsg)
             return None
         else:
-            self.logger.exporter_info("Test report posted to %s", http_url)
+            self.logger.user_info("Test report posted to %s", http_url)
             return http_url

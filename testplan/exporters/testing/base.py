@@ -121,10 +121,8 @@ class TagFilteredExporter(Exporter):
         :return: string message to be displayed on skipped export operations
         """
         return (
-            "Empty report for tags: `{tag_label}`, filter_type:"
-            " `{filter_type}`, skipping export operation."
-        ).format(
-            tag_label=tagging.tag_label(tag_dict), filter_type=filter_type
+            f"Empty report for tags: `{tagging.tag_label(tag_dict)}`, filter_type:"
+            f" `{filter_type}`, skipping export operation."
         )
 
     def export_clones(
@@ -153,7 +151,7 @@ class TagFilteredExporter(Exporter):
                 exporter = self.get_exporter(**params)
                 exporter.export(clone)
             else:
-                TESTPLAN_LOGGER.exporter_info(
+                TESTPLAN_LOGGER.user_info(
                     self.get_skip_message(
                         source=clone,
                         tag_dict=tag_dict,

@@ -226,7 +226,7 @@ class Loggable:
         super(Loggable, self).__init__()
 
     @property
-    def logger(self):
+    def logger(self) -> TestplanLogger:
         """logger object"""
         # Define logger as a property instead of self.logger directly.
         # This is to workaround a python2 issue that logger object cannot be
