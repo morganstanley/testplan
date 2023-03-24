@@ -6,30 +6,34 @@ import dill
 FIFTY_MEGA = 52428800
 
 
-class TestplanSerializationError(Exception):
+class SerializationError(Exception):
     """general serialization error"""
 
 
-class TestplanDeserializationError(Exception):
+class DeserializationError(Exception):
     """general deserialization error"""
 
 
 def serialize(obj: Any) -> bytes:
     try:
-        data = dill.dumps(obj, byref=True)
+        data = dill.dumps(obj)
         if len(data) > FIFTY_MEGA:
             warnings.warn(f"Too big object {obj} after serialization.")
         return data
-    except (TypeError, dill.PickleError) as exc:
-        raise TestplanSerializationError(str(obj)) from exc
+    except TypeError:
+        raise SerializationError(f"Type {type(obj)} cannot be serialized.")
+    except dill.PickleError as exc:
+        raise SerializationError(f"Failed to serialize {obj}") from exc
 
 
 def deserialize(data: bytes) -> Any:
     try:
         return dill.loads(data)
     except EOFError:
-        raise TestplanDeserializationError(
-            "No data input for deserialization."
+        raise DeserializationError("No data input for deserialization.")
+    except TypeError:
+        raise DeserializationError(
+            f"Type {type(data)} cannot be deserialized, bytes expected."
         )
-    except (TypeError, dill.PickleError) as exc:
-        raise TestplanDeserializationError() from exc
+    except dill.PickleError as exc:
+        raise DeserializationError(f"Failed to deserialize.") from exc

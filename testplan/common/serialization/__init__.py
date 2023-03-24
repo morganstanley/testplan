@@ -1,13 +1,13 @@
 from testplan.common.serialization.utils import (
-    TestplanDeserializationError,
-    TestplanSerializationError,
+    DeserializationError,
+    SerializationError,
     deserialize,
     serialize,
 )
 
 __all__ = (
-    "TestplanDeserializationError",
-    "TestplanSerializationError",
+    "DeserializationError",
+    "SerializationError",
     "deserialize",
     "serialize",
 )

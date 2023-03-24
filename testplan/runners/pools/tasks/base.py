@@ -9,8 +9,8 @@ from typing import Optional, Tuple, Union
 
 from testplan.common.entity import Runnable
 from testplan.common.serialization import (
-    TestplanDeserializationError,
-    TestplanSerializationError,
+    DeserializationError,
+    SerializationError,
     deserialize,
     serialize,
 )
@@ -286,14 +286,14 @@ class Task:
             data[attr] = getattr(self, attr)
         try:
             return serialize(data)
-        except TestplanSerializationError as exc:
+        except SerializationError as exc:
             raise TaskSerializationError() from exc
 
     def loads(self, obj):
         """De-serialize a dumped task."""
         try:
             data = deserialize(obj)
-        except TestplanDeserializationError as exc:
+        except DeserializationError as exc:
             raise TaskDeserializationError() from exc
         for attr, value in data.items():
             setattr(self, attr, value)
@@ -367,14 +367,14 @@ class TaskResult:
             data[attr] = getattr(self, attr)
         try:
             return serialize(data)
-        except TestplanSerializationError as exc:
+        except SerializationError as exc:
             raise TaskSerializationError() from exc
 
     def loads(self, obj):
         """De-serialize a dumped task result."""
         try:
             data = deserialize(obj)
-        except TestplanDeserializationError as exc:
+        except DeserializationError as exc:
             raise TaskDeserializationError() from exc
         for attr, value in data.items():
             setattr(self, attr, value)

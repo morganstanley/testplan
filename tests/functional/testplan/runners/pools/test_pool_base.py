@@ -3,10 +3,10 @@
 import os
 
 from testplan import Task
-from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.base import MultiTestConfig
-from testplan.runners.pools.base import Pool, Worker
 from testplan.common.utils.strings import slugify
+from testplan.runners.pools.base import Pool, Worker
+from testplan.testing.multitest import MultiTest, testcase, testsuite
+from testplan.testing.multitest.base import MultiTestConfig
 
 
 @testsuite
@@ -20,7 +20,20 @@ class MySuite:
 
 
 def get_mtest(name):
-    return MultiTest(name="MTest{}".format(name), suites=[MySuite()])
+
+    # Nested function won't be serialized by pickle.
+    def nested_before_start(env):
+        pass
+
+    def nested_after_stop(env):
+        pass
+
+    return MultiTest(
+        name="MTest{}".format(name),
+        suites=[MySuite()],
+        before_start=nested_before_start,
+        after_stop=nested_after_stop,
+    )
 
 
 def schedule_tests_to_pool(plan, pool, **pool_cfg):
@@ -80,17 +93,35 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
         )
     )
 
+    # This returned class won't be serialized by pickle.
+    uids.append(
+        plan.schedule(
+            Task(target=get_mtest_imported(name=8), weight=8),
+            resource=pool_name,
+        )
+    )
+
     assert plan.run().run is True
 
     assert plan.report.passed is True
-    assert plan.report.counter == {"passed": 10, "total": 10, "failed": 0}
+    assert plan.report.counter == {"passed": 16, "total": 16, "failed": 0}
 
-    names = ["MTest{}".format(x) for x in range(1, 8)]
+    names = ["MTest{}".format(x) for x in range(1, 9)]
     assert [entry.name for entry in plan.report.entries] == names
 
     assert isinstance(plan.report.serialize(), dict)
     assert [plan.result.test_results[uid].report.name for uid in uids] == names
     assert list(pool._executed_tests) == uids[::-1]
+
+    # All tasks assigned once
+    for uid in pool._task_retries_cnt:
+        assert pool._task_retries_cnt[uid] == 0
+        assert pool.added_item(uid).reassign_cnt == 0
+
+    # Check attachment exists in local
+    assert os.path.exists(
+        plan.report.entries[7].entries[0].entries[1].entries[0]["source_path"]
+    )
 
 
 def test_pool_basic(mockplan):
