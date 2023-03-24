@@ -11,7 +11,7 @@ from testplan import TestplanMock
 from testplan.common import entity
 from testplan.common.utils.comparison import compare
 from testplan.common.utils.context import context
-from testplan.common.utils.logger import TEST_INFO
+from testplan.common.utils.logger import USER_INFO
 from testplan.common.utils.timing import wait
 from testplan.environment import LocalEnvironment
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -103,7 +103,7 @@ def test_top_level_tests():
         interactive_port=0,
         interactive_block=False,
         parse_cmdline=False,
-        logger_level=TEST_INFO,
+        logger_level=USER_INFO,
     ) as plan:
         plan.add(make_multitest("1"))
         plan.add(make_multitest("2"))
@@ -213,7 +213,7 @@ def test_top_level_environment():
         interactive_port=0,
         interactive_block=False,
         parse_cmdline=False,
-        logger_level=TEST_INFO,
+        logger_level=USER_INFO,
     ) as plan:
         plan.add_environment(
             LocalEnvironment(
@@ -308,7 +308,7 @@ def test_env_operate():
         interactive_port=0,
         interactive_block=False,
         parse_cmdline=False,
-        logger_level=TEST_INFO,
+        logger_level=USER_INFO,
     ) as plan:
 
         plan.add(make_multitest("1"))
@@ -396,7 +396,7 @@ def test_abort_handler():
         interactive_port=0,
         interactive_block=False,
         parse_cmdline=False,
-        logger_level=TEST_INFO,
+        logger_level=USER_INFO,
     ) as plan:
         multitest = make_multitest("1")
         plan.add(multitest)

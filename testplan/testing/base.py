@@ -290,13 +290,13 @@ class Test(Runnable):
                     else:
                         return
                     if style.display_assertion:
-                        TESTPLAN_LOGGER.test_info(indent * " " + header)
+                        self.logger.user_info(indent * " " + header)
                     if details and style.display_assertion_detail:
                         details = os.linesep.join(
                             (indent + 2) * " " + line
                             for line in details.split(os.linesep)
                         )
-                        TESTPLAN_LOGGER.test_info(details)
+                        self.logger.user_info(details)
                 else:
                     self.logger.log_test_status(
                         name, obj.status, indent=indent
@@ -695,7 +695,7 @@ class ProcessRunnerTest(Test):
                         "Invalid test command generated for: {}".format(self)
                     )
 
-                self.report.logger.debug(
+                self.report.logger.info(
                     "Running {} - Command: {}".format(self, test_cmd)
                 )
                 self._test_process = subprocess_popen(

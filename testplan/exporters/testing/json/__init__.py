@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import pathlib
+from typing import Optional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -68,7 +69,7 @@ class JSONExporter(Exporter):
     def __init__(self, name="JSON exporter", **options):
         super(JSONExporter, self).__init__(name=name, **options)
 
-    def export(self, source: TestReport):
+    def export(self, source: TestReport) -> Optional[str]:
 
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 
@@ -120,10 +121,10 @@ class JSONExporter(Exporter):
                 with open(json_path, "w") as json_file:
                     json.dump(data, json_file)
 
-            self.logger.exporter_info("JSON generated at %s", json_path)
+            self.logger.user_info("JSON generated at %s", json_path)
             return self.cfg.json_path
         else:
-            self.logger.exporter_info(
+            self.logger.user_info(
                 "Skipping JSON creation for empty report: %s", source.name
             )
             return None
