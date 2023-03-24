@@ -323,7 +323,7 @@ class App(Driver):
                 self._proc = None
             raise
 
-    def started_check(self, timeout: Union[int, None] = None) -> None:
+    def started_check(self, timeout: Union[int, None] = None) -> Optional[int]:
         """
         Checks if app has started. Extracts logs and captured stdout/stderr.
 
@@ -435,9 +435,7 @@ class App(Driver):
     def aborting(self) -> None:
         """Abort logic to force kill the child binary."""
         if self.proc:
-            self.logger.debug(
-                "Killing process id %s of %s", self.proc.pid, self
-            )
+            self.logger.info("Killing process id %s of %s", self.proc.pid, self)
             kill_process(self.proc)
         if self.std:
             self.std.close()
