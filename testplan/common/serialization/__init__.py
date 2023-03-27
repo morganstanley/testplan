@@ -1,5 +1,6 @@
-from testplan.common.serialization.utils import (
+from testplan.common.serialization.base import (
     DeserializationError,
+    SelectiveSerializable,
     SerializationError,
     deserialize,
     serialize,
@@ -7,6 +8,7 @@ from testplan.common.serialization.utils import (
 
 __all__ = (
     "DeserializationError",
+    "SelectiveSerializable",
     "SerializationError",
     "deserialize",
     "serialize",

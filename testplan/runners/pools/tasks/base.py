@@ -8,12 +8,7 @@ from collections import OrderedDict
 from typing import Optional, Tuple, Union
 
 from testplan.common.entity import Runnable
-from testplan.common.serialization import (
-    DeserializationError,
-    SerializationError,
-    deserialize,
-    serialize,
-)
+from testplan.common.serialization import SelectiveSerializable
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import is_subdir, pwd, rebase_path
@@ -24,15 +19,7 @@ class TaskMaterializationError(Exception):
     """Error materializing task target to be executed."""
 
 
-class TaskSerializationError(Exception):
-    """Error on serializing task."""
-
-
-class TaskDeserializationError(Exception):
-    """Error on de-serializing task."""
-
-
-class Task:
+class Task(SelectiveSerializable):
     """
     Container of a target or path to a target that can be materialized into
     a runnable item. The arguments of the Task need to be serializable.
@@ -119,7 +106,7 @@ class Task:
         return "{}[{}]".format(self.__class__.__name__, self._uid)
 
     @property
-    def all_attrs(self):
+    def serializable_attrs(self):
         return (
             "_target",
             "_path",
@@ -279,30 +266,6 @@ class Task:
                     )
             return tgt
 
-    def dumps(self):
-        """Serialize a task."""
-        data = {}
-        for attr in self.all_attrs:
-            data[attr] = getattr(self, attr)
-        try:
-            return serialize(data)
-        except SerializationError as exc:
-            raise TaskSerializationError(
-                f"Exception in task serialization: {exc}"
-            )
-
-    def loads(self, obj):
-        """De-serialize a dumped task."""
-        try:
-            data = deserialize(obj)
-        except DeserializationError as exc:
-            raise TaskDeserializationError(
-                f"Exception in task deserialization: {exc}"
-            )
-        for attr, value in data.items():
-            setattr(self, attr, value)
-        return self
-
     def rebase_path(self, local, remote):
         """adapt task's path for remote execution if necessary"""
         if os.path.isabs(self._path):
@@ -313,7 +276,7 @@ class Task:
             )
 
 
-class TaskResult:
+class TaskResult(SelectiveSerializable):
     """
     Contains result of the executed task target and status/errors/reason
     information that happened during task execution.
@@ -361,32 +324,8 @@ class TaskResult:
         return self._follow
 
     @property
-    def all_attrs(self):
+    def serializable_attrs(self):
         return ("_task", "_status", "_reason", "_result", "_follow", "_uid")
-
-    def dumps(self):
-        """Serialize a task result."""
-        data = {}
-        for attr in self.all_attrs:
-            data[attr] = getattr(self, attr)
-        try:
-            return serialize(data)
-        except SerializationError as exc:
-            raise TaskSerializationError(
-                f"Exception in task result serialization: {exc}"
-            )
-
-    def loads(self, obj):
-        """De-serialize a dumped task result."""
-        try:
-            data = deserialize(obj)
-        except DeserializationError as exc:
-            raise TaskDeserializationError(
-                f"Exception in task result deserialization: {exc}"
-            )
-        for attr, value in data.items():
-            setattr(self, attr, value)
-        return self
 
     def __str__(self):
         return "TaskResult[{}, {}]".format(self.status, self.reason)

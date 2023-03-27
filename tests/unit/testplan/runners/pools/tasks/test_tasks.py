@@ -5,12 +5,14 @@ import sys
 
 import pytest
 
+from testplan.common.serialization import (
+    DeserializationError,
+    SerializationError,
+)
 from testplan.runners.pools.tasks import (
     RunnableTaskAdaptor,
     Task,
-    TaskDeserializationError,
     TaskMaterializationError,
-    TaskSerializationError,
 )
 
 
@@ -345,18 +347,16 @@ class TestTaskSerialization:
         import inspect
 
         with pytest.raises(
-            TaskSerializationError, match=r".*Cannot pickle 'frame'.*"
+            SerializationError, match=r".*(Cannot|Can't) pickle .*frame.*"
         ):
 
             t = Task(inspect.currentframe())
             t.dumps()
 
-        with pytest.raises(
-            TaskDeserializationError, match=r".*No data input.*"
-        ):
+        with pytest.raises(DeserializationError, match=r".*No data input.*"):
             Task().loads(None)
 
         with pytest.raises(
-            TaskDeserializationError, match=r".*bytes-like.*required.*"
+            DeserializationError, match=r".*bytes-like.*required.*"
         ):
             Task().loads(inspect.currentframe())
