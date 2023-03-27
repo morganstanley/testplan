@@ -199,7 +199,7 @@ class JUnit(ProcessRunnerTest):
             )
 
         if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
-            self.logger.info(
+            self.logger.user_info(
                 'Should run testcases in pattern "%s", but cannot run'
                 " individual testcases thus will run the whole test suite",
                 testcase_pattern,
