@@ -53,7 +53,7 @@ def test_kill_one_worker(mockplan, tmp_path: Path):
     for idx in range(1, 25):
         uids.append(
             mockplan.schedule(
-                target="get_mtest",
+                target="get_imported_mtest",
                 module="func_pool_base_tasks",
                 path=dirname,
                 kwargs=dict(name=idx),
@@ -197,7 +197,7 @@ def test_disable_rerun_in_pool(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     uid = mockplan.schedule(
-        target="get_mtest",
+        target="get_imported_mtest",
         module="func_pool_base_tasks",
         path=dirname,
         kwargs=dict(name="0"),
@@ -316,7 +316,7 @@ def test_restart_worker(mockplan):
 
     for idx in range(1, 25):
         mockplan.schedule(
-            target="get_mtest",
+            target="get_imported_mtest",
             module="func_pool_base_tasks",
             path=dirname,
             kwargs=dict(name=idx),

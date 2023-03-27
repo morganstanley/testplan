@@ -10,17 +10,12 @@ from testplan.testing.multitest.base import MultiTestConfig
 
 
 @testsuite
-class MySuite:
+class MyImportedSuite:
     @testcase
     def test_comparison(self, env, result):
-
         # Lambda won't be serialized by pickle.
-        const = lambda x, y: x
-
-        def const_one(x):
-            return const(1, x)
-
-        result.equal(1, const_one(0), "equality description")
+        my_lambda = lambda x: x
+        result.equal(1, my_lambda(1), "equality description")
         result.log(env.parent.runpath)
         assert isinstance(env.parent.cfg, MultiTestConfig)
         assert os.path.exists(env.parent.runpath) is True
@@ -37,14 +32,9 @@ class MySuite:
         os.remove(tmpfile.name)
 
 
-def get_mtest(name):
+def get_imported_mtest(name):
     """TODO."""
-    return MultiTest(name="MTest{}".format(name), suites=[MySuite()])
-
-
-def get_mtest_imported(name):
-    """TODO."""
-    return MultiTest(name="MTest{}".format(name), suites=[MySuite()])
+    return MultiTest(name="MTest{}".format(name), suites=[MyImportedSuite()])
 
 
 @testsuite
@@ -107,4 +97,4 @@ def target_raises_in_worker(parent_pid):
     if os.getpid() != parent_pid:
         raise RuntimeError("Materialization failed in worker")
 
-    return MultiTest(name="MTest", suites=[MySuite()])
+    return MultiTest(name="MTest", suites=[MyImportedSuite()])

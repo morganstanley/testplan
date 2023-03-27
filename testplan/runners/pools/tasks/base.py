@@ -287,14 +287,18 @@ class Task:
         try:
             return serialize(data)
         except SerializationError as exc:
-            raise TaskSerializationError() from exc
+            raise TaskSerializationError(
+                f"Exception in task serialization: {exc}"
+            )
 
     def loads(self, obj):
         """De-serialize a dumped task."""
         try:
             data = deserialize(obj)
         except DeserializationError as exc:
-            raise TaskDeserializationError() from exc
+            raise TaskDeserializationError(
+                f"Exception in task deserialization: {exc}"
+            )
         for attr, value in data.items():
             setattr(self, attr, value)
         return self
@@ -368,14 +372,18 @@ class TaskResult:
         try:
             return serialize(data)
         except SerializationError as exc:
-            raise TaskSerializationError() from exc
+            raise TaskSerializationError(
+                f"Exception in task result serialization: {exc}"
+            )
 
     def loads(self, obj):
         """De-serialize a dumped task result."""
         try:
             data = deserialize(obj)
         except DeserializationError as exc:
-            raise TaskDeserializationError() from exc
+            raise TaskDeserializationError(
+                f"Exception in task result deserialization: {exc}"
+            )
         for attr, value in data.items():
             setattr(self, attr, value)
         return self

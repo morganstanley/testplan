@@ -10,7 +10,7 @@ from testplan.testing.multitest.base import MultiTestConfig
 
 
 @testsuite
-class MySuite:
+class MyLocalSuite:
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
@@ -30,7 +30,7 @@ def get_mtest(name):
 
     return MultiTest(
         name="MTest{}".format(name),
-        suites=[MySuite()],
+        suites=[MyLocalSuite()],
         before_start=nested_before_start,
         after_stop=nested_after_stop,
     )
@@ -44,8 +44,8 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
 
     dirname = os.path.dirname(os.path.abspath(__file__))
 
-    mtest1 = MultiTest(name="MTest1", suites=[MySuite()])
-    mtest2 = MultiTest(name="MTest2", suites=[MySuite()])
+    mtest1 = MultiTest(name="MTest1", suites=[MyLocalSuite()])
+    mtest2 = MultiTest(name="MTest2", suites=[MyLocalSuite()])
     uids.append(plan.schedule(target=mtest1, weight=1, resource=pool_name))
 
     uids.append(
@@ -58,7 +58,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
     # Task schedule shortcut
     uids.append(
         plan.schedule(
-            target="get_mtest",
+            target="get_imported_mtest",
             module="func_pool_base_tasks",
             path=dirname,
             kwargs=dict(name=4),
@@ -69,7 +69,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
     uids.append(
         plan.schedule(
             Task(
-                target="get_mtest",
+                target="get_imported_mtest",
                 module="func_pool_base_tasks",
                 path=dirname,
                 kwargs=dict(name=5),
@@ -79,11 +79,11 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
         )
     )
 
-    from .func_pool_base_tasks import get_mtest_imported
+    from .func_pool_base_tasks import get_imported_mtest
 
     uids.append(
         plan.schedule(
-            Task(target=get_mtest_imported, kwargs=dict(name=6), weight=6),
+            Task(target=get_imported_mtest, kwargs=dict(name=6), weight=6),
             resource=pool_name,
         )
     )
@@ -96,7 +96,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
     # This returned class won't be serialized by pickle.
     uids.append(
         plan.schedule(
-            Task(target=get_mtest_imported(name=8), weight=8),
+            Task(target=get_imported_mtest(name=8), weight=8),
             resource=pool_name,
         )
     )

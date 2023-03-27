@@ -342,11 +342,21 @@ class TestTaskSerialization:
         materialized_task_result(task, 2, serialize=True)
 
     def test_raise_on_serialization(self):
-        with pytest.raises(TaskSerializationError):
-            import inspect
+        import inspect
+
+        with pytest.raises(
+            TaskSerializationError, match=r".*Cannot pickle 'frame'.*"
+        ):
 
             t = Task(inspect.currentframe())
             t.dumps()
 
-        with pytest.raises(TaskDeserializationError):
+        with pytest.raises(
+            TaskDeserializationError, match=r".*No data input.*"
+        ):
             Task().loads(None)
+
+        with pytest.raises(
+            TaskDeserializationError, match=r".*bytes-like.*required.*"
+        ):
+            Task().loads(inspect.currentframe())

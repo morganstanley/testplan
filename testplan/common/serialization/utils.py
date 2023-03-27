@@ -20,10 +20,12 @@ def serialize(obj: Any) -> bytes:
         if len(data) > FIFTY_MEGA:
             warnings.warn(f"Too big object {obj} after serialization.")
         return data
-    except TypeError:
-        raise SerializationError(f"Type {type(obj)} cannot be serialized.")
+    except TypeError as exc:
+        raise SerializationError(
+            f"{str(exc).capitalize()}, unexpected type within {obj}."
+        )
     except dill.PickleError as exc:
-        raise SerializationError(f"Failed to serialize {obj}") from exc
+        raise SerializationError(f"Failed to serialize {obj}.") from exc
 
 
 def deserialize(data: bytes) -> Any:
@@ -31,9 +33,7 @@ def deserialize(data: bytes) -> Any:
         return dill.loads(data)
     except EOFError:
         raise DeserializationError("No data input for deserialization.")
-    except TypeError:
-        raise DeserializationError(
-            f"Type {type(data)} cannot be deserialized, bytes expected."
-        )
+    except TypeError as exc:
+        raise DeserializationError(f"{str(exc).capitalize()}.")
     except dill.PickleError as exc:
-        raise DeserializationError(f"Failed to deserialize.") from exc
+        raise DeserializationError(f"Failed to deserialize {data}.") from exc
