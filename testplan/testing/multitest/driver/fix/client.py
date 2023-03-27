@@ -227,7 +227,7 @@ class FixClient(Driver):
         """
         self._client.sendlogon(custom_tags=self.cfg.custom_logon_tags)
         rcv = self._client.receive(timeout=self.cfg.logon_timeout)
-        self.logger.debug("Received logon response {}.".format(rcv))
+        self.logger.info("Received logon response %s.", rcv)
         if 35 not in rcv or rcv[35] != "A":
             self.logger.debug("Unexpected logon response.")
             raise Exception("Unexpected logon response : {0}.".format(rcv))
@@ -238,14 +238,13 @@ class FixClient(Driver):
         """
         self._client.sendlogoff()
         rcv = self._client.receive(timeout=self.cfg.logoff_timeout)
-        self.logger.debug("Received logoff response {}.".format(rcv))
+        self.logger.info("Received logoff response %s.", rcv)
         if 35 not in rcv or rcv[35] != "5":
-            self.logger.debug("Unexpected logoff response {}".format(rcv))
             self.logger.error(
-                "Fixclient {}: received unexpected logoff response : {}".format(
-                    self.cfg.name, rcv
-                )
+                "Fixclient %s: received unexpected logoff response.",
+                self.cfg.name,
             )
+            self.logger.debug("Unexpected logoff response %s", rcv)
 
     def send(self, msg):
         """
@@ -287,14 +286,14 @@ class FixClient(Driver):
             received = self._client.receive(timeout=timeout)
         except socket.timeout:
             self.logger.error(
-                "Timed out waiting for message for {} seconds.".format(timeout)
+                "Timed out waiting for message for %s seconds.", timeout
             )
             raise TimeoutException(
                 "Timed out waiting for message on {0}. {1}".format(
                     self.cfg.name, timeout_info.msg()
                 )
             )
-        self.logger.debug("Received msg {}.".format(received))
+        self.logger.info("Received msg %s.", received)
         return received
 
     def flush(self, timeout=0):
