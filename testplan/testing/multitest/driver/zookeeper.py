@@ -87,8 +87,12 @@ class ZookeeperStandalone(Driver):
 
     @emphasized
     @property
-    def host(self) -> Optional[str]:
+    def host(self) -> str:
         """Host to bind to."""
+        if self._host is None:
+            raise RuntimeError(
+                "Host not resolved yet, shouldn't be accessed now."
+            )
         return self._host
 
     @emphasized
@@ -103,8 +107,7 @@ class ZookeeperStandalone(Driver):
         """Connection string."""
         if self._host is None:
             raise RuntimeError(
-                "Host not resolved yet, should only be accessed "
-                "after driver is started."
+                "Host not resolved yet, shouldn't be accessed now."
             )
         return "{}:{}".format(self._host, self._port)
 
@@ -144,6 +147,10 @@ class ZookeeperStandalone(Driver):
             logger=self.logger,
             env=self.env,
         )
+
+    def started_check(self, timeout: float = None):
+        super().started_check(timeout)
+        self.logger.info("%s listening on %s:%s", self, self.host, self.port)
 
     def stopping(self):
         """Stops the Zookeeper instance."""
