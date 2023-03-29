@@ -79,7 +79,12 @@ class Environments(Resource):
         try:
             return self.__getattribute__(item)
         except AttributeError:
-            return self._envs[item]
+            try:
+                return self._envs[item]
+            except KeyError:
+                # raise AttributeError so that below still works:
+                # getattr(env, "some_attr", "default_value")
+                raise AttributeError
 
     def __getitem__(self, item):
         return self._envs[item]

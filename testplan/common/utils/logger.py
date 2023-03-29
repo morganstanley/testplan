@@ -125,7 +125,7 @@ class TestplanLogger(logging.Logger):
 def _initial_setup():
     """
     Perform initial setup for the logger. Creates and adds a handler to log
-    to stdout with default level TEST_INFO.
+    to stdout with default level USER_INFO.
 
     :return: root logger object and stdout logging handler
     :type: ``tuple``
@@ -141,7 +141,7 @@ def _initial_setup():
     #  stdout without any extra formatting and is intended for user-facing
     # logs. The level is controlled by command-line args so should be set
     # when those args are parsed; however to begin with we set the level to
-    # TEST_INFO as a default.
+    # USER_INFO as a default.
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_formatter = logging.Formatter("%(message)s")
     stdout_handler.setFormatter(stdout_formatter)
@@ -236,9 +236,7 @@ class Loggable:
         if self._logger:
             return self._logger
 
-        self._logger = logging.getLogger(
-            ".".join([LOGGER_NAME, self.__class__.__name__, uuid4()[-8:]])
-        )
+        self._logger = logging.getLogger(f"{LOGGER_NAME}.{self}")
         return self._logger
 
     @property
