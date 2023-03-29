@@ -485,7 +485,7 @@ class TestRunner(Runnable):
     def _stop_remote_services(self):
 
         for name, rmt_svc in self.remote_services.items():
-            self.logger.debug(f"Stopping Remote Server {name}")
+            self.logger.info("Stopping Remote Server %s", name)
             rmt_svc.stop()
 
     def discover(
@@ -825,7 +825,7 @@ class TestRunner(Runnable):
             )
 
         self.logger.test_info(
-            f"Testplan has runpath: {self._runpath} and pid {os.getpid()}"
+            "Testplan has runpath: %s and pid %s", self._runpath, os.getpid()
         )
 
         self._scratch = os.path.join(self._runpath, "scratch")
@@ -882,9 +882,8 @@ class TestRunner(Runnable):
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
                 self.result.test_report.logger.error(
-                    "Timeout: Aborting execution after {} seconds".format(
-                        self.cfg.timeout
-                    )
+                    "Timeout: Aborting execution after %d seconds",
+                    self.cfg.timeout,
                 )
                 # Abort dependencies, wait sometime till test reports are ready
                 for dep in self.abort_dependencies():

@@ -115,7 +115,9 @@ class TestRunnerIHandler(entity.Entity):
         self.target.make_runpath_dirs()
         self.target._configure_file_logger()
         self.logger.test_info(
-            "Starting {} for {}".format(self.__class__.__name__, self.target)
+            "Starting %s for %s",
+            self,
+            self.target,
         )
         self._http_handler = self._setup_http_handler()
         self._pool = futures.ThreadPoolExecutor(max_workers=1)
@@ -143,9 +145,7 @@ class TestRunnerIHandler(entity.Entity):
 
     def teardown(self):
         """Close the task pool."""
-        self.logger.test_info(
-            "Stopping {} for {}".format(self.__class__.__name__, self.target)
-        )
+        self.logger.test_info("Stopping %s for %s", self, self.target)
 
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")
@@ -648,7 +648,9 @@ class TestRunnerIHandler(entity.Entity):
             if not (self.active and self.target.active):
                 break
             self.logger.debug(
-                "Operation {} for test: {}".format(operation, test_uid)
+                "Operation %s for test: %s",
+                operation,
+                test_uid,
             )
             if operation == "run":
                 self.run_test(test_uid, await_results=await_results)
@@ -788,7 +790,7 @@ class TestRunnerIHandler(entity.Entity):
             "\nInteractive Testplan API is running. View the API schema:\n%s",
             networking.format_access_urls(host, port, "/api/v1/interactive/"),
         )
-        self.logger.critical(
+        self.logger.user_info(
             "\nInteractive Testplan web UI is running. Access it at:\n%s",
             networking.format_access_urls(host, port, "/interactive/"),
         )
