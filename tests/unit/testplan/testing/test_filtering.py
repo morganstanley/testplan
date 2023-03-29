@@ -1,7 +1,6 @@
-import pickle
-
 import pytest
 
+from testplan.common.serialization import deserialize, serialize
 from testplan.testing import filtering
 from testplan.testing.multitest import MultiTest, testcase, testsuite
 
@@ -154,9 +153,9 @@ class TestTags:
     @pytest.mark.parametrize(
         "tags", (("foo", {"color": "red"}, ("foo", "bar", "baz")))
     )
-    def test_pickle(self, tags):
+    def test_serialization(self, tags):
         filter_obj = filtering.Tags(tags=tags)
-        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+        assert deserialize(serialize(filter_obj)) == filter_obj
 
 
 class TestTagsAll:
@@ -245,9 +244,9 @@ class TestTagsAll:
     @pytest.mark.parametrize(
         "tags", (("foo", {"color": "red"}, ("foo", "bar", "baz")))
     )
-    def test_pickle(self, tags):
+    def test_serialization(self, tags):
         filter_obj = filtering.TagsAll(tags=tags)
-        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+        assert deserialize(serialize(filter_obj)) == filter_obj
 
 
 class TestPattern:
@@ -343,9 +342,9 @@ class TestPattern:
             "XXX:YYY:test_one",
         ),
     )
-    def test_pickle(self, pattern):
+    def test_serialization(self, pattern):
         filter_obj = filtering.Pattern(pattern=pattern)
-        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+        assert deserialize(serialize(filter_obj)) == filter_obj
 
 
 class DummyFilter(filtering.Filter):
@@ -397,8 +396,8 @@ class TestFilterCompositions:
         assert ~AlphaFilter() == filtering.Not(AlphaFilter())
         assert AlphaFilter() == ~~AlphaFilter()
 
-    def test_pickle(self):
-        assert pickle.loads(pickle.dumps(~AlphaFilter())) == ~AlphaFilter()
-        assert pickle.loads(
-            pickle.dumps(AlphaFilter() & (BetaFilter() | GammaFilter()))
+    def test_serialization(self):
+        assert deserialize(serialize(~AlphaFilter())) == ~AlphaFilter()
+        assert deserialize(
+            serialize(AlphaFilter() & (BetaFilter() | GammaFilter()))
         ) == AlphaFilter() & (BetaFilter() | GammaFilter())

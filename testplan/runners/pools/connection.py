@@ -1,7 +1,6 @@
 """Connections module."""
 
 import abc
-import pickle
 import queue
 import time
 import warnings
@@ -10,6 +9,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 import zmq
 
 from testplan.common import entity
+from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
 from testplan.runners.pools.communication import Message
 
@@ -209,7 +209,7 @@ class ZMQClient(Client):
             :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
-            self._sock.send(pickle.dumps(message))
+            self._sock.send(serialize(message))
 
     def receive(self) -> Optional[Message]:
         """
@@ -224,7 +224,7 @@ class ZMQClient(Client):
             try:
                 received = self._sock.recv(flags=zmq.NOBLOCK)
                 try:
-                    loaded = pickle.loads(received)
+                    loaded = deserialize(received)
                 except Exception as exc:
                     print("Deserialization error. - {}".format(exc))
                     raise
@@ -272,7 +272,7 @@ class ZMQClientProxy:
             :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
-            self.connection.send(pickle.dumps(message))
+            self.connection.send(serialize(message))
         else:
             raise RuntimeError("Responding to inactive worker")
 
@@ -445,7 +445,7 @@ class ZMQServer(Server):
             :py:class:`~testplan.runners.pools.communication.Message`
         """
         try:
-            return pickle.loads(self._sock.recv(flags=zmq.NOBLOCK))
+            return deserialize(self._sock.recv(flags=zmq.NOBLOCK))
         except zmq.Again:
             return None
 

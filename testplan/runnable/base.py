@@ -88,7 +88,7 @@ def result_for_failed_task(original_result):
     result.report = TestGroupReport(
         name=original_result.task.name, category=ReportCategories.ERROR
     )
-    attrs = [attr for attr in original_result.task.all_attrs]
+    attrs = [attr for attr in original_result.task.serializable_attrs]
     result_lines = [
         "{}: {}".format(attr, getattr(original_result.task, attr))
         if getattr(original_result.task, attr, None)
