@@ -127,7 +127,7 @@ class Task(SelectiveSerializable):
         return self._kwargs
 
     @property
-    def module(self) -> ModuleType:
+    def module(self) -> str:
         """Task target module."""
         if callable(self._target):
             return self._target.__module__
