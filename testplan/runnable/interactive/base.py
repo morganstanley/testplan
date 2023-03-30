@@ -114,7 +114,7 @@ class TestRunnerIHandler(entity.Entity):
         """Set up the task pool and HTTP handler."""
         self.target.make_runpath_dirs()
         self.target._configure_file_logger()
-        self.logger.test_info(
+        self.logger.user_info(
             "Starting %s for %s",
             self,
             self.target,
@@ -786,10 +786,6 @@ class TestRunnerIHandler(entity.Entity):
                 "Interactive Testplan web service is not available"
             )
 
-        self.logger.info(
-            "\nInteractive Testplan API is running. View the API schema:\n%s",
-            networking.format_access_urls(host, port, "/api/v1/interactive/"),
-        )
         self.logger.user_info(
             "\nInteractive Testplan web UI is running. Access it at:\n%s",
             networking.format_access_urls(host, port, "/interactive/"),
