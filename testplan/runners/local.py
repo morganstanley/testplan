@@ -3,9 +3,9 @@ import time
 from typing import List
 
 from .base import Executor
+from testplan.report import TestGroupReport, Status, ReportCategories
 from testplan.runners.pools import tasks
 from testplan.testing.base import Test, TestResult
-from testplan.report import TestGroupReport, Status, ReportCategories
 
 
 class LocalRunner(Executor):
@@ -17,11 +17,11 @@ class LocalRunner(Executor):
     options.
     """
 
-    def __init__(self, **options):
+    def __init__(self, **options) -> None:
         super(LocalRunner, self).__init__(**options)
         self._uid = "local_runner"
 
-    def _execute(self, uid):
+    def _execute(self, uid: str) -> None:
         """Execute item implementation."""
         # First retrieve the input from its UID.
         target = self._input[uid]
@@ -54,7 +54,7 @@ class LocalRunner(Executor):
 
         self._results[uid] = result
 
-    def _loop(self):
+    def _loop(self) -> None:
         """Execution loop implementation for local runner."""
         while self.active:
             if self.status == self.status.STARTING:
@@ -87,21 +87,21 @@ class LocalRunner(Executor):
                 return
             time.sleep(self.cfg.active_loop_sleep)
 
-    def starting(self):
+    def starting(self) -> None:
         """Starting the local runner."""
         if self.parent:
             self._runpath = self.parent.runpath
         super(LocalRunner, self).starting()  # start the loop
         self.status.change(self.status.STARTED)  # Start is async
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Stopping the local runner."""
         super(LocalRunner, self).stopping()  # stop the loop
         self.status.change(self.status.STOPPED)  # Stop is async
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Aborting logic."""
-        self.logger.critical("Discard pending tasks of {}.".format(self))
+        self.logger.critical("Discard pending tasks of %s.", self)
         # Will announce that all the ongoing tasks fail, but there is a buffer
         # period and some tasks might be finished, so, copy the uids of ongoing
         # tasks and set test result, although the report could be overwritten.
@@ -114,7 +114,7 @@ class LocalRunner(Executor):
             )
             result.report.status_override = Status.ERROR
             result.report.logger.critical(
-                "Test [{}] discarding due to {} abort.".format(uid, self.uid())
+                "Test [%s] discarding due to %s abort.", uid, self.uid()
             )
             self._results[uid] = result
 
