@@ -3,6 +3,7 @@
 import os
 
 from testplan import Task
+from testplan.common.utils.path import fix_home_prefix
 from testplan.common.utils.strings import slugify
 from testplan.runners.pools.base import Pool, Worker
 from testplan.testing.multitest import MultiTest, testcase, testsuite
@@ -36,13 +37,16 @@ def get_mtest(name):
     )
 
 
-def schedule_tests_to_pool(plan, pool, **pool_cfg):
+def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
     pool_name = pool.__name__
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
     uids = []
 
-    dirname = os.path.dirname(os.path.abspath(__file__))
+    if schedule_path is None:
+        schedule_path = fix_home_prefix(
+            os.path.dirname(os.path.abspath(__file__))
+        )
 
     mtest1 = MultiTest(name="MTest1", suites=[MyLocalSuite()])
     mtest2 = MultiTest(name="MTest2", suites=[MyLocalSuite()])
@@ -52,7 +56,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
         plan.schedule(Task(target=mtest2, weight=2), resource=pool_name)
     )
 
-    task3 = Task(target=get_mtest, path=dirname, kwargs=dict(name=3), weight=3)
+    task3 = Task(target=get_mtest, kwargs=dict(name=3), weight=3)
     uids.append(plan.schedule(task=task3, resource=pool_name))
 
     # Task schedule shortcut
@@ -60,7 +64,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
         plan.schedule(
             target="get_imported_mtest",
             module="func_pool_base_tasks",
-            path=dirname,
+            path=schedule_path,
             kwargs=dict(name=4),
             weight=4,
             resource=pool_name,
@@ -71,7 +75,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
             Task(
                 target="get_imported_mtest",
                 module="func_pool_base_tasks",
-                path=dirname,
+                path=schedule_path,
                 kwargs=dict(name=5),
                 weight=5,
             ),
