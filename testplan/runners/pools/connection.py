@@ -97,7 +97,7 @@ class QueueClient(Client):
     communicate with its pool.
     """
 
-    def __init__(self, recv_sleep: float =0.05) -> None:
+    def __init__(self, recv_sleep: float = 0.05) -> None:
         super(QueueClient, self).__init__()
         self._recv_sleep = recv_sleep
         self.requests: Optional[queue.Queue] = None

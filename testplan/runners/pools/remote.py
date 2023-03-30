@@ -270,7 +270,7 @@ class RemotePool(Pool):
         pool_type: str = "process",
         host: str = CONFIG.default_hostname,
         port: int = 0,
-        worker_heartbeat:float = 30,
+        worker_heartbeat: float = 30,
         ssh_port: int = 22,
         ssh_cmd: Callable = ssh_cmd,
         copy_cmd: Callable = copy_cmd,
