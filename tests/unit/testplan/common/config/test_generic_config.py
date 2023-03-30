@@ -3,10 +3,11 @@
 import os
 import re
 
-from schema import Schema, Optional, And, Or, Use, SchemaError
+from schema import Optional, Or, SchemaError
 
-from testplan.common.entity import Entity
 from testplan.common.config import Config, ConfigOption
+from testplan.common.entity import Entity
+from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils.exceptions import should_raise
 
 
@@ -334,3 +335,13 @@ def test_callable_as_default_value():
     assert derived.cfg.foo() == 0
     assert derived.cfg.bar("any") is None
     assert derived.cfg.baz(999).val == 999
+
+
+def test_config_serialization():
+    """Test that `Config` can be transmitted to remote."""
+    config = Derived("depart_to_remote")
+    remote_config = deserialize(serialize(config))
+    assert remote_config.cfg.name == "depart_to_remote"
+    assert remote_config.cfg.foo() == 0
+    assert remote_config.cfg.bar("any") is None
+    assert remote_config.cfg.baz("aha").val == "aha"

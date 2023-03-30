@@ -1,18 +1,17 @@
 """Tasks and task results base module."""
 
+import copy
 import inspect
 import os
 import warnings
 from collections import OrderedDict
-
-import pickle
-import copy
-from typing import Union, Tuple, Optional
+from typing import Optional, Tuple, Union
 
 from testplan.common.entity import Runnable
+from testplan.common.serialization import SelectiveSerializable
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
-from testplan.common.utils.path import rebase_path, is_subdir, pwd
+from testplan.common.utils.path import is_subdir, pwd, rebase_path
 from testplan.testing.multitest import MultiTest
 
 
@@ -20,15 +19,7 @@ class TaskMaterializationError(Exception):
     """Error materializing task target to be executed."""
 
 
-class TaskSerializationError(Exception):
-    """Error on serializing task."""
-
-
-class TaskDeserializationError(Exception):
-    """Error on de-serializing task."""
-
-
-class Task:
+class Task(SelectiveSerializable):
     """
     Container of a target or path to a target that can be materialized into
     a runnable item. The arguments of the Task need to be serializable.
@@ -115,7 +106,7 @@ class Task:
         return "{}[{}]".format(self.__class__.__name__, self._uid)
 
     @property
-    def all_attrs(self):
+    def serializable_attrs(self):
         return (
             "_target",
             "_path",
@@ -275,29 +266,6 @@ class Task:
                     )
             return tgt
 
-    def dumps(self, check_loadable=False):
-        """Serialize a task."""
-        data = {}
-        for attr in self.all_attrs:
-            data[attr] = getattr(self, attr)
-        try:
-            serialized = pickle.dumps(data)
-            if check_loadable is True:
-                pickle.loads(serialized)
-            return serialized
-        except Exception as exc:
-            raise TaskSerializationError(str(exc))
-
-    def loads(self, obj):
-        """De-serialize a dumped task."""
-        try:
-            data = pickle.loads(obj)
-        except Exception as exc:
-            raise TaskDeserializationError(str(exc))
-        for attr, value in data.items():
-            setattr(self, attr, value)
-        return self
-
     def rebase_path(self, local, remote):
         """adapt task's path for remote execution if necessary"""
         if os.path.isabs(self._path):
@@ -308,7 +276,7 @@ class Task:
             )
 
 
-class TaskResult:
+class TaskResult(SelectiveSerializable):
     """
     Contains result of the executed task target and status/errors/reason
     information that happened during task execution.
@@ -356,31 +324,8 @@ class TaskResult:
         return self._follow
 
     @property
-    def all_attrs(self):
+    def serializable_attrs(self):
         return ("_task", "_status", "_reason", "_result", "_follow", "_uid")
-
-    def dumps(self, check_loadable=False):
-        """Serialize a task result."""
-        data = {}
-        for attr in self.all_attrs:
-            data[attr] = getattr(self, attr)
-        try:
-            serialized = pickle.dumps(data)
-            if check_loadable is True:
-                pickle.loads(serialized)
-            return serialized
-        except Exception as exc:
-            raise TaskSerializationError(str(exc))
-
-    def loads(self, obj):
-        """De-serialize a dumped task result."""
-        try:
-            data = pickle.loads(obj)
-        except Exception as exc:
-            raise TaskDeserializationError(str(exc))
-        for attr, value in data.items():
-            setattr(self, attr, value)
-        return self
 
     def __str__(self):
         return "TaskResult[{}, {}]".format(self.status, self.reason)

@@ -1,18 +1,17 @@
 """System process utilities module."""
 
+import functools
+import platform
+import subprocess
+import threading
 import time
+import warnings
 from enum import Enum, auto
 
 import psutil
-import warnings
 
-import subprocess
-import platform
-import threading
-import functools
-
-from .timing import get_sleeper, exponential_interval
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.timing import exponential_interval, get_sleeper
 
 
 def _log_proc(msg, warn=False, output=None):
@@ -246,7 +245,7 @@ def execute_cmd(
     if stderr is None:
         stderr = subprocess.PIPE
 
-    logger.debug("Executing command [%s]: '%s'", label, cmd_string)
+    logger.info("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
     handler = subprocess.Popen(
@@ -256,7 +255,7 @@ def execute_cmd(
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.debug(
+        logger.info(
             "Failed executing command [%s] after %.2f sec.", label, elapsed
         )
         if detailed_log is not LogDetailsOption.NEVER_LOG:
@@ -268,7 +267,7 @@ def execute_cmd(
                 )
             )
     else:
-        logger.debug("Command [%s] finished in %.2f sec", label, elapsed)
+        logger.info("Command [%s] finished in %.2f sec", label, elapsed)
         if detailed_log is LogDetailsOption.LOG_ALWAYS:
             _log_subprocess_output(logger, output, error)
 

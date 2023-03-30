@@ -3,32 +3,32 @@ import collections
 import copy
 import inspect
 import os
-import sys
 import re
+import sys
 import traceback
 
 import pytest
 from schema import Or
 
-from testplan.common.utils import validation
 from testplan.common.config import ConfigOption
+from testplan.common.utils import validation
+from testplan.report import (
+    ReportCategories,
+    RuntimeStatus,
+    Status,
+    TestCaseReport,
+    TestGroupReport,
+)
 from testplan.testing import base as testing
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import base as entries_base
-from testplan.testing.multitest.result import Result as MultiTestResult
 from testplan.testing.multitest.entries.schemas.base import (
     registry as schema_registry,
 )
 from testplan.testing.multitest.entries.stdout.base import (
     registry as stdout_registry,
 )
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    ReportCategories,
-    Status,
-    RuntimeStatus,
-)
+from testplan.testing.multitest.result import Result as MultiTestResult
 
 # Regex for parsing suite and case name and case parameters
 _CASE_REGEX = re.compile(
@@ -123,10 +123,10 @@ class PyTest(testing.Test):
 
             if return_code == 5:
                 self.result.report.status_override = Status.UNSTABLE
-                self.logger.warning("No tests were run")
+                self.logger.info("No tests were run")
             elif return_code != 0:
                 self.result.report.status_override = Status.FAILED
-                self.logger.error(
+                self.logger.info(
                     "pytest exited with return code %d", return_code
                 )
 
@@ -219,9 +219,9 @@ class PyTest(testing.Test):
         # runtime status of all these testcases will be set at the same time.
         yield {"runtime_status": RuntimeStatus.RUNNING}, current_uids
 
-        self.logger.debug("Running PyTest with args: %r", pytest_args)
+        self.logger.info("Running PyTest with args: %r", pytest_args)
         return_code = pytest.main(pytest_args, plugins=[pytest_plugin])
-        self.logger.debug("PyTest exit code: %d", return_code)
+        self.logger.info("PyTest exit code: %d", return_code)
 
         for suite_report in test_report:
             for child_report in suite_report:

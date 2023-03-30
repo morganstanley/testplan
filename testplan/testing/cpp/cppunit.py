@@ -3,9 +3,11 @@ import os
 from schema import Or
 
 from testplan.common.config import ConfigOption
-
-from ..base import ProcessRunnerTest, ProcessRunnerTestConfig
-from ...importers.cppunit import CPPUnitResultImporter, CPPUnitImportedResult
+from testplan.importers.cppunit import (
+    CPPUnitImportedResult,
+    CPPUnitResultImporter,
+)
+from testplan.testing.base import ProcessRunnerTest, ProcessRunnerTestConfig
 
 
 class CppunitConfig(ProcessRunnerTestConfig):
@@ -208,7 +210,7 @@ class Cppunit(ProcessRunnerTest):
             )
 
         if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
-            self.logger.debug(
+            self.logger.user_info(
                 'Should run testcases in pattern "%s", but cannot run'
                 " individual testcases thus will run the whole test suite",
                 testcase_pattern,

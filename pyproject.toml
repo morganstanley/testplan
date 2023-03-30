@@ -59,6 +59,7 @@
         "memoization",
         "coverage",
         "typing_extensions",
+        "dill",
     ]
     requires-python = ">=3.7"
 
