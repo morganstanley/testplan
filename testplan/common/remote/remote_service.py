@@ -43,6 +43,7 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
             "name": str,
             ConfigOption("rpyc_bin", default=RPYC_BIN): str,
             ConfigOption("rpyc_port", default=0): int,
+            ConfigOption("sigint_timeout", default=5): int,
         }
 
 
@@ -52,14 +53,11 @@ class RemoteService(Resource, RemoteResource):
     remote drivers.
 
     :param name: Name of the remote service.
-    :type name: ``str``
     :param remote_host: Remote host name or IP address.
-    :type remote_host: ``str``
     :param rpyc_bin: Location of rpyc_classic.py script
-    :type rpyc_bin: ``str``
     :param rpyc_port: Specific port for rpyc connection on the remote host. Defaults to 0
         which start the rpyc server on a random port.
-    :type rpyc_port: ``int``
+    :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` and
@@ -74,9 +72,9 @@ class RemoteService(Resource, RemoteResource):
         remote_host: str,
         rpyc_bin: str = RPYC_BIN,
         rpyc_port: str = 0,
+        sigint_timeout: int = 5,
         **options,
     ):
-
         options.update(self.filter_locals(locals()))
         options["async_start"] = False
         super(RemoteService, self).__init__(**options)
@@ -242,7 +240,7 @@ class RemoteService(Resource, RemoteResource):
         # actually if remote rpyc server is shutdown, ssh proc is also finished
         # but calling kill_process just in case
         if self.proc:
-            kill_process(self.proc)
+            kill_process(self.proc, self.cfg.sigint_timeout)
             self.proc.wait()
 
         self.status.change(self.STATUS.STOPPED)
