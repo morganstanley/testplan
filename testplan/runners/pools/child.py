@@ -405,13 +405,23 @@ def child_logic(args):
         loop.worker_loop()
 
 
-def parse_syspath_file(filename):
+def process_syspath_file(filename, working_dir=None):
     """
-    Read and parse the syspath file, which should contain each sys.path entry
-    on a separate line.
+    Process the syspath file, which should contain one sys.path entry per line
+    Since we might be on a remote host, we need to check the accessibility of
+    those entries. And we should always be able to directly access modules in
+    the working directory. The result is written back to the original file for
+    bookkeeping.
     """
     with open(filename) as f:
         new_syspath = f.read().split("\n")
+    new_syspath = list(filter(os.path.exists, new_syspath))
+
+    if working_dir is not None:
+        new_syspath.insert(0, working_dir)
+
+    with open(filename, "w") as f:
+        f.write("\n".join(new_syspath))
 
     return new_syspath
 
@@ -426,7 +436,7 @@ if __name__ == "__main__":
         os.environ["PWD"] = ARGS.wd
 
     if ARGS.sys_path_file:
-        sys.path = parse_syspath_file(ARGS.sys_path_file)
+        sys.path = process_syspath_file(ARGS.sys_path_file, ARGS.wd)
 
     # upfront import to speed-up execution
     import testplan
