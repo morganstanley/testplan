@@ -94,6 +94,7 @@ def test_materialization_fail(mockplan):
         name=pool_name,
         hosts={REMOTE_HOST: 1},
         workspace_exclude=["*"],  # effectively not copy anything
+        clean_remote=True,
     )
     mockplan.add_resource(pool)
 
