@@ -103,7 +103,9 @@ class ChildLoop:
             {"file": log_file, "lvl": self.logger.level},
         )
         self.logger.info("stderr file = %s", stderr_file)
-        self.logger.info("Closing stdin, stdout and stderr file descriptors...")
+        self.logger.info(
+            "Closing stdin, stdout and stderr file descriptors..."
+        )
 
         # This closes stdin, stdout and stderr for this process.
         for fdesc in range(3):
@@ -212,7 +214,8 @@ class ChildLoop:
                     for uid in list(self._pool.results.keys()):
                         task_results.append(self._pool.results[uid])
                         self.logger.debug(
-                            "Sending back result for %s", self._pool.results[uid].task
+                            "Sending back result for %s",
+                            self._pool.results[uid].task,
                         )
                         del self._pool.results[uid]
                     self._transport.send_and_receive(
@@ -232,7 +235,9 @@ class ChildLoop:
                     )
 
                     if received is None or received.cmd == Message.Stop:
-                        self.logger.critical("Pool seems dead or stopping, child exits.")
+                        self.logger.critical(
+                            "Pool seems dead or stopping, child exits."
+                        )
                         self.exit_loop()
                         break
                     elif received.cmd == Message.TaskSending:
