@@ -4,7 +4,7 @@ import abc
 import queue
 import time
 import warnings
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import zmq
 
@@ -13,36 +13,32 @@ from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
 from testplan.runners.pools.communication import Message
 
-if TYPE_CHECKING:
-    from testplan.runners.pools.base import Worker
-
 
 class Client(logger.Loggable, metaclass=abc.ABCMeta):
     """
     Workers are Client in Pool/Worker communication.
     Abstract base class for workers to communicate with its pool."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(Client, self).__init__()
         self.active = False
 
     @abc.abstractmethod
-    def connect(self, server):
+    def connect(self, server) -> None:
         """Connect client to server"""
         self.active = True
 
     @abc.abstractmethod
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Disconnect client from server"""
         self.active = False
 
     @abc.abstractmethod
-    def send(self, message: Message):
+    def send(self, message: Message) -> None:
         """
-        Sends a message to server
+        Sends a message to server.
+
         :param message: Message to be sent.
-        :type message:
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         pass
 
@@ -62,13 +58,8 @@ class Client(logger.Loggable, metaclass=abc.ABCMeta):
         expected.
 
         :param message: Message sent.
-        :type message:
-            :py:class:`~testplan.runners.pools.communication.Message`
         :param expect: Expected command of message received.
-        :type expect: ``NoneType`` or ``tuple`` or ``list`` or
-            :py:class:`~testplan.runners.pools.communication.Message`
         :return: Message received.
-        :rtype: ``object``
         """
         if not self.active:
             return None
@@ -103,7 +94,7 @@ class QueueClient(Client):
     communicate with its pool.
     """
 
-    def __init__(self, recv_sleep=0.05):
+    def __init__(self, recv_sleep: float = 0.05) -> None:
         super(QueueClient, self).__init__()
         self._recv_sleep = recv_sleep
         self.requests: Optional[queue.Queue] = None
@@ -111,7 +102,7 @@ class QueueClient(Client):
         # single-producer(pool) single-consumer(worker) FIFO queue
         self.responses = []
 
-    def connect(self, requests: queue.Queue):
+    def connect(self, requests: queue.Queue) -> None:
         """
         Connect to the request queue of Pool
         :param requests: request queue of pool that worker should write to.
@@ -120,17 +111,16 @@ class QueueClient(Client):
         self.requests = requests
         self.active = True
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Disconnect worker from pool"""
         self.active = False
         self.requests = None
 
-    def send(self, message):
+    def send(self, message: Message) -> None:
         """
         Worker sends a message
+
         :param message: Message to be sent.
-        :type message:
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
             self.requests.put(message)
@@ -138,8 +128,8 @@ class QueueClient(Client):
     def receive(self) -> Message:
         """
         Worker receives response to the message sent, this method blocks.
+
         :return: Response to the message sent.
-        :type: :py:class:`~testplan.runners.pools.communication.Message`
         """
         while self.active:
             try:
@@ -147,14 +137,12 @@ class QueueClient(Client):
             except IndexError:
                 time.sleep(self._recv_sleep)
 
-    def respond(self, message: Message):
+    def respond(self, message: Message) -> None:
         """
         Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
         worker request.
 
         :param message: Respond message.
-        :type message:
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
             self.responses.append(message)
@@ -168,12 +156,15 @@ class ZMQClient(Client):
     with its pool.
 
     :param address: Pool server address to connect to.
-    :type address: ``float``
     :param recv_sleep: Sleep duration in msg receive loop.
-    :type recv_sleep: ``float``
     """
 
-    def __init__(self, address, recv_sleep=0.05, recv_timeout=5):
+    def __init__(
+        self,
+        address: str,
+        recv_sleep: float = 0.05,
+        recv_timeout: float = 5,
+    ) -> None:
         super(ZMQClient, self).__init__()
         self._address = address
         self._recv_sleep = recv_sleep
@@ -183,7 +174,7 @@ class ZMQClient(Client):
 
         self.connect()  # auto connect
 
-    def connect(self):
+    def connect(self) -> None:
         """Connect to a ZMQ Server"""
         # pylint: disable=abstract-class-instantiated
         self._context = zmq.Context()
@@ -191,7 +182,7 @@ class ZMQClient(Client):
         self._sock.connect("tcp://{}".format(self._address))
         self.active = True
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Disconnect from Server"""
         self.active = False
         self._sock.close()
@@ -200,13 +191,11 @@ class ZMQClient(Client):
         self._context = None
         self._address = None
 
-    def send(self, message: Message):
+    def send(self, message: Message) -> None:
         """
         Worker sends a message.
 
         :param message: Message to be sent.
-        :type message:
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
             self._sock.send(serialize(message))
@@ -216,7 +205,6 @@ class ZMQClient(Client):
         Worker tries to receive the response to the message sent until timeout.
 
         :return: Response to the message sent.
-        :type: :py:class:`~testplan.runners.pools.communication.Message`
         """
         start_time = time.time()
 
@@ -247,29 +235,27 @@ class ZMQClientProxy:
     Representative of a process worker's transport in local worker object.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.active = False
         self.connection = None
         self.address = None
 
-    def connect(self, server):
+    def connect(self, server) -> None:
         self.connection = server.sock
         self.address = server.address
         self.active = True
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         self.active = False
         self.connection = None
         self.address = None
 
-    def respond(self, message: Message):
+    def respond(self, message: Message) -> None:
         """
         Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
         worker request.
 
         :param message: Respond message.
-        :type message:
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
             self.connection.send(serialize(message))
@@ -282,23 +268,23 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
     Abstract base class for pools to communicate to its workers.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(Server, self).__init__()
 
-    def starting(self):
+    def starting(self) -> None:
         """Server starting logic."""
         self.status.change(self.status.STARTED)  # Start is async
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Server stopping logic."""
         self.status.change(self.status.STOPPED)  # Stop is async
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort policy - no abort actions are required in the base class."""
         pass
 
     @abc.abstractmethod
-    def register(self, worker: "Worker"):
+    def register(self, worker: "Worker") -> None:
         """
         Register a new worker. Workers should be registered after the
         connection manager is started and will be automatically unregistered
@@ -329,17 +315,17 @@ class QueueServer(Server):
     from workers.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(QueueServer, self).__init__()
 
         # multi-producer(workers) single-consumer(pool) FIFO queue
         self.requests = None
 
-    def starting(self):
+    def starting(self) -> None:
         self.requests = queue.Queue()
         super(QueueServer, self).starting()
 
-    def register(self, worker):
+    def register(self, worker) -> None:
         super(QueueServer, self).register(worker)
         worker.transport.connect(self.requests)
 
@@ -348,8 +334,6 @@ class QueueServer(Server):
         Accepts the next request in the request queue.
 
         :return: Message received from worker transport, or None.
-        :rtype: ``NoneType`` or
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         try:
             return self.requests.get_nowait()
@@ -363,7 +347,7 @@ class ZMQServer(Server):
     to get request from workers.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(ZMQServer, self).__init__()
 
         # Here, context is a factory class provided by ZMQ that creates
@@ -403,7 +387,7 @@ class ZMQServer(Server):
         self._address = "{}:{}".format(self.parent.cfg.host, port_selected)
         super(ZMQServer, self).starting()
 
-    def _close(self):
+    def _close(self) -> None:
         """Closes TCP connections managed by this object.."""
         self.logger.debug("Closing TCP connections for %s", self.parent)
         if self._sock is not None:
@@ -414,7 +398,7 @@ class ZMQServer(Server):
             self._zmq_context = None
         self._address = None
 
-    def stopping(self):
+    def stopping(self) -> None:
         """
         Terminate the ZMQ context and socket when stopping. We require that
         all workers are stopped before stopping the connection manager, so
@@ -424,13 +408,13 @@ class ZMQServer(Server):
         self._close()
         super(ZMQServer, self).stopping()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Terminate the ZMQ context and socket when aborting."""
         if self._sock is not None:
             self._close()
         super(ZMQServer, self).aborting()
 
-    def register(self, worker):
+    def register(self, worker) -> None:
         """Register a new worker."""
         super(ZMQServer, self).register(worker)
         worker.transport.connect(self)
@@ -441,15 +425,13 @@ class ZMQServer(Server):
         queued for receiving.
 
         :return: Message received from worker transport, or None.
-        :rtype: ``NoneType`` or
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         try:
             return deserialize(self._sock.recv(flags=zmq.NOBLOCK))
         except zmq.Again:
             return None
 
-    def __del__(self):
+    def __del__(self) -> None:
         """
         Check that ZMQ sockets are properly closed when this manager is
         garbage-collected. If not we close them now as a fallback.

@@ -5,7 +5,8 @@ import inspect
 import os
 import warnings
 from collections import OrderedDict
-from typing import Optional, Tuple, Union
+from types import ModuleType
+from typing import Optional, Tuple, Union, Dict
 
 from testplan.common.entity import Runnable
 from testplan.common.serialization import SelectiveSerializable
@@ -23,24 +24,6 @@ class Task(SelectiveSerializable):
     """
     Container of a target or path to a target that can be materialized into
     a runnable item. The arguments of the Task need to be serializable.
-
-    .. code-block:: python
-
-      # Object with .run() method.
-      Task(Runnable(arg1, arg2=False))
-
-      # On same python module.
-      Task(Runnable(arg1, arg2=False), module=__name__)
-
-      # Target is a class with .run() method.
-      Task('Multiplier', module='tasks.data.sample_tasks', args=(5,))
-
-      # Similar but lives in specific path.
-      Task('sample_tasks.Multiplier', args=(4,), path='../path/to/module')
-
-      # Target is a callable function that returns a runnable object.
-      Task('module.sub.generate_runnable',
-           args=(args1,), kwargs={'args2': False})
 
     :param target: A runnable or a string path to a runnable or
                    a callable to a runnable or a string path to a callable
@@ -72,7 +55,7 @@ class Task(SelectiveSerializable):
         rerun: int = 0,
         weight: int = 0,
         part: Optional[Tuple[int, int]] = None,
-    ):
+    ) -> None:
         self._target = target
         self._module = module
         self._path = path or ""
@@ -102,11 +85,11 @@ class Task(SelectiveSerializable):
 
         self._part = part
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self._uid)
 
     @property
-    def serializable_attrs(self):
+    def serializable_attrs(self) -> Tuple[str, ...]:
         return (
             "_target",
             "_path",
@@ -117,12 +100,12 @@ class Task(SelectiveSerializable):
             "_uid",
         )
 
-    def uid(self):
+    def uid(self) -> str:
         """Task string uid."""
         return self._uid
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Task name."""
         if not isinstance(self._target, str):
             try:
@@ -134,17 +117,17 @@ class Task(SelectiveSerializable):
         return "Task[{}]".format(name)
 
     @property
-    def args(self):
+    def args(self) -> Tuple:
         """Task target args."""
         return self._args
 
     @property
-    def kwargs(self):
+    def kwargs(self) -> Dict:
         """Task target kwargs."""
         return self._kwargs
 
     @property
-    def module(self):
+    def module(self) -> str:
         """Task target module."""
         if callable(self._target):
             return self._target.__module__
@@ -152,17 +135,17 @@ class Task(SelectiveSerializable):
             return self._module
 
     @property
-    def rerun(self):
+    def rerun(self) -> int:
         """how many times the task is allowed to rerun."""
         return self._max_rerun_limit
 
     @property
-    def reassign_cnt(self):
+    def reassign_cnt(self) -> int:
         """how many times the task is reassigned for rerun."""
         return self._assign_for_rerun
 
     @reassign_cnt.setter
-    def reassign_cnt(self, value):
+    def reassign_cnt(self, value: int):
         if value < 0:
             raise ValueError("Value of `reassign_cnt` cannot be negative")
         elif value > self.MAX_RERUN_LIMIT:
