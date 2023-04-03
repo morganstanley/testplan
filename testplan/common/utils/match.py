@@ -4,6 +4,7 @@ Module of utility types and functions that perform matching.
 import os
 import re
 import time
+from abc import ABCMeta, abstractmethod
 from typing import Dict, List, Match, Optional, Pattern, Tuple, Union
 
 from . import logger, timing
@@ -57,6 +58,187 @@ def match_regexps_in_file(
     return all(extracts_status), extracted_values, unmatched
 
 
+class LogFilePosition:
+    """
+    Class for managing the log file positions.
+    """
+
+    def __init__(self, file_inode, marker):
+        """
+        :param file_inode: File inode of a log file.
+        :type file_inode: ``int``
+        :param marker: Current mark of a log file.
+        :type marker: ``int``
+        """
+        self.file_inode = file_inode
+        self.marker = marker
+
+    def get_position(self, file_handle=None):
+        """
+        Return the instance file position given the specified file handle.
+        """
+        if file_handle:
+            self.marker = file_handle.tell()
+            file_handle.close()
+        return self
+
+    def seek_position(self, position):
+        """
+        Sets the file position to the position passed and return the instance
+        file position.
+        """
+        self.file_inode = position.file_inode
+        self.marker = position.marker
+        return self
+
+
+class RotationStrategy(object, metaclass=ABCMeta):
+    """
+    Base rotation strategy with abstract methods to manage regex
+    matching in log files. Implement all abstract methods if you
+    need to subclass this class.
+    """
+
+    @abstractmethod
+    def open_logfile_in_position(self, file_position, mode) -> LogFilePosition:
+        """
+        Implementation for opening and returning log handles with the
+        given file position.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_position(self, file_handle=None) -> LogFilePosition:
+        """Return the current position for the given file handle."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_next_file(self, file_handle, mode=None, affect_position=True):
+        """Returns the next file handle."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_inode_and_marker(self, file_handle) -> tuple:
+        """Returns the inode and marker for the given file handle."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def seek_eof(self) -> LogFilePosition:
+        """Returns the end file position of the current log file."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def seek(self, mark=None) -> LogFilePosition:
+        """
+        Set current file position to the specified mark if exist or beginning of current log file.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_end_of_file_position(self) -> LogFilePosition:
+        """Returns the end position for the current log file."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_start_of_file_position(self) -> LogFilePosition:
+        """Returns the start position for the current log file."""
+        raise NotImplementedError
+
+
+class NoLogRotationStrategy(RotationStrategy):
+    """
+    Default strategy for matching lines in log files. This strategy is used
+    for situations with no log file rotation.
+    """
+
+    def __init__(self, log_path):
+        """
+        :param log_path: Path to the log file.
+        :type log_path: ``str``
+        """
+        if os.path.exists(log_path):
+            self._file_inode = os.stat(log_path).st_ino
+        else:
+            with open(log_path, "w+") as log:
+                self._file_inode = os.stat(log.name).st_ino
+
+        self._file_name = log_path
+        self._file_position = LogFilePosition(self._file_inode, 0)
+
+    @property
+    def file_position(self) -> LogFilePosition:
+        """Property for current log_path position."""
+        return self._file_position
+
+    def open_logfile_in_position(
+        self, file_position: LogFilePosition, mode: str
+    ):
+        """
+        Opens and returns a file handle for the file position passed. Sets the position
+        to the specified file_position. Raises an Exception if the log_path to be opened
+        does not exist or is corrupted.
+        """
+        try:
+            file_handle = open(self._file_name, mode)
+            file_handle.seek(file_position.marker)
+            return file_handle
+        except IOError:
+            raise Exception(
+                f"Log path {self._file_name} does not exist or it's corrupted."
+            )
+
+    def get_position(self, file_handle=None) -> LogFilePosition:
+        """Returns the current position for the given file handle"""
+        return self.file_position.get_position(file_handle)
+
+    def get_next_file(self, file_handle, mode=None, affect_position=True):
+        """
+        Returns the same file handle since it has no rotation. Set ``affect_position``
+        to False in situations where you want to get next file without altering
+        the current file position.
+        """
+        if affect_position:
+            self.file_position.marker = file_handle.tell()
+            file_handle.seek(self.file_position.marker)
+        else:
+            file_handle.seek(file_handle.tell())
+        return file_handle
+
+    def get_inode_and_marker(self, file_handle) -> tuple:
+        """Returns the inode and marker for the given file handle"""
+        marker = file_handle.tell()
+        return self._file_inode, marker
+
+    def seek_eof(self) -> LogFilePosition:
+        """Returns the end position of the log file."""
+        position = self.get_end_of_file_position()
+        return self.file_position.seek_position(position)
+
+    def seek(self, mark=None) -> LogFilePosition:
+        """
+        Sets file position to the specified mark. The mark has to exist.
+        If the mark is None sets file position to beginning of log file.
+        """
+        if mark:
+            return self.file_position.seek_position(mark)
+
+        position = self.get_start_of_file_position()
+        return self.file_position.seek_position(position)
+
+    def get_end_of_file_position(self) -> LogFilePosition:
+        """Returns the end position for the log file."""
+        marker = 0
+        with open(self._file_name, "r") as f:
+            f.seek(0, os.SEEK_END)
+            marker = f.tell()
+
+        return LogFilePosition(self._file_inode, marker)
+
+    def get_start_of_file_position(self) -> LogFilePosition:
+        """Returns the start position for the log file."""
+        return LogFilePosition(self._file_inode, 0)
+
+
 class LogMatcher(logger.Loggable):
     """
     Single line matcher for text files (usually log files). Once matched, it
@@ -65,14 +247,15 @@ class LogMatcher(logger.Loggable):
     unique for the entire log file.
     """
 
-    def __init__(self, log_path):
+    def __init__(self, log_path, strategy=NoLogRotationStrategy):
         """
         :param log_path: Path to the log file.
         :type log_path: ``str``
         """
         self.log_path = log_path
-        self.position = 0
         self.marks = {}
+        self.strategy = strategy(log_path)
+        self.position = self.strategy.file_position
         super(LogMatcher, self).__init__()
 
     def seek(self, mark: Optional[str] = None):
@@ -83,15 +266,13 @@ class LogMatcher(logger.Loggable):
         :param mark: Name of the mark.
         """
         if mark is None:
-            self.position = 0
+            self.position = self.strategy.seek()
         else:
-            self.position = self.marks[mark]
+            self.position = self.strategy.seek(self.marks[mark])
 
     def seek_eof(self):
         """Sets current file position to the current end of file."""
-        with open(self.log_path, "r") as log:
-            log.seek(0, os.SEEK_END)
-            self.position = log.tell()
+        self.position = self.strategy.seek_eof()
 
     def seek_sof(self):
         """Sets current file position to the start of file."""
@@ -104,7 +285,10 @@ class LogMatcher(logger.Loggable):
 
         :param name: Name of the mark.
         """
-        self.marks[name] = self.position
+        position = self.strategy.get_position()
+        self.marks[name] = LogFilePosition(
+            position.file_inode, position.marker
+        )
 
     def match(
         self,
@@ -139,23 +323,21 @@ class LogMatcher(logger.Loggable):
         if isinstance(regex.pattern, str):
             read_mode = "r"
 
-        with open(self.log_path, read_mode) as log:
-            log.seek(self.position)
-
-            while True:
-                if timeout > 0 and time.time() > end_time:
+        log = self.strategy.open_logfile_in_position(self.position, read_mode)
+        while True:
+            line = log.readline()
+            if line:
+                match = regex.match(line)
+                if match:
                     break
-                line = log.readline()
-                if line:
-                    match = regex.match(line)
-                    if match:
-                        break
-                elif timeout > 0:
-                    time.sleep(LOG_MATCHER_INTERVAL)
-                else:
+            else:
+                time.sleep(LOG_MATCHER_INTERVAL)
+                if time.time() > end_time:
                     break
 
-            self.position = log.tell()
+                log = self.strategy.get_next_file(log, read_mode)
+
+        self.position = self.strategy.get_position(log)
 
         if match is not None:
             self.logger.debug(
@@ -246,18 +428,38 @@ class LogMatcher(logger.Loggable):
         if isinstance(regex.pattern, str):
             read_mode = "r"
 
-        with open(self.log_path, read_mode) as log:
-            log.seek(self.marks[mark1] if mark1 is not None else 0)
-            endpos = self.marks[mark2]
-            while endpos > log.tell():
-                line = log.readline()
-                if not line:
-                    break
-                match = regex.match(line)
-                if match:
-                    break
+        try:
+            start_position = self.marks[mark1]
+            end_position = self.marks[mark2]
 
-        return match
+            log = self.strategy.open_logfile_in_position(
+                start_position, read_mode
+            )
+            current_inode, current_marker = self.strategy.get_inode_and_marker(
+                log
+            )
+
+            while (end_position.file_inode != current_inode) or (
+                end_position.marker > current_marker
+            ):
+                line = log.readline()
+                if line:
+                    match = regex.match(line)
+                    if match:
+                        break
+                else:
+                    log = self.strategy.get_next_file(
+                        log, read_mode, affect_position=False
+                    )
+
+                (
+                    current_inode,
+                    current_marker,
+                ) = self.strategy.get_inode_and_marker(log)
+
+            return match
+        except KeyError:
+            raise ValueError(f'Mark "{mark1}" or "{mark2}" does not exist')
 
     def not_match_between(self, regex, mark1, mark2):
         """
@@ -277,7 +479,7 @@ class LogMatcher(logger.Loggable):
 
         return not self.match_between(regex, mark1, mark2)
 
-    def get_between(self, mark1=None, mark2=None):
+    def get_between(self, mark1=None, mark2=None, timeout=5):
         """
         Returns the content of the file from the start marker to the end marker.
         It is possible to omit either marker to receive everything from start
@@ -293,25 +495,65 @@ class LogMatcher(logger.Loggable):
         :type mark1: ``str``
         :param mark2: mark name of end position (None for end of file)
         :type mark2: ``str``
+        :param timeout: Timeout in seconds to find out all matches in file,
+            defaults to 5 seconds.
+        :type timeout: ``int``
         :return: The content between mark1 and mark2.
         :rtype: ``str``
         """
-        if mark1 is not None and mark2 is not None:
-            if self.marks[mark1] >= self.marks[mark2]:
-                raise ValueError(
-                    'Mark "{}" must be present before mark "{}"'.format(
-                        mark1, mark2
-                    )
-                )
+        start_time = time.time()
+        end_time = start_time + timeout
 
-        with open(self.log_path, "r") as log:
-            start_pos = self.marks[mark1] if mark1 is not None else 0
-            end_pos = self.marks[mark2] if mark2 is not None else None
-            log.seek(start_pos)
-            if not end_pos:
-                return log.read()
+        try:
+            if mark1 is not None and mark2 is not None:
+                if (
+                    self.marks[mark1].file_inode
+                    == self.marks[mark2].file_inode
+                ) and (self.marks[mark1].marker >= self.marks[mark2].marker):
+                    raise ValueError(
+                        f'Mark "{mark1}" must be present before mark "{mark2}"'
+                    )
+
             lines_between = []
-            while end_pos > log.tell():
+            start_position = (
+                self.marks[mark1]
+                if mark1 is not None
+                else self.strategy.get_start_of_file_position()
+            )
+
+            end_position = (
+                self.marks[mark2]
+                if mark2 is not None
+                else self.strategy.get_end_of_file_position()
+            )
+
+            log = self.strategy.open_logfile_in_position(start_position, "r")
+            current_inode, current_marker = self.strategy.get_inode_and_marker(
+                log
+            )
+
+            while (end_position.file_inode != current_inode) or (
+                end_position.marker > current_marker
+            ):
                 line = log.readline()
-                lines_between.append(line)
+                if line:
+                    lines_between.append(line)
+                else:
+                    # Timeout here is necessary for situations where rotation occurs and the user
+                    # mistakenly swaps mark2 for mark1. Search is started from mark2 and while condition
+                    # cannot be met. This is to end the search.
+                    time.sleep(LOG_MATCHER_INTERVAL)
+                    if time.time() > end_time:
+                        break
+                    log = self.strategy.get_next_file(
+                        log, "r", affect_position=False
+                    )
+
+                (
+                    current_inode,
+                    current_marker,
+                ) = self.strategy.get_inode_and_marker(log)
+
             return "".join(lines_between)
+        except KeyError:
+            raise ValueError(f'Mark "{mark1}" or "{mark2}" does not exist')
