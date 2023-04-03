@@ -1,6 +1,7 @@
 """Tests FIX communication between a server and a client."""
 
 import os
+from pathlib import Path
 import sys
 
 try:
@@ -28,6 +29,7 @@ from pyfixmsg.reference import FixSpec
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.fix import FixServer, FixClient
+from testplan.common.utils.sockets.tls import SimpleTLSConfig
 
 CODEC = Codec(spec=FixSpec(SPEC_FILE))
 
@@ -160,6 +162,45 @@ def get_multitest():
                 target="ISLD",
                 msgclass=FixMessage,
                 codec=CODEC,
+            ),
+        ],
+    )
+    return test
+
+
+def get_tls_multitest():
+    """
+    Creates and returns a new MultiTest instance to be added to the plan.
+    The environment is a server and a client connecting using the context
+    functionality that retrieves host/port of the server after is started.
+    """
+    test = MultiTest(
+        name="OverOneSession With TLS",
+        suites=[FIXTestsuite()],
+        environment=[
+            FixServer(
+                name="server",
+                msgclass=FixMessage,
+                codec=CODEC,
+                tls_config=SimpleTLSConfig(
+                    cert=Path("certs/server.crt"),
+                    key=Path("certs/server.key"),
+                    cacert=Path("certs/rootCA.crt"),
+                ),
+            ),
+            FixClient(
+                name="client",
+                host=context("server", "{{host}}"),
+                port=context("server", "{{port}}"),
+                sender="TW",
+                target="ISLD",
+                msgclass=FixMessage,
+                codec=CODEC,
+                tls_config=SimpleTLSConfig(
+                    cert=Path("certs/client.crt"),
+                    key=Path("certs/client.key"),
+                    cacert=Path("certs/rootCA.crt"),
+                ),
             ),
         ],
     )
