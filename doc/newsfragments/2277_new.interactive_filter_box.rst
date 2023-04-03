@@ -1,0 +1,1 @@
+Testplan UI in interactive mode now support search/filter box. Not yet applied to execution of entries.
