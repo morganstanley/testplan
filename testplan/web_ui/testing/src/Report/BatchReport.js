@@ -27,7 +27,6 @@ import {
   fakeReportAssertions,
   fakeReportAssertionsError
 } from "../Common/fakeReport";
-import { generateURLWithParameters } from "../Common/utils";
 
 /**
  * BatchReport component:
@@ -43,12 +42,10 @@ class BatchReport extends BaseReport {
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
-    this.handleNavFilter = this.handleNavFilter.bind(this);
 
     this.state = {
       ...this.state,
       navWidth: `${COLUMN_WIDTH}em`,
-      filteredReport: { filter: { text: null, filters: null }, report: null },
       testcaseUid: null,
       filter: null,
       displayTags: false,
@@ -62,7 +59,6 @@ class BatchReport extends BaseReport {
       processedReport,
       this.state.filteredReport.filter
     );
-    
     const firstFailedUID = (
       filteredReport.report.status === "failed"
       || filteredReport.report.status === "error"
@@ -166,21 +162,6 @@ class BatchReport extends BaseReport {
 
   updateReportUID(report, uid) {
     return { ...report, uid };
-  }
-
-  /**
-   * Handle filter expressions being typed into the filter box.
-   *
-   * @param {Object} filter - the paresed filter expression
-   * @public
-   */
-  handleNavFilter(filter) {
-    // eslint-disable-line no-unused-vars
-    const filteredReport = filterReport(this.state.report, filter);
-
-    this.setState({
-      filteredReport,
-    });
   }
 
   /**

@@ -23,7 +23,6 @@ import Linkify from "linkify-react";
 
 
 import FilterBox from "../Toolbar/FilterBox";
-import FilterBoxPlaceholder from "../Toolbar/FilterBoxPlaceholder";
 import { STATUS, STATUS_CATEGORY, EXPAND_STATUS } from "../Common/defaults";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -400,14 +399,10 @@ class Toolbar extends Component {
           width: this.props.filterBoxWidth,
         }}
       >
-        {this.props.handleNavFilter ? (
-          <FilterBox
+        <FilterBox
             handleNavFilter={this.props.handleNavFilter}
             filterText={this.props.filterText}
           />
-        ) : (
-          <FilterBoxPlaceholder />
-        )}
       </div>
     );
   }

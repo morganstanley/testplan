@@ -1,5 +1,6 @@
 import React from "react";
 
+import { filterReport } from "./reportUtils";
 import { defaultAssertionStatus } from "../Common/context";
 import { generateURLWithParameters } from "../Common/utils";
 
@@ -19,6 +20,7 @@ class BaseReport extends React.Component {
         this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
         this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
         this.updatePathDisplay = this.updatePathDisplay.bind(this);
+        this.handleNavFilter = this.handleNavFilter.bind(this);
 
         defaultAssertionStatus.updateAssertionStatus
             = this.updateAssertionStatus;
@@ -27,6 +29,10 @@ class BaseReport extends React.Component {
         this.state = {
             navWidth: null,
             report: null,
+            filteredReport: {
+                filter: { text: null, filters: null },
+                report: null,
+            },
             loading: false,
             error: null,
             treeView: true,
@@ -126,6 +132,21 @@ class BaseReport extends React.Component {
     */
     handleColumnResizing(navWidth) {
         this.setState({ navWidth: navWidth });
+    }
+
+    /**
+    * Handle filter expressions being typed into the filter box.
+    *
+    * @param {Object} filter - the parsed filter expression
+    * @public
+    */
+    handleNavFilter(filter) {
+        // eslint-disable-line no-unused-vars
+        const filteredReport = filterReport(this.state.report, filter);
+
+        this.setState({
+            filteredReport,
+        });
     }
 }
 
