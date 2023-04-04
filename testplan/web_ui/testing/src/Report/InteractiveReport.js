@@ -27,6 +27,7 @@ import {
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
+  filterReport,
   getSelectedUIDsFromPath,
 } from './reportUtils.js';
 import {
@@ -71,9 +72,14 @@ class InteractiveReport extends BaseReport {
 
   setReport(report) {
     const processedReport = PropagateIndices(report);
+    const filteredReport = filterReport(
+      processedReport,
+      this.state.filteredReport.filter
+    );
     this.setState(
       (state, props) => ({
         report: processedReport,
+        filteredReport,
         loading: false,
       })
     );
@@ -586,7 +592,7 @@ class InteractiveReport extends BaseReport {
     const { reportStatus, reportFetchMessage } = GetReportState(this.state);
     const selectedEntries = GetSelectedEntries(
       getSelectedUIDsFromPath(this.props.match.params, base64url.decode), 
-      this.state.report
+      this.state.filteredReport.report
     );
     const centerPane = GetCenterPane(
       this.state,
@@ -599,10 +605,11 @@ class InteractiveReport extends BaseReport {
       <div className={css(styles.batchReport)}>
         <Toolbar
           filterBoxWidth={this.state.navWidth}
+          filterText={this.state.filteredReport.filter.text}
           status={reportStatus}
           expandStatus={this.state.assertionStatus.globalExpand.status}
           updateExpandStatusFunc={this.updateGlobalExpand}
-          handleNavFilter={null}
+          handleNavFilter={this.handleNavFilter}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
           updateTreeViewFunc={this.updateTreeView}
@@ -631,7 +638,7 @@ class InteractiveReport extends BaseReport {
         <Nav
           interactive={true}
           navListWidth={this.state.navWidth}
-          report={this.state.report}
+          report={this.state.filteredReport.report}
           selected={selectedEntries}
           treeView={this.state.treeView}
           filter={null}
