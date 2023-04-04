@@ -476,7 +476,7 @@ class RemoteResource(Entity):
                 )
             else:
                 self.logger.error(
-                    '%s: item "{}" cannot be pushed!',
+                    '%s: item "%s" cannot be pushed!',
                     self,
                     source,
                 )
