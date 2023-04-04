@@ -91,7 +91,7 @@ class Watcher(Loggable):
     @contextmanager
     def save_covered_lines_to(
         self, report: Union[TestCaseReport, TestGroupReport]
-    ) -> None:
+    ) -> Generator:
         """
         Context manager that enables source code tracing
         and covered lines data saving to report at exit.
