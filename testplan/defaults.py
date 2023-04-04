@@ -32,3 +32,9 @@ INTERACTIVE_POOL_SIZE = 4
 # Name of multitest/testsuite/testcase (usually used for display) cannot be
 # too long, or the UI will not be pleasant when they end up with long names
 MAX_TEST_NAME_LENGTH = 255
+
+# Default to using 30min for auto-parts task.
+AUTO_PART_RUNTIME_LIMIT = 1800  # 30min
+
+# Default to using 30min for calculating pool size
+PLAN_RUNTIME_TARGET = 1800  # 30 min

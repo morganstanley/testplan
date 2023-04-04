@@ -248,7 +248,9 @@ class PoolConfig(ExecutorConfig):
         """
         return {
             "name": str,
-            ConfigOption("size", default=4): And(int, lambda x: x > 0),
+            ConfigOption("size", default=4): Or(
+                And(int, lambda x: x > 0), lambda x: x == "auto"
+            ),
             ConfigOption("worker_type", default=Worker): lambda x: issubclass(
                 x, Worker
             ),
@@ -267,7 +269,8 @@ class Pool(Executor):
     Pool task executor object that initializes workers and dispatches tasks.
 
     :param name: Pool name.
-    :param size: Pool workers size. Default: 4
+    :param size: Pool workers size. If you set size="auto",
+        smart-scheduling feature will calculate the size. Default: 4
     :param worker_type: Type of worker to be initialized.
     :param worker_heartbeat: Worker heartbeat period.
     :param heartbeats_miss_limit: Maximum times a heartbeat is missed.
@@ -284,7 +287,7 @@ class Pool(Executor):
     def __init__(
         self,
         name: str,
-        size: int = 4,
+        size: Union[int, str] = 4,
         worker_type: Type = Worker,
         worker_heartbeat: Optional[Union[int, float]] = None,
         heartbeats_miss_limit: int = 3,
@@ -296,6 +299,7 @@ class Pool(Executor):
         options.update(self.filter_locals(locals()))
         super(Pool, self).__init__(**options)
         self.unassigned = TaskQueue()  # unassigned tasks
+        self.is_auto_size = size == "auto"
         self._executed_tests = []
         self._task_retries_cnt = {}  # uid: times_reassigned_without_result
         self._task_retries_limit = 2
@@ -322,6 +326,15 @@ class Pool(Executor):
     def uid(self) -> str:
         """Pool name."""
         return self.cfg.name
+
+    @property
+    def size(self) -> Union[int, str]:
+        """Pool size."""
+        return self.cfg.size
+
+    @size.setter
+    def size(self, value: int) -> None:
+        self.cfg.size = value
 
     def add(self, task: Task, uid: str) -> None:
         """

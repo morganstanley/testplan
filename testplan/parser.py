@@ -8,6 +8,7 @@ import json
 import sys
 from typing import Dict, List
 
+import schema
 from testplan import defaults
 from testplan.common.utils import logger
 from testplan.report.testing import (
@@ -150,6 +151,23 @@ class TestplanParser:
             "with each entry looks like: "
             '{"<Multitest>:<TestSuite>:<testcase>": '
             '{"reason": <value>, "strict": <value>} }',
+        )
+
+        general_group.add_argument(
+            "--runtime-data",
+            metavar="PATH",
+            type=_runtime_json_file,
+            help="Historical runtime data which will be used for Multitest "
+            "auto-part and weight-based Task smart-scheduling with "
+            "entries looks like: "
+            """
+{
+    "<Multitest>": {
+        "execution_time": 199.99,
+        "setup_time": 39.99,
+    },
+    ......
+}""",
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -488,3 +506,21 @@ def _read_json_file(file: str) -> dict:
 def _read_text_file(file: str) -> List[str]:
     with open(file, "r") as fp:
         return fp.read().splitlines()
+
+
+runtime_schema = schema.Schema(
+    {
+        str: {
+            "execution_time": schema.Or(int, float),
+            "setup_time": schema.Or(int, float),
+        }
+    }
+)
+
+
+def _runtime_json_file(file: str) -> dict:
+    with open(file) as fp:
+        runtime_info = json.load(fp)
+        if runtime_schema.is_valid(runtime_info):
+            return runtime_info
+        raise RuntimeError("Unexpected runtime file format!")
