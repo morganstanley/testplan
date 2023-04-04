@@ -4,7 +4,7 @@ Easy-to-use wrapper around Coverage.py for Python source code tracing
 
 from contextlib import contextmanager
 from logging import Logger
-from typing import Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional, Set, Union, Generator
 
 try:
     from typing import Literal  # >= 3.8
@@ -72,7 +72,7 @@ class Watcher(Loggable):
     @contextmanager
     def disabled(
         self, logger: Optional[Logger] = None, reason: Optional[str] = None
-    ) -> None:
+    ) -> Generator:
         """
         Temporarily disable watcher due to the passed in reason,
         or some unknown reason.
