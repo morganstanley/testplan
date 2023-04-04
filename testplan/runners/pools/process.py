@@ -88,7 +88,7 @@ class ProcessWorker(Worker):
         """Start a child process worker."""
         # NOTE: Worker resource has no runpath.
         cmd = self._proc_cmd()
-        self.logger.debug("{} executes cmd: {}".format(self, cmd))
+        self.logger.debug("%s executes cmd: %s", self, cmd)
 
         with open(self.outfile, "wb") as out:
             self._handler = subprocess.Popen(
@@ -105,9 +105,7 @@ class ProcessWorker(Worker):
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
             timeout=timeout,
-            raise_timeout_with_msg="Worker start timeout, logfile = {}".format(
-                self.outfile
-            ),
+            raise_timeout_with_msg=f"Worker start timeout, logfile = {self.outfile}",
         )
         while next(sleeper):
             if match_regexps_in_file(
@@ -118,11 +116,8 @@ class ProcessWorker(Worker):
 
             if self._handler and self._handler.poll() is not None:
                 raise RuntimeError(
-                    "{proc} process exited: {rc} (logfile = {log})".format(
-                        proc=self,
-                        rc=self._handler.returncode,
-                        log=self.outfile,
-                    )
+                    f"{self} process exited: {self._handler.returncode}"
+                    f" (logfile = {self.outfile})"
                 )
 
     @property
@@ -204,7 +199,7 @@ class ProcessPool(Pool):
         abort_signals: List[int] = None,
         worker_type: Type = ProcessWorker,
         worker_heartbeat: Union[int, float] = 5,
-        **options
+        **options,
     ) -> None:
         options.update(self.filter_locals(locals()))
         super(ProcessPool, self).__init__(**options)

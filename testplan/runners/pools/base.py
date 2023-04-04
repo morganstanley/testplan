@@ -112,9 +112,7 @@ class WorkerBase(entity.Resource):
     @property
     def outfile(self) -> str:
         """Stdout file."""
-        return os.path.join(
-            self.parent.runpath, "{}_startup".format(self.cfg.index)
-        )
+        return os.path.join(self.parent.runpath, f"{self.cfg.index}_startup")
 
     def uid(self) -> Union[int, str]:
         """Worker unique index."""
@@ -137,7 +135,7 @@ class WorkerBase(entity.Resource):
         pass
 
     def __repr__(self) -> str:
-        return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
+        return f"{self.__class__.__name__}[{self.cfg.index}]"
 
 
 class Worker(WorkerBase):
@@ -333,9 +331,7 @@ class Pool(Executor):
         :param uid: Task uid
         """
         if not isinstance(task, Task):
-            raise ValueError(
-                "Task was expected, got {} instead.".format(type(task))
-            )
+            raise ValueError(f"Task was expected, got {type(task)} instead.")
         super(Pool, self).add(task, uid)
         self.unassigned.put(task.priority, uid)
         self._task_retries_cnt[uid] = 0
@@ -427,9 +423,8 @@ class Pool(Executor):
                 worker.respond(response.make(Message.Stop))
         else:
             self.logger.error(
-                "Unknown request: {} {} {} {}".format(
-                    request, dir(request), request.cmd, request.data
-                )
+                f"Unknown request: {request} {dir(request)} {request.cmd}"
+                f" {request.data}"
             )
             worker.respond(response.make(Message.Ack))
 
@@ -466,21 +461,19 @@ class Pool(Executor):
                     if self._task_retries_cnt[uid] > self._task_retries_limit:
                         self._discard_task(
                             uid,
-                            "{} already reached max retries limit: {}".format(
-                                self._input[uid], self._task_retries_limit
-                            ),
+                            f"{self._input[uid]} already reached max retries limit:"
+                            f" {self._task_retries_limit}",
                         )
                         continue
                     else:
                         if self._can_assign_task_to_worker(task, worker):
                             self.logger.user_info(
-                                "Scheduling {} to {}{}".format(
-                                    task,
-                                    worker,
-                                    " (rerun {})".format(task.reassign_cnt)
-                                    if task.reassign_cnt > 0
-                                    else "",
-                                )
+                                "Scheduling %s to %s %s",
+                                task,
+                                worker,
+                                "(rerun {})".format(task.reassign_cnt)
+                                if task.reassign_cnt > 0
+                                else "",
                             )
                             worker.assigned.add(uid)
                             tasks.append(task)
@@ -489,7 +482,7 @@ class Pool(Executor):
                             self.record_execution(uid)
                         else:
                             self.logger.user_info(
-                                "Cannot schedule {} to {}".format(task, worker)
+                                "Cannot schedule %s to %s", task, worker
                             )
                             self.unassigned.put(task.priority, uid)
                             self._task_retries_cnt[uid] += 1
@@ -497,9 +490,7 @@ class Pool(Executor):
                     # Later may create a default local pool as failover option
                     self._discard_task(
                         uid,
-                        "{} cannot be executed in {}".format(
-                            self._input[uid], self
-                        ),
+                        f"{self._input[uid]} cannot be executed in {self}",
                     )
 
             if tasks:
@@ -551,7 +542,7 @@ class Pool(Executor):
             worker.assigned.remove(uid)
             self._workers_last_result.setdefault(worker, time.time())
             self.logger.user_info(
-                "De-assign {} from {}".format(task_result.task, worker)
+                "De-assign %s from %s", task_result.task, worker
             )
 
             worker.rebase_attachment(task_result.result)
@@ -582,8 +573,10 @@ class Pool(Executor):
         """Handle a Heartbeat message received from a worker."""
         worker.last_heartbeat = time.time()
         self.logger.debug(
-            f"Received heartbeat from {worker} at {request.data}"
-            f" after {time.time() - request.data}s."
+            "Received heartbeat from %s at %s after %ss.",
+            worker,
+            request.data,
+            time.time() - request.data,
         )
         worker.respond(response.make(Message.Ack, data=worker.last_heartbeat))
 

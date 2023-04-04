@@ -68,18 +68,18 @@ class Client(logger.Loggable, metaclass=abc.ABCMeta):
             self.send(message)
         except Exception as exc:
             self.logger.exception("Exception on transport send: %s.", exc)
-            raise RuntimeError("On transport send - {}.".format(exc))
+            raise RuntimeError(f"On transport send - {exc}.")
 
         try:
             received = self.receive()
         except Exception as exc:
             self.logger.exception("Exception on transport receive: %s.", exc)
-            raise RuntimeError("On transport receive - {}.".format(exc))
+            raise RuntimeError(f"On transport receive - {exc}.")
 
         if expect is not None:
             if received is None:
                 raise RuntimeError(
-                    "Received None when {} was expected.".format(expect)
+                    f"Received None when {expect} was expected."
                 )
             if isinstance(expect, (tuple, list)):
                 assert received.cmd in expect
@@ -214,16 +214,15 @@ class ZMQClient(Client):
                 try:
                     loaded = deserialize(received)
                 except Exception as exc:
-                    print("Deserialization error. - {}".format(exc))
+                    print(f"Deserialization error. - {exc}")
                     raise
                 else:
                     return loaded
             except zmq.Again:
                 if time.time() - start_time > self._recv_timeout:
                     print(
-                        "Transport receive timeout {}s reached!".format(
-                            self._recv_timeout
-                        )
+                        f"Transport receive timeout {self._recv_timeout}s"
+                        f" reached!"
                     )
                     return None
                 time.sleep(self._recv_sleep)
@@ -303,8 +302,6 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
         no message is queued for receiving it should return None.
 
         :return: Message received from worker transport, or None.
-        :rtype: ``NoneType`` or
-            :py:class:`~testplan.runners.pools.communication.Message`
         """
         pass
 

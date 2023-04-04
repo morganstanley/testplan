@@ -35,15 +35,11 @@ class LocalRunner(Executor):
         elif callable(target):
             runnable = target()
         else:
-            raise TypeError(
-                "Cannot execute target of type {}".format(type(target))
-            )
+            raise TypeError(f"Cannot execute target of type {type(target)}")
 
         # guard
         if not isinstance(runnable, Test):
-            raise TypeError(
-                "Cannot execute target of type {}".format(type(runnable))
-            )
+            raise TypeError(f"Cannot execute target of type {type(runnable)}")
         # pass the ball
         if not runnable.parent:
             runnable.parent = self
@@ -74,9 +70,7 @@ class LocalRunner(Executor):
                         )
                         result.report.status_override = Status.ERROR
                         result.report.logger.exception(
-                            "Exception for {} on {} execution: {}".format(
-                                next_uid, self, exc
-                            )
+                            f"Exception for {next_uid} on {self} execution: {exc}"
                         )
                         self._results[next_uid] = result
                     finally:

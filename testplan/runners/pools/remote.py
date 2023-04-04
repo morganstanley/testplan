@@ -369,10 +369,10 @@ class RemotePool(Pool):
                     )
                 except Exception:
                     self.logger.error(
-                        "Timeout waiting for worker {} to quit starting "
-                        "while pool {} is stopping".format(
-                            worker, self.cfg.name
-                        )
+                        "Timeout waiting for worker %s to quit starting "
+                        "while pool %s is stopping",
+                        worker,
+                        self.cfg.name,
                     )
 
         super(RemotePool, self).stopping()

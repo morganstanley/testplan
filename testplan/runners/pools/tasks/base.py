@@ -150,9 +150,7 @@ class Task(SelectiveSerializable):
             raise ValueError("Value of `reassign_cnt` cannot be negative")
         elif value > self.MAX_RERUN_LIMIT:
             raise ValueError(
-                "Value of `reassign_cnt` cannot exceed {}".format(
-                    self.MAX_RERUN_LIMIT
-                )
+                f"Value of `reassign_cnt` cannot exceed {self.MAX_RERUN_LIMIT}"
             )
         self._assign_for_rerun = value
 

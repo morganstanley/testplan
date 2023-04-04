@@ -1,16 +1,16 @@
 """Child worker process module."""
 
+import argparse
+import logging
 import os
-import sys
-import time
+import platform
+import shutil
 import signal
 import socket
-import shutil
-import logging
-import argparse
-import platform
-import threading
 import subprocess
+import sys
+import threading
+import time
 import traceback
 
 
@@ -64,7 +64,7 @@ class ChildLoop:
     def _child_pool(self):
         # Local thread pool will not cleanup the previous layer runpath.
         self._pool = self._pool_type(
-            name="Pool_{}".format(self._metadata["pid"]),
+            name=f"Pool_{self._metadata['pid']}",
             worker_type=self._worker_type,
             size=self._pool_size,
             runpath=self.runpath,
@@ -93,10 +93,10 @@ class ChildLoop:
             os.makedirs(self.runpath)
 
         stderr_file = os.path.join(
-            self.runpath, "{}_stderr".format(self._metadata["index"])
+            self.runpath, f"{self._metadata['index']}_stderr"
         )
         log_file = os.path.join(
-            self.runpath, "{}_stdout".format(self._metadata["index"])
+            self.runpath, f"{self._metadata['index']}_stdout"
         )
         self.logger.info(
             "stdout file = %(file)s (log level = %(lvl)s)",
