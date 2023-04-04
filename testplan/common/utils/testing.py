@@ -11,6 +11,8 @@ import warnings
 from lxml import objectify
 
 from contextlib import contextmanager
+from typing import Collection
+from testplan.runners.pools.tasks.base import Task
 
 from ..report.base import Report, ReportGroup
 from ..utils.comparison import is_regex
