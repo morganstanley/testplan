@@ -47,7 +47,7 @@ class Watcher(Loggable):
             self._watching_lines = watching_lines
             self.logger.debug(
                 "Now tracing the following files: %s",
-                list(self._watching_lines.keys())
+                list(self._watching_lines.keys()),
             )
             # we explicitly disable writing coverage data to file
             self._tracer = Coverage(

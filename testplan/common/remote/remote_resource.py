@@ -217,16 +217,12 @@ class RemoteResource(Entity):
             self._remote_plan_runpath,
         )
         self.logger.info(
-            "%s remote runpath = %s",
-            self,
-            self._remote_resource_runpath
+            "%s remote runpath = %s", self, self._remote_resource_runpath
         )
         self._working_dirs.local = pwd()
         self._working_dirs.remote = self._remote_working_dir()
         self.logger.info(
-            "%s remote working path = %s",
-            self,
-            self._working_dirs.remote
+            "%s remote working path = %s", self, self._working_dirs.remote
         )
 
     def _remote_working_dir(self) -> None:
@@ -440,7 +436,7 @@ class RemoteResource(Entity):
         self._push_files_to_dst(push_files, push_dirs)
 
     def _build_push_lists(
-        self
+        self,
     ) -> Tuple[List[_LocationPaths], List[_LocationPaths]]:
         """
         Create lists of the source and destination paths of files and
