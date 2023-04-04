@@ -32,7 +32,7 @@ class Watcher(Loggable):
     NOTE: a workaround.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._disabled: bool = False
         self._watching_lines: Optional[
@@ -42,11 +42,12 @@ class Watcher(Loggable):
 
     def set_watching_lines(
         self, watching_lines: Dict[str, Union[List[int], Literal["*"]]]
-    ):
+    ) -> None:
         if watching_lines:
             self._watching_lines = watching_lines
             self.logger.debug(
-                f"Now tracing following files: {list(self._watching_lines.keys())}"
+                "Now tracing the following files: %s",
+                list(self._watching_lines.keys())
             )
             # we explicitly disable writing coverage data to file
             self._tracer = Coverage(
@@ -71,7 +72,7 @@ class Watcher(Loggable):
     @contextmanager
     def disabled(
         self, logger: Optional[Logger] = None, reason: Optional[str] = None
-    ):
+    ) -> None:
         """
         Temporarily disable watcher due to the passed in reason,
         or some unknown reason.
@@ -90,7 +91,7 @@ class Watcher(Loggable):
     @contextmanager
     def save_covered_lines_to(
         self, report: Union[TestCaseReport, TestGroupReport]
-    ):
+    ) -> None:
         """
         Context manager that enables source code tracing
         and covered lines data saving to report at exit.

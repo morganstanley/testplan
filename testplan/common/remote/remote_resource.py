@@ -1,7 +1,8 @@
+import getpass
 import itertools
 import os
-import getpass
 import sys
+from typing import Callable, Iterator, List, Tuple, Union, Dict
 
 from schema import Or
 
@@ -9,7 +10,6 @@ import testplan
 import testplan.runnable
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Entity, EntityConfig
-
 from testplan.common.utils.path import (
     module_abspath,
     fix_home_prefix,
@@ -37,7 +37,7 @@ class WorkerSetupMetadata:
     Pushed dirs and files will be registered for deletion at exit.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.delete_pushed = False
         self.push_dirs = []
         self.push_files = []
@@ -48,11 +48,11 @@ class WorkerSetupMetadata:
 class _LocationPaths:
     """Store local and remote equivalent paths."""
 
-    def __init__(self, local=None, remote=None):
+    def __init__(self, local: str = None, remote: str = None) -> None:
         self.local = local
         self.remote = remote
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         return iter((self.local, self.remote))
 
 
@@ -102,84 +102,56 @@ class RemoteResource(Entity):
     on remote, and fetching back files from remote etc.
 
     :param remote_host: Remote hostname to connect to.
-    :type remote_host: ``str``
     :param ssh_port: The ssh port number of remote host, default is 22.
-    :type ssh_port: ``int``
     :param ssh_cmd: callable that prefix a command with ssh binary and options
-    :type ssh_cmd: ``callable``
     :param copy_cmd: callable that returns the cmdline to do copy on remote host
-    :type copy_cmd: ``callable``
-
     :param workspace: Current project workspace to be transferred, default is pwd.
-    :type workspace: ``str``
     :param workspace_exclude: Patterns to exclude files when pushing workspace.
-    :type workspace_exclude: ``list`` of ``str``
-
     :param remote_runpath: Root runpath on remote host, default is same as local (Linux->Linux)
       or /var/tmp/$USER/testplan/$plan_name (Window->Linux).
-    :type remote_runpath: ``str``
     :param testplan_path: Path to import testplan from on remote host,
       default is testplan_lib under remote_runpath
-    :type testplan_path: ``str``
     :param remote_workspace: The path of the workspace on remote host,
       default is fetched_workspace under remote_runpath
-    :type remote_workspace: ``str``
     :param clean_remote: Deleted root runpath on remote at exit.
-    :type clean_remote: ``bool``
-
     :param push: Files and directories to push to the remote.
-    :type push: ``list`` that contains ``str`` or ``tuple``:
-        - ``str``: Name of the file or directory
-        - ``type``: A (src, dst) pair
     :param push_exclude: Patterns to exclude files on push stage.
-    :type push_exclude: ``list`` of ``str``
     :param delete_pushed: Deleted pushed files on remote at exit.
-    :type delete_pushed: ``bool``
-
     :param fetch_runpath: The flag of fetch remote resource's runpath, default to True.
-    :type fetch_runpath: ``bool``
     :param fetch_runpath_exclude: Exclude files matching PATTERN.
-    :type fetch_runpath_exclude: ``list``
-
     :param pull: Files and directories to be pulled from the remote at the end.
-    :type pull: ``list`` of ``str``
     :param pull_exclude: Patterns to exclude files on pull stage.
-    :type pull_exclude: ``list`` of ``str``
-
     :param env: Environment variables to be propagated.
-    :type env: ``dict``
     :param setup_script: Script to be executed on remote as very first thing.
-    :type setup_script: ``list`` of ``str``
     :param status_wait_timeout: remote resource start/stop timeout, default is 60.
-    :type status_wait_timeout: ``int``
     """
 
     CONFIG = RemoteResourceConfig
 
     def __init__(
         self,
-        remote_host,
-        ssh_port=22,
-        ssh_cmd=ssh_cmd,
-        copy_cmd=copy_cmd,
-        workspace=None,
-        workspace_exclude=None,
-        remote_runpath=None,
-        testplan_path=None,
-        remote_workspace=None,
-        clean_remote=False,
-        push=None,
-        push_exclude=None,
-        delete_pushed=False,
-        fetch_runpath=True,
-        fetch_runpath_exclude=None,
-        pull=None,
-        pull_exclude=None,
-        env=None,
-        setup_script=None,
-        status_wait_timeout=60,
+        remote_host: str,
+        ssh_port: int = 22,
+        ssh_cmd: Callable = ssh_cmd,
+        copy_cmd: Callable = copy_cmd,
+        workspace: str = None,
+        workspace_exclude: List[str] = None,
+        remote_runpath: str = None,
+        testplan_path: str = None,
+        remote_workspace: str = None,
+        clean_remote: bool = False,
+        push: List[Union[str, Tuple]] = None,
+        push_exclude: List[str] = None,
+        delete_pushed: bool = False,
+        fetch_runpath: bool = True,
+        fetch_runpath_exclude: List[str] = None,
+        pull: List[str] = None,
+        pull_exclude: List[str] = None,
+        env: Dict[str, str] = None,
+        setup_script: List[str] = None,
+        status_wait_timeout: int = 60,
         **options,
-    ):
+    ) -> None:
 
         if not worker_is_remote(remote_host):
             raise RuntimeError(
@@ -206,7 +178,7 @@ class RemoteResource(Entity):
             os.environ["PYTHON3_REMOTE_BINARY"] if IS_WIN else sys.executable
         )
 
-    def _prepare_remote(self):
+    def _prepare_remote(self) -> None:
 
         self._define_remote_dirs()
         self._create_remote_dirs()
@@ -218,7 +190,7 @@ class RemoteResource(Entity):
         self.setup_metadata.setup_script = self.cfg.setup_script
         self.setup_metadata.env = self.cfg.env
 
-    def _define_remote_dirs(self):
+    def _define_remote_dirs(self) -> None:
         """Define mandatory directories in remote host."""
 
         self._remote_plan_runpath = self.cfg.remote_runpath or (
@@ -244,25 +216,28 @@ class RemoteResource(Entity):
             self._get_plan().runpath,
             self._remote_plan_runpath,
         )
-        self.logger.debug("Remote runpath = %s", self._remote_resource_runpath)
+        self.logger.info(
+            "%s remote runpath = %s",
+            self,
+            self._remote_resource_runpath
+        )
         self._working_dirs.local = pwd()
         self._working_dirs.remote = self._remote_working_dir()
-        self.logger.debug(
-            "Remote working path = %s", self._working_dirs.remote
+        self.logger.info(
+            "%s remote working path = %s",
+            self,
+            self._working_dirs.remote
         )
 
-    def _remote_working_dir(self):
+    def _remote_working_dir(self) -> None:
         """Choose a working directory to use on the remote host."""
         if not is_subdir(
             self._working_dirs.local, self._workspace_paths.local
         ):
             raise RuntimeError(
-                "Current working dir is not within the workspace.\n"
-                "Workspace = {ws}\n"
-                "Working dir = {cwd}".format(
-                    ws=self._workspace_paths.local,
-                    cwd=self._working_dirs.local,
-                )
+                f"Current working dir is not within the workspace.\n"
+                f"Workspace = {self._workspace_paths.local}\n"
+                f"Working dir = {self._working_dirs.local}."
             )
 
         # Current working directory is within the workspace - use the same
@@ -273,7 +248,7 @@ class RemoteResource(Entity):
             self._workspace_paths.remote,
         )
 
-    def _create_remote_dirs(self):
+    def _create_remote_dirs(self) -> None:
         """Create mandatory directories in remote host."""
 
         exist_on_remote = self._check_workspace()
@@ -307,7 +282,7 @@ class RemoteResource(Entity):
             label="create remote resource runpath",
         )
 
-    def _copy_testplan_package(self):
+    def _copy_testplan_package(self) -> None:
         """Make testplan package available on remote host"""
 
         if self.cfg.testplan_path:
@@ -350,10 +325,11 @@ class RemoteResource(Entity):
                 deref_links=True,
             )
 
-    def _check_workspace(self):
+    def _check_workspace(self) -> bool:
         """
-        Check if workspace is available on remote host
-        :return: True if exsit, false otherwise
+        Check if workspace is available on remote host.
+
+        :return: True if exists, false otherwise
         """
 
         if self.cfg.remote_workspace:
@@ -378,13 +354,14 @@ class RemoteResource(Entity):
 
         return False
 
-    def _prepare_workspace(self, exist_on_remote):
+    def _prepare_workspace(self, exist_on_remote: bool) -> None:
         """Make workspace available on remote host."""
 
         if self.cfg.remote_workspace:
             self.logger.info(
-                "User has specified workspace path on remote host, "
-                "pointing runpath/fetched_workspace to it"
+                "%s: user has specified workspace path on remote host, "
+                "pointing runpath/fetched_workspace to it",
+                self,
             )
             # Make a soft link and return
             self._execute_cmd_remote(
@@ -399,8 +376,9 @@ class RemoteResource(Entity):
 
         if exist_on_remote:
             self.logger.info(
-                "Local workspace path is accessible on %s, "
+                "%s: local workspace path is accessible on %s, "
                 "pointing runpath/fetched_workspace to it",
+                self,
                 self.ssh_cfg["host"],
             )
             self._execute_cmd_remote(
@@ -414,8 +392,9 @@ class RemoteResource(Entity):
         else:
             # copy to remote
             self.logger.info(
-                "Local workspace path is inaccessible on %s, "
+                "%s: local workspace path is inaccessible on %s, "
                 "Copying it to remote runpath/fetched_workspace",
+                self,
                 self.ssh_cfg["host"],
             )
             self._transfer_data(
@@ -427,8 +406,9 @@ class RemoteResource(Entity):
                 exclude=self.cfg.workspace_exclude,
             )
             self.logger.info(
-                "Creating symlink to imitate local workspace path on %s, "
+                "%s: creating symlink to imitate local workspace path on %s, "
                 "pointing to runpath/fetched_workspace",
+                self,
                 self.ssh_cfg["host"],
             )
             self._execute_cmd_remote(
@@ -445,7 +425,7 @@ class RemoteResource(Entity):
                 check=False,  # just best effort
             )
 
-    def _push_files(self):
+    def _push_files(self) -> None:
         """Push files and directories to remote host."""
 
         # First enumerate the files and directories to be pushed, including
@@ -459,7 +439,9 @@ class RemoteResource(Entity):
         # Now actually push the files to the remote host.
         self._push_files_to_dst(push_files, push_dirs)
 
-    def _build_push_lists(self):
+    def _build_push_lists(
+        self
+    ) -> Tuple[List[_LocationPaths], List[_LocationPaths]]:
         """
         Create lists of the source and destination paths of files and
         directories to be pushed. Eliminate duplication of sub-directories.
@@ -497,7 +479,11 @@ class RemoteResource(Entity):
                     _LocationPaths(os.path.join(source, ""), dest)
                 )
             else:
-                self.logger.error('Item "{}" cannot be pushed!'.format(source))
+                self.logger.error(
+                    '%s: item "{}" cannot be pushed!',
+                    self,
+                    source,
+                )
 
         # Eliminate push duplications
         if push_dirs and len(push_dirs) > 1:
@@ -560,7 +546,7 @@ class RemoteResource(Entity):
 
         return push_locations
 
-    def _push_files_to_dst(self, push_files, push_dirs):
+    def _push_files_to_dst(self, push_files: List, push_dirs: List):
         """
         Push files and directories to the remote host. Both the source and
         destination paths should be specified.
@@ -570,7 +556,7 @@ class RemoteResource(Entity):
         """
         for source, dest in itertools.chain(push_files, push_dirs):
             remote_dir = dest.rpartition("/")[0]
-            self.logger.debug("Create remote dir: %s", remote_dir)
+            self.logger.debug("%s create remote dir: %s", self, remote_dir)
             self._execute_cmd_remote(
                 cmd=mkdir_cmd(remote_dir), label="create remote dir"
             )
