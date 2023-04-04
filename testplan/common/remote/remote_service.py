@@ -74,7 +74,7 @@ class RemoteService(Resource, RemoteResource):
         rpyc_port: str = 0,
         sigint_timeout: int = 5,
         **options,
-    ):
+    ) -> None:
         options.update(self.filter_locals(locals()))
         options["async_start"] = False
         super(RemoteService, self).__init__(**options)
@@ -155,7 +155,6 @@ class RemoteService(Resource, RemoteResource):
         Waits for RPyC server start, changes status to STARTED.
 
         :param timeout: timeout in seconds
-        :type timeout: ``float``
         :raises: RuntimeError if server startup fails
         """
         sleeper = get_sleeper(
