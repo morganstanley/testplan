@@ -1,30 +1,30 @@
 """Generic application driver."""
 
-import os
-import uuid
-import shutil
-import warnings
-import subprocess
 import datetime
+import os
 import platform
+import shutil
 import socket
-from typing import List, Union, Dict, Optional
+import subprocess
+import uuid
+import warnings
+from typing import Dict, List, Optional, Union
 
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
 
-
 from schema import Or
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.match import LogMatcher
-from testplan.common.utils.path import StdFiles, makedirs, archive
-from testplan.common.utils.context import is_context, expand, ContextValue
-from testplan.common.utils.process import subprocess_popen, kill_process
-from testplan.common.utils.timing import wait
+from testplan.common.entity import ActionResult
+from testplan.common.utils.context import ContextValue, expand, is_context
 from testplan.common.utils.documentation_helper import emphasized
+from testplan.common.utils.match import LogMatcher
+from testplan.common.utils.path import StdFiles, archive, makedirs
+from testplan.common.utils.process import kill_process, subprocess_popen
+from testplan.common.utils.timing import wait
 
 from .base import Driver, DriverConfig, DriverMetadata
 
@@ -323,28 +323,14 @@ class App(Driver):
                 self._proc = None
             raise
 
-    def started_check(self, timeout: Union[int, None] = None) -> Optional[int]:
-        """
-        Checks if app has started. Extracts logs and captured stdout/stderr.
-
-        :param timeout: timeout in seconds
-        """
-        timeout = timeout if timeout is not None else self.cfg.timeout
-
-        def ensure_app_running_while_extracting_values():
-            proc_result = self.proc.poll()
-            extract_values_result = self.extract_values()
-            if proc_result is not None and not extract_values_result:
-                raise RuntimeError(
-                    f"{self} has unexpectedly stopped with: {proc_result}"
-                )
-            return extract_values_result
-
-        wait(
-            ensure_app_running_while_extracting_values,
-            timeout,
-            raise_on_timeout=True,
-        )
+    def started_check(self) -> ActionResult:
+        proc_result = self.proc.poll()
+        extract_values_result = self.extract_values()
+        if proc_result is not None and not extract_values_result:
+            raise RuntimeError(
+                f"{self} has unexpectedly stopped with: {proc_result}"
+            )
+        return extract_values_result
 
     def stopping(self) -> None:
         """Stops the application binary process."""

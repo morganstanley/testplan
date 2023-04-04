@@ -1,33 +1,20 @@
 """Units test for the App driver."""
 
+import json
 import os
+import platform
 import re
 import sys
-import json
-import platform
 import tempfile
 from pathlib import Path
 
 import pytest
 
+from testplan.common.entity import ActionResult
 from testplan.common.utils.timing import wait
-
 from testplan.testing.multitest.driver.app import App
 
 MYAPP_DIR = os.path.dirname(__file__)
-
-
-class CustomApp(App):
-    def started_check(self, timeout=None):
-        wait(lambda: self.extract_values(), 5, raise_on_timeout=False)
-
-
-class ProcWaitApp(App):
-    def started_check(self, timeout=None):
-        self.proc.wait()
-
-    def stopped_check(self, timeout=None):
-        wait(lambda: self.proc is None, 10, raise_on_timeout=True)
 
 
 def test_app_unexpected_retcode(runpath):
@@ -166,7 +153,7 @@ def test_extract_from_logfile(runpath):
         re.compile(r".*b=(?P<b>[a-zA-Z0-9]*).*"),
     ]
 
-    app = CustomApp(
+    app = App(
         name="App",
         binary="echo",
         args=[message, ">", logname],
@@ -192,7 +179,7 @@ def test_extract_from_logfile_with_appdir(runpath):
         re.compile(r".*b=(?P<b>[a-zA-Z0-9]*).*"),
     ]
 
-    app = CustomApp(
+    app = App(
         name="App",
         binary="echo",
         args=[message, ">", os.path.join("AppDir", logname)],
@@ -227,7 +214,7 @@ def test_binary_strategy(runpath, strategy):
         "runpath": runpath,
     }
 
-    app = CustomApp(path_cleanup=True, **params)
+    app = App(path_cleanup=True, **params)
     with app:
         assert app.extracts["value"] == "started"
 
@@ -264,7 +251,7 @@ def test_install_files(runpath):
         re.compile(r".*app_path=(?P<app_path>.*)"),
     ]
     dst = runpath
-    app = CustomApp(
+    app = App(
         name="App",
         binary=binary,
         pre_args=[sys.executable],
@@ -292,7 +279,7 @@ def test_install_files(runpath):
 
 def test_echo_hello(runpath):
     """Test running a basic App that just echos Hello."""
-    app = ProcWaitApp(
+    app = App(
         name="App",
         binary="echo",
         args=["hello"],

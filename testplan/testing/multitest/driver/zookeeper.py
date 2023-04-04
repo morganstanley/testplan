@@ -148,8 +148,8 @@ class ZookeeperStandalone(Driver):
             env=self.env,
         )
 
-    def started_check(self, timeout: float = None):
-        super().started_check(timeout)
+    def post_start(self):
+        super().post_start()
         self.logger.info("%s listening on %s:%s", self, self.host, self.port)
 
     def stopping(self):

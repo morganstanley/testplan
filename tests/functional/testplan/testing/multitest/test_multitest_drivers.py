@@ -4,12 +4,7 @@ import os
 import re
 import time
 
-
-from testplan.testing.filtering import Filter
-from testplan.testing.multitest.base import RuntimeEnvironment
-from testplan.testing.ordering import NoopSorter
-
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+import pytest
 
 from testplan import TestplanMock, defaults
 from testplan.common.entity.base import Environment, ResourceStatus
@@ -17,8 +12,12 @@ from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.timing import TimeoutException
+from testplan.testing.filtering import Filter
+from testplan.testing.multitest import MultiTest, testcase, testsuite
+from testplan.testing.multitest.base import RuntimeEnvironment
 from testplan.testing.multitest.driver.base import Driver
-from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
+from testplan.testing.multitest.driver.tcp import TCPClient, TCPServer
+from testplan.testing.ordering import NoopSorter
 
 
 @testsuite
@@ -287,12 +286,10 @@ def test_multitest_driver_start_timeout():
     assert driver1.cfg.status_wait_timeout == 1
     assert driver1.cfg.timeout == 1
 
-    try:
+    with pytest.raises(TimeoutException, match=r".*Timeout.*after 1.0s*"):
         with driver1:
             # we will not reach here
             assert False
-    except TimeoutException as exc:
-        assert "Timeout after 1 seconds" in str(exc)
 
     driver2 = GoodDriver(
         name="good_driver",

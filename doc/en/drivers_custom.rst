@@ -20,7 +20,7 @@ a binary as a sub-process.
 
 Here is a custom driver inherits the built-in
 :py:class:`App <testplan.testing.multitest.driver.app.App>` driver and overwrites
-:py:meth:`App.started_check <testplan.testing.multitest.driver.app.App.started_check>`
+:py:meth:`App.post_start <testplan.testing.multitest.driver.app.App.post_start>`
 method to expose ``host`` and ``port`` attributes that was written in the
 logfile by the application binary.
 
@@ -35,8 +35,8 @@ logfile by the application binary.
             self.host = None
             self.port = None
 
-        def started_check(self, timeout=None):
-            super(ServerApp, self).started_check(timeout=timeout)
+        def post_start(self):
+            super(ServerApp, self).post_start()
             # In this example, log_regexps contain:
             #     re.compile(r'.*Listener on: (?P<listen_address>.*)')
             # and the logfile will contain a line like:

@@ -16,11 +16,10 @@ class FXConverter(App):
         self.host = None
         self.port = None
 
-    def started_check(self, timeout=None):
+    def post_start(self):
         """
-        Checks that binary started and input regex conditions matching, while
-        also storing host/port information to be made available in its context
+        Store host/port information to be made available in its context
         so that client driver can connect to it.
         """
-        super(FXConverter, self).started_check(timeout=timeout)
+        self.post_start()
         self.host, self.port = re.split(":", self.extracts["listen_address"])
