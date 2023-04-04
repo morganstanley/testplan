@@ -95,7 +95,7 @@ class RemoteService(Resource, RemoteResource):
         """
         String representation.
         """
-        return f"{self.__class__.__name__} [{self.cfg.name}]"
+        return f"{self.__class__.__name__}[{self.cfg.name}]"
 
     def uid(self) -> str:
         """
