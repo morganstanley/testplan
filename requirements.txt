@@ -5,7 +5,7 @@ black~=22.0
 kazoo
 confluent-kafka
 plotly
-pandas
+pandas<2
 numpy
 sphinx-click
 doit
