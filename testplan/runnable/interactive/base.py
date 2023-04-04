@@ -114,7 +114,7 @@ class TestRunnerIHandler(entity.Entity):
         """Set up the task pool and HTTP handler."""
         self.target.make_runpath_dirs()
         self.target._configure_file_logger()
-        self.logger.user_info(
+        self.logger.info(
             "Starting %s for %s",
             self,
             self.target,
