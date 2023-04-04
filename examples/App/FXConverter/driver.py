@@ -21,5 +21,5 @@ class FXConverter(App):
         Store host/port information to be made available in its context
         so that client driver can connect to it.
         """
-        self.post_start()
+        super(FXConverter, self).post_start()
         self.host, self.port = re.split(":", self.extracts["listen_address"])
