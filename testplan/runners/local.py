@@ -70,7 +70,10 @@ class LocalRunner(Executor):
                         )
                         result.report.status_override = Status.ERROR
                         result.report.logger.exception(
-                            f"Exception for {next_uid} on {self} execution: {exc}"
+                            "Exception for %s on %s execution: %s",
+                            next_uid,
+                            self,
+                            exc,
                         )
                         self._results[next_uid] = result
                     finally:
