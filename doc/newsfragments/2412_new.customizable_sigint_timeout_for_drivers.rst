@@ -1,0 +1,1 @@
+Added `sigint_timeout` to drivers that call `kill_process`

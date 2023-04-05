@@ -31,7 +31,10 @@ class ProcessWorkerConfig(WorkerConfig):
         """
         Schema for options validation and assignment of default values.
         """
-        return {ConfigOption("transport", default=ZMQClientProxy): object}
+        return {
+            ConfigOption("transport", default=ZMQClientProxy): object,
+            ConfigOption("sigint_timeout", default=5): int,
+        }
 
 
 class ProcessWorker(Worker):
@@ -40,11 +43,20 @@ class ProcessWorker(Worker):
     executes them and sends back task results.
 
     :param transport: Transport class for pool/worker communication.
+    :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
 
     Also inherits all :py:class:`~testplan.runners.pools.base.Worker` options.
     """
 
     CONFIG = ProcessWorkerConfig
+
+    def __init__(
+        self,
+        sigint_timeout: int = 5,
+        **options,
+    ) -> None:
+        options.update(self.filter_locals(locals()))
+        super(ProcessWorker, self).__init__(**options)
 
     def _child_path(self) -> str:
         dirname = os.path.dirname(os.path.abspath(__file__))
@@ -139,7 +151,7 @@ class ProcessWorker(Worker):
     def stopping(self) -> None:
         """Stop child process worker."""
         if hasattr(self, "_handler") and self._handler:
-            kill_process(self._handler)
+            kill_process(self._handler, self.cfg.sigint_timeout)
         self.status.change(self.STATUS.STOPPED)
 
     def aborting(self) -> None:
