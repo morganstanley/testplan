@@ -353,6 +353,9 @@ class TestRunner(Runnable):
         self._runnable_uids = set()
         self._verified_targets = {}  # target object id -> runnable uid
 
+    def __str__(self):
+        return f"Testplan[{self.uid()}]"
+
     @property
     def report(self):
         """Tests report."""
@@ -805,10 +808,6 @@ class TestRunner(Runnable):
 
         return uid
 
-    def _add_step(self, step: Callable, *args, **kwargs):
-        if self.cfg.test_lister is None:
-            super(TestRunner, self)._add_step(step, *args, **kwargs)
-
     def _record_start(self):
         self.report.timer.start("run")
 
@@ -824,7 +823,7 @@ class TestRunner(Runnable):
                 "{} runpath cannot be None".format(self.__class__.__name__)
             )
 
-        self.logger.test_info(
+        self.logger.user_info(
             "Testplan has runpath: %s and pid %s", self._runpath, os.getpid()
         )
 
@@ -1192,3 +1191,13 @@ class TestRunner(Runnable):
             self._file_log_handler.close()
             logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
             self._file_log_handler = None
+
+    def run(self):
+        """
+        Executes the defined steps and populates the result object.
+        """
+        if self.cfg.test_lister:
+            self._result.run = True
+            return self._result
+
+        return super(TestRunner, self).run()

@@ -138,8 +138,8 @@ class WorkerBase(entity.Resource):
         """Rebase the path of task from local to remote"""
         pass
 
-    def __repr__(self):
-        return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
+    def __str__(self):
+        return f"{self.__class__.__name__}[{self.cfg.index}]"
 
 
 class Worker(WorkerBase):
