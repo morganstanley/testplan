@@ -1,4 +1,5 @@
 """Communication protocol for execution pools."""
+from typing import Dict
 
 
 class Message:
@@ -19,27 +20,23 @@ class Message:
     InitRequest = "InitRequest"
     KeepAlive = "KeepAlive"
 
-    def __init__(self, **sender_metadata):
+    def __init__(self, **sender_metadata: Dict) -> None:
         """
         Create a new message object that contains sender information.
 
         :param sender_metadata: Useful key-value information by sender.
-        :type sender_metadata: ``dict``
         """
         self.cmd = None
         self.data = None
         self.sender_metadata = sender_metadata
 
-    def make(self, cmd, data=None):
+    def make(self, cmd: str, data: object = None) -> Message:
         """
         Crete a new message for communication.
 
         :param cmd: Command representing message purpose.
-        :param cmd: ``str``
         :param data: Data of message object.
-        :param data: ``object``
         :return: self
-        :rtype: :py:class:`~testplan.runners.pools.communication.Message`
         """
         self.cmd = cmd
         self.data = data
