@@ -323,7 +323,7 @@ class RemotePool(Pool):
                 workers=instance["number_of_workers"],
                 **self._options,
             )
-            self.logger.debug("Created {}".format(worker))
+            self.logger.debug("Created %s", worker)
             worker.parent = self
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=instance["host"])
