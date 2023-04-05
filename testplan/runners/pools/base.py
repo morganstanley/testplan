@@ -423,8 +423,11 @@ class Pool(Executor):
                 worker.respond(response.make(Message.Stop))
         else:
             self.logger.error(
-                f"Unknown request: {request} {dir(request)} {request.cmd}"
-                f" {request.data}"
+                "Unknown request: %s %s %s %s",
+                request,
+                dir(request),
+                request.cmd,
+                request.data,
             )
             worker.respond(response.make(Message.Ack))
 
