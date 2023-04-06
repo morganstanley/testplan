@@ -18,7 +18,7 @@ from testplan.common.utils.path import (
     rebase_path,
     is_subdir,
 )
-from testplan.common.utils.process import execute_cmd
+from testplan.common.utils.process import execute_cmd, LogDetailsOption
 from testplan.common.utils.remote import (
     copy_cmd,
     link_cmd,
@@ -639,7 +639,15 @@ class RemoteResource(Entity):
             else:
                 parent = getattr(parent, "parent", None)
 
-    def _execute_cmd_remote(self, cmd, label=None, check=True):
+    def _execute_cmd_remote(
+        self,
+        cmd,
+        label=None,
+        check=True,
+        stdout=None,
+        stderr=None,
+        detailed_log: LogDetailsOption = LogDetailsOption.LOG_ON_ERROR,
+    ):
         """
         Execute a command on the remote host.
 
@@ -653,6 +661,9 @@ class RemoteResource(Entity):
             label=label,
             check=check,
             logger=self.logger,
+            stdout=stdout,
+            stderr=stderr,
+            detailed_log=detailed_log,
         )
 
     def _remote_copy_path(self, path):
