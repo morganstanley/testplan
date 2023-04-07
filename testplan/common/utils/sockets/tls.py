@@ -7,7 +7,7 @@ from typing import Optional, Union
 
 class TLSConfig(ABC):
     """
-        Defines the Protocol a TLSConfig need to have
+    Defines the Protocol a TLSConfig need to have
     """
 
     @abstractmethod
@@ -46,7 +46,12 @@ class SimpleTLSConfig(TLSConfig):
     :param cacert: optional path to the root CA certificate
     """
 
-    def __init__(self, key: Union[PathLike, str], cert: Union[PathLike, str], cacert: OPTIONAL_PATH):
+    def __init__(
+        self,
+        key: Union[PathLike, str],
+        cert: Union[PathLike, str],
+        cacert: OPTIONAL_PATH,
+    ):
         self.key = Path(key)
         self.cert = Path(cert)
         self.cacert = Path(cacert)
