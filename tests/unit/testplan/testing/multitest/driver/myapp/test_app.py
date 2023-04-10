@@ -102,7 +102,7 @@ def test_app_fail_fast_with_log_regex(runpath):
     )
     with pytest.raises(
         RuntimeError,
-        match=r"App driver \[myapp\] has unexpectedly stopped with: 0",
+        match=r"App\[myapp\] has unexpectedly stopped with: 0",
     ):
         app.start()
         app.wait(app.STATUS.STARTED)

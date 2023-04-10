@@ -3,21 +3,19 @@
 import os
 import re
 import sys
-import time
 import signal
 import subprocess
 import tempfile
+from typing import List, Type, Union
 
 from schema import Or
 
-import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
-from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file
+from testplan.common.utils.process import kill_process
 from testplan.common.utils.timing import get_sleeper
-from testplan.runners.pools import tasks
-
+from . import tasks
 from .base import Pool, PoolConfig, Worker, WorkerConfig
 from .connection import ZMQClientProxy, ZMQServer
 
@@ -33,7 +31,10 @@ class ProcessWorkerConfig(WorkerConfig):
         """
         Schema for options validation and assignment of default values.
         """
-        return {ConfigOption("transport", default=ZMQClientProxy): object}
+        return {
+            ConfigOption("transport", default=ZMQClientProxy): object,
+            ConfigOption("sigint_timeout", default=5): int,
+        }
 
 
 class ProcessWorker(Worker):
@@ -42,18 +43,26 @@ class ProcessWorker(Worker):
     executes them and sends back task results.
 
     :param transport: Transport class for pool/worker communication.
-    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
+    :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
 
     Also inherits all :py:class:`~testplan.runners.pools.base.Worker` options.
     """
 
     CONFIG = ProcessWorkerConfig
 
-    def _child_path(self):
+    def __init__(
+        self,
+        sigint_timeout: int = 5,
+        **options,
+    ) -> None:
+        options.update(self.filter_locals(locals()))
+        super(ProcessWorker, self).__init__(**options)
+
+    def _child_path(self) -> str:
         dirname = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(dirname, "child.py")
 
-    def _proc_cmd(self):
+    def _proc_cmd(self) -> List[str]:
         """Command to start child process."""
         from testplan.common.utils.path import fix_home_prefix
 
@@ -74,7 +83,7 @@ class ProcessWorker(Worker):
 
         return cmd
 
-    def _write_syspath(self, sys_path=None):
+    def _write_syspath(self, sys_path: str = None) -> None:
         """Write out our current sys.path to a file and return the filename."""
         sys_path = sys_path or sys.path
         with tempfile.NamedTemporaryFile(
@@ -84,14 +93,14 @@ class ProcessWorker(Worker):
             self.logger.debug("Written sys.path to file: %s", f.name)
             self._syspath_file = f.name
 
-    def pre_start(self):
+    def pre_start(self) -> None:
         self._write_syspath()
 
-    def starting(self):
+    def starting(self) -> None:
         """Start a child process worker."""
         # NOTE: Worker resource has no runpath.
         cmd = self._proc_cmd()
-        self.logger.debug("{} executes cmd: {}".format(self, cmd))
+        self.logger.debug("%s executes cmd: %s", self, cmd)
 
         with open(self.outfile, "wb") as out:
             self._handler = subprocess.Popen(
@@ -103,14 +112,12 @@ class ProcessWorker(Worker):
         self.logger.debug("Started child process - output at %s", self.outfile)
         self._handler.stdin.write(bytes("y\n".encode("utf-8")))
 
-    def _wait_started(self, timeout=None):
-        """TODO."""
+    def _wait_started(self, timeout: float = None) -> None:
+        """"""
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
             timeout=timeout,
-            raise_timeout_with_msg="Worker start timeout, logfile = {}".format(
-                self.outfile
-            ),
+            raise_timeout_with_msg=f"Worker start timeout, logfile = {self.outfile}",
         )
         while next(sleeper):
             if match_regexps_in_file(
@@ -121,15 +128,12 @@ class ProcessWorker(Worker):
 
             if self._handler and self._handler.poll() is not None:
                 raise RuntimeError(
-                    "{proc} process exited: {rc} (logfile = {log})".format(
-                        proc=self,
-                        rc=self._handler.returncode,
-                        log=self.outfile,
-                    )
+                    f"{self} process exited: {self._handler.returncode}"
+                    f" (logfile = {self.outfile})"
                 )
 
     @property
-    def is_alive(self):
+    def is_alive(self) -> bool:
         if self._handler is None:
             self.logger.debug("No worker process started")
             return False
@@ -144,13 +148,13 @@ class ProcessWorker(Worker):
         else:
             return True
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Stop child process worker."""
         if hasattr(self, "_handler") and self._handler:
-            kill_process(self._handler)
+            kill_process(self._handler, self.cfg.sigint_timeout)
         self.status.change(self.STATUS.STOPPED)
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Process worker abort logic."""
         self._transport.disconnect()
         self.stop()
@@ -185,19 +189,12 @@ class ProcessPool(Pool):
     tasks.
 
     :param name: Pool name.
-    :type name: ``str``
     :param size: Pool workers size. Default: 4
-    :type size: ``int``
     :param host: Host that pool binds and listens for requests.
-    :type host: ``str``
     :param port: Port that pool binds. Default: 0 (random)
-    :type port: ``int``
     :param abort_signals: Signals to trigger abort logic. Default: INT, TERM.
-    :type abort_signals: ``list`` of ``int``
     :param worker_type: Type of worker to be initialized.
-    :type worker_type: :py:class:`~testplan.runners.pools.process.ProcessWorker`
     :param worker_heartbeat: Worker heartbeat period.
-    :type worker_heartbeat: ``int`` or ``float`` or ``NoneType``
 
     Also inherits all :py:class:`~testplan.runners.pools.base.Pool` options.
     """
@@ -207,19 +204,19 @@ class ProcessPool(Pool):
 
     def __init__(
         self,
-        name,
-        size=4,
-        host="127.0.0.1",
-        port=0,
-        abort_signals=None,
-        worker_type=ProcessWorker,
-        worker_heartbeat=5,
-        **options
-    ):
+        name: str,
+        size: int = 4,
+        host: str = "127.0.0.1",
+        port: int = 0,
+        abort_signals: List[int] = None,
+        worker_type: Type = ProcessWorker,
+        worker_heartbeat: Union[int, float] = 5,
+        **options,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(ProcessPool, self).__init__(**options)
 
-    def add(self, task, uid):
+    def add(self, task: tasks.Task, uid: str) -> None:
         """
         Before adding Tasks to a ProcessPool, check that the Task target does
         not come from __main__.

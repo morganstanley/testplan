@@ -65,6 +65,7 @@ class AppConfig(DriverConfig):
             ConfigOption("app_dir_name", default=None): Or(None, str),
             ConfigOption("working_dir", default=None): Or(None, str),
             ConfigOption("expected_retcode", default=None): int,
+            ConfigOption("sigint_timeout", default=5): int,
         }
 
 
@@ -96,6 +97,7 @@ class App(Driver):
     :param expected_retcode: the expected return code of the subprocess.
         Default value is None meaning it won't be checked. Set it to 0 to
         ennsure the driver is always gracefully shut down.
+    :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -116,6 +118,7 @@ class App(Driver):
         app_dir_name: str = None,
         working_dir: str = None,
         expected_retcode: int = None,
+        sigint_timeout: int = 5,
         **options,
     ) -> None:
         options.update(self.filter_locals(locals()))
@@ -318,7 +321,7 @@ class App(Driver):
             )
             if self.proc is not None:
                 if self.proc.poll() is None:
-                    kill_process(self.proc)
+                    kill_process(self.proc, self.cfg.sigint_timeout)
                 assert self.proc.returncode is not None
                 self._proc = None
             raise
@@ -339,7 +342,7 @@ class App(Driver):
         if self.proc is None:
             return
         try:
-            self._retcode = kill_process(self.proc)
+            self._retcode = kill_process(self.proc, self.cfg.sigint_timeout)
         except Exception as exc:
             warnings.warn(f"On killing driver {self} process - {exc}")
             self._retcode = self.proc.poll() if self.proc else 0
@@ -424,6 +427,6 @@ class App(Driver):
             self.logger.info(
                 "Killing process id %s of %s", self.proc.pid, self
             )
-            kill_process(self.proc)
+            kill_process(self.proc, self.cfg.sigint_timeout)
         if self.std:
             self.std.close()

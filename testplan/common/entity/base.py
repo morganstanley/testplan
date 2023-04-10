@@ -207,7 +207,7 @@ class Environment:
                     pass
 
             else:
-                resource.logger.user_info("%s started", resource)
+                resource.logger.info("%s started", resource)
 
     def start_in_pool(self, pool):
         """
@@ -241,7 +241,7 @@ class Environment:
         for resource in resources_to_wait_for:
             if resource not in self.start_exceptions:
                 resource.wait(resource.STATUS.STARTED)
-                resource.logger.user_info("%s started", resource)
+                resource.logger.info("%s started", resource)
 
     def stop(self, is_reversed=False):
         """
@@ -275,7 +275,7 @@ class Environment:
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
             resource.wait(resource.STATUS.STOPPED)
-            resource.logger.user_info("%s stopped", resource)
+            resource.logger.info("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
         """
@@ -311,7 +311,7 @@ class Environment:
                         lambda: resource.status == resource.STATUS.STOPPED,
                         timeout=resource.cfg.status_wait_timeout,
                     )
-                resource.logger.user_info("%s stopped", resource)
+                resource.logger.info("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
@@ -590,10 +590,10 @@ class Entity(logger.Loggable):
             if dep is not None:
                 self._abort_entity(dep)
 
-        self.logger.user_info("Aborting %s", self)
+        self.logger.info("Aborting %s", self)
         self.aborting()
         self._aborted = True
-        self.logger.user_info("Aborted %s", self)
+        self.logger.info("Aborted %s", self)
 
     def abort_dependencies(self):
         """
@@ -694,7 +694,7 @@ class Entity(logger.Loggable):
 
         self._scratch = os.path.join(self._runpath, "scratch")
 
-        self.logger.user_info(
+        self.logger.info(
             "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
         )
 
@@ -894,7 +894,8 @@ class Runnable(Entity):
         """
         Runs the runnable object by executing a step.
         """
-        self.logger.debug("Running %s", self)
+
+        self.logger.user_info("Running %s", self)
         self.status.change(RunnableStatus.RUNNING)
         while self.active:
             if self.status == RunnableStatus.RUNNING:
@@ -1305,7 +1306,7 @@ class Resource(Entity):
             )
             return
 
-        self.logger.user_info("Starting %s", self)
+        self.logger.info("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
         if self.cfg.pre_start:
@@ -1314,7 +1315,7 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STARTED)
-            self.logger.user_info("%s started", self)
+            self.logger.info("%s started", self)
 
     def stop(self):
         """
@@ -1327,19 +1328,19 @@ class Resource(Entity):
             self.logger.warning("Stop %s but it has already aborted", self)
 
         if self.status == self.STATUS.NONE:
-            self.logger.user_info("%s not started, skip stopping", self)
+            self.logger.info("%s not started, skip stopping", self)
             return
 
         if (
             self.status == self.STATUS.STOPPING
             or self.status == self.STATUS.STOPPED
         ):
-            self.logger.user_info(
+            self.logger.info(
                 "stop() has been called on %s, skip stopping", self
             )
             return
 
-        self.logger.user_info("Stopping %s", self)
+        self.logger.info("Stopping %s", self)
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
         if self.cfg.pre_stop:
@@ -1348,7 +1349,7 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
-            self.logger.user_info("%s stopped", self)
+            self.logger.info("%s stopped", self)
 
     def pre_start(self):
         """
