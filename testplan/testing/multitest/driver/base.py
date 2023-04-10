@@ -228,16 +228,29 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
     @property
     def started_check_interval(self) -> PollInterval:
+        """Driver started check interval."""
         return DEFAULT_INTERVAL
 
     @property
     def stopped_check_interval(self) -> PollInterval:
+        """Driver stopped check interval."""
         return DEFAULT_INTERVAL
 
     def started_check(self) -> ActionResult:
+        """
+        Predicate indicating whether driver has fully started.
+
+        Default implementation tests whether certain pattern exists in driver
+        loggings, always returns True if no pattern is required.
+        """
         return self.extract_values()
 
     def stopped_check(self) -> ActionResult:
+        """
+        Predicate indicating whether driver has fully stopped.
+
+        Default implementation immediately returns True.
+        """
         return True
 
     def starting(self) -> None:

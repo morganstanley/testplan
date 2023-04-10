@@ -327,6 +327,12 @@ class App(Driver):
             raise
 
     def started_check(self) -> ActionResult:
+        """
+        Predicate indicating whether a binary in a subprocess has started.
+        Tests whether the return code is zero if the underlying binary has
+        finished execution, otherwise tests if user-specified pattern exists in
+        driver logs.
+        """
         proc_result = self.proc.poll()
         extract_values_result = self.extract_values()
         if proc_result is not None and not extract_values_result:

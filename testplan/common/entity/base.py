@@ -1389,7 +1389,6 @@ class Resource(Entity):
         Changes status to STARTED, if possible.
 
         :param timeout: timeout in seconds
-        :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STARTED)
         self.post_start()
@@ -1401,7 +1400,6 @@ class Resource(Entity):
         Changes status to STOPPED, if possible.
 
         :param timeout: timeout in seconds
-        :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STOPPED)
         self.post_stop()
