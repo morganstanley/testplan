@@ -4,6 +4,8 @@ from os import PathLike
 from pathlib import Path
 from typing import Optional, Union
 
+OPTIONAL_PATH = Optional[Union[PathLike, str]]
+
 
 class TLSConfig(ABC):
     """
@@ -13,14 +15,16 @@ class TLSConfig(ABC):
     @abstractmethod
     def get_context(self, purpose: ssl.Purpose) -> ssl.SSLContext:
         """
+        The implementation of this function need to return a configured
+        :py:class:`~ssl.SSLContext`, example implementations:
+        :py:class:`~testplan.common.utils.sockets.tls.DefaultTLSConfig` and
+        :py:class:`~testplan.common.utils.sockets.tls.SimpleTLSConfig`
+
 
         :param purpose: Either host or client certificate
         :return: should return the configured SSLContext
         """
         ...
-
-
-OPTIONAL_PATH = Optional[Union[PathLike, str]]
 
 
 class DefaultTLSConfig(TLSConfig):
@@ -56,7 +60,7 @@ class SimpleTLSConfig(TLSConfig):
         self.cert = Path(cert)
         self.cacert = Path(cacert)
 
-    def get_context(self, purpose: ssl.Purpose):
+    def get_context(self, purpose: ssl.Purpose) -> ssl.SSLContext:
         context = ssl.create_default_context(
             purpose=purpose, cafile=self.cacert
         )
