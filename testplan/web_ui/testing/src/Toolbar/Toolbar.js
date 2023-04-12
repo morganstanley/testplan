@@ -19,11 +19,10 @@ import {
   UncontrolledDropdown,
   Table,
 } from "reactstrap";
-import linkifyUrls from 'linkify-urls';
+import Linkify from "linkify-react";
 
 
 import FilterBox from "../Toolbar/FilterBox";
-import FilterBoxPlaceholder from "../Toolbar/FilterBoxPlaceholder";
 import { STATUS, STATUS_CATEGORY, EXPAND_STATUS } from "../Common/defaults";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -400,14 +399,10 @@ class Toolbar extends Component {
           width: this.props.filterBoxWidth,
         }}
       >
-        {this.props.handleNavFilter ? (
-          <FilterBox
+        <FilterBox
             handleNavFilter={this.props.handleNavFilter}
             filterText={this.props.filterText}
           />
-        ) : (
-          <FilterBoxPlaceholder />
-        )}
       </div>
     );
   }
@@ -517,15 +512,11 @@ const getInfoTable = (report) => {
 
     let cell = undefined;
     if (!linkifyIgnore.includes(item[0])) {
-        cell = < div dangerouslySetInnerHTML = {
-            {
-                __html: linkifyUrls(item[1], {
-                    attributes: {
-                        target: "_blank"
-                    }
-                })
-            }
-        }/>;
+      cell = (
+        <Linkify as="div" options={{ target: "_blank" }}>
+          {item[1]}
+        </Linkify>
+      );
     } else {
         cell = item[1];
     }

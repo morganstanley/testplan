@@ -1,0 +1,1 @@
+The report tool now use the full class name from the junit testcase during import.

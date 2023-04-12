@@ -1,7 +1,9 @@
 """TODO."""
 import traceback
+from typing import Optional
 
 from testplan.common.config import Config, Configurable
+from testplan.report import TestReport
 
 
 class ExporterResult:
@@ -45,7 +47,7 @@ class BaseExporter(Configurable):
         if name is None:
             name = self.__class__.__name__
         self._cfg = self.CONFIG(name=name, **options)
-        super(BaseExporter, self).__init__()
+        super().__init__()
 
     @property
     def name(self):
@@ -56,5 +58,5 @@ class BaseExporter(Configurable):
         """Exporter configuration."""
         return self._cfg
 
-    def export(self, report):
+    def export(self, source: TestReport) -> Optional[str]:
         raise NotImplementedError("Exporter must define export().")

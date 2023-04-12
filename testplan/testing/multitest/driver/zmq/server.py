@@ -161,6 +161,7 @@ class ZMQServer(Driver):
         Start the ZMQServer.
         """
         super(ZMQServer, self).starting()
+        # pylint: disable=abstract-class-instantiated
         self._zmq_context = zmq.Context()
         self._socket = self._zmq_context.socket(self.cfg.message_pattern)
         if self.cfg.port == 0:

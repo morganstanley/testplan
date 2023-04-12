@@ -7,9 +7,9 @@ import pytest
 
 from testplan.report import Status
 from testplan.runners.pools.process import ProcessPool
+from testplan.runners.pools.tasks import TaskMaterializationError
 from testplan.testing import multitest
-
-from tests.functional.testplan.runners.pools.func_pool_base_tasks import (
+from tests.functional.testplan.runners.pools.test_pool_base import (
     schedule_tests_to_pool,
 )
 from tests.unit.testplan.common.serialization import test_fields
@@ -53,7 +53,7 @@ def test_kill_one_worker(mockplan, tmp_path: Path):
     for idx in range(1, 25):
         uids.append(
             mockplan.schedule(
-                target="get_mtest",
+                target="get_imported_mtest",
                 module="func_pool_base_tasks",
                 path=dirname,
                 kwargs=dict(name=idx),
@@ -197,7 +197,7 @@ def test_disable_rerun_in_pool(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     uid = mockplan.schedule(
-        target="get_mtest",
+        target="get_imported_mtest",
         module="func_pool_base_tasks",
         path=dirname,
         kwargs=dict(name="0"),
@@ -224,7 +224,6 @@ def test_disable_rerun_in_pool(mockplan):
     assert pool.added_item(uid).reassign_cnt == 0
 
 
-@pytest.mark.skip("Target is materialized before scheduling")
 def test_schedule_from_main(mockplan):
     """
     Test scheduling Tasks from __main__ - it should not be allowed for
@@ -235,20 +234,20 @@ def test_schedule_from_main(mockplan):
     mockplan.add_resource(pool)
 
     # First check that scheduling a Task with module string of '__main__'
-    # raises the expected ValueError.
-    with pytest.raises(ValueError):
+    # raises the expected TaskMaterializationError.
+    with pytest.raises(TaskMaterializationError):
         mockplan.schedule(
             target="target", module="__main__", resource="ProcPool"
         )
 
     # Secondly, check that scheduling a callable target with a __module__ attr
-    # of __main__ also raises a ValueError.
+    # of __main__ also raises a TaskMaterializationError.
     def callable_target():
-        raise RuntimeError
+        pass
 
     callable_target.__module__ = "__main__"
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TaskMaterializationError):
         mockplan.schedule(target=callable_target, resource="ProcPool")
 
 
@@ -317,7 +316,7 @@ def test_restart_worker(mockplan):
 
     for idx in range(1, 25):
         mockplan.schedule(
-            target="get_mtest",
+            target="get_imported_mtest",
             module="func_pool_base_tasks",
             path=dirname,
             kwargs=dict(name=idx),

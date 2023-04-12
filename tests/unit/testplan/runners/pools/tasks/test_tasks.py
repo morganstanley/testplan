@@ -1,12 +1,18 @@
 """Unit test for task classes."""
 
 import os
+import sys
+
+import pytest
+
+from testplan.common.serialization import (
+    DeserializationError,
+    SerializationError,
+)
 from testplan.runners.pools.tasks import (
-    Task,
     RunnableTaskAdaptor,
+    Task,
     TaskMaterializationError,
-    TaskSerializationError,
-    TaskDeserializationError,
 )
 
 
@@ -41,8 +47,6 @@ class Runnable:
 
     def run(self):
         """Run method."""
-        import sys
-
         return sys.maxsize
 
     def uid(self):
@@ -59,8 +63,6 @@ class RunnableWithArg:
 
     def run(self):
         """Run method."""
-        import sys
-
         return self._number or sys.maxsize
 
     def uid(self):
@@ -80,7 +82,6 @@ def callable_to_runnable_with_arg(arg):
 
 def callable_to_non_runnable():
     """Task target that returns non runnable."""
-    import sys
 
     def function():
         """Callable."""
@@ -96,8 +97,6 @@ def callable_to_none():
 
 def callable_to_adapted_runnable():
     """TODO."""
-    import sys
-    from testplan.runners.pools.tasks import RunnableTaskAdaptor
 
     def foo():
         """Callable."""
@@ -135,7 +134,6 @@ class TestTaskInitAndMaterialization:
 
     def test_runnable_tgt(self):
         """TODO."""
-        import sys
         from .data.sample_tasks import Multiplier
 
         try:
@@ -152,8 +150,6 @@ class TestTaskInitAndMaterialization:
 
     def test_string_runnable_tgt_same_module(self):
         """TODO."""
-        import sys
-
         task = Task("Runnable", module=__name__)
         materialized_task_result(task, sys.maxsize)
 
@@ -247,8 +243,6 @@ class TestTaskInitAndMaterialization:
 
     def test_callable_to_runnable_tgt(self):
         """TODO."""
-        import sys
-
         task = Task(callable_to_runnable)
         materialized_task_result(task, sys.maxsize)
 
@@ -265,8 +259,6 @@ class TestTaskInitAndMaterialization:
 
     def test_string_callable_to_runnable_tgt(self):
         """TODO."""
-        import sys
-
         task = Task("callable_to_runnable", module=__name__)
         materialized_task_result(task, sys.maxsize)
 
@@ -322,10 +314,8 @@ class TestTaskInitAndMaterialization:
 class TestTaskSerialization:
     """TODO."""
 
-    def test_serialize(self):
+    def test_serialize_standard(self):
         """TODO."""
-        import sys
-
         task = Task("Runnable", module=__name__)
         materialized_task_result(task, sys.maxsize, serialize=True)
 
@@ -340,22 +330,33 @@ class TestTaskSerialization:
         task = Task("Multiplier", module="sample_tasks", args=(4,), path=path)
         materialized_task_result(task, 8, serialize=True)
 
+    def test_serialize_extended(self):
+        task = Task(RunnableTaskAdaptor(lambda x: x * 2, 3))
+        materialized_task_result(task, 6, serialize=True)
+
+        task = Task(Runnable)
+        materialized_task_result(task, sys.maxsize, serialize=True)
+
+        task = Task(RunnableWithArg(2))
+        materialized_task_result(task, 2, serialize=True)
+
+        task = Task(RunnableWithArg, args=(2,))
+        materialized_task_result(task, 2, serialize=True)
+
     def test_raise_on_serialization(self):
-        """TODO."""
-        try:
-            task = Task(RunnableTaskAdaptor(lambda x: x * 2, 3))
-            materialized_task_result(task, 6, serialize=True)
-            raise Exception("Should raise.")
-        except TaskSerializationError:
-            pass
+        import inspect
 
-    def test_raise_on_deserialization(self):
-        """TODO."""
-        # To add a case of a serializable but not
-        # deserializable task.
+        with pytest.raises(
+            SerializationError, match=r".*(Cannot|Can't) pickle .*frame.*"
+        ):
 
-        try:
+            t = Task(inspect.currentframe())
+            t.dumps()
+
+        with pytest.raises(DeserializationError, match=r".*No data input.*"):
             Task().loads(None)
-            raise Exception("Should raise.")
-        except TaskDeserializationError:
-            pass
+
+        with pytest.raises(
+            DeserializationError, match=r".*bytes-like.*required.*"
+        ):
+            Task().loads(inspect.currentframe())

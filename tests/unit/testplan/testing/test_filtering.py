@@ -1,7 +1,6 @@
-import pickle
-
 import pytest
 
+from testplan.common.serialization import deserialize, serialize
 from testplan.testing import filtering
 from testplan.testing.multitest import MultiTest, testcase, testsuite
 
@@ -30,11 +29,11 @@ class Beta:
     def test_one(self, env, result):
         pass
 
-    @testcase(tags={"color": "blue", "speed": "slow"})
+    @testcase(tags={"color": "blue", "speed (-)_tag": "slow"})
     def test_two(self, env, result):
         pass
 
-    @testcase(tags={"color": "yellow", "speed": "fast"})
+    @testcase(tags={"color": "yellow (-)_tag", "speed (-)_tag": "fast"})
     def test_three(self, env, result):
         pass
 
@@ -45,7 +44,7 @@ class Gamma:
     def test_one(self, env, result):
         pass
 
-    @testcase(tags={"speed": "fast"})
+    @testcase(tags={"speed (-)_tag": "fast"})
     def test_two(self, env, result):
         pass
 
@@ -83,12 +82,20 @@ class TestTags:
             ({"color": "blue"}, multitest_A, True),
             (("bar", "baz"), multitest_F, True),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 multitest_F,
                 True,
             ),
             (
-                {"color": "orange", "simple": "bat", "speed": "medium"},
+                {
+                    "color": "orange",
+                    "simple": "bat",
+                    "speed (-)_tag": "medium",
+                },
                 multitest_F,
                 False,
             ),
@@ -104,12 +111,16 @@ class TestTags:
             ("foo", Alpha(), True),
             (("foo", "something", "else"), Alpha(), True),
             ("bar", Alpha(), False),
-            ({"color": ("blue", "yellow")}, Alpha(), True),
-            ({"color": ("blue", "yellow")}, Beta(), True),
+            ({"color": ("blue", "yellow (-)_tag")}, Alpha(), True),
+            ({"color": ("blue", "yellow (-)_tag")}, Beta(), True),
             ({"color": "blue"}, Alpha(), True),
             (("bar", "baz"), Gamma(), True),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 Gamma(),
                 False,
             ),
@@ -127,7 +138,7 @@ class TestTags:
             ({"color": "blue"}, Alpha().test_two, False),
             (("foo", "baz"), Beta().test_one, False),
             (
-                {"simple": ("foo", "baz"), "speed": "slow"},
+                {"simple": ("foo", "baz"), "speed (-)_tag": "slow"},
                 Beta().test_two,
                 True,
             ),
@@ -142,9 +153,9 @@ class TestTags:
     @pytest.mark.parametrize(
         "tags", (("foo", {"color": "red"}, ("foo", "bar", "baz")))
     )
-    def test_pickle(self, tags):
+    def test_serialization(self, tags):
         filter_obj = filtering.Tags(tags=tags)
-        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+        assert deserialize(serialize(filter_obj)) == filter_obj
 
 
 class TestTagsAll:
@@ -157,12 +168,20 @@ class TestTagsAll:
             ({"color": "blue"}, multitest_A, True),
             (("bar", "baz"), multitest_F, True),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 multitest_F,
                 True,
             ),
             (
-                {"color": "orange", "simple": "bat", "speed": "medium"},
+                {
+                    "color": "orange",
+                    "simple": "bat",
+                    "speed (-)_tag": "medium",
+                },
                 multitest_F,
                 False,
             ),
@@ -178,12 +197,16 @@ class TestTagsAll:
             ("foo", Alpha(), True),
             (("foo", "something", "else"), Alpha(), False),
             ("bar", Alpha(), False),
-            ({"color": ("blue", "yellow")}, Alpha(), False),
-            ({"color": ("blue", "yellow")}, Beta(), True),
+            ({"color": ("blue", "yellow (-)_tag")}, Alpha(), False),
+            ({"color": ("blue", "yellow (-)_tag")}, Beta(), True),
             ({"color": "blue"}, Alpha(), True),
             (("bar", "baz"), Gamma(), False),
             (
-                {"color": "yellow", "simple": "bar", "speed": "slow"},
+                {
+                    "color": "yellow (-)_tag",
+                    "simple": "bar",
+                    "speed (-)_tag": "slow",
+                },
                 Gamma(),
                 False,
             ),
@@ -200,9 +223,13 @@ class TestTagsAll:
             ({"color": "red"}, Alpha().test_two, True),
             ({"color": "blue"}, Alpha().test_two, False),
             (("foo", "baz"), Beta().test_one, False),
-            ({"simple": "bar", "speed": "slow"}, Beta().test_two, True),
             (
-                {"simple": ("foo", "baz"), "speed": "slow"},
+                {"simple": "bar", "speed (-)_tag": "slow"},
+                Beta().test_two,
+                True,
+            ),
+            (
+                {"simple": ("foo", "baz"), "speed (-)_tag": "slow"},
                 Beta().test_two,
                 False,
             ),
@@ -217,9 +244,9 @@ class TestTagsAll:
     @pytest.mark.parametrize(
         "tags", (("foo", {"color": "red"}, ("foo", "bar", "baz")))
     )
-    def test_pickle(self, tags):
+    def test_serialization(self, tags):
         filter_obj = filtering.TagsAll(tags=tags)
-        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+        assert deserialize(serialize(filter_obj)) == filter_obj
 
 
 class TestPattern:
@@ -315,9 +342,9 @@ class TestPattern:
             "XXX:YYY:test_one",
         ),
     )
-    def test_pickle(self, pattern):
+    def test_serialization(self, pattern):
         filter_obj = filtering.Pattern(pattern=pattern)
-        assert pickle.loads(pickle.dumps(filter_obj)) == filter_obj
+        assert deserialize(serialize(filter_obj)) == filter_obj
 
 
 class DummyFilter(filtering.Filter):
@@ -369,8 +396,8 @@ class TestFilterCompositions:
         assert ~AlphaFilter() == filtering.Not(AlphaFilter())
         assert AlphaFilter() == ~~AlphaFilter()
 
-    def test_pickle(self):
-        assert pickle.loads(pickle.dumps(~AlphaFilter())) == ~AlphaFilter()
-        assert pickle.loads(
-            pickle.dumps(AlphaFilter() & (BetaFilter() | GammaFilter()))
+    def test_serialization(self):
+        assert deserialize(serialize(~AlphaFilter())) == ~AlphaFilter()
+        assert deserialize(
+            serialize(AlphaFilter() & (BetaFilter() | GammaFilter()))
         ) == AlphaFilter() & (BetaFilter() | GammaFilter())

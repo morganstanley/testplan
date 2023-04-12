@@ -49,7 +49,7 @@ def make_multitest(name, part_tuple=None, suites=None):
     rerun=1,
     weight=1,
 )
-def make_multitest(name, suites=None):
+def make_multitest1(name, suites=None):
     # a test target shall only return 1 runnable object
     test = MultiTest(name=name, suites=[cls() for cls in suites])
     return test

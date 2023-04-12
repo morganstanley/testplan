@@ -594,6 +594,13 @@ class MultiTest(testing_base.Test):
         this method handles running the before/after_start callables if
         required.
         """
+        # Need to clean up pre/post steps report in the following scenario:
+        #   - resources are started
+        #   - stopped
+        #   - started again
+        # Reason is that dry_run only applies for state reset while appending of
+        #   the report group happens only in static run we cannot capture
+        self._pre_post_step_report = None
         self.make_runpath_dirs()
         if self.cfg.before_start:
             self._wrap_run_step(
@@ -972,12 +979,10 @@ class MultiTest(testing_base.Test):
         )
 
         try:
-            interface.check_signature(
-                testsuite_method, ["self", "env", "result"]
-            )
+            interface.check_signature(testsuite_method, ["env", "result"])
             method_args = (self.resources, case_result)
         except interface.MethodSignatureMismatch:
-            interface.check_signature(testsuite_method, ["self", "env"])
+            interface.check_signature(testsuite_method, ["env"])
             method_args = (self.resources,)
 
         with method_report.timer.record("run"):
@@ -1010,13 +1015,11 @@ class MultiTest(testing_base.Test):
         case_result: result.Result,
     ):
         try:
-            interface.check_signature(
-                method, ["self", "name", "env", "result"]
-            )
+            interface.check_signature(method, ["name", "env", "result"])
             method_args = (testcase.name, resources, case_result)
         except interface.MethodSignatureMismatch:
             interface.check_signature(
-                method, ["self", "name", "env", "result", "kwargs"]
+                method, ["name", "env", "result", "kwargs"]
             )
             method_args = (
                 testcase.name,
@@ -1260,6 +1263,11 @@ class MultiTest(testing_base.Test):
             total testcases for an existing Multitest.
         """
         self._cfg.part = part
+        self._init_test_report()
+
+    def unset_part(self) -> None:
+        """Disable part feature"""
+        self._cfg.part = None
         self._init_test_report()
 
 

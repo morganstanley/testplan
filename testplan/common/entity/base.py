@@ -24,44 +24,6 @@ from testplan.common.utils.timing import wait
 from testplan.common.utils.validation import is_subclass
 
 
-def pdb_drop_handler(sig, frame):
-    """
-    Drop into pdb
-    """
-    print("Received SIGUSR1, dropping into pdb")
-    import pdb
-
-    pdb.set_trace()
-
-
-def print_current_status(sig, frame):
-    """
-    Print stack frames of all threads
-    """
-
-    print("Received SIGUSR2, printing current status")
-    id2name = dict([(th.ident, th.name) for th in threading.enumerate()])
-
-    msgs = ["Stack frames of all threads"]
-    for thread_id, stack in sorted(
-        sys._current_frames().items(), reverse=True
-    ):
-        msgs.append(
-            "{}# Thread: {}({})".format(
-                os.linesep, id2name.get(thread_id, ""), thread_id
-            )
-        )
-        for filename, lineno, name, line in traceback.extract_stack(stack):
-            msgs.append(
-                'File: "{}", line {}, in {}'.format(filename, lineno, name)
-            )
-            if line:
-                msgs.append("  {}".format(line.strip()))
-
-    msg = os.linesep.join(msgs)
-    print(msg)
-
-
 class Environment:
     """
     A collection of resources that can be started/stopped.
@@ -102,12 +64,11 @@ class Environment:
         self._resources[uid] = item
         return uid
 
-    def remove(self, uid: str):
+    def remove(self, uid: str) -> None:
         """
         Removes resource with the given uid from the environment.
 
         :param uid: Unique identifier.
-        :type uid: ``str``
         """
         del self._resources[uid]
 
@@ -188,6 +149,17 @@ class Environment:
             for resource in self._resources
         )
 
+    def _record_resource_exception(self, message, resource, msg_store):
+        fetch_msg = "\n".join(resource.fetch_error_log())
+
+        msg = message.format(
+            resource_name=resource.cfg.name,
+            traceback_exc=traceback.format_exc(),
+            fetch_msg=fetch_msg,
+        )
+        resource.logger.error(msg)
+        msg_store[resource] = msg
+
     def start(self):
         """
         Starts all resources sequentially and log errors.
@@ -201,11 +173,11 @@ class Environment:
             try:
                 resource.start()
             except Exception:
-                msg = "While starting resource [{}]\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While starting resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.start_exceptions,
                 )
-                resource.logger.error(msg)
-                self.start_exceptions[resource] = msg
 
                 failover = resource.failover()
                 if failover:
@@ -222,11 +194,11 @@ class Environment:
             try:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
-                msg = "While waiting for resource [{}] to start\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While waiting for resource [{resource_name}] to start\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.start_exceptions,
                 )
-                resource.logger.error(msg)
-                self.start_exceptions[resource] = msg
 
                 failover = resource.failover()
                 if failover:
@@ -235,7 +207,7 @@ class Environment:
                     pass
 
             else:
-                resource.logger.debug("%s started", resource)
+                resource.logger.info("%s started", resource)
 
     def start_in_pool(self, pool):
         """
@@ -269,7 +241,7 @@ class Environment:
         for resource in resources_to_wait_for:
             if resource not in self.start_exceptions:
                 resource.wait(resource.STATUS.STARTED)
-                resource.logger.debug("%s started", resource)
+                resource.logger.info("%s started", resource)
 
     def stop(self, is_reversed=False):
         """
@@ -288,11 +260,12 @@ class Environment:
             try:
                 resource.stop()
             except Exception:
-                msg = "While stopping resource [{}]\n{}".format(
-                    resource.cfg.name, traceback.format_exc()
+                self._record_resource_exception(
+                    message="While stopping resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.stop_exceptions,
                 )
-                resource.logger.error(msg)
-                self.stop_exceptions[resource] = msg
+
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
             else:
@@ -302,7 +275,7 @@ class Environment:
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
             resource.wait(resource.STATUS.STOPPED)
-            resource.logger.debug("%s stopped", resource)
+            resource.logger.info("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
         """
@@ -338,7 +311,7 @@ class Environment:
                         lambda: resource.status == resource.STATUS.STOPPED,
                         timeout=resource.cfg.status_wait_timeout,
                     )
-                resource.logger.debug("%s stopped", resource)
+                resource.logger.info("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
@@ -617,10 +590,10 @@ class Entity(logger.Loggable):
             if dep is not None:
                 self._abort_entity(dep)
 
-        self.logger.debug("Aborting %s", self)
+        self.logger.info("Aborting %s", self)
         self.aborting()
         self._aborted = True
-        self.logger.debug("Aborted %s", self)
+        self.logger.info("Aborted %s", self)
 
     def abort_dependencies(self):
         """
@@ -721,7 +694,7 @@ class Entity(logger.Loggable):
 
         self._scratch = os.path.join(self._runpath, "scratch")
 
-        self.logger.debug(
+        self.logger.info(
             "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
         )
 
@@ -921,7 +894,8 @@ class Runnable(Entity):
         """
         Runs the runnable object by executing a step.
         """
-        self.logger.debug("Running %s", self)
+
+        self.logger.user_info("Running %s", self)
         self.status.change(RunnableStatus.RUNNING)
         while self.active:
             if self.status == RunnableStatus.RUNNING:
@@ -1037,9 +1011,8 @@ class Runnable(Entity):
             res = step(*args, **kwargs)
         except Exception as exc:
             self.logger.error(
-                "Exception on %s[%s], step %s - %s",
-                self.__class__.__name__,
-                self.uid(),
+                "Exception on %s, step %s - %s",
+                self,
                 step.__name__,
                 str(exc),
             )
@@ -1131,7 +1104,7 @@ class Runnable(Entity):
                         f"{self} already has an active {self._ihandler}"
                     )
 
-                self.logger.test_info("Starting %s in interactive mode", self)
+                self.logger.user_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
                     target=self, http_port=self.cfg.interactive_port
                 )
@@ -1318,7 +1291,7 @@ class Resource(Entity):
         method.
         """
         if not self.active:
-            self.logger.warning(f"Start %s but it is aborting / aborted", self)
+            self.logger.warning("Start %s but it is aborting / aborted", self)
             return
 
         if (
@@ -1326,11 +1299,11 @@ class Resource(Entity):
             or self.status == self.STATUS.STARTED
         ):
             self.logger.debug(
-                "start() has been called on %r, skip starting", self
+                "start() has been called on %s, skip starting", self
             )
             return
 
-        self.logger.debug("Starting %s", self)
+        self.logger.info("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
         if self.cfg.pre_start:
@@ -1339,7 +1312,7 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STARTED)
-            self.logger.debug("%s started", self)
+            self.logger.info("%s started", self)
 
     def stop(self):
         """
@@ -1349,22 +1322,22 @@ class Resource(Entity):
         method.
         """
         if self.aborted:
-            self.logger.warning(f"Stop %s but it has already aborted", self)
+            self.logger.warning("Stop %s but it has already aborted", self)
 
         if self.status == self.STATUS.NONE:
-            self.logger.debug("%r not started, skip stopping", self)
+            self.logger.info("%s not started, skip stopping", self)
             return
 
         if (
             self.status == self.STATUS.STOPPING
             or self.status == self.STATUS.STOPPED
         ):
-            self.logger.debug(
-                "stop() has been called on %r, skip stopping", self
+            self.logger.info(
+                "stop() has been called on %s, skip stopping", self
             )
             return
 
-        self.logger.debug("Stopping %s", self)
+        self.logger.info("Stopping %s", self)
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
         if self.cfg.pre_stop:
@@ -1373,7 +1346,7 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
-            self.logger.debug("%s stopped", self)
+            self.logger.info("%s stopped", self)
 
     def pre_start(self):
         """
@@ -1398,6 +1371,15 @@ class Resource(Entity):
         Steps to be executed right after resource is stopped.
         """
         pass
+
+    def fetch_error_log(self) -> List[str]:
+        """
+        Override this method in Resource subclasses to automatically add any
+        useful logs into the report, in case of startup/shutdown exception.
+
+        :return: text from log files
+        """
+        return []
 
     def _wait_started(self, timeout=None):
         """
@@ -1649,11 +1631,6 @@ class RunnableManager(Entity):
         try:
             for sig in self._cfg.abort_signals:
                 signal.signal(sig, self._handle_abort)
-            # TODO: breaks test internally
-            # if hasattr(signal, "SIGUSR1"):
-            #     signal.signal(signal.SIGUSR1, pdb_drop_handler)
-            # if hasattr(signal, "SIGUSR2"):
-            #     signal.signal(signal.SIGUSR2, print_current_status)
         except ValueError:
             self.logger.warning(
                 "Not able to install signal handler -"

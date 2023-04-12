@@ -62,6 +62,9 @@ class LogCaptureMixin(Loggable):
         super(LogCaptureMixin, self).__init__()
         self.__log_capture_config = LogCaptureConfig()
 
+    def __str__(self):
+        return f"{self.__class__.__name__}"
+
     @property
     def log_capture_config(self):
         return self.__log_capture_config

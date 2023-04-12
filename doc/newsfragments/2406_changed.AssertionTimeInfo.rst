@@ -1,0 +1,1 @@
+Changed assertion time information format to 24hrs.

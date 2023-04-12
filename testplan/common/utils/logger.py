@@ -22,9 +22,11 @@ from testplan.report import Status
 CRITICAL = logging.CRITICAL  # 50
 ERROR = logging.ERROR  # 40
 WARNING = logging.WARNING  # 30
+# TODO: EXPORTER_INFO, TEST_INFO, DRIVER_INFO to be deco'ed.
 EXPORTER_INFO = 29
 TEST_INFO = 28
 DRIVER_INFO = 27
+USER_INFO = 25
 INFO = logging.INFO  # 20
 DEBUG = logging.DEBUG  # 10
 
@@ -39,7 +41,7 @@ LOGFILE_FORMAT = (
 class TestplanLogger(logging.Logger):
     """
     Custom Logger class for Testplan. Adds extra logging levels and
-    corresponding methods for EXPORTER_INFO, TEST_INFO and DRIVER_INFO levels.
+    corresponding methods for EXPORTER_INFO, TEST_INFO, DRIVER_INFO, and USER_INFO levels.
     """
 
     _TEST_STATUS_FORMAT = "%(indent)s[%(name)s] -> %(pass_label)s"
@@ -47,7 +49,12 @@ class TestplanLogger(logging.Logger):
     # In addition to the built-in log levels, we add some extras.
     _CUSTOM_LEVELS = {
         level_name: globals()[level_name]
-        for level_name in ("EXPORTER_INFO", "TEST_INFO", "DRIVER_INFO")
+        for level_name in (
+            "EXPORTER_INFO",
+            "TEST_INFO",
+            "DRIVER_INFO",
+            "USER_INFO",
+        )
     }
 
     # As well as storing the log levels as global constants, we also store them
@@ -86,7 +93,11 @@ class TestplanLogger(logging.Logger):
         """Log 'msg % args' with severity 'DRIVER_INFO'"""
         self._custom_log(DRIVER_INFO, msg, *args, **kwargs)
 
-    def log_test_status(self, name, status, indent=0, level=TEST_INFO):
+    def user_info(self, msg, *args, **kwargs):
+        """Log 'msg % args' with severity 'USER_INFO'"""
+        self._custom_log(USER_INFO, msg, *args, **kwargs)
+
+    def log_test_status(self, name, status, indent=0, level=USER_INFO):
         """Shortcut to log a pass/fail status for a test."""
         if Status.STATUS_CATEGORY[status] == Status.PASSED:
             pass_label = Color.green(status.title())
@@ -114,7 +125,7 @@ class TestplanLogger(logging.Logger):
 def _initial_setup():
     """
     Perform initial setup for the logger. Creates and adds a handler to log
-    to stdout with default level TEST_INFO.
+    to stdout with default level USER_INFO.
 
     :return: root logger object and stdout logging handler
     :type: ``tuple``
@@ -130,11 +141,11 @@ def _initial_setup():
     #  stdout without any extra formatting and is intended for user-facing
     # logs. The level is controlled by command-line args so should be set
     # when those args are parsed; however to begin with we set the level to
-    # TEST_INFO as a default.
+    # USER_INFO as a default.
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_formatter = logging.Formatter("%(message)s")
     stdout_handler.setFormatter(stdout_formatter)
-    stdout_handler.setLevel(TEST_INFO)
+    stdout_handler.setLevel(USER_INFO)
     root_logger.addHandler(stdout_handler)
     root_logger.propagate = False
 
@@ -215,7 +226,7 @@ class Loggable:
         super(Loggable, self).__init__()
 
     @property
-    def logger(self):
+    def logger(self) -> TestplanLogger:
         """logger object"""
         # Define logger as a property instead of self.logger directly.
         # This is to workaround a python2 issue that logger object cannot be
@@ -225,9 +236,7 @@ class Loggable:
         if self._logger:
             return self._logger
 
-        self._logger = logging.getLogger(
-            ".".join([LOGGER_NAME, self.__class__.__name__, uuid4()[-8:]])
-        )
+        self._logger = logging.getLogger(f"{LOGGER_NAME}.{self}")
         return self._logger
 
     @property

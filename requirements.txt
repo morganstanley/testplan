@@ -1,10 +1,11 @@
 -e .
 pylint
 scikit-learn
-black>=22.1.0
+black~=22.0
 kazoo
 confluent-kafka
 plotly
-pandas
+pandas<2
 numpy
 sphinx-click
+doit

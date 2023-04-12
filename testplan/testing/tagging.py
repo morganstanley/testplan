@@ -14,7 +14,7 @@ SIMPLE = "simple"  # key for simple tags
 # (for readable URL params)
 
 # Currently allowing same patterns for tags and tag names
-TAG_VALUE_PATTERN = r"(?![\s\_-])[\w\s-]+(?<![\s\_-])"
+TAG_VALUE_PATTERN = r"(?![\s\_\-\)\(])[\w\s\-\(\)]+(?<![\s\_\-])"
 TAG_NAME_PATTERN = TAG_VALUE_PATTERN
 
 # Pattern for simple tag arguments e.g. `--tags foo bar baz`

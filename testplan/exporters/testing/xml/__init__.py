@@ -313,7 +313,7 @@ class XMLExporter(Exporter):
                     encoding="utf-8",
                 )
 
-        self.logger.exporter_info(
+        self.logger.user_info(
             "%s XML files created at %s", len(source), xml_dir
         )
         return str(xml_dir)

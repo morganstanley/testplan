@@ -2,7 +2,7 @@ import React, {Fragment} from 'react';
 import {hashCode} from '../../Common/utils';
 import {GREEN, RED} from '../../Common/defaults';
 import _ from 'lodash';
-import linkifyUrls from 'linkify-urls';
+import Linkify from "linkify-react";
 
 /** @module basicAssertionUtils */
 
@@ -42,24 +42,24 @@ function prepareLogContent(assertion, defaultContent) {
       ) {
       decodedMsg = bytearray.length ? String.fromCodePoint(...bytearray) : "";
     } else {
-      decodedMsg = assertion.message;
+      decodedMsg = (
+      <Linkify options={{
+        target: "_blank",
+        validate: {
+          url: (value) => /^https?:\/\//.test(value),
+        },
+      }}>
+        {assertion.message}
+      </Linkify>
+      );
     }
   }
     
-  decodedMsg = < div dangerouslySetInnerHTML = {
-    {
-      __html: linkifyUrls(_.escape(decodedMsg), {
-        attributes: {
-          target: "_blank"
-        }
-      })
-    }
-  }/>;
 
   const preContent = (
     <pre>
       {decodedMsg}
-     </pre>
+    </pre>
   );
 
   return {
@@ -247,8 +247,39 @@ function prepareIsFalseContent(assertion, defaultContent) {
  * @private
  */
 function prepareFailContent(assertion, defaultContent) {
+
+  let decodedMsg = null;
+
+  if (assertion.message !== undefined) {
+    let bytearray;
+    if(typeof assertion.message === 'object' 
+      && typeof (bytearray = assertion.message['_BYTES_KEY']) !== 'undefined' 
+      && Array.isArray(bytearray)
+      ) {
+      decodedMsg = bytearray.length ? String.fromCodePoint(...bytearray) : "";
+    } else {
+      decodedMsg = (
+      <Linkify options={{
+        target: "_blank",
+        validate: {
+          url: (value) => /^https?:\/\//.test(value),
+        },
+      }}>
+        {assertion.message}
+      </Linkify>
+      );
+    }
+  }
+
+  const preContent = (
+    <pre>
+      {decodedMsg}
+    </pre>
+  );
+
   return {
     ...defaultContent,
+    preContent: preContent,
     leftTitle: null,
     rightTitle: null,
     leftContent: null,

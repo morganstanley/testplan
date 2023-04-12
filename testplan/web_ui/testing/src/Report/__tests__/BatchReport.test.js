@@ -8,7 +8,7 @@ import _ from 'lodash';
 
 import BatchReport from '../BatchReport';
 import Message from '../../Common/Message';
-import { TESTPLAN_REPORT, SIMPLE_REPORT, ERROR_REPORT } from "../../Common/sampleReports";
+import { TESTPLAN_REPORT, SIMPLE_PASSED_REPORT, SIMPLE_FAILED_REPORT, SIMPLE_ERROR_REPORT, ERROR_REPORT } from "../../Common/sampleReports";
 
 
 
@@ -87,7 +87,7 @@ describe('BatchReport', () => {
     expect(message.props().message).toEqual(expectedMessage);
   });
 
-  it('loads a simple report', done => {
+  it('loads a passed simple report', done => {
     moxios.stubRequest('/api/v1/metadata/fix-spec/tags', {
       status: 200, response: {}
     })
@@ -97,11 +97,33 @@ describe('BatchReport', () => {
       expect(request.url).toBe("/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83");
       request.respondWith({
         status: 200,
-        response: SIMPLE_REPORT,
+        response: SIMPLE_PASSED_REPORT,
       }).then(() => {
         batchReport.update();
         const props = batchReport.instance().props;
         expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83")
+        handleRedirect(batchReport);
+        expect(batchReport).toMatchSnapshot();
+        done();
+      });
+    });
+  });
+
+  it('loads a failed simple report', done => {
+    moxios.stubRequest('/api/v1/metadata/fix-spec/tags', {
+      status: 200, response: {}
+    })
+    const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83");
+      request.respondWith({
+        status: 200,
+        response: SIMPLE_FAILED_REPORT,
+      }).then(() => {
+        batchReport.update();
+        const props = batchReport.instance().props;
+        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/21739167-b30f-4c13-a315-ef6ae52fd1f7/cb144b10-bdb0-44d3-9170-d8016dd19ee7/736706ef-ba65-475d-96c5-f2855f431028")
         handleRedirect(batchReport);
         expect(batchReport).toMatchSnapshot();
         done();
@@ -123,7 +145,29 @@ describe('BatchReport', () => {
       }).then(() => {
         batchReport.update();
         const props = batchReport.instance().props;
-        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83")
+        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/21739167-b30f-4c13-a315-ef6ae52fd1f7/cb144b10-bdb0-44d3-9170-d8016dd19ee7/78686a4d-7b94-4ae6-ab50-d9960a7fb714")
+        handleRedirect(batchReport);
+        expect(batchReport).toMatchSnapshot();
+        done();
+      });
+    });
+  });
+
+  it('loads a more complex error report', done => {
+    moxios.stubRequest('/api/v1/metadata/fix-spec/tags', {
+      status: 200, response: {}
+    })
+    const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83");
+      request.respondWith({
+        status: 200,
+        response: ERROR_REPORT,
+      }).then(() => {
+        batchReport.update();
+        const props = batchReport.instance().props;
+        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/8c3c7e6b-48e8-40cd-86db-8c8aed2592c8/08d4c671-d55d-49d4-96ba-dc654d12be26")
         handleRedirect(batchReport);
         expect(batchReport).toMatchSnapshot();
         done();
@@ -157,6 +201,29 @@ describe('BatchReport', () => {
     });
   });
 
+  it('loads a report with selection at Testcase level and Time Information enanbled', done => {
+    moxios.stubRequest('/api/v1/metadata/fix-spec/tags', {
+      status: 200, response: {}
+    })
+    const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83", "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8/08d4c671-d55d-49d4-96ba-dc654d12be26/f73bd6ea-d378-437b-a5db-00d9e427f36a");
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83");
+      request.respondWith({
+        status: 200,
+        response: TESTPLAN_REPORT,
+      }).then(() => {
+        batchReport.setState({displayTime: true});
+        batchReport.update();
+        const props = batchReport.instance().props;
+        expect(props.history.location.pathname).toBe(`/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/8c3c7e6b-48e8-40cd-86db-8c8aed2592c8/08d4c671-d55d-49d4-96ba-dc654d12be26/f73bd6ea-d378-437b-a5db-00d9e427f36a`)
+        handleRedirect(batchReport);
+        expect(batchReport).toMatchSnapshot();
+        done();
+      });
+    });
+  });
+
   it('renders an error message when Testplan report cannot be found.', done => {
     const batchReport = renderBatchReport();
     moxios.wait(function () {
@@ -175,7 +242,7 @@ describe('BatchReport', () => {
 
   it('shallow renders the correct HTML structure when report with errors loaded', () => {
     const batchReport = renderBatchReportFull();
-    batchReport.setState({ report: ERROR_REPORT });
+    batchReport.setState({ report: SIMPLE_ERROR_REPORT });
     batchReport.update();
     expect(batchReport).toMatchSnapshot();
   });

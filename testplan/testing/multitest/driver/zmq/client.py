@@ -195,6 +195,7 @@ class ZMQClient(Driver):
         Start the ZMQ client.
         """
         super(ZMQClient, self).starting()
+        # pylint: disable=abstract-class-instantiated
         self._zmq_context = zmq.Context()
         self._socket = self._zmq_context.socket(self.cfg.message_pattern)
         if self.cfg.connect_at_start:

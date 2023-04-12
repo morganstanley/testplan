@@ -9,314 +9,21 @@ in your local environment!
 Supported Python Versions
 =========================
 
-Testplan is tested to work with Python 3.7 and 3.8, so we recommend choosing one of those.
-As of Mar. 2021, we have dropped support for Python 2.
+Testplan is tested to work with Python 3.7 and 3.8, 3.10 and 3.11 so we recommend choosing one of those.
 
 .. _install_testplan:
 
 Install testplan
 ================
 
-Ubuntu/Debian
--------------
-
-First install required packages - you will need root privileges.
-
-    .. code-block:: bash
-
-      sudo apt-get install python3.7 python3-pip rsync
-      python3.7 -m pip install pip  # Updates to latest pip version.
-
-
-Native pip install
-++++++++++++++++++
+Testplan is not yet available from pypi.org but one can still install it from the latest github package. A link for our lates package can be obtained from: https://github.com/morganstanley/testplan/releases/tag/latest
 
 Install from archive:
-
+  
     .. code-block:: bash
 
-      python3.7 -m pip install --user https://github.com/morganstanley/testplan/archive/main.zip
-      install-testplan-ui
-
-
-.. _using_virtualenv_ubuntu:
-
-Using a virtualenv
-++++++++++++++++++
-
-    1. Create a virtualenv.
-
-        .. code-block:: bash
-
-          python3.7 -m venv testplan-oss
-          cd testplan-oss
-          source bin/activate
-
-    2. Install testplan and its dependecies into the virtual env.
-
-        .. code-block:: bash
-
-          pip install https://github.com/morganstanley/testplan/archive/main.zip
-          install-testplan-ui
-
-
-Other Linux Distros
--------------------
-
-For non-Debian Linux distributions you should be able to install using similar
-steps as for Ubuntu/Debian - just check the docs for your distro's package
-manager (e.g. yum, dnf, pacman) for how to install the required packages
-instead of using apt-get.
-
-
-MacOS
------
-
-Install `homebrew <https://brew.sh/>`_.
-
-    .. code-block:: bash
-
-        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-Install `python <http://docs.python-guide.org/en/latest/starting/install/osx>`__:
-
-   .. code-block:: bash
-
-      brew install python
-
-
-Native pip install
-++++++++++++++++++
-
-.. warning:: This will install testplan package with all the dependencies specified in the
-             `requirements.txt <https://github.com/morganstanley/testplan/blob/main/requirements.txt>`_
-             file. For a quick basic installation, also check the :ref:`using_virtualenv_macos` guide.
-
-Install from archive.
-
-    .. code-block:: bash
-
-      sudo pip3 install https://github.com/morganstanley/testplan/archive/main.zip
-      install-testplan-ui
-
-
-.. _using_virtualenv_macos:
-
-Using a virtualenv
-++++++++++++++++++
-
-
-    1. Install `virtualenv <https://virtualenv.pypa.io/en/stable>`_.
-
-        .. code-block:: bash
-
-          pip3 install virtualenv
-
-    2. Create a virtualenv.
-
-        .. code-block:: bash
-
-          virtualenv testplan-oss
-          cd testplan-oss
-          source bin/activate
-
-    3. Clone testplan `repo <https://github.com/morganstanley/testplan>`_.
-
-        .. code-block:: bash
-
-          git clone https://github.com/morganstanley/testplan.git
-          cd testplan
-
-    4. Install dependecies and setup.
-
-        .. code-block:: bash
-
-          pip install .
-          install-testplan-ui
-
-
-Windows
--------
-
-Using subsystem
-+++++++++++++++
-
-You can follow the ubuntu guide while using a windows
-`subsystem <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`_.
-
-
-Native pip install
-++++++++++++++++++
-
-For native installation using `pip <https://pypi.python.org/pypi/pip>`__
-package management system:
-
-    1. Install `git <https://git-scm.com/download/win>`_.
-    2. Install `python <https://www.python.org/downloads>`__.
-    3. Open the windows command prompt.
-    4. Install `pip <https://pip.pypa.io/en/stable/installing>`__.
-
-        .. code-block:: text
-
-          C:\path\to\installed\interpreter\python.exe get-pip.py
-
-    5. Install from archive.
-
-        .. code-block:: text
-
-          pip install https://github.com/morganstanley/testplan/archive/main.zip
-
-.. warning::
-
-  The ``install-testplan-ui`` currently can't be called on Windows after
-  installing from archive. It will work if installed through virtualenv. You
-  can manually run if Node.js and npm is installed:
-
-      .. code-block:: text
-
-        C:\path\to\installed\interpreter\python.exe C:\path\to\installed\Scripts\install-testplan-ui
-
-  If this isn't installed the ``--ui`` arg will not work properly (the web
-  server will start but the UI won't load). Read more about the browser output
-  :ref:`here <Output_Browser>`. Raise a GitHub issue if further assistance is
-  needed.
-
-
-Using a virtualenv
-++++++++++++++++++
-
-Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
-
-    1. Install `git <https://git-scm.com/download/win>`_.
-    2. Install `python <https://www.python.org/downloads>`__.
-    3. Open the windows command prompt.
-    4. Install `pip <https://pip.pypa.io/en/stable/installing>`__.
-
-        .. code-block:: text
-
-          C:\path\to\installed\interpreter\python.exe get-pip.py
-
-    5. Install `virtualenv <https://virtualenv.pypa.io/en/stable>`_.
-
-        .. code-block:: text
-
-          pip install virtualenv
-
-    6. Create a virtualenv.
-
-        .. code-block:: text
-
-          virtualenv -p C\:path\to\installed\interpreter\python.exe testplan-oss
-          cd testplan-oss
-          .\Scripts\activate
-
-    7. Clone testplan `repo <https://github.com/morganstanley/testplan>`_.
-
-        .. code-block:: text
-
-          git clone https://github.com/morganstanley/testplan.git
-          cd testplan
-
-    8. Install dependecies and setup.
-
-        .. code-block:: text
-
-          # Skip heavy dependencies but miss some functionality.
-          pip install -r requirements-basic.txt
-          python setup.py develop --no-deps
-          python install-testplan-ui
-
-Via Docker
-==========
-
-Installation
-------------
-
-To install docker, you can follow the instructions for your OS from this list:
-
-    1. Ubuntu/Debian. For the latest available instructions, please visit the official `docker installation instructions for Ubuntu/Debian <https://docs.docker.com/install/linux/docker-ce/ubuntu/>`_.
-
-        .. code-block:: bash
-
-            sudo apt-get update
-            sudo apt-get remove docker docker-engine docker.io
-            sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-            sudo apt-get update
-            sudo apt-get install docker-ce
-
-            sudo usermod -aG docker $USER
-            # now LOGOUT and LOGIN again!
-
-
-    2. MacOS. For the latest available instructions, please visit the official `docker installation instructions for MacOS <https://docs.docker.com/docker-for-mac/install/>`_.
-
-    3. Windows. For the latest available instructions, please visit the official `docker installation instructions for Windows <https://docs.docker.com/docker-for-windows/install/>`_.
-
-
-Available images
-----------------
-
-Docker image for testplan is provided ``python3``.
-
-The images can be retrieved with the following commands:
-
-    .. code-block:: bash
-
-        docker pull chiotis/testplan:3
-
-
-
-Interactive docker session
---------------------------
-
-To try testplan in an interactive docker session, you can type:
-
-    .. code-block:: bash
-
-        docker run -it chiotis/testplan:3 bash
-
-The source code is available to explore in ``/work``.
-
-
-Docker batch execution
-----------------------
-
-To run testplan docker image in batch mode, you'll need to add your code as a
-docker volume when running the image. If the  ``test_plan.py`` file is in ``$PWD``,
-directory, the docker command will be:
-
-    .. code-block:: bash
-
-        # Example directory that contains test_plan.py file.
-        cd examples/Assertions/Basic
-
-        docker run -v $PWD:/work -it chiotis/testplan:3
-
-
-If your testplan file has a name other than ``test_plan.py``, you can add it as an
-argument in the ``docker run`` command:
-
-    .. code-block:: bash
-
-        # Example directory that contains test_plan.py file.
-        cd examples/Assertions/Basic
-
-        docker run -v $PWD:/work -it chiotis/testplan:3 ./my_test_plan.py
-
-
-If you require special arguments for ``test_plan.py``, you can just append them
-after the docker image:
-
-    .. code-block:: bash
-
-        # default test_plan.py
-        docker run -v $PWD:/work -it chiotis/testplan:3 --pdf test.pdf
-
-        # custom my_test_plan.py
-        docker run -v $PWD:/work -it chiotis/testplan:3 ./my_test_plan.py --pdf test.pdf
-
+      python3.7 -m pip install https://github.com/morganstanley/testplan/releases/download/latest/testplan-21.9.29-py3-none-any.whl
+      
 
 Run testplan
 ============
@@ -339,7 +46,7 @@ On Ubuntu/MacOS/etc:
 
       # Run an example demonstrating testplan assertions.
       cd Assertions/Basic
-      ./test_plan.py
+      ./test_plan_basic.py
 
     .. code-block:: bash
 
@@ -356,7 +63,7 @@ On Windows:
 
       # Run an example demonstrating testplan assertions.
       cd Assertions\Basic
-      python test_plan.py
+      python test_plan_basic.py
 
     .. code-block:: text
 
@@ -367,6 +74,23 @@ On Windows:
 Also find all our downloadable examples :ref:`here <download>`.
 
 
+Working with the source
+-----------------------
+ 
+You will need a working python 3.7+ interrpreter preferably a venv, and for the interactive ui you need node installed. 
+We are using `doit <https://pydoit.org/contents.html>`_ as the taskrunner ``doit list`` can show all the commands.
+
+  .. code-block:: text
+      
+    git clone https://github.com/morganstanley/testplan.git
+    cd testplan
+
+    # install all dev requirements
+    pip install -r requirements-txt  # this install testplan in editable mode
+
+    #build the interactive UI (if you do not like it is opening a browserwindow remove the `-o`)
+    doit build_ui -o
+
 Internal tests
 --------------
 
@@ -376,13 +100,7 @@ tests. Some tests may be skipped due to optional dependency packages
 
     .. code-block:: text
 
-        cd tests
-
-        # Unit tests.
-        pytest unit --verbose
-
-        # Functional tests.
-        pytest functional --verbose
+      doit test
 
 
 Writing custom drivers
@@ -394,34 +112,3 @@ how to create drivers for
 :ref:`custom applications and services <multitest_custom_drivers>`.
 You can contribute missing drivers or improvements to the existing ones by
 following the :ref:`contribution <contributing>` process.
-
-Installing Testplan for development
-===================================
-
-If you would like to develop on testplan itself, great! You can follow the
-relevant instructions above for installing testplan on your platform (Linux,
-MacOS or Windows) - but instead of installing from the archive, clone the
-repo with ``git`` and make a development install like:
-
-    .. code-block:: bash
-
-        git clone https://github.com/morganstanley/testplan.git
-        cd testplan
-        pip install -r requirements.txt
-        install-testplan-ui --dev
-
-Alternatively, you can pull and run a portable testplan dev env using ``docker``.
-See section on ``docker`` above for instructions on installing ``docker`` itself,
-then you can simply run:
-
-    .. code-block:: bash
-
-        docker pull ryancollingham/dev_env:testplan
-        docker run -it ryancollingam/dev_env:testplan
-
-That will drop you into a shell with the testplan dependencies pre-installed,
-the testplan codebase checked out and installed in a development (i.e. editable)
-mode, and some other useful development tools installed. This dockerised environment
-is shell-only so you can use the installed ``vim`` editor to edit code
-(of course ``emacs`` developers are also welcome on testplan).
-
