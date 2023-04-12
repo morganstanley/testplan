@@ -43,6 +43,15 @@ testplan.common.utils.sockets.server module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.utils.sockets.tls module
++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.sockets.tls
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 

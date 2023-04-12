@@ -24,7 +24,7 @@ Built-in drivers
     * :py:class:`FixServer <testplan.testing.multitest.driver.fix.server.FixServer>` and
       :py:class:`FixClient <testplan.testing.multitest.driver.fix.client.FixClient>` to
       enable FIX protocol communication i.e between trading applications and
-      exchanges.
+      exchanges. TLS also supported if passing a :py:class:`~testplan.common.utils.sockets.tls.TLSConfig`.
       See some examples demonstrating FIX communication :ref:`here <example_fix>`.
 
     * :py:class:`HTTPServer <testplan.testing.multitest.driver.http.server.HTTPServer>` and

@@ -1,11 +1,13 @@
 """Fix TCP client module."""
-
+import ssl
 import time
 import socket
+from typing import Optional
 
 from testplan.common.utils.sockets.fix.utils import utc_timestamp
 
 from .parser import tagsoverride, FixParser
+from ..tls import TLSConfig
 
 
 class Client:
@@ -26,6 +28,7 @@ class Client:
         sendersub=None,
         interface=None,
         logger=None,
+        tls_config: Optional[TLSConfig] = None,
     ):
         """
         Create a new FIX client.
@@ -77,10 +80,16 @@ class Client:
         self.timeout = 30
         self.msgclass = msgclass
         self.log_callback = logger.debug if logger else lambda msg: None
+        self.tls_config = tls_config
         self.codec = codec
         self.connection_name = "{}:{}:{}_{}{}".format(
             self.sender, self.target, self.sendersub, self.host, self.port
         )
+
+        if self.tls_config:
+            self.socket = self.tls_config.get_context(
+                purpose=ssl.Purpose.SERVER_AUTH
+            ).wrap_socket(self.socket, server_hostname=self.host)
 
     @property
     def address(self):
