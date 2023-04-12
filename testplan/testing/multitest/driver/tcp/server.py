@@ -3,15 +3,15 @@ TCPServer driver classes.
 """
 
 import socket
-from typing import Union, Optional
+from typing import Optional, Union
 
-from schema import Use
-
+from schema import Or
 from testplan.common.config import ConfigOption
-from testplan.common.utils.context import ContextValue
+from testplan.common.utils import networking
+from testplan.common.utils.context import ContextValue, expand
 from testplan.common.utils.documentation_helper import emphasized
-from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 from testplan.common.utils.sockets import Server
+from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
 from ..base import Driver, DriverConfig
 
@@ -29,7 +29,7 @@ class TCPServerConfig(DriverConfig):
         """
         return {
             ConfigOption("host", default="localhost"): str,
-            ConfigOption("port", default=0): Use(int),
+            ConfigOption("port", default=0): Or(int, str, ContextValue),
         }
 
 
@@ -61,7 +61,7 @@ class TCPServer(Driver):
         self,
         name: str,
         host: Optional[Union[str, ContextValue]] = "localhost",
-        port: Optional[Union[int, ContextValue]] = 0,
+        port: Optional[Union[int, str, ContextValue]] = 0,
         **options
     ):
         options.update(self.filter_locals(locals()))
@@ -152,16 +152,18 @@ class TCPServer(Driver):
     def starting(self):
         """Starts the TCP server."""
         super(TCPServer, self).starting()
-        self._server = Server(host=self.cfg.host, port=self.cfg.port)
+        self._server = Server(
+            host=self.cfg.host,
+            port=networking.port_to_int(expand(self.cfg.port, self.context)),
+        )
         self._server.bind()
         self._server.serve()
         self._host = self.cfg.host
         self._port = self._server.port
 
         self.logger.info(
-            "%s(%s) listening on %s:%s",
-            type(self).__name__,
-            self.name,
+            "%s listening on %s:%s",
+            self,
             self.host,
             self.port,
         )

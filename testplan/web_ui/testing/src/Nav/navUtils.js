@@ -56,7 +56,6 @@ const CreateNavButtons = (
         }
       )
     );
-    console.log(linkTo);
 
     return (
       <ListGroupItem

@@ -1,39 +1,40 @@
 """Base classes for all Tests"""
 import os
-import sys
 import subprocess
+import sys
 import warnings
+from typing import List, Optional
 
-from schema import Or, Use, And
+from schema import And, Or, Use
 
 from testplan import defaults
-from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common.entity import (
     Resource,
     ResourceStatus,
     Runnable,
-    RunnableResult,
     RunnableConfig,
+    RunnableResult,
 )
+from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.utils import strings
-from testplan.common.utils.path import change_directory
-from testplan.common.utils.process import subprocess_popen
-from testplan.common.utils.timing import parse_duration, format_duration
-from testplan.common.utils.process import enforce_timeout, kill_process
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-
+from testplan.common.utils.process import (
+    enforce_timeout,
+    kill_process,
+    subprocess_popen,
+)
+from testplan.common.utils.timing import format_duration, parse_duration
 from testplan.report import (
-    test_styles,
-    TestGroupReport,
-    TestCaseReport,
     ReportCategories,
     RuntimeStatus,
+    TestCaseReport,
+    TestGroupReport,
+    test_styles,
 )
 from testplan.testing import filtering, ordering, tagging
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
-
 
 TEST_INST_INDENT = 2
 SUITE_INDENT = 4
@@ -291,13 +292,13 @@ class Test(Runnable):
                     else:
                         return
                     if style.display_assertion:
-                        TESTPLAN_LOGGER.test_info(indent * " " + header)
+                        self.logger.user_info(indent * " " + header)
                     if details and style.display_assertion_detail:
                         details = os.linesep.join(
                             (indent + 2) * " " + line
                             for line in details.split(os.linesep)
                         )
-                        TESTPLAN_LOGGER.test_info(details)
+                        self.logger.user_info(details)
                 else:
                     self.logger.log_test_status(
                         name, obj.status, indent=indent
@@ -524,22 +525,22 @@ class ProcessRunnerTest(Test):
             self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
 
     @property
-    def stderr(self):
+    def stderr(self) -> str:
         return os.path.join(self._runpath, "stderr")
 
     @property
-    def stdout(self):
+    def stdout(self) -> str:
         return os.path.join(self._runpath, "stdout")
 
     @property
-    def timeout_log(self):
+    def timeout_log(self) -> str:
         return os.path.join(self._runpath, "timeout.log")
 
     @property
-    def report_path(self):
+    def report_path(self) -> str:
         return os.path.join(self._runpath, "report.xml")
 
-    def test_command(self):
+    def test_command(self) -> List[str]:
         """
         Add custom arguments before and after the executable if they are defined.
         :return: List of commands to run before and after the test process, as well as the test executable itself.
@@ -553,7 +554,7 @@ class ProcessRunnerTest(Test):
             cmd = cmd + self.cfg.post_args
         return cmd
 
-    def _test_command(self):
+    def _test_command(self) -> List[str]:
         """
         Override this to add extra options to the test command.
 
@@ -562,7 +563,7 @@ class ProcessRunnerTest(Test):
         """
         return [self.cfg.binary]
 
-    def list_command(self):
+    def list_command(self) -> Optional[List[str]]:
         """
         List custom arguments before and after the executable if they are defined.
         :return: List of commands to run before and after the test process, as well as the test executable itself.
@@ -576,7 +577,7 @@ class ProcessRunnerTest(Test):
                 cmd = cmd + self.cfg.post_args
         return cmd
 
-    def _list_command(self):
+    def _list_command(self) -> Optional[List[str]]:
         """
         Override this to generate the shell command that will cause the
         testing framework to list the tests available on stdout.
@@ -658,7 +659,7 @@ class ProcessRunnerTest(Test):
 
     def get_proc_env(self):
         self._json_ouput = os.path.join(self.runpath, "output.json")
-        self.logger.debug("Json output: {}".format(self._json_ouput))
+        self.logger.debug("Json output: %s", self._json_ouput)
         env = {"JSON_REPORT": self._json_ouput}
         env.update(
             {key.upper(): val for key, val in self.cfg.proc_env.items()}
@@ -696,7 +697,7 @@ class ProcessRunnerTest(Test):
                         "Invalid test command generated for: {}".format(self)
                     )
 
-                self.report.logger.debug(
+                self.report.logger.info(
                     "Running {} - Command: {}".format(self, test_cmd)
                 )
                 self._test_process = subprocess_popen(

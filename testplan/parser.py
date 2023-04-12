@@ -6,7 +6,7 @@ import argparse
 import copy
 import json
 import sys
-from typing import Dict
+from typing import Dict, List
 
 from testplan import defaults
 from testplan.common.utils import logger
@@ -154,7 +154,9 @@ class TestplanParser:
 
         filter_group = parser.add_argument_group("Filtering")
 
-        filter_group.add_argument(
+        filter_pattern_group = filter_group.add_mutually_exclusive_group()
+
+        filter_pattern_group.add_argument(
             "--patterns",
             action=filtering.PatternAction,
             default=[],
@@ -164,13 +166,27 @@ class TestplanParser:
             help="""\
 Test filter, supports glob notation & multiple arguments.
 
---pattern <Multitest Name>
---pattern <Multitest Name 1> <Multitest Name 2>
---pattern <Multitest Name 1> --pattern <Multitest Name 2>
---pattern <Multitest Name>:<Suite Name>
---pattern <Multitest Name>:<Suite Name>:<Testcase name>
---pattern <Multitest Name>:*:<Testcase name>
---pattern *:<Suite Name>:<Testcase name>""",
+--patterns <Multitest Name>
+--patterns <Multitest Name 1> <Multitest Name 2>
+--patterns <Multitest Name 1> --pattern <Multitest Name 2>
+--patterns <Multitest Name>:<Suite Name>
+--patterns <Multitest Name>:<Suite Name>:<Testcase name>
+--patterns <Multitest Name>:*:<Testcase name>
+--patterns *:<Suite Name>:<Testcase name>""",
+        )
+
+        # NOTE: custom type is applied before custom action
+        filter_pattern_group.add_argument(
+            "--patterns-file",
+            metavar="FILE",
+            dest="patterns",
+            type=_read_text_file,
+            action=filtering.PatternAction,
+            help="""\
+Test filter supplied in a file, with one pattern per line.
+
+--patterns-file <File>
+""",
         )
 
         filter_group.add_argument(
@@ -467,3 +483,8 @@ class LogLevelAction(argparse.Action):
 def _read_json_file(file: str) -> dict:
     with open(file, "r") as fp:
         return json.load(fp)
+
+
+def _read_text_file(file: str) -> List[str]:
+    with open(file, "r") as fp:
+        return fp.read().splitlines()

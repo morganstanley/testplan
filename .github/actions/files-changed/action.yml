@@ -18,13 +18,16 @@ runs:
     - run: |
         import subprocess
         import json
+        import os
         paths = """
         ${{ inputs.paths }}
         """.strip().split("\n")
         cmd = "git --no-pager diff --name-only ${{ github.sha }} refs/remotes/origin/${{ github.base_ref }} --".split()
-        files = subprocess.check_output([*cmd, *paths], text=True)
-        print(files)
-        print("::set-output name=files::{}".format(json.dumps(files.split('\n'))))
-        print("::set-output name=changed::{}".format("true" if files else "false"))
+        files = subprocess.check_output([*cmd, *paths], text=True)        
+        print(files)        
+        output = os.environ["GITHUB_OUTPUT"]
+        with open(output,"at") as gh_output:
+          gh_output.write("files={}\n".format(json.dumps(files.split('\n'))))
+          gh_output.write(f"changed={'true' if files else 'false'}\n")
       id: get_diff
       shell: python

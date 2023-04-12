@@ -1,16 +1,16 @@
 """Child worker process module."""
 
+import argparse
+import logging
 import os
-import sys
-import time
+import platform
+import shutil
 import signal
 import socket
-import shutil
-import logging
-import argparse
-import platform
-import threading
 import subprocess
+import sys
+import threading
+import time
 import traceback
 
 
@@ -64,7 +64,7 @@ class ChildLoop:
     def _child_pool(self):
         # Local thread pool will not cleanup the previous layer runpath.
         self._pool = self._pool_type(
-            name="Pool_{}".format(self._metadata["pid"]),
+            name=f"Pool_{self._metadata['pid']}",
             worker_type=self._worker_type,
             size=self._pool_size,
             runpath=self.runpath,
@@ -76,14 +76,14 @@ class ChildLoop:
 
     def _handle_abort(self, signum, frame):
         self.logger.debug(
-            "Signal handler called for signal {} from {}".format(
-                signum, threading.current_thread()
-            )
+            "Signal handler called for signal %s from %s",
+            signum,
+            threading.current_thread(),
         )
         if self._pool:
             self._pool.abort()
             os.kill(os.getpid(), 9)
-            self.logger.debug("Pool {} aborted.".format(self._pool))
+            self.logger.debug("Pool %s aborted.", self._pool)
 
     def _setup_logfiles(self):
 
@@ -93,10 +93,10 @@ class ChildLoop:
             os.makedirs(self.runpath)
 
         stderr_file = os.path.join(
-            self.runpath, "{}_stderr".format(self._metadata["index"])
+            self.runpath, f"{self._metadata['index']}_stderr"
         )
         log_file = os.path.join(
-            self.runpath, "{}_stdout".format(self._metadata["index"])
+            self.runpath, f"{self._metadata['index']}_stdout"
         )
         self.logger.info(
             "stdout file = %(file)s (log level = %(lvl)s)",
@@ -126,7 +126,7 @@ class ChildLoop:
                 message.make(send), expect=expect
             )
         except AttributeError:
-            self.logger.critical("Pool seems dead, child exits2.")
+            self.logger.critical("Pool seems dead, child exits.")
             raise
 
     def _pre_loop_setup(self, message):
@@ -196,17 +196,15 @@ class ChildLoop:
                         message.make(message.Heartbeat, data=time.time())
                     )
                     if hb_resp is None:
-                        self.logger.critical("Pool seems dead, child exits1.")
+                        self.logger.critical("Pool seems dead, child exits.")
                         self.exit_loop()
                         break
                     else:
                         self.logger.debug(
-                            "Pool heartbeat response:"
-                            " {} at {} before {}s.".format(
-                                hb_resp.cmd,
-                                hb_resp.data,
-                                time.time() - hb_resp.data,
-                            )
+                            "Pool heartbeat response: %s at %s before %ss.",
+                            hb_resp.cmd,
+                            hb_resp.data,
+                            time.time() - hb_resp.data,
                         )
                     next_heartbeat = now + self._pool_cfg.worker_heartbeat
 
@@ -216,9 +214,8 @@ class ChildLoop:
                     for uid in list(self._pool.results.keys()):
                         task_results.append(self._pool.results[uid])
                         self.logger.debug(
-                            "Sending back result for {}".format(
-                                self._pool.results[uid].task
-                            )
+                            "Sending back result for %s",
+                            self._pool.results[uid].task,
                         )
                         del self._pool.results[uid]
                     self._transport.send_and_receive(
@@ -247,9 +244,7 @@ class ChildLoop:
                         next_possible_request = time.time()
                         request_delay = 0
                         for task in received.data:
-                            self.logger.debug(
-                                "Added {} to local pool".format(task)
-                            )
+                            self.logger.debug("Added %s to local pool", task)
                             self._pool.add(task, task.uid())
                         # Reset workers request counters
                         for worker in self._pool._workers:
@@ -262,7 +257,7 @@ class ChildLoop:
                         next_possible_request = time.time() + request_delay
                         pass
                 time.sleep(self._pool_cfg.active_loop_sleep)
-        self.logger.info("Local pool {} stopped.".format(self._pool))
+        self.logger.info("Local pool %s stopped.", self._pool)
 
     def exit_loop(self):
         self._pool.abort()
@@ -306,10 +301,10 @@ class RemoteChildLoop(ChildLoop):
     def exit_loop(self):
         if self._setup_metadata.delete_pushed:
             for item in self._setup_metadata.push_dirs:
-                self.logger.test_info("Removing directory: {}".format(item))
+                self.logger.test_info("Removing directory: %s", item)
                 shutil.rmtree(item, ignore_errors=True)
             for item in self._setup_metadata.push_files:
-                self.logger.test_info("Removing file: {}".format(item))
+                self.logger.test_info("Removing file: %s", item)
                 os.remove(item)
 
         super(RemoteChildLoop, self).exit_loop()
@@ -333,15 +328,12 @@ def child_logic(args):
         TESTPLAN_LOGGER.removeHandler(STDOUT_HANDLER)
 
     print(
-        "Starting child process worker on {}, {} with parent {}".format(
-            socket.gethostname(),
-            os.getpid(),
-            psutil.Process(os.getpid()).ppid(),
-        )
+        f"Starting child process worker on {socket.gethostname()},"
+        f" {os.getpid()} with parent {psutil.Process(os.getpid()).ppid()}"
     )
 
     if args.runpath:
-        print("Removing old runpath: {}".format(args.runpath))
+        print(f"Removing old runpath: {args.runpath}")
         shutil.rmtree(args.runpath, ignore_errors=True)
 
     class NoRunpathPool(Pool):
@@ -405,13 +397,23 @@ def child_logic(args):
         loop.worker_loop()
 
 
-def parse_syspath_file(filename):
+def process_syspath_file(filename, working_dir=None):
     """
-    Read and parse the syspath file, which should contain each sys.path entry
-    on a separate line.
+    Process the syspath file, which should contain one sys.path entry per line
+    Since we might be on a remote host, we need to check the accessibility of
+    those entries. And we should always be able to directly access modules in
+    the working directory. The result is written back to the original file for
+    bookkeeping.
     """
     with open(filename) as f:
         new_syspath = f.read().split("\n")
+    new_syspath = list(filter(os.path.exists, new_syspath))
+
+    if working_dir is not None:
+        new_syspath.insert(0, working_dir)
+
+    with open(filename, "w") as f:
+        f.write("\n".join(new_syspath))
 
     return new_syspath
 
@@ -426,7 +428,7 @@ if __name__ == "__main__":
         os.environ["PWD"] = ARGS.wd
 
     if ARGS.sys_path_file:
-        sys.path = parse_syspath_file(ARGS.sys_path_file)
+        sys.path = process_syspath_file(ARGS.sys_path_file, ARGS.wd)
 
     # upfront import to speed-up execution
     import testplan

@@ -265,7 +265,7 @@ const getAssertions = (selectedEntries, displayTime) => {
           (format(new Date(
             idx === -1 ? links[i].utc_time :
               links[i].utc_time.substring(0, idx)),
-            "hh:mm:ss.SSS")
+            "HH:mm:ss.SSS")
           ) + " UTC" : "");
       }
       for (let i = 0; i < links.length - 1; ++i) {
@@ -336,6 +336,26 @@ const GetSelectedEntries = (selectedUIDs, report) => {
   }
 };
 
+/**
+  * Auto-select the first failed entry in the report when it is first loaded.
+  * @param {reportNode} reportEntry - the current report entry to select from.
+  * @return {Array[string]} List of UIDs of the currently selected entries.
+  */
+const findFirstFailure = (reportEntry) => {
+  if (reportEntry.category === "testcase"
+    || reportEntry.entries.length === 0) {
+    return [reportEntry.uid];
+  } else {
+    for (let entry in reportEntry.entries) {
+      if (reportEntry.entries[entry].status === "failed"
+        || reportEntry.entries[entry].status === "error") {
+        return [reportEntry.uid].concat(
+          findFirstFailure(reportEntry.entries[entry])
+        );
+      }
+    }
+  }
+};
 
 const filterReport = (report, filter) => {
 
@@ -373,6 +393,7 @@ export {
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
+  findFirstFailure,
   filterReport,
   isValidSelection,
   getSelectedUIDsFromPath,

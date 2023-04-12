@@ -476,5 +476,5 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         return self.cfg.metadata_extractor(self)
         # pylint: enable=not-callable
 
-    def __repr__(self):
-        return f"{self.__class__.__name__} driver [{self.name}]"
+    def __str__(self):
+        return f"{self.__class__.__name__}[{self.name}]"

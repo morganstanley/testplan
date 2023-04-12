@@ -1,16 +1,18 @@
 """Remote worker pool functional tests."""
 
 import os
-import pytest
 import shutil
 import tempfile
 
+import pytest
+
 from testplan.common.utils.process import execute_cmd
-from testplan.common.utils.remote import filepath_exist_cmd, ssh_cmd
+from testplan.common.utils.remote import ssh_cmd
 from testplan.report import Status
 from testplan.runners.pools.remote import RemotePool
-
-from .func_pool_base_tasks import schedule_tests_to_pool
+from tests.functional.testplan.runners.pools.test_pool_base import (
+    schedule_tests_to_pool,
+)
 
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
 pytestmark = pytest.mark.skipif(
@@ -92,6 +94,7 @@ def test_materialization_fail(mockplan):
         name=pool_name,
         hosts={REMOTE_HOST: 1},
         workspace_exclude=["*"],  # effectively not copy anything
+        clean_remote=True,
     )
     mockplan.add_resource(pool)
 

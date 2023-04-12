@@ -88,7 +88,7 @@ def result_for_failed_task(original_result):
     result.report = TestGroupReport(
         name=original_result.task.name, category=ReportCategories.ERROR
     )
-    attrs = [attr for attr in original_result.task.all_attrs]
+    attrs = [attr for attr in original_result.task.serializable_attrs]
     result_lines = [
         "{}: {}".format(attr, getattr(original_result.task, attr))
         if getattr(original_result.task, attr, None)
@@ -128,7 +128,7 @@ class TestRunnerConfig(RunnableConfig):
         return {
             "name": str,
             ConfigOption("description", default=None): Or(str, None),
-            ConfigOption("logger_level", default=logger.TEST_INFO): int,
+            ConfigOption("logger_level", default=logger.USER_INFO): int,
             ConfigOption("file_log_level", default=logger.DEBUG): int,
             ConfigOption("runpath", default=default_runpath): Or(
                 None, str, lambda x: callable(x)
@@ -353,6 +353,9 @@ class TestRunner(Runnable):
         self._runnable_uids = set()
         self._verified_targets = {}  # target object id -> runnable uid
 
+    def __str__(self):
+        return f"Testplan[{self.uid()}]"
+
     @property
     def report(self):
         """Tests report."""
@@ -485,7 +488,7 @@ class TestRunner(Runnable):
     def _stop_remote_services(self):
 
         for name, rmt_svc in self.remote_services.items():
-            self.logger.debug(f"Stopping Remote Server {name}")
+            self.logger.info("Stopping Remote Server %s", name)
             rmt_svc.stop()
 
     def discover(
@@ -549,31 +552,65 @@ class TestRunner(Runnable):
                                         " contain dict/tuple/list, but"
                                         " received: {param}"
                                     )
-                        self.logger.debug(
-                            "Task created with arguments: %s", task_arguments
-                        )
-                        task = Task(**task_arguments)
-                        uid = self._verify_test_target(task)
-
-                        # nothing to run
-                        if not uid:
-                            continue
-
-                        if getattr(target, "__multitest_parts__", None):
-
-                            # TODO: add auto parts and smart scheduling here
-
-                            num_of_parts = target.__multitest_parts__
-                            for i in range(num_of_parts):
-                                task_arguments["part"] = (i, num_of_parts)
+                                task_arguments["part"] = None
                                 self.logger.debug(
                                     "Task created with arguments: %s",
                                     task_arguments,
                                 )
-                                tasks.append(Task(**task_arguments))
+                                task = Task(**task_arguments)
+                                uid = self._verify_test_target(task)
 
+                                # nothing to run
+                                if not uid:
+                                    continue
+
+                                if getattr(
+                                    target, "__multitest_parts__", None
+                                ):
+
+                                    # TODO: add auto parts and smart scheduling here
+
+                                    num_of_parts = target.__multitest_parts__
+                                    for i in range(num_of_parts):
+                                        task_arguments["part"] = (
+                                            i,
+                                            num_of_parts,
+                                        )
+                                        self.logger.debug(
+                                            "Task created with arguments: %s",
+                                            task_arguments,
+                                        )
+                                        tasks.append(Task(**task_arguments))
+
+                                else:
+                                    tasks.append(task)
                         else:
-                            tasks.append(task)
+                            self.logger.debug(
+                                "Task created with arguments: %s",
+                                task_arguments,
+                            )
+                            task = Task(**task_arguments)
+                            uid = self._verify_test_target(task)
+
+                            # nothing to run
+                            if not uid:
+                                continue
+
+                            if getattr(target, "__multitest_parts__", None):
+
+                                # TODO: add auto parts and smart scheduling here
+
+                                num_of_parts = target.__multitest_parts__
+                                for i in range(num_of_parts):
+                                    task_arguments["part"] = (i, num_of_parts)
+                                    self.logger.debug(
+                                        "Task created with arguments: %s",
+                                        task_arguments,
+                                    )
+                                    tasks.append(Task(**task_arguments))
+
+                            else:
+                                tasks.append(task)
 
         return tasks
 
@@ -771,10 +808,6 @@ class TestRunner(Runnable):
 
         return uid
 
-    def _add_step(self, step: Callable, *args, **kwargs):
-        if self.cfg.test_lister is None:
-            super(TestRunner, self)._add_step(step, *args, **kwargs)
-
     def _record_start(self):
         self.report.timer.start("run")
 
@@ -790,8 +823,8 @@ class TestRunner(Runnable):
                 "{} runpath cannot be None".format(self.__class__.__name__)
             )
 
-        self.logger.test_info(
-            f"Testplan has runpath: {self._runpath} and pid {os.getpid()}"
+        self.logger.user_info(
+            "Testplan has runpath: %s and pid %s", self._runpath, os.getpid()
         )
 
         self._scratch = os.path.join(self._runpath, "scratch")
@@ -848,9 +881,8 @@ class TestRunner(Runnable):
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
                 self.result.test_report.logger.error(
-                    "Timeout: Aborting execution after {} seconds".format(
-                        self.cfg.timeout
-                    )
+                    "Timeout: Aborting execution after %d seconds",
+                    self.cfg.timeout,
                 )
                 # Abort dependencies, wait sometime till test reports are ready
                 for dep in self.abort_dependencies():
@@ -924,8 +956,7 @@ class TestRunner(Runnable):
                             runnable = resource_result.task.materialize()
                             runnable.parent = self
                             runnable.cfg.parent = self.cfg
-                            runnable.cfg._options["part"] = None
-                            runnable._test_context = None
+                            runnable.unset_part()
                             report = runnable.dry_run().report
 
                         else:
@@ -1160,3 +1191,13 @@ class TestRunner(Runnable):
             self._file_log_handler.close()
             logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
             self._file_log_handler = None
+
+    def run(self):
+        """
+        Executes the defined steps and populates the result object.
+        """
+        if self.cfg.test_lister:
+            self._result.run = True
+            return self._result
+
+        return super(TestRunner, self).run()

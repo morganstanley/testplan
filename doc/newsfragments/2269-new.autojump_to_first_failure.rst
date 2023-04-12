@@ -1,0 +1,1 @@
+The report tool now open the first failed testcase by default.

@@ -3,14 +3,14 @@ Driver for Kafka server
 """
 import os
 import re
+import socket
+from typing import List, Optional
+
+from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.documentation_helper import emphasized
-from testplan.common.utils.path import (
-    makeemptydirs,
-    makedirs,
-    instantiate,
-)
+from testplan.common.utils.path import instantiate, makedirs, makeemptydirs
 from testplan.testing.multitest.driver import app
 
 KAFKA_START = "/opt/kafka/bin/kafka-server-start.sh"
@@ -26,6 +26,7 @@ class KafkaStandaloneConfig(app.AppConfig):
     def get_options(cls):
         return {
             ConfigOption("cfg_template"): str,
+            ConfigOption("host"): Or(str, None),
             ConfigOption("port"): int,
         }
 
@@ -49,7 +50,13 @@ class KafkaStandalone(app.App):
     CONFIG = KafkaStandaloneConfig
 
     def __init__(
-        self, name, cfg_template, binary=KAFKA_START, port=0, **options
+        self,
+        name: str,
+        cfg_template: str,
+        binary: str = KAFKA_START,
+        host: Optional[str] = None,
+        port: int = 0,
+        **options
     ):
         stdout_regexps = [
             re.compile(
@@ -61,25 +68,37 @@ class KafkaStandalone(app.App):
             name=name,
             cfg_template=cfg_template,
             binary=binary,
+            host=host,
             port=port,
             stdout_regexps=stdout_regexps,
             **options
         )
 
-        self.zookeeper_connect = None
         self.log_path = None
         self.etc_path = None
         self.config = None
+        self._host = host
         self._port = port
 
     @emphasized
     @property
-    def port(self):
+    def host(self) -> str:
+        """Host to bind to."""
+        if self._host is None:
+            raise RuntimeError(
+                "Host not resolved yet, shouldn't be accessed now."
+            )
+        return self._host
+
+    @emphasized
+    @property
+    def port(self) -> int:
         """Port to listen on."""
         return self._port
 
     def pre_start(self):
         super(KafkaStandalone, self).pre_start()
+        self._host = self._host or socket.getfqdn()
         self.log_path = os.path.join(self.runpath, "log")
         self.etc_path = os.path.join(self.runpath, "etc")
         for directory in (self.log_path, self.etc_path):
@@ -91,11 +110,12 @@ class KafkaStandalone(app.App):
         instantiate(self.cfg.cfg_template, self.context_input(), self.config)
 
     @property
-    def cmd(self):
+    def cmd(self) -> List[str]:
         return [self.cfg.binary, self.config]
 
-    def started_check(self, timeout=None):
+    def started_check(self, timeout: Optional[float] = None):
         """Driver started status condition check."""
 
         super(KafkaStandalone, self).started_check(timeout)
         self._port = int(self.extracts["port"])
+        self.logger.info("%s listening on %s:%s", self, self._host, self._port)

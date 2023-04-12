@@ -777,12 +777,12 @@ While passing command line arguments use tag values directly for simple tag matc
 
 Tag format
 ++++++++++
-Tag values and names can consist of alphanumerical characters, as well as dash
-('`-`') and underscore ('`_`') and whitespace. However they cannot start & end
-with these special characters.
+Tag values and names can consist of alphanumerical characters, as well as
+underscore, dash, parentheses ``_-)(``, and can also contain whitespaces.
+However they cannot start or end with these special characters.
 
-    * Valid: ``tagA``, ``tag-A``, ``tag_A``
-    * Invalid: ``-tagA``, ``_tagA_``, ``' tagA '``
+    * Valid: ``tagA``, ``tag-A``, ``tag_A``, ``tag()A``, ``'tag A'``
+    * Invalid: ``-tagA``, ``tagA_``, ``(tagA)``, ``' tagA '``
 
 
 Simple tags vs named tags

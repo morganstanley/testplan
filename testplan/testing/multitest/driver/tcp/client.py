@@ -3,11 +3,11 @@
 import socket
 from typing import Union, Tuple, Optional
 
-from schema import Use, Or
-
+from schema import Or
+from testplan.common.utils import networking
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 from testplan.common.config import ConfigOption
-from testplan.common.utils.context import is_context, expand, ContextValue
+from testplan.common.utils.context import expand, ContextValue
 from testplan.common.utils.sockets import Client
 
 from ..base import Driver, DriverConfig
@@ -25,8 +25,8 @@ class TCPClientConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            "host": Or(str, lambda x: is_context(x)),
-            "port": Or(Use(int), lambda x: is_context(x)),
+            "host": Or(str, ContextValue),
+            "port": Or(int, str, ContextValue),
             ConfigOption("interface", default=None): Or(None, tuple),
             ConfigOption("connect_at_start", default=True): bool,
         }
@@ -67,7 +67,7 @@ class TCPClient(Driver):
         self,
         name: str,
         host: Union[str, ContextValue],
-        port: Union[int, ContextValue],
+        port: Union[int, str, ContextValue],
         interface: Optional[Union[str, Tuple[str, int]]] = None,
         connect_at_start: bool = True,
         **options
@@ -167,7 +167,9 @@ class TCPClient(Driver):
         """Start the TCP client and optionally connect to host/post."""
         super(TCPClient, self).starting()
         self._server_host = expand(self.cfg.host, self.context)
-        self._server_port = expand(self.cfg.port, self.context, int)
+        self._server_port = networking.port_to_int(
+            expand(self.cfg.port, self.context)
+        )
         self._client = Client(host=self._server_host, port=self._server_port)
         if self.cfg.connect_at_start:
             self.connect()

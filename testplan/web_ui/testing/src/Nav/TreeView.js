@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import base64url from 'base64url';
 import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -8,8 +9,14 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import { css, StyleSheet } from 'aphrodite';
 import Column from './Column';
 import NavEntry from './NavEntry';
+import InteractiveNavEntry from './InteractiveNavEntry';
 import { applyAllFilters } from './navUtils';
-import { STATUS, MEDIUM_GREY } from "../Common/defaults";
+import {
+    STATUS,
+    MEDIUM_GREY,
+    RUNTIME_STATUS,
+    NAV_ENTRY_ACTIONS,
+} from "../Common/defaults";
 import { CATEGORIES } from "../Common/defaults";
 import { generatePath } from 'react-router';
 import { NavLink } from 'react-router-dom';
@@ -18,106 +25,111 @@ import { makeStyles } from '@material-ui/core/styles';
 import { generateURLWithParameters } from "../Common/utils";
 
 const TreeViewNav = (props) => {
-  const [expanded, setExpanded] = React.useState(null);
+    const [expanded, setExpanded] = React.useState(null);
 
-  React.useEffect(() => {
-    // Allow multi expanded
-    if (expanded !== null || _.isEmpty(props.selected)) {
-      return;
-    }
-    let defaultExpanded = [];
-    for(const uid of props.selected[props.selected.length - 1].uids) {
-      if (_.isEmpty(defaultExpanded)) {
-        defaultExpanded.push(uid);
-      } else {
-        defaultExpanded.push(
-          `${defaultExpanded[defaultExpanded.length-1]}/${uid}`
-        );
-      }
-    }
-    setExpanded(defaultExpanded);
-  }, [props.selectedUid, props.selected, expanded]);
+    React.useEffect(() => {
+        // Allow multi expanded
+        if (expanded !== null || _.isEmpty(props.selected)) {
+            return;
+        }
+        let defaultExpanded = [];
+        for(const uid of props.selected[props.selected.length - 1].uids) {
+            if (_.isEmpty(defaultExpanded)) {
+                defaultExpanded.push(uid);
+            } else {
+                defaultExpanded.push(
+                `${defaultExpanded[defaultExpanded.length-1]}/${uid}`
+                );
+            }
+        }
+        setExpanded(defaultExpanded);
+    }, [props.selectedUid, props.selected, expanded]);
 
 
-  const handleToggle = (event, nodeIds) => {
-    setExpanded(nodeIds);
-  };
+    const handleToggle = (event, nodeIds) => {
+        setExpanded(nodeIds);
+    };
 
-  const handleDoubleClick = (nodeId) => {
-    if(expanded.includes(nodeId)) {
-      setExpanded(expanded.filter( id => id !== nodeId));
-    }
-    else
-    {
-      setExpanded([...expanded, nodeId]);
-    }
-  };
+    const handleDoubleClick = (nodeId) => {
+        if(expanded.includes(nodeId)) {
+            setExpanded(expanded.filter( id => id !== nodeId));
+        }
+        else
+        {
+            setExpanded([...expanded, nodeId]);
+        }
+    };
 
-  return (
-    <>
-      <Column
-        width={props.width}
-        handleColumnResizing={props.handleColumnResizing}
-      >
-        <TreeView
-          selected={[
-            _.isEmpty(props.selected)
-            ? props.selectedUid
-            : props.selected[props.selected.length - 1].uids.join("/")
-          ]}
-          expanded={expanded}
-          className={css(styles.treeView)}
-          disableSelection={true}
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          onNodeToggle={handleToggle}
-        >
-          {
-            <Tree
-              entries={props.entries}
-              displayEmpty={props.displayEmpty}
-              filter={props.filter}
-              url={props.url}
-              displayTags={props.displayTags}
-              displayTime={props.displayTime}
-              doubleClickCallback={handleDoubleClick}
-            />
-          }
-        </TreeView>
-      </Column>
-    </>
-  );
+    return (
+        <>
+            <Column
+                width={props.width}
+                handleColumnResizing={props.handleColumnResizing}
+            >
+                <TreeView
+                    selected={[
+                    _.isEmpty(props.selected)
+                    ? props.selectedUid
+                    : props.selected[props.selected.length - 1].uids.join("/")
+                    ]}
+                    expanded={expanded}
+                    className={css(styles.treeView)}
+                    disableSelection={true}
+                    defaultCollapseIcon={<ExpandMoreIcon />}
+                    defaultExpandIcon={<ChevronRightIcon />}
+                    onNodeToggle={handleToggle}
+                >
+                {
+                    <Tree
+                        interactive={props.interactive}
+                        entries={props.entries}
+                        displayEmpty={props.displayEmpty}
+                        filter={props.filter}
+                        url={props.url}
+                        displayTags={props.displayTags}
+                        displayTime={props.displayTime}
+                        doubleClickCallback={handleDoubleClick}
+                        handleClick={props.handleClick}
+                        envCtrlCallback={props.envCtrlCallback}
+                    />
+                }
+                </TreeView>
+            </Column>
+        </>
+    );
 };
 
 
 TreeViewNav.propTypes = {
-  /** Nav list entries to be displayed */
-  entries: PropTypes.arrayOf(PropTypes.shape({
-    uid: PropTypes.string,
-    name: PropTypes.string,
-    description: PropTypes.string,
-    status: PropTypes.oneOf(STATUS),
-    counter: PropTypes.shape({
-      passed: PropTypes.number,
-      failed: PropTypes.number,
-    }),
-  })),
-  /** Number of entries in the breadcrumb menu */
-  breadcrumbLength: PropTypes.number,
-  /** Function to handle Nav list resizing */
-  handleColumnResizing: PropTypes.func,
-  /** Entity filter */
-  filter: PropTypes.string,
-  /** Flag to display empty testcase on navbar */
-  displayEmpty: PropTypes.bool,
-  /** Flag to display tags on navbar */
-  displayTags: PropTypes.bool,
-  /** Flag to display execution time on navbar */
-  displayTime: PropTypes.bool,
-  /** Entry uid to be focused */
-  selectedUid: PropTypes.string,
+    /** Nav list entries to be displayed */
+    entries: PropTypes.arrayOf(PropTypes.shape({
+        uid: PropTypes.string,
+        name: PropTypes.string,
+        description: PropTypes.string,
+        status: PropTypes.oneOf(STATUS),
+        runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
+        action: PropTypes.oneOf(NAV_ENTRY_ACTIONS),
+        counter: PropTypes.shape({
+            passed: PropTypes.number,
+            failed: PropTypes.number,
+        }),
+    })),
+    /** Number of entries in the breadcrumb menu */
+    breadcrumbLength: PropTypes.number,
+    /** Function to handle Nav list resizing */
+    handleColumnResizing: PropTypes.func,
+    /** Entity filter */
+    filter: PropTypes.string,
+    /** Flag to display empty testcase on navbar */
+    displayEmpty: PropTypes.bool,
+    /** Flag to display tags on navbar */
+    displayTags: PropTypes.bool,
+    /** Flag to display execution time on navbar */
+    displayTime: PropTypes.bool,
+    /** Entry uid to be focused */
+    selectedUid: PropTypes.string,
 
-  url: PropTypes.string
+    url: PropTypes.string
 };
 
 export default TreeViewNav;
@@ -127,6 +139,7 @@ const Tree = (props) => {
   return Array.isArray(entries) ?
     entries.map((entry) =>
       <Node
+        interactive={props.interactive}
         key={entry.uids? entry.uids.join('/'): entry.hash || entry.uid}
         displayEmpty
         displayTags={props.displayTags}
@@ -136,6 +149,8 @@ const Tree = (props) => {
         url={props.url}
         entry={entry}
         doubleClickCallback={props.doubleClickCallback}
+        handleClick={props.handleClick}
+        envCtrlCallback={props.envCtrlCallback}
       />) : null;
 };
 
@@ -154,7 +169,9 @@ const filterEntriesOfEntry = (entry, filter, displayEmpty) => {
 };
 
 const Node = (props) => {
-  let [reportuid, ...selectionuids] = props.entry.uids;
+  let [reportuid, ...selectionuids] = !props.interactive ? props.entry.uids : (
+    base64url ? props.entry.uids.map(base64url) : props.entry.uids
+  );
   const linkTo = generateURLWithParameters(
     window.location,
     generatePath(
@@ -211,6 +228,7 @@ const continueTreeBranch = (props, entry) => {
   return Array.isArray(entry.entries) ?
     entry.entries.map((entry) =>
       <Node
+        interactive={props.interactive}
         key={entry.uids? entry.uids.join('/'): entry.hash || entry.uid}
         displayEmpty
         displayTags={props.displayTags}
@@ -220,23 +238,55 @@ const continueTreeBranch = (props, entry) => {
         url={props.url}
         entry={entry}
         doubleClickCallback={props.doubleClickCallback}
+        handleClick={props.handleClick}
+        envCtrlCallback={props.envCtrlCallback}
       />) : null;
 };
 
 const createNavEntry = (props, entry) => {
-  return (
-    <NavEntry
-      name={entry.name}
-      description={entry.description}
-      status={entry.status}
-      type={entry.category}
-      caseCountPassed={entry.counter.passed}
-      caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
-      executionTime={(entry.timer && entry.timer.run) ? (
-        (new Date(entry.timer.run.end)).getTime() -
-        (new Date(entry.timer.run.start)).getTime()) : null}
-      displayTime={props.displayTime} />
-  );
+    if (props.interactive) {
+        return (
+            <InteractiveNavEntry
+                key={entry.hash || entry.uid}
+                name={_.isEmpty(entry.part) ? entry.name : entry.uid}
+                description={entry.description}
+                status={entry.status}
+                runtime_status={entry.runtime_status}
+                envStatus={entry.env_status}
+                type={entry.category}
+                caseCountPassed={entry.counter.passed}
+                caseCountFailed={
+                    entry.counter.failed + (entry.counter.error || 0)
+                }
+                handleClick={
+                    (e, action) => props.handleClick(e, entry, action)
+                }
+                envCtrlCallback={
+                    (e, action) => props.envCtrlCallback(e, entry, action)
+                }
+                suiteRelated={entry.suite_related}
+                action={entry.action}
+            />
+        );
+    }
+    else {
+        return (
+            <NavEntry
+                name={entry.name}
+                description={entry.description}
+                status={entry.status}
+                type={entry.category}
+                caseCountPassed={entry.counter.passed}
+                caseCountFailed={
+                    entry.counter.failed + (entry.counter.error || 0)
+                }
+                executionTime={(entry.timer && entry.timer.run) ? (
+                (new Date(entry.timer.run.end)).getTime() -
+                (new Date(entry.timer.run.start)).getTime()) : null}
+                displayTime={props.displayTime}
+             />
+        );
+    }
 };
 
 const getTreeViewStyles = makeStyles({

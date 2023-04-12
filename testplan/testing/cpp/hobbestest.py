@@ -1,20 +1,19 @@
+import json
+import os
+
 from schema import Or
 
 from testplan.common.config import ConfigOption
-
 from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
     ReportCategories,
     RuntimeStatus,
+    TestCaseReport,
+    TestGroupReport,
 )
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
 from ..base import ProcessRunnerTest, ProcessRunnerTestConfig
-
-import os
-import json
 
 
 class HobbesTestConfig(ProcessRunnerTestConfig):
@@ -182,7 +181,7 @@ class HobbesTest(ProcessRunnerTest):
 
         # At the beginning no testcase exists in test suite
         if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
-            self.logger.debug(
+            self.logger.user_info(
                 'Should run testcases in pattern "%s", but cannot run'
                 " individual testcases thus will run the whole test suite",
                 testcase_pattern,

@@ -35,3 +35,9 @@ Built-in drivers
     * :py:class:`Sqlite3 <testplan.testing.multitest.driver.sqlite.Sqlite3>`
       to connect to a database and perform sql queries etc. Examples can be
       found :ref:`here <example_sqlite3>`.
+
+    * :py:class:`ZookeeperStandalone <testplan.testing.multitest.driver.zookeeper.ZookeeperStandalone>`
+      to start one standalone Zookeeper instance. Examples can be found :ref:`here <example_zookeeper>`.
+
+    * :py:class:`KafkaStandalone <testplan.testing.multitest.driver.kafka.KafkaStandalone>`
+      to start one standalone Kafka instance. Examples can be found :ref:`here <example_kafka>`.
