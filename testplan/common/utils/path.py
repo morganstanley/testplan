@@ -8,6 +8,7 @@ import getpass
 import contextlib
 import tempfile
 import hashlib
+from io import TextIOWrapper
 
 from testplan.common.utils.context import render
 from memoization import cached
@@ -150,7 +151,7 @@ class StdFiles:
     stderr and stdout file creation and management
     """
 
-    def __init__(self, directory):
+    def __init__(self, directory) -> None:
         """
         Create files and initialize fds
         """
@@ -160,15 +161,15 @@ class StdFiles:
         self.err = open(self.err_path, "w")
         self.out = open(self.out_path, "w")
 
-    def open_out(self):
-        """Open the stdout file with read access"""
-        return open(self.out_path, "r")
+    def open_out(self, mode: str = "r") -> TextIOWrapper:
+        """Open the stdout file with the defined access"""
+        return open(self.out_path, mode)
 
-    def open_err(self):
-        """Open the stderr file with read access"""
-        return open(self.err_path, "r")
+    def open_err(self, mode: str = "r") -> TextIOWrapper:
+        """Open the stderr file with the defined access"""
+        return open(self.err_path, mode)
 
-    def close(self):
+    def close(self) -> None:
         """
         Close fds
         """
