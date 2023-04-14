@@ -49,6 +49,9 @@ class BaseExporter(Configurable):
         self._cfg = self.CONFIG(name=name, **options)
         super().__init__()
 
+    def __str__(self):
+        return f"{self.__class__.__name__}[{self.name}]"
+
     @property
     def name(self):
         return self.cfg.name
