@@ -1,0 +1,1 @@
+Added :py:class:`RotationStrategy <testplan.common.utils.match.RotationStrategy>` abstract class that users can extend to enhance LogMatcher to support log file rotation.
