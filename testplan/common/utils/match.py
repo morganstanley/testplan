@@ -98,6 +98,11 @@ class RotationStrategy(object, metaclass=ABCMeta):
     matching in log files. Implement all abstract methods if you
     need to subclass this class.
     """
+    @property
+    @abstractmethod
+    def file_position(self):
+        """Property for current log_path position"""
+        raise NotImplementedError
 
     @abstractmethod
     def open_logfile_in_position(self, file_position, mode) -> LogFilePosition:
