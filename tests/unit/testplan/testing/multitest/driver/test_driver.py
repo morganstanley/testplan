@@ -32,7 +32,9 @@ class TestPrePostCallables:
 
     class MyDriver(base.Driver):
         def __init__(self, **options):
-            super(TestPrePostCallables.MyDriver, self).__init__(**options)
+            super(TestPrePostCallables.MyDriver, self).__init__(
+                async_start=False, **options
+            )
             self.pre_start_called = False
             self.post_start_called = False
             self.pre_stop_called = False

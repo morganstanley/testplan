@@ -33,6 +33,7 @@
         "sphinx_rtd_theme",
         "setuptools",
         "pytest",
+        "pytest-mock",
         "py",
         "psutil",
         "schema",
@@ -60,6 +61,7 @@
         "coverage",
         "typing_extensions",
         "dill",
+        "pulp",
     ]
     requires-python = ">=3.7"
 
