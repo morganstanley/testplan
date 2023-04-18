@@ -1,12 +1,11 @@
 import os
 import re
-import itertools
 import tempfile
 
 import pytest
 
-from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 from testplan.common.utils import timing
+from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 
 
 @pytest.yield_fixture(scope="module")
@@ -115,7 +114,9 @@ class TestLogMatcher:
         # It shouldn't find this string as it has moved past this position.
         first_string = re.compile(r"first")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=first_string, timeout=0.5)
+            matcher.match(
+                regex=first_string, timeout=0.5, raise_on_timeout=True
+            )
 
     def test_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
@@ -129,7 +130,7 @@ class TestLogMatcher:
         matcher = LogMatcher(log_path=basic_logfile)
         regex_exp = re.compile(b"bob")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=regex_exp, timeout=0.5)
+            matcher.match(regex=regex_exp, timeout=0.5, raise_on_timeout=True)
 
     def test_not_match(self, basic_logfile):
         """Does the LogMatcher raise an exception when match is found."""
@@ -209,7 +210,9 @@ class TestLogMatcher:
         # Check that the LogMatcher can find the last 'Match me!' line in a
         # reasonable length of time. 10s is a very generous timeout, most
         # of the time it should complete in <1s.
-        match = matcher.match(regex=r"^Match me!$", timeout=10)
+        match = matcher.match(
+            regex=r"^Match me!$", timeout=10, raise_on_timeout=False
+        )
 
         assert match is not None
         assert match.group(0) == "Match me!"

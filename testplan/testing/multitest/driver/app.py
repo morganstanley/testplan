@@ -24,7 +24,6 @@ from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import kill_process, subprocess_popen
-from testplan.common.utils.timing import wait
 
 from .base import Driver, DriverConfig, DriverMetadata
 
