@@ -2,7 +2,7 @@
 
 import errno
 import socket
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 from schema import Or, Use
 
@@ -12,6 +12,7 @@ from testplan.common.utils.context import ContextValue, expand, is_context
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.sockets import Codec
 from testplan.common.utils.sockets.fix.client import Client
+from testplan.common.utils.sockets.tls import TLSConfig
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.testing import FixMessage
 from testplan.common.utils.timing import (
@@ -48,6 +49,7 @@ class FixClientConfig(DriverConfig):
             ConfigOption("receive_timeout", default=30): Or(int, float),
             ConfigOption("logon_timeout", default=10): Or(int, float),
             ConfigOption("logoff_timeout", default=3): Or(int, float),
+            ConfigOption("tls_config", default=None): TLSConfig,
         }
 
 
@@ -101,6 +103,9 @@ class FixClient(Driver):
     :type logon_timeout: ``int`` or ``float``
     :param logoff_timeout: Timeout in seconds to wait for logoff response.
     :type logoff_timeout: ``int`` or ``float``
+    :param tls_config: If provided the connection will be encrypted
+    :type version: ``Optional[TLSConfig]``
+
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -127,6 +132,7 @@ class FixClient(Driver):
         receive_timeout: Union[int, float] = 30,
         logon_timeout: Union[int, float] = 10,
         logoff_timeout: Union[int, float] = 3,
+        tls_config: Optional[TLSConfig] = None,
         **options,
     ):
         options.update(self.filter_locals(locals()))
@@ -212,6 +218,7 @@ class FixClient(Driver):
             sendersub=self.cfg.sendersub,
             interface=self.cfg.interface,
             logger=self.logger,
+            tls_config=self.cfg.tls_config,
         )
 
         if self.cfg.connect_at_start or self.cfg.logon_at_start:

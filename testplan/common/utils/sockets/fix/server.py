@@ -2,11 +2,15 @@
 
 import errno
 import socket
+import ssl
+from typing import Optional
+
 import select
 import threading
 import queue
 
 from testplan.common.utils.sockets.fix.parser import FixParser
+from testplan.common.utils.sockets.tls import TLSConfig
 from testplan.common.utils.timing import (
     TimeoutException,
     TimeoutExceptionInfo,
@@ -114,6 +118,7 @@ class Server:
         port=0,
         version="FIX.4.2",
         logger=None,
+        tls_config: Optional[TLSConfig] = None,
     ):
         """
         Create a new FIX server.
@@ -145,6 +150,7 @@ class Server:
         self.msgclass = msgclass
         self.codec = codec
         self.log_callback = logger.debug if logger else lambda msg: None
+        self.tls_config = tls_config
 
         self._listening = False
 
@@ -153,10 +159,15 @@ class Server:
         self._first_sender = None
         self._first_target = None
 
-        self._socket = None
+        self._socket: socket.socket = None
         self._recv_thread = None
         self._lock = threading.Lock()
         self._pobj = select.poll()
+        self._ssl_context: ssl.SSLContext = (
+            self.tls_config.get_context(purpose=ssl.Purpose.CLIENT_AUTH)
+            if self.tls_config
+            else None
+        )
 
     @property
     def host(self):
@@ -248,6 +259,10 @@ class Server:
         Accept new inbound connection from socket.
         """
         connection, _ = self._socket.accept()
+        if self._ssl_context is not None:
+            connection = self._ssl_context.wrap_socket(
+                connection, server_side=True
+            )
         conn_details = ConnectionDetails(connection)
         self._conndetails_by_fd[connection.fileno()] = conn_details
         self._pobj.register(
