@@ -60,7 +60,7 @@ class TestConfig(RunnableConfig):
             ConfigOption("environment", default=[]): [
                 Or(Resource, RemoteDriver)
             ],
-            ConfigOption("dependency", default=None): Or(
+            ConfigOption("dependencies", default=None): Or(
                 None, Use(parse_dependency)
             ),
             ConfigOption("before_start", default=None): start_stop_signature,
@@ -149,8 +149,8 @@ class Test(Runnable):
             driver.cfg.parent = self.cfg
             self.resources.add(driver)
 
-        if self.cfg.dependency is not None:
-            self.resources.set_dependency(self.cfg.dependency)
+        if self.cfg.dependencies is not None:
+            self.resources.set_dependency(self.cfg.dependencies)
 
         self._test_context = None
         self._init_test_report()

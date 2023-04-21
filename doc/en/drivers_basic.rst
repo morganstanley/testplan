@@ -12,10 +12,10 @@ following properties:
     * Testplan can automatically schedule drivers based on the dependencies.
 
 Users can choose whether to specifiy driver dependencies explicitly with the
-dependency argument. If dependency is not set, the dependencies between drivers
+dependencies argument. If dependencies is not set, the dependencies between drivers
 will be interpreted as following: any driver in the environment list passed
 to MultiTest is allowed to depend on any other driver appearing earlier than
-itself in the list. With the dependency argument being used, Testplan could
+itself in the list. With the dependencies argument being used, Testplan could
 possibly schedule more drivers to start simultaneously, to reduce the overall
 test running time.
 
@@ -37,7 +37,7 @@ attributes and methods can be used inside the template.
     #  |            | <------ |               | <------ |             |
     #  --------------         -----------------         ---------------
 
-    # Without the dependency argument set, the order of drivers in the
+    # Without the dependencies argument set, the order of drivers in the
     # environment argument matters, i.e. "Application" must appear
     # after "Service", "Client" must appear after "Application".
 
@@ -51,7 +51,7 @@ attributes and methods can be used inside the template.
                port=context('app', '{{port}}'))
     ]
 
-    # Or with the dependency argument set, the order of drivers in the
+    # Or with the dependencies argument set, the order of drivers in the
     # environment argument no longer matters.
 
     client = Client(name='client',
@@ -65,7 +65,7 @@ attributes and methods can be used inside the template.
     environment=[
         client, application, service
     ],
-    dependency={
+    dependencies={
         service: application,
         application: client
     }

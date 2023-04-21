@@ -128,7 +128,7 @@ A MultiTest instance can be constructed from the following parameters:
   would typically be defined, as well as drivers for the interfaces that are
   required for interacting with it, such as network connections.
 
-* **Dependency**: The dependency is a dict with both keys and values of
+* **Dependencies**: The dependencies is a dict with both keys and values of
   :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>` or
   iterable collection of
   :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`.

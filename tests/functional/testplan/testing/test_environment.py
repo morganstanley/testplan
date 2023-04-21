@@ -74,10 +74,10 @@ class DriverGeneratorDict(dict):
 def test_testing_environment(mockplan, driver_dependencies, named_temp_file):
 
     drivers = DriverGeneratorDict(named_temp_file)
-    dependency = defaultdict(list)
+    dependencies = defaultdict(list)
     predicates = list()
     for side_a, side_b in driver_dependencies:
-        dependency[drivers[side_a]].append(drivers[side_b])
+        dependencies[drivers[side_a]].append(drivers[side_b])
         predicates.append(
             lambda line_of: line_of[f"{drivers[side_a].name}_POST"]
             < line_of[f"{drivers[side_b].name}_PRE"]
@@ -89,7 +89,7 @@ def test_testing_environment(mockplan, driver_dependencies, named_temp_file):
             name="MyTest",
             binary=binary_path,
             environment=list(drivers.values()),
-            dependency=dependency,
+            dependencies=dependencies,
         ),
         resource="I'm not local.",
     )

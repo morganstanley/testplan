@@ -1399,6 +1399,12 @@ class Resource(Entity):
 
         :param timeout: timeout in seconds
         """
+        self._after_started()
+
+    def _after_started(self):
+        """
+        Common logic after a successful Resource start.
+        """
         self.status.change(self.STATUS.STARTED)
         self.post_start()
         if self.cfg.post_start:
@@ -1409,6 +1415,12 @@ class Resource(Entity):
         Changes status to STOPPED, if possible.
 
         :param timeout: timeout in seconds
+        """
+        self._after_stopped()
+
+    def _after_stopped(self):
+        """
+        Common logic after a successful Resource stop.
         """
         self.status.change(self.STATUS.STOPPED)
         self.post_stop()

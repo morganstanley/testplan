@@ -244,7 +244,10 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
     @property
     def started_check_interval(self) -> PollInterval:
-        """Driver started check interval."""
+        """
+        Driver started check interval.
+        In practice this value is lower-bounded by 0.1 seconds.
+        """
         return DEFAULT_INTERVAL
 
     @property
