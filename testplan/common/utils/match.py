@@ -121,8 +121,9 @@ class LogMatcher(logger.Loggable):
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
         :param timeout: Timeout in seconds to wait for matching process,
-            0 means should not wait and return whatever matched on initial
-            scan, defaults to 5 seconds
+            0 means matching till EOF and not waiting for new lines, any
+            value greater than 0 means doing matching up to such seconds,
+            defaults to 5 seconds
         :param raise_on_timeout: To raise TimeoutException or not
         :return: The regex match or None if no match is found
         """
@@ -141,16 +142,16 @@ class LogMatcher(logger.Loggable):
         with open(self.log_path, read_mode) as log:
             log.seek(self.position)
 
-            while match is None:
+            while True:
+                if timeout > 0 and time.time() > end_time:
+                    break
                 line = log.readline()
                 if line:
                     match = regex.match(line)
                     if match:
                         break
-                elif timeout:
+                elif timeout > 0:
                     time.sleep(LOG_MATCHER_INTERVAL)
-                    if time.time() > end_time:
-                        break
                 else:
                     break
 

@@ -8,7 +8,7 @@ from testplan.common.utils import timing
 from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 
 
-@pytest.yield_fixture(scope="module")
+@pytest.fixture(scope="module")
 def basic_logfile():
     """Write a very small logfile for basic functional testing."""
     log_lines = ["first\n", "second\n", "third\n", "fourth\n", "fifth\n"]
@@ -22,7 +22,7 @@ def basic_logfile():
     os.remove(filepath)
 
 
-@pytest.yield_fixture(scope="module")
+@pytest.fixture(scope="module")
 def large_logfile():
     """Write a larger logfile for more realistic performance testing."""
     with tempfile.NamedTemporaryFile("w", delete=False) as logfile:
@@ -232,3 +232,24 @@ class TestLogMatcher:
 
         assert match is not None
         assert match.group(0) == "Match me!"
+
+        matcher.seek()
+
+        # Check that the LogMatcher can find the last 'Match me!' line with
+        # a whole-file scan.
+        match = matcher.match(
+            regex=r"^Match me!$", timeout=0, raise_on_timeout=False
+        )
+
+        assert match is not None
+        assert match.group(0) == "Match me!"
+
+        matcher.seek()
+
+        # Check that the LogMatcher will exit when timeout reaches while EOF
+        # not being met yet.
+        match = matcher.match(
+            regex=r"^Match me!$", timeout=0.01, raise_on_timeout=False
+        )
+
+        assert match is None
