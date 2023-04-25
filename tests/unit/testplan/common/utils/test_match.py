@@ -114,23 +114,26 @@ class TestLogMatcher:
         # It shouldn't find this string as it has moved past this position.
         first_string = re.compile(r"first")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(
-                regex=first_string, timeout=0.5, raise_on_timeout=True
-            )
+            matcher.match(regex=first_string, timeout=0.5)
+
+        # When `timeout` is set to zero, it should return None without raising exception.
+        assert matcher.match(regex=first_string, timeout=0) is None
+        # Same applies when `raise_on_timeout` is set to false.
+        assert (
+            matcher.match(regex=first_string, raise_on_timeout=False) is None
+        )
 
     def test_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
-        regex_exp = re.compile(r"bob")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=regex_exp, timeout=0.5)
+            matcher.match(regex=r"bob", timeout=0.5)
 
     def test_binary_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
-        regex_exp = re.compile(b"bob")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=regex_exp, timeout=0.5, raise_on_timeout=True)
+            matcher.match(regex=b"bob", timeout=0.5)
 
     def test_not_match(self, basic_logfile):
         """Does the LogMatcher raise an exception when match is found."""
@@ -139,6 +142,8 @@ class TestLogMatcher:
         matcher.seek()
         with pytest.raises(Exception):
             matcher.not_match(regex=re.compile(r"third"), timeout=0.5)
+        with pytest.raises(Exception):
+            matcher.not_match(regex=re.compile(r"fourth"), timeout=0)
 
     def test_match_all(self, basic_logfile):
         """Can the LogMatcher find all the correct lines in the log file."""
@@ -152,6 +157,17 @@ class TestLogMatcher:
         assert len(matches) == 2
         assert matches[0].group(0) == "fourth"
         assert matches[1].group(0) == "fifth"
+
+    def test_match_all_not_found(self, basic_logfile):
+        """Does the LogMatcher behave properly when no match exists."""
+        matcher = LogMatcher(log_path=basic_logfile)
+        matches = matcher.match_all(
+            regex=r".+th.+", timeout=0.5, raise_on_timeout=False
+        )
+        assert not len(matches)
+        matcher.seek()
+        with pytest.raises(timing.TimeoutException):
+            matcher.match_all(regex=r".+th.+", timeout=0.5)
 
     def test_match_between(self, basic_logfile):
         """

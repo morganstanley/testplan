@@ -174,9 +174,7 @@ class FixClient(Driver):
         try:
             self.reconnect()
         except Exception as exc:
-            self.logger.debug(
-                "FixClient %s not able to connect - %s", self, exc
-            )
+            self.logger.debug("%s not able to connect - %s", self, exc)
             return False
         else:
             return True

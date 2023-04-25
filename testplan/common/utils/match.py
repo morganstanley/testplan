@@ -4,7 +4,7 @@ Module of utility types and functions that perform matching.
 import os
 import re
 import time
-from typing import List, Match, Optional, Pattern, Tuple, Union
+from typing import Dict, List, Match, Optional, Pattern, Tuple, Union
 
 from . import logger, timing
 
@@ -13,18 +13,14 @@ LOG_MATCHER_INTERVAL = 0.25
 
 def match_regexps_in_file(
     logpath: os.PathLike, log_extracts: List[Pattern]
-) -> Tuple[bool, dict, List[Pattern]]:
+) -> Tuple[bool, Dict[str, str], List[Pattern]]:
     """
     Return a boolean, dict pair indicating whether all log extracts matches,
     as well as any named groups they might have matched.
 
     :param logpath: Log file path.
-    :type logpath: ``str``
     :param log_extracts:  Regex list.
-    :type log_extracts: ``Union[bytes, str]``
     :return: Match result.
-    :rtype: ``tuple``
-
     """
     extracted_values = {}
 
@@ -155,6 +151,8 @@ class LogMatcher(logger.Loggable):
                     time.sleep(LOG_MATCHER_INTERVAL)
                     if time.time() > end_time:
                         break
+                else:
+                    break
 
             self.position = log.tell()
 
@@ -185,15 +183,10 @@ class LogMatcher(logger.Loggable):
             scan, defaults to 5 seconds
         """
 
-        try:
-            self.match(regex, timeout, raise_on_timeout=True)
-        except timing.TimeoutException:
-            pass
-        else:
+        match = self.match(regex, timeout, raise_on_timeout=False)
+        if match is not None:
             raise Exception(
-                "Unexpected match[{}] found in {}s".format(
-                    regex.pattern, timeout
-                )
+                f"Unexpected match[{regex.pattern}] found in {timeout}s"
             )
 
     def match_all(

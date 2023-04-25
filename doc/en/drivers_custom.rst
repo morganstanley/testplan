@@ -18,7 +18,7 @@ A generic :py:class:`Application <testplan.testing.multitest.driver.app.App>`
 driver inherits the base driver class and extends it with logic to start/stop
 a binary as a sub-process.
 
-Here is a custom driver inherits the built-in
+Here is a custom driver that inherits the built-in
 :py:class:`App <testplan.testing.multitest.driver.app.App>` driver and overwrites
 :py:meth:`App.post_start <testplan.testing.multitest.driver.app.App.post_start>`
 method to expose ``host`` and ``port`` attributes that was written in the
