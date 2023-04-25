@@ -4,6 +4,7 @@ import inspect
 import os
 import random
 import re
+import math
 import time
 import uuid
 import webbrowser
@@ -13,11 +14,12 @@ from typing import (
     Callable,
     Dict,
     List,
-    Mapping,
+    MutableMapping,
     Optional,
     Pattern,
     Tuple,
     Union,
+    Collection,
 )
 
 import pytz
@@ -55,6 +57,7 @@ from testplan.runners.pools.tasks.base import is_task_target
 from testplan.testing import filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
 from testplan.testing.multitest import MultiTest
+from testplan.runners.pools.base import Pool
 
 
 def get_exporters(values):
@@ -198,6 +201,14 @@ class TestRunnerConfig(RunnableConfig):
                 And(str, Use(ReportingFilter.parse)), None
             ),
             ConfigOption("xfail_tests", default=None): Or(dict, None),
+            ConfigOption("runtime_data", default={}): Or(dict, None),
+            ConfigOption(
+                "auto_part_runtime_limit",
+                default=defaults.AUTO_PART_RUNTIME_LIMIT,
+            ): Or(int, float),
+            ConfigOption(
+                "plan_runtime_target", default=defaults.PLAN_RUNTIME_TARGET
+            ): Or(int, float),
         }
 
 
@@ -318,6 +329,13 @@ class TestRunner(Runnable):
     :param label: Label the test report with the given name, useful to
         categorize or classify similar reports .
     :type label: ``str`` or ``NoneType``
+    :param runtime_data: Historical runtime data which will be used for
+        Multitest auto-part and weight-based Task smart-scheduling
+    :type runtime_data: ``dict``
+    :param auto_part_runtime_limit: The runtime limitation for auto-part task
+    :type auto_part_runtime_limit: ``int`` or ``float``
+    :param plan_runtime_target: The testplan total runtime limitation for smart schedule
+    :type plan_runtime_target: ``int`` or ``float``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -330,7 +348,7 @@ class TestRunner(Runnable):
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
         # uid to resource, in definition order
-        self._tests: Mapping[str, str] = OrderedDict()
+        self._tests: MutableMapping[str, str] = OrderedDict()
         self._result.test_report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
@@ -514,6 +532,74 @@ class TestRunner(Runnable):
         regex = re.compile(name_pattern)
         tasks = []
 
+        runtime_data: dict = self.cfg.runtime_data or {}
+
+        def _add_task(_target, _task_arguments):
+            self.logger.debug(
+                "Task created with arguments: %s",
+                _task_arguments,
+            )
+            task = Task(**_task_arguments)
+            uid = self._verify_test_target(task)
+
+            # nothing to run
+            if not uid:
+                return
+            time_info = runtime_data.get(uid, None)
+            if getattr(_target, "__multitest_parts__", None):
+                num_of_parts = _target.__multitest_parts__
+                if num_of_parts == "auto":
+                    if not time_info:
+                        self.logger.warning(
+                            "%s parts is auto but cannot find it in runtime-data",
+                            uid,
+                        )
+                        num_of_parts = 1
+                    else:
+                        num_of_parts = math.ceil(
+                            time_info["execution_time"]
+                            / (
+                                self.cfg.auto_part_runtime_limit
+                                - time_info["setup_time"]
+                            )
+                        )
+                if "weight" not in _task_arguments:
+                    _task_arguments["weight"] = _task_arguments.get(
+                        "weight", None
+                    ) or (
+                        math.ceil(
+                            (time_info["execution_time"] / num_of_parts)
+                            + time_info["setup_time"]
+                        )
+                        if time_info
+                        else self.cfg.auto_part_runtime_limit
+                    )
+                self.logger.user_info(
+                    "%s: parts=%d, weight=%d",
+                    uid,
+                    num_of_parts,
+                    _task_arguments["weight"],
+                )
+                if num_of_parts == 1:
+                    task.weight = _task_arguments["weight"]
+                    tasks.append(task)
+                else:
+                    for i in range(num_of_parts):
+                        _task_arguments["part"] = (i, num_of_parts)
+                        self.logger.debug(
+                            "Task re-created with arguments: %s",
+                            _task_arguments,
+                        )
+                        tasks.append(Task(**_task_arguments))
+
+            else:
+                if time_info and not task.weight:
+                    task.weight = math.ceil(
+                        time_info["execution_time"] + time_info["setup_time"]
+                    )
+                    self.logger.user_info("%s: weight=%d", uid, task.weight)
+                tasks.append(task)
+
         for root, dirs, files in os.walk(path or "."):
             for filename in files:
                 if not regex.match(filename):
@@ -553,66 +639,47 @@ class TestRunner(Runnable):
                                         " received: {param}"
                                     )
                                 task_arguments["part"] = None
-                                self.logger.debug(
-                                    "Task created with arguments: %s",
-                                    task_arguments,
-                                )
-                                task = Task(**task_arguments)
-                                uid = self._verify_test_target(task)
-
-                                # nothing to run
-                                if not uid:
-                                    continue
-
-                                if getattr(
-                                    target, "__multitest_parts__", None
-                                ):
-
-                                    # TODO: add auto parts and smart scheduling here
-
-                                    num_of_parts = target.__multitest_parts__
-                                    for i in range(num_of_parts):
-                                        task_arguments["part"] = (
-                                            i,
-                                            num_of_parts,
-                                        )
-                                        self.logger.debug(
-                                            "Task created with arguments: %s",
-                                            task_arguments,
-                                        )
-                                        tasks.append(Task(**task_arguments))
-
-                                else:
-                                    tasks.append(task)
+                                _add_task(target, task_arguments)
                         else:
-                            self.logger.debug(
-                                "Task created with arguments: %s",
-                                task_arguments,
-                            )
-                            task = Task(**task_arguments)
-                            uid = self._verify_test_target(task)
-
-                            # nothing to run
-                            if not uid:
-                                continue
-
-                            if getattr(target, "__multitest_parts__", None):
-
-                                # TODO: add auto parts and smart scheduling here
-
-                                num_of_parts = target.__multitest_parts__
-                                for i in range(num_of_parts):
-                                    task_arguments["part"] = (i, num_of_parts)
-                                    self.logger.debug(
-                                        "Task created with arguments: %s",
-                                        task_arguments,
-                                    )
-                                    tasks.append(Task(**task_arguments))
-
-                            else:
-                                tasks.append(task)
+                            _add_task(target, task_arguments)
 
         return tasks
+
+    def calculate_pool_size_by_tasks(self, tasks: Collection[Task]) -> int:
+        """
+        Calculate the right size of the pool based on the weight (runtime) of the tasks,
+        so that runtime of all tasks meets the plan_runtime_target.
+        """
+        if len(tasks) == 0:
+            return 1
+        plan_runtime_target = self.cfg.plan_runtime_target
+        _tasks = sorted(tasks, key=lambda task: task.weight, reverse=True)
+        if _tasks[0].weight > plan_runtime_target:
+            for task in _tasks:
+                if task.weight > plan_runtime_target:
+                    self.logger.warning(
+                        "%s weight %d is greater than plan_runtime_target %d",
+                        task,
+                        task.weight,
+                        self.cfg.plan_runtime_target,
+                    )
+            self.logger.warning(
+                "Update plan_runtime_weight to %d", _tasks[0].weight
+            )
+            plan_runtime_target = _tasks[0].weight
+
+        containers = [0]
+        for task in _tasks:
+            if task.weight:
+                if min(containers) + task.weight <= plan_runtime_target:
+                    containers[
+                        containers.index(min(containers))
+                    ] += task.weight
+                else:
+                    containers.append(task.weight)
+            else:
+                containers.append(plan_runtime_target)
+        return len(containers)
 
     def schedule(
         self,
@@ -663,6 +730,12 @@ class TestRunner(Runnable):
         tasks = self.discover(path=path, name_pattern=name_pattern)
         for task in tasks:
             self.add(task, resource=resource)
+        pool: Pool = self.resources[resource]
+        if pool.is_auto_size:
+            pool_size = self.calculate_pool_size_by_tasks(
+                list(pool.added_items.values())
+            )
+            pool.size = pool_size
 
     def add(
         self,

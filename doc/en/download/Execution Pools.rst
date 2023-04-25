@@ -133,3 +133,27 @@ sub_proj1/tasks.py
 sub_proj2/tasks.py
 ++++++++++++++++++
 .. literalinclude:: ../../../examples/ExecutionPools/Discover/sub_proj2/tasks.py
+
+
+.. _example_auto_part:
+
+Auto-Part
+---------
+This example requires command line argument ``--runtime-data runtime_data.txt``.
+
+Required files:
+  - :download:`test_plan.py <../../../examples/ExecutionPools/AutoPart/test_plan.py>`
+  - :download:`runtime_data.txt <../../../examples/ExecutionPools/AutoPart/runtime_data.txt>`
+  - :download:`sub_task.py <../../../examples/ExecutionPools/AutoPart/sub_task.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../examples/ExecutionPools/AutoPart/test_plan.py
+
+runtime_data.txt
++++++++++++++++++
+.. literalinclude:: ../../../examples/ExecutionPools/AutoPart/runtime_data.txt
+
+sub_task.py
++++++++++++
+.. literalinclude:: ../../../examples/ExecutionPools/AutoPart/sub_task.py

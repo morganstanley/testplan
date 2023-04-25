@@ -5,8 +5,7 @@ import inspect
 import os
 import warnings
 from collections import OrderedDict
-from types import ModuleType
-from typing import Optional, Tuple, Union, Dict
+from typing import Optional, Tuple, Union, Dict, Sequence, Callable
 
 from testplan.common.entity import Runnable
 from testplan.common.serialization import SelectiveSerializable
@@ -87,6 +86,14 @@ class Task(SelectiveSerializable):
 
     def __str__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self._uid)
+
+    @property
+    def weight(self) -> int:
+        return -self.priority
+
+    @weight.setter
+    def weight(self, value: int):
+        self.priority = -value
 
     @property
     def serializable_attrs(self) -> Tuple[str, ...]:
@@ -332,8 +339,8 @@ class RunnableTaskAdaptor:
 
 
 def task_target(
-    parameters=None,
-    multitest_parts=None,
+    parameters: Union[Callable, Sequence[Union[Sequence, dict]]] = None,
+    multitest_parts: Union[int, str, None] = None,
     **kwargs,
 ):
     """
@@ -347,7 +354,7 @@ def task_target(
         or ``dict``
     :param multitest_parts: The number of multitest parts that will be generated
         from this task target, only applies if the task returns multitest type
-    :type multitest_parts: ``int``
+    :type multitest_parts: ``int`` or "auto"
     :param kwargs: additional args to Task class, e.g rerun, weight etc.
     :type kwargs: ``dict``
     """

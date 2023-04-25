@@ -221,6 +221,8 @@ class Testplan(entity.RunnableManager):
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
         label=None,
+        auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_LIMIT,
+        plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         **options,
     ):
 
@@ -278,6 +280,8 @@ class Testplan(entity.RunnableManager):
             interactive_handler=interactive_handler,
             extra_deps=extra_deps,
             label=label,
+            auto_part_runtime_limit=auto_part_runtime_limit,
+            plan_runtime_target=plan_runtime_target,
             **options,
         )
 
@@ -418,6 +422,8 @@ class Testplan(entity.RunnableManager):
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
         label=None,
+        auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_LIMIT,
+        plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         **options,
     ):
         """
@@ -474,6 +480,8 @@ class Testplan(entity.RunnableManager):
                     interactive_handler=interactive_handler,
                     extra_deps=extra_deps,
                     label=label,
+                    auto_part_runtime_limit=auto_part_runtime_limit,
+                    plan_runtime_target=plan_runtime_target,
                     **options,
                 )
                 try:
