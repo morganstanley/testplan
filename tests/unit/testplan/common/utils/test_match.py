@@ -1,15 +1,14 @@
 import os
 import re
-import itertools
 import tempfile
 
 import pytest
 
-from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 from testplan.common.utils import timing
+from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 
 
-@pytest.yield_fixture(scope="module")
+@pytest.fixture(scope="module")
 def basic_logfile():
     """Write a very small logfile for basic functional testing."""
     log_lines = ["first\n", "second\n", "third\n", "fourth\n", "fifth\n"]
@@ -23,7 +22,7 @@ def basic_logfile():
     os.remove(filepath)
 
 
-@pytest.yield_fixture(scope="module")
+@pytest.fixture(scope="module")
 def large_logfile():
     """Write a larger logfile for more realistic performance testing."""
     with tempfile.NamedTemporaryFile("w", delete=False) as logfile:
@@ -117,19 +116,24 @@ class TestLogMatcher:
         with pytest.raises(timing.TimeoutException):
             matcher.match(regex=first_string, timeout=0.5)
 
+        # When `timeout` is set to zero, it should return None without raising exception.
+        assert matcher.match(regex=first_string, timeout=0) is None
+        # Same applies when `raise_on_timeout` is set to false.
+        assert (
+            matcher.match(regex=first_string, raise_on_timeout=False) is None
+        )
+
     def test_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
-        regex_exp = re.compile(r"bob")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=regex_exp, timeout=0.5)
+            matcher.match(regex=r"bob", timeout=0.5)
 
     def test_binary_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
-        regex_exp = re.compile(b"bob")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=regex_exp, timeout=0.5)
+            matcher.match(regex=b"bob", timeout=0.5)
 
     def test_not_match(self, basic_logfile):
         """Does the LogMatcher raise an exception when match is found."""
@@ -138,6 +142,8 @@ class TestLogMatcher:
         matcher.seek()
         with pytest.raises(Exception):
             matcher.not_match(regex=re.compile(r"third"), timeout=0.5)
+        with pytest.raises(Exception):
+            matcher.not_match(regex=re.compile(r"fourth"), timeout=0)
 
     def test_match_all(self, basic_logfile):
         """Can the LogMatcher find all the correct lines in the log file."""
@@ -151,6 +157,17 @@ class TestLogMatcher:
         assert len(matches) == 2
         assert matches[0].group(0) == "fourth"
         assert matches[1].group(0) == "fifth"
+
+    def test_match_all_not_found(self, basic_logfile):
+        """Does the LogMatcher behave properly when no match exists."""
+        matcher = LogMatcher(log_path=basic_logfile)
+        matches = matcher.match_all(
+            regex=r".+th.+", timeout=0.5, raise_on_timeout=False
+        )
+        assert not len(matches)
+        matcher.seek()
+        with pytest.raises(timing.TimeoutException):
+            matcher.match_all(regex=r".+th.+", timeout=0.5)
 
     def test_match_between(self, basic_logfile):
         """
@@ -209,7 +226,30 @@ class TestLogMatcher:
         # Check that the LogMatcher can find the last 'Match me!' line in a
         # reasonable length of time. 10s is a very generous timeout, most
         # of the time it should complete in <1s.
-        match = matcher.match(regex=r"^Match me!$", timeout=10)
+        match = matcher.match(
+            regex=r"^Match me!$", timeout=10, raise_on_timeout=False
+        )
 
         assert match is not None
         assert match.group(0) == "Match me!"
+
+        matcher.seek()
+
+        # Check that the LogMatcher can find the last 'Match me!' line with
+        # a whole-file scan.
+        match = matcher.match(
+            regex=r"^Match me!$", timeout=0, raise_on_timeout=False
+        )
+
+        assert match is not None
+        assert match.group(0) == "Match me!"
+
+        matcher.seek()
+
+        # Check that the LogMatcher will exit when timeout reaches while EOF
+        # not being met yet.
+        match = matcher.match(
+            regex=r"^Match me!$", timeout=0.01, raise_on_timeout=False
+        )
+
+        assert match is None

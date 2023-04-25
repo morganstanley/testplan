@@ -1167,6 +1167,9 @@ class FailedAction:
         return False
 
 
+ActionResult = Union[bool, FailedAction]
+
+
 class ResourceConfig(EntityConfig):
     """
     Configuration object for
@@ -1381,24 +1384,22 @@ class Resource(Entity):
         """
         return []
 
-    def _wait_started(self, timeout=None):
+    def _wait_started(self, timeout: Optional[float] = None):
         """
         Changes status to STARTED, if possible.
 
         :param timeout: timeout in seconds
-        :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STARTED)
         self.post_start()
         if self.cfg.post_start:
             self.cfg.post_start(self)
 
-    def _wait_stopped(self, timeout=None):
+    def _wait_stopped(self, timeout: Optional[float] = None):
         """
         Changes status to STOPPED, if possible.
 
         :param timeout: timeout in seconds
-        :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STOPPED)
         self.post_stop()

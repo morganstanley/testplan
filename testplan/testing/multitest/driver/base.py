@@ -4,25 +4,30 @@ import logging
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Pattern, Union, Tuple, Callable, Dict, Any
+from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.config.base import validate_func
 from testplan.common.entity import (
+    ActionResult,
+    FailedAction,
     Resource,
     ResourceConfig,
-    FailedAction,
 )
 from testplan.common.utils.context import ContextValue
 from testplan.common.utils.documentation_helper import (
+    emphasized,
     get_metaclass_for_documentation,
 )
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import instantiate
-from testplan.common.utils.timing import wait
-from testplan.common.utils.documentation_helper import emphasized
+from testplan.common.utils.timing import (
+    DEFAULT_INTERVAL,
+    PollInterval,
+    get_sleeper,
+)
 
 
 def format_regexp_matches(
@@ -221,27 +226,32 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Steps to be executed right before resource starts."""
         self.make_runpath_dirs()
 
-    def started_check(self, timeout: float = None) -> None:
-        """
-        Checks if the driver has started.
+    @property
+    def started_check_interval(self) -> PollInterval:
+        """Driver started check interval."""
+        return DEFAULT_INTERVAL
 
-        :param timeout: status check timeout in seconds
-        :raise: TimeoutException
-        """
-        timeout = timeout if timeout is not None else self.cfg.timeout
-        wait(
-            lambda: self.extract_values(),
-            timeout,
-            raise_on_timeout=True,
-        )
+    @property
+    def stopped_check_interval(self) -> PollInterval:
+        """Driver stopped check interval."""
+        return DEFAULT_INTERVAL
 
-    def stopped_check(self, timeout: float = None) -> None:
+    def started_check(self) -> ActionResult:
         """
-        Checks if driver has stopped.
+        Predicate indicating whether driver has fully started.
 
-        param timeout: status check timeout in seconds
+        Default implementation tests whether certain pattern exists in driver
+        loggings, always returns True if no pattern is required.
         """
-        pass
+        return self.extract_values()
+
+    def stopped_check(self) -> ActionResult:
+        """
+        Predicate indicating whether driver has fully stopped.
+
+        Default implementation immediately returns True.
+        """
+        return True
 
     def starting(self) -> None:
         """Triggers driver start."""
@@ -251,12 +261,28 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Triggers driver stop."""
         self._close_file_logger()
 
-    def _wait_started(self, timeout: float = None) -> None:
-        self.started_check(timeout=timeout)
+    def _wait_started(self, timeout: Optional[float] = None) -> None:
+        sleeper = get_sleeper(
+            interval=self.started_check_interval,
+            timeout=timeout if timeout is not None else self.cfg.timeout,
+            raise_timeout_with_msg=lambda: f"Timeout when starting {self}",
+            timeout_info=True,
+        )
+        while next(sleeper):
+            if self.started_check():
+                break
         super(Driver, self)._wait_started(timeout=timeout)
 
-    def _wait_stopped(self, timeout: float = None) -> None:
-        self.stopped_check(timeout=timeout)
+    def _wait_stopped(self, timeout: Optional[float] = None) -> None:
+        sleeper = get_sleeper(
+            interval=self.stopped_check_interval,
+            timeout=timeout if timeout is not None else self.cfg.timeout,
+            raise_timeout_with_msg=lambda: f"Timeout when stopping {self}",
+            timeout_info=True,
+        )
+        while next(sleeper):
+            if self.stopped_check():
+                break
         super(Driver, self)._wait_stopped(timeout=timeout)
 
     def aborting(self) -> None:
@@ -282,7 +308,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Path for stderr file regexp matching."""
         return None
 
-    def extract_values(self) -> Union[bool, FailedAction]:
+    def extract_values(self) -> ActionResult:
         """Extract matching values from input regex configuration options."""
         log_unmatched = []
         stdout_unmatched = []
