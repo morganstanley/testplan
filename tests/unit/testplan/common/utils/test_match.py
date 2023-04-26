@@ -186,6 +186,14 @@ class TestLogMatcher:
         assert matcher.match_between(r"second", "start", "end") is None
         assert matcher.match_between(r"fifth", "start", "end") is None
 
+        # Raises ValueError if mark does not exist
+        with pytest.raises(ValueError):
+            matcher.match_between(r"third", "start", "middle")
+
+        # Raises ValueError if mark2 comes before mark1
+        with pytest.raises(ValueError):
+            matcher.match_between(r"third", "end", "start")
+
     def test_not_match_between(self, basic_logfile):
         """
         Does the LogMatcher return True when match is found
@@ -214,6 +222,14 @@ class TestLogMatcher:
         assert content == "third\nfourth\nfifth\n"
         content = matcher.get_between("start", "end")
         assert content == "third\nfourth\n"
+
+        # Raises ValueError if mark does not exist
+        with pytest.raises(ValueError):
+            matcher.get_between("start", "middle")
+
+        # Raises ValueError if mark2 comes before mark1
+        with pytest.raises(ValueError):
+            matcher.get_between("end", "start")
 
     def test_match_large_file(self, large_logfile):
         """

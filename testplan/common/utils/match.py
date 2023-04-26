@@ -5,7 +5,7 @@ import os
 import re
 import time
 from abc import ABCMeta, abstractmethod
-from typing import Dict, List, Match, Optional, Pattern, Tuple, Union
+from typing import Dict, List, Match, Optional, Pattern, Tuple, TextIO, Union
 
 from . import logger, timing
 
@@ -63,33 +63,15 @@ class LogFilePosition:
     Class for managing the log file positions.
     """
 
-    def __init__(self, file_inode, marker):
+    def __init__(self, inode: int, position: int):
         """
-        :param file_inode: File inode of a log file.
-        :type file_inode: ``int``
-        :param marker: Current mark of a log file.
-        :type marker: ``int``
+        :param inode: File inode of a log file.
+        :type inode: ``int``
+        :param position: Current position of a log file.
+        :type position: ``int``
         """
-        self.file_inode = file_inode
-        self.marker = marker
-
-    def get_position(self, file_handle=None):
-        """
-        Return the instance file position given the specified file handle.
-        """
-        if file_handle:
-            self.marker = file_handle.tell()
-            file_handle.close()
-        return self
-
-    def seek_position(self, position):
-        """
-        Sets the file position to the position passed and return the instance
-        file position.
-        """
-        self.file_inode = position.file_inode
-        self.marker = position.marker
-        return self
+        self.inode: int = inode
+        self.position: int = position
 
 
 class RotationStrategy(object, metaclass=ABCMeta):
@@ -98,14 +80,18 @@ class RotationStrategy(object, metaclass=ABCMeta):
     matching in log files. Implement all abstract methods if you
     need to subclass this class.
     """
-    @property
+
     @abstractmethod
-    def file_position(self):
-        """Property for current log_path position"""
+    def init_strategy(self, log_path: str) -> LogFilePosition:
+        """
+        Returns the initial log file position for the log_path.
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def open_logfile_in_position(self, file_position, mode) -> LogFilePosition:
+    def open_logfile_in_position(
+        self, position: LogFilePosition, mode: str
+    ) -> TextIO:
         """
         Implementation for opening and returning log handles with the
         given file position.
@@ -113,135 +99,148 @@ class RotationStrategy(object, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def get_position(self, file_handle=None) -> LogFilePosition:
-        """Return the current position for the given file handle."""
+    def get_position(self, file_handle: TextIO) -> LogFilePosition:
+        """Returns the position for the given file handle."""
         raise NotImplementedError
 
     @abstractmethod
-    def get_next_file(self, file_handle, mode=None, affect_position=True):
-        """Returns the next file handle."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_inode_and_marker(self, file_handle) -> tuple:
-        """Returns the inode and marker for the given file handle."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def seek_eof(self) -> LogFilePosition:
-        """Returns the end file position of the current log file."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def seek(self, mark=None) -> LogFilePosition:
-        """
-        Set current file position to the specified mark if exist or beginning of current log file.
-        """
+    def get_next_file(
+        self, file_handle: TextIO, mode: Optional[str] = None
+    ) -> Tuple[TextIO, bool]:
+        """Returns the next file handle and a truthy value whether a new file was returned."""
         raise NotImplementedError
 
     @abstractmethod
     def get_end_of_file_position(self) -> LogFilePosition:
-        """Returns the end position for the current log file."""
+        """Returns the end position for the active log file."""
         raise NotImplementedError
 
     @abstractmethod
     def get_start_of_file_position(self) -> LogFilePosition:
-        """Returns the start position for the current log file."""
+        """Returns the start position for the first rotated log file if
+        rotation occured else return start position of the active log file.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def invalid_position_order(
+        self, start_position: LogFilePosition, end_position: LogFilePosition
+    ) -> bool:
+        """
+        Checks the position validity of start_position and end_position.
+        Return False if search starts from start_position through to end_position else
+        return True.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def position_not_passed(
+        self, position: LogFilePosition, file_handle: TextIO
+    ) -> bool:
+        """
+        Checks if file_handle current position has not passed the parameter
+        position value.
+        """
         raise NotImplementedError
 
 
 class NoLogRotationStrategy(RotationStrategy):
     """
-    Default strategy for matching lines in log files. This strategy is used
-    for situations with no log file rotation.
+    Default strategy for matching lines in log files. This strategy is used for situations with no log file rotation.
     """
 
-    def __init__(self, log_path):
-        """
-        :param log_path: Path to the log file.
-        :type log_path: ``str``
-        """
-        if os.path.exists(log_path):
-            self._file_inode = os.stat(log_path).st_ino
-        else:
-            with open(log_path, "w+") as log:
-                self._file_inode = os.stat(log.name).st_ino
+    def __init__(self):
+        self.log_path: Optional[str] = None
+        self.inode: Optional[int] = None
 
-        self._file_name = log_path
-        self._file_position = LogFilePosition(self._file_inode, 0)
+    def init_strategy(self, log_path: str) -> LogFilePosition:
+        """
+        Returns the initial log file position for the log_path.
+        """
+        file_descriptor = None
+        try:
+            if os.path.exists(log_path):
+                file_descriptor = os.open(log_path, os.O_RDONLY)
+            else:
+                file_descriptor = os.open(log_path, os.O_CREAT)
 
-    @property
-    def file_position(self) -> LogFilePosition:
-        """Property for current log_path position."""
-        return self._file_position
+            self.inode = os.fstat(file_descriptor).st_ino
+            self.log_path = log_path
+            return LogFilePosition(inode=self.inode, position=0)
+        finally:
+            if file_descriptor:
+                os.close(file_descriptor)
 
     def open_logfile_in_position(
-        self, file_position: LogFilePosition, mode: str
-    ):
+        self, position: LogFilePosition, mode: str
+    ) -> TextIO:
         """
-        Opens and returns a file handle for the file position passed. Sets the position
-        to the specified file_position. Raises an Exception if the log_path to be opened
-        does not exist or is corrupted.
+        Opens and returns a file handle for the file position passed. Sets the position to the specified position.
         """
+        log_handle = None
         try:
-            file_handle = open(self._file_name, mode)
-            file_handle.seek(file_position.marker)
-            return file_handle
+            log_handle = open(self.log_path, mode)
+            log_handle.seek(position.position)
+            return log_handle
         except IOError:
-            raise Exception(
-                f"Log path {self._file_name} does not exist or it's corrupted."
-            )
+            if log_handle:
+                log_handle.close()
+            raise
 
-    def get_position(self, file_handle=None) -> LogFilePosition:
-        """Returns the current position for the given file handle"""
-        return self.file_position.get_position(file_handle)
+    def get_position(self, file_handle: TextIO) -> LogFilePosition:
+        """Returns the current position for the given file handle."""
+        return LogFilePosition(inode=self.inode, position=file_handle.tell())
 
-    def get_next_file(self, file_handle, mode=None, affect_position=True):
+    def get_next_file(
+        self, file_handle: TextIO, mode: Optional[str] = None
+    ) -> Tuple[TextIO, bool]:
         """
-        Returns the same file handle since it has no rotation. Set ``affect_position``
-        to False in situations where you want to get next file without altering
-        the current file position.
+        Returns a file handle with same position as file_handle and False value since it has no rotation.
         """
-        if affect_position:
-            self.file_position.marker = file_handle.tell()
-            file_handle.seek(self.file_position.marker)
-        else:
-            file_handle.seek(file_handle.tell())
-        return file_handle
-
-    def get_inode_and_marker(self, file_handle) -> tuple:
-        """Returns the inode and marker for the given file handle"""
-        marker = file_handle.tell()
-        return self._file_inode, marker
-
-    def seek_eof(self) -> LogFilePosition:
-        """Returns the end position of the log file."""
-        position = self.get_end_of_file_position()
-        return self.file_position.seek_position(position)
-
-    def seek(self, mark=None) -> LogFilePosition:
-        """
-        Sets file position to the specified mark. The mark has to exist.
-        If the mark is None sets file position to beginning of log file.
-        """
-        if mark:
-            return self.file_position.seek_position(mark)
-
-        position = self.get_start_of_file_position()
-        return self.file_position.seek_position(position)
+        log_handle = None
+        try:
+            log_handle = open(self.log_path, mode)
+            log_handle.seek(file_handle.tell())
+            return log_handle, False
+        except IOError:
+            if log_handle:
+                log_handle.close()
+            raise
 
     def get_end_of_file_position(self) -> LogFilePosition:
         """Returns the end position for the log file."""
-        marker = 0
-        with open(self._file_name, "r") as f:
-            f.seek(0, os.SEEK_END)
-            marker = f.tell()
+        with open(self.log_path) as log_handle:
+            log_handle.seek(0, os.SEEK_END)
 
-        return LogFilePosition(self._file_inode, marker)
+            return LogFilePosition(
+                inode=self.inode, position=log_handle.tell()
+            )
 
     def get_start_of_file_position(self) -> LogFilePosition:
         """Returns the start position for the log file."""
-        return LogFilePosition(self._file_inode, 0)
+        return LogFilePosition(inode=self.inode, position=0)
+
+    def invalid_position_order(
+        self, start_position: LogFilePosition, end_position: LogFilePosition
+    ) -> bool:
+        """
+        Checks the position validity of start_position and end_position.
+        Returns True if start_position has greater or equal position value than end_position,
+        meaning search cannot be done from top of file to bottom of file. Else returns
+        False.
+        """
+        return start_position.position >= end_position.position
+
+    def position_not_passed(
+        self, position: LogFilePosition, file_handle: TextIO
+    ) -> bool:
+        """
+        Checks if file_handle current position has not passed the parameter
+        position value. Return True if parameter position value is greater
+        than current position of file_handle, meaning the search needs to continue
+        else return False.
+        """
+        return position.position > file_handle.tell()
 
 
 class LogMatcher(logger.Loggable):
@@ -252,15 +251,23 @@ class LogMatcher(logger.Loggable):
     unique for the entire log file.
     """
 
-    def __init__(self, log_path, strategy=NoLogRotationStrategy):
+    def __init__(
+        self,
+        log_path: str,
+        strategy: RotationStrategy = NoLogRotationStrategy(),
+    ):
         """
         :param log_path: Path to the log file.
         :type log_path: ``str``
+        :param strategy: Strategy for matching rotated files.
+        :type strategy: ``RotationStrategy``
         """
-        self.log_path = log_path
-        self.marks = {}
-        self.strategy = strategy(log_path)
-        self.position = self.strategy.file_position
+        self.log_path: str = log_path
+        self.marks: Dict[str, LogFilePosition] = {}
+        self.strategy: RotationStrategy = strategy
+        self.position: LogFilePosition = self.strategy.init_strategy(
+            log_path=log_path
+        )
         super(LogMatcher, self).__init__()
 
     def seek(self, mark: Optional[str] = None):
@@ -271,13 +278,13 @@ class LogMatcher(logger.Loggable):
         :param mark: Name of the mark.
         """
         if mark is None:
-            self.position = self.strategy.seek()
+            self.position = self.strategy.get_start_of_file_position()
         else:
-            self.position = self.strategy.seek(self.marks[mark])
+            self.position = self.marks[mark]
 
     def seek_eof(self):
         """Sets current file position to the current end of file."""
-        self.position = self.strategy.seek_eof()
+        self.position = self.strategy.get_end_of_file_position()
 
     def seek_sof(self):
         """Sets current file position to the start of file."""
@@ -290,10 +297,7 @@ class LogMatcher(logger.Loggable):
 
         :param name: Name of the mark.
         """
-        position = self.strategy.get_position()
-        self.marks[name] = LogFilePosition(
-            position.file_inode, position.marker
-        )
+        self.marks[name] = self.position
 
     def match(
         self,
@@ -320,6 +324,7 @@ class LogMatcher(logger.Loggable):
         start_time = time.time()
         end_time = start_time + timeout
         read_mode = "rb"
+        log_handle = None
 
         # As a convenience, we create the compiled regex if a string was
         # passed.
@@ -328,21 +333,43 @@ class LogMatcher(logger.Loggable):
         if isinstance(regex.pattern, str):
             read_mode = "r"
 
-        log = self.strategy.open_logfile_in_position(self.position, read_mode)
-        while True:
-            line = log.readline()
-            if line:
-                match = regex.match(line)
-                if match:
-                    break
-            else:
-                time.sleep(LOG_MATCHER_INTERVAL)
-                if time.time() > end_time:
+        try:
+            log_handle = self.strategy.open_logfile_in_position(
+                position=self.position, mode=read_mode
+            )
+
+            while True:
+                if (timeout > 0) and (time.time() > end_time):
                     break
 
-                log = self.strategy.get_next_file(log, read_mode)
+                line = log_handle.readline()
+                if line:
+                    match = regex.match(line)
+                    if match:
+                        break
+                else:
 
-        self.position = self.strategy.get_position(log)
+                    previous_log_handle = log_handle
+
+                    log_handle, is_new_file = self.strategy.get_next_file(
+                        file_handle=log_handle, mode=read_mode
+                    )
+
+                    previous_log_handle.close()
+
+                    # If new file continue search, else check if timeout is
+                    # greater than zero and wait awhile else break the search.
+                    if is_new_file:
+                        continue
+                    elif timeout > 0:
+                        time.sleep(LOG_MATCHER_INTERVAL)
+                    else:
+                        break
+
+            self.position = self.strategy.get_position(file_handle=log_handle)
+        finally:
+            if log_handle:
+                log_handle.close()
 
         if match is not None:
             self.logger.debug(
@@ -425,6 +452,7 @@ class LogMatcher(logger.Loggable):
         """
         match = None
         read_mode = "rb"
+        log_handle = None
 
         # As a convenience, we create the compiled regex if a string was
         # passed.
@@ -437,34 +465,41 @@ class LogMatcher(logger.Loggable):
             start_position = self.marks[mark1]
             end_position = self.marks[mark2]
 
-            log = self.strategy.open_logfile_in_position(
-                start_position, read_mode
-            )
-            current_inode, current_marker = self.strategy.get_inode_and_marker(
-                log
+            if self.strategy.invalid_position_order(
+                start_position=start_position, end_position=end_position
+            ):
+                raise ValueError(
+                    f'Mark "{mark2}" must be present before mark "{mark1}"'
+                )
+
+            log_handle = self.strategy.open_logfile_in_position(
+                position=start_position, mode=read_mode
             )
 
-            while (end_position.file_inode != current_inode) or (
-                end_position.marker > current_marker
+            while self.strategy.position_not_passed(
+                position=end_position, file_handle=log_handle
             ):
-                line = log.readline()
+                line = log_handle.readline()
+
                 if line:
                     match = regex.match(line)
                     if match:
                         break
                 else:
-                    log = self.strategy.get_next_file(
-                        log, read_mode, affect_position=False
+                    previous_log_handle = log_handle
+
+                    log_handle, _ = self.strategy.get_next_file(
+                        file_handle=log_handle, mode=read_mode
                     )
 
-                (
-                    current_inode,
-                    current_marker,
-                ) = self.strategy.get_inode_and_marker(log)
+                    previous_log_handle.close()
 
             return match
         except KeyError:
             raise ValueError(f'Mark "{mark1}" or "{mark2}" does not exist')
+        finally:
+            if log_handle:
+                log_handle.close()
 
     def not_match_between(self, regex, mark1, mark2):
         """
@@ -484,7 +519,7 @@ class LogMatcher(logger.Loggable):
 
         return not self.match_between(regex, mark1, mark2)
 
-    def get_between(self, mark1=None, mark2=None, timeout=5):
+    def get_between(self, mark1=None, mark2=None):
         """
         Returns the content of the file from the start marker to the end marker.
         It is possible to omit either marker to receive everything from start
@@ -500,23 +535,19 @@ class LogMatcher(logger.Loggable):
         :type mark1: ``str``
         :param mark2: mark name of end position (None for end of file)
         :type mark2: ``str``
-        :param timeout: Timeout in seconds to find out all matches in file,
-            defaults to 5 seconds.
-        :type timeout: ``int``
         :return: The content between mark1 and mark2.
         :rtype: ``str``
         """
-        start_time = time.time()
-        end_time = start_time + timeout
-
         try:
+            log_handle = None
+
             if mark1 is not None and mark2 is not None:
-                if (
-                    self.marks[mark1].file_inode
-                    == self.marks[mark2].file_inode
-                ) and (self.marks[mark1].marker >= self.marks[mark2].marker):
+                if self.strategy.invalid_position_order(
+                    start_position=self.marks[mark1],
+                    end_position=self.marks[mark2],
+                ):
                     raise ValueError(
-                        f'Mark "{mark1}" must be present before mark "{mark2}"'
+                        f'Mark "{mark2}" must be present before mark "{mark1}"'
                     )
 
             lines_between = []
@@ -532,33 +563,29 @@ class LogMatcher(logger.Loggable):
                 else self.strategy.get_end_of_file_position()
             )
 
-            log = self.strategy.open_logfile_in_position(start_position, "r")
-            current_inode, current_marker = self.strategy.get_inode_and_marker(
-                log
+            log_handle = self.strategy.open_logfile_in_position(
+                position=start_position, mode="r"
             )
 
-            while (end_position.file_inode != current_inode) or (
-                end_position.marker > current_marker
+            while self.strategy.position_not_passed(
+                position=end_position, file_handle=log_handle
             ):
-                line = log.readline()
+                line = log_handle.readline()
+
                 if line:
                     lines_between.append(line)
                 else:
-                    # Timeout here is necessary for situations where rotation occurs and the user
-                    # mistakenly swaps mark2 for mark1. Search is started from mark2 and while condition
-                    # cannot be met. This is to end the search.
-                    time.sleep(LOG_MATCHER_INTERVAL)
-                    if time.time() > end_time:
-                        break
-                    log = self.strategy.get_next_file(
-                        log, "r", affect_position=False
+                    previous_log_handle = log_handle
+
+                    log_handle, _ = self.strategy.get_next_file(
+                        file_handle=log_handle, mode="r"
                     )
 
-                (
-                    current_inode,
-                    current_marker,
-                ) = self.strategy.get_inode_and_marker(log)
+                    previous_log_handle.close()
 
             return "".join(lines_between)
         except KeyError:
             raise ValueError(f'Mark "{mark1}" or "{mark2}" does not exist')
+        finally:
+            if log_handle:
+                log_handle.close()
