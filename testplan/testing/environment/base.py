@@ -1,5 +1,4 @@
 import time
-import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, Optional
 
@@ -37,6 +36,7 @@ class DriverPocketwatch:
 
     def record_start(self):
         self.start_time = time.time()
+        self.last_check = self.start_time
 
     def should_check(self) -> bool:
         curr_time = time.time()
@@ -55,6 +55,7 @@ class TestEnvironment(Environment):
 
         self.__dict__["_dependency"]: Optional[DriverDepGraph] = None
         self.__dict__["_pocketwatches"]: Dict[str, DriverPocketwatch] = dict()
+        # TODO: set up logger?
 
     def set_dependency(self, dependency: DriverDepGraph):
         for d in dependency.vertices.values():
@@ -63,7 +64,7 @@ class TestEnvironment(Environment):
                 or d is not self._resources[d.uid()]
             ):
                 raise ValueError(
-                    f"Driver {d} used in `dependency` parameter "
+                    f"Driver {d} used in `dependencies` parameter "
                     "while not being declared in `environment` parameter."
                 )
         for d in self._resources.values():
@@ -72,6 +73,8 @@ class TestEnvironment(Environment):
                     f"`async_start` parameter of driver {d} should not "
                     "be set if driver dependency is specified."
                 )
+            if d.uid() not in dependency.vertices:
+                dependency.add_vertex(d.uid(), d)
 
         self._dependency = dependency
 
@@ -112,7 +115,7 @@ class TestEnvironment(Environment):
                 )
 
         while not self._dependency.all_drivers_started():
-            iter_start = time.time()
+            # iter_start = time.time()
 
             # schedule new drivers
             for driver in self._dependency.drivers_to_start():
@@ -131,7 +134,6 @@ class TestEnvironment(Environment):
                     self._dependency.mark_starting(driver)
 
             # check current drivers
-            # TODO: only call started_check on a selective list of drivers
             for driver in self._dependency.drivers_starting():
                 watch = self._pocketwatches[driver.uid()]
                 try:
@@ -159,9 +161,9 @@ class TestEnvironment(Environment):
                         self._dependency.mark_started(driver)
                         driver._after_started()
 
-            iter_took = time.time() - iter_start
-            if iter_took > 0.1:
-                warnings.warn("Slow start loop...")
+            # iter_took = time.time() - iter_start
+            # if iter_took > 0.01:
+            #     print(f"Slow start loop, {iter_took} spent")
 
             # NOTE: do we want to dynamically adjust this interval?
             time.sleep(MINIMUM_CHECK_INTERVAL)

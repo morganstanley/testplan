@@ -33,7 +33,7 @@ class DirectedGraph(Generic[T, U, V]):
     @classmethod
     def from_vertices(cls, vertices: Dict[T, U]) -> Self:
         return cls(
-            vertices,
+            copy(vertices),
             {k: dict() for k in vertices},
             {k: 0 for k in vertices},
             {k: 0 for k in vertices},
@@ -51,7 +51,7 @@ class DirectedGraph(Generic[T, U, V]):
             indegrees_[dst] += 1
             outdegrees_[src] += 1
 
-        return cls(vertices, edges_, indegrees_, outdegrees_)
+        return cls(copy(vertices), edges_, indegrees_, outdegrees_)
 
     def __invalid(self):
         self.cycles.cache_clear()

@@ -62,6 +62,12 @@ class TestBasicOperation:
         assert not g.update_edge(1, 4, (4, 1))
         assert not g.update_edge(4, 1, (1, 4))
 
+    def test_shallow_copy(self):
+        v = {"a": 1, "b": 2}
+        g = DirectedGraph.from_vertices(v)
+        assert g.remove_vertex("a")
+        assert set(v.keys()) == {"a", "b"}
+
 
 class TestSCCOperations:
     def test_tarjan_scc(self):

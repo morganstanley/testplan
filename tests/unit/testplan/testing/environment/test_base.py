@@ -63,6 +63,19 @@ def test_simple_dependency_scheduling(mocker):
     assert_lhs_before_rhs(m.method_calls, b, c)
 
 
+def test_no_dependency_default_first(mocker):
+    m = mocker.Mock()
+    env = TestEnvironment()
+    a = MockDriver("a", m)
+    b = MockDriver("b", m)
+    c = MockDriver("c", m)
+    for d_ in [a, b, c]:
+        env.add(d_)
+    env.set_dependency(parse_dependency({a: b}))
+    env.start()
+    assert_lhs_before_rhs(m.method_calls, c, b)
+
+
 def test_complicated_dependency_scheduling(mocker):
     m = mocker.Mock()
     env = TestEnvironment()
