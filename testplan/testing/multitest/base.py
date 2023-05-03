@@ -978,12 +978,17 @@ class MultiTest(testing_base.Test):
             stdout_style=self.stdout_style, _scratch=self._scratch
         )
 
+        runtime_info = MultiTestRuntimeInfo()
+        runtime_info.testcase.name = method_name
+        runtime_info.testcase.report = method_report
+        resources = RuntimeEnvironment(self.resources, runtime_info)
+
         try:
             interface.check_signature(testsuite_method, ["env", "result"])
-            method_args = (self.resources, case_result)
+            method_args = (resources, case_result)
         except interface.MethodSignatureMismatch:
             interface.check_signature(testsuite_method, ["env"])
-            method_args = (self.resources,)
+            method_args = (resources,)
 
         with method_report.timer.record("run"):
             with method_report.logged_exceptions():
@@ -1164,11 +1169,12 @@ class MultiTest(testing_base.Test):
             )
 
             num_args = len(callable_utils.getargspec(func).args)
-            args = (
-                (self.resources,)
-                if num_args == 1
-                else (self.resources, case_result)
-            )
+            runtime_info = MultiTestRuntimeInfo()
+            runtime_info.testcase.name = func.__name__
+            runtime_info.testcase.report = testcase_report
+            resources = RuntimeEnvironment(self.resources, runtime_info)
+
+            args = (resources,) if num_args == 1 else (resources, case_result)
 
             with compose_contexts(
                 testcase_report.timer.record("run"),
