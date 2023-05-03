@@ -299,7 +299,9 @@ var fakeReportAssertionsError = {
         "total": 3
     },
     "uid": "_dev",
-    "attachments": {},
+    "attachments": {
+        "missing_file.txt": "/some_invalid/path/_attachments/missing_file.txt"
+    },
     "status": "error",
     "timer": {
         "run": {
@@ -542,6 +544,21 @@ var fakeReportAssertionsError = {
                                     "func": "<function SampleSuite.test_raised_exceptions.<locals>.custom_func at 0x7f9cfc64fea0>",
                                     "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
                                     "line_no": 165
+                                },
+                                {
+                                    "orig_filename": "missing_file.txt",
+                                    "dst_path": "missing_file.txt",
+                                    "filesize": 104000,
+                                    "line_no": 93,
+                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                                    "source_path": "/some/invalid/path/missing_file.txt",
+                                    "type": "Attachment",
+                                    "category": "DEFAULT",
+                                    "flag": "DEFAULT",
+                                    "description": "A file failed to attach",
+                                    "meta_type": "entry",
+                                    "machine_time": "2020-01-10T03:06:59.957489+00:00",
+                                    "utc_time": "2020-01-10T03:06:59.957489+00:00"
                                 }
                             ]
                         },

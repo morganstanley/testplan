@@ -10,6 +10,8 @@ import {
 } from "@material-ui/core";
 import { ExpandLess, ExpandMore} from "@material-ui/icons";
 import AttachmentAssertionCardHeader from "./AttachmentAssertionCardHeader";
+import { ErrorBoundary, FallbackComponent } from "../../Common/ErrorBoundary";
+//import { ErrorBoundary } from "react-error-boundary";
 
 //Max number of lines displayed in the preview when collapsed
 const DISPLAY_NUM = 20;
@@ -124,23 +126,27 @@ function TextAttachment(props) {
   );
 
   return (
-    <Card>
-      {cardHeader}
-      {lines ? (
-        <CardContent className={css(styles.cardContent)}>
-          <SyntaxHighlighter
-            showLineNumbers
-            startingLineNumber={fromPosition[0] + lineoffset}
-            language="text"
-            className={expanded ? css(styles.scrollable) : null}
-          >
-            {prepend + lines.slice(fromPosition[1])}
-          </SyntaxHighlighter>
-        </CardContent>
-      ) : null}
-      {error ? <CardContent>{error}</CardContent> : null}
-    </Card>
+    <ErrorBoundary fallback={FallbackComponent}>
+      <Card>
+        {cardHeader}
+        
+          
+            <CardContent className={css(styles.cardContent)}>
+              <SyntaxHighlighter
+                showLineNumbers
+                startingLineNumber={fromPosition[0] + lineoffset}
+                language="text"
+                className={expanded ? css(styles.scrollable) : null}
+              >
+                {prepend + lines.slice(fromPosition[1])}
+              </SyntaxHighlighter>
+            </CardContent>
+          
+        
+      </Card>
+    </ErrorBoundary>
   );
 }
+//{error ? <CardContent>{error}</CardContent> : null}
 
 export default TextAttachment;
