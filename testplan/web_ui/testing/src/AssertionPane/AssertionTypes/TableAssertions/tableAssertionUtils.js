@@ -324,7 +324,8 @@ export function prepareTableRowData(data, columns) {
     let passed = {};
 
     let expectedRow = columns.reduce((accumulator, column, index) => {
-      if (diff[column]) {
+      // the value of diff[column] might be a boolean type false.
+      if (diff.hasOwnProperty(column)) {
         accumulator[column] = diff[column];
         passed[column] = false;
       } else if (errors[column]) {

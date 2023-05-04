@@ -17,7 +17,7 @@ function defaultProps() {
       "data":[
         [0,["Bob",32,"same"],{},{},{}],
         [1,["Susan",24,"same"],{},{},{ignored:"different"}],
-        [2,["Rick",67,"same"],{},{},{}]
+        [2,["Rick",67,"same"],{"ignored": false},{},{}],
       ],
       "strict":false,
       "meta_type":"assertion",
