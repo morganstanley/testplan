@@ -2,27 +2,25 @@
 Module of utility types and functions that perform matching.
 """
 import os
-import time
 import re
+import time
+from typing import Dict, List, Match, Optional, Pattern, Tuple, Union
 
-from . import timing
-from . import logger
+from . import logger, timing
 
 LOG_MATCHER_INTERVAL = 0.25
 
 
-def match_regexps_in_file(logpath, log_extracts):
+def match_regexps_in_file(
+    logpath: os.PathLike, log_extracts: List[Pattern]
+) -> Tuple[bool, Dict[str, str], List[Pattern]]:
     """
     Return a boolean, dict pair indicating whether all log extracts matches,
     as well as any named groups they might have matched.
 
     :param logpath: Log file path.
-    :type logpath: ``str``
     :param log_extracts:  Regex list.
-    :type log_extracts: ``Union[bytes, str]``
     :return: Match result.
-    :rtype: ``tuple``
-
     """
     extracted_values = {}
 
@@ -77,13 +75,12 @@ class LogMatcher(logger.Loggable):
         self.marks = {}
         super(LogMatcher, self).__init__()
 
-    def seek(self, mark=None):
+    def seek(self, mark: Optional[str] = None):
         """
         Sets current file position to the specified mark. The mark has to exist.
         If the mark is None sets current file position to beginning of file.
 
         :param mark: Name of the mark.
-        :type mark: ``str`` or ``NoneType``
         """
         if mark is None:
             self.position = 0
@@ -100,31 +97,35 @@ class LogMatcher(logger.Loggable):
         """Sets current file position to the start of file."""
         self.seek()
 
-    def mark(self, name):
+    def mark(self, name: str):
         """
         Marks the current file position with the specified name. The mark name
         can later be used to set the file position
 
         :param name: Name of the mark.
-        :type name: ``str``
         """
         self.marks[name] = self.position
 
-    def match(self, regex, timeout=5):
+    def match(
+        self,
+        regex: Union[str, bytes, Pattern],
+        timeout: float = 5,
+        raise_on_timeout: bool = True,
+    ) -> Optional[Match]:
         """
         Matches each line in the log file from the current line number to the
         end of the file. If a match is found the line number is stored and the
-        match is returned. If no match is found an exception is raised.
+        match is returned. Can be configured to raise an exception if no match
+        is found.
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern, bytes]``
         :param timeout: Timeout in seconds to wait for matching process,
-            0 means should not wait and return whatever matched on initial
-            scan, defaults to 5 seconds
-        :type timeout: ``int``
-        :return: The regex match or raise an Exception if no match is found
-        :rtype: ``re.Match``
+            0 means matching till EOF and not waiting for new lines, any
+            value greater than 0 means doing matching up to such seconds,
+            defaults to 5 seconds
+        :param raise_on_timeout: To raise TimeoutException or not
+        :return: The regex match or None if no match is found
         """
         match = None
         start_time = time.time()
@@ -141,33 +142,35 @@ class LogMatcher(logger.Loggable):
         with open(self.log_path, read_mode) as log:
             log.seek(self.position)
 
-            while match is None:
+            while True:
+                if timeout > 0 and time.time() > end_time:
+                    break
                 line = log.readline()
                 if line:
                     match = regex.match(line)
                     if match:
                         break
-                else:
+                elif timeout > 0:
                     time.sleep(LOG_MATCHER_INTERVAL)
-                    if time.time() > end_time:
-                        break
+                else:
+                    break
 
             self.position = log.tell()
 
-        if match is None:
-            raise timing.TimeoutException(
-                "No match[{}] found in {}s".format(regex.pattern, timeout)
-            )
-        else:
+        if match is not None:
             self.logger.debug(
                 "Match[%s] found in %.2fs",
                 regex.pattern,
                 time.time() - start_time,
             )
+        elif timeout and raise_on_timeout:
+            raise timing.TimeoutException(
+                "No match[{}] found in {}s".format(regex.pattern, timeout)
+            )
 
         return match
 
-    def not_match(self, regex, timeout=5):
+    def not_match(self, regex: Union[str, bytes, Pattern], timeout: float = 5):
         """
         Opposite of :py:meth:`~testplan.common.utils.match.LogMatcher.match`
         which raises an exception if a match is found. Matching is performed
@@ -176,49 +179,45 @@ class LogMatcher(logger.Loggable):
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern, bytes]``
         :param timeout: Timeout in seconds to wait for matching process,
             0 means should not wait and return whatever matched on initial
             scan, defaults to 5 seconds
-        :type timeout: ``int``
         """
-        match = None
 
-        try:
-            match = self.match(regex, timeout)
-        except timing.TimeoutException:
-            pass
-
-        if match:
+        match = self.match(regex, timeout, raise_on_timeout=False)
+        if match is not None:
             raise Exception(
-                "Unexpected match[{}] found in {}s".format(
-                    regex.pattern, timeout
-                )
+                f"Unexpected match[{regex.pattern}] found in {timeout}s"
             )
 
-    def match_all(self, regex, timeout=5):
+    def match_all(
+        self,
+        regex: Union[str, bytes, Pattern],
+        timeout: float = 5,
+        raise_on_timeout: bool = True,
+    ) -> List[Match]:
         """
-        Similar to match, but returns all occurrences of regex. If no match
-        is found till timeout an Exception is raised.
+        Similar to match, but returns all occurrences of regex. Can be
+        configured to raise an exception if no match is found.
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern, bytes]``
         :param timeout: Timeout in seconds to find out all matches in file,
             defaults to 5 seconds.
-        :type timeout: ``int``
-        :return: The regex match or raise an exception if no match is found
-        :rtype: ``re.Match``
+        :param raise_on_timeout: To raise TimeoutException or not
+        :return: A list of regex matches
         """
         matches = []
         end_time = time.time() + timeout
 
         try:
             while timeout >= 0:
-                matches.append(self.match(regex, timeout))
+                matches.append(
+                    self.match(regex, timeout, raise_on_timeout=True)
+                )
                 timeout = end_time - time.time()
         except timing.TimeoutException:
-            if not matches:
+            if not matches and raise_on_timeout:
                 raise
 
         return matches

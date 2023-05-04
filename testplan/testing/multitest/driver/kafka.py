@@ -113,9 +113,7 @@ class KafkaStandalone(app.App):
     def cmd(self) -> List[str]:
         return [self.cfg.binary, self.config]
 
-    def started_check(self, timeout: Optional[float] = None):
-        """Driver started status condition check."""
-
-        super(KafkaStandalone, self).started_check(timeout)
+    def post_start(self):
+        super().post_start()
         self._port = int(self.extracts["port"])
         self.logger.info("%s listening on %s:%s", self, self._host, self._port)

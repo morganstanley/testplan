@@ -1,37 +1,28 @@
 """Units test for the App driver."""
 
+import json
 import os
+import platform
 import re
 import sys
-import json
-import platform
 import tempfile
 from pathlib import Path
 
 import pytest
 
-from testplan.common.utils.timing import wait
-
+from testplan.common.entity import ActionResult
 from testplan.testing.multitest.driver.app import App
 
 MYAPP_DIR = os.path.dirname(__file__)
 
 
-class CustomApp(App):
-    def started_check(self, timeout=None):
-        wait(lambda: self.extract_values(), 5, raise_on_timeout=False)
-
-
-class ProcWaitApp(App):
-    def started_check(self, timeout=None):
-        self.proc.wait()
-
-    def stopped_check(self, timeout=None):
-        wait(lambda: self.proc is None, 10, raise_on_timeout=True)
+class ProcTerminateApp(App):
+    def started_check(self) -> ActionResult:
+        return self.proc.poll() is not None
 
 
 def test_app_unexpected_retcode(runpath):
-    app = App(
+    app = ProcTerminateApp(
         name="App",
         binary=sys.executable,
         args=["-c", "import sys; sys.exit(0)"],
@@ -40,7 +31,7 @@ def test_app_unexpected_retcode(runpath):
     )
     with pytest.raises(RuntimeError):
         with app:
-            app.proc.wait()
+            pass
 
 
 def test_app_cmd(runpath):
@@ -65,7 +56,7 @@ def test_app_cmd(runpath):
 
 def test_app_env(runpath):
     """Test that environment variables are correctly passed down."""
-    app = App(
+    app = ProcTerminateApp(
         name="App",
         binary="echo",
         args=["%KEY%" if platform.system() == "Windows" else "$KEY"],
@@ -74,7 +65,7 @@ def test_app_env(runpath):
         runpath=runpath,
     )
     with app:
-        app.proc.wait()
+        pass
     with open(app.std.out_path, "r") as fobj:
         assert fobj.read().startswith("VALUE")
 
@@ -83,7 +74,7 @@ def test_app_os_environ(runpath):
     """Test that os.environ is passed down."""
     os.environ["KEY"] = "VALUE"
 
-    app = App(
+    app = ProcTerminateApp(
         name="App",
         binary="echo",
         args=["%KEY%" if platform.system() == "Windows" else "$KEY"],
@@ -91,7 +82,7 @@ def test_app_os_environ(runpath):
         runpath=runpath,
     )
     with app:
-        app.proc.wait()
+        pass
     with open(app.std.out_path, "r") as fobj:
         assert fobj.read().startswith("VALUE")
 
@@ -138,7 +129,7 @@ def test_app_logfile(runpath):
     """Test running an App that writes to a logfile."""
     app_dir = "AppDir"
     logname = "file.log"
-    app = App(
+    app = ProcTerminateApp(
         name="App",
         binary="echo",
         args=["hello", ">", os.path.join("AppDir", logname)],
@@ -148,7 +139,7 @@ def test_app_logfile(runpath):
         runpath=runpath,
     )
     with app:
-        app.proc.wait()
+        pass
     assert os.path.exists(app.logpath) is True
 
     with open(app.logpath, "r") as fobj:
@@ -166,7 +157,7 @@ def test_extract_from_logfile(runpath):
         re.compile(r".*b=(?P<b>[a-zA-Z0-9]*).*"),
     ]
 
-    app = CustomApp(
+    app = App(
         name="App",
         binary="echo",
         args=[message, ">", logname],
@@ -192,7 +183,7 @@ def test_extract_from_logfile_with_appdir(runpath):
         re.compile(r".*b=(?P<b>[a-zA-Z0-9]*).*"),
     ]
 
-    app = CustomApp(
+    app = App(
         name="App",
         binary="echo",
         args=[message, ">", os.path.join("AppDir", logname)],
@@ -227,7 +218,7 @@ def test_binary_strategy(runpath, strategy):
         "runpath": runpath,
     }
 
-    app = CustomApp(path_cleanup=True, **params)
+    app = App(path_cleanup=True, **params)
     with app:
         assert app.extracts["value"] == "started"
 
@@ -264,7 +255,7 @@ def test_install_files(runpath):
         re.compile(r".*app_path=(?P<app_path>.*)"),
     ]
     dst = runpath
-    app = CustomApp(
+    app = App(
         name="App",
         binary=binary,
         pre_args=[sys.executable],
@@ -292,7 +283,7 @@ def test_install_files(runpath):
 
 def test_echo_hello(runpath):
     """Test running a basic App that just echos Hello."""
-    app = ProcWaitApp(
+    app = ProcTerminateApp(
         name="App",
         binary="echo",
         args=["hello"],
@@ -358,7 +349,7 @@ def run_app(cwd, runpath):
     """
     Utility function that runs an echo process and waits for it to terminate.
     """
-    app = App(
+    app = ProcTerminateApp(
         name="App",
         binary="echo",
         args=["%cd%" if platform.system() == "Windows" else "`pwd`"],
@@ -367,5 +358,5 @@ def run_app(cwd, runpath):
         runpath=runpath,
     )
     with app:
-        app.proc.wait()
+        pass
     return app

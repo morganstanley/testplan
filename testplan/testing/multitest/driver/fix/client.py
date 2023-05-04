@@ -1,24 +1,24 @@
 """FixClient driver classes."""
 
-import os
 import errno
 import socket
-from typing import Union, Tuple, Optional
+from typing import Optional, Tuple, Union
 
-from schema import Use, Or
+from schema import Or, Use
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.context import is_context, expand, ContextValue
+from testplan.common.entity import ActionResult
+from testplan.common.utils.context import ContextValue, expand, is_context
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.sockets import Codec
+from testplan.common.utils.sockets.fix.client import Client
 from testplan.common.utils.sockets.tls import TLSConfig
 from testplan.common.utils.strings import slugify
-from testplan.common.utils.sockets.fix.client import Client
 from testplan.common.utils.testing import FixMessage
 from testplan.common.utils.timing import (
+    PollInterval,
     TimeoutException,
     TimeoutExceptionInfo,
-    get_sleeper,
 )
 
 from ..base import Driver, DriverConfig
@@ -170,22 +170,18 @@ class FixClient(Driver):
         """FIX SenderSubID."""
         return self.cfg.sendersub
 
-    def started_check(self, timeout=None):
-        """Driver started status condition check."""
-        sleeper = get_sleeper(
-            interval=(0.5, 2),
-            timeout=timeout,
-            raise_timeout_with_msg=f"FixClient {self} not able to connect in {timeout} seconds",
-        )
-        while next(sleeper):
-            try:
-                self.reconnect()
-            except Exception as exc:
-                self.logger.debug(
-                    "FixClient %s not able to connect - %s", self, exc
-                )
-            else:
-                break
+    def started_check(self) -> ActionResult:
+        try:
+            self.reconnect()
+        except Exception as exc:
+            self.logger.debug("%s not able to connect - %s", self, exc)
+            return False
+        else:
+            return True
+
+    @property
+    def started_check_interval(self) -> PollInterval:
+        return (0.5, 2)
 
     def connect(self):
         """
