@@ -949,6 +949,12 @@ class MultiTest(testing_base.Test):
 
         return parametrization_reports
 
+    def _get_runtime_environment(self, testcase_name, testcase_report):
+        runtime_info = MultiTestRuntimeInfo()
+        runtime_info.testcase.name = testcase_name
+        runtime_info.testcase.report = testcase_report
+        return RuntimeEnvironment(self.resources, runtime_info)
+
     def _setup_testsuite(self, testsuite):
         """
         Run the setup for a testsuite, logging any exceptions.
@@ -978,10 +984,9 @@ class MultiTest(testing_base.Test):
             stdout_style=self.stdout_style, _scratch=self._scratch
         )
 
-        runtime_info = MultiTestRuntimeInfo()
-        runtime_info.testcase.name = method_name
-        runtime_info.testcase.report = method_report
-        resources = RuntimeEnvironment(self.resources, runtime_info)
+        resources = self._get_runtime_environment(
+            testcase_name=method_name, testcase_report=method_report
+        )
 
         try:
             interface.check_signature(testsuite_method, ["env", "result"])
@@ -1066,10 +1071,9 @@ class MultiTest(testing_base.Test):
         # later can be moved out to multitest level, and cloned here as
         # testcases may run parallel
 
-        runtime_info = MultiTestRuntimeInfo()
-        runtime_info.testcase.name = testcase.name
-        runtime_info.testcase.report = testcase_report
-        resources = RuntimeEnvironment(self.resources, runtime_info)
+        resources = self._get_runtime_environment(
+            testcase_name=testcase.name, testcase_report=testcase_report
+        )
 
         # specially handle skipped testcases
         if hasattr(testcase, "__should_skip__"):
@@ -1169,10 +1173,9 @@ class MultiTest(testing_base.Test):
             )
 
             num_args = len(callable_utils.getargspec(func).args)
-            runtime_info = MultiTestRuntimeInfo()
-            runtime_info.testcase.name = func.__name__
-            runtime_info.testcase.report = testcase_report
-            resources = RuntimeEnvironment(self.resources, runtime_info)
+            resources = self._get_runtime_environment(
+                testcase_name=func.__name__, testcase_report=testcase_report
+            )
 
             args = (resources,) if num_args == 1 else (resources, case_result)
 
