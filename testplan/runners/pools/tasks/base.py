@@ -243,7 +243,9 @@ class Task(SelectiveSerializable):
             module = self._module
             target = self._target
 
-        with import_tmp_module(module, self._rebased_path) as mod:
+        with import_tmp_module(
+            module, self._rebased_path, warn_if_exist=False
+        ) as mod:
             tgt = mod
             for element in target.split("."):
                 tgt = getattr(tgt, element, None)
