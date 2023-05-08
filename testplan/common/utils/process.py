@@ -5,6 +5,7 @@ import platform
 import subprocess
 import threading
 import time
+from typing import Callable
 import warnings
 from enum import Enum, auto
 
@@ -24,7 +25,13 @@ def _log_proc(msg, warn=False, output=None):
         warnings.warn(msg)
 
 
-def kill_process(proc, timeout=5, signal_=None, output=None):
+def kill_process(
+    proc: subprocess.Popen,
+    timeout=5,
+    signal_=None,
+    output=None,
+    on_failed_termination: Callable[[int, int], None] = None,
+):
     """
     If alive, kills the process.
     First call ``terminate()`` or pass ``signal_`` if specified
@@ -37,6 +44,9 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     :type timeout: ``int``
     :param output: Optional file like object for writing logs.
     :type output: ``file``
+    :param on_failed_termination : ``callable`` or ``None``
+        A callback function that is executed when process fails to terminate.
+        It receives two arguments: pid as `int` and timeout as `int`.
     :return: Exit code of process
     :rtype: ``int`` or ``NoneType``
     """
@@ -62,6 +72,9 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
 
     if retcode is None:
         try:
+            if on_failed_termination is not None:
+                on_failed_termination(proc.pid, timeout)
+
             _log(msg="Binary still alive, killing it")
             proc.kill()
             proc.wait()
@@ -83,7 +96,13 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     return proc.returncode
 
 
-def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
+def kill_process_psutil(
+    proc: psutil.Process,
+    timeout=5,
+    signal_=None,
+    output=None,
+    on_failed_termination: Callable[[int, int], None] = None,
+):
     """
     If alive, kills the process (an instance of ``psutil.Process``).
     Try killing the child process at first and then killing itself.
@@ -97,6 +116,9 @@ def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
     :type timeout: ``int``
     :param output: Optional file like object for writing logs.
     :type output: ``file``
+    :param on_failed_termination : ``callable`` or ``None``
+        A callback function that is executed when process fails to terminate.
+        It receives two arguments: pid as `int` and timeout as `int`.
     :return: List of processes which are still alive
     :rtype: ``list`` or ``psutil.Process``
     """
@@ -121,6 +143,8 @@ def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
     if len(alive) > 0:
         for p in alive:
             try:
+                if on_failed_termination is not None:
+                    on_failed_termination(proc.pid, timeout)
                 p.kill()
             except psutil.NoSuchProcess:
                 pass  # already dead
