@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import Popover from '@material-ui/core/Popover';
-import Typography from '@material-ui/core/Typography';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import Popover from "@material-ui/core/Popover";
+import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import { INDENT_MULTIPLIER } from './../../../Common/defaults';
+import { INDENT_MULTIPLIER } from "./../../../Common/defaults";
 
 const useStyles = makeStyles((theme) => ({
   popover: {
-    pointerEvents: 'none',
+    pointerEvents: "none",
   },
   paper: {
     padding: theme.spacing(1),
-    maxWidth: '25em',
-    overflowY: 'hidden',
+    maxWidth: "25em",
+    overflowY: "hidden",
   },
   typography: {
     fontSize: "small",
@@ -44,9 +44,9 @@ export default function DictCellRenderer(props) {
   let subText;
   let indentStyle = {};
 
-  if (props.colDef.field === 'key') {
+  if (props.colDef.field === "key") {
     if (props.data.descriptor.isListKey && mainText) {
-      subText = 'list';
+      subText = "list";
     }
     if (props.data.descriptor.indent) {
       const indent = props.data.descriptor.indent * INDENT_MULTIPLIER;
@@ -59,14 +59,16 @@ export default function DictCellRenderer(props) {
   return (
     <div style={indentStyle}>
       <span
-        style={{userSelect: 'all'}}
+        style={{ userSelect: "all" }}
         id={props.id}
         onMouseEnter={(event) => {
           if (props.tooltip) {
             setAnchorEl(event.currentTarget);
           }
         }}
-        onMouseLeave={() => {setAnchorEl(null);}}
+        onMouseLeave={() => {
+          setAnchorEl(null);
+        }}
       >
         {mainText}
       </span>
@@ -80,14 +82,16 @@ export default function DictCellRenderer(props) {
         open={open}
         anchorEl={anchorEl}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
+          vertical: "top",
+          horizontal: "left",
         }}
-        onClose={() => {setAnchorEl(null);}}
+        onClose={() => {
+          setAnchorEl(null);
+        }}
         disableRestoreFocus
       >
         <Typography className={classes.typography}>
@@ -97,7 +101,6 @@ export default function DictCellRenderer(props) {
     </div>
   );
 }
-
 
 DictCellRenderer.propTypes = {
   /** The meta info of current row. */

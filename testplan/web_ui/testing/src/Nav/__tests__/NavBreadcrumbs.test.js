@@ -1,29 +1,29 @@
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import NavBreadcrumbs from '../NavBreadcrumbs';
+import NavBreadcrumbs from "../NavBreadcrumbs";
 
 function defaultProps() {
   const entry = {
-    uid: '123',
-    name: 'test',
-    description: 'desc',
-    status: 'passed',
-    category: 'testplan',
+    uid: "123",
+    name: "test",
+    description: "desc",
+    status: "passed",
+    category: "testplan",
     counter: {
       passed: 0,
       failed: 0,
     },
-    uids: ['123']
+    uids: ["123"],
   };
   return {
     entries: [entry],
-    url: '/testplan/:uid/:selection*',
+    url: "/testplan/:uid/:selection*",
   };
 }
 
-describe('NavBreadcrumbs', () => {
+describe("NavBreadcrumbs", () => {
   const props = defaultProps();
 
   beforeEach(() => {
@@ -36,11 +36,8 @@ describe('NavBreadcrumbs', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders the correct HTML structure', () => {
-    const navBreadcrumbs = shallow(
-        <NavBreadcrumbs {...props} />
-    );
+  it("shallow renders the correct HTML structure", () => {
+    const navBreadcrumbs = shallow(<NavBreadcrumbs {...props} />);
     expect(navBreadcrumbs).toMatchSnapshot();
   });
-
 });

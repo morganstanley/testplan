@@ -1,26 +1,26 @@
-import React, {useState} from 'react';
-import PropTypes from 'prop-types';
-import DictBaseAssertion from './DictBaseAssertion';
-import DictButtonGroup from './DictButtonGroup';
-import FixCellRenderer from './FixCellRenderer';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import DictBaseAssertion from "./DictBaseAssertion";
+import DictButtonGroup from "./DictButtonGroup";
+import FixCellRenderer from "./FixCellRenderer";
 import {
   prepareDictColumnDefs,
   prepareDictRowData,
-  dictCellStyle
-} from './dictAssertionUtils';
-import {SORT_TYPES} from './../../../Common/defaults';
+  dictCellStyle,
+} from "./dictAssertionUtils";
+import { SORT_TYPES } from "./../../../Common/defaults";
 
 /**
  * Component that renders FixLog assertion.
  *
- * The actual dictionary of the test:            
+ * The actual dictionary of the test:
  *
- * {                         
- *   'foo': {               
- *     'alpha': 'blue',     
- *     'beta': 'green',     
- *   }                      
- *   'bar': true            
+ * {
+ *   'foo': {
+ *     'alpha': 'blue',
+ *     'beta': 'green',
+ *   }
+ *   'bar': true
  * }
  *
  *  _________________________
@@ -47,9 +47,9 @@ export default function FixLogAssertion(props) {
   const buttonGroup = (
     <DictButtonGroup
       sortTypeList={[
-        SORT_TYPES.ALPHABETICAL, 
+        SORT_TYPES.ALPHABETICAL,
         SORT_TYPES.REVERSE_ALPHABETICAL,
-        SORT_TYPES.NONE
+        SORT_TYPES.NONE,
       ]}
       flattenedDict={flattenedDict}
       setRowData={setRowData}
@@ -66,8 +66,7 @@ export default function FixLogAssertion(props) {
   );
 }
 
-
 FixLogAssertion.propTypes = {
   /** Assertion being rendered */
-	assertion: PropTypes.object.isRequired,
+  assertion: PropTypes.object.isRequired,
 };

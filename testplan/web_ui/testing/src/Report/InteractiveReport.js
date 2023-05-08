@@ -5,37 +5,34 @@
  */
 // React needs to be in scope for JSX
 import React from "react";
-import { StyleSheet, css } from 'aphrodite';
-import axios from 'axios';
+import { StyleSheet, css } from "aphrodite";
+import axios from "axios";
 import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
-import base64url from 'base64url';
+import base64url from "base64url";
 
 import BaseReport from "./BaseReport";
-import Toolbar from '../Toolbar/Toolbar.js';
+import Toolbar from "../Toolbar/Toolbar.js";
 import {
   ReloadButton,
   ResetButton,
   AbortButton,
-  SaveButton
-} from '../Toolbar/InteractiveButtons';
-import Nav from '../Nav/Nav.js';
+  SaveButton,
+} from "../Toolbar/InteractiveButtons";
+import Nav from "../Nav/Nav.js";
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
-import { FakeInteractiveReport } from '../Common/sampleReports.js';
+import { FakeInteractiveReport } from "../Common/sampleReports.js";
 import {
-  PropagateIndices,  
+  PropagateIndices,
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
   filterReport,
   getSelectedUIDsFromPath,
-} from './reportUtils.js';
-import {
-  encodeURIComponent2,
-  parseToJson
-} from '../Common/utils';
+} from "./reportUtils.js";
+import { encodeURIComponent2, parseToJson } from "../Common/utils";
 
-import { POLL_MS } from '../Common/defaults.js';
+import { POLL_MS } from "../Common/defaults.js";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 
 const api_prefix = "/api/v1/interactive";
@@ -47,7 +44,6 @@ const api_prefix = "/api/v1/interactive";
  * the UI.
  */
 class InteractiveReport extends BaseReport {
-
   constructor(props) {
     super(props);
     this.setReport = this.setReport.bind(this);
@@ -58,7 +54,6 @@ class InteractiveReport extends BaseReport {
     this.reloadCode = this.reloadCode.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.handleClick = this.handleClick.bind(this);
-
 
     this.state = {
       ...this.state,
@@ -76,13 +71,11 @@ class InteractiveReport extends BaseReport {
       processedReport,
       this.state.filteredReport.filter
     );
-    this.setState(
-      (state, props) => ({
-        report: processedReport,
-        filteredReport,
-        loading: false,
-      })
-    );
+    this.setState((state, props) => ({
+      report: processedReport,
+      filteredReport,
+      loading: false,
+    }));
   }
 
   /**
@@ -103,38 +96,37 @@ class InteractiveReport extends BaseReport {
    */
   getReport() {
     if (this.state.aborting) {
-      this.setError({message: "Server is aborting ..."});
+      this.setError({ message: "Server is aborting ..." });
       return;
     }
-    if (this.props.match.params.uid === '_dev') {
-      setTimeout(
-        () => this.setReport(FakeInteractiveReport),
-        1500,
-      );
+    if (this.props.match.params.uid === "_dev") {
+      setTimeout(() => this.setReport(FakeInteractiveReport), 1500);
     } else {
-      axios.get(
-      '/api/v1/interactive/report', {transformResponse: parseToJson}
-      ).then(response => {
-        if (
-          response.data.runtime_status === "ready" ||
-          response.data.runtime_status === "finished" ||
-          response.data.runtime_status === "not_run"
-        ) {
-          this.setState({ resetting: false });
-        }
-        if (
-          !this.state.report ||
-          this.state.report.hash !== response.data.hash
-        ) {
-          this.getTests().then(tests => {
-            const rawReport = { ...response.data, entries: tests };
-            this.setReport(rawReport);
-          });
-        }
-      }).catch(this.setError).finally(() => {
-        // We poll for updates to the report every second.
-        setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);
-      });
+      axios
+        .get("/api/v1/interactive/report", { transformResponse: parseToJson })
+        .then((response) => {
+          if (
+            response.data.runtime_status === "ready" ||
+            response.data.runtime_status === "finished" ||
+            response.data.runtime_status === "not_run"
+          ) {
+            this.setState({ resetting: false });
+          }
+          if (
+            !this.state.report ||
+            this.state.report.hash !== response.data.hash
+          ) {
+            this.getTests().then((tests) => {
+              const rawReport = { ...response.data, entries: tests };
+              this.setReport(rawReport);
+            });
+          }
+        })
+        .catch(this.setError)
+        .finally(() => {
+          // We poll for updates to the report every second.
+          setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);
+        });
     }
   }
 
@@ -143,29 +135,30 @@ class InteractiveReport extends BaseReport {
    * backend.
    */
   getTests() {
-    return axios.get(
-      "/api/v1/interactive/report/tests",
-      {transformResponse: parseToJson}
-    ).then(response => {
-      return Promise.all(response.data.map(
-        newTest => {
-          const existingTest = (
-            this.state.report && this.state.report.entries.find(
-              entry => entry.uid === newTest.uid
-            )
-          );
+    return axios
+      .get("/api/v1/interactive/report/tests", {
+        transformResponse: parseToJson,
+      })
+      .then((response) => {
+        return Promise.all(
+          response.data.map((newTest) => {
+            const existingTest =
+              this.state.report &&
+              this.state.report.entries.find(
+                (entry) => entry.uid === newTest.uid
+              );
 
-          if (!existingTest ||
-            existingTest.hash !== newTest.hash) {
-            return this.getSuites(newTest, existingTest).then(
-              suites => ({ ...newTest, entries: suites })
-            );
-          } else {
-            return existingTest;
-          }
-        }
-      ));
-    });
+            if (!existingTest || existingTest.hash !== newTest.hash) {
+              return this.getSuites(newTest, existingTest).then((suites) => ({
+                ...newTest,
+                entries: suites,
+              }));
+            } else {
+              return existingTest;
+            }
+          })
+        );
+      });
   }
 
   /**
@@ -173,27 +166,27 @@ class InteractiveReport extends BaseReport {
    */
   getSuites(newTest, existingTest) {
     const encoded_test_uid = encodeURIComponent2(newTest.uid);
-    return axios.get(
-      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites`,
-      {transformResponse: parseToJson}
-    ).then(response => {
-      return Promise.all(response.data.map(
-        newSuite => {
-          const existingSuite = existingTest && existingTest.entries.find(
-            entry => entry.uid === newSuite.uid
-          );
+    return axios
+      .get(`/api/v1/interactive/report/tests/${encoded_test_uid}/suites`, {
+        transformResponse: parseToJson,
+      })
+      .then((response) => {
+        return Promise.all(
+          response.data.map((newSuite) => {
+            const existingSuite =
+              existingTest &&
+              existingTest.entries.find((entry) => entry.uid === newSuite.uid);
 
-          if (!existingSuite ||
-            existingSuite.hash !== newSuite.hash) {
-            return this.getTestCases(newTest, newSuite, existingSuite).then(
-              testcases => ({ ...newSuite, entries: testcases })
-            );
-          } else {
-            return existingSuite;
-          }
-        }
-      ));
-    });
+            if (!existingSuite || existingSuite.hash !== newSuite.hash) {
+              return this.getTestCases(newTest, newSuite, existingSuite).then(
+                (testcases) => ({ ...newSuite, entries: testcases })
+              );
+            } else {
+              return existingSuite;
+            }
+          })
+        );
+      });
   }
 
   /**
@@ -202,43 +195,50 @@ class InteractiveReport extends BaseReport {
   getTestCases(test, newSuite, existingSuite) {
     const encoded_test_uid = encodeURIComponent2(test.uid);
     const encoded_suite_uid = encodeURIComponent2(newSuite.uid);
-    return axios.get(
-      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
-      `${encoded_suite_uid}/testcases`,
-      {transformResponse: parseToJson}
-    ).then(response => {
-      return Promise.all(response.data.map((newTestCase) => {
-        switch (newTestCase.category) {
-          case "testcase":
-            return newTestCase;
+    return axios
+      .get(
+        `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
+          `${encoded_suite_uid}/testcases`,
+        { transformResponse: parseToJson }
+      )
+      .then((response) => {
+        return Promise.all(
+          response.data.map((newTestCase) => {
+            switch (newTestCase.category) {
+              case "testcase":
+                return newTestCase;
 
-          case "parametrization":
-            const existingParametrization = (
-              existingSuite && existingSuite.entries.find(
-                entry => entry.uid === newTestCase
-              )
-            );
+              case "parametrization":
+                const existingParametrization =
+                  existingSuite &&
+                  existingSuite.entries.find(
+                    (entry) => entry.uid === newTestCase
+                  );
 
-            if (
-              !existingParametrization ||
-              existingParametrization.hash !== newTestCase.hash
-            ) {
-              return this.getParametrizations(test, newSuite, newTestCase).then(
-                parametrizations => ({
-                  ...newTestCase, entries: parametrizations
-                })
-              );
-            } else {
-              return existingParametrization;
+                if (
+                  !existingParametrization ||
+                  existingParametrization.hash !== newTestCase.hash
+                ) {
+                  return this.getParametrizations(
+                    test,
+                    newSuite,
+                    newTestCase
+                  ).then((parametrizations) => ({
+                    ...newTestCase,
+                    entries: parametrizations,
+                  }));
+                } else {
+                  return existingParametrization;
+                }
+
+              default:
+                throw new Error(
+                  "Unexpected testcase category: " + newTestCase.category
+                );
             }
-
-          default:
-            throw new Error(
-              "Unexpected testcase category: " + newTestCase.category
-            );
-        }
-      }));
-    });
+          })
+        );
+      });
   }
 
   /**
@@ -248,11 +248,13 @@ class InteractiveReport extends BaseReport {
     const encoded_test_uid = encodeURIComponent2(test.uid);
     const encoded_suite_uid = encodeURIComponent2(suite.uid);
     const encoded_testcase_uid = encodeURIComponent2(testcase.uid);
-    return axios.get(
-      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
-      `${encoded_suite_uid}/testcases/${encoded_testcase_uid}/parametrizations`,
-      {transformResponse: parseToJson}
-    ).then(response => response.data);
+    return axios
+      .get(
+        `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
+          `${encoded_suite_uid}/testcases/${encoded_testcase_uid}/parametrizations`,
+        { transformResponse: parseToJson }
+      )
+      .then((response) => response.data);
   }
 
   /**
@@ -260,8 +262,9 @@ class InteractiveReport extends BaseReport {
    */
   putUpdatedReportEntry(updatedReportEntry) {
     const apiUrl = this.getApiUrl(updatedReportEntry);
-    return axios.put(apiUrl, updatedReportEntry).then(
-      response => {
+    return axios
+      .put(apiUrl, updatedReportEntry)
+      .then((response) => {
         if (response.data.errmsg) {
           console.error(response.data);
           alert(response.data.errmsg);
@@ -270,17 +273,14 @@ class InteractiveReport extends BaseReport {
           response.data.hash = updatedReportEntry.hash;
           this.setShallowReportEntry(response.data);
         }
-      }
-    ).catch(
-      error => this.setState({ error: error })
-    );
+      })
+      .catch((error) => this.setState({ error: error }));
   }
 
   /**
    * Get the API URL for requesting to update the state of a report entry.
    */
   getApiUrl(updatedReportEntry) {
-
     switch (updatedReportEntry.parent_uids.length) {
       case 0:
         return api_prefix + "/report";
@@ -304,10 +304,11 @@ class InteractiveReport extends BaseReport {
         );
         const testcase_uid = encodeURIComponent2(updatedReportEntry.uid);
 
-        return api_prefix + (
-          `/report/tests/${test_uid}`
-          + `/suites/${suite_uid}`
-          + `/testcases/${testcase_uid}`
+        return (
+          api_prefix +
+          (`/report/tests/${test_uid}` +
+            `/suites/${suite_uid}` +
+            `/testcases/${testcase_uid}`)
         );
       }
 
@@ -321,18 +322,19 @@ class InteractiveReport extends BaseReport {
         );
         const param_uid = encodeURIComponent2(updatedReportEntry.uid);
 
-        return api_prefix + (
-          `/report/tests/${test_uid}`
-          + `/suites/${suite_uid}`
-          + `/testcases/${testcase_uid}`
-          + `/parametrizations/${param_uid}`
+        return (
+          api_prefix +
+          (`/report/tests/${test_uid}` +
+            `/suites/${suite_uid}` +
+            `/testcases/${testcase_uid}` +
+            `/parametrizations/${param_uid}`)
         );
       }
 
       default:
         throw new Error(
-          "Unexpected number of parent entries: "
-          + updatedReportEntry.parent_uids
+          "Unexpected number of parent entries: " +
+            updatedReportEntry.parent_uids
         );
     }
   }
@@ -342,9 +344,7 @@ class InteractiveReport extends BaseReport {
    */
   setShallowReportEntry(shallowReportEntry) {
     this.setState((state, props) => ({
-      report: this.updateReportEntryRecur(
-        shallowReportEntry, state.report,
-      ),
+      report: this.updateReportEntryRecur(shallowReportEntry, state.report),
     }));
   }
 
@@ -357,14 +357,10 @@ class InteractiveReport extends BaseReport {
       if (currEntry.uid === shallowReportEntry.parent_uids[depth]) {
         return {
           ...currEntry,
-          hash: null,  // clear the hash on the path down to the change, as we
-                       // do not know what it would be safe bet to set null
-          entries: currEntry.entries.map(
-            entry => this.updateReportEntryRecur(
-              shallowReportEntry,
-              entry,
-              depth + 1,
-            )
+          hash: null, // clear the hash on the path down to the change, as we
+          // do not know what it would be safe bet to set null
+          entries: currEntry.entries.map((entry) =>
+            this.updateReportEntryRecur(shallowReportEntry, entry, depth + 1)
           ),
         };
       } else {
@@ -408,7 +404,8 @@ class InteractiveReport extends BaseReport {
     e.preventDefault();
     e.stopPropagation();
     const updatedReportEntry = {
-      ...this.shallowReportEntry(reportEntry), runtime_status: action
+      ...this.shallowReportEntry(reportEntry),
+      runtime_status: action,
     };
     this.putUpdatedReportEntry(updatedReportEntry);
   }
@@ -470,7 +467,7 @@ class InteractiveReport extends BaseReport {
     } else {
       const updatedReportEntry = {
         ...this.shallowReportEntry(this.state.report),
-        runtime_status: "resetting"
+        runtime_status: "resetting",
       };
       this.putUpdatedReportEntry(updatedReportEntry);
       this.setState({ resetting: true });
@@ -485,30 +482,31 @@ class InteractiveReport extends BaseReport {
       return;
     }
     let currentTime = new Date();
-    this.setState({reloading: true});
+    this.setState({ reloading: true });
     this.resetAssertionStatus();
-    return axios.get(
-      `${api_prefix}/reload`
-    ).then(response => {
-      if (response.data.errmsg) {
-        alert(response.data.errmsg);
-        console.error(response.data);
-      }
-      let duration = new Date() - currentTime;
-      if (duration < 1000) {
-        setTimeout(()=> {
-          this.setState({reloading: false});
+    return axios
+      .get(`${api_prefix}/reload`)
+      .then((response) => {
+        if (response.data.errmsg) {
+          alert(response.data.errmsg);
+          console.error(response.data);
+        }
+        let duration = new Date() - currentTime;
+        if (duration < 1000) {
+          setTimeout(() => {
+            this.setState({ reloading: false });
+          }, 1000);
+        } else {
+          this.setState({ reloading: false });
+        }
+        return;
+      })
+      .catch((error) => {
+        alert("Cannot reload when there is test not finished.");
+        setTimeout(() => {
+          this.setState({ reloading: false });
         }, 1000);
-      } else {
-        this.setState({reloading: false});
-      }
-      return;
-    }).catch(error => {
-      alert("Cannot reload when there is test not finished.");
-      setTimeout(()=> {
-        this.setState({reloading: false});
-      }, 1000);
-    });
+      });
   }
 
   /**
@@ -521,24 +519,25 @@ class InteractiveReport extends BaseReport {
     if (!window.confirm("Abort Testplan ?")) {
       return;
     }
-    this.setState({aborting: true});
-    return axios.get(
-      `${api_prefix}/abort`
-    ).then(response => {
-      if (response.data.errmsg) {
-        alert(response.data.errmsg);
-        console.error(response.data);
-        this.setState({aborting: false});
-      } else {
-        alert("Testplan aborted, please close this windows.");
-        this.setError({message: "Server aborted !!!"});
+    this.setState({ aborting: true });
+    return axios
+      .get(`${api_prefix}/abort`)
+      .then((response) => {
+        if (response.data.errmsg) {
+          alert(response.data.errmsg);
+          console.error(response.data);
+          this.setState({ aborting: false });
+        } else {
+          alert("Testplan aborted, please close this windows.");
+          this.setError({ message: "Server aborted !!!" });
+          window.close();
+        }
+      })
+      .catch((error) => {
+        alert("Unknown error, please close this windows.");
+        this.setError({ message: "Cannot connect to server !!!" });
         window.close();
-      }
-    }).catch(error => {
-      alert("Unknown error, please close this windows.");
-      this.setError({message: "Cannot connect to server !!!"});
-      window.close();
-    });
+      });
   }
 
   /**
@@ -558,9 +557,11 @@ class InteractiveReport extends BaseReport {
         return this.putUpdatedReportEntry(updatedReportEntry);
       }
     } else if (reportEntry.entries) {
-      return Promise.all(reportEntry.entries.map(
-        childEntry => this.resetTestcasesRecur(childEntry)
-      ));
+      return Promise.all(
+        reportEntry.entries.map((childEntry) =>
+          this.resetTestcasesRecur(childEntry)
+        )
+      );
     }
   }
 
@@ -568,37 +569,46 @@ class InteractiveReport extends BaseReport {
    * Reset the environment state by stopping all started environments.
    */
   resetEnvironment() {
-    return Promise.all(this.state.report.entries.map(reportEntry => {
-      const updatedReportEntry = {
-        ...reportEntry,
-        env_status: reportEntry.env_status === "STARTED" ?
-          "STOPPING" : reportEntry.env_status,
-      };
-      return this.putUpdatedReportEntry(updatedReportEntry);
-    }));
+    return Promise.all(
+      this.state.report.entries.map((reportEntry) => {
+        const updatedReportEntry = {
+          ...reportEntry,
+          env_status:
+            reportEntry.env_status === "STARTED"
+              ? "STOPPING"
+              : reportEntry.env_status,
+        };
+        return this.putUpdatedReportEntry(updatedReportEntry);
+      })
+    );
   }
 
   /**
    * Render the InteractiveReport component based on its current state.
    */
   render() {
-
-    if ( this.props.match.params.uid === undefined && this.state.report) {
-      return <Redirect to={generatePath(this.props.match.path,
-        {uid: base64url(this.state.report.uid), selection:undefined})}/>;
+    if (this.props.match.params.uid === undefined && this.state.report) {
+      return (
+        <Redirect
+          to={generatePath(this.props.match.path, {
+            uid: base64url(this.state.report.uid),
+            selection: undefined,
+          })}
+        />
+      );
     }
 
     const noop = () => undefined;
     const { reportStatus, reportFetchMessage } = GetReportState(this.state);
     const selectedEntries = GetSelectedEntries(
-      getSelectedUIDsFromPath(this.props.match.params, base64url.decode), 
+      getSelectedUIDsFromPath(this.props.match.params, base64url.decode),
       this.state.filteredReport.report
     );
     const centerPane = GetCenterPane(
       this.state,
       reportFetchMessage,
       null,
-      selectedEntries,
+      selectedEntries
     );
 
     return (
@@ -632,7 +642,7 @@ class InteractiveReport extends BaseReport {
               aborting={this.state.aborting}
               abortCbk={this.abortTestplan}
             />,
-            <SaveButton key="save-button"/>
+            <SaveButton key="save-button" />,
           ]}
         />
         <Nav
@@ -644,7 +654,7 @@ class InteractiveReport extends BaseReport {
           filter={null}
           displayEmpty={true}
           displayTags={false}
-          displayTime={false}          
+          displayTime={false}
           // envCtrlCallback and handleClick are passed down to InteractiveNav
           handleClick={this.handleClick}
           envCtrlCallback={this.envCtrlCallback}
@@ -662,4 +672,3 @@ class InteractiveReport extends BaseReport {
 const styles = StyleSheet.create({ interactiveReport: {} });
 
 export default InteractiveReport;
-

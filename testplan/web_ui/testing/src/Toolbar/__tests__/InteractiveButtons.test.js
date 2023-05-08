@@ -2,10 +2,10 @@
  * Unit tests for the InteractiveButtons module
  */
 import React from "react";
-import {shallow} from "enzyme";
-import {StyleSheetTestUtils} from "aphrodite";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import {ReloadButton, ResetButton, AbortButton} from "../InteractiveButtons";
+import { ReloadButton, ResetButton, AbortButton } from "../InteractiveButtons";
 
 describe("ReloadButton", () => {
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("ReloadButton", () => {
       <ReloadButton reloadCbk={reloadCbk} reloading={false} />
     );
     expect(button).toMatchSnapshot();
-    button.find({title: "Reload code"}).simulate("click");
+    button.find({ title: "Reload code" }).simulate("click");
     expect(reloadCbk.mock.calls.length).toBe(1);
   });
 
@@ -35,7 +35,6 @@ describe("ReloadButton", () => {
     );
     expect(button).toMatchSnapshot();
   });
-
 });
 
 describe("ResetButton", () => {
@@ -55,7 +54,7 @@ describe("ResetButton", () => {
       <ResetButton resetStateCbk={resetCbk} resetting={false} />
     );
     expect(button).toMatchSnapshot();
-    button.find({title: "Reset state"}).simulate("click");
+    button.find({ title: "Reset state" }).simulate("click");
     expect(resetCbk.mock.calls.length).toBe(1);
   });
 
@@ -66,7 +65,6 @@ describe("ResetButton", () => {
     );
     expect(button).toMatchSnapshot();
   });
-
 });
 
 describe("AbortButton", () => {
@@ -86,16 +84,13 @@ describe("AbortButton", () => {
       <AbortButton abortCbk={abortCbk} aborting={false} />
     );
     expect(button).toMatchSnapshot();
-    button.find({title: "Abort Testplan"}).simulate("click");
+    button.find({ title: "Abort Testplan" }).simulate("click");
     expect(abortCbk.mock.calls.length).toBe(1);
   });
 
   it("Renders a spinning icon when abortion is in-progress", () => {
     const abortCbk = jest.fn();
-    const button = shallow(
-      <AbortButton abortCbk={abortCbk} aborting={true} />
-    );
+    const button = shallow(<AbortButton abortCbk={abortCbk} aborting={true} />);
     expect(button).toMatchSnapshot();
   });
-
 });

@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Badge } from 'reactstrap';
-import { StyleSheet, css } from 'aphrodite';
-import { formatMilliseconds } from './../Common/utils';
-import _ from 'lodash';
+import React from "react";
+import PropTypes from "prop-types";
+import { Badge } from "reactstrap";
+import { StyleSheet, css } from "aphrodite";
+import { formatMilliseconds } from "./../Common/utils";
+import _ from "lodash";
 
 import {
   RED,
@@ -25,21 +25,20 @@ import { statusStyles } from "../Common/Styles";
  */
 const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
-  const executionTime = (
+  const executionTime =
     props.displayTime && _.isNumber(props.executionTime) ? (
-      <i className={css(styles.entryIcon)} title='Execution time'>
+      <i className={css(styles.entryIcon)} title="Execution time">
         <span className={css(styles[STATUS_CATEGORY[props.status]])}>
           {formatMilliseconds(props.executionTime)}
         </span>
       </i>
-    ) : null
-  );
+    ) : null;
   return (
     <div
-      className='d-flex justify-content-between align-items-center'
+      className="d-flex justify-content-between align-items-center"
       style={{
         height: "1.5em",
-        userSelect: "none"
+        userSelect: "none",
       }}
     >
       <Badge
@@ -57,9 +56,8 @@ const NavEntry = (props) => {
       </div>
       <div className={css(styles.entryIcons)}>
         {executionTime}
-        <i className={css(styles.entryIcon)} title='passed/failed testcases'>
-          <span className={css(styles.passed)}>{props.caseCountPassed}</span>
-          /
+        <i className={css(styles.entryIcon)} title="passed/failed testcases">
+          <span className={css(styles.passed)}>{props.caseCountPassed}</span>/
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
         </i>
       </div>
@@ -88,24 +86,24 @@ NavEntry.propTypes = {
 
 const styles = StyleSheet.create({
   entryName: {
-    "overflow": "hidden",
+    overflow: "hidden",
     "text-overflow": "ellipsis",
     "white-space": "nowrap",
-    fontSize: 'small',
+    fontSize: "small",
     fontWeight: 500,
-    marginLeft: '3px',
-    marginRight: '3px',
-    userSelect: 'text',
+    marginLeft: "3px",
+    marginRight: "3px",
+    userSelect: "text",
   },
   entryIcons: {
-    paddingLeft: '1em',
+    paddingLeft: "1em",
     display: "flex",
     flexShrink: 0,
     marginLeft: "auto",
   },
   entryIcon: {
-    fontSize: 'x-small',
-    margin: '0em 0.5em 0em 0.5em',
+    fontSize: "x-small",
+    margin: "0em 0.5em 0em 0.5em",
   },
   badge: {
     opacity: 0.5,
@@ -125,7 +123,7 @@ const styles = StyleSheet.create({
   unknownBadge: {
     backgroundColor: BLACK,
   },
-  ...statusStyles
+  ...statusStyles,
 });
 
 export default NavEntry;

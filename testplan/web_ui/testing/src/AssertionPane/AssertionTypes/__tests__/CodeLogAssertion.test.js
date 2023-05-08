@@ -1,27 +1,26 @@
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import CodeLogAssertion from '../CodeLogAssertion';
+import CodeLogAssertion from "../CodeLogAssertion";
 
 function defaultProps() {
   return {
     assertion: {
-      "category": "DEFAULT",
-      "machine_time": "2019-02-12T17:41:43.302500+00:00",
-      "description": null,
-      "language": "c",
-      "code": '#include <stdio.h>\nint main()\n{\n    printf("Hello world!")\n    return 0;\n}\n',
-      "line_no": 123,
-      "meta_type": "entry",
-      "type": "CodeLog",
-      "utc_time": "2019-02-12T17:41:43.302494+00:00"
-    }
+      category: "DEFAULT",
+      machine_time: "2019-02-12T17:41:43.302500+00:00",
+      description: null,
+      language: "c",
+      code: '#include <stdio.h>\nint main()\n{\n    printf("Hello world!")\n    return 0;\n}\n',
+      line_no: 123,
+      meta_type: "entry",
+      type: "CodeLog",
+      utc_time: "2019-02-12T17:41:43.302494+00:00",
+    },
   };
 }
 
-
-describe('CodeLogAssertion', () => {
+describe("CodeLogAssertion", () => {
   let props;
   let shallowComponent;
 
@@ -32,7 +31,7 @@ describe('CodeLogAssertion', () => {
     shallowComponent = undefined;
   });
 
-  it('shallow renders the correct HTML structure', () => {
+  it("shallow renders the correct HTML structure", () => {
     shallowComponent = shallow(<CodeLogAssertion {...props} />);
     expect(shallowComponent).toMatchSnapshot();
   });

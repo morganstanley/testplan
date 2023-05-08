@@ -63,41 +63,41 @@ const CATEGORIES = {
 };
 
 const CATEGORY_ICONS = {
-  'testplan': 'TP',
-  'test': 'T',
-  'multitest': 'MT',
-  'cppunit': 'CP',
-  'gtest': 'GT',
-  'boost-test': 'BT',
-  'hobbestest': 'HT',
-  'pytest': 'PT',
-  'pyunit': 'PU',
-  'unittest': 'UT',
-  'junit': 'JU',
-  'qunit': 'QU',
-  'testsuite': 'S',
-  'cppunit-suite': 'CS',
-  'gtest-suite': 'GS',
-  'boost-test-suite': 'BS',
-  'hobbestest-suite': 'HS',
-  'parametrization': 'P',
-  'testcase': 'C'
+  testplan: "TP",
+  test: "T",
+  multitest: "MT",
+  cppunit: "CP",
+  gtest: "GT",
+  "boost-test": "BT",
+  hobbestest: "HT",
+  pytest: "PT",
+  pyunit: "PU",
+  unittest: "UT",
+  junit: "JU",
+  qunit: "QU",
+  testsuite: "S",
+  "cppunit-suite": "CS",
+  "gtest-suite": "GS",
+  "boost-test-suite": "BS",
+  "hobbestest-suite": "HS",
+  parametrization: "P",
+  testcase: "C",
 };
 
 const ENTRY_TYPES = [
-  'testplan',
-  'multitest',
-  'cppunit',
-  'gtest',
-  'boost_test',
-  'unittest',
-  'qunit',
-  'junit',
-  'testsuite',
-  'parametrization',
-  'testcase',
-  'pytest',
-  'pyunit',
+  "testplan",
+  "multitest",
+  "cppunit",
+  "gtest",
+  "boost_test",
+  "unittest",
+  "qunit",
+  "junit",
+  "testsuite",
+  "parametrization",
+  "testcase",
+  "pytest",
+  "pyunit",
 ];
 
 const STATUS = [
@@ -223,15 +223,13 @@ const EXPAND_STATUS = Object.freeze({
 const POLL_MS = 1000;
 
 // Fix specification
-let defaultFixSpec = {tags: {}};
-
+let defaultFixSpec = { tags: {} };
 
 //log types
 const LOG_TYPE = {
   error: "ERROR",
   warning: "WARNING",
 };
-
 
 export {
   GREEN,
