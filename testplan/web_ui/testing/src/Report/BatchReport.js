@@ -8,6 +8,7 @@ import _ from "lodash";
 import { parseToJson } from "../Common/utils";
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar";
+import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav";
 import {
   PropagateIndices,
@@ -256,22 +257,31 @@ class BatchReport extends BaseReport {
           updatePathDisplayFunc={this.updatePathDisplay}
           updateTimeDisplayFunc={this.updateTimeDisplay}
         />
-        <Nav
-          interactive={false}
-          navListWidth={this.state.navWidth}
-          report={this.state.filteredReport.report}
-          selected={selectedEntries}
-          filter={this.state.filter}
-          treeView={this.state.treeView}
-          displayEmpty={this.state.displayEmpty}
-          displayTags={this.state.displayTags}
-          displayTime={this.state.displayTime}
-          handleColumnResizing={this.handleColumnResizing}
-          url={this.props.match.path}
-        />
-        <AssertionContext.Provider value={this.state.assertionStatus}>
-          {centerPane}
-        </AssertionContext.Provider>
+        <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
+        <div
+          style={{
+            display: "flex",
+            flex: "1",
+            overflowY: "auto",
+          }}
+        >
+          <Nav
+            interactive={false}
+            navListWidth={this.state.navWidth}
+            report={this.state.filteredReport.report}
+            selected={selectedEntries}
+            filter={this.state.filter}
+            treeView={this.state.treeView}
+            displayEmpty={this.state.displayEmpty}
+            displayTags={this.state.displayTags}
+            displayTime={this.state.displayTime}
+            handleColumnResizing={this.handleColumnResizing}
+            url={this.props.match.path}
+          />
+          <AssertionContext.Provider value={this.state.assertionStatus}>
+            {centerPane}
+          </AssertionContext.Provider>
+        </div>
       </div>
     );
   }
@@ -285,6 +295,9 @@ const styles = StyleSheet.create({
   batchReport: {
     /** overflow will hide dropdown div */
     // overflow: 'hidden'
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
   },
 });
 

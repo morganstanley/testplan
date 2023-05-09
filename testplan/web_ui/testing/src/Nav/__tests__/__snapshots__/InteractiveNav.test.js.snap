@@ -1,191 +1,91 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Nav shallow renders and matches snapshot 1`] = `
-<Fragment>
-  <NavBreadcrumbs
-    entries={
-      Array [
-        Object {
-          "counter": Object {
-            "failed": 0,
-            "passed": 0,
-          },
-          "entries": Array [
-            Object {
-              "category": "multitest",
-              "counter": Object {
-                "failed": 0,
-                "passed": 0,
-              },
-              "description": "Interactive MTest Desc",
-              "entries": Array [
-                Object {
-                  "category": "testsuite",
-                  "counter": Object {
-                    "failed": 0,
-                    "passed": 0,
-                  },
-                  "description": "Interactive Suite Desc",
-                  "entries": Array [
-                    Object {
-                      "category": "testcase",
-                      "counter": Object {
-                        "failed": 0,
-                        "passed": 0,
-                      },
-                      "description": "Interactive Testcase Desc",
-                      "entries": Array [],
-                      "logs": Array [],
-                      "name": "test_interactive",
-                      "name_type_index": Array [],
-                      "parent_uids": Array [
-                        "bbb",
-                        "ccc",
-                      ],
-                      "runtime_status": "ready",
-                      "status": "unknown",
-                      "status_override": null,
-                      "suite_related": false,
-                      "tags": Object {},
-                      "tags_index": Object {},
-                      "timer": Object {},
-                      "type": "TestCaseReport",
-                      "uid": "ddd",
-                    },
-                  ],
-                  "logs": Array [],
-                  "name": "Interactive Suite",
-                  "name_type_index": Array [],
-                  "parent_uids": Array [
-                    "bbb",
-                  ],
-                  "part": null,
-                  "runtime_status": "ready",
-                  "status": "unknown",
-                  "status_override": null,
-                  "tags": Object {},
-                  "tags_index": Object {},
-                  "timer": Object {},
-                  "type": "TestGroupReport",
-                  "uid": "ccc",
-                },
-              ],
-              "logs": Array [],
-              "name": "Interactive MTest",
-              "name_type_index": Array [],
-              "parent_uids": Array [],
-              "part": null,
-              "runtime_status": "ready",
-              "status": "unknown",
-              "status_override": null,
-              "tags": Object {},
-              "tags_index": Object {},
-              "timer": Object {},
-              "type": "TestGroupReport",
-              "uid": "bbb",
-            },
-          ],
-          "meta": Object {},
-          "name": "Fake Interactive Report",
-          "name_type_index": Array [],
-          "runtime_status": "ready",
-          "status": "unknown",
-          "status_override": null,
-          "tags_index": Object {},
-          "timer": null,
-          "uid": "_dev",
+<NavList
+  displayEmpty={true}
+  displayTags={false}
+  displayTime={false}
+  entries={
+    Array [
+      Object {
+        "category": "multitest",
+        "counter": Object {
+          "failed": 0,
+          "passed": 0,
         },
-      ]
-    }
-    uidEncoder={[Function]}
-  />
-  <NavList
-    breadcrumbLength={1}
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    entries={
-      Array [
-        Object {
-          "category": "multitest",
-          "counter": Object {
-            "failed": 0,
-            "passed": 0,
-          },
-          "description": "Interactive MTest Desc",
-          "entries": Array [
-            Object {
-              "category": "testsuite",
-              "counter": Object {
-                "failed": 0,
-                "passed": 0,
-              },
-              "description": "Interactive Suite Desc",
-              "entries": Array [
-                Object {
-                  "category": "testcase",
-                  "counter": Object {
-                    "failed": 0,
-                    "passed": 0,
-                  },
-                  "description": "Interactive Testcase Desc",
-                  "entries": Array [],
-                  "logs": Array [],
-                  "name": "test_interactive",
-                  "name_type_index": Array [],
-                  "parent_uids": Array [
-                    "bbb",
-                    "ccc",
-                  ],
-                  "runtime_status": "ready",
-                  "status": "unknown",
-                  "status_override": null,
-                  "suite_related": false,
-                  "tags": Object {},
-                  "tags_index": Object {},
-                  "timer": Object {},
-                  "type": "TestCaseReport",
-                  "uid": "ddd",
-                },
-              ],
-              "logs": Array [],
-              "name": "Interactive Suite",
-              "name_type_index": Array [],
-              "parent_uids": Array [
-                "bbb",
-              ],
-              "part": null,
-              "runtime_status": "ready",
-              "status": "unknown",
-              "status_override": null,
-              "tags": Object {},
-              "tags_index": Object {},
-              "timer": Object {},
-              "type": "TestGroupReport",
-              "uid": "ccc",
+        "description": "Interactive MTest Desc",
+        "entries": Array [
+          Object {
+            "category": "testsuite",
+            "counter": Object {
+              "failed": 0,
+              "passed": 0,
             },
-          ],
-          "logs": Array [],
-          "name": "Interactive MTest",
-          "name_type_index": Array [],
-          "parent_uids": Array [],
-          "part": null,
-          "runtime_status": "ready",
-          "status": "unknown",
-          "status_override": null,
-          "tags": Object {},
-          "tags_index": Object {},
-          "timer": Object {},
-          "type": "TestGroupReport",
-          "uid": "bbb",
-        },
-      ]
-    }
-    envCtrlCallback={[MockFunction]}
-    filter={null}
-    handleClick={[MockFunction]}
-    interactive={true}
-    selectedUid="_dev"
-  />
-</Fragment>
+            "description": "Interactive Suite Desc",
+            "entries": Array [
+              Object {
+                "category": "testcase",
+                "counter": Object {
+                  "failed": 0,
+                  "passed": 0,
+                },
+                "description": "Interactive Testcase Desc",
+                "entries": Array [],
+                "logs": Array [],
+                "name": "test_interactive",
+                "name_type_index": Array [],
+                "parent_uids": Array [
+                  "bbb",
+                  "ccc",
+                ],
+                "runtime_status": "ready",
+                "status": "unknown",
+                "status_override": null,
+                "suite_related": false,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "type": "TestCaseReport",
+                "uid": "ddd",
+              },
+            ],
+            "logs": Array [],
+            "name": "Interactive Suite",
+            "name_type_index": Array [],
+            "parent_uids": Array [
+              "bbb",
+            ],
+            "part": null,
+            "runtime_status": "ready",
+            "status": "unknown",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "ccc",
+          },
+        ],
+        "logs": Array [],
+        "name": "Interactive MTest",
+        "name_type_index": Array [],
+        "parent_uids": Array [],
+        "part": null,
+        "runtime_status": "ready",
+        "status": "unknown",
+        "status_override": null,
+        "tags": Object {},
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "bbb",
+      },
+    ]
+  }
+  envCtrlCallback={[MockFunction]}
+  filter={null}
+  handleClick={[MockFunction]}
+  interactive={true}
+  selectedUid="_dev"
+/>
 `;
