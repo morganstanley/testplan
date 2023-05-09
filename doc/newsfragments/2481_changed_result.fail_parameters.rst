@@ -1,0 +1,1 @@
+Make :py:meth:`fail <testplan.testing.multitest.result.Result.fail>` paramaters consistent with :py:meth:`log <testplan.testing.multitest.result.Result.log>`. **breaking change** if assertion was called previously as `result.fail(description=...)`. Simply ensure message is passed as it became a positional argument.
