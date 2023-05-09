@@ -45,8 +45,11 @@ def kill_process(
     :param output: Optional file like object for writing logs.
     :type output: ``file``
     :param on_failed_termination : ``callable`` or ``None``
-        A callback function that is executed when process fails to terminate.
-        It receives two arguments: pid as `int` and timeout as `int`.
+        A callback function that is executed when process fails
+        to terminate after the `timeout`. When supplied, this callback
+        will be executed after SIGTERM fails and before SIGKILL.
+        It receives two arguments: pid as `int` and timeout as `int` and
+        can be leveraged to collect additional diagnostic info about the process.
     :return: Exit code of process
     :rtype: ``int`` or ``NoneType``
     """
@@ -117,8 +120,11 @@ def kill_process_psutil(
     :param output: Optional file like object for writing logs.
     :type output: ``file``
     :param on_failed_termination : ``callable`` or ``None``
-        A callback function that is executed when process fails to terminate.
-        It receives two arguments: pid as `int` and timeout as `int`.
+        A callback function that is executed when process fails
+        to terminate after the `timeout`. When supplied, this callback
+        will be executed after SIGTERM fails and before SIGKILL.
+        It receives two arguments: pid as `int` and timeout as `int` and
+        can be leveraged to collect additional diagnostic info about the process.
     :return: List of processes which are still alive
     :rtype: ``list`` or ``psutil.Process``
     """
