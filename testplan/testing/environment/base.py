@@ -1,6 +1,6 @@
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from testplan.common.config import UNSET
 from testplan.common.entity.base import Environment
@@ -9,6 +9,7 @@ from testplan.testing.environment.graph import DriverDepGraph
 
 if TYPE_CHECKING:
     from testplan.testing.base import Test
+    from testplan.testing.multitest.driver import Driver
 
 MINIMUM_CHECK_INTERVAL = 0.1
 
@@ -55,7 +56,6 @@ class TestEnvironment(Environment):
 
         self.__dict__["_dependency"]: Optional[DriverDepGraph] = None
         self.__dict__["_pocketwatches"]: Dict[str, DriverPocketwatch] = dict()
-        # TODO: set up logger?
 
     def set_dependency(self, dependency: DriverDepGraph):
         for d in dependency.vertices.values():
@@ -90,7 +90,7 @@ class TestEnvironment(Environment):
 
     def start(self):
         """
-        Start the drivers either in the legacy way or following the driver dependency.
+        Start the drivers either in the legacy way or following dependency.
         """
         if self._dependency is None:
             # we got no dependency declared, go with the legacy way,
@@ -99,8 +99,6 @@ class TestEnvironment(Environment):
                 if d.async_start is UNSET:
                     d.async_start = False
             return super().start()
-
-        # here comes the new guy
 
         # distribute pocketwatches
         for k, v in self._dependency.vertices.items():
@@ -121,6 +119,7 @@ class TestEnvironment(Environment):
             for driver in self._dependency.drivers_to_start():
                 try:
                     self._pocketwatches[driver.uid()].record_start()
+                    driver.logger.info("starting %s", driver)
                     driver.start()
                 except Exception:
                     self._record_resource_exception(
@@ -129,24 +128,25 @@ class TestEnvironment(Environment):
                         resource=driver,
                         msg_store=self.start_exceptions,
                     )
+                    # exception occurred, skip rest of drivers
                     self._dependency.purge_drivers_to_start()
+                    break
                 else:
                     self._dependency.mark_starting(driver)
 
             # check current drivers
             for driver in self._dependency.drivers_starting():
-                watch = self._pocketwatches[driver.uid()]
+                watch: DriverPocketwatch = self._pocketwatches[driver.uid()]
                 try:
                     if time.time() >= watch.start_time + watch.total_wait:
                         # we got a timed-out here
                         raise TimeoutException(
-                            f"Timeout when starting {driver}. {TimeoutExceptionInfo(watch.start_time).msg()}"
+                            f"Timeout when starting {driver}. "
+                            f"{TimeoutExceptionInfo(watch.start_time).msg()}"
                         )
+                    res = None
                     if watch.should_check():
                         res = driver.started_check()
-                    else:
-                        # else of try-else will be skipped
-                        continue
                 except Exception:
                     self._record_resource_exception(
                         message="While waiting for driver [{resource_name}] to start\n"
@@ -154,10 +154,13 @@ class TestEnvironment(Environment):
                         resource=driver,
                         msg_store=self.start_exceptions,
                     )
+                    # exception occurred, skip rest of drivers
+                    # continue here as we tend to have fully started drivers
                     self._dependency.purge_drivers_to_start()
+                    self._dependency.mark_started(driver)
                 else:
                     if res:
-                        driver.logger.debug("%s started", driver)
+                        driver.logger.info("%s started", driver)
                         self._dependency.mark_started(driver)
                         driver._after_started()
 
@@ -167,3 +170,46 @@ class TestEnvironment(Environment):
 
             # NOTE: do we want to dynamically adjust this interval?
             time.sleep(MINIMUM_CHECK_INTERVAL)
+
+    def stop(self, is_reversed=False):
+        """
+        Stop drivers while skipping previously skipped ones.
+        """
+        if self._dependency is None:
+            # async_start already overriden
+            return super().stop(is_reversed=is_reversed)
+
+        drivers: List["Driver"] = [
+            d for d in self._resources.values() if d.status != d.status.NONE
+        ]
+        drivers_to_wait_for: List["Driver"] = []
+
+        for driver in drivers:
+            try:
+                driver.logger.info("stopping %s", driver)
+                driver.stop()
+            except Exception:
+                self._record_resource_exception(
+                    message="While stopping driver [{resource_name}]\n"
+                    "{traceback_exc}\n{fetch_msg}",
+                    resource=driver,
+                    msg_store=self.stop_exceptions,
+                )
+                # driver status should be STOPPED even it failed to stop
+                driver.force_stopped()
+            else:
+                drivers_to_wait_for.append(driver)
+
+        for driver in drivers_to_wait_for:
+            try:
+                driver.wait(driver.STATUS.STOPPED)
+            except Exception:
+                self._record_resource_exception(
+                    message="While waiting for driver [{resource_name}] to stop\n"
+                    "{traceback_exc}\n{fetch_msg}",
+                    resource=driver,
+                    msg_store=self.stop_exceptions,
+                )
+                # driver status should be STOPPED even it failed to stop
+                driver.force_stopped()
+            driver.logger.info("%s stopped", driver)

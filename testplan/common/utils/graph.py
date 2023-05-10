@@ -175,10 +175,8 @@ class DirectedGraph(Generic[T, U, V]):
             if len(compo) > 1 or compo[0] in self.edges[compo[0]]
         ]
 
-    def zero_indegrees(self) -> Generator[T, None, None]:
-        for v in self.vertices:
-            if self.indegrees[v] == 0:
-                yield v
+    def zero_indegrees(self) -> List[T]:
+        return [v for v in self.vertices if self.indegrees[v] == 0]
 
     def __len__(self) -> int:
         return len(self.vertices)

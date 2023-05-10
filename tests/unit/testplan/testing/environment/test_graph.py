@@ -5,21 +5,25 @@ from testplan.testing.environment import parse_dependency
 from .common import MockDriver
 
 
-def test_graph_parser():
+def test_basic_graph():
     a = MockDriver("a")
     b = MockDriver("b")
     c = MockDriver("c")
     d = MockDriver("d")
     e = MockDriver("e")
     f = MockDriver("f")
-    g = MockDriver("g")
-    g_ = parse_dependency({(a, b): c, c: d, e: [d, g]})
-    assert set(g_.vertices.values()) == {a, b, c, d, e, g}
-    for s, e in {(a, c), (b, c), (c, d), (e, d), (e, g)}:
+    g_ = parse_dependency({(a, b): c, c: d, e: [d, f]})
+    assert set(g_.vertices.values()) == {a, b, c, d, e, f}
+    for s, e in {(a, c), (b, c), (c, d), (e, d), (e, f)}:
         assert g_.edges[s.name][e.name]
 
 
-def test_graph_parser_exception():
+def test_empty_graph():
+    g_ = parse_dependency({})
+    assert len(g_.vertices) == 0
+
+
+def test_bad_input():
     a = MockDriver("a")
     b = MockDriver("b")
     c = MockDriver("c")

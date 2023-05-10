@@ -38,10 +38,12 @@ class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
         self._starting.remove(driver.uid())
         self.remove_vertex(driver.uid())
 
-    def drivers_to_start(self) -> Generator["Driver", None, None]:
-        for d in self.zero_indegrees():
-            if d not in self._starting:
-                yield self.vertices[d]
+    def drivers_to_start(self) -> List["Driver"]:
+        return [
+            self.vertices[d]
+            for d in self.zero_indegrees()
+            if d not in self._starting
+        ]
 
     def drivers_starting(self) -> List["Driver"]:
         return [self.vertices[d] for d in self._starting]
@@ -51,7 +53,8 @@ class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
 
     def purge_drivers_to_start(self):
         """
-        A somehow special graph operation.
+        A graph operation which purges everything in the graph except for the
+        drivers still in starting status.
         """
         self.vertices = {d: self.vertices[d] for d in self._starting}
         self.edges = {d: dict() for d in self.vertices}
