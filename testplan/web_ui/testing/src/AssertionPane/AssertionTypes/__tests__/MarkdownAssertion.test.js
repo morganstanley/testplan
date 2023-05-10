@@ -1,26 +1,26 @@
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import MarkdownAssertion from '../MarkdownAssertion';
+import MarkdownAssertion from "../MarkdownAssertion";
 
 function defaultProps() {
   return {
     assertion: {
-      "category": "DEFAULT",
-      "machine_time": "2019-02-12T17:41:43.302500+00:00",
-      "description": null,
-      "message": "Markdown Test [Github](https://github.com/morganstanley/testplan)\n Test",
-      "line_no": 123,
-      "meta_type": "entry",
-      "type": "Markdown",
-      "utc_time": "2019-02-12T17:41:43.302494+00:00"
-    }
+      category: "DEFAULT",
+      machine_time: "2019-02-12T17:41:43.302500+00:00",
+      description: null,
+      message:
+        "Markdown Test [Github](https://github.com/morganstanley/testplan)\n Test",
+      line_no: 123,
+      meta_type: "entry",
+      type: "Markdown",
+      utc_time: "2019-02-12T17:41:43.302494+00:00",
+    },
   };
 }
 
-
-describe('MarkdownAssertion', () => {
+describe("MarkdownAssertion", () => {
   let props;
   let shallowComponent;
 
@@ -31,7 +31,7 @@ describe('MarkdownAssertion', () => {
     shallowComponent = undefined;
   });
 
-  it('shallow renders the correct HTML structure', () => {
+  it("shallow renders the correct HTML structure", () => {
     shallowComponent = shallow(<MarkdownAssertion {...props} />);
     expect(shallowComponent).toMatchSnapshot();
   });

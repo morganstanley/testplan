@@ -1,8 +1,8 @@
-import React from 'react';
-import {shallow, mount} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow, mount } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import DictCellRenderer from '../DictCellRenderer';
+import DictCellRenderer from "../DictCellRenderer";
 
 function defaultProps() {
   return {};
@@ -10,62 +10,62 @@ function defaultProps() {
 
 function valueProps() {
   return {
-    "value": { "value": "BB", "type": "aa" },
-    "data": {
-      "descriptor": {
-        "lineNo": 667,
-        "isFix": true,
-        "indent": 1,
-        "isListKey": false,
-        "isFailed": true
+    value: { value: "BB", type: "aa" },
+    data: {
+      descriptor: {
+        lineNo: 667,
+        isFix: true,
+        indent: 1,
+        isListKey: false,
+        isFailed: true,
       },
-      "key": {
-        "value": 601,
-        "type": "key"
+      key: {
+        value: 601,
+        type: "key",
       },
-      "value": {
-        "value": "A",
-        "type": "str"
+      value: {
+        value: "A",
+        type: "str",
       },
-      "expected": {
-        "value": "BB",
-        "type": "aa"
-      }
+      expected: {
+        value: "BB",
+        type: "aa",
+      },
     },
-    "colDef": {
-      "field": "expected"
-    }
+    colDef: {
+      field: "expected",
+    },
   };
 }
 
 function keyProps() {
   return {
-    "value": { "value": "601", "type": "key" },
-    "data": {
-      "descriptor": {
-        "lineNo": 667,
-        "isFix": true,
-        "indent": 1,
-        "isListKey": false,
-        "isFailed": true
+    value: { value: "601", type: "key" },
+    data: {
+      descriptor: {
+        lineNo: 667,
+        isFix: true,
+        indent: 1,
+        isListKey: false,
+        isFailed: true,
       },
-      "key": {
-        "value": 601,
-        "type": "key"
+      key: {
+        value: 601,
+        type: "key",
       },
-      "value": {
-        "value": "A",
-        "type": "str"
+      value: {
+        value: "A",
+        type: "str",
       },
-      "expected": { "value": "B", "type": "B" }
+      expected: { value: "B", type: "B" },
     },
-    "colDef": {
-      "field": "key"
-    }
+    colDef: {
+      field: "key",
+    },
   };
 }
 
-describe('DictLogAssertion', () => {
+describe("DictLogAssertion", () => {
   let props;
   let shallowComponent;
 
@@ -76,19 +76,21 @@ describe('DictLogAssertion', () => {
     shallowComponent = undefined;
   });
 
-  it('shallow renders the dict value', () => {
+  it("shallow renders the dict value", () => {
     props = valueProps();
     shallowComponent = shallow(<DictCellRenderer {...props} />);
-    expect(shallowComponent.find('span').text().trim()).toBe('BB');
-    expect(shallowComponent.find('sub').text().trim()).toBe('aa');
+    expect(shallowComponent.find("span").text().trim()).toBe("BB");
+    expect(shallowComponent.find("sub").text().trim()).toBe("aa");
   });
 
-  it('shallow renders the dict key', () => {
+  it("shallow renders the dict key", () => {
     props = keyProps();
     shallowComponent = mount(<DictCellRenderer {...props} />);
     // test css style
-    expect(shallowComponent.find('div').prop('style'))
-      .toHaveProperty('marginLeft', '1.5rem');
-    expect(shallowComponent.find('span').text().trim()).toBe('601')
+    expect(shallowComponent.find("div").prop("style")).toHaveProperty(
+      "marginLeft",
+      "1.5rem"
+    );
+    expect(shallowComponent.find("span").text().trim()).toBe("601");
   });
 });

@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import React from "react";
+import PropTypes from "prop-types";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/cjs/styles/prism/coy";
 
 function CodeComponent(props) {
@@ -18,12 +18,11 @@ export default function MarkdownAssertion(props) {
       source={props.assertion.message}
       escapeHtml={props.assertion.escape}
       renderers={{
-        code: CodeComponent
+        code: CodeComponent,
       }}
     />
   );
-};
-
+}
 
 MarkdownAssertion.propTypes = {
   /** Assertion being rendered */

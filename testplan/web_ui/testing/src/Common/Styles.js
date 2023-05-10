@@ -1,13 +1,8 @@
 /**
  * Common aphrodite styles.
  */
-import {StyleSheet} from 'aphrodite';
-import {
-  RED,
-  GREEN,
-  ORANGE,
-  BLACK,
-} from "../Common/defaults";
+import { StyleSheet } from "aphrodite";
+import { RED, GREEN, ORANGE, BLACK } from "../Common/defaults";
 
 export const unselectable = {
   "moz-user-select": "-moz-none",
@@ -16,7 +11,6 @@ export const unselectable = {
   "ms-user-select": "none",
   "user-select": "none",
 };
-
 
 export const statusStyles = {
   passed: {
@@ -40,5 +34,5 @@ export const statusStyles = {
 };
 
 export default StyleSheet.create({
-  unselectable: unselectable
+  unselectable: unselectable,
 });

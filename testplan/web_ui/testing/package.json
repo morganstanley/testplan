@@ -58,6 +58,7 @@
     "jest-react-hooks-shallow": "^1.4.2",
     "moxios": "0.4.0",
     "npm-force-resolutions": "0.0.3",
+    "prettier": "2.8.8",
     "react-router-enzyme-context": "^1.2.0"
   },
   "scripts": {

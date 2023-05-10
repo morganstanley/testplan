@@ -7,11 +7,7 @@ import EmptyReport from "./Report/EmptyReport";
 // import registerServiceWorker from './registerServiceWorker';
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 /**
  * This single App provides multiple functions controlled via the URL path

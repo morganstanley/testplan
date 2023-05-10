@@ -1,12 +1,12 @@
 /* Unit tests for the InteractiveNav component. */
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import Nav from '../Nav.js';
-import {FakeInteractiveReport} from '../../Common/sampleReports.js';
+import Nav from "../Nav.js";
+import { FakeInteractiveReport } from "../../Common/sampleReports.js";
 
-describe('Nav', () => {
+describe("Nav", () => {
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
@@ -17,7 +17,7 @@ describe('Nav', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders and matches snapshot', () => {
+  it("shallow renders and matches snapshot", () => {
     const renderedNav = shallow(
       <Nav
         interactive={true}
@@ -35,4 +35,3 @@ describe('Nav', () => {
     expect(renderedNav).toMatchSnapshot();
   });
 });
-

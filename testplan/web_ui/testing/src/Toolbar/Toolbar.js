@@ -21,7 +21,6 @@ import {
 } from "reactstrap";
 import Linkify from "linkify-react";
 
-
 import FilterBox from "../Toolbar/FilterBox";
 import { STATUS, STATUS_CATEGORY, EXPAND_STATUS } from "../Common/defaults";
 
@@ -90,8 +89,8 @@ class Toolbar extends Component {
 
   toggleTreeView() {
     this.props.updateTreeViewFunc(!this.state.treeView);
-    this.setState(prevState => ({
-      treeView: !prevState.treeView
+    this.setState((prevState) => ({
+      treeView: !prevState.treeView,
     }));
   }
 
@@ -199,10 +198,10 @@ class Toolbar extends Component {
       <NavItem>
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='navigation-view'
+            key="navigation-view"
             className={css(styles.toolbarButton)}
-            icon='bars'
-            title='Navigation'
+            icon="bars"
+            title="Navigation"
             onClick={this.toggleTreeView}
           />
         </div>
@@ -400,9 +399,9 @@ class Toolbar extends Component {
         }}
       >
         <FilterBox
-            handleNavFilter={this.props.handleNavFilter}
-            filterText={this.props.filterText}
-          />
+          handleNavFilter={this.props.handleNavFilter}
+          filterText={this.props.filterText}
+        />
       </div>
     );
   }
@@ -500,15 +499,18 @@ const getToggledButtonStyle = (status) => {
  * Get the metadata from the report and render it as a table.
  */
 const getInfoTable = (report) => {
-  
-
   if (!report || !report.information) {
     return "No information to display.";
   }
   const infoList = report.information.map((item, i) => {
-    const linkifyIgnore = ['user', 'command_line_string',
-    'python_version', 'hostname', 'start', 'end'];
-
+    const linkifyIgnore = [
+      "user",
+      "command_line_string",
+      "python_version",
+      "hostname",
+      "start",
+      "end",
+    ];
 
     let cell = undefined;
     if (!linkifyIgnore.includes(item[0])) {
@@ -518,7 +520,7 @@ const getInfoTable = (report) => {
         </Linkify>
       );
     } else {
-        cell = item[1];
+      cell = item[1];
     }
 
     return (

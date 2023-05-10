@@ -1,15 +1,15 @@
-import React, {useState} from 'react';
-import PropTypes from 'prop-types';
-import DictBaseAssertion from './DictBaseAssertion';
-import DictButtonGroup from './DictButtonGroup';
-import FixCellRenderer from './FixCellRenderer';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import DictBaseAssertion from "./DictBaseAssertion";
+import DictButtonGroup from "./DictButtonGroup";
+import FixCellRenderer from "./FixCellRenderer";
 import {
   prepareDictColumnDefs,
   prepareDictRowData,
   sortFlattenedJSON,
-  dictCellStyle
-} from './dictAssertionUtils';
-import {SORT_TYPES, FILTER_OPTIONS} from './../../../Common/defaults';
+  dictCellStyle,
+} from "./dictAssertionUtils";
+import { SORT_TYPES, FILTER_OPTIONS } from "./../../../Common/defaults";
 
 /**
  * Component that renders FixMatch assertion.
@@ -43,7 +43,10 @@ import {SORT_TYPES, FILTER_OPTIONS} from './../../../Common/defaults';
  */
 export default function FixMatchAssertion(props) {
   const flattenedDict = sortFlattenedJSON(
-    props.assertion.comparison, 0, false, true
+    props.assertion.comparison,
+    0,
+    false,
+    true
   );
   const columns = prepareDictColumnDefs(dictCellStyle, FixCellRenderer, true);
 
@@ -54,11 +57,11 @@ export default function FixMatchAssertion(props) {
       sortTypeList={[
         SORT_TYPES.ALPHABETICAL,
         SORT_TYPES.REVERSE_ALPHABETICAL,
-        SORT_TYPES.BY_STATUS
+        SORT_TYPES.BY_STATUS,
       ]}
       filterOptionList={[
         FILTER_OPTIONS.FAILURES_ONLY,
-        FILTER_OPTIONS.EXCLUDE_IGNORABLE
+        FILTER_OPTIONS.EXCLUDE_IGNORABLE,
       ]}
       flattenedDict={flattenedDict}
       setRowData={setRowData}
@@ -66,7 +69,7 @@ export default function FixMatchAssertion(props) {
       defaultFilterOptions={[]}
     />
   );
-  
+
   return (
     <DictBaseAssertion
       buttons={buttonGroup}
@@ -75,7 +78,6 @@ export default function FixMatchAssertion(props) {
     />
   );
 }
-
 
 FixMatchAssertion.propTypes = {
   /** Assertion being rendered */

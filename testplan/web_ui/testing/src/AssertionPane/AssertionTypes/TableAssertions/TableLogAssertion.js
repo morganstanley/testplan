@@ -1,36 +1,29 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import TableBaseAssertion from './TableBaseAssertion';
+import React from "react";
+import PropTypes from "prop-types";
+import TableBaseAssertion from "./TableBaseAssertion";
 
 import {
   prepareTableLogColumnDefs,
   prepareTableLogRowData,
-} from './tableAssertionUtils';
-
+} from "./tableAssertionUtils";
 
 /**
  * Component that are used to render TableLog assertion.
  */
-export default function TableLogAssertion (props) {
+export default function TableLogAssertion(props) {
   let columnDefs = prepareTableLogColumnDefs(
     props.assertion.columns,
     props.assertion.display_index
   );
   let rowData = prepareTableLogRowData(
-    props.assertion.indices, 
+    props.assertion.indices,
     props.assertion.table,
     props.assertion.columns,
     props.assertion.display_index
   );
 
-  return (
-    <TableBaseAssertion
-      columns={columnDefs}
-      rows={rowData}
-    />
-  );
-};
-
+  return <TableBaseAssertion columns={columnDefs} rows={rowData} />;
+}
 
 TableLogAssertion.propTypes = {
   /** Assertion being rendered */

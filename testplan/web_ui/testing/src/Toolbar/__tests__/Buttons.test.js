@@ -2,10 +2,10 @@
  * Unit tests for the Buttons module
  */
 import React from "react";
-import {shallow} from "enzyme";
-import {StyleSheetTestUtils} from "aphrodite";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import {TimeButton} from "../Buttons";
+import { TimeButton } from "../Buttons";
 
 describe("TimeButton", () => {
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("TimeButton", () => {
       <TimeButton updateTimeDisplayCbk={updateTimeDisplayCbk} />
     );
     expect(button).toMatchSnapshot();
-    button.find({title: "Display time information"}).simulate("click");
+    button.find({ title: "Display time information" }).simulate("click");
     expect(updateTimeDisplayCbk.mock.calls.length).toBe(1);
   });
 });

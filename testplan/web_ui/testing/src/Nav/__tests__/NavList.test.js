@@ -1,37 +1,36 @@
-import React from 'react';
-import {ListGroupItem} from 'reactstrap';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { ListGroupItem } from "reactstrap";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import NavList from '../NavList';
+import NavList from "../NavList";
 
 function defaultProps() {
   const entry = {
-    uid: '123',
-    name: 'test',
-    description: 'desc',
-    status: 'passed',
-    type: 'testplan',
+    uid: "123",
+    name: "test",
+    description: "desc",
+    status: "passed",
+    type: "testplan",
     counter: {
       passed: 1,
       failed: 0,
     },
-    uids: ['123']
-
+    uids: ["123"],
   };
   return {
     entries: [entry],
     breadcrumbLength: 1,
-    width: '22em',
-    filter: 'all',
+    width: "22em",
+    filter: "all",
     displayEmpty: true,
     displayTags: true,
     displayTime: false,
-    url: "/testplan/:uid/:selection*"    
+    url: "/testplan/:uid/:selection*",
   };
 }
 
-describe('NavList', () => {
+describe("NavList", () => {
   const props = defaultProps();
 
   beforeEach(() => {
@@ -44,10 +43,8 @@ describe('NavList', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders and matches snapshot', () => {
-    const nav_list = shallow(
-      <NavList {...props} />
-    );
+  it("shallow renders and matches snapshot", () => {
+    const nav_list = shallow(<NavList {...props} />);
     expect(nav_list).toMatchSnapshot();
   });
 });
