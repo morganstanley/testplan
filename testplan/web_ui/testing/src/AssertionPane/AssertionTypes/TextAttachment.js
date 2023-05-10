@@ -10,8 +10,8 @@ import {
 } from "@material-ui/core";
 import { ExpandLess, ExpandMore} from "@material-ui/icons";
 import AttachmentAssertionCardHeader from "./AttachmentAssertionCardHeader";
-import { ErrorBoundary, FallbackComponent } from "../../Common/ErrorBoundary";
-//import { ErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary } from "../../Common/ErrorBoundary";
+import { CardBody } from "reactstrap";
 
 //Max number of lines displayed in the preview when collapsed
 const DISPLAY_NUM = 20;
@@ -81,8 +81,8 @@ function TextAttachment(props) {
   };
 
   const errorHandler = (error) => {
-    
-    setError(error.response ? error.response.data : error.message);
+    setError(error.response.data);
+    //setError(error?.response?.data?.message ? error.response.data.message : error.message);
     setLines(null);
   };
 
@@ -126,27 +126,30 @@ function TextAttachment(props) {
   );
 
   return (
-    <ErrorBoundary fallback={FallbackComponent}>
-      <Card>
-        {cardHeader}
-        
-          
-            <CardContent className={css(styles.cardContent)}>
-              <SyntaxHighlighter
-                showLineNumbers
-                startingLineNumber={fromPosition[0] + lineoffset}
-                language="text"
-                className={expanded ? css(styles.scrollable) : null}
-              >
-                {prepend + lines.slice(fromPosition[1])}
-              </SyntaxHighlighter>
-            </CardContent>
-          
-        
-      </Card>
-    </ErrorBoundary>
+    <Card>
+      {cardHeader}
+      <ErrorBoundary fallback={
+        <CardBody>
+          <p style={{ backgroundColor: 'red', color: 'white'}}>
+            An error occured while loading content!
+          </p>
+        </CardBody>}>
+        {lines ? (
+          <CardContent className={css(styles.cardContent)}>
+            <SyntaxHighlighter
+              showLineNumbers
+              startingLineNumber={fromPosition[0] + lineoffset}
+              language="text"
+              className={expanded ? css(styles.scrollable) : null}
+            >
+              {prepend + lines.slice(fromPosition[1])}
+            </SyntaxHighlighter>
+          </CardContent>
+        ) : null}
+        {error ? <CardContent>{error}</CardContent> : null}
+      </ErrorBoundary>
+    </Card>
   );
 }
-//{error ? <CardContent>{error}</CardContent> : null}
 
 export default TextAttachment;

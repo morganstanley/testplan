@@ -18,7 +18,7 @@ class ErrorBoundary extends React.Component {
   logErrorToServices = console.log;
 
   render() {
-    if (this.shasError) {
+    if (this.state.hasError) {
       return this.props.fallback;
     }
     return this.props.children;
@@ -36,6 +36,7 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
     </>
   );
 };
+//      <pre>{error.message}</pre>
 //      <button onClick={resetErrorBoundary}>Try again</button>
 
 export {ErrorBoundary, FallbackComponent};
