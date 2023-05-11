@@ -75,7 +75,11 @@ function TextAttachment(props) {
   };
 
   const errorHandler = (error) => {
-    setError(error.response ? error.response.data : error.message);
+    setError(
+      error?.response?.data?.message 
+      ? error.response.data.message 
+      : error.message
+    );
     setLines(null);
   };
 
