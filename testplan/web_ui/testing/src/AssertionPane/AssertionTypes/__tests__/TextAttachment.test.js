@@ -52,6 +52,32 @@ describe("TextAttachment", () => {
     }, 100);
   });
 
+  it("displays error message if API request fails (JSON)", (done) => {
+    const renderedText = shallow(
+      <TextAttachment
+        src="/var/tmp/attachment.txt"
+        file_name="attachment.txt"
+      />
+    );
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      request
+        .respondWith({
+          headers: {"content-type": "application/json"},
+          status: 503,
+          response: {message: "Service Unavailable"},
+        })
+        .then(() => {
+          renderedText.update();
+          const content = renderedText.find(CardContent);
+          expect(content).toHaveLength(1);
+          expect(content.text()).toEqual("Service Unavailable");
+          expect(renderedText).toMatchSnapshot();
+          done();
+        });
+    }, 100);
+  });
+
   it("displays error message if API request fails", (done) => {
     const renderedText = shallow(
       <TextAttachment
@@ -63,6 +89,7 @@ describe("TextAttachment", () => {
       const request = moxios.requests.mostRecent();
       request
         .respondWith({
+          headers: {"content-type": "application/txt"},
           status: 503,
           response: "Service Unavailable",
         })
