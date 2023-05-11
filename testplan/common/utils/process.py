@@ -2,20 +2,20 @@
 
 import functools
 import platform
+from signal import Signals
 import subprocess
 import threading
+import psutil
 import time
-from typing import Callable
 import warnings
 from enum import Enum, auto
-
-import psutil
+from typing import IO, Any, Callable, List, Union
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.timing import exponential_interval, get_sleeper
 
 
-def _log_proc(msg, warn=False, output=None):
+def _log_proc(msg: Any, warn=False, output: IO = None):
     if output is not None:
         try:
             output.write("{}{}".format(msg, "\n"))
@@ -27,11 +27,11 @@ def _log_proc(msg, warn=False, output=None):
 
 def kill_process(
     proc: subprocess.Popen,
-    timeout=5,
-    signal_=None,
-    output=None,
+    timeout: int = 5,
+    signal_: Signals = None,
+    output: IO = None,
     on_failed_termination: Callable[[int, int], None] = None,
-):
+) -> Union[int, None]:
     """
     If alive, kills the process.
     First call ``terminate()`` or pass ``signal_`` if specified
@@ -39,11 +39,8 @@ def kill_process(
     If process hangs then call ``kill()``.
 
     :param proc: process to kill
-    :type proc: ``subprocess.Popen``
     :param timeout: timeout in seconds, defaults to 5 seconds
-    :type timeout: ``int``
     :param output: Optional file like object for writing logs.
-    :type output: ``file``
     :param on_failed_termination : ``callable`` or ``None``
         A callback function that is executed when process fails
         to terminate after the `timeout`. When supplied, this callback
@@ -51,7 +48,6 @@ def kill_process(
         It receives two arguments: pid as `int` and timeout as `int` and
         can be leveraged to collect additional diagnostic info about the process.
     :return: Exit code of process
-    :rtype: ``int`` or ``NoneType``
     """
     _log = functools.partial(_log_proc, output=output)
 
@@ -101,11 +97,11 @@ def kill_process(
 
 def kill_process_psutil(
     proc: psutil.Process,
-    timeout=5,
-    signal_=None,
-    output=None,
+    timeout: int = 5,
+    signal_: Signals = None,
+    output: IO = None,
     on_failed_termination: Callable[[int, int], None] = None,
-):
+) -> List[psutil.Process]:
     """
     If alive, kills the process (an instance of ``psutil.Process``).
     Try killing the child process at first and then killing itself.
@@ -114,11 +110,8 @@ def kill_process_psutil(
     If process hangs then call ``kill()``.
 
     :param proc: process to kill
-    :type proc: ``psutil.Process``
     :param timeout: timeout in seconds, defaults to 5 seconds
-    :type timeout: ``int``
     :param output: Optional file like object for writing logs.
-    :type output: ``file``
     :param on_failed_termination : ``callable`` or ``None``
         A callback function that is executed when process fails
         to terminate after the `timeout`. When supplied, this callback
@@ -126,10 +119,8 @@ def kill_process_psutil(
         It receives two arguments: pid as `int` and timeout as `int` and
         can be leveraged to collect additional diagnostic info about the process.
     :return: List of processes which are still alive
-    :rtype: ``list`` or ``psutil.Process``
     """
     _log = functools.partial(_log_proc, output=output)
-
     try:
         all_procs = proc.children(recursive=True) + [proc]
     except psutil.NoSuchProcess:
