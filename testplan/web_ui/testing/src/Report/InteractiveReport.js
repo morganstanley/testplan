@@ -37,6 +37,7 @@ import {
 
 import { POLL_MS } from '../Common/defaults.js';
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -603,57 +604,63 @@ class InteractiveReport extends BaseReport {
 
     return (
       <div className={css(styles.batchReport)}>
-        <Toolbar
-          filterBoxWidth={this.state.navWidth}
-          filterText={this.state.filteredReport.filter.text}
-          status={reportStatus}
-          expandStatus={this.state.assertionStatus.globalExpand.status}
-          updateExpandStatusFunc={this.updateGlobalExpand}
-          handleNavFilter={this.handleNavFilter}
-          updateFilterFunc={noop}
-          updateEmptyDisplayFunc={noop}
-          updateTreeViewFunc={this.updateTreeView}
-          updateTagsDisplayFunc={noop}
-          updatePathDisplayFunc={this.updatePathDisplay}
-          updateTimeDisplayFunc={this.updateTimeDisplay}
-          extraButtons={[
-            <ReloadButton
-              key="reload-button"
-              reloading={this.state.reloading}
-              reloadCbk={this.reloadCode}
-            />,
-            <ResetButton
-              key="reset-button"
-              resetting={this.state.resetting}
-              resetStateCbk={this.resetReport}
-            />,
-            <AbortButton
-              key="abort-button"
-              aborting={this.state.aborting}
-              abortCbk={this.abortTestplan}
-            />,
-            <SaveButton key="save-button"/>
-          ]}
-        />
-        <Nav
-          interactive={true}
-          navListWidth={this.state.navWidth}
-          report={this.state.filteredReport.report}
-          selected={selectedEntries}
-          treeView={this.state.treeView}
-          filter={null}
-          displayEmpty={true}
-          displayTags={false}
-          displayTime={false}          
-          // envCtrlCallback and handleClick are passed down to InteractiveNav
-          handleClick={this.handleClick}
-          envCtrlCallback={this.envCtrlCallback}
-          handleColumnResizing={this.handleColumnResizing}
-          url={this.props.match.path}
-        />
-        <AssertionContext.Provider value={this.state.assertionStatus}>
-          {centerPane}
-        </AssertionContext.Provider>
+        <ErrorBoundary>
+          <Toolbar
+            filterBoxWidth={this.state.navWidth}
+            filterText={this.state.filteredReport.filter.text}
+            status={reportStatus}
+            expandStatus={this.state.assertionStatus.globalExpand.status}
+            updateExpandStatusFunc={this.updateGlobalExpand}
+            handleNavFilter={this.handleNavFilter}
+            updateFilterFunc={noop}
+            updateEmptyDisplayFunc={noop}
+            updateTreeViewFunc={this.updateTreeView}
+            updateTagsDisplayFunc={noop}
+            updatePathDisplayFunc={this.updatePathDisplay}
+            updateTimeDisplayFunc={this.updateTimeDisplay}
+            extraButtons={[
+              <ReloadButton
+                key="reload-button"
+                reloading={this.state.reloading}
+                reloadCbk={this.reloadCode}
+              />,
+              <ResetButton
+                key="reset-button"
+                resetting={this.state.resetting}
+                resetStateCbk={this.resetReport}
+              />,
+              <AbortButton
+                key="abort-button"
+                aborting={this.state.aborting}
+                abortCbk={this.abortTestplan}
+              />,
+              <SaveButton key="save-button"/>
+            ]}
+          />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Nav
+            interactive={true}
+            navListWidth={this.state.navWidth}
+            report={this.state.filteredReport.report}
+            selected={selectedEntries}
+            treeView={this.state.treeView}
+            filter={null}
+            displayEmpty={true}
+            displayTags={false}
+            displayTime={false}
+            // envCtrlCallback and handleClick are passed down to InteractiveNav
+            handleClick={this.handleClick}
+            envCtrlCallback={this.envCtrlCallback}
+            handleColumnResizing={this.handleColumnResizing}
+            url={this.props.match.path}
+          />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <AssertionContext.Provider value={this.state.assertionStatus}>
+            {centerPane}
+          </AssertionContext.Provider>
+        </ErrorBoundary>
       </div>
     );
   }

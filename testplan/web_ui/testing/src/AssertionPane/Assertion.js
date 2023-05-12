@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardBody, Collapse } from 'reactstrap';
 import { css, StyleSheet } from 'aphrodite';
-import { ErrorBoundary, FallbackComponent } from '../Common/ErrorBoundary';
+import { ErrorBoundary } from '../Common/ErrorBoundary';
 
 import BasicAssertion from './AssertionTypes/BasicAssertion';
 import MarkdownAssertion from './AssertionTypes/MarkdownAssertion';
@@ -142,12 +142,6 @@ class Assertion extends Component {
     }
 
     return (
-      <ErrorBoundary fallback={
-        <CardBody>
-          <p style={{ backgroundColor: 'red', color: 'white'}}>
-            An error occured while loading content!
-          </p>
-        </CardBody>}>
       <Card className={css(styles.card)}>
         <AssertionHeader
           assertion={this.props.assertion}
@@ -161,24 +155,23 @@ class Assertion extends Component {
           className={css(styles.collapseDiv)}
           style={{ paddingRight: isAssertionGroup ? null : '1.25rem' }}
         >
-          
-              <CardBody
-                className={
-                  css(
-                    isAssertionGroup
-                      ? styles.groupCardBody
-                      : styles.assertionCardBody
-                  )
-                }
-              >
-                {this.props.expand === EXPAND_STATUS.EXPAND
-                    ? assertionType : null
-                }
-              </CardBody>
-          
+          <ErrorBoundary>
+            <CardBody
+              className={
+                css(
+                  isAssertionGroup
+                    ? styles.groupCardBody
+                    : styles.assertionCardBody
+                )
+              }
+            >
+              {this.props.expand === EXPAND_STATUS.EXPAND
+                  ? assertionType : null
+              }
+            </CardBody>
+          </ErrorBoundary>
         </Collapse>
       </Card>
-      </ErrorBoundary>
     );
   }
 }

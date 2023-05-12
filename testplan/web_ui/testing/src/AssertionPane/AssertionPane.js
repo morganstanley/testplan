@@ -61,21 +61,22 @@ class AssertionPane extends Component {
       return (
         <div style={assertionPaneStyle}>
           <div className={css(styles.infiniteScrollDiv)}>
-                <DescriptionPane
-                  descriptionEntries={this.props.descriptionEntries}
-                />
-                <AssertionGroup
-                  entries={this.props.assertions}
-                  filter={this.props.filter}
-                  displayPath={this.props.displayPath}
-                  assertionGroupUid={this.props.testcaseUid}
-                  reportUid={this.props.reportUid}
-                />
-                <LogGroup
-                  logs={this.props.logs}
-                />
-              </div>
-        </div>);
+            <DescriptionPane
+              descriptionEntries={this.props.descriptionEntries}
+            />
+            <AssertionGroup
+              entries={this.props.assertions}
+              filter={this.props.filter}
+              displayPath={this.props.displayPath}
+              assertionGroupUid={this.props.testcaseUid}
+              reportUid={this.props.reportUid}
+            />
+            <LogGroup
+              logs={this.props.logs}
+            />
+          </div>
+        </div>
+      );
     } else {
       return null;
     }

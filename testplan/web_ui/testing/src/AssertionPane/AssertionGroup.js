@@ -45,7 +45,7 @@ const AssertionGroup = (props) => {
       }
 
       return (
-        <ErrorBoundary fallback={<p>An error occured while loading content!</p>}>
+        <ErrorBoundary>
           <Assertion
             key={assertionKey}
             uid={assertionKey}

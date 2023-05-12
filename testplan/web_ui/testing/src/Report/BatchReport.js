@@ -27,6 +27,7 @@ import {
   fakeReportAssertions,
   fakeReportAssertionsError
 } from "../Common/fakeReport";
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 /**
  * BatchReport component:
@@ -239,36 +240,57 @@ class BatchReport extends BaseReport {
 
     return (
       <div className={css(styles.batchReport)}>
-        <Toolbar
-          filterBoxWidth={this.state.navWidth}
-          filterText={this.state.filteredReport.filter.text}
-          status={reportStatus}
-          report={this.state.report}
-          expandStatus={this.state.assertionStatus.globalExpand.status}
-          updateExpandStatusFunc={this.updateGlobalExpand}
-          handleNavFilter={this.handleNavFilter}
-          updateFilterFunc={this.updateFilter}
-          updateEmptyDisplayFunc={this.updateDisplayEmpty}
-          updateTreeViewFunc={this.updateTreeView}
-          updateTagsDisplayFunc={this.updateTagsDisplay}
-          updatePathDisplayFunc={this.updatePathDisplay}
-          updateTimeDisplayFunc={this.updateTimeDisplay}
-        />
-        <Nav
-          interactive={false}
-          navListWidth={this.state.navWidth}
-          report={this.state.filteredReport.report}
-          selected={selectedEntries}
-          filter={this.state.filter}
-          treeView={this.state.treeView}
-          displayEmpty={this.state.displayEmpty}
-          displayTags={this.state.displayTags}
-          displayTime={this.state.displayTime}
-          handleColumnResizing={this.handleColumnResizing}
-          url={this.props.match.path}
-        />
+        <ErrorBoundary>
+          <Toolbar
+            filterBoxWidth={this.state.navWidth}
+            filterText={this.state.filteredReport.filter.text}
+            status={reportStatus}
+            report={this.state.report}
+            expandStatus={this.state.assertionStatus.globalExpand.status}
+            updateExpandStatusFunc={this.updateGlobalExpand}
+            handleNavFilter={this.handleNavFilter}
+            updateFilterFunc={this.updateFilter}
+            updateEmptyDisplayFunc={this.updateDisplayEmpty}
+            updateTreeViewFunc={this.updateTreeView}
+            updateTagsDisplayFunc={this.updateTagsDisplay}
+            updatePathDisplayFunc={this.updatePathDisplay}
+            updateTimeDisplayFunc={this.updateTimeDisplay}
+          />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Nav
+            interactive={false}
+            navListWidth={this.state.navWidth}
+            report={this.state.filteredReport.report}
+            selected={selectedEntries}
+            filter={this.state.filter}
+            treeView={this.state.treeView}
+            displayEmpty={this.state.displayEmpty}
+            displayTags={this.state.displayTags}
+            displayTime={this.state.displayTime}
+            handleColumnResizing={this.handleColumnResizing}
+            url={this.props.match.path}
+          />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Nav
+            interactive={false}
+            navListWidth={this.state.navWidth}
+            report={this.state.filteredReport.report}
+            selected={selectedEntries}
+            filter={this.state.filter}
+            treeView={this.state.treeView}
+            displayEmpty={this.state.displayEmpty}
+            displayTags={this.state.displayTags}
+            displayTime={this.state.displayTime}
+            handleColumnResizing={this.handleColumnResizing}
+            url={this.props.match.path}
+          />
+        </ErrorBoundary>
         <AssertionContext.Provider value={this.state.assertionStatus}>
-          {centerPane}
+          <ErrorBoundary>
+            {centerPane}
+          </ErrorBoundary>
         </AssertionContext.Provider>
       </div>
     );

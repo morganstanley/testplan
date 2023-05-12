@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import BatchReport from "./Report/BatchReport";
 import InteractiveReport from "./Report/InteractiveReport";
 import EmptyReport from "./Report/EmptyReport";
+import { ErrorBoundary } from "./Common/ErrorBoundary";
 
 // import registerServiceWorker from './registerServiceWorker';
 import "./index.css";
@@ -13,6 +14,11 @@ import {
   Switch,
 } from "react-router-dom";
 
+//import { stopReportingRuntimeErrors } from "react-error-overlay";
+//if (process.env.NODE_ENV === "development") {
+//  stopReportingRuntimeErrors(); // disables error overlays
+//}
+
 /**
  * This single App provides multiple functions controlled via the URL path
  * accessed. We are using React-Router to control which type of report is
@@ -21,10 +27,21 @@ import {
 const AppRouter = () => (
   <Router>
     <Switch>
-      <Route path="/testplan/:uid/:selection*" component={BatchReport} />
+      <Route
+        path="/testplan/:uid/:selection*"
+        render={({match}) => (
+          <ErrorBoundary>
+            <BatchReport match={match}/>
+          </ErrorBoundary>
+        )}
+      />
       <Route
         path="/interactive/:uid?/:selection*"
-        component={InteractiveReport}
+        render={({match}) => (
+          <ErrorBoundary>
+            <InteractiveReport match={match}/>
+          </ErrorBoundary>
+        )}
       />
       <Route component={EmptyReport} />
     </Switch>

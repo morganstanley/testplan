@@ -3,11 +3,11 @@ import React from 'react';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { error: null };
   };
 
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    return { error: error };
   }
 
   componentDidCatch(error, info) {
@@ -18,25 +18,18 @@ class ErrorBoundary extends React.Component {
   logErrorToServices = console.log;
 
   render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
+    if (this.state.error) {
+      return (
+        <>
+          <p style={{ color: 'red'}}>
+            An error occurred while rendering component: "{this.props.children.type.name}"
+          </p>
+          <pre style={{ color: 'red'}}>{this.state.error.message}</pre>
+        </>
+      );
     }
     return this.props.children;
   }
-} //<plaintext>{this.state.errorMessage}</plaintext>
+}
 
-const FallbackComponent = ({ error, resetErrorBoundary }) => {
-  return (
-    <>
-      <p style={{ backgroundColor: 'red', color: 'white'}}>
-        An Error Occurred while loading content!
-      </p>
-      <pre>{error.message}</pre>
-      <button onClick={resetErrorBoundary}>Try again</button>
-    </>
-  );
-};
-//      <pre>{error.message}</pre>
-//      <button onClick={resetErrorBoundary}>Try again</button>
-
-export {ErrorBoundary, FallbackComponent};
+export {ErrorBoundary};
