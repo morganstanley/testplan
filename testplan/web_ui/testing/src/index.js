@@ -10,11 +10,6 @@ import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-//import { stopReportingRuntimeErrors } from "react-error-overlay";
-//if (process.env.NODE_ENV === "development") {
-//  stopReportingRuntimeErrors(); // disables error overlays
-//}
-
 /**
  * This single App provides multiple functions controlled via the URL path
  * accessed. We are using React-Router to control which type of report is
