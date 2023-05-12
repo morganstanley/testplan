@@ -8,11 +8,7 @@ import { ErrorBoundary } from "./Common/ErrorBoundary";
 // import registerServiceWorker from './registerServiceWorker';
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 //import { stopReportingRuntimeErrors } from "react-error-overlay";
 //if (process.env.NODE_ENV === "development") {

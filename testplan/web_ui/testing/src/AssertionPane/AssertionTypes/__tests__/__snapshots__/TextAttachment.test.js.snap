@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`TextAttachment displays error message if API request fails (JSON) 1`] = `
+<WithStyles(ForwardRef(Card))>
+  <AttachmentAssertionCardHeader
+    extra_action_items={null}
+    file_name="attachment.txt"
+    src="/var/tmp/attachment.txt"
+  />
+  <WithStyles(ForwardRef(CardContent))>
+    Service Unavailable
+  </WithStyles(ForwardRef(CardContent))>
+</WithStyles(ForwardRef(Card))>
+`;
+
 exports[`TextAttachment displays error message if API request fails 1`] = `
 <WithStyles(ForwardRef(Card))>
   <AttachmentAssertionCardHeader

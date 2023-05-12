@@ -1,0 +1,5 @@
+build
+node_modules
+.vscode
+pnpm-lock.yaml
+__snapshots__

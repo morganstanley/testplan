@@ -3,12 +3,8 @@ import { StyleSheet, css } from "aphrodite";
 import axios from "axios";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import _ from "lodash";
-import {
-  Card,  
-  CardContent,
-  Button,  
-} from "@material-ui/core";
-import { ExpandLess, ExpandMore} from "@material-ui/icons";
+import { Card, CardContent, Button } from "@material-ui/core";
+import { ExpandLess, ExpandMore } from "@material-ui/icons";
 import AttachmentAssertionCardHeader from "./AttachmentAssertionCardHeader";
 
 //Max number of lines displayed in the preview when collapsed
@@ -79,8 +75,17 @@ function TextAttachment(props) {
   };
 
   const errorHandler = (error) => {
-    setError(error.response.data);
-    //setError(error?.response?.data?.message ? error.response.data.message : error.message);
+    if (error.response) {
+      setError(
+        error.response.headers["content-type"] === "application/json"
+        ? error.response.data.message
+        : error.response.data
+      );
+    } else {
+      setError(
+        error.message
+      );
+    }
     setLines(null);
   };
 

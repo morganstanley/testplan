@@ -3,15 +3,20 @@ body {
   padding: 0;
 }
 
-.MuiPaper-root, .MuiButton-root,
-.MuiButton-root::before, .MuiPaper-root::before,
-.MuiButton-root::after, .MuiPaper-root::after {
+.MuiPaper-root,
+.MuiButton-root,
+.MuiButton-root::before,
+.MuiPaper-root::before,
+.MuiButton-root::after,
+.MuiPaper-root::after {
   transition: none !important;
   animation: none !important;
 }
 
-*,*:focus,*:hover{
-  outline:none !important;
+*,
+*:focus,
+*:hover {
+  outline: none !important;
 }
 
 tr.MuiTableRow-root:hover {

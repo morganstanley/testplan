@@ -1,49 +1,44 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Card, CardBody, Collapse } from 'reactstrap';
-import { css, StyleSheet } from 'aphrodite';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { Card, CardBody, Collapse } from "reactstrap";
+import { css, StyleSheet } from "aphrodite";
 import { ErrorBoundary } from '../Common/ErrorBoundary';
 
-import BasicAssertion from './AssertionTypes/BasicAssertion';
-import MarkdownAssertion from './AssertionTypes/MarkdownAssertion';
-import CodeLogAssertion from './AssertionTypes/CodeLogAssertion';
-import TableLogAssertion
-  from './AssertionTypes/TableAssertions/TableLogAssertion';
-import TableMatchAssertion
-  from './AssertionTypes/TableAssertions/TableMatchAssertion';
-import ColumnContainAssertion
-  from './AssertionTypes/TableAssertions/ColumnContainAssertion';
-import DictLogAssertion from './AssertionTypes/DictAssertions/DictLogAssertion';
-import FixLogAssertion from './AssertionTypes/DictAssertions/FixLogAssertion';
-import DictMatchAssertion
-  from './AssertionTypes/DictAssertions/DictMatchAssertion';
-import FixMatchAssertion
-  from './AssertionTypes/DictAssertions/FixMatchAssertion';
-import NotImplementedAssertion from './AssertionTypes/NotImplementedAssertion';
-import AssertionHeader from './AssertionHeader';
-import AssertionGroup from './AssertionGroup';
-import { BASIC_ASSERTION_TYPES } from '../Common/defaults';
-import XYGraphAssertion
-  from './AssertionTypes/GraphAssertions/XYGraphAssertion';
-import DiscreteChartAssertion
-  from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
-import SummaryBaseAssertion from './AssertionSummary';
-import AttachmentAssertion from './AssertionTypes/AttachmentAssertions';
-import PlotlyAssertion from './AssertionTypes/PlotlyAssertion';
-import AttachedDirAssertion from './AssertionTypes/AttachedDirAssertion';
+import BasicAssertion from "./AssertionTypes/BasicAssertion";
+import MarkdownAssertion from "./AssertionTypes/MarkdownAssertion";
+import CodeLogAssertion from "./AssertionTypes/CodeLogAssertion";
+import TableLogAssertion from "./AssertionTypes/TableAssertions/TableLogAssertion";
+import TableMatchAssertion from "./AssertionTypes/TableAssertions/TableMatchAssertion";
+import ColumnContainAssertion from "./AssertionTypes/TableAssertions/ColumnContainAssertion";
+import DictLogAssertion from "./AssertionTypes/DictAssertions/DictLogAssertion";
+import FixLogAssertion from "./AssertionTypes/DictAssertions/FixLogAssertion";
+import DictMatchAssertion from "./AssertionTypes/DictAssertions/DictMatchAssertion";
+import FixMatchAssertion from "./AssertionTypes/DictAssertions/FixMatchAssertion";
+import NotImplementedAssertion from "./AssertionTypes/NotImplementedAssertion";
+import AssertionHeader from "./AssertionHeader";
+import AssertionGroup from "./AssertionGroup";
+import { BASIC_ASSERTION_TYPES } from "../Common/defaults";
+import XYGraphAssertion from "./AssertionTypes/GraphAssertions/XYGraphAssertion";
+import DiscreteChartAssertion from "./AssertionTypes/GraphAssertions/DiscreteChartAssertion";
+import SummaryBaseAssertion from "./AssertionSummary";
+import AttachmentAssertion from "./AssertionTypes/AttachmentAssertions";
+import PlotlyAssertion from "./AssertionTypes/PlotlyAssertion";
+import AttachedDirAssertion from "./AssertionTypes/AttachedDirAssertion";
 import { EXPAND_STATUS } from "../Common/defaults";
 
 /**
  * Component to render one assertion.
  */
 class Assertion extends Component {
-
   shouldComponentUpdate(nextProps, nextState) {
     const timeInfoIsEqual = (arr1, arr2) => {
       if (arr1 === undefined && arr2 === undefined) {
         return true;
-      } else if (arr1 !== undefined && arr2 !== undefined &&
-        arr1.length === arr2.length) {
+      } else if (
+        arr1 !== undefined &&
+        arr2 !== undefined &&
+        arr1.length === arr2.length
+      ) {
         return true;
       } else {
         return false;
@@ -52,14 +47,17 @@ class Assertion extends Component {
 
     // If we used a PureComponent it would do a shallow prop comparison which
     // might suffice and we wouldn't need to include this.
-    return (nextProps.assertion !== this.props.assertion) ||
-      (nextProps.expand !== this.props.expand) ||
+    return (
+      nextProps.assertion !== this.props.assertion ||
+      nextProps.expand !== this.props.expand ||
       // Inside the group assertions may need to be updated
-      (nextProps.assertion.type === 'Group') ||
+      nextProps.assertion.type === "Group" ||
       !timeInfoIsEqual(
-        nextProps.assertion.timeInfoArray, this.props.timeInfoArray);
+        nextProps.assertion.timeInfoArray,
+        this.props.timeInfoArray
+      )
+    );
   }
-
 
   /**
    * Get the component object of the assertion.
@@ -105,7 +103,7 @@ class Assertion extends Component {
     let isAssertionGroup = false;
     let assertionType = this.props.assertion.type;
     switch (assertionType) {
-      case 'Group':
+      case "Group":
         isAssertionGroup = true;
         assertionType = (
           <AssertionGroup
@@ -117,7 +115,7 @@ class Assertion extends Component {
           />
         );
         break;
-      case 'Summary':
+      case "Summary":
         assertionType = (
           <SummaryBaseAssertion
             assertion={this.props.assertion}
@@ -153,7 +151,7 @@ class Assertion extends Component {
         <Collapse
           isOpen={this.props.expand === EXPAND_STATUS.EXPAND}
           className={css(styles.collapseDiv)}
-          style={{ paddingRight: isAssertionGroup ? null : '1.25rem' }}
+          style={{ paddingRight: isAssertionGroup ? null : "1.25rem" }}
         >
           <ErrorBoundary>
             <CardBody
@@ -193,23 +191,23 @@ Assertion.propTypes = {
 
 const styles = StyleSheet.create({
   assertionCardBody: {
-    padding: '.5rem .75rem',
-    fontSize: '13px',
-    fontFamily: 'monospace',
+    padding: ".5rem .75rem",
+    fontSize: "13px",
+    fontFamily: "monospace",
   },
 
   groupCardBody: {
-    padding: '0rem',
+    padding: "0rem",
   },
 
   card: {
-    margin: '.5rem 0rem .5rem .5rem',
-    border: '0px',
+    margin: ".5rem 0rem .5rem .5rem",
+    border: "0px",
   },
 
   collapseDiv: {
-    paddingLeft: '1.25rem',
-  }
+    paddingLeft: "1.25rem",
+  },
 });
 
 export default Assertion;

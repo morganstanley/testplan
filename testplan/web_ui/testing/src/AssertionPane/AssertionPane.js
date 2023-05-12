@@ -1,12 +1,11 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {css, StyleSheet} from 'aphrodite';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { css, StyleSheet } from "aphrodite";
 
-import DescriptionPane from './DescriptionPane';
+import DescriptionPane from "./DescriptionPane";
 import AssertionGroup from "./AssertionGroup";
-import LogGroup from './LogGroup';
+import LogGroup from "./LogGroup";
 import { AssertionContext } from "../Common/context";
-
 
 /**
  * Render the assertions of the selected test case.
@@ -36,27 +35,28 @@ class AssertionPane extends Component {
    */
   static getDerivedStateFromProps(props, state) {
     if (
-      props.testcaseUid === undefined
-      || props.testcaseUid !== state.testcaseUid
+      props.testcaseUid === undefined ||
+      props.testcaseUid !== state.testcaseUid
     ) {
-      return {testcaseUid: props.testcaseUid, globalIsOpen: undefined};
+      return { testcaseUid: props.testcaseUid, globalIsOpen: undefined };
     }
     return null;
   }
 
   render() {
     let assertionPaneStyle = {
-      position: 'absolute',
+      position: "absolute",
       left: this.props.left,
-      paddingLeft: '20px',
-      top: '5.5em',
+      paddingLeft: "20px",
+      top: "5.5em",
       height: `calc(100% - 5.5em)`,
       width: `calc(100% - ${this.props.left})`,
     };
 
     if (
-      this.props.assertions.length !== 0 || this.props.logs.length !== 0
-      || this.props.descriptionEntries.length !== 0
+      this.props.assertions.length !== 0 ||
+      this.props.logs.length !== 0 ||
+      this.props.descriptionEntries.length !== 0
     ) {
       return (
         <div style={assertionPaneStyle}>
@@ -71,9 +71,7 @@ class AssertionPane extends Component {
               assertionGroupUid={this.props.testcaseUid}
               reportUid={this.props.reportUid}
             />
-            <LogGroup
-              logs={this.props.logs}
-            />
+            <LogGroup logs={this.props.logs} />
           </div>
         </div>
       );
@@ -102,14 +100,14 @@ AssertionPane.propTypes = {
 
 const styles = StyleSheet.create({
   icon: {
-    margin: '0rem .75rem 0rem 0rem',
-    cursor: 'pointer',
+    margin: "0rem .75rem 0rem 0rem",
+    cursor: "pointer",
   },
 
   infiniteScrollDiv: {
-    height: 'calc(100% - 1.5em)',
+    height: "calc(100% - 1.5em)",
     overflow: "scroll",
-    paddingRight: '4rem',
+    paddingRight: "4rem",
     "::-webkit-scrollbar": {
       width: "6px",
     },
@@ -119,14 +117,14 @@ const styles = StyleSheet.create({
     },
     "::-webkit-scrollbar-thumb:hover": {
       backgroundColor: "rgba(0, 0, 0, 0.4)",
-    }
+    },
   },
 
   buttonsDiv: {
-    position: 'absolute',
-    top: '0em',
-    width: '100%',
-    textAlign: 'right',
+    position: "absolute",
+    top: "0em",
+    width: "100%",
+    textAlign: "right",
   },
 });
 

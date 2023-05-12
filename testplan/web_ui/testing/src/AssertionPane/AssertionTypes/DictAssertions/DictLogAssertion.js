@@ -1,25 +1,25 @@
-import React, {useState} from 'react';
-import PropTypes from 'prop-types';
-import DictBaseAssertion from './DictBaseAssertion';
-import DictButtonGroup from './DictButtonGroup';
-import DictCellRenderer from './DictCellRenderer';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import DictBaseAssertion from "./DictBaseAssertion";
+import DictButtonGroup from "./DictButtonGroup";
+import DictCellRenderer from "./DictCellRenderer";
 import {
   prepareDictColumnDefs,
   prepareDictRowData,
   dictCellStyle,
-} from './dictAssertionUtils';
-import {SORT_TYPES} from './../../../Common/defaults';
+} from "./dictAssertionUtils";
+import { SORT_TYPES } from "./../../../Common/defaults";
 
 /**
  * Component that renders DictLog assertion.
  *
- * The actual dictionary of the test:            
+ * The actual dictionary of the test:
  *
- * {                         
- *   'foo': {               
- *     'alpha': 'blue',     
- *     'beta': 'green',     
- *   }                      
+ * {
+ *   'foo': {
+ *     'alpha': 'blue',
+ *     'beta': 'green',
+ *   }
  *   'bar': true
  * }
  *
@@ -49,7 +49,7 @@ export default function DictLogAssertion(props) {
       sortTypeList={[
         SORT_TYPES.ALPHABETICAL,
         SORT_TYPES.REVERSE_ALPHABETICAL,
-        SORT_TYPES.NONE
+        SORT_TYPES.NONE,
       ]}
       flattenedDict={flattenedDict}
       setRowData={setRowData}
@@ -65,7 +65,6 @@ export default function DictLogAssertion(props) {
     />
   );
 }
-
 
 DictLogAssertion.propTypes = {
   /** Assertion being rendered */
