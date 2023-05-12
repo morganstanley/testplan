@@ -5,14 +5,14 @@
  * To use one of these functions in production, move it to
  * {@link './../Common/utils.js'} and reexport it from here.
  */
-import _ from 'lodash';
-export { reverseMap } from './utils';
+import _ from "lodash";
+export { reverseMap } from "./utils";
 
 // `react-scripts test` sets NODE_ENV to "test". This module shouldn't be
 // used at any other time since it would needlessly fatten the build.
 // Move a function to "../utils.js" to use something here in production.
-if(process.env.NODE_ENV !== 'test') {
-  throw new Error('This module is only to be used during testing');
+if (process.env.NODE_ENV !== "test") {
+  throw new Error("This module is only to be used during testing");
 }
 
 /**
@@ -116,17 +116,19 @@ export const randomSamples = (arr, n = 1, minSz = 1, maxSz = arr.length) =>
  *   `keepKeys`
  */
 export const filterObjectDeep = (obj, keepKeys) =>
-  Object.fromEntries(Object.entries(obj)
-    .filter(([prop]) => keepKeys.includes(prop))
-    .map(([prop, val]) => [
-      prop, (function handle(v) {
-        return Array.isArray(v)
-          ? v.map(_v => handle(_v))
-          : _.isObject(v)
+  Object.fromEntries(
+    Object.entries(obj)
+      .filter(([prop]) => keepKeys.includes(prop))
+      .map(([prop, val]) => [
+        prop,
+        (function handle(v) {
+          return Array.isArray(v)
+            ? v.map((_v) => handle(_v))
+            : _.isObject(v)
             ? filterObjectDeep(v, keepKeys)
             : v;
-      })(val)
-    ])
+        })(val),
+      ])
   );
 
 /**
@@ -330,20 +332,20 @@ export const filterObjectDeep = (obj, keepKeys) =>
 export const getPaths = (obj, asArrays = false) =>
   asArrays ? getPathArrays(obj) : getPathStrings(obj);
 
-const getPathStrings = _.memoize(obj => {
+const getPathStrings = _.memoize((obj) => {
   const pathStrings = [];
-  (function walk(subObj, prevPathStr = '') {
-    for(const [ prop, val ] of Object.entries(subObj)) {
+  (function walk(subObj, prevPathStr = "") {
+    for (const [prop, val] of Object.entries(subObj)) {
       const propPathString = !prevPathStr ? prop : `${prevPathStr}.${prop}`;
       pathStrings.push(propPathString);
-      if(_.isPlainObject(val)) {
+      if (_.isPlainObject(val)) {
         walk(val, propPathString);
-      } else if(Array.isArray(val)) {
+      } else if (Array.isArray(val)) {
         val.forEach((v, i) => {
           const elementPathString = `${propPathString}[${i}]`;
           pathStrings.push(elementPathString);
           const elementVal = val[i];
-          if(_.isPlainObject(elementVal)) {
+          if (_.isPlainObject(elementVal)) {
             walk(elementVal, elementPathString);
           }
         });
@@ -353,8 +355,8 @@ const getPathStrings = _.memoize(obj => {
   return pathStrings;
 });
 
-const getPathArrays = _.memoize(
-  obj => getPathStrings(obj).map(v => _.toPath(v))
+const getPathArrays = _.memoize((obj) =>
+  getPathStrings(obj).map((v) => _.toPath(v))
 );
 
 /**
@@ -430,28 +432,27 @@ export function deriveURLPathsFromReport(
   report,
   aliasMap = null,
   path2PathArrayMap = null,
-  path2ObjectPathMap = null,
+  path2ObjectPathMap = null
 ) {
   const pathMap = new Map();
   return getPaths(report, true)
-    .filter(arrayPath => arrayPath.slice(-1)[0] === 'name')
-    .map(arrayPath => {
-      const
-        fullPathKey = arrayPath.slice(0, -1).join('.'),
+    .filter((arrayPath) => arrayPath.slice(-1)[0] === "name")
+    .map((arrayPath) => {
+      const fullPathKey = arrayPath.slice(0, -1).join("."),
         pathBasename = _.get(report, arrayPath),
         pathBasenameEncoded = encodeURIComponent(pathBasename),
-        parentPathKey = arrayPath.slice(0, -3).join('.'),
-        parentPath = pathMap.get(parentPathKey) || '',
+        parentPathKey = arrayPath.slice(0, -3).join("."),
+        parentPath = pathMap.get(parentPathKey) || "",
         fullPathVal = `${parentPath}/${pathBasenameEncoded}`;
       pathMap.set(fullPathKey, fullPathVal);
-      if(aliasMap !== null) {
+      if (aliasMap !== null) {
         aliasMap.set(pathBasenameEncoded, pathBasename);
       }
-      if(path2PathArrayMap !== null) {
+      if (path2PathArrayMap !== null) {
         const parentPathArr = path2PathArrayMap.get(parentPath) || [];
         path2PathArrayMap.set(fullPathVal, parentPathArr.concat(pathBasename));
       }
-      if(path2ObjectPathMap !== null) {
+      if (path2ObjectPathMap !== null) {
         path2ObjectPathMap.set(fullPathVal, arrayPath);
       }
       return fullPathVal;
@@ -486,15 +487,19 @@ export function deriveURLPathsFromReport(
  * @returns {object[]} array of all found objects
  */
 export const findAllDeep = (srcObj, matchObj, diveProps = null) =>
-  [ _.find([ srcObj ], matchObj) ].concat(
-    [ diveProps ].flat().filter(Boolean).flatMap(
-      prop =>
-        srcObj[prop]
-          ? Array.isArray(srcObj[prop])
-          ? srcObj[prop].flatMap(el => findAllDeep(el, matchObj, prop))
-          : _.isPlainObject(srcObj[prop])
-            ? [ _.find([ srcObj[prop] ], matchObj) ]
+  [_.find([srcObj], matchObj)]
+    .concat(
+      [diveProps]
+        .flat()
+        .filter(Boolean)
+        .flatMap((prop) =>
+          srcObj[prop]
+            ? Array.isArray(srcObj[prop])
+              ? srcObj[prop].flatMap((el) => findAllDeep(el, matchObj, prop))
+              : _.isPlainObject(srcObj[prop])
+              ? [_.find([srcObj[prop]], matchObj)]
+              : []
             : []
-          : [],
-    ),
-  ).filter(Boolean);
+        )
+    )
+    .filter(Boolean);

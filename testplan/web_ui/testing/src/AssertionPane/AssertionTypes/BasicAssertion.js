@@ -1,9 +1,9 @@
-import React, {Component, Fragment} from 'react';
-import PropTypes from 'prop-types';
-import {css, StyleSheet} from 'aphrodite';
-import {Col, Row} from 'reactstrap';
+import React, { Component, Fragment } from "react";
+import PropTypes from "prop-types";
+import { css, StyleSheet } from "aphrodite";
+import { Col, Row } from "reactstrap";
 
-import {prepareBasicContent} from './basicAssertionUtils';
+import { prepareBasicContent } from "./basicAssertionUtils";
 
 /**
  * Component used to render basic, text based assertions (e.g.: basic
@@ -43,42 +43,38 @@ class BasicAssertion extends Component {
     return (
       <Fragment>
         <Row>
-          <Col lg='12'>
+          <Col lg="12">
             <strong>{preTitle}</strong>
           </Col>
         </Row>
         <Row>
-          <Col lg='12' className={css(styles.contentSpan)}>
+          <Col lg="12" className={css(styles.contentSpan)}>
             {preContent}
           </Col>
         </Row>
         <Row>
-          <Col lg='6'>
+          <Col lg="6">
             <strong>{leftTitle}</strong>
           </Col>
-          <Col lg='6'>
+          <Col lg="6">
             <strong>{rightTitle}</strong>
           </Col>
         </Row>
         <Row>
-          <Col lg='6' className={css(styles.contentSpan)}>
-            <span>
-              {leftContent}
-            </span>
+          <Col lg="6" className={css(styles.contentSpan)}>
+            <span>{leftContent}</span>
           </Col>
-          <Col lg='6' className={css(styles.contentSpan)}>
-            <span>
-              {rightContent}
-            </span>
+          <Col lg="6" className={css(styles.contentSpan)}>
+            <span>{rightContent}</span>
           </Col>
         </Row>
         <Row>
-          <Col lg='12'>
+          <Col lg="12">
             <strong>{postTitle}</strong>
           </Col>
         </Row>
         <Row>
-          <Col lg='12' className={css(styles.contentSpan)}>
+          <Col lg="12" className={css(styles.contentSpan)}>
             {postContent}
           </Col>
         </Row>
@@ -94,8 +90,8 @@ BasicAssertion.propTypes = {
 
 const styles = StyleSheet.create({
   contentSpan: {
-    lineHeight: '110%',
-    'overflow-x': 'auto',
+    lineHeight: "110%",
+    "overflow-x": "auto",
   },
 });
 

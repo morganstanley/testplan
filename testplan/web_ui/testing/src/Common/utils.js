@@ -139,9 +139,11 @@ function formatMilliseconds(durationInMilliseconds) {
   let secondsDisplay = isDisplayedSeconds ? seconds + "s" : "";
   let millisecondsDisplay = isDisplayedMilliseconds ? milliseconds + "ms" : "";
 
-  return [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
-    .filter(Boolean)
-    .join(" ") || "0ms";
+  return (
+    [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
+      .filter(Boolean)
+      .join(" ") || "0ms"
+  );
 }
 
 export {
@@ -251,9 +253,9 @@ export const parseToJson = (data) => {
  */
 export const getAttachmentUrl = (filePath, reportUid, prefix) => {
   if (_.isEmpty(prefix)) {
-    prefix = '';
+    prefix = "";
   } else {
-    prefix += '/';
+    prefix += "/";
   }
   if (reportUid) {
     return `/api/v1/reports/${reportUid}/attachments/${prefix}${filePath}`;

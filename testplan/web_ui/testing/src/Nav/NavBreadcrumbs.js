@@ -143,9 +143,7 @@ const NavBreadcrumbs = (props) => {
     breadcrumbMenus = [
       <li key="breadcrumbMenuHome">
         <Button
-          className={
-            `${classes.breadcrumbMenu} ${classes.breadcrumbMenuButton}`
-          }
+          className={`${classes.breadcrumbMenu} ${classes.breadcrumbMenuButton}`}
           disableRipple={true}
           style={{ paddingLeft: "10px" }}
           onClick={() => {

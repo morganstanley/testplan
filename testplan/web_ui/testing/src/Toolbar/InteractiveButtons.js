@@ -1,32 +1,31 @@
 /**
  * Toolbar buttons used for the interactive report.
  */
-import React, { useState } from 'react';
-import { 
-  NavItem, 
-  Modal, 
-  ModalHeader, 
-  ModalBody, 
-  Spinner, 
+import React, { useState } from "react";
+import {
+  NavItem,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  Spinner,
   Table,
   Input,
   Label,
   Button,
-  FormGroup
-} from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+  FormGroup,
+} from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSync,
   faFastBackward,
   faTimes,
   faSave,
-} from '@fortawesome/free-solid-svg-icons';
-import { format as dateFormat } from 'date-fns';
-import { css } from 'aphrodite';
-import axios from 'axios';
+} from "@fortawesome/free-solid-svg-icons";
+import { format as dateFormat } from "date-fns";
+import { css } from "aphrodite";
+import axios from "axios";
 
-import styles from './navStyles';
-
+import styles from "./navStyles";
 
 const saveReportUrl = `/api/v1/interactive/report/export`;
 
@@ -42,12 +41,12 @@ export const ReloadButton = (props) => {
       <NavItem key="reload-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-reload'
+            key="toolbar-reload"
             className={css(styles.toolbarButton, styles.toolbarInactive)}
             icon={faSync}
-            title='Reloading...'
+            title="Reloading..."
             spin
-            />
+          />
         </div>
       </NavItem>
     );
@@ -56,10 +55,10 @@ export const ReloadButton = (props) => {
       <NavItem key="reload-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-reload'
+            key="toolbar-reload"
             className={css(styles.toolbarButton)}
             icon={faSync}
-            title='Reload code'
+            title="Reload code"
             onClick={props.reloadCbk}
           />
         </div>
@@ -80,10 +79,10 @@ export const ResetButton = (props) => {
       <NavItem key="reset-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-reset'
+            key="toolbar-reset"
             className={css(styles.toolbarButton, styles.toolbarInactive)}
             icon={faFastBackward}
-            title='Resetting...'
+            title="Resetting..."
           />
         </div>
       </NavItem>
@@ -93,10 +92,10 @@ export const ResetButton = (props) => {
       <NavItem key="reset-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-reset'
+            key="toolbar-reset"
             className={css(styles.toolbarButton)}
             icon={faFastBackward}
-            title='Reset state'
+            title="Reset state"
             onClick={props.resetStateCbk}
           />
         </div>
@@ -117,10 +116,10 @@ export const AbortButton = (props) => {
       <NavItem key="abort-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-abort'
+            key="toolbar-abort"
             className={css(styles.toolbarButton, styles.toolbarInactive)}
             icon={faTimes}
-            title='Aborting...'
+            title="Aborting..."
           />
         </div>
       </NavItem>
@@ -130,10 +129,10 @@ export const AbortButton = (props) => {
       <NavItem key="abort-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-abort'
+            key="toolbar-abort"
             className={css(styles.toolbarButton)}
             icon={faTimes}
-            title='Abort Testplan'
+            title="Abort Testplan"
             onClick={props.abortCbk}
           />
         </div>
@@ -154,7 +153,7 @@ const getHistoryTable = (historyExporters) => {
           </a>
         );
       } catch (_) {
-        if (item.message.split('.').pop().toLowerCase() === "pdf"){
+        if (item.message.split(".").pop().toLowerCase() === "pdf") {
           message = (
             <a
               href={`/api/v1/interactive/report/export/${item.uid}`}
@@ -170,10 +169,10 @@ const getHistoryTable = (historyExporters) => {
       }
       return (
         <tr key={`exporter-${i}`}>
-          <td style={{width: "85px"}}>
-            {dateFormat(new Date(item.time*1000), "HH:mm:ss")}
+          <td style={{ width: "85px" }}>
+            {dateFormat(new Date(item.time * 1000), "HH:mm:ss")}
           </td>
-          <td style={{width: "150px"}}>{item.name}</td>
+          <td style={{ width: "150px" }}>{item.name}</td>
           <td>{message}</td>
         </tr>
       );
@@ -183,9 +182,7 @@ const getHistoryTable = (historyExporters) => {
       <>
         <h5>History:</h5>
         <Table bordered responsive className={css(styles.infoTable)}>
-          <tbody>
-            {resultList}
-          </tbody>
+          <tbody>{resultList}</tbody>
         </Table>
       </>
     );
@@ -204,31 +201,29 @@ const ModalRender = (
   if (exporterState.available === undefined) {
     return (
       <div class="d-flex justify-content-center">
-        <Spinner style={{ width: '3rem', height: '3rem' }} />
+        <Spinner style={{ width: "3rem", height: "3rem" }} />
       </div>
     );
   }
 
   if (exporterState.available.length === 0) {
-    return (
-      <span style={{color: "red"}}>No exporter available</span>
-    );
+    return <span style={{ color: "red" }}>No exporter available</span>;
   }
 
-  const availableExporters = exporterState.available.map((item, i)=>(
+  const availableExporters = exporterState.available.map((item, i) => (
     <FormGroup check>
       <Label check key={`available-exporters-${i}`}>
         <Input
           type="checkbox"
           checked={checkedExporters[item]}
-          onChange={(e)=>{
-            setCheckedExporters((prev)=>{
-              const checked = {...prev};
+          onChange={(e) => {
+            setCheckedExporters((prev) => {
+              const checked = { ...prev };
               checked[item] = !prev[item];
-              return checked;  
+              return checked;
             });
           }}
-        />{' '}
+        />{" "}
         {item}
       </Label>
     </FormGroup>
@@ -238,14 +233,14 @@ const ModalRender = (
     <>
       <h5>
         Select exporters to use
-        <span style={{fontSize: "0.8em"}}>
-          (check "Output" section in documentation
-          for how-to set up more exporters)
+        <span style={{ fontSize: "0.8em" }}>
+          (check "Output" section in documentation for how-to set up more
+          exporters)
         </span>
         :
       </h5>
       {availableExporters}
-      
+
       <br />
       <Button
         onClick={saveReport}
@@ -270,45 +265,48 @@ export const SaveButton = (props) => {
 
   const [modalState, setModalState] = useState({
     isShow: false,
-    saveButtonDisable: false
+    saveButtonDisable: false,
   });
 
   const modalToggle = () => {
-    setModalState((prev)=>({
+    setModalState((prev) => ({
       ...prev,
-      isShow: !modalState.isShow
+      isShow: !modalState.isShow,
     }));
   };
 
   const saveReport = () => {
-    const exporters = Object.keys(
-      checkedExporters
-    ).filter(name=>checkedExporters[name]);
+    const exporters = Object.keys(checkedExporters).filter(
+      (name) => checkedExporters[name]
+    );
 
     if (exporters.length > 0) {
-      setModalState((prev)=>({
+      setModalState((prev) => ({
         ...prev,
         saveButtonDisable: true,
       }));
-      axios.post(saveReportUrl, {
-        exporters: exporters
-      }).then(res=>{
-        setExporterState((prev)=>({
-          ...prev,
-          history: res.data.history.reverse()
-        }));
-        setModalState((prev)=>({
-          ...prev,
-          saveButtonDisable: false,
-        }));
-      }).catch((err)=>{
-        console.error(err);
-        alert(err);
-        setModalState((prev)=>({
-          ...prev,
-          saveButtonDisable: false,
-        }));
-      });
+      axios
+        .post(saveReportUrl, {
+          exporters: exporters,
+        })
+        .then((res) => {
+          setExporterState((prev) => ({
+            ...prev,
+            history: res.data.history.reverse(),
+          }));
+          setModalState((prev) => ({
+            ...prev,
+            saveButtonDisable: false,
+          }));
+        })
+        .catch((err) => {
+          console.error(err);
+          alert(err);
+          setModalState((prev) => ({
+            ...prev,
+            saveButtonDisable: false,
+          }));
+        });
     } else {
       alert("Please choose an exporter");
     }
@@ -316,40 +314,41 @@ export const SaveButton = (props) => {
 
   const showSaveDialog = () => {
     modalToggle();
-    axios.get(saveReportUrl).then(res=>{
-      setExporterState((prev)=>({
-        ...prev,
-        available: res.data.available,
-        history: res.data.history.reverse()
-      }));
-    }).catch((err)=>{
-      console.error(err);
-      alert(err);
-    });
+    axios
+      .get(saveReportUrl)
+      .then((res) => {
+        setExporterState((prev) => ({
+          ...prev,
+          available: res.data.available,
+          history: res.data.history.reverse(),
+        }));
+      })
+      .catch((err) => {
+        console.error(err);
+        alert(err);
+      });
   };
 
   return (
     <>
       <NavItem key="save-button">
         <div className={css(styles.buttonsBar)}>
-            <FontAwesomeIcon
-              key='toolbar-save'
-              className={css(styles.toolbarButton)}
-              icon={faSave}
-              title='Save report'
-              onClick={showSaveDialog}
-            />
-          </div>
+          <FontAwesomeIcon
+            key="toolbar-save"
+            className={css(styles.toolbarButton)}
+            icon={faSave}
+            title="Save report"
+            onClick={showSaveDialog}
+          />
+        </div>
       </NavItem>
       <Modal
         isOpen={modalState.isShow}
-        toggle={modalToggle} 
-        className="SaveModal" 
+        toggle={modalToggle}
+        className="SaveModal"
         size="xl"
       >
-        <ModalHeader toggle={modalToggle}>
-          Save report
-        </ModalHeader>
+        <ModalHeader toggle={modalToggle}>Save report</ModalHeader>
         <ModalBody>
           {ModalRender(
             exporterState,

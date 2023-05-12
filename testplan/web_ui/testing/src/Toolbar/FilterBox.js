@@ -59,7 +59,7 @@ class FilterBox extends Component {
 
   toggleHelp() {
     this.setState({ showHelp: !this.state.showHelp });
-  };
+  }
 
   hasError() {
     return Boolean(this.state.parserError);
@@ -123,12 +123,12 @@ class FilterBox extends Component {
     try {
       filters = SearchFieldParser.parse(e.target.value);
       this.setState({ parserError: null });
-      this.props.handleNavFilter({text: e.target.value, filters});
+      this.props.handleNavFilter({ text: e.target.value, filters });
     } catch (error) {
       this.setState({ parserError: error });
       console.log("Could not parse seach string: " + error);
       console.log(e.target.value);
-      this.props.handleNavFilter({text: e.target.values, filters: []});
+      this.props.handleNavFilter({ text: e.target.values, filters: [] });
     }
   }
 
