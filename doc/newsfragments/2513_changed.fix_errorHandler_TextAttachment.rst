@@ -1,0 +1,1 @@
+Fixed an issue in TextAttachment component when the server sent a non-text type response for a request caused unexpected WebUI crash.
