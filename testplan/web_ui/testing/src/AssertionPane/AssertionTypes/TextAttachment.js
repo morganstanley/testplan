@@ -75,7 +75,17 @@ function TextAttachment(props) {
   };
 
   const errorHandler = (error) => {
-    setError(error.response ? error.response.data : error.message);
+    if (error.response) {
+      setError(
+        error.response.headers["content-type"] === "application/json"
+        ? error.response.data.message
+        : error.response.data
+      );
+    } else {
+      setError(
+        error.message
+      );
+    }
     setLines(null);
   };
 
