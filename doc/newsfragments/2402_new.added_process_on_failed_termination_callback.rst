@@ -1,0 +1,1 @@
+Added callback function parameter `on_failed_termination` to :py:meth:`kill_process <testplan.common.utils.process.kill_process>` and :py:meth:`kill_process_psutil <testplan.common.utils.process.kill_process_psutil>`
