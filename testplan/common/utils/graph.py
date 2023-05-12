@@ -1,7 +1,7 @@
 from collections import defaultdict
 from copy import copy
 from dataclasses import dataclass
-from typing import Dict, Generator, Generic, List, Tuple, TypeVar
+from typing import Dict, Generic, List, Tuple, TypeVar
 
 try:
     from typing import Self  # starting from py311
@@ -183,8 +183,8 @@ class DirectedGraph(Generic[T, U, V]):
 
     def __copy__(self) -> Self:
         return self.__class__(
-            copy(self.vertices),
-            {src: copy(dst) for src, dst in self.edges.items()},
-            copy(self.indegrees),
-            copy(self.outdegrees),
+            vertices=copy(self.vertices),
+            edges={src: copy(dst) for src, dst in self.edges.items()},
+            indegrees=copy(self.indegrees),
+            outdegrees=copy(self.outdegrees),
         )

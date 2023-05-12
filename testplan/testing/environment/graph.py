@@ -1,6 +1,6 @@
-import copy
+from copy import copy
 from itertools import product
-from typing import TYPE_CHECKING, Generator, Iterable, List
+from typing import TYPE_CHECKING, Iterable, List
 
 from testplan.common.utils.graph import DirectedGraph
 
@@ -28,7 +28,7 @@ class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
                 "Bad Testplan Driver dependency definition. "
                 f"Cyclic dependency detected among {g.cycles()[0]}."
             )
-        g_ = copy.copy(g)
+        g_ = copy(g)
         return cls(g_.vertices, g_.edges, g_.indegrees, g_.outdegrees)
 
     def mark_starting(self, driver: "Driver"):
@@ -60,6 +60,16 @@ class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
         self.edges = {d: dict() for d in self.vertices}
         self.indegrees = {d: 0 for d in self.vertices}
         self.outdegrees = {d: 0 for d in self.vertices}
+
+    def __copy__(self):
+        obj = self.__class__(
+            vertices=copy(self.vertices),
+            edges={src: copy(dst) for src, dst in self.edges.items()},
+            indegrees=copy(self.indegrees),
+            outdegrees=copy(self.outdegrees),
+        )
+        obj._starting = copy(self._starting)
+        return obj
 
 
 def parse_dependency(input: dict) -> DriverDepGraph:

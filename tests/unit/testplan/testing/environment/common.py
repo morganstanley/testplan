@@ -1,4 +1,5 @@
 import time
+from functools import reduce
 from unittest.mock import call
 
 from testplan.common.utils.timing import DEFAULT_INTERVAL
@@ -13,6 +14,13 @@ def assert_lhs_before_rhs(mock_calls, lhs, rhs):
 
 def assert_lhs_call_before_rhs_call(mock_calls, l_call, r_call):
     assert mock_calls.index(l_call) < mock_calls.index(r_call)
+
+
+def assert_call_count(mock_calls, call, count):
+    assert (
+        reduce(lambda x, y: x + (1 if y == call else 0), mock_calls, 0)
+        == count
+    )
 
 
 class MockDriver(Driver):

@@ -11,6 +11,7 @@ from testplan.testing.environment import (
 from .common import (
     FlakyDriver,
     MockDriver,
+    assert_call_count,
     assert_lhs_before_rhs,
     assert_lhs_call_before_rhs_call,
 )
@@ -55,6 +56,25 @@ def test_unidentified_driver_exception():
     env.add(b)
     with pytest.raises(ValueError, match=r".*not being declared.*"):
         env.set_dependency(parse_dependency({a: b, a: c}))
+
+
+def test_environment_restart(mocker):
+    m = mocker.Mock()
+    env = TestEnvironment()
+    a = MockDriver("a", m)
+    b = MockDriver("b", m)
+    c = MockDriver("c", m)
+    for d_ in [a, b, c]:
+        env.add(d_)
+
+    env.set_dependency(parse_dependency({a: b, b: c}))
+    env.start()
+    env.stop()
+    env.start()
+    assert_call_count(m.method_calls, call.pre("a"), 2)
+    assert_call_count(m.method_calls, call.post("b"), 2)
+    assert_call_count(m.method_calls, call.pre("c"), 2)
+    env.stop()
 
 
 class TestFastDrivers:

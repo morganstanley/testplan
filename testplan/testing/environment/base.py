@@ -1,3 +1,4 @@
+import copy
 import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, List, Optional
@@ -55,6 +56,7 @@ class TestEnvironment(Environment):
         super().__init__(parent)
 
         self.__dict__["_dependency"]: Optional[DriverDepGraph] = None
+        self.__dict__["_orig_dependency"]: Optional[DriverDepGraph] = None
         self.__dict__["_pocketwatches"]: Dict[str, DriverPocketwatch] = dict()
 
     def set_dependency(self, dependency: DriverDepGraph):
@@ -76,7 +78,7 @@ class TestEnvironment(Environment):
             if d.uid() not in dependency.vertices:
                 dependency.add_vertex(d.uid(), d)
 
-        self._dependency = dependency
+        self._orig_dependency = dependency
 
     def start_in_pool(self, *_):
         raise RuntimeError(
@@ -92,6 +94,10 @@ class TestEnvironment(Environment):
         """
         Start the drivers either in the legacy way or following dependency.
         """
+
+        # (re)set dependency graph
+        self._dependency = copy.copy(self._orig_dependency)
+
         if self._dependency is None:
             # we got no dependency declared, go with the legacy way,
             # override `async_start` of drivers
