@@ -22,7 +22,9 @@ class ErrorBoundary extends React.Component {
       return (
         <>
           <p style={{ color: 'red'}}>
-            An error occurred while rendering component: "{this.props.children.type.name}"
+            An error occurred while rendering component: "{
+              this.props.children.type.name
+            }"
           </p>
           <pre style={{ color: 'red'}}>{this.state.error.message}</pre>
         </>

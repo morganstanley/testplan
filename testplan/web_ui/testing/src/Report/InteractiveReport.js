@@ -644,7 +644,7 @@ class InteractiveReport extends BaseReport {
                 aborting={this.state.aborting}
                 abortCbk={this.abortTestplan}
               />,
-              <SaveButton key="save-button"/>
+              <SaveButton key="save-button" />
             ]}
           />
         </ErrorBoundary>

@@ -274,21 +274,6 @@ class BatchReport extends BaseReport {
             url={this.props.match.path}
           />
         </ErrorBoundary>
-        <ErrorBoundary>
-          <Nav
-            interactive={false}
-            navListWidth={this.state.navWidth}
-            report={this.state.filteredReport.report}
-            selected={selectedEntries}
-            filter={this.state.filter}
-            treeView={this.state.treeView}
-            displayEmpty={this.state.displayEmpty}
-            displayTags={this.state.displayTags}
-            displayTime={this.state.displayTime}
-            handleColumnResizing={this.handleColumnResizing}
-            url={this.props.match.path}
-          />
-        </ErrorBoundary>
         <AssertionContext.Provider value={this.state.assertionStatus}>
           <ErrorBoundary>
             {centerPane}
