@@ -57,6 +57,7 @@ SKIP_ON_WINDOWS = [
     os.path.join("Cpp", "Cppunit", "test_plan.py"),
     os.path.join("Cpp", "HobbesTest", "test_plan.py"),
     os.path.join("Transports", "FIX", "test_plan.py"),
+    os.path.join("Transports", "FIX", "test_plan_tls.py"),
     os.path.join("App", "Basic", "test_plan.py"),
     os.path.join("App", "Autostart", "test_plan.py"),
     os.path.join("JUnit", "test_plan.py"),
