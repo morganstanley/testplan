@@ -1,1 +1,1 @@
-Selection in the breadcrumb bar make the selection scroll into view in the treeview as well. When opening an url with selection, the selected item gets visible on the treeview.
+Selection in the breadcrumb bar makes the selection scroll into view in the tree navigation as well. When opening an URL with selection, the selected item is reflected on the tree view navigation too.
