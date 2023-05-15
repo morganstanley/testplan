@@ -37,6 +37,7 @@ import { encodeURIComponent2, parseToJson } from "../Common/utils";
 
 import { POLL_MS } from "../Common/defaults.js";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -677,7 +678,7 @@ class InteractiveReport extends BaseReport {
             url={this.props.match.path}
           />
           <AssertionContext.Provider value={this.state.assertionStatus}>
-            {centerPane}
+            <ErrorBoundary>{centerPane}</ErrorBoundary>
           </AssertionContext.Provider>
         </div>
       </div>

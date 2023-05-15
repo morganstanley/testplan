@@ -2300,126 +2300,128 @@ exports[`BatchReport loads a failed simple report 1`] = `
         }
       }
     >
-      <AssertionPane
-        assertions={
-          Array [
-            Object {
-              "category": "DEFAULT",
-              "description": "passing equality",
-              "first": 1,
-              "label": "==",
-              "line_no": 24,
-              "machine_time": "2018-10-15T15:30:11.010098+00:00",
-              "meta_type": "assertion",
-              "passed": false,
-              "second": 1,
-              "timeInfoArray": Array [],
-              "type": "Equal",
-              "utc_time": "2018-10-15T14:30:11.010094+00:00",
-            },
-            Object {
-              "category": "DEFAULT",
-              "description": "log a fix message",
-              "flag": "DEFAULT",
-              "flattened_dict": Array [
-                Array [
-                  0,
-                  36,
+      <ErrorBoundary>
+        <AssertionPane
+          assertions={
+            Array [
+              Object {
+                "category": "DEFAULT",
+                "description": "passing equality",
+                "first": 1,
+                "label": "==",
+                "line_no": 24,
+                "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                "meta_type": "assertion",
+                "passed": false,
+                "second": 1,
+                "timeInfoArray": Array [],
+                "type": "Equal",
+                "utc_time": "2018-10-15T14:30:11.010094+00:00",
+              },
+              Object {
+                "category": "DEFAULT",
+                "description": "log a fix message",
+                "flag": "DEFAULT",
+                "flattened_dict": Array [
                   Array [
-                    "int",
-                    "6",
+                    0,
+                    36,
+                    Array [
+                      "int",
+                      "6",
+                    ],
+                  ],
+                  Array [
+                    0,
+                    22,
+                    Array [
+                      "int",
+                      "5",
+                    ],
+                  ],
+                  Array [
+                    0,
+                    55,
+                    Array [
+                      "int",
+                      "2",
+                    ],
+                  ],
+                  Array [
+                    0,
+                    38,
+                    Array [
+                      "int",
+                      "5",
+                    ],
+                  ],
+                  Array [
+                    0,
+                    555,
+                    "",
+                  ],
+                  Array [
+                    0,
+                    "",
+                    "",
+                  ],
+                  Array [
+                    1,
+                    556,
+                    Array [
+                      "str",
+                      "USD",
+                    ],
+                  ],
+                  Array [
+                    1,
+                    624,
+                    Array [
+                      "int",
+                      "1",
+                    ],
+                  ],
+                  Array [
+                    0,
+                    "",
+                    "",
+                  ],
+                  Array [
+                    1,
+                    556,
+                    Array [
+                      "str",
+                      "EUR",
+                    ],
+                  ],
+                  Array [
+                    1,
+                    624,
+                    Array [
+                      "int",
+                      "2",
+                    ],
                   ],
                 ],
-                Array [
-                  0,
-                  22,
-                  Array [
-                    "int",
-                    "5",
-                  ],
-                ],
-                Array [
-                  0,
-                  55,
-                  Array [
-                    "int",
-                    "2",
-                  ],
-                ],
-                Array [
-                  0,
-                  38,
-                  Array [
-                    "int",
-                    "5",
-                  ],
-                ],
-                Array [
-                  0,
-                  555,
-                  "",
-                ],
-                Array [
-                  0,
-                  "",
-                  "",
-                ],
-                Array [
-                  1,
-                  556,
-                  Array [
-                    "str",
-                    "USD",
-                  ],
-                ],
-                Array [
-                  1,
-                  624,
-                  Array [
-                    "int",
-                    "1",
-                  ],
-                ],
-                Array [
-                  0,
-                  "",
-                  "",
-                ],
-                Array [
-                  1,
-                  556,
-                  Array [
-                    "str",
-                    "EUR",
-                  ],
-                ],
-                Array [
-                  1,
-                  624,
-                  Array [
-                    "int",
-                    "2",
-                  ],
-                ],
-              ],
-              "line_no": 28,
-              "machine_time": "2018-10-15T15:30:11.020128+00:00",
-              "meta_type": "entry",
-              "timeInfoArray": Array [],
-              "type": "FixLog",
-              "utc_time": "2018-10-15T14:30:11.020124+00:00",
-            },
-          ]
-        }
-        descriptionEntries={Array []}
-        displayPath={false}
-        filter={null}
-        key="736706ef-ba65-475d-96c5-f2855f431028"
-        left="22em"
-        logs={Array []}
-        reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
-        testcaseUid="736706ef-ba65-475d-96c5-f2855f431028"
-      />
+                "line_no": 28,
+                "machine_time": "2018-10-15T15:30:11.020128+00:00",
+                "meta_type": "entry",
+                "timeInfoArray": Array [],
+                "type": "FixLog",
+                "utc_time": "2018-10-15T14:30:11.020124+00:00",
+              },
+            ]
+          }
+          descriptionEntries={Array []}
+          displayPath={false}
+          filter={null}
+          key="736706ef-ba65-475d-96c5-f2855f431028"
+          left="22em"
+          logs={Array []}
+          reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
+          testcaseUid="736706ef-ba65-475d-96c5-f2855f431028"
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -4085,29 +4087,31 @@ exports[`BatchReport loads a more complex error report 1`] = `
         }
       }
     >
-      <AssertionPane
-        assertions={Array []}
-        descriptionEntries={Array []}
-        displayPath={false}
-        filter={null}
-        key="08d4c671-d55d-49d4-96ba-dc654d12be26"
-        left="22em"
-        logs={
-          Array [
-            Object {
-              "created": "2018-10-15T14:30:12.009872+00:00",
-              "funcName": "someFunc",
-              "levelname": "ERROR",
-              "levelno": 42,
-              "lineno": 32,
-              "message": "Some error message",
-              "uid": "58096ffc-1d67-4003-b0b0-a7b7a1bda0c8",
-            },
-          ]
-        }
-        reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
-        testcaseUid="08d4c671-d55d-49d4-96ba-dc654d12be26"
-      />
+      <ErrorBoundary>
+        <AssertionPane
+          assertions={Array []}
+          descriptionEntries={Array []}
+          displayPath={false}
+          filter={null}
+          key="08d4c671-d55d-49d4-96ba-dc654d12be26"
+          left="22em"
+          logs={
+            Array [
+              Object {
+                "created": "2018-10-15T14:30:12.009872+00:00",
+                "funcName": "someFunc",
+                "levelname": "ERROR",
+                "levelno": 42,
+                "lineno": 32,
+                "message": "Some error message",
+                "uid": "58096ffc-1d67-4003-b0b0-a7b7a1bda0c8",
+              },
+            ]
+          }
+          reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
+          testcaseUid="08d4c671-d55d-49d4-96ba-dc654d12be26"
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -6951,34 +6955,36 @@ exports[`BatchReport loads a more complex report 1`] = `
         }
       }
     >
-      <AssertionPane
-        assertions={
-          Array [
-            Object {
-              "category": "DEFAULT",
-              "description": "passing equality",
-              "first": 1,
-              "label": "==",
-              "line_no": 24,
-              "machine_time": "2018-10-15T15:30:11.510098+00:00",
-              "meta_type": "assertion",
-              "passed": true,
-              "second": 1,
-              "timeInfoArray": Array [],
-              "type": "Equal",
-              "utc_time": "2018-10-15T14:30:11.510094+00:00",
-            },
-          ]
-        }
-        descriptionEntries={Array []}
-        displayPath={false}
-        filter={null}
-        key="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
-        left="22em"
-        logs={Array []}
-        reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
-        testcaseUid="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
-      />
+      <ErrorBoundary>
+        <AssertionPane
+          assertions={
+            Array [
+              Object {
+                "category": "DEFAULT",
+                "description": "passing equality",
+                "first": 1,
+                "label": "==",
+                "line_no": 24,
+                "machine_time": "2018-10-15T15:30:11.510098+00:00",
+                "meta_type": "assertion",
+                "passed": true,
+                "second": 1,
+                "timeInfoArray": Array [],
+                "type": "Equal",
+                "utc_time": "2018-10-15T14:30:11.510094+00:00",
+              },
+            ]
+          }
+          descriptionEntries={Array []}
+          displayPath={false}
+          filter={null}
+          key="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
+          left="22em"
+          logs={Array []}
+          reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
+          testcaseUid="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -8114,9 +8120,11 @@ exports[`BatchReport loads a passed simple report 1`] = `
         }
       }
     >
-      <Message
-        message="Please select an entry."
-      />
+      <ErrorBoundary>
+        <Message
+          message="Please select an entry."
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -10540,9 +10548,11 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
         }
       }
     >
-      <Message
-        message="Please select an entry."
-      />
+      <ErrorBoundary>
+        <Message
+          message="Please select an entry."
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -12838,34 +12848,36 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         }
       }
     >
-      <AssertionPane
-        assertions={
-          Array [
-            Object {
-              "category": "DEFAULT",
-              "description": "passing equality",
-              "first": 1,
-              "label": "==",
-              "line_no": 24,
-              "machine_time": "2018-10-15T15:30:12.010098+00:00",
-              "meta_type": "assertion",
-              "passed": true,
-              "second": 1,
-              "timeInfoArray": Array [],
-              "type": "Equal",
-              "utc_time": "2018-10-15T14:30:12.010094+00:00",
-            },
-          ]
-        }
-        descriptionEntries={Array []}
-        displayPath={false}
-        filter={null}
-        key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
-        left="22em"
-        logs={Array []}
-        reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
-        testcaseUid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
-      />
+      <ErrorBoundary>
+        <AssertionPane
+          assertions={
+            Array [
+              Object {
+                "category": "DEFAULT",
+                "description": "passing equality",
+                "first": 1,
+                "label": "==",
+                "line_no": 24,
+                "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                "meta_type": "assertion",
+                "passed": true,
+                "second": 1,
+                "timeInfoArray": Array [],
+                "type": "Equal",
+                "utc_time": "2018-10-15T14:30:12.010094+00:00",
+              },
+            ]
+          }
+          descriptionEntries={Array []}
+          displayPath={false}
+          filter={null}
+          key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+          left="22em"
+          logs={Array []}
+          reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
+          testcaseUid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -15201,38 +15213,40 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
         }
       }
     >
-      <AssertionPane
-        assertions={
-          Array [
-            Object {
-              "category": "DEFAULT",
-              "description": "passing equality",
-              "first": 1,
-              "label": "==",
-              "line_no": 24,
-              "machine_time": "2018-10-15T15:30:12.010098+00:00",
-              "meta_type": "assertion",
-              "passed": true,
-              "second": 1,
-              "timeInfoArray": Array [
-                0,
-                "14:30:12.010 UTC",
-                "(122ms)",
-              ],
-              "type": "Equal",
-              "utc_time": "2018-10-15T14:30:12.010094+00:00",
-            },
-          ]
-        }
-        descriptionEntries={Array []}
-        displayPath={false}
-        filter={null}
-        key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
-        left="22em"
-        logs={Array []}
-        reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
-        testcaseUid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
-      />
+      <ErrorBoundary>
+        <AssertionPane
+          assertions={
+            Array [
+              Object {
+                "category": "DEFAULT",
+                "description": "passing equality",
+                "first": 1,
+                "label": "==",
+                "line_no": 24,
+                "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                "meta_type": "assertion",
+                "passed": true,
+                "second": 1,
+                "timeInfoArray": Array [
+                  0,
+                  "14:30:12.010 UTC",
+                  "(122ms)",
+                ],
+                "type": "Equal",
+                "utc_time": "2018-10-15T14:30:12.010094+00:00",
+              },
+            ]
+          }
+          descriptionEntries={Array []}
+          displayPath={false}
+          filter={null}
+          key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+          left="22em"
+          logs={Array []}
+          reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
+          testcaseUid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -17968,9 +17982,11 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
         }
       }
     >
-      <Message
-        message="Please select an entry."
-      />
+      <ErrorBoundary>
+        <Message
+          message="Please select an entry."
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -19798,9 +19814,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         }
       }
     >
-      <Message
-        message="Please select an entry."
-      />
+      <ErrorBoundary>
+        <Message
+          message="Please select an entry."
+        />
+      </ErrorBoundary>
     </ContextProvider>
   </div>
 </div>
@@ -21232,15 +21250,17 @@ ZeroDivisionError: integer division or modulo by zero
           </Column>
         </TreeViewNav>
       </Nav>
-      <Message
-        message="Please select an entry."
-      >
-        <h1
-          className="message_1s94nt7"
+      <ErrorBoundary>
+        <Message
+          message="Please select an entry."
         >
-          Please select an entry.
-        </h1>
-      </Message>
+          <h1
+            className="message_1s94nt7"
+          >
+            Please select an entry.
+          </h1>
+        </Message>
+      </ErrorBoundary>
     </div>
   </div>
 </BatchReport>

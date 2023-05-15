@@ -28,6 +28,7 @@ import {
   fakeReportAssertions,
   fakeReportAssertionsError,
 } from "../Common/fakeReport";
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 /**
  * BatchReport component:
@@ -279,7 +280,7 @@ class BatchReport extends BaseReport {
             url={this.props.match.path}
           />
           <AssertionContext.Provider value={this.state.assertionStatus}>
-            {centerPane}
+            <ErrorBoundary>{centerPane}</ErrorBoundary>
           </AssertionContext.Provider>
         </div>
       </div>

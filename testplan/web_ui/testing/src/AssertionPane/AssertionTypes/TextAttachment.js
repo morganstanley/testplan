@@ -78,13 +78,11 @@ function TextAttachment(props) {
     if (error.response) {
       setError(
         error.response.headers["content-type"] === "application/json"
-        ? error.response.data.message
-        : error.response.data
+          ? error.response.data.message
+          : error.response.data
       );
     } else {
-      setError(
-        error.message
-      );
+      setError(error.message);
     }
     setLines(null);
   };
