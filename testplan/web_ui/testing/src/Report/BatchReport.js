@@ -243,7 +243,6 @@ class BatchReport extends BaseReport {
 
     return (
       <div className={css(styles.batchReport)}>
-
         <Toolbar
           filterBoxWidth={this.state.navWidth}
           filterText={this.state.filteredReport.filter.text}
@@ -280,9 +279,10 @@ class BatchReport extends BaseReport {
             handleColumnResizing={this.handleColumnResizing}
             url={this.props.match.path}
           />
-        <AssertionContext.Provider value={this.state.assertionStatus}>
-          <ErrorBoundary>{centerPane}</ErrorBoundary>
-        </AssertionContext.Provider>
+          <AssertionContext.Provider value={this.state.assertionStatus}>
+            <ErrorBoundary>{centerPane}</ErrorBoundary>
+          </AssertionContext.Provider>
+        </div>
       </div>
     );
   }
