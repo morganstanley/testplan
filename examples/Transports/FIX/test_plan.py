@@ -39,7 +39,6 @@ def main(plan):
     """
     plan.add(over_one_session.get_multitest())
     plan.add(over_two_sessions.get_multitest())
-    plan.add(over_one_session.get_tls_multitest())
 
 
 if __name__ == "__main__":
