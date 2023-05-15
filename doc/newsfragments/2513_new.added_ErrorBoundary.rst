@@ -1,1 +1,1 @@
-Wrapped main webUI components in error boundary to prevent the whole page to unmount upon a render error. For example, if an Assertion fails to render, the user can still access rest of the Assertions and AssertionGroups, without the error boundary the user would see a blank page in this case.
+Main webUI components are now rendered in the presence of an error. For example, if an Assertion fails to render, the user can still access rest of the Assertions and AssertionGroups. Previously, the user would see a blank page in this case.
