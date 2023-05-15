@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Card, CardBody, Collapse } from "reactstrap";
 import { css, StyleSheet } from "aphrodite";
-import { ErrorBoundary } from '../Common/ErrorBoundary';
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 import BasicAssertion from "./AssertionTypes/BasicAssertion";
 import MarkdownAssertion from "./AssertionTypes/MarkdownAssertion";
@@ -155,17 +155,15 @@ class Assertion extends Component {
         >
           <ErrorBoundary>
             <CardBody
-              className={
-                css(
-                  isAssertionGroup
-                    ? styles.groupCardBody
-                    : styles.assertionCardBody
-                )
-              }
+              className={css(
+                isAssertionGroup
+                  ? styles.groupCardBody
+                  : styles.assertionCardBody
+              )}
             >
               {this.props.expand === EXPAND_STATUS.EXPAND
-                  ? assertionType : null
-              }
+                ? assertionType
+                : null}
             </CardBody>
           </ErrorBoundary>
         </Collapse>

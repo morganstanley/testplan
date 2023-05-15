@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { error: null };
-  };
+  }
 
   static getDerivedStateFromError(error) {
     return { error: error };
@@ -21,12 +21,11 @@ class ErrorBoundary extends React.Component {
     if (this.state.error) {
       return (
         <>
-          <p style={{ color: 'red'}}>
-            An error occurred while rendering component: "{
-              this.props.children.type.name
-            }"
+          <p style={{ color: "red" }}>
+            An error occurred while rendering component: "
+            {this.props.children.type.name}"
           </p>
-          <pre style={{ color: 'red'}}>{this.state.error.message}</pre>
+          <pre style={{ color: "red" }}>{this.state.error.message}</pre>
         </>
       );
     }
@@ -34,4 +33,4 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export {ErrorBoundary};
+export { ErrorBoundary };

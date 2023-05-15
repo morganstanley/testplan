@@ -275,9 +275,7 @@ class BatchReport extends BaseReport {
           />
         </ErrorBoundary>
         <AssertionContext.Provider value={this.state.assertionStatus}>
-          <ErrorBoundary>
-            {centerPane}
-          </ErrorBoundary>
+          <ErrorBoundary>{centerPane}</ErrorBoundary>
         </AssertionContext.Provider>
       </div>
     );

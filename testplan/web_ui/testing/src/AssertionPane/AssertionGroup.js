@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { AssertionContext } from "../Common/context";
 import { EXPAND_STATUS } from "../Common/defaults";
 import Assertion from "./Assertion";
-import { ErrorBoundary } from '../Common/ErrorBoundary';
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 /**
  * A component that wraps the rendered assertions. It is also the point where

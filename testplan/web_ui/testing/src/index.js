@@ -20,17 +20,17 @@ const AppRouter = () => (
     <Switch>
       <Route
         path="/testplan/:uid/:selection*"
-        render={({match}) => (
+        render={({ match }) => (
           <ErrorBoundary>
-            <BatchReport match={match}/>
+            <BatchReport match={match} />
           </ErrorBoundary>
         )}
       />
       <Route
         path="/interactive/:uid?/:selection*"
-        render={({match}) => (
+        render={({ match }) => (
           <ErrorBoundary>
-            <InteractiveReport match={match}/>
+            <InteractiveReport match={match} />
           </ErrorBoundary>
         )}
       />
