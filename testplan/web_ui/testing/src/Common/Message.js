@@ -9,24 +9,16 @@ import { MEDIUM_GREY } from "./defaults";
  */
 class Message extends Component {
   render() {
-    const paneStyle = {
-      paddingLeft: this.props.left,
-      paddingTop: "4.5em",
-    };
     const Tag = this.props.tag || "h1";
-    return (
-      <div style={paneStyle}>
-        <Tag className={css(styles.message)}>{this.props.message}</Tag>
-      </div>
-    );
+    return <Tag className={css(styles.message)}>{this.props.message}</Tag>;
   }
 }
 
 Message.propTypes = {
   /** Message to be displayed */
   message: PropTypes.string,
-  /** How far left the container should be placed */
-  left: PropTypes.string,
+  /** WHat the text need to wrapped to, default h1 */
+  tag: PropTypes.string,
 };
 
 const styles = StyleSheet.create({
@@ -36,7 +28,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     textAlign: "center",
-    minHeight: "100vh",
+    flex: 1,
     color: MEDIUM_GREY,
   },
 });

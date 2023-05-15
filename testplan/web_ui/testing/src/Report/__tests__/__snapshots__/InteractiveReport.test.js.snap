@@ -2,7 +2,7 @@
 
 exports[`InteractiveReport Handles environment being started 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
   <Toolbar
     expandStatus="default"
@@ -35,39 +35,53 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    envCtrlCallback={[Function]}
-    filter={null}
-    handleClick={[Function]}
-    handleColumnResizing={[Function]}
-    interactive={true}
-    navListWidth="28em"
-    report={null}
-    selected={Array []}
-    treeView={true}
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
     url="/interactive/:uid/:selection*"
   />
-  <ContextProvider
-    value={
+  <div
+    style={
       Object {
-        "assertions": Object {},
-        "globalExpand": Object {
-          "status": "default",
-          "time": 0,
-        },
-        "updateAssertionStatus": [Function],
-        "updateGlobalExpand": [Function],
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
     }
   >
-    <Message
-      left="28em"
-      message="Please select an entry."
+    <Nav
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      envCtrlCallback={[Function]}
+      filter={null}
+      handleClick={[Function]}
+      handleColumnResizing={[Function]}
+      interactive={true}
+      navListWidth="28em"
+      report={null}
+      selected={Array []}
+      treeView={true}
+      url="/interactive/:uid/:selection*"
     />
-  </ContextProvider>
+    <ContextProvider
+      value={
+        Object {
+          "assertions": Object {},
+          "globalExpand": Object {
+            "status": "default",
+            "time": 0,
+          },
+          "updateAssertionStatus": [Function],
+          "updateGlobalExpand": [Function],
+        }
+      }
+    >
+      <Message
+        message="Please select an entry."
+      />
+    </ContextProvider>
+  </div>
 </div>
 `;
 
@@ -75,7 +89,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `[Function]`
 
 exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
   <Toolbar
     expandStatus="default"
@@ -108,45 +122,59 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    envCtrlCallback={[Function]}
-    filter={null}
-    handleClick={[Function]}
-    handleColumnResizing={[Function]}
-    interactive={true}
-    navListWidth="28em"
-    report={null}
-    selected={Array []}
-    treeView={true}
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
     url="/interactive/:uid/:selection*"
   />
-  <ContextProvider
-    value={
+  <div
+    style={
       Object {
-        "assertions": Object {},
-        "globalExpand": Object {
-          "status": "default",
-          "time": 0,
-        },
-        "updateAssertionStatus": [Function],
-        "updateGlobalExpand": [Function],
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
     }
   >
-    <Message
-      left="28em"
-      message="Please select an entry."
+    <Nav
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      envCtrlCallback={[Function]}
+      filter={null}
+      handleClick={[Function]}
+      handleColumnResizing={[Function]}
+      interactive={true}
+      navListWidth="28em"
+      report={null}
+      selected={Array []}
+      treeView={true}
+      url="/interactive/:uid/:selection*"
     />
-  </ContextProvider>
+    <ContextProvider
+      value={
+        Object {
+          "assertions": Object {},
+          "globalExpand": Object {
+            "status": "default",
+            "time": 0,
+          },
+          "updateAssertionStatus": [Function],
+          "updateGlobalExpand": [Function],
+        }
+      }
+    >
+      <Message
+        message="Please select an entry."
+      />
+    </ContextProvider>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport Updates testcase state 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
   <Toolbar
     expandStatus="default"
@@ -179,149 +207,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    envCtrlCallback={[Function]}
-    filter={null}
-    handleClick={[Function]}
-    handleColumnResizing={[Function]}
-    interactive={true}
-    navListWidth="28em"
-    report={
-      Object {
-        "attachments": Object {},
-        "category": "testplan",
-        "entries": Array [
-          Object {
-            "category": "multitest",
-            "description": null,
-            "entries": Array [
-              Object {
-                "category": "testsuite",
-                "description": null,
-                "entries": Array [
-                  Object {
-                    "category": "testcase",
-                    "description": null,
-                    "entries": Array [],
-                    "hash": 44444,
-                    "logs": Array [],
-                    "name": "testcaseName",
-                    "name_type_index": Array [
-                      "testcaseName|testcase",
-                      "SuiteName|testsuite",
-                      "MultitestName|multitest",
-                      "TestplanName|testplan",
-                    ],
-                    "parent_uids": Array [
-                      "TestplanUID",
-                      "MultitestUID",
-                      "SuiteUID",
-                    ],
-                    "runtime_status": "running",
-                    "status": "ready",
-                    "status_override": null,
-                    "suite_related": false,
-                    "tags": Object {},
-                    "tags_index": Object {},
-                    "timer": Object {},
-                    "type": "TestCaseReport",
-                    "uid": "TestcaseUID",
-                    "uids": Array [
-                      "TestplanUID",
-                      "MultitestUID",
-                      "SuiteUID",
-                      "TestcaseUID",
-                    ],
-                  },
-                ],
-                "entry_uids": Array [
-                  "test_basic_assertions",
-                ],
-                "fix_spec_path": null,
-                "hash": 33333,
-                "name": "SuiteName",
-                "name_type_index": Array [
-                  "SuiteName|testsuite",
-                  "MultitestName|multitest",
-                  "TestplanName|testplan",
-                  "testcaseName|testcase",
-                ],
-                "parent_uids": Array [
-                  "TestplanUID",
-                  "MultitestUID",
-                ],
-                "part": null,
-                "runtime_status": "ready",
-                "status": "running",
-                "status_override": null,
-                "tags": Object {},
-                "tags_index": Object {},
-                "timer": Object {},
-                "uid": "SuiteUID",
-                "uids": Array [
-                  "TestplanUID",
-                  "MultitestUID",
-                  "SuiteUID",
-                ],
-              },
-            ],
-            "entry_uids": Array [
-              "SuiteUID",
-            ],
-            "fix_spec_path": null,
-            "hash": 22222,
-            "name": "MultitestName",
-            "name_type_index": Array [
-              "MultitestName|multitest",
-              "TestplanName|testplan",
-              "SuiteName|testsuite",
-              "testcaseName|testcase",
-            ],
-            "parent_uids": Array [
-              "TestplanUID",
-            ],
-            "part": null,
-            "runtime_status": "running",
-            "status": "ready",
-            "status_override": null,
-            "tags": Object {},
-            "tags_index": Object {},
-            "timer": Object {},
-            "uid": "MultitestUID",
-            "uids": Array [
-              "TestplanUID",
-              "MultitestUID",
-            ],
-          },
-        ],
-        "entry_uids": Array [
-          "MultitestUID",
-        ],
-        "hash": 11111,
-        "meta": Object {},
-        "name": "TestplanName",
-        "name_type_index": Array [
-          "TestplanName|testplan",
-          "MultitestName|multitest",
-          "SuiteName|testsuite",
-          "testcaseName|testcase",
-        ],
-        "parent_uids": Array [],
-        "runtime_status": "running",
-        "status": "unknown",
-        "status_override": null,
-        "tags_index": Object {},
-        "timer": Object {},
-        "uid": "TestplanUID",
-        "uids": Array [
-          "TestplanUID",
-        ],
-      }
-    }
-    selected={
+  <NavBreadcrumbs
+    entries={
       Array [
         Object {
           "attachments": Object {},
@@ -455,33 +342,321 @@ exports[`InteractiveReport Updates testcase state 1`] = `
         },
       ]
     }
-    treeView={true}
+    uidEncoder={[Function]}
     url="/interactive/:uid/:selection*"
   />
-  <ContextProvider
-    value={
+  <div
+    style={
       Object {
-        "assertions": Object {},
-        "globalExpand": Object {
-          "status": "default",
-          "time": 0,
-        },
-        "updateAssertionStatus": [Function],
-        "updateGlobalExpand": [Function],
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
     }
   >
-    <Message
-      left="28em"
-      message="Please select an entry."
+    <Nav
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      envCtrlCallback={[Function]}
+      filter={null}
+      handleClick={[Function]}
+      handleColumnResizing={[Function]}
+      interactive={true}
+      navListWidth="28em"
+      report={
+        Object {
+          "attachments": Object {},
+          "category": "testplan",
+          "entries": Array [
+            Object {
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [],
+                      "hash": 44444,
+                      "logs": Array [],
+                      "name": "testcaseName",
+                      "name_type_index": Array [
+                        "testcaseName|testcase",
+                        "SuiteName|testsuite",
+                        "MultitestName|multitest",
+                        "TestplanName|testplan",
+                      ],
+                      "parent_uids": Array [
+                        "TestplanUID",
+                        "MultitestUID",
+                        "SuiteUID",
+                      ],
+                      "runtime_status": "running",
+                      "status": "ready",
+                      "status_override": null,
+                      "suite_related": false,
+                      "tags": Object {},
+                      "tags_index": Object {},
+                      "timer": Object {},
+                      "type": "TestCaseReport",
+                      "uid": "TestcaseUID",
+                      "uids": Array [
+                        "TestplanUID",
+                        "MultitestUID",
+                        "SuiteUID",
+                        "TestcaseUID",
+                      ],
+                    },
+                  ],
+                  "entry_uids": Array [
+                    "test_basic_assertions",
+                  ],
+                  "fix_spec_path": null,
+                  "hash": 33333,
+                  "name": "SuiteName",
+                  "name_type_index": Array [
+                    "SuiteName|testsuite",
+                    "MultitestName|multitest",
+                    "TestplanName|testplan",
+                    "testcaseName|testcase",
+                  ],
+                  "parent_uids": Array [
+                    "TestplanUID",
+                    "MultitestUID",
+                  ],
+                  "part": null,
+                  "runtime_status": "ready",
+                  "status": "running",
+                  "status_override": null,
+                  "tags": Object {},
+                  "tags_index": Object {},
+                  "timer": Object {},
+                  "uid": "SuiteUID",
+                  "uids": Array [
+                    "TestplanUID",
+                    "MultitestUID",
+                    "SuiteUID",
+                  ],
+                },
+              ],
+              "entry_uids": Array [
+                "SuiteUID",
+              ],
+              "fix_spec_path": null,
+              "hash": 22222,
+              "name": "MultitestName",
+              "name_type_index": Array [
+                "MultitestName|multitest",
+                "TestplanName|testplan",
+                "SuiteName|testsuite",
+                "testcaseName|testcase",
+              ],
+              "parent_uids": Array [
+                "TestplanUID",
+              ],
+              "part": null,
+              "runtime_status": "running",
+              "status": "ready",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {},
+              "uid": "MultitestUID",
+              "uids": Array [
+                "TestplanUID",
+                "MultitestUID",
+              ],
+            },
+          ],
+          "entry_uids": Array [
+            "MultitestUID",
+          ],
+          "hash": 11111,
+          "meta": Object {},
+          "name": "TestplanName",
+          "name_type_index": Array [
+            "TestplanName|testplan",
+            "MultitestName|multitest",
+            "SuiteName|testsuite",
+            "testcaseName|testcase",
+          ],
+          "parent_uids": Array [],
+          "runtime_status": "running",
+          "status": "unknown",
+          "status_override": null,
+          "tags_index": Object {},
+          "timer": Object {},
+          "uid": "TestplanUID",
+          "uids": Array [
+            "TestplanUID",
+          ],
+        }
+      }
+      selected={
+        Array [
+          Object {
+            "attachments": Object {},
+            "category": "testplan",
+            "entries": Array [
+              Object {
+                "category": "multitest",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testsuite",
+                    "description": null,
+                    "entries": Array [
+                      Object {
+                        "category": "testcase",
+                        "description": null,
+                        "entries": Array [],
+                        "hash": 44444,
+                        "logs": Array [],
+                        "name": "testcaseName",
+                        "name_type_index": Array [
+                          "testcaseName|testcase",
+                          "SuiteName|testsuite",
+                          "MultitestName|multitest",
+                          "TestplanName|testplan",
+                        ],
+                        "parent_uids": Array [
+                          "TestplanUID",
+                          "MultitestUID",
+                          "SuiteUID",
+                        ],
+                        "runtime_status": "running",
+                        "status": "ready",
+                        "status_override": null,
+                        "suite_related": false,
+                        "tags": Object {},
+                        "tags_index": Object {},
+                        "timer": Object {},
+                        "type": "TestCaseReport",
+                        "uid": "TestcaseUID",
+                        "uids": Array [
+                          "TestplanUID",
+                          "MultitestUID",
+                          "SuiteUID",
+                          "TestcaseUID",
+                        ],
+                      },
+                    ],
+                    "entry_uids": Array [
+                      "test_basic_assertions",
+                    ],
+                    "fix_spec_path": null,
+                    "hash": 33333,
+                    "name": "SuiteName",
+                    "name_type_index": Array [
+                      "SuiteName|testsuite",
+                      "MultitestName|multitest",
+                      "TestplanName|testplan",
+                      "testcaseName|testcase",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultitestUID",
+                    ],
+                    "part": null,
+                    "runtime_status": "ready",
+                    "status": "running",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "uid": "SuiteUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultitestUID",
+                      "SuiteUID",
+                    ],
+                  },
+                ],
+                "entry_uids": Array [
+                  "SuiteUID",
+                ],
+                "fix_spec_path": null,
+                "hash": 22222,
+                "name": "MultitestName",
+                "name_type_index": Array [
+                  "MultitestName|multitest",
+                  "TestplanName|testplan",
+                  "SuiteName|testsuite",
+                  "testcaseName|testcase",
+                ],
+                "parent_uids": Array [
+                  "TestplanUID",
+                ],
+                "part": null,
+                "runtime_status": "running",
+                "status": "ready",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "uid": "MultitestUID",
+                "uids": Array [
+                  "TestplanUID",
+                  "MultitestUID",
+                ],
+              },
+            ],
+            "entry_uids": Array [
+              "MultitestUID",
+            ],
+            "hash": 11111,
+            "meta": Object {},
+            "name": "TestplanName",
+            "name_type_index": Array [
+              "TestplanName|testplan",
+              "MultitestName|multitest",
+              "SuiteName|testsuite",
+              "testcaseName|testcase",
+            ],
+            "parent_uids": Array [],
+            "runtime_status": "running",
+            "status": "unknown",
+            "status_override": null,
+            "tags_index": Object {},
+            "timer": Object {},
+            "uid": "TestplanUID",
+            "uids": Array [
+              "TestplanUID",
+            ],
+          },
+        ]
+      }
+      treeView={true}
+      url="/interactive/:uid/:selection*"
     />
-  </ContextProvider>
+    <ContextProvider
+      value={
+        Object {
+          "assertions": Object {},
+          "globalExpand": Object {
+            "status": "default",
+            "time": 0,
+          },
+          "updateAssertionStatus": [Function],
+          "updateGlobalExpand": [Function],
+        }
+      }
+    >
+      <Message
+        message="Please select an entry."
+      />
+    </ContextProvider>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles individual parametrizations being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
   <Toolbar
     expandStatus="default"
@@ -514,45 +689,59 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    envCtrlCallback={[Function]}
-    filter={null}
-    handleClick={[Function]}
-    handleColumnResizing={[Function]}
-    interactive={true}
-    navListWidth="28em"
-    report={null}
-    selected={Array []}
-    treeView={true}
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
     url="/interactive/:uid/:selection*"
   />
-  <ContextProvider
-    value={
+  <div
+    style={
       Object {
-        "assertions": Object {},
-        "globalExpand": Object {
-          "status": "default",
-          "time": 0,
-        },
-        "updateAssertionStatus": [Function],
-        "updateGlobalExpand": [Function],
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
     }
   >
-    <Message
-      left="28em"
-      message="Please select an entry."
+    <Nav
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      envCtrlCallback={[Function]}
+      filter={null}
+      handleClick={[Function]}
+      handleColumnResizing={[Function]}
+      interactive={true}
+      navListWidth="28em"
+      report={null}
+      selected={Array []}
+      treeView={true}
+      url="/interactive/:uid/:selection*"
     />
-  </ContextProvider>
+    <ContextProvider
+      value={
+        Object {
+          "assertions": Object {},
+          "globalExpand": Object {
+            "status": "default",
+            "time": 0,
+          },
+          "updateAssertionStatus": [Function],
+          "updateGlobalExpand": [Function],
+        }
+      }
+    >
+      <Message
+        message="Please select an entry."
+      />
+    </ContextProvider>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles individual test suites being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
   <Toolbar
     expandStatus="default"
@@ -585,45 +774,59 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    envCtrlCallback={[Function]}
-    filter={null}
-    handleClick={[Function]}
-    handleColumnResizing={[Function]}
-    interactive={true}
-    navListWidth="28em"
-    report={null}
-    selected={Array []}
-    treeView={true}
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
     url="/interactive/:uid/:selection*"
   />
-  <ContextProvider
-    value={
+  <div
+    style={
       Object {
-        "assertions": Object {},
-        "globalExpand": Object {
-          "status": "default",
-          "time": 0,
-        },
-        "updateAssertionStatus": [Function],
-        "updateGlobalExpand": [Function],
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
     }
   >
-    <Message
-      left="28em"
-      message="Please select an entry."
+    <Nav
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      envCtrlCallback={[Function]}
+      filter={null}
+      handleClick={[Function]}
+      handleColumnResizing={[Function]}
+      interactive={true}
+      navListWidth="28em"
+      report={null}
+      selected={Array []}
+      treeView={true}
+      url="/interactive/:uid/:selection*"
     />
-  </ContextProvider>
+    <ContextProvider
+      value={
+        Object {
+          "assertions": Object {},
+          "globalExpand": Object {
+            "status": "default",
+            "time": 0,
+          },
+          "updateAssertionStatus": [Function],
+          "updateGlobalExpand": [Function],
+        }
+      }
+    >
+      <Message
+        message="Please select an entry."
+      />
+    </ContextProvider>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles individual testcases being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
   <Toolbar
     expandStatus="default"
@@ -656,45 +859,59 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    envCtrlCallback={[Function]}
-    filter={null}
-    handleClick={[Function]}
-    handleColumnResizing={[Function]}
-    interactive={true}
-    navListWidth="28em"
-    report={null}
-    selected={Array []}
-    treeView={true}
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
     url="/interactive/:uid/:selection*"
   />
-  <ContextProvider
-    value={
+  <div
+    style={
       Object {
-        "assertions": Object {},
-        "globalExpand": Object {
-          "status": "default",
-          "time": 0,
-        },
-        "updateAssertionStatus": [Function],
-        "updateGlobalExpand": [Function],
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
     }
   >
-    <Message
-      left="28em"
-      message="Please select an entry."
+    <Nav
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      envCtrlCallback={[Function]}
+      filter={null}
+      handleClick={[Function]}
+      handleColumnResizing={[Function]}
+      interactive={true}
+      navListWidth="28em"
+      report={null}
+      selected={Array []}
+      treeView={true}
+      url="/interactive/:uid/:selection*"
     />
-  </ContextProvider>
+    <ContextProvider
+      value={
+        Object {
+          "assertions": Object {},
+          "globalExpand": Object {
+            "status": "default",
+            "time": 0,
+          },
+          "updateAssertionStatus": [Function],
+          "updateGlobalExpand": [Function],
+        }
+      }
+    >
+      <Message
+        message="Please select an entry."
+      />
+    </ContextProvider>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles tests being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
   <Toolbar
     expandStatus="default"
@@ -727,38 +944,52 @@ exports[`InteractiveReport handles tests being run 1`] = `
     updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    envCtrlCallback={[Function]}
-    filter={null}
-    handleClick={[Function]}
-    handleColumnResizing={[Function]}
-    interactive={true}
-    navListWidth="28em"
-    report={null}
-    selected={Array []}
-    treeView={true}
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
     url="/interactive/:uid/:selection*"
   />
-  <ContextProvider
-    value={
+  <div
+    style={
       Object {
-        "assertions": Object {},
-        "globalExpand": Object {
-          "status": "default",
-          "time": 0,
-        },
-        "updateAssertionStatus": [Function],
-        "updateGlobalExpand": [Function],
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
     }
   >
-    <Message
-      left="28em"
-      message="Please select an entry."
+    <Nav
+      displayEmpty={true}
+      displayTags={false}
+      displayTime={false}
+      envCtrlCallback={[Function]}
+      filter={null}
+      handleClick={[Function]}
+      handleColumnResizing={[Function]}
+      interactive={true}
+      navListWidth="28em"
+      report={null}
+      selected={Array []}
+      treeView={true}
+      url="/interactive/:uid/:selection*"
     />
-  </ContextProvider>
+    <ContextProvider
+      value={
+        Object {
+          "assertions": Object {},
+          "globalExpand": Object {
+            "status": "default",
+            "time": 0,
+          },
+          "updateAssertionStatus": [Function],
+          "updateGlobalExpand": [Function],
+        }
+      }
+    >
+      <Message
+        message="Please select an entry."
+      />
+    </ContextProvider>
+  </div>
 </div>
 `;
