@@ -51,13 +51,14 @@ class RuntimeStatus:
     def precedent(
         cls,
         statuses: Sequence,
-        rule: Sequence = STATUS_PRECEDENCE
+        rule: Sequence = STATUS_PRECEDENCE,
     ) -> str:
         """
         Return the first status from a list of statuses, using the rule.
 
         :param statuses: statuses which we want to get the precedent of
         :param rule: precedence rules for the given statuses
+        :return: precedent status
         """
         return min(statuses, key=lambda stat: rule.index(stat))
 
@@ -282,9 +283,7 @@ class BaseReportGroup(ReportGroup):
         self._runtime_status = new_status
 
     def set_runtime_status_filtered(
-        self,
-        new_status: str,
-        shallow_entries: Dict[str, Dict]
+        self, new_status: str, shallow_entries: Dict[str, Dict]
     ) -> None:
         for entry in self:
             if entry.name in shallow_entries.keys():

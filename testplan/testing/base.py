@@ -18,7 +18,6 @@ from testplan.common.entity import (
 )
 from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.utils import strings
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.process import (
     enforce_timeout,
     kill_process,
@@ -890,7 +889,9 @@ class ProcessRunnerTest(Test):
 
         return result
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*", suites_cases=None):
+    def run_testcases_iter(
+        self, testsuite_pattern="*", testcase_pattern="*", suites_cases=None
+    ):
         """
         Runs testcases as defined by the given filter patterns and yields
         testcase reports. A single testcase report is made for general checks

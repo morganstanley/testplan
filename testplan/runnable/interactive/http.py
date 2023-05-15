@@ -6,13 +6,13 @@ import functools
 import os
 import time
 import traceback
-from typing import Dict, List
+from typing import Callable, Tuple, Dict, List
 
 import flask
 import flask_restx
 import flask_restx.fields
-import werkzeug.exceptions
 import marshmallow.exceptions
+import werkzeug.exceptions
 from cheroot import wsgi
 from flask import request
 from urllib.parse import unquote_plus
@@ -33,14 +33,18 @@ from testplan.report import (
 
 class OutOfOrderError(Exception):
     """
-    Custom exception thrown during non-sequential execution.
+    Implements the exception to be thrown when run order of testcases
+    is incorrect.
     """
+
     def __init__(self, msg: str) -> None:
         super(OutOfOrderError, self).__init__(msg)
 
 
-def decode_uri_component(func):
-    """Decode URI component before arguments passed to url route handler."""
+def decode_uri_component(func: Callable) -> Callable:
+    """
+    Decodes URI component before arguments passed to URL router.
+    """
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -50,78 +54,87 @@ def decode_uri_component(func):
     return wrapper
 
 
-def extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
+def _extract_cases_from_parametrization(param_entry: Dict) -> List[str]:
     """
+    Given a parametrization entry, extracts the testcases.
 
-    :param shallow_entry:
-    :return:
+    :param param_entry: parametrization entry
+    :return: list of testcase names
+    """
+    cases = []
+    for entry in param_entry["entries"]:
+        if entry["category"] == ReportCategories.TESTCASE:
+            cases.append(entry["name"])
+    return cases
+
+
+def _extract_cases_from_suite(suite_entry: Dict) -> List[str]:
+    """
+    Given a testsuite entry, extracts the testcases.
+
+    :param suite_entry: testsuite entry
+    :return: list of testcase names
+    """
+    cases = []
+    for entry in suite_entry["entries"]:
+        if entry["category"] == ReportCategories.TESTCASE:
+            cases.append(entry["name"])
+        elif entry["category"] == ReportCategories.PARAMETRIZATION:
+            cases.extend(_extract_cases_from_parametrization(entry))
+    return cases
+
+
+def _extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
+    """
+    Given a shallow report entry, extracts the testsuites and testcases
+        to be run.
+
+    :param shallow_entry: holds entry name and category for all children
+    :return: mapping of testsuites to testcases to be run
     """
     category = shallow_entry["category"]
-
     suites_cases = {}
-
-    if category in {
-        ReportCategories.MULTITEST,
-        ReportCategories.CPPUNIT,
-        ReportCategories.GTEST,
-        ReportCategories.HOBBESTEST,
-        ReportCategories.QUNIT,
-        ReportCategories.JUNIT,
-        ReportCategories.PYTEST,
-        ReportCategories.PYUNIT,
-    }:
+    if category == ReportCategories.MULTITEST:
         for suite in shallow_entry["entries"]:
-            suites_cases[suite["name"]] = []
-
-            for entry in suite["entries"]:
-                if entry["category"] == ReportCategories.TESTCASE:
-                    suites_cases[suite["name"]].append(entry["name"])
-                elif entry["category"] == ReportCategories.PARAMETRIZATION:
-                    for case in entry["entries"]:
-                        if case["category"] == ReportCategories.TESTCASE:
-                            suites_cases[suite["name"]].append(case["name"])
-                else:
-                    raise Exception(f"Unexpected entry type: {entry['category']}")
-
+            suites_cases[suite["name"]] = _extract_cases_from_suite(suite)
     elif category == ReportCategories.TESTSUITE:
-        suite = shallow_entry
-        suites_cases[suite["name"]] = []
-
-        for entry in suite["entries"]:
-            if entry["category"] == ReportCategories.TESTCASE:
-                suites_cases[suite["name"]].append(entry["name"])
-            elif entry["category"] == ReportCategories.PARAMETRIZATION:
-                for case in entry["entries"]:
-                    if case["category"] == ReportCategories.TESTCASE:
-                        suites_cases[suite["name"]].append(case["name"])
-            else:
-                raise Exception(f"Unexpected entry type: {entry['category']}")
-
+        suites_cases[shallow_entry["name"]] = _extract_cases_from_suite(
+            shallow_entry
+        )
     elif category == ReportCategories.PARAMETRIZATION:
-        suite_name = shallow_entry["parent_uids"][2]
-        suites_cases[suite_name] = []
-        for entry in shallow_entry["entries"]:
-            if entry["category"] == ReportCategories.TESTCASE:
-                suites_cases[suite_name].append(entry["name"])
-            else:
-                raise Exception(f"Unexpected entry type: {entry['category']}")
-
+        suites_cases[
+            shallow_entry["parent_uids"][2]
+        ] = _extract_cases_from_parametrization(shallow_entry)
     elif category == ReportCategories.TESTCASE:
         suites_cases[shallow_entry["parent_uids"][2]] = [shallow_entry["name"]]
-
     return suites_cases
 
 
-def extract_entries_tree(shallow_entry):
-    shallow_entries = {}
-    for entry in shallow_entry["entries"]:
-        name, category = entry["name"], entry["category"]
-        if category == ReportCategories.TESTCASE:
-            shallow_entries[name] = {}
-        else:
-            shallow_entries[name] = extract_entries_tree(entry)
+def _extract_entries(entry) -> Dict[str, Dict]:
+    """
+    Given a  report entry, extracts all entries.
 
-    return shallow_entries
+    :param entry: report entry
+    :return: nested dictionary of entries mapped to entries recursively
+    """
+    entries = {}
+    for child in entry["entries"]:
+        if child["category"] == ReportCategories.TESTCASE:
+            entries[child["name"]] = {}
+        else:
+            entries[child["name"]] = _extract_entries(child)
+    return entries
+
+
+def validate_put_json_body(json_body: Dict) -> None:
+    """
+    Validates the JSON body for put requests. If None it raises.
+
+    :param json_body: JSON body
+    :raises werkzeug.exceptions.BadRequest: raised if no JSON body
+    """
+    if json_body is None:
+        raise werkzeug.exceptions.BadRequest("JSON body is required for PUT")
 
 
 def generate_interactive_api(ihandler):
@@ -204,10 +217,7 @@ def generate_interactive_api(ihandler):
 
         def put(self):
             """Update the state of the root interactive report."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            validate_put_json_body(flask.request.json)
 
             with ihandler.report_mutex:
                 try:
@@ -282,13 +292,10 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid):
             """Update the state of a specific test."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            validate_put_json_body(flask.request.json)
 
-            suites_cases = extract_suites_cases(flask.request.json)
-            shallow_entries = extract_entries_tree(flask.request.json)
+            suites_cases = _extract_suites_cases(flask.request.json)
+            entries = _extract_entries(flask.request.json)
 
             with ihandler.report_mutex:
                 try:
@@ -298,7 +305,8 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_test = _deserialize_report_entry(
-                        flask.request.json, current_test
+                        flask.request.json,
+                        current_test,
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
@@ -313,10 +321,7 @@ def generate_interactive_api(ihandler):
                     current_test.runtime_status,
                     new_runtime_status,
                 ):
-                    current_test.set_runtime_status_filtered(
-                        RuntimeStatus.WAITING,
-                        shallow_entries
-                    )
+                    current_test.runtime_status = new_runtime_status
                     ihandler.reset_test(test_uid, await_results=False)
                 elif _should_run(
                     current_test.uid,
@@ -324,12 +329,13 @@ def generate_interactive_api(ihandler):
                     new_runtime_status,
                 ):
                     _check_env_status_match(
-                        current_test.env_status, new_test.env_status
+                        current_test.env_status,
+                        new_test.env_status,
                     )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
                     current_test.set_runtime_status_filtered(
                         RuntimeStatus.WAITING,
-                        shallow_entries
+                        entries,
                     )
                     ihandler.run_test(
                         test_uid,
@@ -338,7 +344,8 @@ def generate_interactive_api(ihandler):
                     )
                 else:
                     next_env_status, env_action = self._check_env_transition(
-                        current_test.env_status, new_test.env_status
+                        current_test.env_status,
+                        new_test.env_status,
                     )
                     if env_action is not None:
                         if current_test.runtime_status in (
@@ -418,13 +425,10 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid):
             """Update the state of a specific test suite."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            validate_put_json_body(flask.request.json)
 
-            suites_cases = extract_suites_cases(flask.request.json)
-            shallow_entries = extract_entries_tree(flask.request.json)
+            suites_cases = _extract_suites_cases(flask.request.json)
+            entries = _extract_entries(flask.request.json)
 
             with ihandler.report_mutex:
                 try:
@@ -435,7 +439,8 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_suite = _deserialize_report_entry(
-                        flask.request.json, current_suite
+                        flask.request.json,
+                        current_suite,
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
@@ -453,7 +458,7 @@ def generate_interactive_api(ihandler):
                     )
                     current_suite.set_runtime_status_filtered(
                         RuntimeStatus.WAITING,
-                        shallow_entries
+                        entries,
                     )
                     ihandler.run_test_suite(
                         test_uid,
@@ -512,13 +517,10 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid, case_uid):
             """Update the state of a specific testcase."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            validate_put_json_body(flask.request.json)
 
-            suites_cases = extract_suites_cases(flask.request.json)
-            shallow_entries = extract_entries_tree(flask.request.json)
+            suites_cases = _extract_suites_cases(flask.request.json)
+            entries = _extract_entries(flask.request.json)
 
             with ihandler.report_mutex:
                 suite = ihandler.report[test_uid][suite_uid]
@@ -529,7 +531,8 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_testcase = _deserialize_report_entry(
-                        flask.request.json, current_case
+                        flask.request.json,
+                        current_case,
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
@@ -548,10 +551,10 @@ def generate_interactive_api(ihandler):
                         suite_uid=suite_uid,
                         case_uid=case_uid,
                     )
-                    if shallow_entries:
+                    if entries:
                         current_case.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
-                            shallow_entries,
+                            entries,
                         )
                     else:
                         current_case.runtime_status = RuntimeStatus.WAITING
@@ -615,13 +618,9 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid, case_uid, param_uid):
             """Update the state of a specific parametrized testcase."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            validate_put_json_body(flask.request.json)
 
-            suites_cases = extract_suites_cases(flask.request.json)
-            shallow_entries = extract_entries_tree(flask.request.json)
+            suites_cases = _extract_suites_cases(flask.request.json)
 
             with ihandler.report_mutex:
                 try:
@@ -634,7 +633,8 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_testcase = _deserialize_report_entry(
-                        flask.request.json, current_case
+                        flask.request.json,
+                        current_case,
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))

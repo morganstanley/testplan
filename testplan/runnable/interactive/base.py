@@ -2,17 +2,14 @@
 Interactive handler for TestRunner runnable class.
 """
 
-import os
-import re
 import numbers
+import re
 import threading
 from concurrent import futures
 
-from testplan.common import entity
-from testplan.common import config
-from testplan.common.utils import networking
+from testplan.common import config, entity
 from testplan.common.report import Report
-
+from testplan.common.utils import networking
 from testplan.runnable.interactive import http
 from testplan.runnable.interactive import reloader
 from testplan.runnable.interactive import resource_loader
@@ -245,7 +242,11 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_test, test_uid, suites_cases=suites_cases)
+            return self._run_async(
+                self.run_test,
+                test_uid,
+                suites_cases=suites_cases,
+            )
 
         try:
             self._auto_start_environment(test_uid)
@@ -258,9 +259,19 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self.logger.debug('Run test ["%s"]', test_uid)
-            self._update_reports(self.test(test_uid).run_testcases_iter(suites_cases=suites_cases))
+            self._update_reports(
+                self.test(test_uid).run_testcases_iter(
+                    suites_cases=suites_cases
+                )
+            )
 
-    def run_test_suite(self, test_uid, suite_uid, suites_cases=None, await_results=True):
+    def run_test_suite(
+        self,
+        test_uid,
+        suite_uid,
+        suites_cases=None,
+        await_results=True,
+    ):
         """
         Run a single test suite.
 
@@ -273,7 +284,12 @@ class TestRunnerIHandler(entity.Entity):
             when ready.
         """
         if not await_results:
-            return self._run_async(self.run_test_suite, test_uid, suite_uid, suites_cases=suites_cases)
+            return self._run_async(
+                self.run_test_suite,
+                test_uid,
+                suite_uid,
+                suites_cases=suites_cases,
+            )
 
         try:
             self._auto_start_environment(test_uid)
