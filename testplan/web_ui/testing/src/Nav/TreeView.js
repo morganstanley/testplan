@@ -1,5 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useContext, useEffect } from "react";
+import PropTypes, { element } from "prop-types";
 import _ from "lodash";
 import base64url from "base64url";
 import TreeView from "@material-ui/lab/TreeView";
@@ -24,26 +24,57 @@ import TagList from "./TagList";
 import { makeStyles } from "@material-ui/core/styles";
 import { generateURLWithParameters } from "../Common/utils";
 
+const SelectionContext = React.createContext(null);
+
+const selectionToExpandIds = (selection) => {
+  if (selection.length < 2) {
+    return [];
+  }
+  const uids = _.nth(selection, -2).uids;
+  const expansion = _.map(uids, (value, i, c) =>
+    _.join(c.slice(0, i + 1), "/")
+  );
+  return expansion;
+};
+
 const TreeViewNav = (props) => {
   const [expanded, setExpanded] = React.useState(null);
+  const [lastSelection, setLastSelection] = React.useState([]);
+  const [selectedElement, setSelectedElement] = React.useState(null);
+  const [transitionFinished, setTransitionFinished] = React.useState(true);
 
   React.useEffect(() => {
-    // Allow multi expanded
-    if (expanded !== null || _.isEmpty(props.selected)) {
-      return;
-    }
-    let defaultExpanded = [];
-    for (const uid of props.selected[props.selected.length - 1].uids) {
-      if (_.isEmpty(defaultExpanded)) {
-        defaultExpanded.push(uid);
-      } else {
-        defaultExpanded.push(
-          `${defaultExpanded[defaultExpanded.length - 1]}/${uid}`
-        );
+    const newSelection = !_.isEqualWith(
+      lastSelection,
+      props.selected,
+      (s1, s2) => {
+        if (s1.uid && s2.uid) {
+          return s1.uid === s2.uid;
+        }
       }
+    );
+
+    if (newSelection) {
+      const expansion = selectionToExpandIds(props.selected);
+      const newExpanded = _.union(expanded, expansion);
+      if (!expanded || newExpanded.length > expanded.length) {
+        // some transition will start to reveal the new selection
+        setTransitionFinished(false);
+        setExpanded(newExpanded);
+      }
+      setLastSelection(props.selected);
     }
-    setExpanded(defaultExpanded);
-  }, [props.selectedUid, props.selected, expanded]);
+  }, [lastSelection, props.selected, expanded, selectedElement]);
+
+  const transitionFinishedCallback = (isAppearing) => {
+    setTransitionFinished(true);
+  };
+
+  React.useEffect(() => {
+    if (selectedElement && transitionFinished) {
+      selectedElement.scrollIntoView({ block: "nearest" });
+    }
+  }, [selectedElement, transitionFinished]);
 
   const handleToggle = (event, nodeIds) => {
     setExpanded(nodeIds);
@@ -63,34 +94,39 @@ const TreeViewNav = (props) => {
         width={props.width}
         handleColumnResizing={props.handleColumnResizing}
       >
-        <TreeView
-          selected={[
-            _.isEmpty(props.selected)
-              ? props.selectedUid
-              : props.selected[props.selected.length - 1].uids.join("/"),
-          ]}
-          expanded={expanded}
-          className={css(styles.treeView)}
-          disableSelection={true}
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          onNodeToggle={handleToggle}
+        <SelectionContext.Provider
+          value={{ setSelectedElement, transitionFinishedCallback }}
         >
-          {
-            <Tree
-              interactive={props.interactive}
-              entries={props.entries}
-              displayEmpty={props.displayEmpty}
-              filter={props.filter}
-              url={props.url}
-              displayTags={props.displayTags}
-              displayTime={props.displayTime}
-              doubleClickCallback={handleDoubleClick}
-              handleClick={props.handleClick}
-              envCtrlCallback={props.envCtrlCallback}
-            />
-          }
-        </TreeView>
+          <TreeView
+            selected={[
+              _.isEmpty(props.selected)
+                ? props.selectedUid
+                : props.selected[props.selected.length - 1].uids.join("/"),
+            ]}
+            expanded={expanded}
+            className={css(styles.treeView)}
+            disableSelection={true}
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            onNodeToggle={handleToggle}
+          >
+            {
+              <Tree
+                interactive={props.interactive}
+                entries={props.entries}
+                displayEmpty={props.displayEmpty}
+                filter={props.filter}
+                url={props.url}
+                displayTags={props.displayTags}
+                displayTime={props.displayTime}
+                doubleClickCallback={handleDoubleClick}
+                handleClick={props.handleClick}
+                envCtrlCallback={props.envCtrlCallback}
+                selected={props.selected}
+              />
+            }
+          </TreeView>
+        </SelectionContext.Provider>
       </Column>
     </>
   );
@@ -112,8 +148,6 @@ TreeViewNav.propTypes = {
       }),
     })
   ),
-  /** Number of entries in the breadcrumb menu */
-  breadcrumbLength: PropTypes.number,
   /** Function to handle Nav list resizing */
   handleColumnResizing: PropTypes.func,
   /** Entity filter */
@@ -149,6 +183,7 @@ const Tree = (props) => {
           doubleClickCallback={props.doubleClickCallback}
           handleClick={props.handleClick}
           envCtrlCallback={props.envCtrlCallback}
+          selected={props.selected}
         />
       ))
     : null;
@@ -170,6 +205,10 @@ const filterEntriesOfEntry = (entry, filter, displayEmpty) => {
 };
 
 const Node = (props) => {
+  const ref = React.createRef();
+  const { setSelectedElement, transitionFinishedCallback } =
+    useContext(SelectionContext);
+
   let [reportuid, ...selectionuids] = !props.interactive
     ? props.entry.uids
     : base64url
@@ -191,6 +230,16 @@ const Node = (props) => {
   const nodeId = props.entry.uids
     ? props.entry.uids.join("/")
     : props.entry.uid;
+
+  const isSelected = props.selected.at(-1).uid === props.entry.uid;
+
+  useEffect(() => {
+    if (isSelected) {
+      const element = ref.current.firstElementChild;
+      setSelectedElement(element);
+    }
+  });
+
   return (
     <TreeItem
       classes={{
@@ -221,6 +270,10 @@ const Node = (props) => {
           {createNavEntry(props, props.entry)}
         </NavLink>
       }
+      ref={ref}
+      TransitionProps={{
+        onEntered: transitionFinishedCallback,
+      }}
     >
       {isTestcase ? null : continueTreeBranch(props, props.entry)}
     </TreeItem>
@@ -243,6 +296,7 @@ const continueTreeBranch = (props, entry) => {
           doubleClickCallback={props.doubleClickCallback}
           handleClick={props.handleClick}
           envCtrlCallback={props.envCtrlCallback}
+          selected={props.selected}
         />
       ))
     : null;

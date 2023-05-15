@@ -8,6 +8,7 @@ import _ from "lodash";
 import { parseToJson } from "../Common/utils";
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar";
+import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav";
 import {
   PropagateIndices,
@@ -242,24 +243,30 @@ class BatchReport extends BaseReport {
 
     return (
       <div className={css(styles.batchReport)}>
-        <ErrorBoundary>
-          <Toolbar
-            filterBoxWidth={this.state.navWidth}
-            filterText={this.state.filteredReport.filter.text}
-            status={reportStatus}
-            report={this.state.report}
-            expandStatus={this.state.assertionStatus.globalExpand.status}
-            updateExpandStatusFunc={this.updateGlobalExpand}
-            handleNavFilter={this.handleNavFilter}
-            updateFilterFunc={this.updateFilter}
-            updateEmptyDisplayFunc={this.updateDisplayEmpty}
-            updateTreeViewFunc={this.updateTreeView}
-            updateTagsDisplayFunc={this.updateTagsDisplay}
-            updatePathDisplayFunc={this.updatePathDisplay}
-            updateTimeDisplayFunc={this.updateTimeDisplay}
-          />
-        </ErrorBoundary>
-        <ErrorBoundary>
+
+        <Toolbar
+          filterBoxWidth={this.state.navWidth}
+          filterText={this.state.filteredReport.filter.text}
+          status={reportStatus}
+          report={this.state.report}
+          expandStatus={this.state.assertionStatus.globalExpand.status}
+          updateExpandStatusFunc={this.updateGlobalExpand}
+          handleNavFilter={this.handleNavFilter}
+          updateFilterFunc={this.updateFilter}
+          updateEmptyDisplayFunc={this.updateDisplayEmpty}
+          updateTreeViewFunc={this.updateTreeView}
+          updateTagsDisplayFunc={this.updateTagsDisplay}
+          updatePathDisplayFunc={this.updatePathDisplay}
+          updateTimeDisplayFunc={this.updateTimeDisplay}
+        />
+        <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
+        <div
+          style={{
+            display: "flex",
+            flex: "1",
+            overflowY: "auto",
+          }}
+        >
           <Nav
             interactive={false}
             navListWidth={this.state.navWidth}
@@ -273,7 +280,6 @@ class BatchReport extends BaseReport {
             handleColumnResizing={this.handleColumnResizing}
             url={this.props.match.path}
           />
-        </ErrorBoundary>
         <AssertionContext.Provider value={this.state.assertionStatus}>
           <ErrorBoundary>{centerPane}</ErrorBoundary>
         </AssertionContext.Provider>
@@ -290,6 +296,9 @@ const styles = StyleSheet.create({
   batchReport: {
     /** overflow will hide dropdown div */
     // overflow: 'hidden'
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
   },
 });
 

@@ -79,8 +79,6 @@ NavList.propTypes = {
       }),
     })
   ),
-  /** Number of entries in the breadcrumb menu */
-  breadcrumbLength: PropTypes.number,
   /** Function to handle Nav entries being clicked (selected) */
   handleNavClick: PropTypes.func,
   /** Function to handle Nav list resizing */

@@ -19,6 +19,7 @@ import {
   AbortButton,
   SaveButton,
 } from "../Toolbar/InteractiveButtons";
+import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav.js";
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import { FakeInteractiveReport } from "../Common/sampleReports.js";
@@ -30,6 +31,8 @@ import {
   filterReport,
   getSelectedUIDsFromPath,
 } from "./reportUtils.js";
+import { GetNavBreadcrumbs } from "../Nav/navUtils";
+
 import { encodeURIComponent2, parseToJson } from "../Common/utils";
 
 import { POLL_MS } from "../Common/defaults.js";
@@ -613,42 +616,51 @@ class InteractiveReport extends BaseReport {
     );
 
     return (
-      <div className={css(styles.batchReport)}>
-        <ErrorBoundary>
-          <Toolbar
-            filterBoxWidth={this.state.navWidth}
-            filterText={this.state.filteredReport.filter.text}
-            status={reportStatus}
-            expandStatus={this.state.assertionStatus.globalExpand.status}
-            updateExpandStatusFunc={this.updateGlobalExpand}
-            handleNavFilter={this.handleNavFilter}
-            updateFilterFunc={noop}
-            updateEmptyDisplayFunc={noop}
-            updateTreeViewFunc={this.updateTreeView}
-            updateTagsDisplayFunc={noop}
-            updatePathDisplayFunc={this.updatePathDisplay}
-            updateTimeDisplayFunc={this.updateTimeDisplay}
-            extraButtons={[
-              <ReloadButton
-                key="reload-button"
-                reloading={this.state.reloading}
-                reloadCbk={this.reloadCode}
-              />,
-              <ResetButton
-                key="reset-button"
-                resetting={this.state.resetting}
-                resetStateCbk={this.resetReport}
-              />,
-              <AbortButton
-                key="abort-button"
-                aborting={this.state.aborting}
-                abortCbk={this.abortTestplan}
-              />,
-              <SaveButton key="save-button" />,
-            ]}
-          />
-        </ErrorBoundary>
-        <ErrorBoundary>
+      <div className={css(styles.interactiveReport)}>
+        <Toolbar
+          filterBoxWidth={this.state.navWidth}
+          filterText={this.state.filteredReport.filter.text}
+          status={reportStatus}
+          expandStatus={this.state.assertionStatus.globalExpand.status}
+          updateExpandStatusFunc={this.updateGlobalExpand}
+          handleNavFilter={this.handleNavFilter}
+          updateFilterFunc={noop}
+          updateEmptyDisplayFunc={noop}
+          updateTreeViewFunc={this.updateTreeView}
+          updateTagsDisplayFunc={noop}
+          updatePathDisplayFunc={this.updatePathDisplay}
+          updateTimeDisplayFunc={this.updateTimeDisplay}
+          extraButtons={[
+            <ReloadButton
+              key="reload-button"
+              reloading={this.state.reloading}
+              reloadCbk={this.reloadCode}
+            />,
+            <ResetButton
+              key="reset-button"
+              resetting={this.state.resetting}
+              resetStateCbk={this.resetReport}
+            />,
+            <AbortButton
+              key="abort-button"
+              aborting={this.state.aborting}
+              abortCbk={this.abortTestplan}
+            />,
+            <SaveButton key="save-button" />,
+          ]}
+        />
+        <NavBreadcrumbs
+          entries={GetNavBreadcrumbs(selectedEntries)}
+          url={this.props.match.path}
+          uidEncoder={base64url}
+        />
+        <div
+          style={{
+            display: "flex",
+            flex: "1",
+            overflowY: "auto",
+          }}
+        >
           <Nav
             interactive={true}
             navListWidth={this.state.navWidth}
@@ -665,17 +677,21 @@ class InteractiveReport extends BaseReport {
             handleColumnResizing={this.handleColumnResizing}
             url={this.props.match.path}
           />
-        </ErrorBoundary>
-        <ErrorBoundary>
           <AssertionContext.Provider value={this.state.assertionStatus}>
-            {centerPane}
+            <ErrorBoundary>{centerPane}</ErrorBoundary>
           </AssertionContext.Provider>
-        </ErrorBoundary>
+        </div>
       </div>
     );
   }
 }
 
-const styles = StyleSheet.create({ interactiveReport: {} });
+const styles = StyleSheet.create({
+  interactiveReport: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  },
+});
 
 export default InteractiveReport;

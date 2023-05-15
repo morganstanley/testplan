@@ -2,42 +2,53 @@
 
 exports[`InteractiveReport Handles environment being started 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
-  <ErrorBoundary>
-    <Toolbar
-      expandStatus="default"
-      extraButtons={
-        Array [
-          <ReloadButton
-            reloadCbk={[Function]}
-            reloading={false}
-          />,
-          <ResetButton
-            resetStateCbk={[Function]}
-            resetting={false}
-          />,
-          <AbortButton
-            abortCbk={[Function]}
-            aborting={false}
-          />,
-          <SaveButton />,
-        ]
+  <Toolbar
+    expandStatus="default"
+    extraButtons={
+      Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <ResetButton
+          resetStateCbk={[Function]}
+          resetting={false}
+        />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
+      ]
+    }
+    filterBoxWidth="28em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    status="unknown"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
+    url="/interactive/:uid/:selection*"
+  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
-      filterBoxWidth="28em"
-      filterText={null}
-      handleNavFilter={[Function]}
-      status="unknown"
-      updateEmptyDisplayFunc={[Function]}
-      updateExpandStatusFunc={[Function]}
-      updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
-      updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
-    />
-  </ErrorBoundary>
-  <ErrorBoundary>
+    }
+  >
     <Nav
       displayEmpty={true}
       displayTags={false}
@@ -53,8 +64,6 @@ exports[`InteractiveReport Handles environment being started 1`] = `
       treeView={true}
       url="/interactive/:uid/:selection*"
     />
-  </ErrorBoundary>
-  <ErrorBoundary>
     <ContextProvider
       value={
         Object {
@@ -69,11 +78,10 @@ exports[`InteractiveReport Handles environment being started 1`] = `
       }
     >
       <Message
-        left="28em"
         message="Please select an entry."
       />
     </ContextProvider>
-  </ErrorBoundary>
+  </div>
 </div>
 `;
 
@@ -81,42 +89,53 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `[Function]`
 
 exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
-  <ErrorBoundary>
-    <Toolbar
-      expandStatus="default"
-      extraButtons={
-        Array [
-          <ReloadButton
-            reloadCbk={[Function]}
-            reloading={false}
-          />,
-          <ResetButton
-            resetStateCbk={[Function]}
-            resetting={false}
-          />,
-          <AbortButton
-            abortCbk={[Function]}
-            aborting={false}
-          />,
-          <SaveButton />,
-        ]
+  <Toolbar
+    expandStatus="default"
+    extraButtons={
+      Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <ResetButton
+          resetStateCbk={[Function]}
+          resetting={false}
+        />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
+      ]
+    }
+    filterBoxWidth="28em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    status="unknown"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
+    url="/interactive/:uid/:selection*"
+  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
-      filterBoxWidth="28em"
-      filterText={null}
-      handleNavFilter={[Function]}
-      status="unknown"
-      updateEmptyDisplayFunc={[Function]}
-      updateExpandStatusFunc={[Function]}
-      updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
-      updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
-    />
-  </ErrorBoundary>
-  <ErrorBoundary>
+    }
+  >
     <Nav
       displayEmpty={true}
       displayTags={false}
@@ -132,8 +151,6 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
       treeView={true}
       url="/interactive/:uid/:selection*"
     />
-  </ErrorBoundary>
-  <ErrorBoundary>
     <ContextProvider
       value={
         Object {
@@ -148,52 +165,195 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
       }
     >
       <Message
-        left="28em"
         message="Please select an entry."
       />
     </ContextProvider>
-  </ErrorBoundary>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport Updates testcase state 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
-  <ErrorBoundary>
-    <Toolbar
-      expandStatus="default"
-      extraButtons={
-        Array [
-          <ReloadButton
-            reloadCbk={[Function]}
-            reloading={false}
-          />,
-          <ResetButton
-            resetStateCbk={[Function]}
-            resetting={false}
-          />,
-          <AbortButton
-            abortCbk={[Function]}
-            aborting={false}
-          />,
-          <SaveButton />,
-        ]
+  <Toolbar
+    expandStatus="default"
+    extraButtons={
+      Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <ResetButton
+          resetStateCbk={[Function]}
+          resetting={false}
+        />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
+      ]
+    }
+    filterBoxWidth="28em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    status="unknown"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <NavBreadcrumbs
+    entries={
+      Array [
+        Object {
+          "attachments": Object {},
+          "category": "testplan",
+          "entries": Array [
+            Object {
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [],
+                      "hash": 44444,
+                      "logs": Array [],
+                      "name": "testcaseName",
+                      "name_type_index": Array [
+                        "testcaseName|testcase",
+                        "SuiteName|testsuite",
+                        "MultitestName|multitest",
+                        "TestplanName|testplan",
+                      ],
+                      "parent_uids": Array [
+                        "TestplanUID",
+                        "MultitestUID",
+                        "SuiteUID",
+                      ],
+                      "runtime_status": "running",
+                      "status": "ready",
+                      "status_override": null,
+                      "suite_related": false,
+                      "tags": Object {},
+                      "tags_index": Object {},
+                      "timer": Object {},
+                      "type": "TestCaseReport",
+                      "uid": "TestcaseUID",
+                      "uids": Array [
+                        "TestplanUID",
+                        "MultitestUID",
+                        "SuiteUID",
+                        "TestcaseUID",
+                      ],
+                    },
+                  ],
+                  "entry_uids": Array [
+                    "test_basic_assertions",
+                  ],
+                  "fix_spec_path": null,
+                  "hash": 33333,
+                  "name": "SuiteName",
+                  "name_type_index": Array [
+                    "SuiteName|testsuite",
+                    "MultitestName|multitest",
+                    "TestplanName|testplan",
+                    "testcaseName|testcase",
+                  ],
+                  "parent_uids": Array [
+                    "TestplanUID",
+                    "MultitestUID",
+                  ],
+                  "part": null,
+                  "runtime_status": "ready",
+                  "status": "running",
+                  "status_override": null,
+                  "tags": Object {},
+                  "tags_index": Object {},
+                  "timer": Object {},
+                  "uid": "SuiteUID",
+                  "uids": Array [
+                    "TestplanUID",
+                    "MultitestUID",
+                    "SuiteUID",
+                  ],
+                },
+              ],
+              "entry_uids": Array [
+                "SuiteUID",
+              ],
+              "fix_spec_path": null,
+              "hash": 22222,
+              "name": "MultitestName",
+              "name_type_index": Array [
+                "MultitestName|multitest",
+                "TestplanName|testplan",
+                "SuiteName|testsuite",
+                "testcaseName|testcase",
+              ],
+              "parent_uids": Array [
+                "TestplanUID",
+              ],
+              "part": null,
+              "runtime_status": "running",
+              "status": "ready",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {},
+              "uid": "MultitestUID",
+              "uids": Array [
+                "TestplanUID",
+                "MultitestUID",
+              ],
+            },
+          ],
+          "entry_uids": Array [
+            "MultitestUID",
+          ],
+          "hash": 11111,
+          "meta": Object {},
+          "name": "TestplanName",
+          "name_type_index": Array [
+            "TestplanName|testplan",
+            "MultitestName|multitest",
+            "SuiteName|testsuite",
+            "testcaseName|testcase",
+          ],
+          "parent_uids": Array [],
+          "runtime_status": "running",
+          "status": "unknown",
+          "status_override": null,
+          "tags_index": Object {},
+          "timer": Object {},
+          "uid": "TestplanUID",
+          "uids": Array [
+            "TestplanUID",
+          ],
+        },
+      ]
+    }
+    uidEncoder={[Function]}
+    url="/interactive/:uid/:selection*"
+  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
-      filterBoxWidth="28em"
-      filterText={null}
-      handleNavFilter={[Function]}
-      status="unknown"
-      updateEmptyDisplayFunc={[Function]}
-      updateExpandStatusFunc={[Function]}
-      updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
-      updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
-    />
-  </ErrorBoundary>
-  <ErrorBoundary>
+    }
+  >
     <Nav
       displayEmpty={true}
       displayTags={false}
@@ -473,8 +633,6 @@ exports[`InteractiveReport Updates testcase state 1`] = `
       treeView={true}
       url="/interactive/:uid/:selection*"
     />
-  </ErrorBoundary>
-  <ErrorBoundary>
     <ContextProvider
       value={
         Object {
@@ -489,52 +647,62 @@ exports[`InteractiveReport Updates testcase state 1`] = `
       }
     >
       <Message
-        left="28em"
         message="Please select an entry."
       />
     </ContextProvider>
-  </ErrorBoundary>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles individual parametrizations being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
-  <ErrorBoundary>
-    <Toolbar
-      expandStatus="default"
-      extraButtons={
-        Array [
-          <ReloadButton
-            reloadCbk={[Function]}
-            reloading={false}
-          />,
-          <ResetButton
-            resetStateCbk={[Function]}
-            resetting={false}
-          />,
-          <AbortButton
-            abortCbk={[Function]}
-            aborting={false}
-          />,
-          <SaveButton />,
-        ]
+  <Toolbar
+    expandStatus="default"
+    extraButtons={
+      Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <ResetButton
+          resetStateCbk={[Function]}
+          resetting={false}
+        />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
+      ]
+    }
+    filterBoxWidth="28em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    status="unknown"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
+    url="/interactive/:uid/:selection*"
+  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
-      filterBoxWidth="28em"
-      filterText={null}
-      handleNavFilter={[Function]}
-      status="unknown"
-      updateEmptyDisplayFunc={[Function]}
-      updateExpandStatusFunc={[Function]}
-      updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
-      updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
-    />
-  </ErrorBoundary>
-  <ErrorBoundary>
+    }
+  >
     <Nav
       displayEmpty={true}
       displayTags={false}
@@ -550,8 +718,6 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
       treeView={true}
       url="/interactive/:uid/:selection*"
     />
-  </ErrorBoundary>
-  <ErrorBoundary>
     <ContextProvider
       value={
         Object {
@@ -566,52 +732,62 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
       }
     >
       <Message
-        left="28em"
         message="Please select an entry."
       />
     </ContextProvider>
-  </ErrorBoundary>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles individual test suites being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
-  <ErrorBoundary>
-    <Toolbar
-      expandStatus="default"
-      extraButtons={
-        Array [
-          <ReloadButton
-            reloadCbk={[Function]}
-            reloading={false}
-          />,
-          <ResetButton
-            resetStateCbk={[Function]}
-            resetting={false}
-          />,
-          <AbortButton
-            abortCbk={[Function]}
-            aborting={false}
-          />,
-          <SaveButton />,
-        ]
+  <Toolbar
+    expandStatus="default"
+    extraButtons={
+      Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <ResetButton
+          resetStateCbk={[Function]}
+          resetting={false}
+        />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
+      ]
+    }
+    filterBoxWidth="28em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    status="unknown"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
+    url="/interactive/:uid/:selection*"
+  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
-      filterBoxWidth="28em"
-      filterText={null}
-      handleNavFilter={[Function]}
-      status="unknown"
-      updateEmptyDisplayFunc={[Function]}
-      updateExpandStatusFunc={[Function]}
-      updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
-      updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
-    />
-  </ErrorBoundary>
-  <ErrorBoundary>
+    }
+  >
     <Nav
       displayEmpty={true}
       displayTags={false}
@@ -627,8 +803,6 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
       treeView={true}
       url="/interactive/:uid/:selection*"
     />
-  </ErrorBoundary>
-  <ErrorBoundary>
     <ContextProvider
       value={
         Object {
@@ -643,52 +817,62 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
       }
     >
       <Message
-        left="28em"
         message="Please select an entry."
       />
     </ContextProvider>
-  </ErrorBoundary>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles individual testcases being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
-  <ErrorBoundary>
-    <Toolbar
-      expandStatus="default"
-      extraButtons={
-        Array [
-          <ReloadButton
-            reloadCbk={[Function]}
-            reloading={false}
-          />,
-          <ResetButton
-            resetStateCbk={[Function]}
-            resetting={false}
-          />,
-          <AbortButton
-            abortCbk={[Function]}
-            aborting={false}
-          />,
-          <SaveButton />,
-        ]
+  <Toolbar
+    expandStatus="default"
+    extraButtons={
+      Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <ResetButton
+          resetStateCbk={[Function]}
+          resetting={false}
+        />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
+      ]
+    }
+    filterBoxWidth="28em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    status="unknown"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
+    url="/interactive/:uid/:selection*"
+  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
-      filterBoxWidth="28em"
-      filterText={null}
-      handleNavFilter={[Function]}
-      status="unknown"
-      updateEmptyDisplayFunc={[Function]}
-      updateExpandStatusFunc={[Function]}
-      updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
-      updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
-    />
-  </ErrorBoundary>
-  <ErrorBoundary>
+    }
+  >
     <Nav
       displayEmpty={true}
       displayTags={false}
@@ -704,8 +888,6 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
       treeView={true}
       url="/interactive/:uid/:selection*"
     />
-  </ErrorBoundary>
-  <ErrorBoundary>
     <ContextProvider
       value={
         Object {
@@ -720,52 +902,62 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
       }
     >
       <Message
-        left="28em"
         message="Please select an entry."
       />
     </ContextProvider>
-  </ErrorBoundary>
+  </div>
 </div>
 `;
 
 exports[`InteractiveReport handles tests being run 1`] = `
 <div
-  className=""
+  className="interactiveReport_7gv3ej"
 >
-  <ErrorBoundary>
-    <Toolbar
-      expandStatus="default"
-      extraButtons={
-        Array [
-          <ReloadButton
-            reloadCbk={[Function]}
-            reloading={false}
-          />,
-          <ResetButton
-            resetStateCbk={[Function]}
-            resetting={false}
-          />,
-          <AbortButton
-            abortCbk={[Function]}
-            aborting={false}
-          />,
-          <SaveButton />,
-        ]
+  <Toolbar
+    expandStatus="default"
+    extraButtons={
+      Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <ResetButton
+          resetStateCbk={[Function]}
+          resetting={false}
+        />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
+      ]
+    }
+    filterBoxWidth="28em"
+    filterText={null}
+    handleNavFilter={[Function]}
+    status="unknown"
+    updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
+  />
+  <NavBreadcrumbs
+    entries={Array []}
+    uidEncoder={[Function]}
+    url="/interactive/:uid/:selection*"
+  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
       }
-      filterBoxWidth="28em"
-      filterText={null}
-      handleNavFilter={[Function]}
-      status="unknown"
-      updateEmptyDisplayFunc={[Function]}
-      updateExpandStatusFunc={[Function]}
-      updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
-      updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
-    />
-  </ErrorBoundary>
-  <ErrorBoundary>
+    }
+  >
     <Nav
       displayEmpty={true}
       displayTags={false}
@@ -781,8 +973,6 @@ exports[`InteractiveReport handles tests being run 1`] = `
       treeView={true}
       url="/interactive/:uid/:selection*"
     />
-  </ErrorBoundary>
-  <ErrorBoundary>
     <ContextProvider
       value={
         Object {
@@ -797,10 +987,9 @@ exports[`InteractiveReport handles tests being run 1`] = `
       }
     >
       <Message
-        left="28em"
         message="Please select an entry."
       />
     </ContextProvider>
-  </ErrorBoundary>
+  </div>
 </div>
 `;

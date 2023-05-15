@@ -7,6 +7,7 @@ import { StyleSheet, css } from "aphrodite";
 
 import Message from "../Common/Message";
 import Toolbar from "../Toolbar/Toolbar";
+import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav";
 import { COLUMN_WIDTH } from "../Common/defaults";
 
@@ -18,7 +19,7 @@ const EmptyReport = (props) => {
     message = "404: Page Not Found";
   }
 
-  const centerPane = <Message message={message} left={`${COLUMN_WIDTH}em`} />;
+  const centerPane = <Message message={message} />;
 
   const noop = () => undefined;
 
@@ -35,16 +36,15 @@ const EmptyReport = (props) => {
         updateTimeDisplayFunc={noop}
         extraButtons={[]}
       />
-      <Nav
-        report={null}
-        saveAssertions={noop}
-        filter={undefined}
-        treeView={true}
-        displayEmpty={true}
-        displayTags={false}
-        displayTime={false}
-      />
-      {centerPane}
+      <div
+        style={{
+          display: "flex",
+          flex: "1",
+          overflowY: "auto",
+        }}
+      >
+        {centerPane}
+      </div>
     </div>
   );
 };

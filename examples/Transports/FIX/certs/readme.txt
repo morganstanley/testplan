@@ -1,4 +1,4 @@
-# to regenerate these certificates use the follwoing commands
+# to regenerate the certs needed for the example use the follwoing commands
 
 #rootCA certificate selfsigned
 openssl req -x509 -sha256 -days 1825 -newkey rsa:2048 -keyout rootCA.key -out rootCA.crt -nodes
