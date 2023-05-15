@@ -1,1 +1,0 @@
-Wrapping main webUI components in Error Boundary to prevent unexpected UI crash.
