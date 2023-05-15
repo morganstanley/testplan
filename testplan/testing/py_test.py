@@ -190,7 +190,7 @@ class PyTest(testing.Test):
 
         return self.result
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*", suites_cases=None):
         """
         Run testcases matching the given patterns and yield testcase reports.
 

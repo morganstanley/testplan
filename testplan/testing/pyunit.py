@@ -89,7 +89,7 @@ class PyUnit(testing.Test):
 
         return self.result
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*", suites_cases=None):
         """Run testcases and yield testcase report and parent UIDs."""
         if testsuite_pattern == "*":
             yield {"runtime_status": RuntimeStatus.RUNNING}, [self.uid()]

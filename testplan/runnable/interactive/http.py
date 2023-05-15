@@ -1,37 +1,41 @@
 """
 Http handler for interactive mode.
 """
-
-import os
-import time
 import copy
 import functools
+import os
+import time
 import traceback
+from typing import Dict, List
 
 import flask
 import flask_restx
 import flask_restx.fields
-from flask import request
-from cheroot import wsgi
 import werkzeug.exceptions
 import marshmallow.exceptions
+from cheroot import wsgi
+from flask import request
 from urllib.parse import unquote_plus
 
 import testplan
+from testplan import defaults
+from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.utils import strings
-from testplan.common import entity
-from testplan import defaults
 from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
     RuntimeStatus,
+    ReportCategories,
 )
 
 
 class OutOfOrderError(Exception):
-    def __init__(self, msg):
+    """
+    Custom exception thrown during non-sequential execution.
+    """
+    def __init__(self, msg: str) -> None:
         super(OutOfOrderError, self).__init__(msg)
 
 
@@ -44,6 +48,80 @@ def decode_uri_component(func):
         return func(*args, **new_kwargs)
 
     return wrapper
+
+
+def extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
+    """
+
+    :param shallow_entry:
+    :return:
+    """
+    category = shallow_entry["category"]
+
+    suites_cases = {}
+
+    if category in {
+        ReportCategories.MULTITEST,
+        ReportCategories.CPPUNIT,
+        ReportCategories.GTEST,
+        ReportCategories.HOBBESTEST,
+        ReportCategories.QUNIT,
+        ReportCategories.JUNIT,
+        ReportCategories.PYTEST,
+        ReportCategories.PYUNIT,
+    }:
+        for suite in shallow_entry["entries"]:
+            suites_cases[suite["name"]] = []
+
+            for entry in suite["entries"]:
+                if entry["category"] == ReportCategories.TESTCASE:
+                    suites_cases[suite["name"]].append(entry["name"])
+                elif entry["category"] == ReportCategories.PARAMETRIZATION:
+                    for case in entry["entries"]:
+                        if case["category"] == ReportCategories.TESTCASE:
+                            suites_cases[suite["name"]].append(case["name"])
+                else:
+                    raise Exception(f"Unexpected entry type: {entry['category']}")
+
+    elif category == ReportCategories.TESTSUITE:
+        suite = shallow_entry
+        suites_cases[suite["name"]] = []
+
+        for entry in suite["entries"]:
+            if entry["category"] == ReportCategories.TESTCASE:
+                suites_cases[suite["name"]].append(entry["name"])
+            elif entry["category"] == ReportCategories.PARAMETRIZATION:
+                for case in entry["entries"]:
+                    if case["category"] == ReportCategories.TESTCASE:
+                        suites_cases[suite["name"]].append(case["name"])
+            else:
+                raise Exception(f"Unexpected entry type: {entry['category']}")
+
+    elif category == ReportCategories.PARAMETRIZATION:
+        suite_name = shallow_entry["parent_uids"][2]
+        suites_cases[suite_name] = []
+        for entry in shallow_entry["entries"]:
+            if entry["category"] == ReportCategories.TESTCASE:
+                suites_cases[suite_name].append(entry["name"])
+            else:
+                raise Exception(f"Unexpected entry type: {entry['category']}")
+
+    elif category == ReportCategories.TESTCASE:
+        suites_cases[shallow_entry["parent_uids"][2]] = [shallow_entry["name"]]
+
+    return suites_cases
+
+
+def extract_entries_tree(shallow_entry):
+    shallow_entries = {}
+    for entry in shallow_entry["entries"]:
+        name, category = entry["name"], entry["category"]
+        if category == ReportCategories.TESTCASE:
+            shallow_entries[name] = {}
+        else:
+            shallow_entries[name] = extract_entries_tree(entry)
+
+    return shallow_entries
 
 
 def generate_interactive_api(ihandler):
@@ -209,6 +287,9 @@ def generate_interactive_api(ihandler):
                     "JSON body is required for PUT"
                 )
 
+            suites_cases = extract_suites_cases(flask.request.json)
+            shallow_entries = extract_entries_tree(flask.request.json)
+
             with ihandler.report_mutex:
                 try:
                     current_test = ihandler.report[test_uid]
@@ -232,7 +313,10 @@ def generate_interactive_api(ihandler):
                     current_test.runtime_status,
                     new_runtime_status,
                 ):
-                    current_test.runtime_status = RuntimeStatus.WAITING
+                    current_test.set_runtime_status_filtered(
+                        RuntimeStatus.WAITING,
+                        shallow_entries
+                    )
                     ihandler.reset_test(test_uid, await_results=False)
                 elif _should_run(
                     current_test.uid,
@@ -243,8 +327,15 @@ def generate_interactive_api(ihandler):
                         current_test.env_status, new_test.env_status
                     )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
-                    current_test.runtime_status = RuntimeStatus.WAITING
-                    ihandler.run_test(test_uid, await_results=False)
+                    current_test.set_runtime_status_filtered(
+                        RuntimeStatus.WAITING,
+                        shallow_entries
+                    )
+                    ihandler.run_test(
+                        test_uid,
+                        await_results=False,
+                        suites_cases=suites_cases,
+                    )
                 else:
                     next_env_status, env_action = self._check_env_transition(
                         current_test.env_status, new_test.env_status
@@ -332,6 +423,9 @@ def generate_interactive_api(ihandler):
                     "JSON body is required for PUT"
                 )
 
+            suites_cases = extract_suites_cases(flask.request.json)
+            shallow_entries = extract_entries_tree(flask.request.json)
+
             with ihandler.report_mutex:
                 try:
                     test = ihandler.report[test_uid]
@@ -357,9 +451,15 @@ def generate_interactive_api(ihandler):
                     _check_execution_order(
                         ihandler.report, test_uid=test_uid, suite_uid=suite_uid
                     )
-                    current_suite.runtime_status = RuntimeStatus.WAITING
+                    current_suite.set_runtime_status_filtered(
+                        RuntimeStatus.WAITING,
+                        shallow_entries
+                    )
                     ihandler.run_test_suite(
-                        test_uid, suite_uid, await_results=False
+                        test_uid,
+                        suite_uid,
+                        await_results=False,
+                        suites_cases=suites_cases,
                     )
 
                 return _serialize_report_entry(current_suite)
@@ -417,6 +517,9 @@ def generate_interactive_api(ihandler):
                     "JSON body is required for PUT"
                 )
 
+            suites_cases = extract_suites_cases(flask.request.json)
+            shallow_entries = extract_entries_tree(flask.request.json)
+
             with ihandler.report_mutex:
                 suite = ihandler.report[test_uid][suite_uid]
                 try:
@@ -445,9 +548,19 @@ def generate_interactive_api(ihandler):
                         suite_uid=suite_uid,
                         case_uid=case_uid,
                     )
-                    current_case.runtime_status = RuntimeStatus.WAITING
+                    if shallow_entries:
+                        current_case.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            shallow_entries,
+                        )
+                    else:
+                        current_case.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test_case(
-                        test_uid, suite_uid, case_uid, await_results=False
+                        test_uid,
+                        suite_uid,
+                        case_uid,
+                        suites_cases=suites_cases,
+                        await_results=False,
                     )
 
                 return _serialize_report_entry(current_case)
@@ -507,6 +620,9 @@ def generate_interactive_api(ihandler):
                     "JSON body is required for PUT"
                 )
 
+            suites_cases = extract_suites_cases(flask.request.json)
+            shallow_entries = extract_entries_tree(flask.request.json)
+
             with ihandler.report_mutex:
                 try:
                     param_group = ihandler.report[test_uid][suite_uid][
@@ -544,6 +660,7 @@ def generate_interactive_api(ihandler):
                         suite_uid,
                         case_uid,
                         param_uid,
+                        suites_cases=suites_cases,
                         await_results=False,
                     )
 

@@ -1,47 +1,5 @@
 """
 Report classes that will store the test results.
-
-Assuming we have a Testplan setup like this:
-
-.. code-block:: python
-
-  Testplan MyPlan
-    Multitest A
-      Suite A-1
-        TestCase test_method_a_1_x
-        TestCase test_method_a_1_y
-        TestCase (parametrized, with 3 scenarios) test_method_a_1_z
-      Suite A-2
-        Testcase test_method_a_2_x
-    Multitest B
-      Suite B-1
-        Testcase test_method_b_1_x
-    GTest C
-
-We will have a report tree like:
-
-.. code-block:: python
-
-  TestReport(name='MyPlan')
-    TestGroupReport(name='A', category='Multitest')
-      TestGroupReport(name='A-1', category='TestSuite')
-        TestCaseReport(name='test_method_a_1_x')
-        TestCaseReport(name='test_method_a_1_y')
-        TestGroupReport(name='test_method_a_1_z', category='parametrization')
-          TestCaseReport(name='test_method_a_1_z_1')
-          TestCaseReport(name='test_method_a_1_z_2')
-          TestCaseReport(name='test_method_a_1_z_3')
-      TestGroupReport(name='A-2', category='TestSuite')
-        TestCaseReport(name='test_method_a_2_x')
-    TestGroupReport(name='B', category='MultiTest')
-      TestGroupReport(name='B-1', category='TestSuite')
-        TestCaseReport(name='test_method_b_1_x')
-    TestGroupReport(name='C', category='GTest')
-      TestCaseReport(name='<first test of Gtest>') -> can only be retrieved
-                                                      after GTest is run
-      TestCaseReport(name='<second test of Gtest>') -> can only be retrieved
-                                                       after GTest is run
-    ...
 """
 import copy
 import getpass
@@ -52,7 +10,7 @@ import platform
 import sys
 import traceback
 from collections import Counter
-from typing import Callable, Optional
+from typing import Callable, Optional, Sequence, Dict
 
 from typing_extensions import Self
 
@@ -74,6 +32,11 @@ class RuntimeStatus:
     FINISHED = "finished"
     NOT_RUN = "not_run"
 
+    # Note: the client can send RESETTING signal to reset the test report,
+    #           but will not receive a temporary report containing a
+    #           RESETTING status, instead WAITING status is used and after
+    #           reset the report goes to READY status.
+
     STATUS_PRECEDENCE = (
         RUNNING,
         RESETTING,
@@ -85,22 +48,18 @@ class RuntimeStatus:
     )
 
     @classmethod
-    def precedent(cls, stats, rule=STATUS_PRECEDENCE):
+    def precedent(
+        cls,
+        statuses: Sequence,
+        rule: Sequence = STATUS_PRECEDENCE
+    ) -> str:
         """
-        Return the precedent status from a list of statuses, using the
-        ordering of statuses in `rule`.
+        Return the first status from a list of statuses, using the rule.
 
-        Note that the client can send RESETTING signal to reset the test report
-        to its initial status, but client will not receive a temporary report
-        containing RESETTING status, instead WAITING status is used and after
-        reset the report goes to READY status.
-
-        :param stats: List of statuses of which we want to get the precedent.
-        :type stats: ``sequence``
-        :param rule: Precedence rules for the given statuses.
-        :type rule: ``sequence``
+        :param statuses: statuses which we want to get the precedent of
+        :param rule: precedence rules for the given statuses
         """
-        return min(stats, key=lambda stat: rule.index(stat))
+        return min(statuses, key=lambda stat: rule.index(stat))
 
 
 class Status:
@@ -178,13 +137,8 @@ class ReportCategories:
     TESTCASE = "testcase"
     PARAMETRIZATION = "parametrization"
     GTEST = "gtest"
-    GTEST_SUITE = "gtest-suite"
     CPPUNIT = "cppunit"
-    CPPUNIT_SUITE = "cppunit-suite"
-    BOOST_TEST = "boost-test"
-    BOOST_SUITE = "boost-suite"
     HOBBESTEST = "hobbestest"
-    HOBBESTEST_SUITE = "hobbestest-suite"
     PYTEST = "pytest"
     PYUNIT = "pyunit"
     UNITTEST = "unittest"
@@ -304,14 +258,13 @@ class BaseReportGroup(ReportGroup):
         self._status = new_status
 
     @property
-    def runtime_status(self):
+    def runtime_status(self) -> str:
         """
-        The runtime status is used for interactive running, and reports
-        whether a particular entry is READY, WAITING, RUNNING, RESETTING,
-        FINISHED or NOT_RUN.
-
-        A test group inherits its runtime status from its child entries.
+        The runtime status is used in interactive mode and stands for
+        whether a particular entry is READY, WAITING, RUNNING,
+        RESETTING, FINISHED, or NOT_RUN.
         """
+        # NOTE: inherits runtime status from entries, if any
         if self.entries:
             return RuntimeStatus.precedent(
                 [entry.runtime_status for entry in self]
@@ -320,10 +273,27 @@ class BaseReportGroup(ReportGroup):
         return self._runtime_status
 
     @runtime_status.setter
-    def runtime_status(self, new_status):
-        """Set the runtime_status of all child entries."""
+    def runtime_status(self, new_status: str) -> None:
+        """
+        Sets the runtime status of all child entries.
+        """
         for entry in self:
             entry.runtime_status = new_status
+        self._runtime_status = new_status
+
+    def set_runtime_status_filtered(
+        self,
+        new_status: str,
+        shallow_entries: Dict[str, Dict]
+    ) -> None:
+        for entry in self:
+            if entry.name in shallow_entries.keys():
+                if isinstance(entry, TestCaseReport):
+                    entry.runtime_status = new_status
+                else:
+                    entry.set_runtime_status_filtered(
+                        new_status, shallow_entries[entry.name]
+                    )
         self._runtime_status = new_status
 
     def merge_children(self, report, strict=True):
@@ -913,15 +883,17 @@ class TestCaseReport(Report):
         self._status = new_status
 
     @property
-    def runtime_status(self):
+    def runtime_status(self) -> str:
         """
-        Used for interactive mode, the runtime status of a testcase may be one
-        of ``RuntimeStatus``.
+        The runtime status is used in interactive mode and stands for
+        whether a particular entry is READY, WAITING, RUNNING,
+        RESETTING, FINISHED, or NOT_RUN.
         """
         return self._runtime_status
 
+    # In principle, this does not have to change
     @runtime_status.setter
-    def runtime_status(self, new_status):
+    def runtime_status(self, new_status: str) -> None:
         """
         Set the runtime status. As a special case, when a testcase is re-run
         we clear out the assertion entries from any previous run.

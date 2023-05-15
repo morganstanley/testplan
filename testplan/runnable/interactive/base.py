@@ -233,7 +233,7 @@ class TestRunnerIHandler(entity.Entity):
         for test_uid in self.all_tests():
             self.run_test(test_uid)
 
-    def run_test(self, test_uid, await_results=True):
+    def run_test(self, test_uid, suites_cases=None, await_results=True):
         """
         Run a single Test instance.
 
@@ -245,7 +245,7 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_test, test_uid)
+            return self._run_async(self.run_test, test_uid, suites_cases=suites_cases)
 
         try:
             self._auto_start_environment(test_uid)
@@ -258,9 +258,9 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self.logger.debug('Run test ["%s"]', test_uid)
-            self._update_reports(self.test(test_uid).run_testcases_iter())
+            self._update_reports(self.test(test_uid).run_testcases_iter(suites_cases=suites_cases))
 
-    def run_test_suite(self, test_uid, suite_uid, await_results=True):
+    def run_test_suite(self, test_uid, suite_uid, suites_cases=None, await_results=True):
         """
         Run a single test suite.
 
@@ -273,7 +273,7 @@ class TestRunnerIHandler(entity.Entity):
             when ready.
         """
         if not await_results:
-            return self._run_async(self.run_test_suite, test_uid, suite_uid)
+            return self._run_async(self.run_test_suite, test_uid, suite_uid, suites_cases=suites_cases)
 
         try:
             self._auto_start_environment(test_uid)
@@ -293,11 +293,19 @@ class TestRunnerIHandler(entity.Entity):
             self.logger.debug('Run suite ["%s" / "%s"]', test_uid, suite_uid)
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid
+                    testsuite_pattern=suite_uid,
+                    suites_cases=suites_cases,
                 )
             )
 
-    def run_test_case(self, test_uid, suite_uid, case_uid, await_results=True):
+    def run_test_case(
+        self,
+        test_uid,
+        suite_uid,
+        case_uid,
+        suites_cases=None,
+        await_results=True,
+    ):
         """
         Run a single testcase.
 
@@ -316,6 +324,7 @@ class TestRunnerIHandler(entity.Entity):
                 test_uid,
                 suite_uid,
                 case_uid,
+                suites_cases=suites_cases,
             )
 
         try:
@@ -341,7 +350,9 @@ class TestRunnerIHandler(entity.Entity):
             )
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid, testcase_pattern=case_uid
+                    testsuite_pattern=suite_uid,
+                    testcase_pattern=case_uid,
+                    suites_cases=suites_cases,
                 )
             )
 
@@ -351,6 +362,7 @@ class TestRunnerIHandler(entity.Entity):
         suite_uid,
         case_uid,
         param_uid,
+        suites_cases=None,
         await_results=True,
     ):
         """
@@ -373,6 +385,7 @@ class TestRunnerIHandler(entity.Entity):
                 suite_uid,
                 case_uid,
                 param_uid,
+                suites_cases=suites_cases,
             )
 
         try:
@@ -399,7 +412,9 @@ class TestRunnerIHandler(entity.Entity):
             )
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid, testcase_pattern=param_uid
+                    testsuite_pattern=suite_uid,
+                    testcase_pattern=param_uid,
+                    suites_cases=suites_cases,
                 )
             )
 

@@ -890,7 +890,7 @@ class ProcessRunnerTest(Test):
 
         return result
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*", suites_cases=None):
         """
         Runs testcases as defined by the given filter patterns and yields
         testcase reports. A single testcase report is made for general checks

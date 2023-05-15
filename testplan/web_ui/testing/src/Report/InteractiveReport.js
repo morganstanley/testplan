@@ -392,7 +392,6 @@ class InteractiveReport extends BaseReport {
       uids: currReportEntry.uids,
       counter: currReportEntry.counter,
     };
-    delete newEntry.entry_uids;
 
     return newEntry;
   }
@@ -453,8 +452,28 @@ class InteractiveReport extends BaseReport {
    * with an array of entry UIDs.
    */
   shallowReportEntry(reportEntry) {
-    const { entries, ...shallowEntry } = reportEntry;
-    shallowEntry.entry_uids = entries.map((entry) => entry.uid);
+    let shallowEntry = {};
+
+    // copy all of the fields from the input object to the new object, except for the "entries" field
+    for (let key in reportEntry) {
+      if (key !== "entries") {
+        shallowEntry[key] = reportEntry[key];
+      }
+    }
+
+    // if the input object has an "entries" field, process it recursively
+    if (reportEntry.entries) {
+      shallowEntry.entries = reportEntry.entries.map(
+        entry => this.shallowReportEntry(
+          {
+            name: entry.name,
+            entries: entry.entries,
+            category: entry.category,
+          }
+        )
+      );
+    }
+
     return shallowEntry;
   }
 

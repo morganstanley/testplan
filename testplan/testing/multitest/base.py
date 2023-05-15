@@ -347,6 +347,12 @@ class MultiTest(testing_base.Test):
                 ]
 
             if self.cfg.testcase_report_target:
+                for testcase in testcases_to_run:
+                    ref_func = getattr(
+                        suite,
+                        getattr(testcase, "_parametrization_template", ""),
+                        None,
+                    ),
                 testcases_to_run = [
                     report_target(
                         func=testcase,
@@ -451,25 +457,26 @@ class MultiTest(testing_base.Test):
 
         return report
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(
+        self,
+        testsuite_pattern="*",
+        testcase_pattern="*",
+        suites_cases=None,
+    ):
         """Run all testcases and yield testcase reports."""
-        test_filter = filtering.Pattern(
-            pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
-            match_definition=True,
-        )
-
         for testsuite, testcases in self.test_context:
             if not self.active:
                 break
+
+            if testsuite.name not in suites_cases:
+                continue
 
             # In interactive mode testcases are selected to run, thus
             # an extra ``filtering.Pattern`` instance will be applied.
             testcases = [
                 testcase
                 for testcase in testcases
-                if test_filter.filter(
-                    test=self, suite=testsuite, case=testcase
-                )
+                if testcase.name in suites_cases[testsuite.name]
             ]
 
             if testcases:
