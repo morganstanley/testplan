@@ -347,14 +347,6 @@ class MultiTest(testing_base.Test):
                 ]
 
             if self.cfg.testcase_report_target:
-                for testcase in testcases_to_run:
-                    ref_func = (
-                        getattr(
-                            suite,
-                            getattr(testcase, "_parametrization_template", ""),
-                            None,
-                        ),
-                    )
                 testcases_to_run = [
                     report_target(
                         func=testcase,
