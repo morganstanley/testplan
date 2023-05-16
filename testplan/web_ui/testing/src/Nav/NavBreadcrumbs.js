@@ -33,7 +33,6 @@ const useStyles = makeStyles({
     borderTop: "solid 1px rgba(0, 0, 0, 0.1)",
     borderBottom: "solid 1px rgba(0, 0, 0, 0.1)",
     zIndex: 300,
-    position: "fixed",
     display: "block",
     height: "34px",
     width: "100%",

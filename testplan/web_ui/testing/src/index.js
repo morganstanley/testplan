@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import BatchReport from "./Report/BatchReport";
 import InteractiveReport from "./Report/InteractiveReport";
 import EmptyReport from "./Report/EmptyReport";
+import { ErrorBoundary } from "./Common/ErrorBoundary";
 
 // import registerServiceWorker from './registerServiceWorker';
 import "./index.css";
@@ -17,10 +18,21 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 const AppRouter = () => (
   <Router>
     <Switch>
-      <Route path="/testplan/:uid/:selection*" component={BatchReport} />
+      <Route
+        path="/testplan/:uid/:selection*"
+        render={({ match }) => (
+          <ErrorBoundary>
+            <BatchReport match={match} />
+          </ErrorBoundary>
+        )}
+      />
       <Route
         path="/interactive/:uid?/:selection*"
-        component={InteractiveReport}
+        render={({ match }) => (
+          <ErrorBoundary>
+            <InteractiveReport match={match} />
+          </ErrorBoundary>
+        )}
       />
       <Route component={EmptyReport} />
     </Switch>

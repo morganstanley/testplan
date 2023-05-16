@@ -19,6 +19,7 @@ import {
   AbortButton,
   SaveButton,
 } from "../Toolbar/InteractiveButtons";
+import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav.js";
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import { FakeInteractiveReport } from "../Common/sampleReports.js";
@@ -30,10 +31,13 @@ import {
   filterReport,
   getSelectedUIDsFromPath,
 } from "./reportUtils.js";
+import { GetNavBreadcrumbs } from "../Nav/navUtils";
+
 import { encodeURIComponent2, parseToJson } from "../Common/utils";
 
 import { POLL_MS } from "../Common/defaults.js";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -631,7 +635,7 @@ class InteractiveReport extends BaseReport {
     );
 
     return (
-      <div className={css(styles.batchReport)}>
+      <div className={css(styles.interactiveReport)}>
         <Toolbar
           filterBoxWidth={this.state.navWidth}
           filterText={this.state.filteredReport.filter.text}
@@ -664,30 +668,49 @@ class InteractiveReport extends BaseReport {
             <SaveButton key="save-button" />,
           ]}
         />
-        <Nav
-          interactive={true}
-          navListWidth={this.state.navWidth}
-          report={this.state.filteredReport.report}
-          selected={selectedEntries}
-          treeView={this.state.treeView}
-          filter={null}
-          displayEmpty={true}
-          displayTags={false}
-          displayTime={false}
-          // envCtrlCallback and handleClick are passed down to InteractiveNav
-          handleClick={this.handleClick}
-          envCtrlCallback={this.envCtrlCallback}
-          handleColumnResizing={this.handleColumnResizing}
+        <NavBreadcrumbs
+          entries={GetNavBreadcrumbs(selectedEntries)}
           url={this.props.match.path}
+          uidEncoder={base64url}
         />
-        <AssertionContext.Provider value={this.state.assertionStatus}>
-          {centerPane}
-        </AssertionContext.Provider>
+        <div
+          style={{
+            display: "flex",
+            flex: "1",
+            overflowY: "auto",
+          }}
+        >
+          <Nav
+            interactive={true}
+            navListWidth={this.state.navWidth}
+            report={this.state.filteredReport.report}
+            selected={selectedEntries}
+            treeView={this.state.treeView}
+            filter={null}
+            displayEmpty={true}
+            displayTags={false}
+            displayTime={false}
+            // envCtrlCallback and handleClick are passed down to InteractiveNav
+            handleClick={this.handleClick}
+            envCtrlCallback={this.envCtrlCallback}
+            handleColumnResizing={this.handleColumnResizing}
+            url={this.props.match.path}
+          />
+          <AssertionContext.Provider value={this.state.assertionStatus}>
+            <ErrorBoundary>{centerPane}</ErrorBoundary>
+          </AssertionContext.Provider>
+        </div>
       </div>
     );
   }
 }
 
-const styles = StyleSheet.create({ interactiveReport: {} });
+const styles = StyleSheet.create({
+  interactiveReport: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  },
+});
 
 export default InteractiveReport;

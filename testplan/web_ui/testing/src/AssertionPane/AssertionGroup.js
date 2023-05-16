@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { AssertionContext } from "../Common/context";
 import { EXPAND_STATUS } from "../Common/defaults";
 import Assertion from "./Assertion";
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 /**
  * A component that wraps the rendered assertions. It is also the point where
@@ -44,24 +45,26 @@ const AssertionGroup = (props) => {
       }
 
       return (
-        <Assertion
-          key={assertionKey}
-          uid={assertionKey}
-          assertion={assertion}
-          expand={expand}
-          toggleExpand={() => {
-            assertionStatus.updateAssertionStatus(
-              [assertionKey],
-              expand === EXPAND_STATUS.EXPAND
-                ? EXPAND_STATUS.COLLAPSE
-                : EXPAND_STATUS.EXPAND
-            );
-          }}
-          index={index}
-          filter={props.filter}
-          displayPath={props.displayPath}
-          reportUid={props.reportUid}
-        />
+        <ErrorBoundary>
+          <Assertion
+            key={assertionKey}
+            uid={assertionKey}
+            assertion={assertion}
+            expand={expand}
+            toggleExpand={() => {
+              assertionStatus.updateAssertionStatus(
+                [assertionKey],
+                expand === EXPAND_STATUS.EXPAND
+                  ? EXPAND_STATUS.COLLAPSE
+                  : EXPAND_STATUS.EXPAND
+              );
+            }}
+            index={index}
+            filter={props.filter}
+            displayPath={props.displayPath}
+            reportUid={props.reportUid}
+          />
+        </ErrorBoundary>
       );
     });
 };

@@ -13,9 +13,7 @@ import sys
 from testplan import test_plan
 from testplan.report.testing.styles import Style, StyleEnum
 
-import over_one_session
-import over_two_sessions
-
+import over_one_session_tls
 
 OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 
@@ -37,8 +35,7 @@ def main(plan):
     :return: Testplan result object.
     :rtype:  ``testplan.base.TestplanResult``
     """
-    plan.add(over_one_session.get_multitest())
-    plan.add(over_two_sessions.get_multitest())
+    plan.add(over_one_session_tls.get_tls_multitest())
 
 
 if __name__ == "__main__":
