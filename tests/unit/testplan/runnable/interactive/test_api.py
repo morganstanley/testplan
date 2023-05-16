@@ -255,7 +255,7 @@ class TestSingleTest:
         compare_json(json_rsp, json_test, ignored_keys=["runtime_status"])
 
         ihandler.run_test.assert_called_once_with(
-            "MTest1", await_results=False
+            "MTest1", await_results=False, suites_cases={}
         )
 
     def test_put_reset(self, api_env):
@@ -397,7 +397,7 @@ class TestSingleSuite:
         compare_json(json_rsp, suite_json, ignored_keys=["runtime_status"])
 
         ihandler.run_test_suite.assert_called_once_with(
-            "MTest1", "MT1Suite1", await_results=False
+            "MTest1", "MT1Suite1", await_results=False, suites_cases={}
         )
 
     def test_put_validation(self, api_env):
@@ -502,7 +502,11 @@ class TestSingleTestcase:
         compare_json(json_rsp, testcase_json, ignored_keys=["runtime_status"])
 
         ihandler.run_test_case.assert_called_once_with(
-            "MTest1", "MT1Suite1", testcase_uid, await_results=False
+            "MTest1",
+            "MT1Suite1",
+            testcase_uid,
+            await_results=False,
+            suites_cases={},
         )
 
     def test_put_validation(self, api_env):
@@ -605,6 +609,7 @@ class TestParametrizedTestCase:
             "MT1S1TC2",
             "MT1S1TC2_0",
             await_results=False,
+            suites_cases={},
         )
 
     def test_put_validation(self, api_env):
