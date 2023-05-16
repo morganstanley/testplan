@@ -325,7 +325,7 @@ def generate_interactive_api(ihandler):
                     current_test.runtime_status,
                     new_runtime_status,
                 ):
-                    current_test.runtime_status = new_runtime_status
+                    current_test.runtime_status = RuntimeStatus.WAITING
                     ihandler.reset_test(test_uid, await_results=False)
                 elif _should_run(
                     current_test.uid,
