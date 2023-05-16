@@ -92,6 +92,8 @@ def _extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
     :param shallow_entry: holds entry name and category for all children
     :return: mapping of testsuites to testcases to be run
     """
+    if not hasattr(shallow_entry, "entries"):
+        return {}
     category = shallow_entry["category"]
     suites_cases = {}
     if category == ReportCategories.MULTITEST:
@@ -117,6 +119,8 @@ def _extract_entries(entry) -> Dict[str, Dict]:
     :param entry: report entry
     :return: nested dictionary of entries mapped to entries recursively
     """
+    if not hasattr(entry, "entries"):
+        return {}
     entries = {}
     for child in entry["entries"]:
         if child["category"] == ReportCategories.TESTCASE:
@@ -333,10 +337,13 @@ def generate_interactive_api(ihandler):
                         new_test.env_status,
                     )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
-                    current_test.set_runtime_status_filtered(
-                        RuntimeStatus.WAITING,
-                        entries,
-                    )
+                    if entries:
+                        current_test.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                    else:
+                        current_test.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test(
                         test_uid,
                         await_results=False,
@@ -456,10 +463,13 @@ def generate_interactive_api(ihandler):
                     _check_execution_order(
                         ihandler.report, test_uid=test_uid, suite_uid=suite_uid
                     )
-                    current_suite.set_runtime_status_filtered(
-                        RuntimeStatus.WAITING,
-                        entries,
-                    )
+                    if entries:
+                        current_suite.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                    else:
+                        current_suite.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test_suite(
                         test_uid,
                         suite_uid,

@@ -458,20 +458,36 @@ class MultiTest(testing_base.Test):
         suites_cases=None,
     ):
         """Run all testcases and yield testcase reports."""
+        if not suites_cases:
+            test_filter = filtering.Pattern(
+                pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
+                match_definition=True,
+            )
+
         for testsuite, testcases in self.test_context:
             if not self.active:
                 break
 
-            if testsuite.name not in suites_cases:
-                continue
+            if suites_cases:
 
-            # In interactive mode testcases are selected to run, thus
-            # an extra ``filtering.Pattern`` instance will be applied.
-            testcases = [
-                testcase
-                for testcase in testcases
-                if testcase.name in suites_cases[testsuite.name]
-            ]
+                if testsuite.name not in suites_cases:
+                    continue
+
+                # In interactive mode testcases are selected to run, thus
+                # an extra ``filtering.Pattern`` instance will be applied.
+                testcases = [
+                    testcase
+                    for testcase in testcases
+                    if testcase.name in suites_cases[testsuite.name]
+                ]
+            else:
+                testcases = [
+                    testcase
+                    for testcase in testcases
+                    if test_filter.filter(
+                        test=self, suite=testsuite, case=testcase
+                    )
+                ]
 
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)

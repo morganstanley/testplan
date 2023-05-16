@@ -241,6 +241,9 @@ class TestRunnerIHandler(entity.Entity):
             Otherwise, returns a future which will yield a test report when
             ready.
         """
+        if suites_cases is None:
+            suites_cases = {}
+
         if not await_results:
             return self._run_async(
                 self.run_test,
@@ -283,6 +286,9 @@ class TestRunnerIHandler(entity.Entity):
             Otherwise, returns a future which will yield a testsuite report
             when ready.
         """
+        if suites_cases is None:
+            suites_cases = {}
+
         if not await_results:
             return self._run_async(
                 self.run_test_suite,
@@ -334,6 +340,9 @@ class TestRunnerIHandler(entity.Entity):
             Otherwise, returns a future which will yield a testcase report when
             ready.
         """
+        if suites_cases is None:
+            suites_cases = {}
+
         if not await_results:
             return self._run_async(
                 self.run_test_case,
@@ -394,6 +403,9 @@ class TestRunnerIHandler(entity.Entity):
             Otherwise, returns a future which will yield a testcase report when
             ready.
         """
+        if suites_cases is None:
+            suites_cases = {}
+
         if not await_results:
             return self._run_async(
                 self.run_test_case_param,
