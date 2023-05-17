@@ -1,1 +1,1 @@
-Decommissioned `exporter_info`, `test_info` and `driver_info`
+Decommissioned `exporter_info`, `test_info` and `driver_info`. Note that this is a breaking change. For simple remediation replace these calls with `user_info`.
