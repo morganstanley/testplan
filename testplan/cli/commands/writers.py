@@ -72,7 +72,7 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
             pdf_path=self.filename, pdf_style=self.style.value
         )
         exporter.create_pdf(result)
-        self.logger.user_info(f"PDF written to {self.filename}")
+        self.logger.user_info("PDF written to %s", self.filename)
         return result
 
 
@@ -124,7 +124,7 @@ class ToJUnitAction(ProcessResultAction, logger.Loggable):
     def __call__(self, result: TestReport) -> TestReport:
         exporter = XMLExporter(xml_dir=self.dir_name)
         exporter.export(result)
-        self.logger.user_info(f"XML files written to {self.dir_name}")
+        self.logger.user_info("XML files written to %s", self.dir_name)
         return result
 
 

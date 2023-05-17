@@ -36,8 +36,8 @@ LOGFILE_FORMAT = (
 
 class TestplanLogger(logging.Logger):
     """
-    Custom Logger class for Testplan. Adds extra logging levels and
-    corresponding methods for EXPORTER_INFO, TEST_INFO, DRIVER_INFO, and USER_INFO levels.
+    Custom Logger class for Testplan. Adds extra logging level and
+    corresponding method for USER_INFO.
     """
 
     _TEST_STATUS_FORMAT = "%(indent)s[%(name)s] -> %(pass_label)s"
