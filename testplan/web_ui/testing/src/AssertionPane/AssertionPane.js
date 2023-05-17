@@ -45,12 +45,8 @@ class AssertionPane extends Component {
 
   render() {
     let assertionPaneStyle = {
-      position: "absolute",
-      left: this.props.left,
       paddingLeft: "20px",
-      top: "5.5em",
-      height: `calc(100% - 5.5em)`,
-      width: `calc(100% - ${this.props.left})`,
+      flex: "1",
     };
 
     if (

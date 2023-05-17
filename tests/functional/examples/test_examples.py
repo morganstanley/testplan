@@ -41,6 +41,7 @@ SKIP = [
     os.path.join(
         "Multitest", "Listing", "Custom Listers", "test_plan_command_line.py"
     ),
+    os.path.join("Transports", "FIX", "test_plan_tls.py"),
 ]
 
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")

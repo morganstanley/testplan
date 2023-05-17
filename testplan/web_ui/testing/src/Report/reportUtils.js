@@ -200,12 +200,7 @@ const GetCenterPane = (
   const assertions = getAssertions(selectedEntries, state.displayTime);
 
   if (state.error) {
-    return (
-      <Message
-        message={`Error: ${state.error.message}`}
-        left={state.navWidth}
-      />
-    );
+    return <Message message={`Error: ${state.error.message}`} />;
   } else if (
     assertions.length > 0 ||
     logs.length > 0 ||
@@ -225,9 +220,9 @@ const GetCenterPane = (
       />
     );
   } else if (reportFetchMessage !== null) {
-    return <Message message={reportFetchMessage} left={state.navWidth} />;
+    return <Message message={reportFetchMessage} />;
   } else {
-    return <Message message="Please select an entry." left={state.navWidth} />;
+    return <Message message="Please select an entry." />;
   }
 };
 

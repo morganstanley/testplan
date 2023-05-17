@@ -46,10 +46,12 @@ exports[`Assertion shallow renders the correct HTML structure 1`] = `
     timeout={350}
     unmountOnExit={false}
   >
-    <CardBody
-      className="assertionCardBody_1t2a0td"
-      tag="div"
-    />
+    <ErrorBoundary>
+      <CardBody
+        className="assertionCardBody_1t2a0td"
+        tag="div"
+      />
+    </ErrorBoundary>
   </Collapse>
 </Card>
 `;

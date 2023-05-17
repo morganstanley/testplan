@@ -63,9 +63,9 @@ describe("TextAttachment", () => {
       const request = moxios.requests.mostRecent();
       request
         .respondWith({
-          headers: {"content-type": "application/json"},
+          headers: { "content-type": "application/json" },
           status: 503,
-          response: {message: "Service Unavailable"},
+          response: { message: "Service Unavailable" },
         })
         .then(() => {
           renderedText.update();
@@ -89,7 +89,7 @@ describe("TextAttachment", () => {
       const request = moxios.requests.mostRecent();
       request
         .respondWith({
-          headers: {"content-type": "application/txt"},
+          headers: { "content-type": "application/txt" },
           status: 503,
           response: "Service Unavailable",
         })
