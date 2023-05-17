@@ -22,10 +22,6 @@ from testplan.report import Status
 CRITICAL = logging.CRITICAL  # 50
 ERROR = logging.ERROR  # 40
 WARNING = logging.WARNING  # 30
-# TODO: EXPORTER_INFO, TEST_INFO, DRIVER_INFO to be deco'ed.
-EXPORTER_INFO = 29
-TEST_INFO = 28
-DRIVER_INFO = 27
 USER_INFO = 25
 INFO = logging.INFO  # 20
 DEBUG = logging.DEBUG  # 10
@@ -56,7 +52,6 @@ class TestplanLogger(logging.Logger):
             "USER_INFO",
         )
     }
-
     # As well as storing the log levels as global constants, we also store them
     # all in a dict on this class. This is useful for enumerating all valid
     # log levels.
@@ -80,18 +75,6 @@ class TestplanLogger(logging.Logger):
         # class they can be included in the API docs.
         for level_name, level in self._CUSTOM_LEVELS.items():
             logging.addLevelName(level_name, level)
-
-    def exporter_info(self, msg, *args, **kwargs):
-        """Log 'msg % args' with severity 'EXPORTER_INFO'"""
-        self._custom_log(EXPORTER_INFO, msg, *args, **kwargs)
-
-    def test_info(self, msg, *args, **kwargs):
-        """Log 'msg % args' with severity 'TEST_INFO'"""
-        self._custom_log(TEST_INFO, msg, *args, **kwargs)
-
-    def driver_info(self, msg, *args, **kwargs):
-        """Log 'msg % args' with severity 'DRIVER_INFO'"""
-        self._custom_log(DRIVER_INFO, msg, *args, **kwargs)
 
     def user_info(self, msg, *args, **kwargs):
         """Log 'msg % args' with severity 'USER_INFO'"""
