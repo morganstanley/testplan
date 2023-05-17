@@ -44,13 +44,7 @@ class TestplanLogger(logging.Logger):
 
     # In addition to the built-in log levels, we add some extras.
     _CUSTOM_LEVELS = {
-        level_name: globals()[level_name]
-        for level_name in (
-            "EXPORTER_INFO",
-            "TEST_INFO",
-            "DRIVER_INFO",
-            "USER_INFO",
-        )
+        level_name: globals()[level_name] for level_name in ("USER_INFO",)
     }
     # As well as storing the log levels as global constants, we also store them
     # all in a dict on this class. This is useful for enumerating all valid
