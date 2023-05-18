@@ -63,8 +63,7 @@ def _extract_cases_from_parametrization(param_entry: Dict) -> List[str]:
     """
     cases = []
     for entry in param_entry["entries"]:
-        if entry["category"] == ReportCategories.TESTCASE:
-            cases.append(entry["name"])
+        cases.append(entry["name"])
     return cases
 
 

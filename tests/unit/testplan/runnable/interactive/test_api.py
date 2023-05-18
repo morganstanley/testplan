@@ -487,6 +487,21 @@ class TestSingleTestcase:
             testcase_json = report_entry.serialize()
         elif isinstance(report_entry, report.TestGroupReport):
             testcase_json = report_entry.shallow_serialize()
+            if testcase_uid == "MT1S1TC2":
+                testcase_json["entries"] = [
+                    {
+                        "name": "ParametrizedTestCase_0",
+                        "category": report.ReportCategories.TESTCASE,
+                    },
+                    {
+                        "name": "ParametrizedTestCase_1",
+                        "category": report.ReportCategories.TESTCASE,
+                    },
+                    {
+                        "name": "ParametrizedTestCase_2",
+                        "category": report.ReportCategories.TESTCASE,
+                    },
+                ]
         else:
             raise TypeError("Unexpected report type")
 
@@ -498,15 +513,26 @@ class TestSingleTestcase:
         )
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
+        if testcase_uid == "MT1S1TC2":
+            json_rsp["entries"] = testcase_json["entries"]
         assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
         compare_json(json_rsp, testcase_json, ignored_keys=["runtime_status"])
 
+        testcases = (
+            ["TestCase1"]
+            if testcase_uid == "MT1S1TC1"
+            else [
+                "ParametrizedTestCase_0",
+                "ParametrizedTestCase_1",
+                "ParametrizedTestCase_2",
+            ]
+        )
         ihandler.run_test_case.assert_called_once_with(
             "MTest1",
             "MT1Suite1",
             testcase_uid,
             await_results=False,
-            suites_cases={},
+            suites_cases={"MT1Suite1": testcases},
         )
 
     def test_put_validation(self, api_env):
@@ -609,7 +635,7 @@ class TestParametrizedTestCase:
             "MT1S1TC2",
             "MT1S1TC2_0",
             await_results=False,
-            suites_cases={},
+            suites_cases={"MT1Suite1": ["ParametrizedTestCase_0"]},
         )
 
     def test_put_validation(self, api_env):
