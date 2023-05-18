@@ -50,8 +50,8 @@ class RuntimeStatus:
     @classmethod
     def precedent(
         cls,
-        statuses: Sequence,
-        rule: Sequence = STATUS_PRECEDENCE,
+        statuses: Sequence[str],
+        rule: Sequence[str] = STATUS_PRECEDENCE,
     ) -> str:
         """
         Return the first status from a list of statuses, using the rule.
@@ -890,7 +890,6 @@ class TestCaseReport(Report):
         """
         return self._runtime_status
 
-    # In principle, this does not have to change
     @runtime_status.setter
     def runtime_status(self, new_status: str) -> None:
         """

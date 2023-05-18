@@ -92,8 +92,9 @@ def _extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
     :param shallow_entry: holds entry name and category for all children
     :return: mapping of testsuites to testcases to be run
     """
-    if not hasattr(shallow_entry, "entries"):
-        return {}
+    suites_cases = {}
+    if "entries" not in shallow_entry:
+        return suites_cases
     category = shallow_entry["category"]
     suites_cases = {}
     if category == ReportCategories.MULTITEST:
@@ -114,14 +115,14 @@ def _extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
 
 def _extract_entries(entry) -> Dict[str, Dict]:
     """
-    Given a  report entry, extracts all entries.
+    Given a report entry, extracts all entries.
 
     :param entry: report entry
     :return: nested dictionary of entries mapped to entries recursively
     """
-    if not hasattr(entry, "entries"):
-        return {}
     entries = {}
+    if not "entries" in entry:
+        return entries
     for child in entry["entries"]:
         if child["category"] == ReportCategories.TESTCASE:
             entries[child["name"]] = {}
