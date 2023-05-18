@@ -49,7 +49,13 @@ class TestRunnerIHandler(entity.Entity):
     CONFIG = TestRunnerIHandlerConfig
     STATUS = entity.RunnableStatus
 
-    def __init__(self, target, startup_timeout=10, http_port=0):
+    def __init__(
+        self,
+        target,
+        startup_timeout=10,
+        http_port=0,
+        pre_start_environments=None,
+    ):
         super(TestRunnerIHandler, self).__init__(
             target=target, startup_timeout=startup_timeout, http_port=http_port
         )
@@ -60,6 +66,7 @@ class TestRunnerIHandler(entity.Entity):
         self._pool = None
         self._http_handler = None
         self._created_environments = {}
+        self.pre_start_environments = pre_start_environments
 
         try:
             self._reloader = reloader.ModuleReloader(
@@ -128,6 +135,9 @@ class TestRunnerIHandler(entity.Entity):
             raise RuntimeError("setup() not run")
 
         self.status.change(entity.RunnableStatus.RUNNING)
+        if self.pre_start_environments is not None:
+            for env in self.pre_start_environments:
+                self.start_test_resources(env, await_results=False)
         self._display_connection_info()
         with self._pool:
             self._http_handler.run()

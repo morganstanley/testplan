@@ -123,6 +123,16 @@ class TestplanParser:
         )
 
         general_group.add_argument(
+            "--pre-start-environments",
+            dest="pre_start_environments",
+            type=str,
+            default=None,
+            nargs="*",
+            help="Enables pre-start of environments corresponding to the "
+            "MultiTest names passed. Defaults to no environment pre-started.",
+        )
+
+        general_group.add_argument(
             "--trace-tests",
             metavar="PATH",
             type=_read_json_file,
