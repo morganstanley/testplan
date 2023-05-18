@@ -1,0 +1,1 @@
+Added new command line option `--pre-start-environments` that accepts a whitespace separated list of MultiTest names for which environments are pre-started in interactive mode.
