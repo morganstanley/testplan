@@ -1,3 +1,4 @@
+import os
 import sys
 import importlib
 import threading
@@ -28,6 +29,8 @@ def import_tmp_module(module_name, path=None, delete=True, warn_if_exist=True):
         if path is not None:
             if path == ".":
                 path = ""
+            if not os.path.isabs(path):
+                path = os.path.abspath(path)
             sys.path.insert(0, path)
 
         mod_name = ""
