@@ -768,7 +768,9 @@ class RunnableConfig(EntityConfig):
         return {
             # IHandler explicitly enables interactive mode of runnable
             ConfigOption("interactive_port", default=None): Or(None, int),
-            ConfigOption("pre_start_environments", default=None): list,
+            ConfigOption("pre_start_environments", default=None): Or(
+                None, list
+            ),
             ConfigOption(
                 "interactive_block",
                 default=hasattr(sys.modules["__main__"], "__file__"),
