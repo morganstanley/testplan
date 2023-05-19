@@ -33,10 +33,10 @@ interrupt processes started as part of the test environment.
 
 .. note::
 
-    The interactive mode is currently in a beta stage and under active development.
-    There are still a few features yet to be implemented, for example the filter
-    box, tree view navigation and timing view, etc. Please bear with us while we
-    work through these, and feel free to raise an issue for any bugs you may find.
+    The interactive mode is currently in under active development.
+    There are still a few features yet to be implemented, for example the regular expression based filtering or
+    the plan level run button.
+    Please bear with us while we work through these, and feel free to raise an issue for any bugs you may find.
 
 .. _Interactive_Reload:
 
@@ -112,9 +112,16 @@ similar way.
 
 Test environments will be automatically started as required. However, you may
 also start or stop a test environment manually by clicking the toggle icon
-found only on top-level Test environments:
+found only on top-level Test environments.
 
 .. image:: ../images/interactive/env_control.png
+
+In addition, you can pre-start your environments
+using the "--pre-start-environments" command line option.
+
+.. code-block:: bash
+
+    $ python test_plan.py -i 4000 --pre-start-environments MyMultiTest1 MyMultiTest2
 
 
 .. _Interactive_Config:
