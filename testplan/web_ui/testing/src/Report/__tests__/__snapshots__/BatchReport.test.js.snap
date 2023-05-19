@@ -19921,10 +19921,14 @@ ZeroDivisionError: integer division or modulo by zero
                       className="searchBoxIcon_ncmdki"
                     >
                       <FontAwesomeIcon
+                        beat={false}
+                        beatFade={false}
                         border={false}
+                        bounce={false}
                         className=""
+                        fade={false}
                         fixedWidth={false}
-                        flip={null}
+                        flip={false}
                         icon={
                           Object {
                             "icon": Array [
@@ -19942,13 +19946,19 @@ ZeroDivisionError: integer division or modulo by zero
                         key="search"
                         listItem={false}
                         mask={null}
+                        maskId={null}
                         pull={null}
                         pulse={false}
                         rotation={null}
+                        shake={false}
                         size={null}
                         spin={false}
+                        spinPulse={false}
+                        spinReverse={false}
+                        swapOpacity={false}
                         symbol={false}
                         title="Search"
+                        titleId={null}
                         transform={null}
                       >
                         <svg
@@ -19980,10 +19990,14 @@ ZeroDivisionError: integer division or modulo by zero
                       onClick={[Function]}
                     >
                       <FontAwesomeIcon
+                        beat={false}
+                        beatFade={false}
                         border={false}
+                        bounce={false}
                         className=""
+                        fade={false}
                         fixedWidth={false}
-                        flip={null}
+                        flip={false}
                         icon={
                           Object {
                             "icon": Array [
@@ -20001,13 +20015,19 @@ ZeroDivisionError: integer division or modulo by zero
                         key="toolbar-info"
                         listItem={false}
                         mask={null}
+                        maskId={null}
                         pull={null}
                         pulse={false}
                         rotation={null}
+                        shake={false}
                         size={null}
                         spin={false}
+                        spinPulse={false}
+                        spinReverse={false}
+                        swapOpacity={false}
                         symbol={false}
                         title="Click for help"
+                        titleId={null}
                         transform={null}
                       >
                         <svg
@@ -20075,7 +20095,7 @@ ZeroDivisionError: integer division or modulo by zero
                         className="widePopover_16mkpl5"
                         delay={
                           Object {
-                            "hide": 0,
+                            "hide": 50,
                             "show": 0,
                           }
                         }
@@ -20115,7 +20135,69 @@ ZeroDivisionError: integer division or modulo by zero
                         }
                         toggle={[Function]}
                         trigger="click"
-                      />
+                      >
+                        <PopperContent
+                          boundariesElement="scrollParent"
+                          className="widePopover_16mkpl5"
+                          container="body"
+                          fade={false}
+                          fallbackPlacement="flip"
+                          flip={true}
+                          hideArrow={false}
+                          isOpen={false}
+                          modifiers={Object {}}
+                          offset={0}
+                          onClosed={[Function]}
+                          placement="bottom"
+                          placementPrefix="bs-popover"
+                          popperClassName="popover show"
+                          target={
+                            <span
+                              class="searchBoxInfoIcon_107ja4p"
+                            >
+                              <svg
+                                aria-labelledby="svg-inline--fa-title-24"
+                                class="svg-inline--fa fa-question-circle fa-w-16 "
+                                data-icon="question-circle"
+                                data-prefix="fas"
+                                role="img"
+                                viewBox="0 0 512 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <title
+                                  id="svg-inline--fa-title-24"
+                                >
+                                  Click for help
+                                </title>
+                                <path
+                                  d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                            </span>
+                          }
+                          transition={
+                            Object {
+                              "appear": true,
+                              "baseClass": "fade",
+                              "baseClassActive": "show",
+                              "enter": true,
+                              "exit": true,
+                              "in": true,
+                              "mountOnEnter": false,
+                              "onEnter": [Function],
+                              "onEntered": [Function],
+                              "onEntering": [Function],
+                              "onExit": [Function],
+                              "onExited": [Function],
+                              "onExiting": [Function],
+                              "tag": "div",
+                              "timeout": 150,
+                              "unmountOnExit": false,
+                            }
+                          }
+                        />
+                      </TooltipPopoverWrapper>
                     </Popover>
                   </span>
                   <div
@@ -20204,23 +20286,33 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
+                              beat={false}
+                              beatFade={false}
                               border={false}
+                              bounce={false}
                               className="toolbarButton_1ueb7gu"
+                              fade={false}
                               fixedWidth={false}
-                              flip={null}
+                              flip={false}
                               icon="bars"
                               inverse={false}
                               key="navigation-view"
                               listItem={false}
                               mask={null}
+                              maskId={null}
                               onClick={[Function]}
                               pull={null}
                               pulse={false}
                               rotation={null}
+                              shake={false}
                               size={null}
                               spin={false}
+                              spinPulse={false}
+                              spinReverse={false}
+                              swapOpacity={false}
                               symbol={false}
                               title="Navigation"
+                              titleId={null}
                               transform={null}
                             >
                               <svg
@@ -20261,23 +20353,33 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
+                              beat={false}
+                              beatFade={false}
                               border={false}
+                              bounce={false}
                               className="toolbarButton_1ueb7gu"
+                              fade={false}
                               fixedWidth={false}
-                              flip={null}
+                              flip={false}
                               icon="angle-double-down"
                               inverse={false}
                               key="expand-icon"
                               listItem={false}
                               mask={null}
+                              maskId={null}
                               onClick={[Function]}
                               pull={null}
                               pulse={false}
                               rotation={null}
+                              shake={false}
                               size={null}
                               spin={false}
+                              spinPulse={false}
+                              spinReverse={false}
+                              swapOpacity={false}
                               symbol={false}
                               title="Expand all assertions"
+                              titleId={null}
                               transform={null}
                             >
                               <svg
@@ -20318,23 +20420,33 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
+                              beat={false}
+                              beatFade={false}
                               border={false}
+                              bounce={false}
                               className="toolbarButton_1ueb7gu"
+                              fade={false}
                               fixedWidth={false}
-                              flip={null}
+                              flip={false}
                               icon="angle-double-up"
                               inverse={false}
                               key="collapse-icon"
                               listItem={false}
                               mask={null}
+                              maskId={null}
                               onClick={[Function]}
                               pull={null}
                               pulse={false}
                               rotation={null}
+                              shake={false}
                               size={null}
                               spin={false}
+                              spinPulse={false}
+                              spinReverse={false}
+                              swapOpacity={false}
                               symbol={false}
                               title="Collapse all assertions"
+                              titleId={null}
                               transform={null}
                             >
                               <svg
@@ -20369,6 +20481,7 @@ ZeroDivisionError: integer division or modulo by zero
                         nav={true}
                       >
                         <Dropdown
+                          a11y={true}
                           active={false}
                           addonType={false}
                           direction="down"
@@ -20400,22 +20513,32 @@ ZeroDivisionError: integer division or modulo by zero
                                     onClick={[Function]}
                                   >
                                     <FontAwesomeIcon
+                                      beat={false}
+                                      beatFade={false}
                                       border={false}
+                                      bounce={false}
                                       className="toolbarButton_1ueb7gu"
+                                      fade={false}
                                       fixedWidth={false}
-                                      flip={null}
+                                      flip={false}
                                       icon="tasks"
                                       inverse={false}
                                       key="toolbar-details"
                                       listItem={false}
                                       mask={null}
+                                      maskId={null}
                                       pull={null}
                                       pulse={false}
                                       rotation={null}
+                                      shake={false}
                                       size={null}
                                       spin={false}
+                                      spinPulse={false}
+                                      spinReverse={false}
+                                      swapOpacity={false}
                                       symbol={false}
                                       title="Choose details"
+                                      titleId={null}
                                       transform={null}
                                     >
                                       <svg
@@ -20562,6 +20685,7 @@ ZeroDivisionError: integer division or modulo by zero
                         nav={true}
                       >
                         <Dropdown
+                          a11y={true}
                           active={false}
                           addonType={false}
                           direction="down"
@@ -20593,22 +20717,32 @@ ZeroDivisionError: integer division or modulo by zero
                                     onClick={[Function]}
                                   >
                                     <FontAwesomeIcon
+                                      beat={false}
+                                      beatFade={false}
                                       border={false}
+                                      bounce={false}
                                       className="toolbarButton_1ueb7gu"
+                                      fade={false}
                                       fixedWidth={false}
-                                      flip={null}
+                                      flip={false}
                                       icon="filter"
                                       inverse={false}
                                       key="toolbar-filter"
                                       listItem={false}
                                       mask={null}
+                                      maskId={null}
                                       pull={null}
                                       pulse={false}
                                       rotation={null}
+                                      shake={false}
                                       size={null}
                                       spin={false}
+                                      spinPulse={false}
+                                      spinReverse={false}
+                                      swapOpacity={false}
                                       symbol={false}
                                       title="Choose filter"
+                                      titleId={null}
                                       transform={null}
                                     >
                                       <svg
@@ -20873,23 +21007,33 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
+                              beat={false}
+                              beatFade={false}
                               border={false}
+                              bounce={false}
                               className="toolbarButton_1ueb7gu"
+                              fade={false}
                               fixedWidth={false}
-                              flip={null}
+                              flip={false}
                               icon="tags"
                               inverse={false}
                               key="toolbar-tags"
                               listItem={false}
                               mask={null}
+                              maskId={null}
                               onClick={[Function]}
                               pull={null}
                               pulse={false}
                               rotation={null}
+                              shake={false}
                               size={null}
                               spin={false}
+                              spinPulse={false}
+                              spinReverse={false}
+                              swapOpacity={false}
                               symbol={false}
                               title="Display tags"
+                              titleId={null}
                               transform={null}
                             >
                               <svg
@@ -20929,23 +21073,33 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
+                              beat={false}
+                              beatFade={false}
                               border={false}
+                              bounce={false}
                               className="toolbarButton_1ueb7gu"
+                              fade={false}
                               fixedWidth={false}
-                              flip={null}
+                              flip={false}
                               icon="info"
                               inverse={false}
                               key="toolbar-info"
                               listItem={false}
                               mask={null}
+                              maskId={null}
                               onClick={[Function]}
                               pull={null}
                               pulse={false}
                               rotation={null}
+                              shake={false}
                               size={null}
                               spin={false}
+                              spinPulse={false}
+                              spinReverse={false}
+                              swapOpacity={false}
                               symbol={false}
                               title="Info"
+                              titleId={null}
                               transform={null}
                             >
                               <svg
@@ -20985,23 +21139,33 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
+                              beat={false}
+                              beatFade={false}
                               border={false}
+                              bounce={false}
                               className="toolbarButton_1ueb7gu"
+                              fade={false}
                               fixedWidth={false}
-                              flip={null}
+                              flip={false}
                               icon="print"
                               inverse={false}
                               key="toolbar-print"
                               listItem={false}
                               mask={null}
+                              maskId={null}
                               onClick={[Function]}
                               pull={null}
                               pulse={false}
                               rotation={null}
+                              shake={false}
                               size={null}
                               spin={false}
+                              spinPulse={false}
+                              spinReverse={false}
+                              swapOpacity={false}
                               symbol={false}
                               title="Print page"
+                              titleId={null}
                               transform={null}
                             >
                               <svg
@@ -21044,22 +21208,32 @@ ZeroDivisionError: integer division or modulo by zero
                             target="_blank"
                           >
                             <FontAwesomeIcon
+                              beat={false}
+                              beatFade={false}
                               border={false}
+                              bounce={false}
                               className="toolbarButton_1ueb7gu"
+                              fade={false}
                               fixedWidth={false}
-                              flip={null}
+                              flip={false}
                               icon="book"
                               inverse={false}
                               key="toolbar-document"
                               listItem={false}
                               mask={null}
+                              maskId={null}
                               pull={null}
                               pulse={false}
                               rotation={null}
+                              shake={false}
                               size={null}
                               spin={false}
+                              spinPulse={false}
+                              spinReverse={false}
+                              swapOpacity={false}
                               symbol={false}
                               title="Documentation"
+                              titleId={null}
                               transform={null}
                             >
                               <svg
@@ -21106,6 +21280,7 @@ ZeroDivisionError: integer division or modulo by zero
           }
           centered={false}
           className="infoModal"
+          container="body"
           fade={true}
           isOpen={false}
           keyboard={true}
@@ -21121,6 +21296,7 @@ ZeroDivisionError: integer division or modulo by zero
           scrollable={false}
           size="lg"
           toggle={[Function]}
+          trapFocus={false}
           unmountOnClose={true}
           zIndex={1050}
         />
@@ -21189,8 +21365,8 @@ ZeroDivisionError: integer division or modulo by zero
               >
                 <WithStyles(ForwardRef(TreeView))
                   className="treeView_f54xdp"
-                  defaultCollapseIcon={<UNDEFINED />}
-                  defaultExpandIcon={<UNDEFINED />}
+                  defaultCollapseIcon={<Memo />}
+                  defaultExpandIcon={<Memo />}
                   disableSelection={true}
                   expanded={null}
                   onNodeToggle={[Function]}
@@ -21207,8 +21383,8 @@ ZeroDivisionError: integer division or modulo by zero
                         "root": "MuiTreeView-root",
                       }
                     }
-                    defaultCollapseIcon={<UNDEFINED />}
-                    defaultExpandIcon={<UNDEFINED />}
+                    defaultCollapseIcon={<Memo />}
+                    defaultExpandIcon={<Memo />}
                     disableSelection={true}
                     expanded={null}
                     onNodeToggle={[Function]}

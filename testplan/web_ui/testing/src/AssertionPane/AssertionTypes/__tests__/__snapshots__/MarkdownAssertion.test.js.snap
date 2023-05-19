@@ -2,20 +2,13 @@
 
 exports[`MarkdownAssertion shallow renders the correct HTML structure 1`] = `
 <ReactMarkdown
-  astPlugins={Array []}
-  escapeHtml={true}
-  parserOptions={Object {}}
-  plugins={Array []}
-  rawSourcePos={false}
   renderers={
     Object {
       "code": [Function],
     }
   }
-  skipHtml={false}
   source="Markdown Test [Github](https://github.com/morganstanley/testplan)
  Test"
-  sourcePos={false}
   transformLinkUri={[Function]}
 />
 `;

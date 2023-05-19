@@ -52,23 +52,33 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="bars"
               inverse={false}
               key="navigation-view"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Navigation"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -81,23 +91,33 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="angle-double-down"
               inverse={false}
               key="expand-icon"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Expand all assertions"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -110,23 +130,33 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="angle-double-up"
               inverse={false}
               key="collapse-icon"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Collapse all assertions"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -139,10 +169,14 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon={
                 Object {
                   "icon": Array [
@@ -160,14 +194,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
               key="toolbar-reload"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[MockFunction]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Reload code"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -180,10 +220,14 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon={
                 Object {
                   "icon": Array [
@@ -201,14 +245,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
               key="toolbar-reset"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[MockFunction]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Reset state"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -221,10 +271,14 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon={
                 Object {
                   "icon": Array [
@@ -242,14 +296,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
               key="toolbar-abort"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[MockFunction]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Abort Testplan"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -268,22 +328,32 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
               nav={true}
             >
               <FontAwesomeIcon
+                beat={false}
+                beatFade={false}
                 border={false}
+                bounce={false}
                 className="toolbarButton_1ueb7gu"
+                fade={false}
                 fixedWidth={false}
-                flip={null}
+                flip={false}
                 icon="tasks"
                 inverse={false}
                 key="toolbar-details"
                 listItem={false}
                 mask={null}
+                maskId={null}
                 pull={null}
                 pulse={false}
                 rotation={null}
+                shake={false}
                 size={null}
                 spin={false}
+                spinPulse={false}
+                spinReverse={false}
+                swapOpacity={false}
                 symbol={false}
                 title="Choose details"
+                titleId={null}
                 transform={null}
               />
             </DropdownToggle>
@@ -367,22 +437,32 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
               nav={true}
             >
               <FontAwesomeIcon
+                beat={false}
+                beatFade={false}
                 border={false}
+                bounce={false}
                 className="toolbarButton_1ueb7gu"
+                fade={false}
                 fixedWidth={false}
-                flip={null}
+                flip={false}
                 icon="filter"
                 inverse={false}
                 key="toolbar-filter"
                 listItem={false}
                 mask={null}
+                maskId={null}
                 pull={null}
                 pulse={false}
                 rotation={null}
+                shake={false}
                 size={null}
                 spin={false}
+                spinPulse={false}
+                spinReverse={false}
+                swapOpacity={false}
                 symbol={false}
                 title="Choose filter"
+                titleId={null}
                 transform={null}
               />
             </DropdownToggle>
@@ -525,23 +605,33 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="tags"
               inverse={false}
               key="toolbar-tags"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Display tags"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -553,23 +643,33 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="info"
               inverse={false}
               key="toolbar-info"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Info"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -581,23 +681,33 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="print"
               inverse={false}
               key="toolbar-print"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Print page"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -612,22 +722,32 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             target="_blank"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="book"
               inverse={false}
               key="toolbar-document"
               listItem={false}
               mask={null}
+              maskId={null}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Documentation"
+              titleId={null}
               transform={null}
             />
           </a>
@@ -646,6 +766,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
     }
     centered={false}
     className="infoModal"
+    container="body"
     fade={true}
     isOpen={false}
     keyboard={true}
@@ -661,6 +782,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
     scrollable={false}
     size="lg"
     toggle={[Function]}
+    trapFocus={false}
     unmountOnClose={true}
     zIndex={1050}
   >
@@ -745,23 +867,33 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="bars"
               inverse={false}
               key="navigation-view"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Navigation"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -774,23 +906,33 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="angle-double-down"
               inverse={false}
               key="expand-icon"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Expand all assertions"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -803,23 +945,33 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="angle-double-up"
               inverse={false}
               key="collapse-icon"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Collapse all assertions"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -838,22 +990,32 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
               nav={true}
             >
               <FontAwesomeIcon
+                beat={false}
+                beatFade={false}
                 border={false}
+                bounce={false}
                 className="toolbarButton_1ueb7gu"
+                fade={false}
                 fixedWidth={false}
-                flip={null}
+                flip={false}
                 icon="tasks"
                 inverse={false}
                 key="toolbar-details"
                 listItem={false}
                 mask={null}
+                maskId={null}
                 pull={null}
                 pulse={false}
                 rotation={null}
+                shake={false}
                 size={null}
                 spin={false}
+                spinPulse={false}
+                spinReverse={false}
+                swapOpacity={false}
                 symbol={false}
                 title="Choose details"
+                titleId={null}
                 transform={null}
               />
             </DropdownToggle>
@@ -937,22 +1099,32 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
               nav={true}
             >
               <FontAwesomeIcon
+                beat={false}
+                beatFade={false}
                 border={false}
+                bounce={false}
                 className="toolbarButton_1ueb7gu"
+                fade={false}
                 fixedWidth={false}
-                flip={null}
+                flip={false}
                 icon="filter"
                 inverse={false}
                 key="toolbar-filter"
                 listItem={false}
                 mask={null}
+                maskId={null}
                 pull={null}
                 pulse={false}
                 rotation={null}
+                shake={false}
                 size={null}
                 spin={false}
+                spinPulse={false}
+                spinReverse={false}
+                swapOpacity={false}
                 symbol={false}
                 title="Choose filter"
+                titleId={null}
                 transform={null}
               />
             </DropdownToggle>
@@ -1095,23 +1267,33 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="tags"
               inverse={false}
               key="toolbar-tags"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Display tags"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1123,23 +1305,33 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="info"
               inverse={false}
               key="toolbar-info"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Info"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1151,23 +1343,33 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="print"
               inverse={false}
               key="toolbar-print"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Print page"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1182,22 +1384,32 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             target="_blank"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="book"
               inverse={false}
               key="toolbar-document"
               listItem={false}
               mask={null}
+              maskId={null}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Documentation"
+              titleId={null}
               transform={null}
             />
           </a>
@@ -1216,6 +1428,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
     }
     centered={false}
     className="infoModal"
+    container="body"
     fade={true}
     isOpen={false}
     keyboard={true}
@@ -1231,6 +1444,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
     scrollable={false}
     size="lg"
     toggle={[Function]}
+    trapFocus={false}
     unmountOnClose={true}
     zIndex={1050}
   >
@@ -1315,23 +1529,33 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="bars"
               inverse={false}
               key="navigation-view"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Navigation"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1344,23 +1568,33 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="angle-double-down"
               inverse={false}
               key="expand-icon"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Expand all assertions"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1373,23 +1607,33 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="angle-double-up"
               inverse={false}
               key="collapse-icon"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Collapse all assertions"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1408,22 +1652,32 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
               nav={true}
             >
               <FontAwesomeIcon
+                beat={false}
+                beatFade={false}
                 border={false}
+                bounce={false}
                 className="toolbarButton_1ueb7gu"
+                fade={false}
                 fixedWidth={false}
-                flip={null}
+                flip={false}
                 icon="tasks"
                 inverse={false}
                 key="toolbar-details"
                 listItem={false}
                 mask={null}
+                maskId={null}
                 pull={null}
                 pulse={false}
                 rotation={null}
+                shake={false}
                 size={null}
                 spin={false}
+                spinPulse={false}
+                spinReverse={false}
+                swapOpacity={false}
                 symbol={false}
                 title="Choose details"
+                titleId={null}
                 transform={null}
               />
             </DropdownToggle>
@@ -1507,22 +1761,32 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
               nav={true}
             >
               <FontAwesomeIcon
+                beat={false}
+                beatFade={false}
                 border={false}
+                bounce={false}
                 className="toolbarButton_1ueb7gu"
+                fade={false}
                 fixedWidth={false}
-                flip={null}
+                flip={false}
                 icon="filter"
                 inverse={false}
                 key="toolbar-filter"
                 listItem={false}
                 mask={null}
+                maskId={null}
                 pull={null}
                 pulse={false}
                 rotation={null}
+                shake={false}
                 size={null}
                 spin={false}
+                spinPulse={false}
+                spinReverse={false}
+                swapOpacity={false}
                 symbol={false}
                 title="Choose filter"
+                titleId={null}
                 transform={null}
               />
             </DropdownToggle>
@@ -1665,23 +1929,33 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="tags"
               inverse={false}
               key="toolbar-tags"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Display tags"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1693,23 +1967,33 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="info"
               inverse={false}
               key="toolbar-info"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Info"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1721,23 +2005,33 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="print"
               inverse={false}
               key="toolbar-print"
               listItem={false}
               mask={null}
+              maskId={null}
               onClick={[Function]}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Print page"
+              titleId={null}
               transform={null}
             />
           </div>
@@ -1752,22 +2046,32 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             target="_blank"
           >
             <FontAwesomeIcon
+              beat={false}
+              beatFade={false}
               border={false}
+              bounce={false}
               className="toolbarButton_1ueb7gu"
+              fade={false}
               fixedWidth={false}
-              flip={null}
+              flip={false}
               icon="book"
               inverse={false}
               key="toolbar-document"
               listItem={false}
               mask={null}
+              maskId={null}
               pull={null}
               pulse={false}
               rotation={null}
+              shake={false}
               size={null}
               spin={false}
+              spinPulse={false}
+              spinReverse={false}
+              swapOpacity={false}
               symbol={false}
               title="Documentation"
+              titleId={null}
               transform={null}
             />
           </a>
@@ -1786,6 +2090,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     }
     centered={false}
     className="infoModal"
+    container="body"
     fade={true}
     isOpen={false}
     keyboard={true}
@@ -1801,6 +2106,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     scrollable={false}
     size="lg"
     toggle={[Function]}
+    trapFocus={false}
     unmountOnClose={true}
     zIndex={1050}
   >

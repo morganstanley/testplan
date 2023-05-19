@@ -4,6 +4,276 @@ exports[`CodeLogAssertion shallow renders the correct HTML structure 1`] = `
 <SyntaxHighlighter
   language="c"
   showLineNumbers={true}
+  style={
+    Object {
+      ".language-css .token.string": Object {
+        "background": "rgba(255, 255, 255, 0.5)",
+        "color": "#a67f59",
+      },
+      ".namespace": Object {
+        "Opacity": ".7",
+      },
+      ".style .token.string": Object {
+        "background": "rgba(255, 255, 255, 0.5)",
+        "color": "#a67f59",
+      },
+      ":not(pre) > code[class*=\\"language-\\"]": Object {
+        "MozBoxSizing": "border-box",
+        "WebkitBoxSizing": "border-box",
+        "backgroundColor": "#fdfdfd",
+        "border": "1px solid rgba(0, 0, 0, 0.1)",
+        "borderRadius": "0.3em",
+        "boxSizing": "border-box",
+        "color": "#c92c2c",
+        "display": "inline",
+        "marginBottom": "1em",
+        "padding": ".2em",
+        "position": "relative",
+        "whiteSpace": "normal",
+      },
+      ":not(pre) > code[class*=\\"language-\\"]:after": Object {
+        "MozTransform": "rotate(2deg)",
+        "OTransform": "rotate(2deg)",
+        "WebkitTransform": "rotate(2deg)",
+        "left": "auto",
+        "msTransform": "rotate(2deg)",
+        "right": "0.75em",
+        "transform": "rotate(2deg)",
+      },
+      "atrule": Object {
+        "color": "#1990b8",
+      },
+      "attr-name": Object {
+        "color": "#2f9c0a",
+      },
+      "attr-value": Object {
+        "color": "#1990b8",
+      },
+      "block-comment": Object {
+        "color": "#7D8B99",
+      },
+      "bold": Object {
+        "fontWeight": "bold",
+      },
+      "boolean": Object {
+        "color": "#c92c2c",
+      },
+      "builtin": Object {
+        "color": "#2f9c0a",
+      },
+      "cdata": Object {
+        "color": "#7D8B99",
+      },
+      "char": Object {
+        "color": "#2f9c0a",
+      },
+      "class-name": Object {
+        "color": "#1990b8",
+      },
+      "code[class*=\\"language\\"]": Object {
+        "display": "block",
+        "height": "inherit",
+        "maxHeight": "inherit",
+        "overflow": "auto",
+        "padding": "0 1em",
+      },
+      "code[class*=\\"language-\\"]": Object {
+        "MozHyphens": "none",
+        "MozTabSize": "4",
+        "OTabSize": "4",
+        "WebkitHyphens": "none",
+        "background": "none",
+        "color": "black",
+        "fontFamily": "Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace",
+        "hyphens": "none",
+        "lineHeight": "1.5",
+        "msHyphens": "none",
+        "tabSize": "4",
+        "textAlign": "left",
+        "whiteSpace": "pre",
+        "wordBreak": "normal",
+        "wordSpacing": "normal",
+        "wordWrap": "normal",
+      },
+      "comment": Object {
+        "color": "#7D8B99",
+      },
+      "constant": Object {
+        "color": "#c92c2c",
+      },
+      "cr:before": Object {
+        "color": "#e0d7d1",
+      },
+      "deleted": Object {
+        "color": "#c92c2c",
+      },
+      "doctype": Object {
+        "color": "#7D8B99",
+      },
+      "entity": Object {
+        "background": "rgba(255, 255, 255, 0.5)",
+        "color": "#a67f59",
+        "cursor": "help",
+      },
+      "function": Object {
+        "color": "#2f9c0a",
+      },
+      "function-name": Object {
+        "color": "#c92c2c",
+      },
+      "important": Object {
+        "color": "#e90",
+        "fontWeight": "normal",
+      },
+      "inserted": Object {
+        "color": "#2f9c0a",
+      },
+      "italic": Object {
+        "fontStyle": "italic",
+      },
+      "keyword": Object {
+        "color": "#1990b8",
+      },
+      "lf:before": Object {
+        "color": "#e0d7d1",
+      },
+      "number": Object {
+        "color": "#c92c2c",
+      },
+      "operator": Object {
+        "background": "rgba(255, 255, 255, 0.5)",
+        "color": "#a67f59",
+      },
+      "pre .line-highlight": Object {
+        "marginTop": "0",
+      },
+      "pre[class*=\\"language-\\"]": Object {
+        "MozBoxSizing": "border-box",
+        "MozHyphens": "none",
+        "MozTabSize": "4",
+        "OTabSize": "4",
+        "WebkitBoxSizing": "border-box",
+        "WebkitHyphens": "none",
+        "background": "none",
+        "backgroundColor": "#fdfdfd",
+        "boxSizing": "border-box",
+        "color": "black",
+        "fontFamily": "Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace",
+        "hyphens": "none",
+        "lineHeight": "1.5",
+        "margin": ".5em 0",
+        "marginBottom": "1em",
+        "msHyphens": "none",
+        "overflow": "visible",
+        "padding": "0",
+        "position": "relative",
+        "tabSize": "4",
+        "textAlign": "left",
+        "whiteSpace": "pre",
+        "wordBreak": "normal",
+        "wordSpacing": "normal",
+        "wordWrap": "normal",
+      },
+      "pre[class*=\\"language-\\"].line-numbers.line-numbers": Object {
+        "paddingLeft": "0",
+      },
+      "pre[class*=\\"language-\\"].line-numbers.line-numbers .line-numbers-rows": Object {
+        "left": "0",
+      },
+      "pre[class*=\\"language-\\"].line-numbers.line-numbers code": Object {
+        "paddingLeft": "3.8em",
+      },
+      "pre[class*=\\"language-\\"]:after": Object {
+        "MozTransform": "rotate(2deg)",
+        "OTransform": "rotate(2deg)",
+        "WebkitTransform": "rotate(2deg)",
+        "bottom": "0.75em",
+        "boxShadow": "0px 13px 8px #979797",
+        "content": "''",
+        "display": "block",
+        "height": "20%",
+        "left": "auto",
+        "maxHeight": "13em",
+        "msTransform": "rotate(2deg)",
+        "position": "absolute",
+        "right": "0.75em",
+        "transform": "rotate(2deg)",
+        "width": "40%",
+        "zIndex": "-2",
+      },
+      "pre[class*=\\"language-\\"]:before": Object {
+        "MozTransform": "rotate(-2deg)",
+        "OTransform": "rotate(-2deg)",
+        "WebkitTransform": "rotate(-2deg)",
+        "bottom": "0.75em",
+        "boxShadow": "0px 13px 8px #979797",
+        "content": "''",
+        "display": "block",
+        "height": "20%",
+        "left": "0.18em",
+        "maxHeight": "13em",
+        "msTransform": "rotate(-2deg)",
+        "position": "absolute",
+        "transform": "rotate(-2deg)",
+        "width": "40%",
+        "zIndex": "-2",
+      },
+      "pre[class*=\\"language-\\"]>code": Object {
+        "backgroundAttachment": "local",
+        "backgroundColor": "#fdfdfd",
+        "backgroundImage": "linear-gradient(transparent 50%, rgba(69, 142, 209, 0.04) 50%)",
+        "backgroundOrigin": "content-box",
+        "backgroundSize": "3em 3em",
+        "borderLeft": "10px solid #358ccb",
+        "boxShadow": "-1px 0px 0px 0px #358ccb, 0px 0px 0px 1px #dfdfdf",
+        "position": "relative",
+      },
+      "pre[class*=\\"language-\\"][data-line]": Object {
+        "paddingBottom": "0",
+        "paddingLeft": "0",
+        "paddingTop": "0",
+      },
+      "pre[data-line] code": Object {
+        "paddingLeft": "4em",
+        "position": "relative",
+      },
+      "prolog": Object {
+        "color": "#7D8B99",
+      },
+      "property": Object {
+        "color": "#c92c2c",
+      },
+      "punctuation": Object {
+        "color": "#5F6364",
+      },
+      "regex": Object {
+        "color": "#e90",
+      },
+      "selector": Object {
+        "color": "#2f9c0a",
+      },
+      "string": Object {
+        "color": "#2f9c0a",
+      },
+      "symbol": Object {
+        "color": "#c92c2c",
+      },
+      "tab:not(:empty):before": Object {
+        "color": "#e0d7d1",
+      },
+      "tag": Object {
+        "color": "#c92c2c",
+      },
+      "url": Object {
+        "background": "rgba(255, 255, 255, 0.5)",
+        "color": "#a67f59",
+      },
+      "variable": Object {
+        "background": "rgba(255, 255, 255, 0.5)",
+        "color": "#a67f59",
+      },
+    }
+  }
 >
   #include &lt;stdio.h&gt;
 int main()

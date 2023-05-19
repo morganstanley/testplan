@@ -30,8 +30,8 @@ exports[`TextAttachment renders text returned from the backend 1`] = `
 <WithStyles(ForwardRef(Card))>
   <AttachmentAssertionCardHeader
     extra_action_items={
-      <ForwardRef(WithStyles)
-        endIcon={<UNDEFINED />}
+      <WithStyles(ForwardRef(Button))
+        endIcon={<Memo />}
         onClick={[Function]}
         size="large"
         style={
@@ -41,7 +41,7 @@ exports[`TextAttachment renders text returned from the backend 1`] = `
         }
       >
         Expand
-      </ForwardRef(WithStyles)>
+      </WithStyles(ForwardRef(Button))>
     }
     file_name="attachment.txt"
     src="/var/tmp/attachment.txt"

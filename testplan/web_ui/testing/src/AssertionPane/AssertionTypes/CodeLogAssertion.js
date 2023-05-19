@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { coy } from "react-syntax-highlighter/dist/cjs/styles/prism/coy";
+import coy from "react-syntax-highlighter/dist/cjs/styles/prism/coy";
 
 export default function CodeLogAssertion(props) {
   return (

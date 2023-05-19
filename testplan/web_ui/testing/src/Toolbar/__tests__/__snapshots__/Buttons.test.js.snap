@@ -8,10 +8,14 @@ exports[`TimeButton Renders a clickable button 1`] = `
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className="toolbarButton_1ueb7gu"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -29,14 +33,20 @@ exports[`TimeButton Renders a clickable button 1`] = `
       key="toolbar-time"
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Display time information"
+      titleId={null}
       transform={null}
     />
   </div>
