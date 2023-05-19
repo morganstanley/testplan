@@ -1,1 +1,0 @@
-Fix a bug that certain configuration object cannot be serialized and makes remote execution fail.

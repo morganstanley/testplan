@@ -1,1 +1,0 @@
-Introduced a new command line argument ``--xfail-tests`` to allow users mark testcase as xfail dynamically. This argument accepts a JSON file containing names of testcases to mark as xfail (exact match) and their corresponding reasons and xfail strictness.
