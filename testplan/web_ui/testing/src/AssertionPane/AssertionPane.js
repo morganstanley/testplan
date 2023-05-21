@@ -47,6 +47,7 @@ class AssertionPane extends Component {
     let assertionPaneStyle = {
       paddingLeft: "20px",
       flex: "1",
+      overflowY: "auto",
     };
 
     if (
