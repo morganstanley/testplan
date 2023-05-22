@@ -31,22 +31,32 @@ exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
     tag="button"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className=""
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon="sort-amount-down"
       inverse={false}
       key="faSortAmountDown"
       listItem={false}
       mask={null}
+      maskId={null}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size="sm"
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title=""
+      titleId={null}
       transform={null}
     />
   </Button>
@@ -60,22 +70,32 @@ exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
     tag="button"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className=""
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon="sort-amount-up"
       inverse={false}
       key="faSortAmountUp"
       listItem={false}
       mask={null}
+      maskId={null}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size="sm"
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title=""
+      titleId={null}
       transform={null}
     />
   </Button>

@@ -10,7 +10,6 @@ Array [
     tag={
       Object {
         "$$typeof": Symbol(react.forward_ref),
-        "displayName": "NavLink",
         "propTypes": Object {
           "activeClassName": [Function],
           "activeStyle": [Function],
@@ -41,7 +40,6 @@ Array [
     tag={
       Object {
         "$$typeof": Symbol(react.forward_ref),
-        "displayName": "NavLink",
         "propTypes": Object {
           "activeClassName": [Function],
           "activeStyle": [Function],

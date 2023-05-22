@@ -5,7 +5,7 @@ exports[`AttachedDirAssertion renders an attached directory 1`] = `
   <WithStyles(WithStyles(ForwardRef(Accordion)))>
     <WithStyles(WithStyles(ForwardRef(AccordionSummary)))
       aria-controls="panel-content"
-      expandIcon={<UNDEFINED />}
+      expandIcon={<Memo />}
       id="panel-header"
     >
       <WithStyles(ForwardRef(Typography))>
