@@ -52,6 +52,7 @@ exports[`TextAttachment renders text returned from the backend 1`] = `
     <SyntaxHighlighter
       className={null}
       language="text"
+      showInlineLineNumbers={false}
       showLineNumbers={true}
       startingLineNumber={34}
     >
