@@ -129,7 +129,7 @@ TEST_SUITE_MODULES = [
                 "category": "DEFAULT",
                 "description": "Save a message into report",
                 "passed": False,
-                "message": "None",
+                "message": "Save a message into report",
                 "flag": "DEFAULT",
             },
             {

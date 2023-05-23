@@ -1610,10 +1610,10 @@ class Result:
     @assertion
     def fail(
         self,
-        description: str,
-        message: str = None,
-        category: str = None,
-        flag: bool = None,
+        message: str,
+        description: Optional[str] = None,
+        flag: Optional[str] = None,
+        category: Optional[str] = None,
     ) -> assertions.Fail:
         """
         Failure assertion, can be used for explicitly failing a testcase.

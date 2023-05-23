@@ -2,8 +2,501 @@
 
 exports[`CodeLogAssertion shallow renders the correct HTML structure 1`] = `
 <SyntaxHighlighter
+  customStyle={Object {}}
   language="c"
+  showInlineLineNumbers={false}
   showLineNumbers={true}
+  style={
+    Object {
+      ".command-line .command-line-prompt": Object {
+        "borderRightColor": "hsla(230, 8%, 24%, 0.2)",
+      },
+      ".command-line .command-line-prompt > span:before": Object {
+        "color": "hsl(230, 1%, 62%)",
+      },
+      ".language-css .token.atrule .token.rule": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      ".language-css .token.function": Object {
+        "color": "hsl(198, 99%, 37%)",
+      },
+      ".language-css .token.important": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      ".language-css .token.property": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      ".language-css .token.selector": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ".language-css .token.url > .token.function": Object {
+        "color": "hsl(198, 99%, 37%)",
+      },
+      ".language-css .token.url > .token.string.url": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      ".language-javascript .token.operator": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      ".language-javascript .token.template-string > .token.interpolation > .token.interpolation-punctuation.punctuation": Object {
+        "color": "hsl(344, 84%, 43%)",
+      },
+      ".language-json .token.null.keyword": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      ".language-json .token.operator": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      ".language-markdown .token.blockquote.punctuation": Object {
+        "color": "hsl(230, 4%, 64%)",
+        "fontStyle": "italic",
+      },
+      ".language-markdown .token.bold .token.content": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      ".language-markdown .token.code-snippet": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      ".language-markdown .token.hr.punctuation": Object {
+        "color": "hsl(230, 4%, 64%)",
+        "fontStyle": "italic",
+      },
+      ".language-markdown .token.italic .token.content": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      ".language-markdown .token.list.punctuation": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ".language-markdown .token.strike .token.content": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ".language-markdown .token.strike .token.punctuation": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ".language-markdown .token.title.important > .token.punctuation": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ".language-markdown .token.url": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      ".language-markdown .token.url > .token.content": Object {
+        "color": "hsl(221, 87%, 60%)",
+      },
+      ".language-markdown .token.url > .token.operator": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      ".language-markdown .token.url > .token.url": Object {
+        "color": "hsl(198, 99%, 37%)",
+      },
+      ".language-markdown .token.url-reference.url": Object {
+        "color": "hsl(198, 99%, 37%)",
+      },
+      ".language-markdown .token.url-reference.url > .token.string": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      ".line-highlight.line-highlight": Object {
+        "background": "hsla(230, 8%, 24%, 0.05)",
+      },
+      ".line-highlight.line-highlight:before": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "borderRadius": "0.3em",
+        "boxShadow": "0 2px 0 0 rgba(0, 0, 0, 0.2)",
+        "color": "hsl(230, 8%, 24%)",
+        "padding": "0.1em 0.6em",
+      },
+      ".line-highlight.line-highlight[data-end]:after": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "borderRadius": "0.3em",
+        "boxShadow": "0 2px 0 0 rgba(0, 0, 0, 0.2)",
+        "color": "hsl(230, 8%, 24%)",
+        "padding": "0.1em 0.6em",
+      },
+      ".line-numbers .line-numbers-rows > span:before": Object {
+        "color": "hsl(230, 1%, 62%)",
+      },
+      ".line-numbers.line-numbers .line-numbers-rows": Object {
+        "borderRightColor": "hsla(230, 8%, 24%, 0.2)",
+      },
+      ".prism-previewer-angle.prism-previewer-angle circle": Object {
+        "stroke": "hsl(230, 8%, 24%)",
+        "strokeOpacity": "1",
+      },
+      ".prism-previewer-angle.prism-previewer-angle:before": Object {
+        "background": "hsl(0, 0%, 100%)",
+      },
+      ".prism-previewer-color.prism-previewer-color:before": Object {
+        "borderRadius": "0.3em",
+      },
+      ".prism-previewer-easing.prism-previewer-easing": Object {
+        "background": "hsl(0, 0%, 100%)",
+      },
+      ".prism-previewer-easing.prism-previewer-easing circle": Object {
+        "fill": "transparent",
+        "stroke": "hsl(230, 8%, 24%)",
+      },
+      ".prism-previewer-easing.prism-previewer-easing line": Object {
+        "stroke": "hsl(230, 8%, 24%)",
+      },
+      ".prism-previewer-easing.prism-previewer-easing path": Object {
+        "stroke": "hsl(230, 8%, 24%)",
+      },
+      ".prism-previewer-easing.prism-previewer-easing:before": Object {
+        "borderRadius": "0.3em",
+      },
+      ".prism-previewer-flipped.prism-previewer-flipped.after": Object {
+        "borderBottomColor": "hsl(0, 0, 95%)",
+      },
+      ".prism-previewer-gradient.prism-previewer-gradient div": Object {
+        "borderColor": "hsl(0, 0, 95%)",
+        "borderRadius": "0.3em",
+      },
+      ".prism-previewer-time.prism-previewer-time circle": Object {
+        "stroke": "hsl(230, 8%, 24%)",
+        "strokeOpacity": "1",
+      },
+      ".prism-previewer-time.prism-previewer-time:before": Object {
+        "background": "hsl(0, 0%, 100%)",
+      },
+      ".prism-previewer.prism-previewer:after": Object {
+        "borderTopColor": "hsl(0, 0, 95%)",
+      },
+      ".prism-previewer.prism-previewer:before": Object {
+        "borderColor": "hsl(0, 0, 95%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-1": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-10": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-11": Object {
+        "color": "hsl(221, 87%, 60%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-12": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-2": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-3": Object {
+        "color": "hsl(221, 87%, 60%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-4": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-5": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-6": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-7": Object {
+        "color": "hsl(221, 87%, 60%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-8": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      ".rainbow-braces .token.token.punctuation.brace-level-9": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      ":not(pre) > code[class*=\\"language-\\"]": Object {
+        "borderRadius": "0.3em",
+        "padding": "0.2em 0.3em",
+        "whiteSpace": "normal",
+      },
+      "atrule": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      "attr-name": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      "attr-value": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "attr-value > .token.punctuation": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "attr-value > .token.punctuation.attr-equals": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "bold": Object {
+        "fontWeight": "bold",
+      },
+      "boolean": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      "builtin": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "cdata": Object {
+        "color": "hsl(230, 4%, 64%)",
+      },
+      "char": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "class-name": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      "code[class*=\\"language-\\"]": Object {
+        "MozHyphens": "none",
+        "MozTabSize": "2",
+        "OTabSize": "2",
+        "WebkitHyphens": "none",
+        "background": "hsl(230, 1%, 98%)",
+        "color": "hsl(230, 8%, 24%)",
+        "direction": "ltr",
+        "fontFamily": "\\"Fira Code\\", \\"Fira Mono\\", Menlo, Consolas, \\"DejaVu Sans Mono\\", monospace",
+        "hyphens": "none",
+        "lineHeight": "1.5",
+        "msHyphens": "none",
+        "tabSize": "2",
+        "textAlign": "left",
+        "whiteSpace": "pre",
+        "wordBreak": "normal",
+        "wordSpacing": "normal",
+      },
+      "code[class*=\\"language-\\"] *::-moz-selection": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "color": "inherit",
+      },
+      "code[class*=\\"language-\\"] *::selection": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "color": "inherit",
+      },
+      "code[class*=\\"language-\\"]::-moz-selection": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "color": "inherit",
+      },
+      "code[class*=\\"language-\\"]::selection": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "color": "inherit",
+      },
+      "comment": Object {
+        "color": "hsl(230, 4%, 64%)",
+        "fontStyle": "italic",
+      },
+      "constant": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      "deleted": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item": Object {
+        "marginRight": "0.4em",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > a": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "borderRadius": "0.3em",
+        "color": "hsl(230, 6%, 44%)",
+        "padding": "0.1em 0.4em",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:focus": Object {
+        "background": "hsl(230, 1%, 78%)",
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:hover": Object {
+        "background": "hsl(230, 1%, 78%)",
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > button": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "borderRadius": "0.3em",
+        "color": "hsl(230, 6%, 44%)",
+        "padding": "0.1em 0.4em",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:focus": Object {
+        "background": "hsl(230, 1%, 78%)",
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:hover": Object {
+        "background": "hsl(230, 1%, 78%)",
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > span": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "borderRadius": "0.3em",
+        "color": "hsl(230, 6%, 44%)",
+        "padding": "0.1em 0.4em",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:focus": Object {
+        "background": "hsl(230, 1%, 78%)",
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:hover": Object {
+        "background": "hsl(230, 1%, 78%)",
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "doctype": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "entity": Object {
+        "color": "hsl(230, 8%, 24%)",
+        "cursor": "help",
+      },
+      "function": Object {
+        "color": "hsl(221, 87%, 60%)",
+      },
+      "important": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      "inserted": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "italic": Object {
+        "fontStyle": "italic",
+      },
+      "keyword": Object {
+        "color": "hsl(301, 63%, 40%)",
+      },
+      "namespace": Object {
+        "Opacity": "0.8",
+      },
+      "number": Object {
+        "color": "hsl(35, 99%, 36%)",
+      },
+      "operator": Object {
+        "color": "hsl(221, 87%, 60%)",
+      },
+      "pre > code.diff-highlight .token.token.deleted:not(.prefix)": Object {
+        "backgroundColor": "hsla(353, 100%, 66%, 0.15)",
+      },
+      "pre > code.diff-highlight .token.token.deleted:not(.prefix) *::-moz-selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre > code.diff-highlight .token.token.deleted:not(.prefix) *::selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre > code.diff-highlight .token.token.deleted:not(.prefix)::-moz-selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre > code.diff-highlight .token.token.deleted:not(.prefix)::selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre > code.diff-highlight .token.token.inserted:not(.prefix)": Object {
+        "backgroundColor": "hsla(137, 100%, 55%, 0.15)",
+      },
+      "pre > code.diff-highlight .token.token.inserted:not(.prefix) *::-moz-selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre > code.diff-highlight .token.token.inserted:not(.prefix) *::selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre > code.diff-highlight .token.token.inserted:not(.prefix)::-moz-selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre > code.diff-highlight .token.token.inserted:not(.prefix)::selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.deleted:not(.prefix)": Object {
+        "backgroundColor": "hsla(353, 100%, 66%, 0.15)",
+      },
+      "pre.diff-highlight > code .token.token.deleted:not(.prefix) *::-moz-selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.deleted:not(.prefix) *::selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.deleted:not(.prefix)::-moz-selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.deleted:not(.prefix)::selection": Object {
+        "backgroundColor": "hsla(353, 95%, 66%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.inserted:not(.prefix)": Object {
+        "backgroundColor": "hsla(137, 100%, 55%, 0.15)",
+      },
+      "pre.diff-highlight > code .token.token.inserted:not(.prefix) *::-moz-selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.inserted:not(.prefix) *::selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.inserted:not(.prefix)::-moz-selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre.diff-highlight > code .token.token.inserted:not(.prefix)::selection": Object {
+        "backgroundColor": "hsla(135, 73%, 55%, 0.25)",
+      },
+      "pre[class*=\\"language-\\"]": Object {
+        "MozHyphens": "none",
+        "MozTabSize": "2",
+        "OTabSize": "2",
+        "WebkitHyphens": "none",
+        "background": "hsl(230, 1%, 98%)",
+        "borderRadius": "0.3em",
+        "color": "hsl(230, 8%, 24%)",
+        "direction": "ltr",
+        "fontFamily": "\\"Fira Code\\", \\"Fira Mono\\", Menlo, Consolas, \\"DejaVu Sans Mono\\", monospace",
+        "hyphens": "none",
+        "lineHeight": "1.5",
+        "margin": "0.5em 0",
+        "msHyphens": "none",
+        "overflow": "auto",
+        "padding": "1em",
+        "tabSize": "2",
+        "textAlign": "left",
+        "whiteSpace": "pre",
+        "wordBreak": "normal",
+        "wordSpacing": "normal",
+      },
+      "pre[class*=\\"language-\\"] *::-moz-selection": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "color": "inherit",
+      },
+      "pre[class*=\\"language-\\"] *::selection": Object {
+        "background": "hsl(230, 1%, 90%)",
+        "color": "inherit",
+      },
+      "pre[id].linkable-line-numbers.linkable-line-numbers span.line-numbers-rows > span:hover:before": Object {
+        "backgroundColor": "hsla(230, 8%, 24%, 0.05)",
+      },
+      "prolog": Object {
+        "color": "hsl(230, 4%, 64%)",
+      },
+      "property": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      "punctuation": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "regex": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "selector": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "special-attr > .token.attr-value > .token.value.css": Object {
+        "color": "hsl(230, 8%, 24%)",
+      },
+      "string": Object {
+        "color": "hsl(119, 34%, 47%)",
+      },
+      "symbol": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      "tag": Object {
+        "color": "hsl(5, 74%, 59%)",
+      },
+      "token.cr:before": Object {
+        "color": "hsla(230, 8%, 24%, 0.2)",
+      },
+      "token.lf:before": Object {
+        "color": "hsla(230, 8%, 24%, 0.2)",
+      },
+      "token.space:before": Object {
+        "color": "hsla(230, 8%, 24%, 0.2)",
+      },
+      "token.tab:not(:empty):before": Object {
+        "color": "hsla(230, 8%, 24%, 0.2)",
+      },
+      "url": Object {
+        "color": "hsl(198, 99%, 37%)",
+      },
+      "variable": Object {
+        "color": "hsl(221, 87%, 60%)",
+      },
+    }
+  }
 >
   #include &lt;stdio.h&gt;
 int main()

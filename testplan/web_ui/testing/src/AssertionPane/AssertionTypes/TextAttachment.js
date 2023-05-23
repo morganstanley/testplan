@@ -133,6 +133,7 @@ function TextAttachment(props) {
         <CardContent className={css(styles.cardContent)}>
           <SyntaxHighlighter
             showLineNumbers
+            showInlineLineNumbers={false}
             startingLineNumber={fromPosition[0] + lineoffset}
             language="text"
             className={expanded ? css(styles.scrollable) : null}

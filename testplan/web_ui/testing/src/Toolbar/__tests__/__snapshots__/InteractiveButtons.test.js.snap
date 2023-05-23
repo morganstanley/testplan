@@ -9,10 +9,14 @@ exports[`AbortButton Renders a clickable button 1`] = `
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className="toolbarButton_1ueb7gu"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -30,14 +34,20 @@ exports[`AbortButton Renders a clickable button 1`] = `
       key="toolbar-abort"
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[MockFunction]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Abort Testplan"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -53,10 +63,14 @@ exports[`AbortButton Renders a spinning icon when abortion is in-progress 1`] = 
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -74,13 +88,19 @@ exports[`AbortButton Renders a spinning icon when abortion is in-progress 1`] = 
       key="toolbar-abort"
       listItem={false}
       mask={null}
+      maskId={null}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Aborting..."
+      titleId={null}
       transform={null}
     />
   </div>
@@ -96,10 +116,14 @@ exports[`ReloadButton Renders a clickable button 1`] = `
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className="toolbarButton_1ueb7gu"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -117,14 +141,20 @@ exports[`ReloadButton Renders a clickable button 1`] = `
       key="toolbar-reload"
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[MockFunction]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Reload code"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -140,10 +170,14 @@ exports[`ReloadButton Renders a spinning icon when reload is in-progress 1`] = `
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -161,13 +195,19 @@ exports[`ReloadButton Renders a spinning icon when reload is in-progress 1`] = `
       key="toolbar-reload"
       listItem={false}
       mask={null}
+      maskId={null}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={true}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Reloading..."
+      titleId={null}
       transform={null}
     />
   </div>
@@ -183,10 +223,14 @@ exports[`ResetButton Renders a clickable button 1`] = `
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className="toolbarButton_1ueb7gu"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -204,14 +248,20 @@ exports[`ResetButton Renders a clickable button 1`] = `
       key="toolbar-reset"
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[MockFunction]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Reset state"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -227,10 +277,14 @@ exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
+      bounce={false}
       className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -248,13 +302,19 @@ exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
       key="toolbar-reset"
       listItem={false}
       mask={null}
+      maskId={null}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Resetting..."
+      titleId={null}
       transform={null}
     />
   </div>

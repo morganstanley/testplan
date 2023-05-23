@@ -5,6 +5,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
   style={
     Object {
       "flex": "1",
+      "overflowY": "auto",
       "paddingLeft": "20px",
     }
   }
