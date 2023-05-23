@@ -57,166 +57,271 @@ library.add(
   faAngleDown
 );
 
-/**
- * Toolbar component, contains the toolbar buttons & Filter box.
- */
-
-const Toolbar = function (props) {
+const ToolbarTreeViewButton = ({ updateTreeViewFunc }) => {
   const [treeView, setTreeview] = useState(true);
-  const [displayTime, setDisplayTime] = useState(false);
-  const [displayPath, setDisplayPath] = useState(false);
-  const [infoModal, seteInfoModal] = useState(false);
-  const [filter, setFilter] = useState("all");
-  const [displayEmpty, setDisplayEmpty] = useState(true);
-  const [displayTags, setDisplayTags] = useState(false);
 
   const toggleTreeView = () => {
-    props.updateTreeViewFunc(!treeView);
+    updateTreeViewFunc(!treeView);
     setTreeview(!treeView);
   };
 
+  return (
+    <NavItem>
+      <div className={css(styles.buttonsBar)}>
+        <FontAwesomeIcon
+          key="navigation-view"
+          className={css(styles.toolbarButton)}
+          icon="bars"
+          title="Navigation"
+          onClick={toggleTreeView}
+        />
+      </div>
+    </NavItem>
+  );
+};
+
+const ToolbarExpandButtons = ({
+  expandStatus,
+  updateExpandStatusFunc,
+  status,
+}) => {
+  const toggleExpand = () => {
+    if (expandStatus === EXPAND_STATUS.EXPAND) {
+      updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
+    } else {
+      updateExpandStatusFunc(EXPAND_STATUS.EXPAND);
+    }
+  };
+
+  const toggleCollapse = () => {
+    if (expandStatus === EXPAND_STATUS.COLLAPSE) {
+      updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
+    } else {
+      updateExpandStatusFunc(EXPAND_STATUS.COLLAPSE);
+    }
+  };
+
+  return (
+    <>
+      <NavItem key="expand-icon-item">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key="expand-icon"
+            className={
+              expandStatus === EXPAND_STATUS.EXPAND
+                ? getToggledButtonStyle(status)
+                : css(styles.toolbarButton)
+            }
+            icon="angle-double-down"
+            onClick={toggleExpand}
+            title="Expand all assertions"
+          />
+        </div>
+      </NavItem>
+      <NavItem key="collapse-icon-item">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key="collapse-icon"
+            className={
+              expandStatus === EXPAND_STATUS.COLLAPSE
+                ? getToggledButtonStyle(status)
+                : css(styles.toolbarButton)
+            }
+            icon="angle-double-up"
+            onClick={toggleCollapse}
+            title="Collapse all assertions"
+          />
+        </div>
+      </NavItem>
+    </>
+  );
+};
+
+const ToolbarDetailsButton = ({
+  toolbarStyle,
+  updatePathDisplayFunc,
+  updateTimeDisplayFunc,
+}) => {
+  const [displayTime, setDisplayTime] = useState(false);
+  const [displayPath, setDisplayPath] = useState(false);
+
   const togglePathDisplay = () => {
-    props.updatePathDisplayFunc(!displayPath);
+    updatePathDisplayFunc(!displayPath);
     setDisplayPath(!displayPath);
   };
 
   const toggleTimeDisplay = () => {
-    props.updateTimeDisplayFunc(!displayTime);
+    updateTimeDisplayFunc(!displayTime);
     setDisplayTime(!displayTime);
   };
+
+  return (
+    <UncontrolledDropdown nav inNavbar>
+      <div className={css(styles.buttonsBar)}>
+        <DropdownToggle nav className={toolbarStyle}>
+          <FontAwesomeIcon
+            key="toolbar-details"
+            icon="tasks"
+            title="Choose details"
+            className={css(styles.toolbarButton)}
+          />
+        </DropdownToggle>
+      </div>
+      <DropdownMenu className={css(styles.dropdown)}>
+        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+          <Label check className={css(styles.filterLabel)}>
+            <Input
+              type="checkbox"
+              name="filter"
+              value="time"
+              onChange={toggleTimeDisplay}
+            />{" "}
+            Time Information
+          </Label>
+        </DropdownItem>
+        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+          <Label check className={css(styles.filterLabel)}>
+            <Input
+              type="checkbox"
+              name="filter"
+              value="path"
+              onChange={togglePathDisplay}
+            />{" "}
+            File Path
+          </Label>
+        </DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>
+  );
+};
+
+const ToolbarFilterButton = ({
+  toolbarStyle,
+  updateFilterFunc,
+  updateEmptyDisplayFunc,
+}) => {
+  const [filter, setFilter] = useState("all");
+  const [displayEmpty, setDisplayEmpty] = useState(true);
+
+  const filterOnClick = (e) => {
+    let checkedValue = e.currentTarget.value;
+    updateFilterFunc(checkedValue);
+    setFilter(checkedValue);
+  };
+
+  const toggleEmptyDisplay = () => {
+    updateEmptyDisplayFunc(!displayEmpty);
+    setDisplayEmpty(!displayEmpty);
+  };
+
+  return (
+    <UncontrolledDropdown nav inNavbar>
+      <div className={css(styles.buttonsBar)}>
+        <DropdownToggle nav className={toolbarStyle}>
+          <FontAwesomeIcon
+            key="toolbar-filter"
+            icon="filter"
+            title="Choose filter"
+            className={css(styles.toolbarButton)}
+          />
+        </DropdownToggle>
+      </div>
+      <DropdownMenu className={css(styles.dropdown)}>
+        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+          <Label check className={css(styles.filterLabel)}>
+            <Input
+              type="radio"
+              name="filter"
+              value="all"
+              checked={filter === "all"}
+              onChange={filterOnClick}
+            />{" "}
+            All
+          </Label>
+        </DropdownItem>
+        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+          <Label check className={css(styles.filterLabel)}>
+            <Input
+              type="radio"
+              name="filter"
+              value="fail"
+              checked={filter === "fail"}
+              onChange={filterOnClick}
+            />{" "}
+            Failed only
+          </Label>
+        </DropdownItem>
+        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+          <Label check className={css(styles.filterLabel)}>
+            <Input
+              type="radio"
+              name="filter"
+              value="pass"
+              checked={filter === "pass"}
+              onChange={filterOnClick}
+            />{" "}
+            Passed only
+          </Label>
+        </DropdownItem>
+        <DropdownItem divider />
+        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+          <Label check className={css(styles.filterLabel)}>
+            <Input
+              type="checkbox"
+              name="displayEmptyTest"
+              checked={!displayEmpty}
+              onChange={toggleEmptyDisplay}
+            />{" "}
+            Hide empty testcase
+          </Label>
+        </DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>
+  );
+};
+
+const ToolbarTagsButton = ({ status, updateTagsDisplayFunc }) => {
+  const [displayTags, setDisplayTags] = useState(false);
+
+  const toggleTagsDisplay = () => {
+    updateTagsDisplayFunc(!displayTags);
+    setDisplayTags(!displayTags);
+  };
+
+  const toolbarButtonStyle = displayTags
+    ? getToggledButtonStyle(status)
+    : css(styles.toolbarButton);
+  const iconTooltip = displayTags ? "Hide tags" : "Display tags";
+
+  return (
+    <NavItem>
+      <div className={css(styles.buttonsBar)}>
+        <FontAwesomeIcon
+          key="toolbar-tags"
+          className={toolbarButtonStyle}
+          icon="tags"
+          title={iconTooltip}
+          onClick={toggleTagsDisplay}
+        />
+      </div>
+    </NavItem>
+  );
+};
+
+/**
+ * create an info button for the toolbar which show the info modal when pressed
+ * @param {report} param0
+ * @returns
+ */
+const ToolbarInfoButton = ({ report }) => {
+  const [infoModal, seteInfoModal] = useState(false);
 
   const toggleInfoOnClick = () => {
     seteInfoModal(!infoModal);
   };
 
-  const filterOnClick = (e) => {
-    let checkedValue = e.currentTarget.value;
-    setFilter(checkedValue);
-    props.updateFilterFunc(checkedValue);
-  };
-
-  const toggleEmptyDisplay = () => {
-    props.updateEmptyDisplayFunc(!displayEmpty);
-    setDisplayEmpty(!displayEmpty);
-  };
-
-  const toggleTagsDisplay = () => {
-    props.updateTagsDisplayFunc(!displayTags);
-    setDisplayTags(!displayTags);
-  };
-
-  const toggleExpand = () => {
-    if (props.expandStatus === EXPAND_STATUS.EXPAND) {
-      props.updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
-    } else {
-      props.updateExpandStatusFunc(EXPAND_STATUS.EXPAND);
-    }
-  };
-
-  const toggleCollapse = () => {
-    if (props.expandStatus === EXPAND_STATUS.COLLAPSE) {
-      props.updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
-    } else {
-      props.updateExpandStatusFunc(EXPAND_STATUS.COLLAPSE);
-    }
-  };
-
-  const expandButtons = () => {
-    return (
-      <>
-        <NavItem key="expand-icon-item">
-          <div className={css(styles.buttonsBar)}>
-            <FontAwesomeIcon
-              key="expand-icon"
-              className={
-                props.expandStatus === EXPAND_STATUS.EXPAND
-                  ? getToggledButtonStyle(props.status)
-                  : css(styles.toolbarButton)
-              }
-              icon="angle-double-down"
-              onClick={toggleExpand}
-              title="Expand all assertions"
-            />
-          </div>
-        </NavItem>
-        <NavItem key="collapse-icon-item">
-          <div className={css(styles.buttonsBar)}>
-            <FontAwesomeIcon
-              key="collapse-icon"
-              className={
-                props.expandStatus === EXPAND_STATUS.COLLAPSE
-                  ? getToggledButtonStyle(props.status)
-                  : css(styles.toolbarButton)
-              }
-              icon="angle-double-up"
-              onClick={toggleCollapse}
-              title="Collapse all assertions"
-            />
-          </div>
-        </NavItem>
-      </>
-    );
-  };
-
-  const treeViewButton = () => {
-    return (
-      <NavItem>
-        <div className={css(styles.buttonsBar)}>
-          <FontAwesomeIcon
-            key="navigation-view"
-            className={css(styles.toolbarButton)}
-            icon="bars"
-            title="Navigation"
-            onClick={toggleTreeView}
-          />
-        </div>
-      </NavItem>
-    );
-  };
-
-  const detailsButton = (toolbarStyle) => {
-    return (
-      <UncontrolledDropdown nav inNavbar>
-        <div className={css(styles.buttonsBar)}>
-          <DropdownToggle nav className={toolbarStyle}>
-            <FontAwesomeIcon
-              key="toolbar-details"
-              icon="tasks"
-              title="Choose details"
-              className={css(styles.toolbarButton)}
-            />
-          </DropdownToggle>
-        </div>
-        <DropdownMenu className={css(styles.dropdown)}>
-          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-            <Label check className={css(styles.filterLabel)}>
-              <Input
-                type="checkbox"
-                name="filter"
-                value="time"
-                onChange={toggleTimeDisplay}
-              />{" "}
-              Time Information
-            </Label>
-          </DropdownItem>
-          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-            <Label check className={css(styles.filterLabel)}>
-              <Input
-                type="checkbox"
-                name="filter"
-                value="path"
-                onChange={togglePathDisplay}
-              />{" "}
-              File Path
-            </Label>
-          </DropdownItem>
-        </DropdownMenu>
-      </UncontrolledDropdown>
-    );
-  };
-
-  const infoButton = () => {
-    return (
+  return (
+    <>
       <NavItem>
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
@@ -228,174 +333,6 @@ const Toolbar = function (props) {
           />
         </div>
       </NavItem>
-    );
-  };
-
-  const filterButton = (toolbarStyle) => {
-    return (
-      <UncontrolledDropdown nav inNavbar>
-        <div className={css(styles.buttonsBar)}>
-          <DropdownToggle nav className={toolbarStyle}>
-            <FontAwesomeIcon
-              key="toolbar-filter"
-              icon="filter"
-              title="Choose filter"
-              className={css(styles.toolbarButton)}
-            />
-          </DropdownToggle>
-        </div>
-        <DropdownMenu className={css(styles.dropdown)}>
-          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-            <Label check className={css(styles.filterLabel)}>
-              <Input
-                type="radio"
-                name="filter"
-                value="all"
-                checked={filter === "all"}
-                onChange={filterOnClick}
-              />{" "}
-              All
-            </Label>
-          </DropdownItem>
-          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-            <Label check className={css(styles.filterLabel)}>
-              <Input
-                type="radio"
-                name="filter"
-                value="fail"
-                checked={filter === "fail"}
-                onChange={filterOnClick}
-              />{" "}
-              Failed only
-            </Label>
-          </DropdownItem>
-          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-            <Label check className={css(styles.filterLabel)}>
-              <Input
-                type="radio"
-                name="filter"
-                value="pass"
-                checked={filter === "pass"}
-                onChange={filterOnClick}
-              />{" "}
-              Passed only
-            </Label>
-          </DropdownItem>
-          <DropdownItem divider />
-          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-            <Label check className={css(styles.filterLabel)}>
-              <Input
-                type="checkbox"
-                name="displayEmptyTest"
-                checked={!displayEmpty}
-                onChange={toggleEmptyDisplay}
-              />{" "}
-              Hide empty testcase
-            </Label>
-          </DropdownItem>
-        </DropdownMenu>
-      </UncontrolledDropdown>
-    );
-  };
-
-  const tagsButton = () => {
-    const toolbarButtonStyle = displayTags
-      ? getToggledButtonStyle(props.status)
-      : css(styles.toolbarButton);
-    const iconTooltip = displayTags ? "Hide tags" : "Display tags";
-
-    return (
-      <NavItem>
-        <div className={css(styles.buttonsBar)}>
-          <FontAwesomeIcon
-            key="toolbar-tags"
-            className={toolbarButtonStyle}
-            icon="tags"
-            title={iconTooltip}
-            onClick={toggleTagsDisplay}
-          />
-        </div>
-      </NavItem>
-    );
-  };
-
-  const printButton = () => {
-    return (
-      <NavItem>
-        <div className={css(styles.buttonsBar)}>
-          <FontAwesomeIcon
-            key="toolbar-print"
-            className={css(styles.toolbarButton)}
-            icon="print"
-            title="Print page"
-            onClick={window.print}
-          />
-        </div>
-      </NavItem>
-    );
-  };
-
-  const documentationButton = () => {
-    return (
-      <NavItem>
-        <a
-          href="http://testplan.readthedocs.io"
-          rel="noopener noreferrer"
-          target="_blank"
-          className={css(styles.buttonsBar)}
-        >
-          <FontAwesomeIcon
-            key="toolbar-document"
-            className={css(styles.toolbarButton)}
-            icon="book"
-            title="Documentation"
-          />
-        </a>
-      </NavItem>
-    );
-  };
-
-  const filterBox = () => {
-    return (
-      <div
-        className={css(styles.filterBox)}
-        style={{
-          width: props.filterBoxWidth,
-        }}
-      >
-        <FilterBox
-          handleNavFilter={props.handleNavFilter}
-          filterText={props.filterText}
-        />
-      </div>
-    );
-  };
-
-  const navbar = () => {
-    const toolbarStyle = getToolbarStyle(props.status);
-
-    return (
-      <Navbar light expand="md" className={css(styles.toolbar)}>
-        {filterBox()}
-        <Collapse isOpen={false} navbar className={toolbarStyle}>
-          <Nav navbar className="ml-auto">
-            {treeViewButton()}
-            {expandButtons()}
-            {props.extraButtons}
-            {detailsButton(toolbarStyle)}
-            {filterButton(toolbarStyle)}
-            {tagsButton()}
-            {infoButton()}
-            {printButton()}
-            {documentationButton()}
-          </Nav>
-        </Collapse>
-      </Navbar>
-    );
-  };
-
-  const infoModalWindow = () => {
-    return (
       <Modal
         isOpen={infoModal}
         toggle={toggleInfoOnClick}
@@ -403,24 +340,100 @@ const Toolbar = function (props) {
         className="infoModal"
       >
         <ModalHeader toggle={toggleInfoOnClick}>Information</ModalHeader>
-        <ModalBody>{getInfoTable(props.report)}</ModalBody>
+        <ModalBody>{getInfoTable(report)}</ModalBody>
         <ModalFooter>
           <Button color="light" onClick={toggleInfoOnClick}>
             Close
           </Button>
         </ModalFooter>
       </Modal>
-    );
-  };
+    </>
+  );
+};
 
+const ToolbarFilterBox = ({ filterBoxWidth, filterText, handleNavFilter }) => {
   return (
-    <div>
-      {navbar()}
-      {infoModalWindow()}
+    <div
+      className={css(styles.filterBox)}
+      style={{
+        width: filterBoxWidth,
+      }}
+    >
+      <FilterBox handleNavFilter={handleNavFilter} filterText={filterText} />
     </div>
   );
+};
 
-  // return <ToolbarComponent {...props}></ToolbarComponent>;
+/**
+ * Toolbar component, contains the toolbar buttons & Filter box.
+ */
+
+const Toolbar = function (props) {
+  const toolbarStyle = getToolbarStyle(props.status);
+
+  return (
+    <Navbar light expand="md" className={css(styles.toolbar)}>
+      <ToolbarFilterBox
+        filterBoxWidth={props.filterBoxWidth}
+        handleNavFilter={props.handleNavFilter}
+        filterText={props.filterText}
+      />
+      <Collapse isOpen={false} navbar className={toolbarStyle}>
+        <Nav navbar className="ml-auto">
+          <ToolbarTreeViewButton
+            updateTreeViewFunc={props.updateTreeViewFunc}
+          />
+          <ToolbarExpandButtons
+            expandStatus={props.expandStatus}
+            updateExpandStatusFunc={props.updateExpandStatusFunc}
+            status={props.status}
+          />
+          {props.extraButtons}
+          <ToolbarDetailsButton
+            toolbarStyle={toolbarStyle}
+            updatePathDisplayFunc={props.updatePathDisplayFunc}
+            updateTimeDisplayFunc={props.updateTimeDisplayFunc}
+          />
+          <ToolbarFilterButton
+            toolbarStyle={toolbarStyle}
+            updateFilterFunc={props.updateFilterFunc}
+            updateEmptyDisplayFunc={props.updateEmptyDisplayFunc}
+          />
+          <ToolbarTagsButton
+            status={props.status}
+            updateTagsDisplayFunc={props.updateTagsDisplayFunc}
+          />
+          <ToolbarInfoButton report={props.report} />
+          <NavItem>
+            <div className={css(styles.buttonsBar)}>
+              <FontAwesomeIcon
+                key="toolbar-print"
+                className={css(styles.toolbarButton)}
+                icon="print"
+                title="Print page"
+                onClick={window.print}
+              />
+            </div>
+          </NavItem>
+          <NavItem>
+            <a
+              href="http://testplan.readthedocs.io"
+              rel="noopener noreferrer"
+              target="_blank"
+              className={css(styles.buttonsBar)}
+            >
+              <FontAwesomeIcon
+                key="toolbar-document"
+                className={css(styles.toolbarButton)}
+                icon="book"
+                title="Documentation"
+              />
+            </a>
+          </NavItem>
+        </Nav>
+      </Collapse>
+    </Navbar>
+  );
 };
 
 /**

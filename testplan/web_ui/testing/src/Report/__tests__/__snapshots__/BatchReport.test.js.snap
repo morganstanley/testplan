@@ -19891,15 +19891,19 @@ ZeroDivisionError: integer division or modulo by zero
       updateTimeDisplayFunc={[Function]}
       updateTreeViewFunc={[Function]}
     >
-      <div>
-        <Navbar
-          className="toolbar_l6n5rs"
-          expand="md"
-          light={true}
-          tag="nav"
+      <Navbar
+        className="toolbar_l6n5rs"
+        expand="md"
+        light={true}
+        tag="nav"
+      >
+        <nav
+          className="toolbar_l6n5rs navbar navbar-expand-md navbar-light"
         >
-          <nav
-            className="toolbar_l6n5rs navbar navbar-expand-md navbar-light"
+          <ToolbarFilterBox
+            filterBoxWidth="22em"
+            filterText={null}
+            handleNavFilter={[Function]}
           >
             <div
               className="filterBox_1kzbnzj"
@@ -20229,52 +20233,56 @@ ZeroDivisionError: integer division or modulo by zero
                 </div>
               </FilterBox>
             </div>
-            <Collapse
+          </ToolbarFilterBox>
+          <Collapse
+            appear={false}
+            className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
+            enter={true}
+            exit={true}
+            in={false}
+            isOpen={false}
+            mountOnEnter={false}
+            navbar={true}
+            onEnter={[Function]}
+            onEntered={[Function]}
+            onEntering={[Function]}
+            onExit={[Function]}
+            onExited={[Function]}
+            onExiting={[Function]}
+            tag="div"
+            timeout={350}
+            unmountOnExit={false}
+          >
+            <Transition
               appear={false}
-              className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
               enter={true}
               exit={true}
               in={false}
-              isOpen={false}
               mountOnEnter={false}
-              navbar={true}
               onEnter={[Function]}
               onEntered={[Function]}
               onEntering={[Function]}
               onExit={[Function]}
               onExited={[Function]}
               onExiting={[Function]}
-              tag="div"
               timeout={350}
               unmountOnExit={false}
             >
-              <Transition
-                appear={false}
-                enter={true}
-                exit={true}
-                in={false}
-                mountOnEnter={false}
-                onEnter={[Function]}
-                onEntered={[Function]}
-                onEntering={[Function]}
-                onExit={[Function]}
-                onExited={[Function]}
-                onExiting={[Function]}
-                timeout={350}
-                unmountOnExit={false}
+              <div
+                className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx collapse navbar-collapse"
+                style={Object {}}
               >
-                <div
-                  className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx collapse navbar-collapse"
-                  style={Object {}}
+                <Nav
+                  className="ml-auto"
+                  navbar={true}
+                  tag="ul"
+                  vertical={false}
                 >
-                  <Nav
-                    className="ml-auto"
-                    navbar={true}
-                    tag="ul"
-                    vertical={false}
+                  <ul
+                    className="ml-auto navbar-nav"
                   >
-                    <ul
-                      className="ml-auto navbar-nav"
+                    <ToolbarTreeViewButton
+                      updateTreeViewFunc={[Function]}
                     >
                       <NavItem
                         tag="li"
@@ -20342,6 +20350,12 @@ ZeroDivisionError: integer division or modulo by zero
                           </div>
                         </li>
                       </NavItem>
+                    </ToolbarTreeViewButton>
+                    <ToolbarExpandButtons
+                      expandStatus="default"
+                      status="error"
+                      updateExpandStatusFunc={[Function]}
+                    >
                       <NavItem
                         key="expand-icon-item"
                         tag="li"
@@ -20476,6 +20490,12 @@ ZeroDivisionError: integer division or modulo by zero
                           </div>
                         </li>
                       </NavItem>
+                    </ToolbarExpandButtons>
+                    <ToolbarDetailsButton
+                      toolbarStyle="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
+                      updatePathDisplayFunc={[Function]}
+                      updateTimeDisplayFunc={[Function]}
+                    >
                       <UncontrolledDropdown
                         inNavbar={true}
                         nav={true}
@@ -20680,6 +20700,12 @@ ZeroDivisionError: integer division or modulo by zero
                           </Manager>
                         </Dropdown>
                       </UncontrolledDropdown>
+                    </ToolbarDetailsButton>
+                    <ToolbarFilterButton
+                      toolbarStyle="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
+                      updateEmptyDisplayFunc={[Function]}
+                      updateFilterFunc={[Function]}
+                    >
                       <UncontrolledDropdown
                         inNavbar={true}
                         nav={true}
@@ -20997,6 +21023,11 @@ ZeroDivisionError: integer division or modulo by zero
                           </Manager>
                         </Dropdown>
                       </UncontrolledDropdown>
+                    </ToolbarFilterButton>
+                    <ToolbarTagsButton
+                      status="error"
+                      updateTagsDisplayFunc={[Function]}
+                    >
                       <NavItem
                         tag="li"
                       >
@@ -21063,6 +21094,47 @@ ZeroDivisionError: integer division or modulo by zero
                           </div>
                         </li>
                       </NavItem>
+                    </ToolbarTagsButton>
+                    <ToolbarInfoButton
+                      report={
+                        Object {
+                          "category": "testplan",
+                          "entries": Array [],
+                          "logs": Array [
+                            Object {
+                              "created": "2018-10-15T14:30:12.971680+00:00",
+                              "funcName": "post_step_call",
+                              "levelname": "ERROR",
+                              "levelno": 40,
+                              "lineno": 387,
+                              "message": "While starting resource [client]
+Traceback (most recent call last):
+  File \\"/tmp/myworkspace/testplan/common/entity/base.py\\", line 143, in start
+    resource.start()
+  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/base.py\\", line 148, in start
+    self.starting()
+  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
+    1/0
+ZeroDivisionError: integer division or modulo by zero
+",
+                              "uid": "dbc47190-505b-4153-ab3e-fec460eac78d",
+                            },
+                          ],
+                          "meta": Object {},
+                          "name": "Testplan with errors",
+                          "status": "error",
+                          "status_override": null,
+                          "tags_index": Object {},
+                          "timer": Object {
+                            "run": Object {
+                              "end": "2018-10-15T14:30:11.296158+00:00",
+                              "start": "2018-10-15T14:30:10.998071+00:00",
+                            },
+                          },
+                          "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        }
+                      }
+                    >
                       <NavItem
                         tag="li"
                       >
@@ -21129,178 +21201,178 @@ ZeroDivisionError: integer division or modulo by zero
                           </div>
                         </li>
                       </NavItem>
-                      <NavItem
-                        tag="li"
+                      <Modal
+                        autoFocus={true}
+                        backdrop={true}
+                        backdropTransition={
+                          Object {
+                            "mountOnEnter": true,
+                            "timeout": 150,
+                          }
+                        }
+                        centered={false}
+                        className="infoModal"
+                        container="body"
+                        fade={true}
+                        isOpen={false}
+                        keyboard={true}
+                        modalTransition={
+                          Object {
+                            "timeout": 300,
+                          }
+                        }
+                        onClosed={[Function]}
+                        onOpened={[Function]}
+                        returnFocusAfterClose={true}
+                        role="dialog"
+                        scrollable={false}
+                        size="lg"
+                        toggle={[Function]}
+                        trapFocus={false}
+                        unmountOnClose={true}
+                        zIndex={1050}
+                      />
+                    </ToolbarInfoButton>
+                    <NavItem
+                      tag="li"
+                    >
+                      <li
+                        className="nav-item"
                       >
-                        <li
-                          className="nav-item"
+                        <div
+                          className="buttonsBar_6zsntc"
                         >
-                          <div
-                            className="buttonsBar_6zsntc"
+                          <FontAwesomeIcon
+                            beat={false}
+                            beatFade={false}
+                            border={false}
+                            bounce={false}
+                            className="toolbarButton_1ueb7gu"
+                            fade={false}
+                            fixedWidth={false}
+                            flip={false}
+                            icon="print"
+                            inverse={false}
+                            key="toolbar-print"
+                            listItem={false}
+                            mask={null}
+                            maskId={null}
+                            onClick={[Function]}
+                            pull={null}
+                            pulse={false}
+                            rotation={null}
+                            shake={false}
+                            size={null}
+                            spin={false}
+                            spinPulse={false}
+                            spinReverse={false}
+                            swapOpacity={false}
+                            symbol={false}
+                            title="Print page"
+                            titleId={null}
+                            transform={null}
                           >
-                            <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
-                              className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
-                              icon="print"
-                              inverse={false}
-                              key="toolbar-print"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
+                            <svg
+                              aria-labelledby="svg-inline--fa-title-32"
+                              className="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
+                              data-icon="print"
+                              data-prefix="fas"
                               onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
-                              title="Print page"
-                              titleId={null}
-                              transform={null}
+                              role="img"
+                              style={Object {}}
+                              viewBox="0 0 512 512"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <svg
-                                aria-labelledby="svg-inline--fa-title-32"
-                                className="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
-                                data-icon="print"
-                                data-prefix="fas"
-                                onClick={[Function]}
-                                role="img"
+                              <title
+                                id="svg-inline--fa-title-32"
                                 style={Object {}}
-                                viewBox="0 0 512 512"
-                                xmlns="http://www.w3.org/2000/svg"
                               >
-                                <title
-                                  id="svg-inline--fa-title-32"
-                                  style={Object {}}
-                                >
-                                  Print page
-                                </title>
-                                <path
-                                  d="M464 192h-16V81.941a24 24 0 0 0-7.029-16.97L383.029 7.029A24 24 0 0 0 366.059 0H88C74.745 0 64 10.745 64 24v168H48c-26.51 0-48 21.49-48 48v132c0 6.627 5.373 12 12 12h52v104c0 13.255 10.745 24 24 24h336c13.255 0 24-10.745 24-24V384h52c6.627 0 12-5.373 12-12V240c0-26.51-21.49-48-48-48zm-80 256H128v-96h256v96zM128 224V64h192v40c0 13.2 10.8 24 24 24h40v96H128zm304 72c-13.254 0-24-10.746-24-24s10.746-24 24-24 24 10.746 24 24-10.746 24-24 24z"
-                                  fill="currentColor"
-                                  style={Object {}}
-                                />
-                              </svg>
-                            </FontAwesomeIcon>
-                          </div>
-                        </li>
-                      </NavItem>
-                      <NavItem
-                        tag="li"
+                                Print page
+                              </title>
+                              <path
+                                d="M464 192h-16V81.941a24 24 0 0 0-7.029-16.97L383.029 7.029A24 24 0 0 0 366.059 0H88C74.745 0 64 10.745 64 24v168H48c-26.51 0-48 21.49-48 48v132c0 6.627 5.373 12 12 12h52v104c0 13.255 10.745 24 24 24h336c13.255 0 24-10.745 24-24V384h52c6.627 0 12-5.373 12-12V240c0-26.51-21.49-48-48-48zm-80 256H128v-96h256v96zM128 224V64h192v40c0 13.2 10.8 24 24 24h40v96H128zm304 72c-13.254 0-24-10.746-24-24s10.746-24 24-24 24 10.746 24 24-10.746 24-24 24z"
+                                fill="currentColor"
+                                style={Object {}}
+                              />
+                            </svg>
+                          </FontAwesomeIcon>
+                        </div>
+                      </li>
+                    </NavItem>
+                    <NavItem
+                      tag="li"
+                    >
+                      <li
+                        className="nav-item"
                       >
-                        <li
-                          className="nav-item"
+                        <a
+                          className="buttonsBar_6zsntc"
+                          href="http://testplan.readthedocs.io"
+                          rel="noopener noreferrer"
+                          target="_blank"
                         >
-                          <a
-                            className="buttonsBar_6zsntc"
-                            href="http://testplan.readthedocs.io"
-                            rel="noopener noreferrer"
-                            target="_blank"
+                          <FontAwesomeIcon
+                            beat={false}
+                            beatFade={false}
+                            border={false}
+                            bounce={false}
+                            className="toolbarButton_1ueb7gu"
+                            fade={false}
+                            fixedWidth={false}
+                            flip={false}
+                            icon="book"
+                            inverse={false}
+                            key="toolbar-document"
+                            listItem={false}
+                            mask={null}
+                            maskId={null}
+                            pull={null}
+                            pulse={false}
+                            rotation={null}
+                            shake={false}
+                            size={null}
+                            spin={false}
+                            spinPulse={false}
+                            spinReverse={false}
+                            swapOpacity={false}
+                            symbol={false}
+                            title="Documentation"
+                            titleId={null}
+                            transform={null}
                           >
-                            <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
-                              className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
-                              icon="book"
-                              inverse={false}
-                              key="toolbar-document"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
-                              title="Documentation"
-                              titleId={null}
-                              transform={null}
+                            <svg
+                              aria-labelledby="svg-inline--fa-title-33"
+                              className="svg-inline--fa fa-book fa-w-14 toolbarButton_1ueb7gu"
+                              data-icon="book"
+                              data-prefix="fas"
+                              role="img"
+                              style={Object {}}
+                              viewBox="0 0 448 512"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <svg
-                                aria-labelledby="svg-inline--fa-title-33"
-                                className="svg-inline--fa fa-book fa-w-14 toolbarButton_1ueb7gu"
-                                data-icon="book"
-                                data-prefix="fas"
-                                role="img"
+                              <title
+                                id="svg-inline--fa-title-33"
                                 style={Object {}}
-                                viewBox="0 0 448 512"
-                                xmlns="http://www.w3.org/2000/svg"
                               >
-                                <title
-                                  id="svg-inline--fa-title-33"
-                                  style={Object {}}
-                                >
-                                  Documentation
-                                </title>
-                                <path
-                                  d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"
-                                  fill="currentColor"
-                                  style={Object {}}
-                                />
-                              </svg>
-                            </FontAwesomeIcon>
-                          </a>
-                        </li>
-                      </NavItem>
-                    </ul>
-                  </Nav>
-                </div>
-              </Transition>
-            </Collapse>
-          </nav>
-        </Navbar>
-        <Modal
-          autoFocus={true}
-          backdrop={true}
-          backdropTransition={
-            Object {
-              "mountOnEnter": true,
-              "timeout": 150,
-            }
-          }
-          centered={false}
-          className="infoModal"
-          container="body"
-          fade={true}
-          isOpen={false}
-          keyboard={true}
-          modalTransition={
-            Object {
-              "timeout": 300,
-            }
-          }
-          onClosed={[Function]}
-          onOpened={[Function]}
-          returnFocusAfterClose={true}
-          role="dialog"
-          scrollable={false}
-          size="lg"
-          toggle={[Function]}
-          trapFocus={false}
-          unmountOnClose={true}
-          zIndex={1050}
-        />
-      </div>
+                                Documentation
+                              </title>
+                              <path
+                                d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"
+                                fill="currentColor"
+                                style={Object {}}
+                              />
+                            </svg>
+                          </FontAwesomeIcon>
+                        </a>
+                      </li>
+                    </NavItem>
+                  </ul>
+                </Nav>
+              </div>
+            </Transition>
+          </Collapse>
+        </nav>
+      </Navbar>
     </Toolbar>
     <NavBreadcrumbs
       entries={Array []}
