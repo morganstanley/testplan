@@ -677,27 +677,14 @@ class TestGroupReport(BaseReportGroup):
 
     def __str__(self):
         return (
-            '{kls}(name="{name}", category="{category}", id="{uid}"),'
-            " tags={tags})"
-        ).format(
-            kls=self.__class__.__name__,
-            name=self.name,
-            category=self.category,
-            uid=self.uid,
-            tags=self.tags or None,
+            f'{self.__class__.__name__}(name="{self.name}", category="{self.category}",'
+            f' id="{self.uid}"), tags={self.tags or None})'
         )
 
     def __repr__(self):
         return (
-            '{kls}(name="{name}", category="{category}", id="{uid}",'
-            " entries={entries}, tags={tags})"
-        ).format(
-            kls=self.__class__.__name__,
-            name=self.name,
-            category=self.category,
-            uid=self.uid,
-            entries=repr(self.entries),
-            tags=self.tags or None,
+            f'{self.__class__.__name__}(name="{self.name}", category="{self.category}",'
+            f' id="{self.uid}", entries={repr(self.entries)}, tags={self.tags or None})'
         )
 
     def _get_comparison_attrs(self):

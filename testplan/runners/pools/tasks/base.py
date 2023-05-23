@@ -7,7 +7,7 @@ import warnings
 from collections import OrderedDict
 from typing import Optional, Tuple, Union, Dict, Sequence, Callable
 
-from testplan.common.entity import Runnable
+from testplan.testing.base import Test, TestResult
 from testplan.common.serialization import SelectiveSerializable
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
@@ -45,7 +45,7 @@ class Task(SelectiveSerializable):
 
     def __init__(
         self,
-        target: Optional[Union[str, Runnable]] = None,
+        target: Optional[Union[str, Test]] = None,
         module: Optional[str] = None,
         path: Optional[str] = None,
         args: Optional[tuple] = None,
@@ -175,7 +175,7 @@ class Task(SelectiveSerializable):
         """For compatibility reason when task is added into an executor."""
         self._aborted = True
 
-    def materialize(self, target=None):
+    def materialize(self, target=None) -> Test:
         """
         Create the actual task target executable/runnable object.
         """
@@ -275,47 +275,52 @@ class TaskResult(SelectiveSerializable):
     """
 
     def __init__(
-        self, task=None, result=None, status=False, reason=None, follow=None
+        self,
+        task: Optional[Task] = None,
+        result: Optional[TestResult] = None,
+        status: bool = False,
+        reason: Optional[str] = None,
+        follow: Optional[Task] = None,
     ):
-        self._task = task
-        self._result = result
-        self._status = status
-        self._reason = reason
-        self._follow = follow
-        self._uid = strings.uuid4()
+        self._task: Optional[Task] = task
+        self._result: Optional[TestResult] = result
+        self._status: bool = status
+        self._reason: Optional[str] = reason
+        self._follow: Optional[Task] = follow
+        self._uid: str = strings.uuid4()
 
-    def uid(self):
+    def uid(self) -> str:
         """Task result uid"""
         return self._uid
 
     @property
-    def task(self):
+    def task(self) -> Optional[Task]:
         """Original task."""
         return self._task
 
     @property
-    def result(self):
+    def result(self) -> Optional[TestResult]:
         """Actual task target result."""
         return self._result
 
     @property
-    def status(self):
+    def status(self) -> bool:
         """Result status. Should be True on correct successful execution."""
         return self._status
 
     @property
-    def reason(self):
+    def reason(self) -> Optional[str]:
         """Reason for failed status."""
         return self._reason
 
     @property
-    def follow(self):
+    def follow(self) -> Optional[Task]:
         """Follow up tasks that need to be scheduled next."""
         return self._follow
 
     @property
-    def serializable_attrs(self):
-        return ("_task", "_status", "_reason", "_result", "_follow", "_uid")
+    def serializable_attrs(self) -> Tuple:
+        return "_task", "_status", "_reason", "_result", "_follow", "_uid"
 
     def __str__(self):
         return "TaskResult[{}, {}]".format(self.status, self.reason)

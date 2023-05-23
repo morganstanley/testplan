@@ -79,6 +79,21 @@ def test_kill_one_worker(mockplan, tmp_path: Path):
     assert res.success is True
     assert mockplan.report.status == Status.PASSED
 
+    # two executors, local runner and process pool
+    assert len(mockplan.report.events) == 2
+
+    process_pool_event = None
+    for event in mockplan.report.events.values():
+        if event["name"] == pool_uid:
+            process_pool_event = event
+    assert process_pool_event is not None
+    assert len(process_pool_event["children"]) == pool_size
+    for child in process_pool_event["children"]:
+        assert child["event_type"] == "Worker"
+
+    for entry in mockplan.report.entries:
+        assert entry.host == "localhost"
+
     # All tasks scheduled once except the killed one
     for idx in range(1, 25):
         if uids[idx - 1] == kill_uid:

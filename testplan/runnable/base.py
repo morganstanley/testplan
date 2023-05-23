@@ -375,7 +375,7 @@ class TestRunner(Runnable):
         return f"Testplan[{self.uid()}]"
 
     @property
-    def report(self):
+    def report(self) -> TestReport:
         """Tests report."""
         return self._result.test_report
 
@@ -1011,7 +1011,7 @@ class TestRunner(Runnable):
 
             if report.part:
                 if (
-                    report.category != "task_rerun"
+                    report.category != ReportCategories.TASK_RERUN
                     and self.cfg.merge_scheduled_parts
                 ):
                     report.uid = report.name
@@ -1053,6 +1053,11 @@ class TestRunner(Runnable):
         # Reset UIDs of the test report and all of its children in UUID4 format
         if self._reset_report_uid:
             test_report.reset_uid()
+
+        # Attach pool event into report
+        for executor in self.resources:
+            if isinstance(executor, Executor):
+                self.report.add_event(executor.event_recorder)
 
         return step_result
 

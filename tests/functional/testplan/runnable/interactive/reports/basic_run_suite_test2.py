@@ -6,6 +6,8 @@ REPORT = {
     "env_status": "STARTED",
     "status_reason": None,
     "fix_spec_path": None,
+    "host": None,
+    "events": {},
     "uid": "Test2",
     "entries": [
         {
@@ -14,6 +16,8 @@ REPORT = {
             "env_status": None,
             "status_reason": None,
             "fix_spec_path": None,
+            "host": None,
+            "events": {},
             "uid": "BasicSuite",
             "entries": [
                 {
@@ -22,6 +26,8 @@ REPORT = {
                     "env_status": None,
                     "status_reason": None,
                     "fix_spec_path": None,
+                    "host": None,
+                    "events": {},
                     "uid": "basic_case",
                     "entries": [
                         {
@@ -157,6 +163,8 @@ REPORT = {
             "env_status": None,
             "status_reason": None,
             "fix_spec_path": None,
+            "host": None,
+            "events": {},
             "uid": "Custom_0",
             "entries": [
                 {
@@ -203,6 +211,8 @@ REPORT = {
             "env_status": None,
             "status_reason": None,
             "fix_spec_path": None,
+            "host": None,
+            "events": {},
             "uid": "Custom_1",
             "entries": [
                 {

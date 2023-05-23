@@ -1,12 +1,14 @@
 """Executor base classes."""
 
+import time
 import threading
 
 from collections import OrderedDict
-from typing import List, Generator
+from typing import List, Generator, Optional
 
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.utils.thread import interruptible_join
+from testplan.common.report.base import EventRecorder
 
 
 class ExecutorConfig(ResourceConfig):

@@ -8,8 +8,13 @@ Later on these reports would be merged together to
 build the final report as the testplan result.
 """
 import copy
+import time
+import uuid
 import collections
+import dataclasses
 import itertools
+
+from typing import Dict, List, Optional
 
 from testplan.common.utils import strings
 from .log import create_logging_adapter
@@ -210,21 +215,59 @@ class Report:
         return hash((self.uid, tuple(id(entry) for entry in self.entries)))
 
 
+@dataclasses.dataclass
+class EventRecorder:
+    name: str
+    event_type: str
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+    children: List["EventRecorder"] = dataclasses.field(default_factory=list)
+
+    def __enter__(self):
+        self.start_time = time.time()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_time = time.time()
+
+    def add_child(self, event_executor: "EventRecorder"):
+        self.children.append(event_executor)
+
+
 class ReportGroup(Report):
     """
     A report class that contains other Reports or ReportGroups in `entries`.
     Allows O(1) child report lookup via `get_by_uid` method.
     """
 
-    def __init__(self, name, **kwargs):
+    def __init__(
+        self,
+        name: str,
+        events: Dict = None,
+        host: Optional[str] = None,
+        **kwargs
+    ):
         super(ReportGroup, self).__init__(name=name, **kwargs)
 
         # Mapping of UID to index in the list of entries.
-        self._index = {}
+        self.host: Optional[str] = host
+        self._index: Dict = {}
+        self._events: Dict[str, EventRecorder] = events or {}
         self.build_index()
 
         for child in self.entries:
             self.set_parent_uids(child)
+
+    def add_event(
+        self, event_executor: EventRecorder, event_id: Optional[str] = None
+    ) -> str:
+        if event_id is None:
+            event_id = uuid.uuid4().hex
+        self._events[event_id] = event_executor
+        return event_id
+
+    @property
+    def events(self) -> Dict[str, Dict]:
+        return {k: dataclasses.asdict(v) for k, v in self._events.items()}
 
     def build_index(self, recursive=False):
         """
