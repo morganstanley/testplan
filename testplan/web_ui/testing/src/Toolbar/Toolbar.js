@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { css } from "aphrodite";
 import {
@@ -60,103 +60,68 @@ library.add(
 /**
  * Toolbar component, contains the toolbar buttons & Filter box.
  */
-class Toolbar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      treeView: true,
-      displayTime: false,
-      displayPath: false,
-      filterOpen: false,
-      infoModal: false,
-      filter: "all",
-      displayEmpty: true,
-      displayTags: false,
-      expandStatus: this.props.expandStatus,
-    };
 
-    this.filterOnClick = this.filterOnClick.bind(this);
-    this.toggleInfoOnClick = this.toggleInfoOnClick.bind(this);
-    this.toggleTreeView = this.toggleTreeView.bind(this);
-    this.toggleTimeDisplay = this.toggleTimeDisplay.bind(this);
-    this.togglePathDisplay = this.togglePathDisplay.bind(this);
-    this.toggleEmptyDisplay = this.toggleEmptyDisplay.bind(this);
-    this.toggleTagsDisplay = this.toggleTagsDisplay.bind(this);
-    this.toggleFilterOnClick = this.toggleFilterOnClick.bind(this);
-    this.toggleExpand = this.toggleExpand.bind(this);
-    this.toggleCollapse = this.toggleCollapse.bind(this);
-  }
+const Toolbar = function (props) {
+  const [treeView, setTreeview] = useState(true);
+  const [displayTime, setDisplayTime] = useState(false);
+  const [displayPath, setDisplayPath] = useState(false);
+  const [infoModal, seteInfoModal] = useState(false);
+  const [filter, setFilter] = useState("all");
+  const [displayEmpty, setDisplayEmpty] = useState(true);
+  const [displayTags, setDisplayTags] = useState(false);
 
-  toggleTreeView() {
-    this.props.updateTreeViewFunc(!this.state.treeView);
-    this.setState((prevState) => ({
-      treeView: !prevState.treeView,
-    }));
-  }
+  const toggleTreeView = () => {
+    props.updateTreeViewFunc(!treeView);
+    setTreeview(!treeView);
+  };
 
-  togglePathDisplay() {
-    this.props.updatePathDisplayFunc(!this.state.displayPath);
-    this.setState((prevState) => ({
-      displayPath: !prevState.displayPath,
-    }));
-  }
+  const togglePathDisplay = () => {
+    props.updatePathDisplayFunc(!displayPath);
+    setDisplayPath(!displayPath);
+  };
 
-  toggleTimeDisplay() {
-    this.props.updateTimeDisplayFunc(!this.state.displayTime);
-    this.setState((prevState) => ({
-      displayTime: !prevState.displayTime,
-    }));
-  }
+  const toggleTimeDisplay = () => {
+    props.updateTimeDisplayFunc(!displayTime);
+    setDisplayTime(!displayTime);
+  };
 
-  toggleInfoOnClick() {
-    this.setState((prevState) => ({
-      infoModal: !prevState.infoModal,
-    }));
-  }
+  const toggleInfoOnClick = () => {
+    seteInfoModal(!infoModal);
+  };
 
-  toggleFilterOnClick() {
-    this.setState((prevState) => ({
-      filterOpen: !prevState.filterOpen,
-    }));
-  }
-
-  filterOnClick(e) {
+  const filterOnClick = (e) => {
     let checkedValue = e.currentTarget.value;
-    this.setState({ filter: checkedValue });
-    this.props.updateFilterFunc(checkedValue);
-  }
+    setFilter(checkedValue);
+    props.updateFilterFunc(checkedValue);
+  };
 
-  toggleEmptyDisplay() {
-    this.props.updateEmptyDisplayFunc(!this.state.displayEmpty);
-    this.setState((prevState) => ({
-      displayEmpty: !prevState.displayEmpty,
-    }));
-  }
+  const toggleEmptyDisplay = () => {
+    props.updateEmptyDisplayFunc(!displayEmpty);
+    setDisplayEmpty(!displayEmpty);
+  };
 
-  toggleTagsDisplay() {
-    this.props.updateTagsDisplayFunc(!this.state.displayTags);
-    this.setState((prevState) => ({
-      displayTags: !prevState.displayTags,
-    }));
-  }
+  const toggleTagsDisplay = () => {
+    props.updateTagsDisplayFunc(!displayTags);
+    setDisplayTags(!displayTags);
+  };
 
-  toggleExpand() {
-    if (this.props.expandStatus === EXPAND_STATUS.EXPAND) {
-      this.props.updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
+  const toggleExpand = () => {
+    if (props.expandStatus === EXPAND_STATUS.EXPAND) {
+      props.updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
     } else {
-      this.props.updateExpandStatusFunc(EXPAND_STATUS.EXPAND);
+      props.updateExpandStatusFunc(EXPAND_STATUS.EXPAND);
     }
-  }
+  };
 
-  toggleCollapse() {
-    if (this.props.expandStatus === EXPAND_STATUS.COLLAPSE) {
-      this.props.updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
+  const toggleCollapse = () => {
+    if (props.expandStatus === EXPAND_STATUS.COLLAPSE) {
+      props.updateExpandStatusFunc(EXPAND_STATUS.DEFAULT);
     } else {
-      this.props.updateExpandStatusFunc(EXPAND_STATUS.COLLAPSE);
+      props.updateExpandStatusFunc(EXPAND_STATUS.COLLAPSE);
     }
-  }
+  };
 
-  expandButtons() {
+  const expandButtons = () => {
     return (
       <>
         <NavItem key="expand-icon-item">
@@ -164,12 +129,12 @@ class Toolbar extends Component {
             <FontAwesomeIcon
               key="expand-icon"
               className={
-                this.props.expandStatus === EXPAND_STATUS.EXPAND
-                  ? getToggledButtonStyle(this.props.status)
+                props.expandStatus === EXPAND_STATUS.EXPAND
+                  ? getToggledButtonStyle(props.status)
                   : css(styles.toolbarButton)
               }
               icon="angle-double-down"
-              onClick={this.toggleExpand}
+              onClick={toggleExpand}
               title="Expand all assertions"
             />
           </div>
@@ -179,21 +144,21 @@ class Toolbar extends Component {
             <FontAwesomeIcon
               key="collapse-icon"
               className={
-                this.props.expandStatus === EXPAND_STATUS.COLLAPSE
-                  ? getToggledButtonStyle(this.props.status)
+                props.expandStatus === EXPAND_STATUS.COLLAPSE
+                  ? getToggledButtonStyle(props.status)
                   : css(styles.toolbarButton)
               }
               icon="angle-double-up"
-              onClick={this.toggleCollapse}
+              onClick={toggleCollapse}
               title="Collapse all assertions"
             />
           </div>
         </NavItem>
       </>
     );
-  }
+  };
 
-  treeViewButton() {
+  const treeViewButton = () => {
     return (
       <NavItem>
         <div className={css(styles.buttonsBar)}>
@@ -202,14 +167,14 @@ class Toolbar extends Component {
             className={css(styles.toolbarButton)}
             icon="bars"
             title="Navigation"
-            onClick={this.toggleTreeView}
+            onClick={toggleTreeView}
           />
         </div>
       </NavItem>
     );
-  }
+  };
 
-  detailsButton(toolbarStyle) {
+  const detailsButton = (toolbarStyle) => {
     return (
       <UncontrolledDropdown nav inNavbar>
         <div className={css(styles.buttonsBar)}>
@@ -229,7 +194,7 @@ class Toolbar extends Component {
                 type="checkbox"
                 name="filter"
                 value="time"
-                onChange={this.toggleTimeDisplay}
+                onChange={toggleTimeDisplay}
               />{" "}
               Time Information
             </Label>
@@ -240,7 +205,7 @@ class Toolbar extends Component {
                 type="checkbox"
                 name="filter"
                 value="path"
-                onChange={this.togglePathDisplay}
+                onChange={togglePathDisplay}
               />{" "}
               File Path
             </Label>
@@ -248,9 +213,9 @@ class Toolbar extends Component {
         </DropdownMenu>
       </UncontrolledDropdown>
     );
-  }
+  };
 
-  infoButton() {
+  const infoButton = () => {
     return (
       <NavItem>
         <div className={css(styles.buttonsBar)}>
@@ -259,14 +224,14 @@ class Toolbar extends Component {
             className={css(styles.toolbarButton)}
             icon="info"
             title="Info"
-            onClick={this.toggleInfoOnClick}
+            onClick={toggleInfoOnClick}
           />
         </div>
       </NavItem>
     );
-  }
+  };
 
-  filterButton(toolbarStyle) {
+  const filterButton = (toolbarStyle) => {
     return (
       <UncontrolledDropdown nav inNavbar>
         <div className={css(styles.buttonsBar)}>
@@ -286,8 +251,8 @@ class Toolbar extends Component {
                 type="radio"
                 name="filter"
                 value="all"
-                checked={this.state.filter === "all"}
-                onChange={this.filterOnClick}
+                checked={filter === "all"}
+                onChange={filterOnClick}
               />{" "}
               All
             </Label>
@@ -298,8 +263,8 @@ class Toolbar extends Component {
                 type="radio"
                 name="filter"
                 value="fail"
-                checked={this.state.filter === "fail"}
-                onChange={this.filterOnClick}
+                checked={filter === "fail"}
+                onChange={filterOnClick}
               />{" "}
               Failed only
             </Label>
@@ -310,8 +275,8 @@ class Toolbar extends Component {
                 type="radio"
                 name="filter"
                 value="pass"
-                checked={this.state.filter === "pass"}
-                onChange={this.filterOnClick}
+                checked={filter === "pass"}
+                onChange={filterOnClick}
               />{" "}
               Passed only
             </Label>
@@ -322,8 +287,8 @@ class Toolbar extends Component {
               <Input
                 type="checkbox"
                 name="displayEmptyTest"
-                checked={!this.state.displayEmpty}
-                onChange={this.toggleEmptyDisplay}
+                checked={!displayEmpty}
+                onChange={toggleEmptyDisplay}
               />{" "}
               Hide empty testcase
             </Label>
@@ -331,13 +296,13 @@ class Toolbar extends Component {
         </DropdownMenu>
       </UncontrolledDropdown>
     );
-  }
+  };
 
-  tagsButton() {
-    const toolbarButtonStyle = this.state.displayTags
-      ? getToggledButtonStyle(this.props.status)
+  const tagsButton = () => {
+    const toolbarButtonStyle = displayTags
+      ? getToggledButtonStyle(props.status)
       : css(styles.toolbarButton);
-    const iconTooltip = this.state.displayTags ? "Hide tags" : "Display tags";
+    const iconTooltip = displayTags ? "Hide tags" : "Display tags";
 
     return (
       <NavItem>
@@ -347,14 +312,14 @@ class Toolbar extends Component {
             className={toolbarButtonStyle}
             icon="tags"
             title={iconTooltip}
-            onClick={this.toggleTagsDisplay}
+            onClick={toggleTagsDisplay}
           />
         </div>
       </NavItem>
     );
-  }
+  };
 
-  printButton() {
+  const printButton = () => {
     return (
       <NavItem>
         <div className={css(styles.buttonsBar)}>
@@ -368,9 +333,9 @@ class Toolbar extends Component {
         </div>
       </NavItem>
     );
-  }
+  };
 
-  documentationButton() {
+  const documentationButton = () => {
     return (
       <NavItem>
         <a
@@ -388,78 +353,75 @@ class Toolbar extends Component {
         </a>
       </NavItem>
     );
-  }
+  };
 
-  filterBox() {
+  const filterBox = () => {
     return (
       <div
         className={css(styles.filterBox)}
         style={{
-          width: this.props.filterBoxWidth,
+          width: props.filterBoxWidth,
         }}
       >
         <FilterBox
-          handleNavFilter={this.props.handleNavFilter}
-          filterText={this.props.filterText}
+          handleNavFilter={props.handleNavFilter}
+          filterText={props.filterText}
         />
       </div>
     );
-  }
+  };
 
-  navbar() {
-    const toolbarStyle = getToolbarStyle(this.props.status);
+  const navbar = () => {
+    const toolbarStyle = getToolbarStyle(props.status);
 
     return (
       <Navbar light expand="md" className={css(styles.toolbar)}>
-        {this.filterBox()}
-        <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
+        {filterBox()}
+        <Collapse isOpen={false} navbar className={toolbarStyle}>
           <Nav navbar className="ml-auto">
-            {this.treeViewButton()}
-            {this.expandButtons()}
-            {this.props.extraButtons}
-            {this.detailsButton(toolbarStyle)}
-            {this.filterButton(toolbarStyle)}
-            {this.tagsButton()}
-            {this.infoButton()}
-            {this.printButton()}
-            {this.documentationButton()}
+            {treeViewButton()}
+            {expandButtons()}
+            {props.extraButtons}
+            {detailsButton(toolbarStyle)}
+            {filterButton(toolbarStyle)}
+            {tagsButton()}
+            {infoButton()}
+            {printButton()}
+            {documentationButton()}
           </Nav>
         </Collapse>
       </Navbar>
     );
-  }
+  };
 
-  infoModal() {
+  const infoModalWindow = () => {
     return (
       <Modal
-        isOpen={this.state.infoModal}
-        toggle={this.toggleInfoOnClick}
+        isOpen={infoModal}
+        toggle={toggleInfoOnClick}
         size="lg"
         className="infoModal"
       >
-        <ModalHeader toggle={this.toggleInfoOnClick}>Information</ModalHeader>
-        <ModalBody>{getInfoTable(this.props.report)}</ModalBody>
+        <ModalHeader toggle={toggleInfoOnClick}>Information</ModalHeader>
+        <ModalBody>{getInfoTable(props.report)}</ModalBody>
         <ModalFooter>
-          <Button color="light" onClick={this.toggleInfoOnClick}>
+          <Button color="light" onClick={toggleInfoOnClick}>
             Close
           </Button>
         </ModalFooter>
       </Modal>
     );
-  }
+  };
 
-  /**
-   * Render the toolbar component.
-   */
-  render() {
-    return (
-      <div>
-        {this.navbar()}
-        {this.infoModal()}
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      {navbar()}
+      {infoModalWindow()}
+    </div>
+  );
+
+  // return <ToolbarComponent {...props}></ToolbarComponent>;
+};
 
 /**
  * Get the current toolbar style based on the testplan status.
