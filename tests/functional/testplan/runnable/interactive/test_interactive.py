@@ -181,7 +181,11 @@ def test_top_level_tests():
         from .reports.basic_run_suite_test2 import REPORT as BRSTest2
 
         assert (
-            compare(BRSTest2, plan.i.test_report("Test2"), ignore=["hash"])[0]
+            compare(
+                BRSTest2,
+                plan.i.test_report("Test2"),
+                ignore=["hash"],
+            )[0]
             is True
         )
 

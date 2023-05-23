@@ -14,6 +14,7 @@ from testplan.common.remote.remote_resource import (
     RemoteResource,
     UnboundRemoteResourceConfig,
 )
+from testplan.common.report.base import EventRecorder
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import rebase_path
 from testplan.common.utils.remote import ssh_cmd, copy_cmd
@@ -140,13 +141,21 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def pre_start(self) -> None:
         self.define_runpath()
-        self._prepare_remote()
+        with EventRecorder(
+            name="Prepare remote", event_type="function"
+        ) as event_executor:
+            self._prepare_remote()
+        self.event_recorder.add_child(event_executor)
         self._set_child_script()
         self._write_syspath()
 
     def pre_stop(self) -> None:
         """Stop child process worker."""
-        self._fetch_results()
+        with EventRecorder(
+            name="Fetch results", event_type="function"
+        ) as event_executor:
+            self._fetch_results()
+        self.event_recorder.add_child(event_executor)
 
     def post_stop(self) -> None:
         self._clean_remote()
