@@ -1,13 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import base64url from "base64url";
 import NavList from "./NavList";
 import TreeViewNav from "./TreeView";
 import {
   GetSelectedUid,
   GetNavEntries,
   GetInteractiveNavEntries,
-  GetNavBreadcrumbs,
 } from "./navUtils";
 
 /**

@@ -7,8 +7,6 @@ import { StyleSheet, css } from "aphrodite";
 
 import Message from "../Common/Message";
 import Toolbar from "../Toolbar/Toolbar";
-import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
-import Nav from "../Nav/Nav";
 import { COLUMN_WIDTH } from "../Common/defaults";
 
 const EmptyReport = (props) => {
