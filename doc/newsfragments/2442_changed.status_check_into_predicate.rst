@@ -1,1 +1,0 @@
-The :py:meth:`~testplan.testing.multitest.driver.Driver.started_check` and :py:meth:`~testplan.testing.multitest.driver.Driver.stopped_check` interfaces will now serve as quickly-executed predicates of driver status test.  **This is a breaking change.**
