@@ -1,2 +1,0 @@
-Testplan now has support for usr1 and usr2 signal handlers. Triggering the usr1 signal drops Testplan to pdb mode
-and usr2 prints some debug information about the testplan process.

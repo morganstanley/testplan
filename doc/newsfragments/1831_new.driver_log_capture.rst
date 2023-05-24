@@ -1,1 +1,0 @@
-Drivers now can attach some extra logs to the report in case of startup/shutdown failure, with implementing: :py:meth:`fetch_error_log <testplan.common.entity.base.Resource.fetch_error_log>`.

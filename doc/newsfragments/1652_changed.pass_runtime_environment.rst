@@ -1,1 +1,0 @@
-The wrapper class of the ``env`` object passed to setup/teardown/after_stop etc is now py:class:`~testplan.testing.multitest.base.RuntimeEnvironment`.
