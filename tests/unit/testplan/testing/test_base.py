@@ -1,11 +1,8 @@
-"""TODO."""
-
 import time
-from typing import List
 
 from testplan import TestplanMock
 from testplan.common.entity import Runnable
-from testplan.report import ReportCategories, Status, TestGroupReport
+from testplan.report import Status
 from testplan.runnable import TestRunnerStatus
 from testplan.runners.local import LocalRunner
 from testplan.testing.base import Test, TestResult
@@ -13,17 +10,6 @@ from testplan.testing.multitest.driver import Driver
 
 
 class DummyDriver(Driver):
-    def start(self):
-        self.status.change(self.STATUS.STARTING)
-        self.starting()
-
-    def stop(self):
-        if self.status == self.STATUS.STOPPED:
-            return
-        self.status.change(self.STATUS.STOPPING)
-        if self.active:
-            self.stopping()
-
     def starting(self):
         time.sleep(0.2)  # 200ms for startup
 

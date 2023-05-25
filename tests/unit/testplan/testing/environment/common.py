@@ -6,10 +6,8 @@ from testplan.common.utils.timing import DEFAULT_INTERVAL
 from testplan.testing.multitest.driver import Driver
 
 
-def assert_lhs_before_rhs(mock_calls, lhs, rhs):
-    assert mock_calls.index(call.post(lhs.name)) < mock_calls.index(
-        call.pre(rhs.name)
-    )
+def assert_lhs_before_rhs(d_list, lhs, rhs):
+    assert d_list.index(lhs.name) < d_list.index(rhs.name)
 
 
 def assert_lhs_call_before_rhs_call(mock_calls, l_call, r_call):

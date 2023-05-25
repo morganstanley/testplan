@@ -1,6 +1,7 @@
 from copy import copy
+from dataclasses import dataclass, field
 from itertools import product
-from typing import TYPE_CHECKING, Iterable, List
+from typing import TYPE_CHECKING, Dict, Iterable, List, Set
 
 from testplan.common.utils.graph import DirectedGraph
 
@@ -14,49 +15,57 @@ def _type_err(msg: str) -> TypeError:
     )
 
 
+@dataclass
 class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
     """
     An always acyclic directed graph, also bookkeeping driver starting status.
     """
 
-    _starting = set()
+    processing: Set["Driver"] = field(default_factory=set)
+    processed: List["Driver"] = field(default_factory=list)
 
     @classmethod
     def from_directed_graph(cls, g: DirectedGraph) -> "DriverDepGraph":
-        if len(g.cycles()):
+        cycles = g.cycles()
+        if len(cycles):
             raise ValueError(
                 "Bad Testplan Driver dependency definition. "
-                f"Cyclic dependency detected among {g.cycles()[0]}."
+                f"Cyclic dependency detected among {cycles[0]}."
             )
         g_ = copy(g)
         return cls(g_.vertices, g_.edges, g_.indegrees, g_.outdegrees)
 
-    def mark_starting(self, driver: "Driver"):
-        self._starting.add(driver.uid())
+    def mark_processing(self, driver: "Driver"):
+        self.processing.add(driver.uid())
 
-    def mark_started(self, driver: "Driver"):
-        self._starting.remove(driver.uid())
+    def mark_processed(self, driver: "Driver"):
+        self.processing.remove(driver.uid())
+        self.remove_vertex(driver.uid())
+        self.processed.append(driver.uid())
+
+    def mark_failed_to_process(self, driver: "Driver"):
+        self.processing.remove(driver.uid())
         self.remove_vertex(driver.uid())
 
-    def drivers_to_start(self) -> List["Driver"]:
+    def drivers_to_process(self) -> List["Driver"]:
         return [
             self.vertices[d]
             for d in self.zero_indegrees()
-            if d not in self._starting
+            if d not in self.processing
         ]
 
-    def drivers_starting(self) -> List["Driver"]:
-        return [self.vertices[d] for d in self._starting]
+    def drivers_processing(self) -> List["Driver"]:
+        return [self.vertices[d] for d in self.processing]
 
-    def all_drivers_started(self) -> bool:
+    def all_drivers_processed(self) -> bool:
         return not len(self)
 
-    def purge_drivers_to_start(self):
+    def purge_drivers_to_process(self):
         """
         A graph operation which purges everything in the graph except for the
-        drivers still in starting status.
+        drivers still in processing status.
         """
-        self.vertices = {d: self.vertices[d] for d in self._starting}
+        self.vertices = {d: self.vertices[d] for d in self.processing}
         self.edges = {d: dict() for d in self.vertices}
         self.indegrees = {d: 0 for d in self.vertices}
         self.outdegrees = {d: 0 for d in self.vertices}
@@ -68,7 +77,8 @@ class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
             indegrees=copy(self.indegrees),
             outdegrees=copy(self.outdegrees),
         )
-        obj._starting = copy(self._starting)
+        obj.processing = copy(self.processing)
+        obj.processed = copy(self.processed)
         return obj
 
 
@@ -85,10 +95,10 @@ def parse_dependency(input: dict) -> DriverDepGraph:
     will be parsed into
 
     {
-        A: {B: True, C: True},
-        B: {D: True, E: True},
-        C: {D: True, E: True},
-        E: {F: True},
+        "A": {"B": None, "C": None},
+        "B": {"D": None, "E": None},
+        "C": {"D": None, "E": None},
+        "E": {"F": None},
     }
     """
 
@@ -133,6 +143,6 @@ def parse_dependency(input: dict) -> DriverDepGraph:
             if e.uid() not in g.vertices:
                 g.add_vertex(e.uid(), e)
             if e.uid() not in g.edges[s.uid()]:
-                g.add_edge(s.uid(), e.uid(), True)
+                g.add_edge(s.uid(), e.uid(), None)
 
     return DriverDepGraph.from_directed_graph(g)

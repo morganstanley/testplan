@@ -86,11 +86,11 @@ class TestFastDrivers:
         c = MockDriver("c", m)
         for d_ in [a, b, c]:
             env.add(d_)
-        env.set_dependency(parse_dependency({a: c, b: c}))
+        env.set_dependency(parse_dependency({a: c, c: b}))
         env.start()
-        assert_lhs_before_rhs(m.method_calls, a, c)
-        assert_lhs_before_rhs(m.method_calls, b, c)
+        assert env._rt_dependency.processed == ["a", "c", "b"]
         env.stop()
+        assert env._rt_dependency.processed == ["b", "c", "a"]
 
     def test_empty_dependency(self, mocker):
         m = mocker.Mock()
@@ -120,8 +120,9 @@ class TestFastDrivers:
             env.add(d_)
         env.set_dependency(parse_dependency({a: b}))
         env.start()
-        assert_lhs_before_rhs(m.method_calls, c, b)
+        assert_lhs_before_rhs(env._rt_dependency.processed, c, b)
         env.stop()
+        assert_lhs_before_rhs(env._rt_dependency.processed, c, a)
 
     def test_complicated_dependency_scheduling(self, mocker):
         m = mocker.Mock()
@@ -142,11 +143,15 @@ class TestFastDrivers:
             )
         )
         env.start()
-        assert_lhs_before_rhs(m.method_calls, a, d)
-        assert_lhs_before_rhs(m.method_calls, c, f)
-        assert_lhs_before_rhs(m.method_calls, f, e)
-        assert_lhs_before_rhs(m.method_calls, e, g)
+        assert_lhs_before_rhs(env._rt_dependency.processed, a, d)
+        assert_lhs_before_rhs(env._rt_dependency.processed, c, f)
+        assert_lhs_before_rhs(env._rt_dependency.processed, f, e)
+        assert_lhs_before_rhs(env._rt_dependency.processed, e, g)
         env.stop()
+        assert_lhs_before_rhs(env._rt_dependency.processed, a, c)
+        assert_lhs_before_rhs(env._rt_dependency.processed, f, c)
+        assert_lhs_before_rhs(env._rt_dependency.processed, e, b)
+        assert_lhs_before_rhs(env._rt_dependency.processed, g, e)
 
 
 class TestSlowDrivers:
@@ -165,11 +170,9 @@ class TestSlowDrivers:
         assert_lhs_call_before_rhs_call(
             m.method_calls, call.pre("b"), call.pre("a")
         )  # b is added to graph before a
-        assert_lhs_before_rhs(m.method_calls, b, c)
-        assert_lhs_before_rhs(m.method_calls, c, d)
-        assert_lhs_call_before_rhs_call(
-            m.method_calls, call.post("d"), call.post("a")
-        )
+        assert_lhs_before_rhs(env._rt_dependency.processed, b, c)
+        assert_lhs_before_rhs(env._rt_dependency.processed, c, d)
+        assert_lhs_before_rhs(env._rt_dependency.processed, d, a)
         env.stop()
 
     def test_scheduling_2(self, mocker):
@@ -184,8 +187,8 @@ class TestSlowDrivers:
 
         env.set_dependency(parse_dependency({(a, b): c, a: d}))
         env.start()
-        assert_lhs_before_rhs(m.method_calls, b, c)
-        assert_lhs_before_rhs(m.method_calls, d, c)
+        assert_lhs_before_rhs(env._rt_dependency.processed, b, c)
+        assert_lhs_before_rhs(env._rt_dependency.processed, d, c)
         env.stop()
 
     def test_scheduling_3(self, mocker):

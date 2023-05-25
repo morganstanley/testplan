@@ -32,9 +32,7 @@ class TestPrePostCallables:
 
     class MyDriver(base.Driver):
         def __init__(self, **options):
-            super(TestPrePostCallables.MyDriver, self).__init__(
-                async_start=False, **options
-            )
+            super(TestPrePostCallables.MyDriver, self).__init__(**options)
             self.pre_start_called = False
             self.post_start_called = False
             self.pre_stop_called = False
@@ -74,9 +72,10 @@ class TestPrePostCallables:
         driver.start()
 
         assert driver.pre_start_called
-        assert driver.post_start_called
 
         driver.wait(driver.STATUS.STARTED)
+
+        assert driver.post_start_called
 
         assert not driver.pre_stop_called
         assert not driver.post_stop_called
@@ -84,9 +83,10 @@ class TestPrePostCallables:
         driver.stop()
 
         assert driver.pre_stop_called
-        assert driver.post_stop_called
 
         driver.wait(driver.STATUS.STOPPED)
+
+        assert driver.post_stop_called
 
     def test_mgr_start_stop(self, runpath):
         """Test pre/post start methods when starting/stopping the driver

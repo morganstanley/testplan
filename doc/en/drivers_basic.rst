@@ -44,10 +44,10 @@ attributes and methods can be used inside the template.
     environment=[
         Service(name='service'),
         Application(name='app',
-                    host=context('service', '{{host}}')
+                    host=context('service', '{{host}}'),
                     port=context('service', '{{port}}')),
         Client(name='client',
-               host=context('app', '{{host}}')
+               host=context('app', '{{host}}'),
                port=context('app', '{{port}}'))
     ]
 
@@ -55,10 +55,10 @@ attributes and methods can be used inside the template.
     # environment argument no longer matters.
 
     client = Client(name='client',
-                    host=context('app', '{{host}}')
+                    host=context('app', '{{host}}'),
                     port=context('app', '{{port}}'))
     application = Application(name='app',
-                              host=context('service', '{{host}}')
+                              host=context('service', '{{host}}'),
                               port=context('service', '{{port}}'))
     service = Service(name='service')
 
@@ -129,7 +129,7 @@ applications.
             'client1',
             context('server', '{{host}}'),
             context('server', '{{port}}')
-        )
+        ),
         TCPClient(
             'client2',
             context('server', '{{host}}'),

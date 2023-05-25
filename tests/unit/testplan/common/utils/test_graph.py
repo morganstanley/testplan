@@ -85,7 +85,6 @@ class TestSCCOperations:
             {1: None, 2: None, 3: None, 4: None, 5: None, 6: None},
             {(2, 4): None, (4, 2): None, (6, 6): None},
         )
-        assert len(g.cycles()) == 2
         assert set(tuple(sorted(c)) for c in g.cycles()) == {(2, 4), (6,)}
 
     def test_cycles_cache_invalidate(self):
@@ -93,7 +92,6 @@ class TestSCCOperations:
             {1: None, 2: None, 3: None, 4: None},
             {(1, 2): None, (2, 3): None, (3, 4): None, (4, 2): None},
         )
-        assert len(g.cycles()) == 1
         assert set(g.cycles()[0]) == {2, 3, 4}
         assert g.add_edge(4, 1, None)
         assert set(g.cycles()[0]) == {1, 2, 3, 4}
@@ -102,5 +100,4 @@ class TestSCCOperations:
         assert g.add_edge(5, 1, None)
         assert set(g.cycles()[0]) == {1, 2, 3, 4, 5}
         assert g.remove_edge(4, 1)
-        assert len(g.cycles()) == 2
         assert set(tuple(sorted(c)) for c in g.cycles()) == {(2, 3, 4), (1, 5)}
