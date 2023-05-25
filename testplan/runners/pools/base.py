@@ -112,7 +112,7 @@ class WorkerBase(entity.Resource):
     @property
     def outfile(self) -> str:
         """Stdout file."""
-        return os.path.join(self.parent.runpath, f"{self.cfg.index}_startup")
+        return os.path.join(self.parent.runpath, f"{self.uid()}_startup")
 
     def uid(self) -> Union[int, str]:
         """Worker unique index."""
