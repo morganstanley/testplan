@@ -452,22 +452,16 @@ class InteractiveReport extends BaseReport {
   }
 
   /**
-   * Shallow copy of a report entry, by replacing the "entries" attribute
-   * with an array of entry UIDs.
+   * Shallow copy of a report entry, filters entries tree down to name,
+   * category, and further entries recursively.
    */
   shallowReportEntry(reportEntry) {
-    let shallowEntry = {};
-
     // copy all of the fields from the input object to the new object, except for the "entries" field
-    for (let key in reportEntry) {
-      if (key !== "entries") {
-        shallowEntry[key] = reportEntry[key];
-      }
-    }
+    const { entries, ...shallowEntry } = reportEntry;
 
-    // if the input object has an "entries" field, process it recursively
-    if (reportEntry.entries) {
-      shallowEntry.entries = reportEntry.entries.map(
+     // if the input object has an "entries" field, process it recursively
+    if (entries && shallowEntry.category != "testcase") {
+      shallowEntry.entries = entries.map(
         entry => this.shallowReportEntry(
           {
             name: entry.name,
