@@ -92,6 +92,8 @@ def _extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
     :return: mapping of testsuites to testcases to be run
     """
     suites_cases = {}
+    if "entries" not in shallow_entry:
+        return suites_cases
 
     category = shallow_entry["category"]
 
