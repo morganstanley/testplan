@@ -130,7 +130,7 @@ def test_run_test(irunner, sync):
                 "case",
                 "parametrized <val=1>",
                 "parametrized <val=2>",
-                "parametrized <val=3>"
+                "parametrized <val=3>",
             ],
         },
     )
@@ -154,7 +154,7 @@ def test_run_suite(irunner, sync):
                 "case",
                 "parametrized <val=1>",
                 "parametrized <val=2>",
-                "parametrized <val=3>"
+                "parametrized <val=3>",
             ],
         },
     )
@@ -218,7 +218,7 @@ def test_run_parametrization_all(irunner, sync):
                 "case",
                 "parametrized <val=1>",
                 "parametrized <val=2>",
-                "parametrized <val=3>"
+                "parametrized <val=3>",
             ],
         },
     )

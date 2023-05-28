@@ -114,10 +114,7 @@ def reset_entries(report, json_body):
         entries.append(
             reset_entries(
                 entry,
-                {
-                    "name": entry.name,
-                    "category": entry.category
-                },
+                {"name": entry.name, "category": entry.category},
             )
         )
 
@@ -275,20 +272,18 @@ class TestSingleTest:
         json_rsp = rsp.get_json()
         assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
         compare_json(
-            json_rsp,
-            json_test,
-            ignored_keys=["runtime_status", "entries"]
+            json_rsp, json_test, ignored_keys=["runtime_status", "entries"]
         )
 
         ihandler.run_test.assert_called_once_with(
             "MTest1",
             await_results=False,
             suites_cases={
-                'Suite1': [
-                    'TestCase1',
-                    'ParametrizedTestCase_0',
-                    'ParametrizedTestCase_1',
-                    'ParametrizedTestCase_2'
+                "Suite1": [
+                    "TestCase1",
+                    "ParametrizedTestCase_0",
+                    "ParametrizedTestCase_1",
+                    "ParametrizedTestCase_2",
                 ]
             },
         )
@@ -456,9 +451,7 @@ class TestSingleSuite:
         json_rsp = rsp.get_json()
         assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
         compare_json(
-            json_rsp,
-            suite_json,
-            ignored_keys=["runtime_status", "entries"]
+            json_rsp, suite_json, ignored_keys=["runtime_status", "entries"]
         )
 
         ihandler.run_test_suite.assert_called_once_with(
@@ -466,13 +459,13 @@ class TestSingleSuite:
             "MT1Suite1",
             await_results=False,
             suites_cases={
-                'Suite1': [
-                    'TestCase1',
-                    'ParametrizedTestCase_0',
-                    'ParametrizedTestCase_1',
-                    'ParametrizedTestCase_2'
+                "Suite1": [
+                    "TestCase1",
+                    "ParametrizedTestCase_0",
+                    "ParametrizedTestCase_1",
+                    "ParametrizedTestCase_2",
                 ]
-            }
+            },
         )
 
     def test_put_validation(self, api_env):
@@ -491,7 +484,7 @@ class TestSingleSuite:
                 "name": "SuiteName",
                 "category": "testsuite",
                 "entries": [],
-            }
+            },
         )
         assert rsp.status_code == 400
 
@@ -636,8 +629,8 @@ class TestSingleTestcase:
             json={
                 "name": "TestcaseName",
                 "category": "testcase",
-                "parent_uids": ["Interactive API Test", "MTest1", "MT1Suite1"]
-            }
+                "parent_uids": ["Interactive API Test", "MTest1", "MT1Suite1"],
+            },
         )
         assert rsp.status_code == 400
 
@@ -746,8 +739,9 @@ class TestParametrizedTestCase:
             json={
                 "name": "TestcaseName",
                 "category": "testcase",
-                "parent_uids": ["Interactive API Test", "MTest1", "MT1Suite1"]
-            })
+                "parent_uids": ["Interactive API Test", "MTest1", "MT1Suite1"],
+            },
+        )
         assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
