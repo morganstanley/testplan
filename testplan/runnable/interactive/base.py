@@ -6,6 +6,7 @@ import numbers
 import re
 import threading
 from concurrent import futures
+from typing import Dict, List
 
 from testplan.common import config, entity
 from testplan.common.report import Report
@@ -240,13 +241,19 @@ class TestRunnerIHandler(entity.Entity):
         for test_uid in self.all_tests():
             self.run_test(test_uid)
 
-    def run_test(self, test_uid, suites_cases=None, await_results=True):
+    def run_test(
+        self,
+        test_uid: str,
+        suites_cases: Dict[str, List[str]] = None,
+        await_results: bool = True,
+    ):
         """
         Run a single Test instance.
 
-        :param test_uid: UID of test to run.
+        :param test_uid: UID of test to run
+        :param suites_cases: suite indexed dictionary of testcases lists
         :param await_results: Whether to block until the test is finished,
-            defaults to True.
+            defaults to True
         :return: If await_results is True, returns a test report.
             Otherwise, returns a future which will yield a test report when
             ready.
@@ -280,16 +287,17 @@ class TestRunnerIHandler(entity.Entity):
 
     def run_test_suite(
         self,
-        test_uid,
-        suite_uid,
-        suites_cases=None,
-        await_results=True,
+        test_uid: str,
+        suite_uid: str,
+        suites_cases: Dict[str, List[str]] = None,
+        await_results: bool = True,
     ):
         """
         Run a single test suite.
 
         :param test_uid: UID of the test that owns the suite.
-        :param suite_uid: UID of the suite to run.
+        :param suite_uid: UID of the suite to run
+        :param suites_cases: suite indexed dictionary of testcases lists
         :param await_results: Whether to block until the suite is finished,
             defaults to True.
         :return: If await_results is True, returns a testsuite report.
@@ -332,21 +340,22 @@ class TestRunnerIHandler(entity.Entity):
 
     def run_test_case(
         self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        suites_cases=None,
-        await_results=True,
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        suites_cases: Dict[str, List[str]] = None,
+        await_results: bool = True,
     ):
         """
         Run a single testcase.
 
-        :param test_uid: UID of the test that owns the testcase.
-        :param suite_uid: UID of the suite that owns the testcase.
-        :param case_uid: UID of the testcase to run.
+        :param test_uid: UID of the test that owns the testcase
+        :param suite_uid: UID of the suite that owns the testcase
+        :param case_uid: UID of the testcase to run
+        :param suites_cases: suite indexed dictionary of testcases lists
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
-        :return: If await_results is True, returns a testcase report.
+        :return: If await_results is True, returns a testcase report
             Otherwise, returns a future which will yield a testcase report when
             ready.
         """
@@ -393,20 +402,21 @@ class TestRunnerIHandler(entity.Entity):
 
     def run_test_case_param(
         self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        param_uid,
-        suites_cases=None,
-        await_results=True,
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        param_uid: str,
+        suites_cases: Dict[str, List[str]] = None,
+        await_results: bool = True,
     ):
         """
         Run a single parametrization of a testcase.
 
-        :param test_uid: UID of the test that owns the testcase.
-        :param suite_uid: UID of the suite that owns the testcase.
-        :param case_uid: UID of the testcase to run.
-        :param param_uid: UID of the parametrization to run.
+        :param test_uid: UID of the test that owns the testcase
+        :param suite_uid: UID of the suite that owns the testcase
+        :param case_uid: UID of the testcase to run
+        :param param_uid: UID of the parametrization to run
+        :param suites_cases: suite indexed dictionary of testcases lists
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a testcase report.

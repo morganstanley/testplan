@@ -1,1 +1,1 @@
-Interactive UI now runs only cases visible on the navigation to be in line with filter expression.
+Interactive UI now runs only cases matching the filter pattern if present.

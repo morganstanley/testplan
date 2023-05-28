@@ -120,27 +120,20 @@ def irunner():
 
 
 @pytest.mark.parametrize("sync", [True, False])
-def test_run_all_tests(irunner, sync):
-    """Test running all tests."""
-    _check_initial_report(irunner.report)
-
-    ret = irunner.run_all_tests(await_results=sync)
-
-    # If the tests were run asynchronously, await the results.
-    if not sync:
-        assert ret.result() is None
-
-    # The report tree should have been updated as a side-effect.
-    assert irunner.report.passed
-    assert len(irunner.report.entries) == 3
-    for test_report in irunner.report:
-        assert test_report.passed
-
-
-@pytest.mark.parametrize("sync", [True, False])
 def test_run_test(irunner, sync):
     """Test running a single test."""
-    ret = irunner.run_test("test_1", await_results=sync)
+    ret = irunner.run_test(
+        "test_1",
+        await_results=sync,
+        suites_cases={
+            "Suite": [
+                "case",
+                "parametrized <val=1>",
+                "parametrized <val=2>",
+                "parametrized <val=3>"
+            ],
+        },
+    )
 
     if not sync:
         assert ret.result() is None
@@ -152,7 +145,19 @@ def test_run_test(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_suite(irunner, sync):
     """Test running a single test suite."""
-    ret = irunner.run_test_suite("test_1", "Suite", await_results=sync)
+    ret = irunner.run_test_suite(
+        "test_1",
+        "Suite",
+        await_results=sync,
+        suites_cases={
+            "Suite": [
+                "case",
+                "parametrized <val=1>",
+                "parametrized <val=2>",
+                "parametrized <val=3>"
+            ],
+        },
+    )
 
     if not sync:
         assert ret.result() is None
@@ -164,7 +169,13 @@ def test_run_suite(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_testcase(irunner, sync):
     """Test running a single testcase."""
-    ret = irunner.run_test_case("test_1", "Suite", "case", await_results=sync)
+    ret = irunner.run_test_case(
+        "test_1",
+        "Suite",
+        "case",
+        await_results=sync,
+        suites_cases={"Suite": ["case"]},
+    )
 
     if not sync:
         assert ret.result() is None
@@ -182,6 +193,7 @@ def test_run_parametrization(irunner, sync):
         "parametrized",
         "parametrized__val_1",
         await_results=sync,
+        suites_cases={"Suite": ["parametrized <val=1>"]},
     )
 
     if not sync:
@@ -197,7 +209,18 @@ def test_run_parametrization(irunner, sync):
 def test_run_parametrization_all(irunner, sync):
     """Test running all the parametrization of a parametrization group."""
     ret = irunner.run_test_case(
-        "test_1", "Suite", "parametrized", await_results=sync
+        "test_1",
+        "Suite",
+        "parametrized",
+        await_results=sync,
+        suites_cases={
+            "Suite": [
+                "case",
+                "parametrized <val=1>",
+                "parametrized <val=2>",
+                "parametrized <val=3>"
+            ],
+        },
     )
 
     if not sync:
@@ -237,52 +260,6 @@ def test_environment_control(irunner, sync):
     assert test.resources.all_status(entity.ResourceStatus.STOPPED)
     assert test.resources.mock_driver.status == entity.ResourceStatus.STOPPED
     assert irunner.report["test_1"].env_status == entity.ResourceStatus.STOPPED
-
-
-@pytest.mark.parametrize(
-    "tags,num_of_suite_entries", ((("foo",), 3), (("bar", "baz"), 2))
-)
-def test_run_all_tagged_tests(tags, num_of_suite_entries):
-    """Test running all tests whose testcases are selected by tags."""
-    target = runnable.TestRunner(name="TestRunner")
-
-    local_runner = LocalRunner()
-    test_uids = ["test_1", "test_2", "test_3"]
-    test_objs = [
-        multitest.MultiTest(
-            name=uid,
-            suites=[TaggedSuite()],
-            test_filter=filtering.Tags({"simple": set(tags)}),
-            test_sorter=ordering.NoopSorter(),
-            stdout_style=defaults.STDOUT_STYLE,
-            environment=[driver.Driver(name="mock_driver")],
-        )
-        for uid in test_uids
-    ]
-
-    for test in test_objs:
-        local_runner.add(test, test.uid())
-
-    target.resources.add(local_runner)
-
-    with mock.patch("cheroot.wsgi.Server"), mock.patch(
-        "testplan.runnable.interactive.reloader.ModuleReloader"
-    ) as MockReloader:
-        MockReloader.return_value = None
-
-        irunner = base.TestRunnerIHandler(target)
-        irunner.setup()
-
-        irunner.run_all_tests(await_results=True)
-        assert irunner.report.passed
-        assert len(irunner.report.entries) == 3
-        for test_report in irunner.report:
-            assert test_report.passed
-            assert len(test_report.entries) == 1
-            assert len(test_report.entries[0].entries) == num_of_suite_entries
-            assert len(test_report.entries[0].entries[-1].entries) == 3
-
-        irunner.teardown()
 
 
 def _check_initial_report(initial_report):

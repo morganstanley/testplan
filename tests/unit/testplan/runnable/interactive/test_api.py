@@ -105,6 +105,27 @@ def example_report():
     )
 
 
+def reset_entries(report, json_body):
+    if not hasattr(report, "entries"):
+        return json_body
+
+    entries = []
+    for index, entry in enumerate(report.entries):
+        entries.append(
+            reset_entries(
+                entry,
+                {
+                    "name": entry.name,
+                    "category": entry.category
+                },
+            )
+        )
+
+    if json_body["category"] != "testcase":
+        json_body["entries"] = entries
+    return json_body
+
+
 @pytest.fixture()
 def api_env(example_report):
     """
@@ -245,6 +266,7 @@ class TestSingleTest:
         client, ihandler = api_env
 
         json_test = ihandler.report["MTest1"].shallow_serialize()
+        reset_entries(ihandler.report["MTest1"], json_test)
         json_test["runtime_status"] = report.RuntimeStatus.RUNNING
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
@@ -252,10 +274,23 @@ class TestSingleTest:
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
-        compare_json(json_rsp, json_test, ignored_keys=["runtime_status"])
+        compare_json(
+            json_rsp,
+            json_test,
+            ignored_keys=["runtime_status", "entries"]
+        )
 
         ihandler.run_test.assert_called_once_with(
-            "MTest1", await_results=False, suites_cases={}
+            "MTest1",
+            await_results=False,
+            suites_cases={
+                'Suite1': [
+                    'TestCase1',
+                    'ParametrizedTestCase_0',
+                    'ParametrizedTestCase_1',
+                    'ParametrizedTestCase_2'
+                ]
+            },
         )
 
     def test_put_reset(self, api_env):
@@ -264,13 +299,18 @@ class TestSingleTest:
 
         json_test = ihandler.report["MTest1"].shallow_serialize()
         json_test["runtime_status"] = report.RuntimeStatus.RESETTING
+        reset_entries(ihandler.report["MTest1"], json_test)
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
-        compare_json(json_rsp, json_test, ignored_keys=["runtime_status"])
+        compare_json(
+            json_rsp,
+            json_test,
+            ignored_keys=["runtime_status", "entries"],
+        )
 
         ihandler.reset_test.assert_called_once_with(
             "MTest1", await_results=False
@@ -281,12 +321,18 @@ class TestSingleTest:
         client, ihandler = api_env
 
         json_test = ihandler.report["MTest1"].shallow_serialize()
+        reset_entries(ihandler.report["MTest1"], json_test)
         json_test["env_status"] = "STARTING"
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
         assert rsp.status_code == 200
-        compare_json(rsp.get_json(), json_test)
+        json_rsp = rsp.get_json()
+        compare_json(
+            json_rsp,
+            json_test,
+            ignored_keys=["entries"],
+        )
 
         ihandler.start_test_resources.assert_called_once_with(
             "MTest1", await_results=False
@@ -299,7 +345,12 @@ class TestSingleTest:
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
         assert rsp.status_code == 200
-        compare_json(rsp.get_json(), json_test)
+        json_rsp = rsp.get_json()
+        compare_json(
+            json_rsp,
+            json_test,
+            ignored_keys=["entries"],
+        )
 
         ihandler.stop_test_resources.assert_called_once_with(
             "MTest1", await_results=False
@@ -324,17 +375,26 @@ class TestSingleTest:
         assert rsp.status_code == 400
 
         # "uid" field is required.
-        rsp = client.put(api_url, json={"name": "MTestName"})
+        rsp = client.put(
+            api_url,
+            json={
+                "name": "MTestName",
+                "category": "multitest",
+                "entries": [],
+            },
+        )
         assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
         json_test = ihandler.report["MTest1"].shallow_serialize()
+        reset_entries(ihandler.report["MTest1"], json_test)
         json_test["uid"] = "I have changed"
         rsp = client.put(api_url, json=json_test)
         assert rsp.status_code == 400
 
         # Cannot change status if test is already running/resetting/waiting
         json_test = ihandler.report["MTest1"].shallow_serialize()
+        reset_entries(ihandler.report["MTest1"], json_test)
         json_test["runtime_status"] = report.RuntimeStatus.RUNNING
         rsp = client.put(api_url, json=json_test)
         assert rsp.status_code == 200
@@ -386,6 +446,7 @@ class TestSingleSuite:
         client, ihandler = api_env
 
         suite_json = ihandler.report["MTest1"]["MT1Suite1"].shallow_serialize()
+        reset_entries(ihandler.report["MTest1"]["MT1Suite1"], suite_json)
         suite_json["runtime_status"] = report.RuntimeStatus.RUNNING
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1",
@@ -394,10 +455,24 @@ class TestSingleSuite:
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
-        compare_json(json_rsp, suite_json, ignored_keys=["runtime_status"])
+        compare_json(
+            json_rsp,
+            suite_json,
+            ignored_keys=["runtime_status", "entries"]
+        )
 
         ihandler.run_test_suite.assert_called_once_with(
-            "MTest1", "MT1Suite1", await_results=False, suites_cases={}
+            "MTest1",
+            "MT1Suite1",
+            await_results=False,
+            suites_cases={
+                'Suite1': [
+                    'TestCase1',
+                    'ParametrizedTestCase_0',
+                    'ParametrizedTestCase_1',
+                    'ParametrizedTestCase_2'
+                ]
+            }
         )
 
     def test_put_validation(self, api_env):
@@ -410,13 +485,21 @@ class TestSingleSuite:
         assert rsp.status_code == 400
 
         # "uid" field is required.
-        rsp = client.put(api_url, json={"name": "SuiteName"})
+        rsp = client.put(
+            api_url,
+            json={
+                "name": "SuiteName",
+                "category": "testsuite",
+                "entries": [],
+            }
+        )
         assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
         shallow_suite = ihandler.report["MTest1"][
             "MT1Suite1"
         ].shallow_serialize()
+        reset_entries(ihandler.report["MTest1"]["MT1Suite1"], shallow_suite)
         shallow_suite["uid"] = "I have changed"
         rsp = client.put(api_url, json=shallow_suite)
         assert rsp.status_code == 400
@@ -548,7 +631,14 @@ class TestSingleTestcase:
         assert rsp.status_code == 400
 
         # "uid" field is required.
-        rsp = client.put(api_url, json={"name": "TestcaseName"})
+        rsp = client.put(
+            api_url,
+            json={
+                "name": "TestcaseName",
+                "category": "testcase",
+                "parent_uids": ["Interactive API Test", "MTest1", "MT1Suite1"]
+            }
+        )
         assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
@@ -651,7 +741,13 @@ class TestParametrizedTestCase:
         assert rsp.status_code == 400
 
         # "uid" field is required.
-        rsp = client.put(api_url, json={"name": "TestcaseName"})
+        rsp = client.put(
+            api_url,
+            json={
+                "name": "TestcaseName",
+                "category": "testcase",
+                "parent_uids": ["Interactive API Test", "MTest1", "MT1Suite1"]
+            })
         assert rsp.status_code == 400
 
         # "uid" field cannot be changed.

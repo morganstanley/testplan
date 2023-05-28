@@ -5,7 +5,7 @@ import concurrent
 import functools
 import itertools
 import os
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Dict, List, Generator
 
 from schema import And, Or, Use
 
@@ -453,41 +453,30 @@ class MultiTest(testing_base.Test):
 
     def run_testcases_iter(
         self,
-        testsuite_pattern="*",
-        testcase_pattern="*",
-        suites_cases=None,
-    ):
-        """Run all testcases and yield testcase reports."""
-        if not suites_cases:
-            test_filter = filtering.Pattern(
-                pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
-                match_definition=True,
-            )
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        suites_cases: Dict[str, List[str]] = None,
+    ) -> Generator:
+        """
+        Run all testcases and yield testcase reports.
+
+        :param testsuite_pattern: pattern to use for testsuite filtering
+        :param testcase_pattern: pattern to use for testcase filtering
+        :param suites_cases: suite indexed dictionary of testcases lists
+        """
 
         for testsuite, testcases in self.test_context:
             if not self.active:
                 break
 
-            if suites_cases:
+            if testsuite.name not in suites_cases:
+                continue
 
-                if testsuite.name not in suites_cases:
-                    continue
-
-                # In interactive mode testcases are selected to run, thus
-                # an extra ``filtering.Pattern`` instance will be applied.
-                testcases = [
-                    testcase
-                    for testcase in testcases
-                    if testcase.name in suites_cases[testsuite.name]
-                ]
-            else:
-                testcases = [
-                    testcase
-                    for testcase in testcases
-                    if test_filter.filter(
-                        test=self, suite=testsuite, case=testcase
-                    )
-                ]
+            testcases = [
+                testcase
+                for testcase in testcases
+                if testcase.name in suites_cases[testsuite.name]
+            ]
 
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)

@@ -31,13 +31,6 @@ automatic code-reloading feature which allows testcases to be tweaked, added or
 rewritten and then run without having to restart the main Testplan process or
 interrupt processes started as part of the test environment.
 
-.. note::
-
-    The interactive mode is currently in under active development.
-    There are still a few features yet to be implemented, for example the regular expression based filtering or
-    the plan level run button.
-    Please bear with us while we work through these, and feel free to raise an issue for any bugs you may find.
-
 .. _Interactive_Reload:
 
 How code reloading works

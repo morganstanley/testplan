@@ -92,10 +92,9 @@ def _extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
     :return: mapping of testsuites to testcases to be run
     """
     suites_cases = {}
-    if "entries" not in shallow_entry:
-        return suites_cases
+
     category = shallow_entry["category"]
-    suites_cases = {}
+
     if category == ReportCategories.MULTITEST:
         for suite in shallow_entry["entries"]:
             suites_cases[suite["name"]] = _extract_cases_from_suite(suite)
@@ -109,6 +108,7 @@ def _extract_suites_cases(shallow_entry: Dict) -> Dict[str, List[str]]:
         ] = _extract_cases_from_parametrization(shallow_entry)
     elif category == ReportCategories.TESTCASE:
         suites_cases[shallow_entry["parent_uids"][2]] = [shallow_entry["name"]]
+
     return suites_cases
 
 
