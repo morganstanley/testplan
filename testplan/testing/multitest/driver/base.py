@@ -381,7 +381,10 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def _install_target(self):
         raise NotImplementedError()
 
-    def _install_files(self) -> None:
+    def install_files(self) -> None:
+        """
+        Installs the files specified in the install_files parameter at the install target.
+        """
 
         for install_file in self.cfg.install_files:
             if isinstance(install_file, str):
