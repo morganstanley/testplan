@@ -45,10 +45,10 @@ class StdOutRegistry(Registry):
         details_msg = self.indented_msg(details, ASSERTION_INDENT + 2)
 
         if output_style.display_assertion:
-            self.logger.test_info(header_msg)
+            self.logger.user_info(header_msg)
 
         if details and output_style.display_assertion_detail:
-            self.logger.test_info(details_msg)
+            self.logger.user_info(details_msg)
 
 
 registry = StdOutRegistry()

@@ -657,7 +657,7 @@ class Pool(Executor):
                             if self._handle_inactive(worker, reason):
                                 status = "active"
                         else:
-                            self.logger.test_info(
+                            self.logger.user_info(
                                 "%s is aborting/stopping, exit monitor.", self
                             )
                             break_outer_loop = True
@@ -697,7 +697,7 @@ class Pool(Executor):
                     interval=0.05,
                 )
             except RuntimeError:
-                self.logger.test_info("%s is not alive, exit monitor.", self)
+                self.logger.user_info("%s is not alive, exit monitor.", self)
                 break
 
     def _query_worker_status(

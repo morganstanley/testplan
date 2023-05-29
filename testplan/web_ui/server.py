@@ -59,7 +59,7 @@ class WebUIServer(object):
     def display(self):
         """Start a web server locally for JSON report."""
         if self._web_server_thread and self._web_server_thread.ready:
-            TESTPLAN_LOGGER.test_info(
+            TESTPLAN_LOGGER.user_info(
                 "The JSON report is already served at: %s", self._report_url
             )
             return
@@ -90,7 +90,7 @@ class WebUIServer(object):
         (host, port) = self._web_server_thread.server.bind_addr
         self._report_url = f"http://localhost:{port}/testplan/local"
 
-        TESTPLAN_LOGGER.test_info(
+        TESTPLAN_LOGGER.user_info(
             "View the JSON report in the browser:\n%s",
             format_access_urls(host, port, "/testplan/local"),
         )
