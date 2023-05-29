@@ -1,32 +1,17 @@
 Drivers
 *******
 
-Configuration
-=============
+Introduction
+============
 
-Testplan provides a dynamic driver configuration system, around the three
-following properties:
+Drivers are easy-to-use Testplan-provided interfaces for interacting with
+outside applications and services during testing runtime. With the help of
+drivers, users can easily control related applications in the scenario of
+integration testing.
 
-    * Drivers can depend on other drivers.
-    * Driver configuration is not required to exist until the driver starts.
-    * Testplan can automatically schedule drivers based on the dependencies.
-
-Users can choose whether to specifiy driver dependencies explicitly with the
-dependencies argument. If dependencies is not set, the dependencies between drivers
-will be interpreted as following: any driver in the environment list passed
-to MultiTest is allowed to depend on any other driver appearing earlier than
-itself in the list. With the dependencies argument being used, Testplan could
-possibly schedule more drivers to start simultaneously, to reduce the overall
-test running time.
-
-Dependent values can be created either through the
-:py:func:`context() <testplan.common.utils.context.context>` call, or using
-pairs of double curly brackets in configuration files (MultiTest is using the
-`Jinja2 <https://jinja.palletsprojects.com/en/3.1.x/templates/>`_ templating library,
-so technically the configuration files should be valid Jinja2 templates).
-
-The expression in the templates are executed in the context of the driver, so any driver
-attributes and methods can be used inside the template.
+Drivers can be used in Testplan MultiTest as well as Testplan-provided unit
+test framework integrations. Below is an concrete example of how drivers can
+be used in Testplan MultiTest.
 
 .. code-block:: python
 
@@ -37,10 +22,7 @@ attributes and methods can be used inside the template.
     #  |            | <------ |               | <------ |             |
     #  --------------         -----------------         ---------------
 
-    # Without the dependencies argument set, the order of drivers in the
-    # environment argument matters, i.e. "Application" must appear
-    # after "Service", "Client" must appear after "Application".
-
+    ...  # Other arguments passed to MultiTest constructor
     environment=[
         Service(name='service'),
         Application(name='app',
@@ -49,11 +31,85 @@ attributes and methods can be used inside the template.
         Client(name='client',
                host=context('app', '{{host}}'),
                port=context('app', '{{port}}'))
-    ]
+    ],
+    ...  # Other arguments passed to MultiTest constructor
 
-    # Or with the dependencies argument set, the order of drivers in the
-    # environment argument no longer matters.
+Testplan provides a dynamic driver configuration system, around the two
+following properties:
 
+    * Drivers can be configured with attributes of other drivers.
+    * Driver configuration is not required to exist until the driver starts.
+
+
+Context and Context Value
+=========================
+
+In Testplan, drivers can retrieve attributes of others from the Context.
+Context is basically the environment which the driver belongs to, where a group
+of drivers serve together for the integration test. Since certain driver
+configuration does not exist until that driver has successfully started, Context
+Value are created as late-bound values which will be resolved during driver
+start-up, from the context, to actual configuration values.
+
+A context value in Python code is created from a
+:py:func:`context() <testplan.common.utils.context.context>` call, taking a
+driver name and a `Jinja2 <https://jinja.palletsprojects.com/en/3.1.x/templates/>`_
+expression that must be a valid attribute of the corresponding driver. A context
+value can also be used in the configuration file of a driver with the syntax of
+``{{context["<driver_name>"].<attribute_name>}}`` in the place of configuration
+value. The configuration file will be processed with Jinja2 template engine
+during driver start-up, thus it must be a valid Jinja2 template.
+
+In practice, context values are often used for communicating hostnames, port
+numbers, file paths, and other such values dynamically generated at runtime
+among drivers. With the usage of context values, we can easily avoid collisions
+between setups being shared among various testing scenarios. As you might
+already noticed, the Application driver in the above example is using context
+values to retrieve the host and port of the Service driver to connect to, so
+does that Client driver.
+
+Start-up schedule
+=================
+
+In the above example, we can easily find out that the Application driver cannot
+actually enter the start-up procedure until the Service driver has fully
+started, so the Application must come after the Service, and the Client must
+come after the Application. Testplan provides three ways to specify the start-up
+schedule of the drivers:
+
+    * Pass a list of drivers to the ``environment`` parameter. In this case,
+      drivers will be scheduled sequentially. The driver comes later in the
+      passed-in list will not be started until the earlier one has fully started.
+
+    * Pass a list of drivers to the ``environment`` parameter, while some of them
+      has ``async_start`` parameter set to ``True``. This case is similar to the
+      previous one except that drivers after such an ``async_start`` driver will
+      be scheduled to start even that driver has not fully started.
+
+    * Pass a list of drivers to the ``environment`` parameter, and pass a
+      dictionary to the ``dependencies`` parameter. In this case, Testplan will
+      work out a feasible schedule meeting all the dependency (driver A must start
+      before driver B) requirements while tend to start more drivers
+      simultaneously, and the order of drivers in ``environment`` list will be
+      ignored. For a key-value pair in the ``dependencies`` dictionary, the
+      drivers on the key side should always be fully started before scheduling the
+      drivers on the value side, i.e. left-hand side are before right-hand side.
+
+The third way (making use of ``dependencies`` parameter) is usually recommended
+since the overall test runtime could be possibly reduced with drivers being
+started simultaneously. The above example can be changed as following using
+``dependencies``:
+
+.. code-block:: python
+
+    # Example environment of three dynamically connecting drivers.
+    #  --------------         -----------------         ---------------
+    #  |            | ------> |               | ------> |             |
+    #  |   Client   |         |  Application  |         |   Service   |
+    #  |            | <------ |               | <------ |             |
+    #  --------------         -----------------         ---------------
+
+    # Outside MultiTest constructor
     client = Client(name='client',
                     host=context('app', '{{host}}'),
                     port=context('app', '{{port}}'))
@@ -61,84 +117,22 @@ attributes and methods can be used inside the template.
                               host=context('service', '{{host}}'),
                               port=context('service', '{{port}}'))
     service = Service(name='service')
+    # Outside MultiTest constructor
 
+    # Inside MultiTest constructor
+    ...  # Other arguments passed to MultiTest constructor
     environment=[
-        client, application, service
+        client, application, service  # Order no longer matters
     ],
     dependencies={
         service: application,
         application: client
-    }
+    },
+    ...  # Other arguments passed to MultiTest constructor
+    # Inside MultiTest constructor
 
-
-Context
-=======
-Context at any point during the MultiTest startup is defined as the state of the
-set of drivers that have already started. As soon as a driver has completed its
-start step successfully, all of its attributes become part of the context and
-are thus made available to all drivers that will start after it.
-
-In practice the context is often used to communicate hostnames, port values,
-file paths, and other such values dynamically generated at runtime to avoid
-collisions between setups that must be shared between the various drivers to
-communicate meaningfully.
-
-Any context value from any process can be accessed by the
-:py:func:`context() <testplan.common.utils.context.context>` call, taking a
-driver name and a Jinja2 expression that must be valid on that driver name.
-This call effectively creates a late-bound value that drivers will resolve at
-startup, against the current context.
-
-Those expressions can also be used in the configuration of the drivers that
-support them, for example
-:py:class:`App <testplan.testing.multitest.driver.app.App>`. In the case of
-configurations, the values of the driver that is being configured are available
-in the global scope, and other drivers can be accessed through the special
-'context' object.
-
-Network dependencies
-====================
-Probably one of the most common use-cases of the context is the passing of
-network addresses between processes. For robustness reasons, it is much
-preferable to neither hardcode hosts nor ports in test setups. Ports can
-typically be assigned by the operating system in such a way that collisions
-between instances are avoided.
-
-This is a simple example of a server and a client, where the server is binding
-to ``localhost:0`` and communicating at runtime to the client where it is in
-fact listening. As long as there are dynamic ports available on the host, this
-setup will start reliably and will not collide with other already running
-applications.
-
-.. code-block:: python
-
-    # Example environment of a Server and 2 Clients.
-    #
-    #      +--------- client1
-    #      |
-    #   server
-    #      |
-    #      +--------- client2
-    #
-    # Client will have access to the server host, port
-    # after server starts.
-
-    environment=[
-        TCPServer('server'),
-        TCPClient(
-            'client1',
-            context('server', '{{host}}'),
-            context('server', '{{port}}')
-        ),
-        TCPClient(
-            'client2',
-            context('server', '{{host}}'),
-            context('server', '{{port}}')
-        )
-    ]
-
-Users are strongly encouraged to follow this practice rather than hardcode host
-names and port numbers in their test setups.
+Another example containing simultaneous driver start-up can be found
+:ref:`here <example_driver_dependency>`.
 
 Work with unit test
 ===================
@@ -162,7 +156,7 @@ started test process. Have a look at the following code:
     )
 
 In your unit test process, you can find an environment variable named
-'DRIVER_MY_SERVER_ATTR_HOST', likewise, 'DRIVER_CLIENT_101_ATTR_PORT' is also
+``DRIVER_MY_SERVER_ATTR_HOST``, likewise, ``DRIVER_CLIENT_101_ATTR_PORT`` is also
 available. It is easy to understand that the string is formatted in uppercase,
-like 'DRIVER_<uid of driver>_ATTR_<attribute name>', while hyphens and spaces
+like ``DRIVER_<uid of driver>_ATTR_<attribute name>``, while hyphens and spaces
 are replaced by underscores.
