@@ -28,7 +28,7 @@ class BaseLister:
     def log_test_info(self, instance):
         output = self.get_output(instance)
         if output:
-            TESTPLAN_LOGGER.test_info(output)
+            TESTPLAN_LOGGER.user_info(output)
 
     def get_output(self, instance):
         raise NotImplementedError
