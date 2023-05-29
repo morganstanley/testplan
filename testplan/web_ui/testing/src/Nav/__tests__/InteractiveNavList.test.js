@@ -1,13 +1,13 @@
 /* Unit tests for the InteractiveNavList component. */
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import NavList from '../NavList.js';
-import {FakeInteractiveReport} from '../../Common/sampleReports.js';
-import { PropagateIndices } from '../../Report/reportUtils.js';
+import NavList from "../NavList.js";
+import { FakeInteractiveReport } from "../../Common/sampleReports.js";
+import { PropagateIndices } from "../../Report/reportUtils.js";
 
-describe('InteractiveNavList', () => {
+describe("InteractiveNavList", () => {
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
@@ -18,14 +18,14 @@ describe('InteractiveNavList', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders and matches snapshot', () => {
-    const entries = PropagateIndices(FakeInteractiveReport).entries
+  it("shallow renders and matches snapshot", () => {
+    const entries = PropagateIndices(FakeInteractiveReport).entries;
     const renderedNavList = shallow(
       <NavList
         interactive={true}
         entries={entries}
         breadcrumbLength={1}
-        width={'28em'}
+        width={"28em"}
         handleNavClick={() => undefined}
         filter={null}
         displayEmpty={true}
@@ -38,4 +38,3 @@ describe('InteractiveNavList', () => {
     expect(renderedNavList).toMatchSnapshot();
   });
 });
-

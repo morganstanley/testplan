@@ -6,6 +6,7 @@ exports[`NavList shallow renders and matches snapshot 1`] = `
 >
   <ListGroup
     className="buttonList_mjw45f"
+    horizontal={false}
     tag="ul"
   >
     <ListGroupItem
@@ -17,7 +18,6 @@ exports[`NavList shallow renders and matches snapshot 1`] = `
       tag={
         Object {
           "$$typeof": Symbol(react.forward_ref),
-          "displayName": "NavLink",
           "propTypes": Object {
             "activeClassName": [Function],
             "activeStyle": [Function],

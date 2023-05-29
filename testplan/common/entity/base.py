@@ -777,6 +777,9 @@ class RunnableConfig(EntityConfig):
         return {
             # IHandler explicitly enables interactive mode of runnable
             ConfigOption("interactive_port", default=None): Or(None, int),
+            ConfigOption("pre_start_environments", default=None): Or(
+                None, list
+            ),
             ConfigOption(
                 "interactive_block",
                 default=hasattr(sys.modules["__main__"], "__file__"),
@@ -1115,7 +1118,9 @@ class Runnable(Entity):
 
                 self.logger.user_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
-                    target=self, http_port=self.cfg.interactive_port
+                    target=self,
+                    http_port=self.cfg.interactive_port,
+                    pre_start_environments=self.cfg.pre_start_environments,
                 )
                 thread = threading.Thread(target=self._ihandler)
                 # Testplan should exit even if interactive handler thread stuck

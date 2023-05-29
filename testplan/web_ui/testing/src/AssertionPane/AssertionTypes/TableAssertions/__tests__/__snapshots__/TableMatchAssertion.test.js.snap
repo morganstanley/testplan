@@ -111,11 +111,11 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "age": 67,
         "ev": "Expected",
         "id": 2,
-        "ignored": "same",
+        "ignored": false,
         "name": "Rick",
         "passed": Object {
           "age": true,
-          "ignored": true,
+          "ignored": false,
           "name": true,
         },
       },
@@ -127,7 +127,7 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "name": "Rick",
         "passed": Object {
           "age": true,
-          "ignored": true,
+          "ignored": false,
           "name": true,
         },
       },

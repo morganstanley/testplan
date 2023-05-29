@@ -2,13 +2,13 @@
  * Report utility functions.
  */
 import React from "react";
-import format from 'date-fns/format';
-import _ from 'lodash';
-import AssertionPane from '../AssertionPane/AssertionPane';
-import Message from '../Common/Message';
-import { formatMilliseconds } from './../Common/utils';
+import format from "date-fns/format";
+import _ from "lodash";
+import AssertionPane from "../AssertionPane/AssertionPane";
+import Message from "../Common/Message";
+import { formatMilliseconds } from "./../Common/utils";
 
-import { filterEntries } from './reportFilter';
+import { filterEntries } from "./reportFilter";
 
 /**
  * Merge two tag objects into a single tag object.
@@ -43,7 +43,6 @@ function _mergeTags(tagsA, tagsB) {
   return mergedTags;
 }
 
-
 /**
  * Merge assertions and structure into main report.
  *
@@ -55,8 +54,8 @@ function _mergeTags(tagsA, tagsB) {
  */
 const MergeSplittedReport = (mainReport, assertions, structure) => {
   const _mergeStructure = (_structure, _assertions) => {
-    _structure.forEach(element => {
-      if (element.category === 'testcase') {
+    _structure.forEach((element) => {
+      if (element.category === "testcase") {
         element.entries = _assertions[element.uid] || [];
       } else {
         _mergeStructure(element.entries, _assertions);
@@ -100,29 +99,30 @@ const propagateIndicesRecur = (entries, parentIndices) => {
     let entryType = entry.category;
     // Initialize indices.
     let tagsIndex = {};
-    const entryNameType = entry.name + '|' + entryType;
+    const entryNameType = entry.name + "|" + entryType;
     let nameTypeIndex = _.uniq([
       entryNameType,
-      ...parentIndices.name_type_index
+      ...parentIndices.name_type_index,
     ]);
 
     let tags = parentIndices.tags_index;
-    if (entry.hasOwnProperty('tags')) {
+    if (entry.hasOwnProperty("tags")) {
       entry.tags = _mergeTags(entry.tags, parentIndices.tags_index);
       tags = entry.tags;
     }
 
     const uids = [...parentIndices.uids, entry.uid];
-    if (entryType !== 'testcase') {
+    if (entryType !== "testcase") {
       // Propagate indices to children.
-      let descendantsIndices = propagateIndicesRecur(
-        entry.entries,
-        { tags_index: tags, name_type_index: nameTypeIndex, uids }
-      );
+      let descendantsIndices = propagateIndicesRecur(entry.entries, {
+        tags_index: tags,
+        name_type_index: nameTypeIndex,
+        uids,
+      });
       tagsIndex = _mergeTags(tagsIndex, descendantsIndices.tags_index);
       nameTypeIndex = _.uniq([
         ...nameTypeIndex,
-        ...descendantsIndices.name_type_index
+        ...descendantsIndices.name_type_index,
       ]);
     }
 
@@ -136,7 +136,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
     indices.tags_index = _mergeTags(indices.tags_index, tagsIndex);
     indices.name_type_index = _.uniq([
       ...indices.name_type_index,
-      ...nameTypeIndex
+      ...nameTypeIndex,
     ]);
   }
   return indices;
@@ -148,7 +148,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
  *   * tags - its & its ancestors tags.
  *   * tags_index - its, its ancestors & its descendents tags.
  *   * name_type_index - its, its ancestors & its descendents names & types.
- *   * uids - the entity uids from root to this entity 
+ *   * uids - the entity uids from root to this entity
  *
  * @param {Array} entries - A single Testplan report in an Array.
  * @returns {Array} - The Testplan report with indices, in an Array.
@@ -189,23 +189,22 @@ const GetCenterPane = (
 ) => {
   const selectiedEntry = _.last(selectedEntries);
   const logs = selectiedEntry?.logs || [];
-  const selectedDescription = selectedEntries.slice(-1).map((element) => {
-    return element.description;
-  }).filter((element) => {
-    return element; // filter empty description
-  });
+  const selectedDescription = selectedEntries
+    .slice(-1)
+    .map((element) => {
+      return element.description;
+    })
+    .filter((element) => {
+      return element; // filter empty description
+    });
   const assertions = getAssertions(selectedEntries, state.displayTime);
 
   if (state.error) {
-    return (
-      <Message
-        message={`Error: ${state.error.message}`}
-        left={state.navWidth}
-      />
-    );
+    return <Message message={`Error: ${state.error.message}`} />;
   } else if (
-    assertions.length > 0 || logs.length > 0
-    || selectedDescription.length > 0
+    assertions.length > 0 ||
+    logs.length > 0 ||
+    selectedDescription.length > 0
   ) {
     return (
       <AssertionPane
@@ -221,19 +220,9 @@ const GetCenterPane = (
       />
     );
   } else if (reportFetchMessage !== null) {
-    return (
-      <Message
-        message={reportFetchMessage}
-        left={state.navWidth}
-      />
-    );
+    return <Message message={reportFetchMessage} />;
   } else {
-    return (
-      <Message
-        message='Please select an entry.'
-        left={state.navWidth}
-      />
-    );
+    return <Message message="Please select an entry." />;
   }
 };
 
@@ -242,17 +231,16 @@ const getAssertions = (selectedEntries, displayTime) => {
   // get all assertions from groups and list them sequentially in an array
   const getAssertionsRecursively = (links, entries) => {
     for (let i = 0; i < entries.length; ++i) {
-      if (entries[i].type === 'Group') {
+      if (entries[i].type === "Group") {
         getAssertionsRecursively(links, entries[i].entries);
-      }
-      else {
+      } else {
         links.push(entries[i]);
       }
     }
   };
 
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
-  if (selectedEntry && selectedEntry.category === 'testcase') {
+  if (selectedEntry && selectedEntry.category === "testcase") {
     let links = [];
     getAssertionsRecursively(links, selectedEntry.entries);
 
@@ -260,19 +248,25 @@ const getAssertions = (selectedEntries, displayTime) => {
     if (displayTime) {
       for (let i = 0; i < links.length; ++i) {
         links[i].timeInfoArray = [i]; // [index, start_time, duration]
-        const idx = links[i].utc_time.lastIndexOf('+');
-        links[i].timeInfoArray.push(links[i].utc_time ?
-          (format(new Date(
-            idx === -1 ? links[i].utc_time :
-              links[i].utc_time.substring(0, idx)),
-            "HH:mm:ss.SSS")
-          ) + " UTC" : "");
+        const idx = links[i].utc_time.lastIndexOf("+");
+        links[i].timeInfoArray.push(
+          links[i].utc_time
+            ? format(
+                new Date(
+                  idx === -1
+                    ? links[i].utc_time
+                    : links[i].utc_time.substring(0, idx)
+                ),
+                "HH:mm:ss.SSS"
+              ) + " UTC"
+            : ""
+        );
       }
       for (let i = 0; i < links.length - 1; ++i) {
         let duration = "Unknown";
         if (links[i].utc_time && links[i + 1].utc_time) {
-          const nextEntryTime = (new Date(links[i + 1].utc_time)).getTime();
-          const currentEntryTime = (new Date(links[i].utc_time)).getTime();
+          const nextEntryTime = new Date(links[i + 1].utc_time).getTime();
+          const currentEntryTime = new Date(links[i].utc_time).getTime();
           const durationMilliseconds = nextEntryTime - currentEntryTime;
           duration = formatMilliseconds(durationMilliseconds);
         }
@@ -281,27 +275,28 @@ const getAssertions = (selectedEntries, displayTime) => {
       }
       if (links.length > 0) {
         let duration = "Unknown";
-        if (selectedEntry.timer && selectedEntry.timer.run?.end &&
-          links[links.length - 1].utc_time) {
-          const nextEntryTime =
-            (new Date(selectedEntry.timer.run.end)).getTime();
-          const currentEntryTime =
-            (new Date(links[links.length - 1].utc_time)).getTime();
+        if (
+          selectedEntry.timer &&
+          selectedEntry.timer.run?.end &&
+          links[links.length - 1].utc_time
+        ) {
+          const nextEntryTime = new Date(selectedEntry.timer.run.end).getTime();
+          const currentEntryTime = new Date(
+            links[links.length - 1].utc_time
+          ).getTime();
           const durationInMilliseconds = nextEntryTime - currentEntryTime;
           duration = formatMilliseconds(durationInMilliseconds);
         }
         duration = "(" + duration + ")";
         links[links.length - 1].timeInfoArray.push(duration);
       }
-    }
-    else {
+    } else {
       for (let i = 0; i < links.length; ++i) {
         links[i].timeInfoArray = [];
       }
     }
     return selectedEntry.entries;
-  }
-  else {
+  } else {
     return [];
   }
 };
@@ -311,9 +306,9 @@ const getAssertions = (selectedEntries, displayTime) => {
  */
 const getReportFetchMessage = (state) => {
   if (state.loading) {
-    return 'Fetching Testplan report...';
+    return "Fetching Testplan report...";
   } else {
-    return 'Waiting to fetch Testplan report...';
+    return "Waiting to fetch Testplan report...";
   }
 };
 
@@ -337,18 +332,19 @@ const GetSelectedEntries = (selectedUIDs, report) => {
 };
 
 /**
-  * Auto-select the first failed entry in the report when it is first loaded.
-  * @param {reportNode} reportEntry - the current report entry to select from.
-  * @return {Array[string]} List of UIDs of the currently selected entries.
-  */
+ * Auto-select the first failed entry in the report when it is first loaded.
+ * @param {reportNode} reportEntry - the current report entry to select from.
+ * @return {Array[string]} List of UIDs of the currently selected entries.
+ */
 const findFirstFailure = (reportEntry) => {
-  if (reportEntry.category === "testcase"
-    || reportEntry.entries.length === 0) {
+  if (reportEntry.category === "testcase" || reportEntry.entries.length === 0) {
     return [reportEntry.uid];
   } else {
     for (let entry in reportEntry.entries) {
-      if (reportEntry.entries[entry].status === "failed"
-        || reportEntry.entries[entry].status === "error") {
+      if (
+        reportEntry.entries[entry].status === "failed" ||
+        reportEntry.entries[entry].status === "error"
+      ) {
         return [reportEntry.uid].concat(
           findFirstFailure(reportEntry.entries[entry])
         );
@@ -358,34 +354,35 @@ const findFirstFailure = (reportEntry) => {
 };
 
 const filterReport = (report, filter) => {
-
   if (filter.filters === null) {
     return { filter, report };
   }
 
   return {
-    filter, report: {
+    filter,
+    report: {
       ...report,
-      entries: filterEntries(report.entries, filter.filters)
-    }
+      entries: filterEntries(report.entries, filter.filters),
+    },
   };
 };
 
 const isValidSelection = (selection, entry) => {
   if (selection.length === 0) return true;
 
-  const next_element = _.find(entry.entries,
-    entry => entry.uid === _.head(selection));
-  return next_element ?
-    isValidSelection(_.tail(selection), next_element) :
-    false;
+  const next_element = _.find(
+    entry.entries,
+    (entry) => entry.uid === _.head(selection)
+  );
+  return next_element
+    ? isValidSelection(_.tail(selection), next_element)
+    : false;
 };
 
 const getSelectedUIDsFromPath = ({ uid, selection }, uidDecoder) => {
-  const uids = [uid, ...(selection ? selection.split('/') : [])];
-  return uidDecoder ? uids.map(uid => uid ? uidDecoder(uid) : uid) : uids;
+  const uids = [uid, ...(selection ? selection.split("/") : [])];
+  return uidDecoder ? uids.map((uid) => (uid ? uidDecoder(uid) : uid)) : uids;
 };
-
 
 export {
   PropagateIndices,

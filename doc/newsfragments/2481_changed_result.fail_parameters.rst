@@ -1,0 +1,1 @@
+Make :py:meth:`result.fail <testplan.testing.multitest.result.Result.fail>` parameters consistent with :py:meth:`result.log <testplan.testing.multitest.result.Result.log>`, that ``message`` is the required argument and ``description`` is optional.

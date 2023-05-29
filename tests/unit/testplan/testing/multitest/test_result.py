@@ -234,6 +234,46 @@ def test_assertion_order(mockplan):
 
 
 @testsuite
+class AssertionFail:
+    @testcase
+    def fail_with_description(self, env, result):
+        result.fail(message="Invalid outcome", description="message not found")
+
+    @testcase
+    def fail_without_description(self, env, result):
+        # Same message will be used for description
+        result.fail(message="userid not found")
+
+
+def test_assertion_fail(mockplan):
+    """Verify ordered assertion entries in test report."""
+    mtest = MultiTest(name="AssertionFail", suites=[AssertionFail()])
+    mtest.cfg.parent = mockplan.cfg
+    mtest.run()
+
+    expected = [
+        {
+            "message": "Invalid outcome",
+            "description": "message not found",
+        },
+        {
+            "message": "userid not found",
+            "description": "userid not found",
+        },
+    ]
+
+    assertions = [
+        entry
+        for entry in mtest.report.flatten()
+        if isinstance(entry, dict) and entry["meta_type"] == "assertion"
+    ]
+
+    for idx, item in enumerate(expected):
+        assert item["description"] == assertions[idx]["description"]
+        assert item["message"] == assertions[idx]["message"]
+
+
+@testsuite
 class AssertionExtraAttribute:
     @testcase
     def case(self, env, result):

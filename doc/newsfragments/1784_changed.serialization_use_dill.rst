@@ -1,1 +1,0 @@
-Testplan now supports usage of nested functions and Python lambdas in user-defined test code by using `dill <https://pypi.org/project/dill/>`_ instead of pickle for serialization.

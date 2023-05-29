@@ -3,15 +3,21 @@ import ReactDOM from "react-dom";
 import BatchReport from "./Report/BatchReport";
 import InteractiveReport from "./Report/InteractiveReport";
 import EmptyReport from "./Report/EmptyReport";
+import { ErrorBoundary } from "./Common/ErrorBoundary";
 
 // import registerServiceWorker from './registerServiceWorker';
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+
+// create react app 5 is using webpack 5 which no more provide
+// node polyfills for teh browser without config
+// base64url using Buffer which is not available in the browser
+// the buffer package provide that but CRA does not allow to
+// configure webpack without ejecting so doing this hack here
+import { Buffer } from "buffer";
+// @ts-ignore
+window.Buffer = Buffer;
 
 /**
  * This single App provides multiple functions controlled via the URL path
@@ -21,10 +27,21 @@ import {
 const AppRouter = () => (
   <Router>
     <Switch>
-      <Route path="/testplan/:uid/:selection*" component={BatchReport} />
+      <Route
+        path="/testplan/:uid/:selection*"
+        render={(routeProps) => (
+          <ErrorBoundary>
+            <BatchReport {...routeProps} />
+          </ErrorBoundary>
+        )}
+      />
       <Route
         path="/interactive/:uid?/:selection*"
-        component={InteractiveReport}
+        render={(routeProps) => (
+          <ErrorBoundary>
+            <InteractiveReport {...routeProps} />
+          </ErrorBoundary>
+        )}
       />
       <Route component={EmptyReport} />
     </Switch>

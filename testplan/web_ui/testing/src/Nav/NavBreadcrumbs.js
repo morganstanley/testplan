@@ -33,7 +33,6 @@ const useStyles = makeStyles({
     borderTop: "solid 1px rgba(0, 0, 0, 0.1)",
     borderBottom: "solid 1px rgba(0, 0, 0, 0.1)",
     zIndex: 300,
-    position: "fixed",
     display: "block",
     height: "34px",
     width: "100%",
@@ -143,9 +142,7 @@ const NavBreadcrumbs = (props) => {
     breadcrumbMenus = [
       <li key="breadcrumbMenuHome">
         <Button
-          className={
-            `${classes.breadcrumbMenu} ${classes.breadcrumbMenuButton}`
-          }
+          className={`${classes.breadcrumbMenu} ${classes.breadcrumbMenuButton}`}
           disableRipple={true}
           style={{ paddingLeft: "10px" }}
           onClick={() => {

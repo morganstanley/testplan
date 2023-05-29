@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`TextAttachment displays error message if API request fails (JSON) 1`] = `
+<WithStyles(ForwardRef(Card))>
+  <AttachmentAssertionCardHeader
+    extra_action_items={null}
+    file_name="attachment.txt"
+    src="/var/tmp/attachment.txt"
+  />
+  <WithStyles(ForwardRef(CardContent))>
+    Service Unavailable
+  </WithStyles(ForwardRef(CardContent))>
+</WithStyles(ForwardRef(Card))>
+`;
+
 exports[`TextAttachment displays error message if API request fails 1`] = `
 <WithStyles(ForwardRef(Card))>
   <AttachmentAssertionCardHeader
@@ -17,8 +30,8 @@ exports[`TextAttachment renders text returned from the backend 1`] = `
 <WithStyles(ForwardRef(Card))>
   <AttachmentAssertionCardHeader
     extra_action_items={
-      <ForwardRef(WithStyles)
-        endIcon={<UNDEFINED />}
+      <WithStyles(ForwardRef(Button))
+        endIcon={<Memo />}
         onClick={[Function]}
         size="large"
         style={
@@ -28,7 +41,7 @@ exports[`TextAttachment renders text returned from the backend 1`] = `
         }
       >
         Expand
-      </ForwardRef(WithStyles)>
+      </WithStyles(ForwardRef(Button))>
     }
     file_name="attachment.txt"
     src="/var/tmp/attachment.txt"
@@ -39,6 +52,7 @@ exports[`TextAttachment renders text returned from the backend 1`] = `
     <SyntaxHighlighter
       className={null}
       language="text"
+      showInlineLineNumbers={false}
       showLineNumbers={true}
       startingLineNumber={34}
     >

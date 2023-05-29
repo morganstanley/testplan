@@ -3,11 +3,12 @@ import React from "react";
 import { StyleSheet, css } from "aphrodite";
 import axios from "axios";
 import PropTypes from "prop-types";
-import _ from 'lodash';
+import _ from "lodash";
 
 import { parseToJson } from "../Common/utils";
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar";
+import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav";
 import {
   PropagateIndices,
@@ -25,8 +26,9 @@ import { COLUMN_WIDTH, defaultFixSpec } from "../Common/defaults";
 import { AssertionContext } from "../Common/context";
 import {
   fakeReportAssertions,
-  fakeReportAssertionsError
+  fakeReportAssertionsError,
 } from "../Common/fakeReport";
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 
 /**
  * BatchReport component:
@@ -59,31 +61,25 @@ class BatchReport extends BaseReport {
       processedReport,
       this.state.filteredReport.filter
     );
-    const firstFailedUID = (
-      filteredReport.report.status === "failed"
-      || filteredReport.report.status === "error"
-    )
-      ? findFirstFailure(filteredReport.report)
-      : [filteredReport.report.uid];
+    const firstFailedUID =
+      filteredReport.report.status === "failed" ||
+      filteredReport.report.status === "error"
+        ? findFirstFailure(filteredReport.report)
+        : [filteredReport.report.uid];
 
     const redirectPath = this.props.match.params.selection
       ? null
-      : generateSelectionPath(
-        this.props.match.path,
-        firstFailedUID
-      );
-    
+      : generateSelectionPath(this.props.match.path, firstFailedUID);
+
     if (redirectPath) {
       this.props.history.replace(redirectPath);
-    };
+    }
 
-    this.setState(
-      {
-        report: processedReport,
-        filteredReport,
-        loading: false,
-      }
-    );
+    this.setState({
+      report: processedReport,
+      filteredReport,
+      loading: false,
+    });
   }
 
   /**
@@ -98,7 +94,8 @@ class BatchReport extends BaseReport {
     // Inspect the UID to determine the report to render. As a special case,
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
-    axios.get('/api/v1/metadata/fix-spec/tags')
+    axios
+      .get("/api/v1/metadata/fix-spec/tags")
       .then((metadataRes) => {
         defaultFixSpec.tags = metadataRes.data || {};
       })
@@ -107,13 +104,18 @@ class BatchReport extends BaseReport {
       });
     switch (uid) {
       case "_dev":
-        setTimeout(() => this.setReport(
-          this.updateReportUID(fakeReportAssertions, uid)), 1500
+        setTimeout(
+          () => this.setReport(this.updateReportUID(fakeReportAssertions, uid)),
+          1500
         );
         break;
       case "_dev_error":
-        setTimeout(() => this.setReport(
-          this.updateReportUID(fakeReportAssertionsError, uid)), 1500
+        setTimeout(
+          () =>
+            this.setReport(
+              this.updateReportUID(fakeReportAssertionsError, uid)
+            ),
+          1500
         );
         break;
       default:
@@ -124,12 +126,12 @@ class BatchReport extends BaseReport {
             if (rawReport.version === 2) {
               const assertionsReq = axios.get(
                 `/api/v1/reports/${uid}/attachments/` +
-                `${rawReport.assertions_file}`,
+                  `${rawReport.assertions_file}`,
                 { transformResponse: parseToJson }
               );
               const structureReq = axios.get(
                 `/api/v1/reports/${uid}/attachments/` +
-                `${rawReport.structure_file}`,
+                  `${rawReport.structure_file}`,
                 { transformResponse: parseToJson }
               );
               axios
@@ -140,7 +142,7 @@ class BatchReport extends BaseReport {
                       console.error(assertionsRes);
                       alert(
                         "Failed to parse assertion datails!\n" +
-                        "Please report this issue to the Testplan team."
+                          "Please report this issue to the Testplan team."
                       );
                     }
                     const mergedReport = MergeSplittedReport(
@@ -150,7 +152,8 @@ class BatchReport extends BaseReport {
                     );
                     this.setReport(this.updateReportUID(mergedReport, uid));
                   })
-                ).catch(this.setError);
+                )
+                .catch(this.setError);
             } else {
               this.setReport(this.updateReportUID(rawReport, uid));
             }
@@ -225,9 +228,10 @@ class BatchReport extends BaseReport {
 
     if (selectedEntries.length) {
       window.document.title = `${_.last(selectedEntries).name} | \
-                               ${selectedEntries.slice(0, -1)
-          .map(entry => entry.name)
-          .join(" > ")}`;
+                               ${selectedEntries
+                                 .slice(0, -1)
+                                 .map((entry) => entry.name)
+                                 .join(" > ")}`;
     }
 
     const centerPane = GetCenterPane(
@@ -254,22 +258,31 @@ class BatchReport extends BaseReport {
           updatePathDisplayFunc={this.updatePathDisplay}
           updateTimeDisplayFunc={this.updateTimeDisplay}
         />
-        <Nav
-          interactive={false}
-          navListWidth={this.state.navWidth}
-          report={this.state.filteredReport.report}
-          selected={selectedEntries}
-          filter={this.state.filter}
-          treeView={this.state.treeView}
-          displayEmpty={this.state.displayEmpty}
-          displayTags={this.state.displayTags}
-          displayTime={this.state.displayTime}
-          handleColumnResizing={this.handleColumnResizing}
-          url={this.props.match.path}
-        />
-        <AssertionContext.Provider value={this.state.assertionStatus}>
-          {centerPane}
-        </AssertionContext.Provider>
+        <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
+        <div
+          style={{
+            display: "flex",
+            flex: "1",
+            overflowY: "auto",
+          }}
+        >
+          <Nav
+            interactive={false}
+            navListWidth={this.state.navWidth}
+            report={this.state.filteredReport.report}
+            selected={selectedEntries}
+            filter={this.state.filter}
+            treeView={this.state.treeView}
+            displayEmpty={this.state.displayEmpty}
+            displayTags={this.state.displayTags}
+            displayTime={this.state.displayTime}
+            handleColumnResizing={this.handleColumnResizing}
+            url={this.props.match.path}
+          />
+          <AssertionContext.Provider value={this.state.assertionStatus}>
+            <ErrorBoundary>{centerPane}</ErrorBoundary>
+          </AssertionContext.Provider>
+        </div>
       </div>
     );
   }
@@ -283,6 +296,9 @@ const styles = StyleSheet.create({
   batchReport: {
     /** overflow will hide dropdown div */
     // overflow: 'hidden'
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
   },
 });
 

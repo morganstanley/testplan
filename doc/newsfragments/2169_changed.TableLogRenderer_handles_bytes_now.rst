@@ -1,1 +1,0 @@
-Fixed an issue when logging a table containing ``bytes`` data resulted in unexpected crash.
