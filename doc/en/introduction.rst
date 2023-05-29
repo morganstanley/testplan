@@ -335,6 +335,7 @@ Command line
       --runpath             Path under which all temp files and logs will be created.
       --timeout             Expiry timeout on test execution.
       -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
+      --pre-start-environments     Enable pre-start of environments in interactive mode. MultiTest names are to be passed as whitespace separated list of strings. Defaults to no pre-start.
       --trace-tests         Enable the tracing tests feature. A JSON file containing file names and line numbers to be watched by the tracer must be specified.
       --trace-tests-output
                             Specify output file for tests impacted by change in Testplan pattern format (see --trace-tests). Will be ignored if --trace-tests is not specified. Default to standard output.

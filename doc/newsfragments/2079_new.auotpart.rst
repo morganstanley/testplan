@@ -1,2 +1,0 @@
-Introduced new feature Auto-Part and Smart-Scheduling which can automatically determinate the optimal number of parts for multitests and pool size from historical runtime data.
-See :ref:`document <auto_part>` for more details.

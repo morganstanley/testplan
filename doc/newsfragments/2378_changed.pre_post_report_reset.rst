@@ -1,1 +1,0 @@
-Fixed issue when the restart of test resources without report reset would break interactive run.

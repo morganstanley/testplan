@@ -1,8 +1,8 @@
 import React, { useState, useLayoutEffect } from "react";
 import PropTypes from "prop-types";
 import { css, StyleSheet } from "aphrodite";
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-balham.css";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-balham.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-enterprise";
 import { LicenseManager } from "ag-grid-enterprise";

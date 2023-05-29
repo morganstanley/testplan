@@ -15,9 +15,13 @@
       "modules": true,
       "defaultParams": true
     },
-    "sourceType": "module"
+    "requireConfigFile": false,
+    "sourceType": "module",
+    "babelOptions": {
+      "presets": ["@babel/preset-react"]
+    }
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "plugins": ["react"],
   "rules": {
     "max-len": [

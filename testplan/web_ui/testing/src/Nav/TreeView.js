@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import PropTypes, { element } from "prop-types";
+import PropTypes from "prop-types";
 import _ from "lodash";
 import base64url from "base64url";
 import TreeView from "@material-ui/lab/TreeView";

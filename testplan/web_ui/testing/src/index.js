@@ -10,6 +10,15 @@ import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
+// create react app 5 is using webpack 5 which no more provide
+// node polyfills for teh browser without config
+// base64url using Buffer which is not available in the browser
+// the buffer package provide that but CRA does not allow to
+// configure webpack without ejecting so doing this hack here
+import { Buffer } from "buffer";
+// @ts-ignore
+window.Buffer = Buffer;
+
 /**
  * This single App provides multiple functions controlled via the URL path
  * accessed. We are using React-Router to control which type of report is
@@ -20,17 +29,17 @@ const AppRouter = () => (
     <Switch>
       <Route
         path="/testplan/:uid/:selection*"
-        render={({ match }) => (
+        render={(routeProps) => (
           <ErrorBoundary>
-            <BatchReport match={match} />
+            <BatchReport {...routeProps} />
           </ErrorBoundary>
         )}
       />
       <Route
         path="/interactive/:uid?/:selection*"
-        render={({ match }) => (
+        render={(routeProps) => (
           <ErrorBoundary>
-            <InteractiveReport match={match} />
+            <InteractiveReport {...routeProps} />
           </ErrorBoundary>
         )}
       />
