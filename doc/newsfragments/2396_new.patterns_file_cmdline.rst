@@ -1,1 +1,0 @@
-Introduced a new command line argument ``--patterns-file`` which accepts a file containing multiple lines of :py:class:`Pattern <testplan.testing.filtering.Pattern>` and uses them to filter tests.
