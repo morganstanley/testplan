@@ -135,7 +135,7 @@ A MultiTest instance can be constructed from the following parameters:
   Drivers on the value side should only start after drivers on the key side are
   fully started. When specified, Testplan will try to schedule more drivers
   starting parallelly based on the dependencies. Click
-  :ref:`here <drivers_basic>` for more information.
+  :ref:`here <multitest_drivers>` for more information.
 
 * **Runtime Information**: The environment always contains a member called
   ``runtime_info`` which contains information about the current state of the

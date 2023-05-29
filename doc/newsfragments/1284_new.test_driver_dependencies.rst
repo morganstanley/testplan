@@ -1,1 +1,1 @@
-Introduced a new argument ``dependencies`` to :py:class:`Test <testplan.testing.base.Test>` for specifying driver dependencies. Please check :ref:`documentation <drivers_basic>` for more details.
+Introduced a new argument ``dependencies`` to :py:class:`Test <testplan.testing.base.Test>` for specifying driver dependencies. Please check :ref:`documentation <multitest_drivers>` for more details.
