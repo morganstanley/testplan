@@ -1,27 +1,15 @@
-"""TODO."""
-
 import time
 
 from testplan import TestplanMock
-from testplan.common.entity import Resource, Runnable
-from testplan.testing.base import Test, TestResult
+from testplan.common.entity import Runnable
+from testplan.report import Status
 from testplan.runnable import TestRunnerStatus
 from testplan.runners.local import LocalRunner
-from testplan.report import Status, TestGroupReport, ReportCategories
+from testplan.testing.base import Test, TestResult
+from testplan.testing.multitest.driver import Driver
 
 
-class DummyDriver(Resource):
-    def start(self):
-        self.status.change(self.STATUS.STARTING)
-        self.starting()
-
-    def stop(self):
-        if self.status == self.STATUS.STOPPED:
-            return
-        self.status.change(self.STATUS.STOPPING)
-        if self.active:
-            self.stopping()
-
+class DummyDriver(Driver):
     def starting(self):
         time.sleep(0.2)  # 200ms for startup
 
@@ -34,9 +22,11 @@ class DummyDriver(Resource):
 
 class DummyTest(Test):
     def __init__(self, name, **options):
-        super(DummyTest, self).__init__(name=name, **options)
-        self.resources.add(DummyDriver(), uid="drv1")
-        self.resources.add(DummyDriver(), uid="drv2")
+        super(DummyTest, self).__init__(
+            name=name,
+            environment=[DummyDriver("drv1"), DummyDriver("drv2")],
+            **options
+        )
 
     def run_tests(self):
         with self._result.report.timer.record("run"):

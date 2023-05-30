@@ -153,7 +153,7 @@ class TestRunnerIHandler(entity.Entity):
 
     def teardown(self):
         """Close the task pool."""
-        self.logger.test_info("Stopping %s for %s", self, self.target)
+        self.logger.user_info("Stopping %s for %s", self, self.target)
 
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")

@@ -10,7 +10,16 @@ import threading
 import time
 import traceback
 from collections import OrderedDict, deque
-from typing import Callable, Deque, Dict, List, Optional, Tuple, Union
+from typing import (
+    Callable,
+    Deque,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import psutil
 from schema import Or
@@ -32,7 +41,7 @@ class Environment:
     :type parent: :py:class:`Entity <testplan.common.entity.base.Entity>`
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional["Entity"] = None):
         self.__dict__["parent"] = parent
         self.__dict__["_initial_context"] = {}
         self.__dict__["_resources"] = OrderedDict()
@@ -125,7 +134,7 @@ class Environment:
         else:
             return False
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["Resource"]:
         return iter(self._resources.values())
 
     def __repr__(self):
@@ -137,7 +146,7 @@ class Environment:
     def __len__(self):
         return len(self._resources)
 
-    def all_status(self, target):
+    def all_status(self, target) -> bool:
         """
         Checks whether all resources have target status.
 
@@ -1395,6 +1404,12 @@ class Resource(Entity):
 
         :param timeout: timeout in seconds
         """
+        self._after_started()
+
+    def _after_started(self):
+        """
+        Common logic after a successful Resource start.
+        """
         self.status.change(self.STATUS.STARTED)
         self.post_start()
         if self.cfg.post_start:
@@ -1405,6 +1420,12 @@ class Resource(Entity):
         Changes status to STOPPED, if possible.
 
         :param timeout: timeout in seconds
+        """
+        self._after_stopped()
+
+    def _after_stopped(self):
+        """
+        Common logic after a successful Resource stop.
         """
         self.status.change(self.STATUS.STOPPED)
         self.post_stop()

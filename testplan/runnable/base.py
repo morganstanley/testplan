@@ -524,7 +524,7 @@ class TestRunner(Runnable):
         :return: A list of Task objects
         """
 
-        self.logger.test_info(
+        self.logger.user_info(
             "Discovering task target with file name pattern '%s' under '%s'",
             name_pattern,
             path,

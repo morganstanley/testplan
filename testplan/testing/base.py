@@ -32,6 +32,7 @@ from testplan.report import (
     test_styles,
 )
 from testplan.testing import filtering, ordering, tagging
+from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 
@@ -58,6 +59,9 @@ class TestConfig(RunnableConfig):
             ConfigOption("environment", default=[]): [
                 Or(Resource, RemoteDriver)
             ],
+            ConfigOption("dependencies", default=None): Or(
+                None, Use(parse_dependency)
+            ),
             ConfigOption("before_start", default=None): start_stop_signature,
             ConfigOption("after_start", default=None): start_stop_signature,
             ConfigOption("before_stop", default=None): start_stop_signature,
@@ -123,6 +127,7 @@ class Test(Runnable):
 
     CONFIG = TestConfig
     RESULT = TestResult
+    ENVIRONMENT = TestEnvironment
 
     # Base test class only allows Test (top level) filtering
     filter_levels = [filtering.FilterLevel.TEST]
@@ -138,10 +143,13 @@ class Test(Runnable):
             )
 
         self.resources._initial_context = self.cfg.initial_context
-        for resource in self.cfg.environment:
-            resource.parent = self
-            resource.cfg.parent = self.cfg
-            self.resources.add(resource)
+        for driver in self.cfg.environment:
+            driver.parent = self
+            driver.cfg.parent = self.cfg
+            self.resources.add(driver)
+
+        if self.cfg.dependencies is not None:
+            self.resources.set_dependency(self.cfg.dependencies)
 
         self._test_context = None
         self._init_test_report()

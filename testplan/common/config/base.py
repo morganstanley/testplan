@@ -5,14 +5,19 @@ Module containing configuration objects and utilities.
 import copy
 import inspect
 
-from schema import Schema, Optional
+from schema import Optional, Schema
 
-from testplan.common.utils.interface import check_signature
 from testplan.common.utils import logger
+from testplan.common.utils.interface import check_signature
 
 # A sentinel object meaning not defined, it is useful when you need to
 # handle arbitrary objects (including None).
 ABSENT = Optional._MARKER  # pylint: disable=protected-access
+
+# Another sentinel object indicating a default but truthy value, together
+# with its own type for type-checking.
+UNSET_T = type("UNSET_T", (), dict())
+UNSET = UNSET_T()
 
 
 def validate_func(*arg_names):

@@ -88,7 +88,7 @@ class LoggingSuite(LogCaptureMixin):
     @testcase
     def specials(self, env, result):
         with self.capture_log(result):
-            self.logger.test_info("Test info log: goes to the console as well")
+            self.logger.user_info("Test info log: goes to the console as well")
             self.logger.log_test_status(
                 "A mandatory check", Status.PASSED, indent=ASSERTION_INDENT
             )
