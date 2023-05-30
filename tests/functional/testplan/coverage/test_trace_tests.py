@@ -27,7 +27,7 @@ def get_lines(symb):
 
 
 @pytest.fixture
-def temp_file_name():
+def named_temp_file():
     tmp_d = tempfile.mkdtemp()
     tmp_f = os.path.join(tmp_d, "tmp_file")
     with open(tmp_f, "w"):
@@ -158,17 +158,17 @@ def test_trace_tests_invalid_input(subject_path):
         )
 
 
-def test_trace_tests_basic(subject_path, temp_file_name):
+def test_trace_tests_basic(subject_path, named_temp_file):
     mt_name = "BasicMultitest"
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
         tracing_tests={subject_path: get_lines(to_lazy)},
-        tracing_tests_output=temp_file_name,
+        tracing_tests_output=named_temp_file,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[BasicSuite()]))
     plan.run()
 
-    with open(temp_file_name, "r") as f:
+    with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 6
     assert lines[0] == f"{mt_name}:BasicSuite:basic_case"
@@ -178,17 +178,17 @@ def test_trace_tests_basic(subject_path, temp_file_name):
         )
 
 
-def test_trace_tests_all_lines(subject_path, temp_file_name):
+def test_trace_tests_all_lines(subject_path, named_temp_file):
     mt_name = "AllLinesMultitest"
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
         tracing_tests={subject_path: "*"},
-        tracing_tests_output=temp_file_name,
+        tracing_tests_output=named_temp_file,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[BasicSuite()]))
     plan.run()
 
-    with open(temp_file_name, "r") as f:
+    with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 7
     assert lines[-1].startswith(
@@ -196,62 +196,62 @@ def test_trace_tests_all_lines(subject_path, temp_file_name):
     )
 
 
-def test_trace_tests_ignore_parallel(subject_path, temp_file_name):
+def test_trace_tests_ignore_parallel(subject_path, named_temp_file):
     mt_name = "ParallelMultitest"
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
         tracing_tests={subject_path: get_lines(to_lazy)},
-        tracing_tests_output=temp_file_name,
+        tracing_tests_output=named_temp_file,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[ParallelSuite()]))
     plan.run()
 
-    with open(temp_file_name, "r") as f:
+    with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 1
     assert lines[0] == f"{mt_name}:ParallelSuite:basic_case"
 
 
-def test_trace_tests_case_with_pre_post(subject_path, temp_file_name):
+def test_trace_tests_case_with_pre_post(subject_path, named_temp_file):
     mt_name = "WithPrePostMultitest"
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
         tracing_tests={subject_path: get_lines(unlazy) + get_lines(to_lazy)},
-        tracing_tests_output=temp_file_name,
+        tracing_tests_output=named_temp_file,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[WithPrePostSuite()]))
     plan.run()
 
-    with open(temp_file_name, "r") as f:
+    with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 2
     assert lines[0] == f"{mt_name}:WithPrePostSuite:relevant_case"
     assert lines[1] == f"{mt_name}:WithPrePostSuite:irrelevant_case"
 
 
-def test_trace_tests_suite_with_setup_teardown(subject_path, temp_file_name):
+def test_trace_tests_suite_with_setup_teardown(subject_path, named_temp_file):
     mt_name = "WithSetupTeardownMultitest"
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
         tracing_tests={subject_path: get_lines(box) + get_lines(unbox)},
-        tracing_tests_output=temp_file_name,
+        tracing_tests_output=named_temp_file,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[WithSetupTeardownSuite()]))
     plan.run()
 
-    with open(temp_file_name, "r") as f:
+    with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 2
     assert lines[0] == f"{mt_name}:WithSetupTeardownSuite"
     assert lines[1] == f"{mt_name}:WithSetupTeardownSuite:basic_case"
 
 
-def test_trace_tests_multitest_with_hook(subject_path, temp_file_name):
+def test_trace_tests_multitest_with_hook(subject_path, named_temp_file):
     mt_name = "WithHookMultitest"
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
         tracing_tests={subject_path: get_lines(lazy_apply)},
-        tracing_tests_output=temp_file_name,
+        tracing_tests_output=named_temp_file,
     )
     plan.add(
         mt.MultiTest(
@@ -269,7 +269,7 @@ def test_trace_tests_multitest_with_hook(subject_path, temp_file_name):
     )
     plan.run()
 
-    with open(temp_file_name, "r") as f:
+    with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 2
     assert lines[0] == f"{mt_name}_1:ParallelSuite:basic_case"

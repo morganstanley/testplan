@@ -8,8 +8,7 @@ from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
 
-from testplan.common.config import ConfigOption
-from testplan.common.config.base import validate_func
+from testplan.common.config import UNSET, UNSET_T, ConfigOption, validate_func
 from testplan.common.entity import (
     ActionResult,
     FailedAction,
@@ -139,7 +138,7 @@ class DriverConfig(ResourceConfig):
             ConfigOption("stdout_regexps", default=None): Or(None, list),
             ConfigOption("stderr_regexps", default=None): Or(None, list),
             ConfigOption("file_logger", default=None): Or(None, str),
-            ConfigOption("async_start", default=False): bool,
+            ConfigOption("async_start", default=UNSET): Or(UNSET_T, bool),
             ConfigOption("report_errors_from_logs", default=False): bool,
             ConfigOption("error_logs_max_lines", default=10): int,
             ConfigOption("path_cleanup", default=True): bool,
@@ -193,7 +192,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         stdout_regexps: List[Pattern] = None,
         stderr_regexps: List[Pattern] = None,
         file_logger: str = None,
-        async_start: bool = False,
+        async_start: Union[UNSET_T, bool] = UNSET,
         report_errors_from_logs: bool = False,
         error_logs_max_lines: int = 10,
         pre_start: Callable = None,
@@ -211,16 +210,33 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         self.extracts = {}
         self._file_log_handler = None
 
+        # NOTE: We should get rid of `async_start` in the future,
+        # NOTE: we still keep it now for compatibility.
+        self._async_start_override: Optional[bool] = None
+
     @emphasized
     @property
-    def name(self):
+    def name(self) -> str:
         """Driver name."""
         return self.cfg.name
 
     @emphasized
-    def uid(self):
+    def uid(self) -> str:
         """Driver uid."""
         return self.cfg.name
+
+    @property
+    def async_start(self) -> bool:
+        """Overrides the default `async_start` value in config."""
+        return (
+            self._async_start_override
+            if self._async_start_override is not None
+            else self.cfg.async_start
+        )
+
+    @async_start.setter
+    def async_start(self, async_start_override: bool):
+        self._async_start_override = async_start_override
 
     def pre_start(self) -> None:
         """Steps to be executed right before resource starts."""
@@ -228,7 +244,10 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
     @property
     def started_check_interval(self) -> PollInterval:
-        """Driver started check interval."""
+        """
+        Driver started check interval.
+        In practice this value is lower-bounded by 0.1 seconds.
+        """
         return DEFAULT_INTERVAL
 
     @property
