@@ -16,7 +16,15 @@ ABSENT = Optional._MARKER  # pylint: disable=protected-access
 
 # Another sentinel object indicating a default but truthy value, together
 # with its own type for type-checking.
-UNSET_T = type("UNSET_T", (), dict())
+class UNSET_T:
+    def __eq__(self, other):
+        # This is for configuration check of RemoteDriver. Netref from RPyC
+        # overrides "__instancecheck__".
+        if isinstance(other, self.__class__):
+            return True
+        return False
+
+
 UNSET = UNSET_T()
 
 
