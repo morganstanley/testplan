@@ -1,1 +1,1 @@
-Made :py:meth:`Driver.install_files <testplan.testing.multitest.driver.base.Driver.install_filesl>` public.
+Made :py:meth:`Driver.install_files <testplan.testing.multitest.driver.base.Driver.install_files>` public.
