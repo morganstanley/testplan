@@ -1,7 +1,7 @@
 import copy
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from testplan.common.config import UNSET
 from testplan.common.entity.base import Environment
@@ -69,7 +69,7 @@ class TestEnvironment(Environment):
                     "while not being declared in `environment` parameter."
                 )
         for d in self._resources.values():
-            if d.async_start is not UNSET:
+            if d.async_start != UNSET:
                 raise ValueError(
                     f"`async_start` parameter of driver {d} should not "
                     "be set if driver dependency is specified."
@@ -97,7 +97,7 @@ class TestEnvironment(Environment):
             # we got no dependency declared, go with the legacy way,
             # override `async_start` of drivers
             for d in self._resources.values():
-                if d.async_start is UNSET:
+                if d.async_start == UNSET:
                     d.async_start = False
             return super().start()
 
