@@ -283,9 +283,7 @@ exports[`BatchReport loads a failed simple report 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -2411,7 +2409,6 @@ exports[`BatchReport loads a failed simple report 1`] = `
             ]
           }
           descriptionEntries={Array []}
-          displayPath={false}
           filter={null}
           key="736706ef-ba65-475d-96c5-f2855f431028"
           left="22em"
@@ -2785,9 +2782,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -4087,7 +4082,6 @@ exports[`BatchReport loads a more complex error report 1`] = `
         <AssertionPane
           assertions={Array []}
           descriptionEntries={Array []}
-          displayPath={false}
           filter={null}
           key="08d4c671-d55d-49d4-96ba-dc654d12be26"
           left="22em"
@@ -4568,9 +4562,7 @@ exports[`BatchReport loads a more complex report 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -6970,7 +6962,6 @@ exports[`BatchReport loads a more complex report 1`] = `
             ]
           }
           descriptionEntries={Array []}
-          displayPath={false}
           filter={null}
           key="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
           left="22em"
@@ -7265,9 +7256,7 @@ exports[`BatchReport loads a passed simple report 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -8577,9 +8566,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -11004,9 +10991,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -12857,7 +12842,6 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
             ]
           }
           descriptionEntries={Array []}
-          displayPath={false}
           filter={null}
           key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
           left="22em"
@@ -13331,9 +13315,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -15224,7 +15206,6 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
             ]
           }
           descriptionEntries={Array []}
-          displayPath={false}
           filter={null}
           key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
           left="22em"
@@ -15693,9 +15674,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -18430,9 +18409,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
-    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
-    updateTimeDisplayFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -19807,7 +19784,8 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
 `;
 
 exports[`BatchReport shallow renders the correct HTML structure when report with errors loaded 1`] = `
-<BatchReport
+<BatchReportComponent
+  displayTime={false}
   match={
     Object {
       "params": Object {
@@ -19868,9 +19846,7 @@ ZeroDivisionError: integer division or modulo by zero
       updateEmptyDisplayFunc={[Function]}
       updateExpandStatusFunc={[Function]}
       updateFilterFunc={[Function]}
-      updatePathDisplayFunc={[Function]}
       updateTagsDisplayFunc={[Function]}
-      updateTimeDisplayFunc={[Function]}
     >
       <Navbar
         className="toolbar_l6n5rs"
@@ -19947,7 +19923,7 @@ ZeroDivisionError: integer division or modulo by zero
                         transform={null}
                       >
                         <svg
-                          aria-labelledby="svg-inline--fa-title-23"
+                          aria-labelledby="svg-inline--fa-title-21"
                           className="svg-inline--fa fa-search fa-w-16 "
                           data-icon="search"
                           data-prefix="fas"
@@ -19957,7 +19933,7 @@ ZeroDivisionError: integer division or modulo by zero
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <title
-                            id="svg-inline--fa-title-23"
+                            id="svg-inline--fa-title-21"
                             style={Object {}}
                           >
                             Search
@@ -20016,7 +19992,7 @@ ZeroDivisionError: integer division or modulo by zero
                         transform={null}
                       >
                         <svg
-                          aria-labelledby="svg-inline--fa-title-24"
+                          aria-labelledby="svg-inline--fa-title-22"
                           className="svg-inline--fa fa-question-circle fa-w-16 "
                           data-icon="question-circle"
                           data-prefix="fas"
@@ -20026,7 +20002,7 @@ ZeroDivisionError: integer division or modulo by zero
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <title
-                            id="svg-inline--fa-title-24"
+                            id="svg-inline--fa-title-22"
                             style={Object {}}
                           >
                             Click for help
@@ -20051,7 +20027,7 @@ ZeroDivisionError: integer division or modulo by zero
                             class="searchBoxInfoIcon_107ja4p"
                           >
                             <svg
-                              aria-labelledby="svg-inline--fa-title-24"
+                              aria-labelledby="svg-inline--fa-title-22"
                               class="svg-inline--fa fa-question-circle fa-w-16 "
                               data-icon="question-circle"
                               data-prefix="fas"
@@ -20060,7 +20036,7 @@ ZeroDivisionError: integer division or modulo by zero
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <title
-                                id="svg-inline--fa-title-24"
+                                id="svg-inline--fa-title-22"
                               >
                                 Click for help
                               </title>
@@ -20097,7 +20073,7 @@ ZeroDivisionError: integer division or modulo by zero
                               class="searchBoxInfoIcon_107ja4p"
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-24"
+                                aria-labelledby="svg-inline--fa-title-22"
                                 class="svg-inline--fa fa-question-circle fa-w-16 "
                                 data-icon="question-circle"
                                 data-prefix="fas"
@@ -20106,7 +20082,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-24"
+                                  id="svg-inline--fa-title-22"
                                 >
                                   Click for help
                                 </title>
@@ -20141,7 +20117,7 @@ ZeroDivisionError: integer division or modulo by zero
                               class="searchBoxInfoIcon_107ja4p"
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-24"
+                                aria-labelledby="svg-inline--fa-title-22"
                                 class="svg-inline--fa fa-question-circle fa-w-16 "
                                 data-icon="question-circle"
                                 data-prefix="fas"
@@ -20150,7 +20126,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-24"
+                                  id="svg-inline--fa-title-22"
                                 >
                                   Click for help
                                 </title>
@@ -20262,74 +20238,6 @@ ZeroDivisionError: integer division or modulo by zero
                   <ul
                     className="ml-auto navbar-nav"
                   >
-                    <ToolbarTreeViewButton>
-                      <NavItem
-                        tag="li"
-                      >
-                        <li
-                          className="nav-item"
-                        >
-                          <div
-                            className="buttonsBar_6zsntc"
-                          >
-                            <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
-                              className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
-                              icon="bars"
-                              inverse={false}
-                              key="navigation-view"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
-                              onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
-                              title="Navigation"
-                              titleId={null}
-                              transform={null}
-                            >
-                              <svg
-                                aria-labelledby="svg-inline--fa-title-25"
-                                className="svg-inline--fa fa-bars fa-w-14 toolbarButton_1ueb7gu"
-                                data-icon="bars"
-                                data-prefix="fas"
-                                onClick={[Function]}
-                                role="img"
-                                style={Object {}}
-                                viewBox="0 0 448 512"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <title
-                                  id="svg-inline--fa-title-25"
-                                  style={Object {}}
-                                >
-                                  Navigation
-                                </title>
-                                <path
-                                  d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"
-                                  fill="currentColor"
-                                  style={Object {}}
-                                />
-                              </svg>
-                            </FontAwesomeIcon>
-                          </div>
-                        </li>
-                      </NavItem>
-                    </ToolbarTreeViewButton>
                     <ToolbarExpandButtons
                       expandStatus="default"
                       status="error"
@@ -20376,7 +20284,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-26"
+                                aria-labelledby="svg-inline--fa-title-23"
                                 className="svg-inline--fa fa-angle-double-down fa-w-10 toolbarButton_1ueb7gu"
                                 data-icon="angle-double-down"
                                 data-prefix="fas"
@@ -20387,7 +20295,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-26"
+                                  id="svg-inline--fa-title-23"
                                   style={Object {}}
                                 >
                                   Expand all assertions
@@ -20443,7 +20351,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-27"
+                                aria-labelledby="svg-inline--fa-title-24"
                                 className="svg-inline--fa fa-angle-double-up fa-w-10 toolbarButton_1ueb7gu"
                                 data-icon="angle-double-up"
                                 data-prefix="fas"
@@ -20454,7 +20362,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-27"
+                                  id="svg-inline--fa-title-24"
                                   style={Object {}}
                                 >
                                   Collapse all assertions
@@ -20472,8 +20380,6 @@ ZeroDivisionError: integer division or modulo by zero
                     </ToolbarExpandButtons>
                     <ToolbarDetailsButton
                       toolbarStyle="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
-                      updatePathDisplayFunc={[Function]}
-                      updateTimeDisplayFunc={[Function]}
                     >
                       <UncontrolledDropdown
                         inNavbar={true}
@@ -20541,7 +20447,7 @@ ZeroDivisionError: integer division or modulo by zero
                                       transform={null}
                                     >
                                       <svg
-                                        aria-labelledby="svg-inline--fa-title-28"
+                                        aria-labelledby="svg-inline--fa-title-25"
                                         className="svg-inline--fa fa-tasks fa-w-16 toolbarButton_1ueb7gu"
                                         data-icon="tasks"
                                         data-prefix="fas"
@@ -20551,7 +20457,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         xmlns="http://www.w3.org/2000/svg"
                                       >
                                         <title
-                                          id="svg-inline--fa-title-28"
+                                          id="svg-inline--fa-title-25"
                                           style={Object {}}
                                         >
                                           Choose details
@@ -20569,110 +20475,183 @@ ZeroDivisionError: integer division or modulo by zero
                               <DropdownMenu
                                 className="dropdown_biw13d"
                                 flip={true}
+                                right={true}
                                 tag="div"
                               >
                                 <div
                                   aria-hidden={true}
-                                  className="dropdown_biw13d dropdown-menu"
+                                  className="dropdown_biw13d dropdown-menu dropdown-menu-right"
                                   role="menu"
                                   tabIndex="-1"
                                 >
-                                  <DropdownItem
-                                    className="dropdownItem_1bl0z5g"
-                                    tag="button"
-                                    toggle={false}
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
                                   >
-                                    <button
-                                      className="dropdownItem_1bl0z5g dropdown-item"
-                                      onClick={[Function]}
-                                      role="menuitem"
-                                      tabIndex="0"
+                                    <DropdownItem
+                                      className="dropdownItem_1bl0z5g"
+                                      tag="button"
+                                      toggle={false}
                                     >
-                                      <Label
-                                        check={true}
-                                        className="filterLabel_17zzvy"
-                                        tag="label"
-                                        widths={
-                                          Array [
-                                            "xs",
-                                            "sm",
-                                            "md",
-                                            "lg",
-                                            "xl",
-                                          ]
-                                        }
+                                      <button
+                                        className="dropdownItem_1bl0z5g dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
                                       >
-                                        <label
-                                          className="filterLabel_17zzvy form-check-label"
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_17zzvy"
+                                          tag="label"
+                                          widths={
+                                            Array [
+                                              "xs",
+                                              "sm",
+                                              "md",
+                                              "lg",
+                                              "xl",
+                                            ]
+                                          }
                                         >
-                                          <Input
-                                            name="filter"
-                                            onChange={[Function]}
-                                            type="checkbox"
-                                            value="time"
+                                          <label
+                                            className="filterLabel_17zzvy form-check-label"
                                           >
-                                            <input
-                                              className="form-check-input"
-                                              name="filter"
+                                            <Input
+                                              checked={false}
                                               onChange={[Function]}
                                               type="checkbox"
-                                              value="time"
-                                            />
-                                          </Input>
-                                           
-                                          Time Information
-                                        </label>
-                                      </Label>
-                                    </button>
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    className="dropdownItem_1bl0z5g"
-                                    tag="button"
-                                    toggle={false}
+                                            >
+                                              <input
+                                                checked={false}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Display time information
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
                                   >
-                                    <button
-                                      className="dropdownItem_1bl0z5g dropdown-item"
-                                      onClick={[Function]}
-                                      role="menuitem"
-                                      tabIndex="0"
+                                    <DropdownItem
+                                      className="dropdownItem_1bl0z5g"
+                                      tag="button"
+                                      toggle={false}
                                     >
-                                      <Label
-                                        check={true}
-                                        className="filterLabel_17zzvy"
-                                        tag="label"
-                                        widths={
-                                          Array [
-                                            "xs",
-                                            "sm",
-                                            "md",
-                                            "lg",
-                                            "xl",
-                                          ]
-                                        }
+                                      <button
+                                        className="dropdownItem_1bl0z5g dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
                                       >
-                                        <label
-                                          className="filterLabel_17zzvy form-check-label"
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_17zzvy"
+                                          tag="label"
+                                          widths={
+                                            Array [
+                                              "xs",
+                                              "sm",
+                                              "md",
+                                              "lg",
+                                              "xl",
+                                            ]
+                                          }
                                         >
-                                          <Input
-                                            name="filter"
-                                            onChange={[Function]}
-                                            type="checkbox"
-                                            value="path"
+                                          <label
+                                            className="filterLabel_17zzvy form-check-label"
                                           >
-                                            <input
-                                              className="form-check-input"
-                                              name="filter"
+                                            <Input
+                                              checked={false}
                                               onChange={[Function]}
                                               type="checkbox"
-                                              value="path"
-                                            />
-                                          </Input>
-                                           
-                                          File Path
-                                        </label>
-                                      </Label>
-                                    </button>
-                                  </DropdownItem>
+                                            >
+                                              <input
+                                                checked={false}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Display file path for assertions
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
+                                  >
+                                    <DropdownItem
+                                      className="dropdownItem_1bl0z5g"
+                                      tag="button"
+                                      toggle={false}
+                                    >
+                                      <button
+                                        className="dropdownItem_1bl0z5g dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
+                                      >
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_17zzvy"
+                                          tag="label"
+                                          widths={
+                                            Array [
+                                              "xs",
+                                              "sm",
+                                              "md",
+                                              "lg",
+                                              "xl",
+                                            ]
+                                          }
+                                        >
+                                          <label
+                                            className="filterLabel_17zzvy form-check-label"
+                                          >
+                                            <Input
+                                              checked={true}
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                            >
+                                              <input
+                                                checked={true}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Treeview navigation
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
                                 </div>
                               </DropdownMenu>
                             </li>
@@ -20751,7 +20730,7 @@ ZeroDivisionError: integer division or modulo by zero
                                       transform={null}
                                     >
                                       <svg
-                                        aria-labelledby="svg-inline--fa-title-29"
+                                        aria-labelledby="svg-inline--fa-title-26"
                                         className="svg-inline--fa fa-filter fa-w-16 toolbarButton_1ueb7gu"
                                         data-icon="filter"
                                         data-prefix="fas"
@@ -20761,7 +20740,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         xmlns="http://www.w3.org/2000/svg"
                                       >
                                         <title
-                                          id="svg-inline--fa-title-29"
+                                          id="svg-inline--fa-title-26"
                                           style={Object {}}
                                         >
                                           Choose filter
@@ -21047,7 +21026,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-30"
+                                aria-labelledby="svg-inline--fa-title-27"
                                 className="svg-inline--fa fa-tags fa-w-20 toolbarButton_1ueb7gu"
                                 data-icon="tags"
                                 data-prefix="fas"
@@ -21058,7 +21037,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-30"
+                                  id="svg-inline--fa-title-27"
                                   style={Object {}}
                                 >
                                   Display tags
@@ -21154,7 +21133,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-31"
+                                aria-labelledby="svg-inline--fa-title-28"
                                 className="svg-inline--fa fa-info fa-w-6 toolbarButton_1ueb7gu"
                                 data-icon="info"
                                 data-prefix="fas"
@@ -21165,7 +21144,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-31"
+                                  id="svg-inline--fa-title-28"
                                   style={Object {}}
                                 >
                                   Info
@@ -21252,7 +21231,7 @@ ZeroDivisionError: integer division or modulo by zero
                             transform={null}
                           >
                             <svg
-                              aria-labelledby="svg-inline--fa-title-32"
+                              aria-labelledby="svg-inline--fa-title-29"
                               className="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
                               data-icon="print"
                               data-prefix="fas"
@@ -21263,7 +21242,7 @@ ZeroDivisionError: integer division or modulo by zero
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <title
-                                id="svg-inline--fa-title-32"
+                                id="svg-inline--fa-title-29"
                                 style={Object {}}
                               >
                                 Print page
@@ -21320,7 +21299,7 @@ ZeroDivisionError: integer division or modulo by zero
                             transform={null}
                           >
                             <svg
-                              aria-labelledby="svg-inline--fa-title-33"
+                              aria-labelledby="svg-inline--fa-title-30"
                               className="svg-inline--fa fa-book fa-w-14 toolbarButton_1ueb7gu"
                               data-icon="book"
                               data-prefix="fas"
@@ -21330,7 +21309,7 @@ ZeroDivisionError: integer division or modulo by zero
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <title
-                                id="svg-inline--fa-title-33"
+                                id="svg-inline--fa-title-30"
                                 style={Object {}}
                               >
                                 Documentation
@@ -21489,5 +21468,5 @@ ZeroDivisionError: integer division or modulo by zero
       </ErrorBoundary>
     </div>
   </div>
-</BatchReport>
+</BatchReportComponent>
 `;

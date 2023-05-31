@@ -36,7 +36,6 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
       tag="ul"
       vertical={false}
     >
-      <ToolbarTreeViewButton />
       <ToolbarExpandButtons
         status="passed"
       />
@@ -322,7 +321,6 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
       tag="ul"
       vertical={false}
     >
-      <ToolbarTreeViewButton />
       <ToolbarExpandButtons
         status="passed"
       />
@@ -455,7 +453,6 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
       tag="ul"
       vertical={false}
     >
-      <ToolbarTreeViewButton />
       <ToolbarExpandButtons
         status="passed"
       />

@@ -42,7 +42,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import styles from "./navStyles";
-import { useTreeViewPreference } from "../UserSettings/UserSettings";
+import {
+  displayPathPreference,
+  displayTimeInfoPreference,
+  useTreeViewPreference,
+} from "../UserSettings/UserSettings";
 import { useAtom } from "jotai";
 
 library.add(
@@ -58,24 +62,6 @@ library.add(
   faAngleDoubleUp,
   faAngleDown
 );
-
-const ToolbarTreeViewButton = () => {
-  const [useTreeView, setUseTreeview] = useAtom(useTreeViewPreference);
-
-  return (
-    <NavItem>
-      <div className={css(styles.buttonsBar)}>
-        <FontAwesomeIcon
-          key="navigation-view"
-          className={css(styles.toolbarButton)}
-          icon="bars"
-          title="Navigation"
-          onClick={() => setUseTreeview(!useTreeView)}
-        />
-      </div>
-    </NavItem>
-  );
-};
 
 const ToolbarExpandButtons = ({
   expandStatus,
@@ -134,24 +120,23 @@ const ToolbarExpandButtons = ({
   );
 };
 
-const ToolbarDetailsButton = ({
-  toolbarStyle,
-  updatePathDisplayFunc,
-  updateTimeDisplayFunc,
-}) => {
-  const [displayTime, setDisplayTime] = useState(false);
-  const [displayPath, setDisplayPath] = useState(false);
+const UserPreferenceCheckbox = ({ children, preferenceAtom }) => {
+  const [preference, setPreference] = useAtom(preferenceAtom);
+  return (
+    <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+      <Label check className={css(styles.filterLabel)}>
+        <Input
+          type="checkbox"
+          checked={preference}
+          onChange={() => setPreference(!preference)}
+        />{" "}
+        {children}
+      </Label>
+    </DropdownItem>
+  );
+};
 
-  const togglePathDisplay = () => {
-    updatePathDisplayFunc(!displayPath);
-    setDisplayPath(!displayPath);
-  };
-
-  const toggleTimeDisplay = () => {
-    updateTimeDisplayFunc(!displayTime);
-    setDisplayTime(!displayTime);
-  };
-
+const ToolbarDetailsButton = ({ toolbarStyle }) => {
   return (
     <UncontrolledDropdown nav inNavbar>
       <div className={css(styles.buttonsBar)}>
@@ -164,29 +149,16 @@ const ToolbarDetailsButton = ({
           />
         </DropdownToggle>
       </div>
-      <DropdownMenu className={css(styles.dropdown)}>
-        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-          <Label check className={css(styles.filterLabel)}>
-            <Input
-              type="checkbox"
-              name="filter"
-              value="time"
-              onChange={toggleTimeDisplay}
-            />{" "}
-            Time Information
-          </Label>
-        </DropdownItem>
-        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-          <Label check className={css(styles.filterLabel)}>
-            <Input
-              type="checkbox"
-              name="filter"
-              value="path"
-              onChange={togglePathDisplay}
-            />{" "}
-            File Path
-          </Label>
-        </DropdownItem>
+      <DropdownMenu right className={css(styles.dropdown)}>
+        <UserPreferenceCheckbox preferenceAtom={displayTimeInfoPreference}>
+          Display time information
+        </UserPreferenceCheckbox>
+        <UserPreferenceCheckbox preferenceAtom={displayPathPreference}>
+          Display file path for assertions
+        </UserPreferenceCheckbox>
+        <UserPreferenceCheckbox preferenceAtom={useTreeViewPreference}>
+          Treeview navigation
+        </UserPreferenceCheckbox>
       </DropdownMenu>
     </UncontrolledDropdown>
   );
@@ -377,18 +349,13 @@ const Toolbar = function (props) {
       />
       <Collapse isOpen={false} navbar className={toolbarStyle}>
         <Nav navbar className="ml-auto">
-          <ToolbarTreeViewButton />
           <ToolbarExpandButtons
             expandStatus={props.expandStatus}
             updateExpandStatusFunc={props.updateExpandStatusFunc}
             status={props.status}
           />
           {props.extraButtons}
-          <ToolbarDetailsButton
-            toolbarStyle={toolbarStyle}
-            updatePathDisplayFunc={props.updatePathDisplayFunc}
-            updateTimeDisplayFunc={props.updateTimeDisplayFunc}
-          />
+          <ToolbarDetailsButton toolbarStyle={toolbarStyle} />
           <ToolbarFilterButton
             toolbarStyle={toolbarStyle}
             updateFilterFunc={props.updateFilterFunc}

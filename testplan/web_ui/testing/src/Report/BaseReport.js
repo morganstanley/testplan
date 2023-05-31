@@ -15,8 +15,6 @@ class BaseReport extends React.Component {
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
-    this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
-    this.updatePathDisplay = this.updatePathDisplay.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
 
     defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
@@ -31,8 +29,6 @@ class BaseReport extends React.Component {
       },
       loading: false,
       error: null,
-      displayTime: false,
-      displayPath: false,
       assertionStatus: defaultAssertionStatus,
     };
   }
@@ -90,26 +86,6 @@ class BaseReport extends React.Component {
       });
       return { ...prev, assertionStatus };
     });
-  }
-
-  /**
-   * Update file path and line number display of each assertion.
-   *
-   * @param {boolean} displayPath.
-   * @public
-   */
-  updatePathDisplay(displayPath) {
-    this.setState({ displayPath: displayPath });
-  }
-
-  /**
-   * Update execution time display of each navigation entry and each assertion.
-   *
-   * @param {boolean} displayTime.
-   * @public
-   */
-  updateTimeDisplay(displayTime) {
-    this.setState({ displayTime: displayTime });
   }
 
   /**

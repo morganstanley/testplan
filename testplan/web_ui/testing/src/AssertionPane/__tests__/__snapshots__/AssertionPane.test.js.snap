@@ -16,6 +16,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
     <DescriptionPane />
     <AssertionGroup
       assertionGroupUid="22758cc5-8a89-472b-bf67-b64dbc2c0b40"
+      displayPath={false}
       entries={
         Array [
           Object {

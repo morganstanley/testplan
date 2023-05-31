@@ -29,6 +29,8 @@ import {
   fakeReportAssertionsError,
 } from "../Common/fakeReport";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
+import { useAtomValue } from "jotai";
+import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
 
 /**
  * BatchReport component:
@@ -36,7 +38,12 @@ import { ErrorBoundary } from "../Common/ErrorBoundary";
  *   * display messages when loading report or error in report.
  *   * render toolbar, nav & assertion components.
  */
-class BatchReport extends BaseReport {
+
+const BatchReport = (props) => {
+  const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
+  return <BatchReportComponent {...props} displayTime={displayTimeInfo} />;
+};
+class BatchReportComponent extends BaseReport {
   constructor(props) {
     super(props);
     this.setReport = this.setReport.bind(this);
@@ -238,7 +245,8 @@ class BatchReport extends BaseReport {
       this.state,
       reportFetchMessage,
       this.props.match.params.uid,
-      selectedEntries
+      selectedEntries,
+      this.props.displayTime
     );
 
     return (
@@ -254,8 +262,6 @@ class BatchReport extends BaseReport {
           updateFilterFunc={this.updateFilter}
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
           updateTagsDisplayFunc={this.updateTagsDisplay}
-          updatePathDisplayFunc={this.updatePathDisplay}
-          updateTimeDisplayFunc={this.updateTimeDisplay}
         />
         <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
         <div
@@ -273,7 +279,7 @@ class BatchReport extends BaseReport {
             filter={this.state.filter}
             displayEmpty={this.state.displayEmpty}
             displayTags={this.state.displayTags}
-            displayTime={this.state.displayTime}
+            displayTime={this.props.displayTime}
             handleColumnResizing={this.handleColumnResizing}
             url={this.props.match.path}
           />
@@ -301,3 +307,4 @@ const styles = StyleSheet.create({
 });
 
 export default BatchReport;
+export { BatchReportComponent };

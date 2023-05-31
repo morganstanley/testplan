@@ -627,8 +627,6 @@ class InteractiveReport extends BaseReport {
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
-          updatePathDisplayFunc={this.updatePathDisplay}
-          updateTimeDisplayFunc={this.updateTimeDisplay}
           extraButtons={[
             <ReloadButton
               key="reload-button"
