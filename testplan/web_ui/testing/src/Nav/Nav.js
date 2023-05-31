@@ -7,6 +7,8 @@ import {
   GetNavEntries,
   GetInteractiveNavEntries,
 } from "./navUtils";
+import { useAtomValue } from "jotai";
+import { useTreeViewPreference } from "../UserSettings/UserSettings";
 
 /**
  * Nav component:
@@ -18,7 +20,9 @@ import {
  *     environments.
  */
 const Nav = (props) => {
-  if (props.treeView && !props.interactive) {
+  const useTreeView = useAtomValue(useTreeViewPreference);
+
+  if (useTreeView && !props.interactive) {
     const navEntries = props.report ? props.report.entries : [];
     return (
       <TreeViewNav
@@ -35,7 +39,7 @@ const Nav = (props) => {
         url={props.url}
       />
     );
-  } else if (!props.treeView && !props.interactive) {
+  } else if (!useTreeView && !props.interactive) {
     const navEntries = GetNavEntries(props.selected);
     return (
       <NavList
@@ -53,7 +57,7 @@ const Nav = (props) => {
         url={props.url}
       />
     );
-  } else if (props.treeView && props.interactive) {
+  } else if (useTreeView && props.interactive) {
     const navEntries = props.report ? props.report.entries : [];
     return (
       <TreeViewNav
@@ -72,7 +76,7 @@ const Nav = (props) => {
         url={props.url}
       />
     );
-  } else if (!props.treeView && props.interactive) {
+  } else if (!useTreeView && props.interactive) {
     const navEntries = GetInteractiveNavEntries(props.selected);
     return (
       <NavList
@@ -104,8 +108,6 @@ Nav.propTypes = {
   saveAssertions: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
-  /** Flag to display tree view or default view */
-  treeView: PropTypes.bool,
   /** Flag to display tags on navbar */
   displayTags: PropTypes.bool,
   /** Flag to display execution time on navbar */

@@ -253,7 +253,6 @@ class BatchReport extends BaseReport {
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
-          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={this.updateTagsDisplay}
           updatePathDisplayFunc={this.updatePathDisplay}
           updateTimeDisplayFunc={this.updateTimeDisplay}
@@ -272,7 +271,6 @@ class BatchReport extends BaseReport {
             report={this.state.filteredReport.report}
             selected={selectedEntries}
             filter={this.state.filter}
-            treeView={this.state.treeView}
             displayEmpty={this.state.displayEmpty}
             displayTags={this.state.displayTags}
             displayTime={this.state.displayTime}

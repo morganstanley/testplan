@@ -29,7 +29,6 @@ const EmptyReport = (props) => {
         handleNavFilter={noop}
         updateFilterFunc={noop}
         updateEmptyDisplayFunc={noop}
-        updateTreeViewFunc={noop}
         updateTagsDisplayFunc={noop}
         updateTimeDisplayFunc={noop}
         extraButtons={[]}

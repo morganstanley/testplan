@@ -12,9 +12,6 @@ class BaseReport extends React.Component {
   constructor(props) {
     super(props);
     this.setError = this.setError.bind(this);
-    //this.setReport = this.setReport.bind(this);
-    //this.getReport = this.getReport.bind(this);
-    this.updateTreeView = this.updateTreeView.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
@@ -34,7 +31,6 @@ class BaseReport extends React.Component {
       },
       loading: false,
       error: null,
-      treeView: true,
       displayTime: false,
       displayPath: false,
       assertionStatus: defaultAssertionStatus,
@@ -94,16 +90,6 @@ class BaseReport extends React.Component {
       });
       return { ...prev, assertionStatus };
     });
-  }
-
-  /**
-   * Update the flag for whether to use tree view navigation or the default one.
-   *
-   * @param {boolean} treeView.
-   * @public
-   */
-  updateTreeView(treeView) {
-    this.setState({ treeView: treeView });
   }
 
   /**

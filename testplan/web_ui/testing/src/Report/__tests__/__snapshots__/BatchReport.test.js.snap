@@ -286,7 +286,6 @@ exports[`BatchReport loads a failed simple report 1`] = `
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -2284,7 +2283,6 @@ exports[`BatchReport loads a failed simple report 1`] = `
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -2790,7 +2788,6 @@ exports[`BatchReport loads a more complex error report 1`] = `
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -4071,7 +4068,6 @@ exports[`BatchReport loads a more complex error report 1`] = `
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -4575,7 +4571,6 @@ exports[`BatchReport loads a more complex report 1`] = `
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -6939,7 +6934,6 @@ exports[`BatchReport loads a more complex report 1`] = `
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -7274,7 +7268,6 @@ exports[`BatchReport loads a passed simple report 1`] = `
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -8104,7 +8097,6 @@ exports[`BatchReport loads a passed simple report 1`] = `
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -8588,7 +8580,6 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -10532,7 +10523,6 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -11017,7 +11007,6 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -12832,7 +12821,6 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -13346,7 +13334,6 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -15197,7 +15184,6 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -15710,7 +15696,6 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -17966,7 +17951,6 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -18449,7 +18433,6 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <NavBreadcrumbs
     entries={
@@ -19798,7 +19781,6 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
           },
         ]
       }
-      treeView={true}
       url="/testplan/:uid/:selection*"
     />
     <ContextProvider
@@ -19889,7 +19871,6 @@ ZeroDivisionError: integer division or modulo by zero
       updatePathDisplayFunc={[Function]}
       updateTagsDisplayFunc={[Function]}
       updateTimeDisplayFunc={[Function]}
-      updateTreeViewFunc={[Function]}
     >
       <Navbar
         className="toolbar_l6n5rs"
@@ -20281,9 +20262,7 @@ ZeroDivisionError: integer division or modulo by zero
                   <ul
                     className="ml-auto navbar-nav"
                   >
-                    <ToolbarTreeViewButton
-                      updateTreeViewFunc={[Function]}
-                    >
+                    <ToolbarTreeViewButton>
                       <NavItem
                         tag="li"
                       >
@@ -21405,7 +21384,6 @@ ZeroDivisionError: integer division or modulo by zero
         navListWidth="22em"
         report={null}
         selected={Array []}
-        treeView={true}
         url="/testplan/:uid/:selection*"
       >
         <TreeViewNav

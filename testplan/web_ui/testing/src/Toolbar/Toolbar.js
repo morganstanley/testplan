@@ -42,6 +42,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import styles from "./navStyles";
+import { useTreeViewPreference } from "../UserSettings/UserSettings";
+import { useAtom } from "jotai";
 
 library.add(
   faInfo,
@@ -57,13 +59,8 @@ library.add(
   faAngleDown
 );
 
-const ToolbarTreeViewButton = ({ updateTreeViewFunc }) => {
-  const [treeView, setTreeview] = useState(true);
-
-  const toggleTreeView = () => {
-    updateTreeViewFunc(!treeView);
-    setTreeview(!treeView);
-  };
+const ToolbarTreeViewButton = () => {
+  const [useTreeView, setUseTreeview] = useAtom(useTreeViewPreference);
 
   return (
     <NavItem>
@@ -73,7 +70,7 @@ const ToolbarTreeViewButton = ({ updateTreeViewFunc }) => {
           className={css(styles.toolbarButton)}
           icon="bars"
           title="Navigation"
-          onClick={toggleTreeView}
+          onClick={() => setUseTreeview(!useTreeView)}
         />
       </div>
     </NavItem>
@@ -380,9 +377,7 @@ const Toolbar = function (props) {
       />
       <Collapse isOpen={false} navbar className={toolbarStyle}>
         <Nav navbar className="ml-auto">
-          <ToolbarTreeViewButton
-            updateTreeViewFunc={props.updateTreeViewFunc}
-          />
+          <ToolbarTreeViewButton />
           <ToolbarExpandButtons
             expandStatus={props.expandStatus}
             updateExpandStatusFunc={props.updateExpandStatusFunc}
@@ -541,8 +536,6 @@ Toolbar.propTypes = {
   updateFilterFunc: PropTypes.func,
   /** Function to handle toggle of displaying empty entries in the navbar */
   updateEmptyDisplayFunc: PropTypes.func,
-  /** Function to handle toggle of displaying tree view navigation or the default one */
-  updateTreeViewFunc: PropTypes.func,
   /** Function to handle toggle of displaying tags in the navbar */
   updateTagsDisplayFunc: PropTypes.func,
   /** Function to handle expressions entered into the Filter box */

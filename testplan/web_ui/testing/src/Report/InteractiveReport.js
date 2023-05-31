@@ -626,7 +626,6 @@ class InteractiveReport extends BaseReport {
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
-          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={noop}
           updatePathDisplayFunc={this.updatePathDisplay}
           updateTimeDisplayFunc={this.updateTimeDisplay}
@@ -666,7 +665,6 @@ class InteractiveReport extends BaseReport {
             navListWidth={this.state.navWidth}
             report={this.state.filteredReport.report}
             selected={selectedEntries}
-            treeView={this.state.treeView}
             filter={null}
             displayEmpty={true}
             displayTags={false}

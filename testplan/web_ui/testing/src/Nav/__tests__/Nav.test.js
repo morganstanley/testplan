@@ -4,13 +4,18 @@ import { StyleSheetTestUtils } from "aphrodite";
 
 import Nav from "../Nav";
 import { TESTPLAN_REPORT } from "../../Common/sampleReports";
+import { getDefaultStore } from "jotai";
+import { useTreeViewPreference } from "../../UserSettings/UserSettings";
 
 const defaultProps = {
   report: TESTPLAN_REPORT,
   selected: [TESTPLAN_REPORT],
 };
 
-describe("Nav", () => {
+describe.each([
+  { title: "List", useTreeView: false },
+  { title: "TreeView", useTreeView: true },
+])("Nav with $title", ({ useTreeView }) => {
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
@@ -22,6 +27,7 @@ describe("Nav", () => {
   });
 
   it("shallow renders and matches snapshot", () => {
+    getDefaultStore().set(useTreeViewPreference, useTreeView);
     const rendered = shallow(<Nav {...defaultProps} />);
     expect(rendered).toMatchSnapshot();
   });
