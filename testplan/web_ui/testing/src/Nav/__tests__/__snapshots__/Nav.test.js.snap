@@ -2,6 +2,7 @@
 
 exports[`Nav with List shallow renders and matches snapshot 1`] = `
 <NavList
+  displayEmpty={true}
   entries={
     Array [
       Object {
@@ -252,6 +253,7 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
 
 exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
 <TreeViewNav
+  displayEmpty={true}
   entries={
     Array [
       Object {

@@ -6,7 +6,7 @@ import ReactRouterEnzymeContext from "react-router-enzyme-context";
 
 import _ from "lodash";
 
-import BatchReport, { BatchReportComponent } from "../BatchReport";
+import { BatchReportComponent } from "../BatchReport";
 import Message from "../../Common/Message";
 import {
   TESTPLAN_REPORT,

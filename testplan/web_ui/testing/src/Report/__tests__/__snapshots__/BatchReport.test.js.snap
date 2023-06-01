@@ -280,7 +280,6 @@ exports[`BatchReport loads a failed simple report 1`] = `
       }
     }
     status="failed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -1151,7 +1150,6 @@ exports[`BatchReport loads a failed simple report 1`] = `
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -2779,7 +2777,6 @@ exports[`BatchReport loads a more complex error report 1`] = `
       }
     }
     status="error"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -3253,7 +3250,6 @@ exports[`BatchReport loads a more complex error report 1`] = `
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -4559,7 +4555,6 @@ exports[`BatchReport loads a more complex report 1`] = `
       }
     }
     status="failed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -5527,7 +5522,6 @@ exports[`BatchReport loads a more complex report 1`] = `
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -7253,7 +7247,6 @@ exports[`BatchReport loads a passed simple report 1`] = `
       }
     }
     status="passed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -7541,7 +7534,6 @@ exports[`BatchReport loads a passed simple report 1`] = `
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -8563,7 +8555,6 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
       }
     }
     status="failed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -9321,7 +9312,6 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -10988,7 +10978,6 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
       }
     }
     status="failed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -11681,7 +11670,6 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -13312,7 +13300,6 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
       }
     }
     status="failed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -14021,7 +14008,6 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={true}
       filter={null}
@@ -15671,7 +15657,6 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
       }
     }
     status="failed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -16585,7 +16570,6 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -18406,7 +18390,6 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
       }
     }
     status="failed"
-    updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -18867,7 +18850,6 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     }
   >
     <Nav
-      displayEmpty={true}
       displayTags={false}
       displayTime={false}
       filter={null}
@@ -19843,7 +19825,6 @@ ZeroDivisionError: integer division or modulo by zero
         }
       }
       status="error"
-      updateEmptyDisplayFunc={[Function]}
       updateExpandStatusFunc={[Function]}
       updateFilterFunc={[Function]}
       updateTagsDisplayFunc={[Function]}
@@ -20378,7 +20359,7 @@ ZeroDivisionError: integer division or modulo by zero
                         </li>
                       </NavItem>
                     </ToolbarExpandButtons>
-                    <ToolbarDetailsButton
+                    <ToolbarPreferencesButton
                       toolbarStyle="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
                     >
                       <UncontrolledDropdown
@@ -20484,6 +20465,19 @@ ZeroDivisionError: integer division or modulo by zero
                                   role="menu"
                                   tabIndex="-1"
                                 >
+                                  <DropdownItem
+                                    header={true}
+                                    tag="button"
+                                    toggle={true}
+                                  >
+                                    <h6
+                                      className="dropdown-header"
+                                      onClick={[Function]}
+                                      tabIndex="-1"
+                                    >
+                                      Display preferences
+                                    </h6>
+                                  </DropdownItem>
                                   <UserPreferenceCheckbox
                                     preferenceAtom={
                                       Object {
@@ -20596,6 +20590,30 @@ ZeroDivisionError: integer division or modulo by zero
                                       </button>
                                     </DropdownItem>
                                   </UserPreferenceCheckbox>
+                                  <DropdownItem
+                                    divider={true}
+                                    tag="button"
+                                    toggle={true}
+                                  >
+                                    <div
+                                      className="dropdown-divider"
+                                      onClick={[Function]}
+                                      tabIndex="-1"
+                                    />
+                                  </DropdownItem>
+                                  <DropdownItem
+                                    header={true}
+                                    tag="button"
+                                    toggle={true}
+                                  >
+                                    <h6
+                                      className="dropdown-header"
+                                      onClick={[Function]}
+                                      tabIndex="-1"
+                                    >
+                                      Navigation preferences
+                                    </h6>
+                                  </DropdownItem>
                                   <UserPreferenceCheckbox
                                     preferenceAtom={
                                       Object {
@@ -20652,16 +20670,71 @@ ZeroDivisionError: integer division or modulo by zero
                                       </button>
                                     </DropdownItem>
                                   </UserPreferenceCheckbox>
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
+                                  >
+                                    <DropdownItem
+                                      className="dropdownItem_1bl0z5g"
+                                      tag="button"
+                                      toggle={false}
+                                    >
+                                      <button
+                                        className="dropdownItem_1bl0z5g dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
+                                      >
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_17zzvy"
+                                          tag="label"
+                                          widths={
+                                            Array [
+                                              "xs",
+                                              "sm",
+                                              "md",
+                                              "lg",
+                                              "xl",
+                                            ]
+                                          }
+                                        >
+                                          <label
+                                            className="filterLabel_17zzvy form-check-label"
+                                          >
+                                            <Input
+                                              checked={false}
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                            >
+                                              <input
+                                                checked={false}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Hide empty testcases
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
                                 </div>
                               </DropdownMenu>
                             </li>
                           </Manager>
                         </Dropdown>
                       </UncontrolledDropdown>
-                    </ToolbarDetailsButton>
+                    </ToolbarPreferencesButton>
                     <ToolbarFilterButton
                       toolbarStyle="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
-                      updateEmptyDisplayFunc={[Function]}
                       updateFilterFunc={[Function]}
                     >
                       <UncontrolledDropdown
@@ -20912,65 +20985,6 @@ ZeroDivisionError: integer division or modulo by zero
                                           </Input>
                                            
                                           Passed only
-                                        </label>
-                                      </Label>
-                                    </button>
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    divider={true}
-                                    tag="button"
-                                    toggle={true}
-                                  >
-                                    <div
-                                      className="dropdown-divider"
-                                      onClick={[Function]}
-                                      tabIndex="-1"
-                                    />
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    className="dropdownItem_1bl0z5g"
-                                    tag="button"
-                                    toggle={false}
-                                  >
-                                    <button
-                                      className="dropdownItem_1bl0z5g dropdown-item"
-                                      onClick={[Function]}
-                                      role="menuitem"
-                                      tabIndex="0"
-                                    >
-                                      <Label
-                                        check={true}
-                                        className="filterLabel_17zzvy"
-                                        tag="label"
-                                        widths={
-                                          Array [
-                                            "xs",
-                                            "sm",
-                                            "md",
-                                            "lg",
-                                            "xl",
-                                          ]
-                                        }
-                                      >
-                                        <label
-                                          className="filterLabel_17zzvy form-check-label"
-                                        >
-                                          <Input
-                                            checked={false}
-                                            name="displayEmptyTest"
-                                            onChange={[Function]}
-                                            type="checkbox"
-                                          >
-                                            <input
-                                              checked={false}
-                                              className="form-check-input"
-                                              name="displayEmptyTest"
-                                              onChange={[Function]}
-                                              type="checkbox"
-                                            />
-                                          </Input>
-                                           
-                                          Hide empty testcase
                                         </label>
                                       </Label>
                                     </button>
@@ -21354,7 +21368,6 @@ ZeroDivisionError: integer division or modulo by zero
       }
     >
       <Nav
-        displayEmpty={true}
         displayTags={false}
         displayTime={false}
         filter={null}

@@ -8,7 +8,10 @@ import {
   GetInteractiveNavEntries,
 } from "./navUtils";
 import { useAtomValue } from "jotai";
-import { useTreeViewPreference } from "../UserSettings/UserSettings";
+import {
+  hideEmptyTestcasesPreference,
+  useTreeViewPreference,
+} from "../UserSettings/UserSettings";
 
 /**
  * Nav component:
@@ -21,6 +24,7 @@ import { useTreeViewPreference } from "../UserSettings/UserSettings";
  */
 const Nav = (props) => {
   const useTreeView = useAtomValue(useTreeViewPreference);
+  const displayEmpty = !useAtomValue(hideEmptyTestcasesPreference);
 
   if (useTreeView && !props.interactive) {
     const navEntries = props.report ? props.report.entries : [];
@@ -31,7 +35,7 @@ const Nav = (props) => {
         entries={navEntries}
         handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
-        displayEmpty={props.displayEmpty}
+        displayEmpty={displayEmpty}
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selected={props.selected}
@@ -48,7 +52,7 @@ const Nav = (props) => {
         entries={navEntries}
         handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
-        displayEmpty={props.displayEmpty}
+        displayEmpty={displayEmpty}
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selectedUid={GetSelectedUid(props.selected)}

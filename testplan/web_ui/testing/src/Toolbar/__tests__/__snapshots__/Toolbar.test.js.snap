@@ -192,7 +192,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           />
         </div>
       </NavItem>
-      <ToolbarDetailsButton
+      <ToolbarPreferencesButton
         toolbarStyle="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
       />
       <ToolbarFilterButton
@@ -324,7 +324,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
       <ToolbarExpandButtons
         status="passed"
       />
-      <ToolbarDetailsButton
+      <ToolbarPreferencesButton
         toolbarStyle="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
       />
       <ToolbarFilterButton
@@ -456,7 +456,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
       <ToolbarExpandButtons
         status="passed"
       />
-      <ToolbarDetailsButton
+      <ToolbarPreferencesButton
         toolbarStyle="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
       />
       <ToolbarFilterButton

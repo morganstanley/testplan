@@ -45,6 +45,7 @@ import styles from "./navStyles";
 import {
   displayPathPreference,
   displayTimeInfoPreference,
+  hideEmptyTestcasesPreference,
   useTreeViewPreference,
 } from "../UserSettings/UserSettings";
 import { useAtom } from "jotai";
@@ -136,7 +137,7 @@ const UserPreferenceCheckbox = ({ children, preferenceAtom }) => {
   );
 };
 
-const ToolbarDetailsButton = ({ toolbarStyle }) => {
+const ToolbarPreferencesButton = ({ toolbarStyle }) => {
   return (
     <UncontrolledDropdown nav inNavbar>
       <div className={css(styles.buttonsBar)}>
@@ -150,14 +151,20 @@ const ToolbarDetailsButton = ({ toolbarStyle }) => {
         </DropdownToggle>
       </div>
       <DropdownMenu right className={css(styles.dropdown)}>
+        <DropdownItem header>Display preferences</DropdownItem>
         <UserPreferenceCheckbox preferenceAtom={displayTimeInfoPreference}>
           Display time information
         </UserPreferenceCheckbox>
         <UserPreferenceCheckbox preferenceAtom={displayPathPreference}>
           Display file path for assertions
         </UserPreferenceCheckbox>
+        <DropdownItem divider />
+        <DropdownItem header>Navigation preferences</DropdownItem>
         <UserPreferenceCheckbox preferenceAtom={useTreeViewPreference}>
           Treeview navigation
+        </UserPreferenceCheckbox>
+        <UserPreferenceCheckbox preferenceAtom={hideEmptyTestcasesPreference}>
+          Hide empty testcases
         </UserPreferenceCheckbox>
       </DropdownMenu>
     </UncontrolledDropdown>
@@ -170,17 +177,11 @@ const ToolbarFilterButton = ({
   updateEmptyDisplayFunc,
 }) => {
   const [filter, setFilter] = useState("all");
-  const [displayEmpty, setDisplayEmpty] = useState(true);
 
   const filterOnClick = (e) => {
     let checkedValue = e.currentTarget.value;
     updateFilterFunc(checkedValue);
     setFilter(checkedValue);
-  };
-
-  const toggleEmptyDisplay = () => {
-    updateEmptyDisplayFunc(!displayEmpty);
-    setDisplayEmpty(!displayEmpty);
   };
 
   return (
@@ -230,18 +231,6 @@ const ToolbarFilterButton = ({
               onChange={filterOnClick}
             />{" "}
             Passed only
-          </Label>
-        </DropdownItem>
-        <DropdownItem divider />
-        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-          <Label check className={css(styles.filterLabel)}>
-            <Input
-              type="checkbox"
-              name="displayEmptyTest"
-              checked={!displayEmpty}
-              onChange={toggleEmptyDisplay}
-            />{" "}
-            Hide empty testcase
           </Label>
         </DropdownItem>
       </DropdownMenu>
@@ -355,11 +344,10 @@ const Toolbar = function (props) {
             status={props.status}
           />
           {props.extraButtons}
-          <ToolbarDetailsButton toolbarStyle={toolbarStyle} />
+          <ToolbarPreferencesButton toolbarStyle={toolbarStyle} />
           <ToolbarFilterButton
             toolbarStyle={toolbarStyle}
             updateFilterFunc={props.updateFilterFunc}
-            updateEmptyDisplayFunc={props.updateEmptyDisplayFunc}
           />
           <ToolbarTagsButton
             status={props.status}

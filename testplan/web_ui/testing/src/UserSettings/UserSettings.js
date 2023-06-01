@@ -6,3 +6,7 @@ export const displayTimeInfoPreference = atomWithStorage(
   false
 );
 export const displayPathPreference = atomWithStorage("displayPath", false);
+export const hideEmptyTestcasesPreference = atomWithStorage(
+  "hideEmptyTestcases",
+  false
+);

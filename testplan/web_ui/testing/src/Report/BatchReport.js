@@ -48,7 +48,6 @@ class BatchReportComponent extends BaseReport {
     super(props);
     this.setReport = this.setReport.bind(this);
     this.getReport = this.getReport.bind(this);
-    this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
 
@@ -58,7 +57,6 @@ class BatchReportComponent extends BaseReport {
       testcaseUid: null,
       filter: null,
       displayTags: false,
-      displayEmpty: true,
     };
   }
 
@@ -194,16 +192,6 @@ class BatchReportComponent extends BaseReport {
     this.setState({ displayTags: displayTags });
   }
 
-  /**
-   * Update navigation pane to show/hide entries of empty testcases.
-   *
-   * @param {boolean} displayEmpty.
-   * @public
-   */
-  updateDisplayEmpty(displayEmpty) {
-    this.setState({ displayEmpty: displayEmpty });
-  }
-
   getSelectedUIDsFromPath() {
     const { uid, selection } = this.props.match.params;
     return [uid, ...(selection ? selection.split("/") : [])];
@@ -260,7 +248,6 @@ class BatchReportComponent extends BaseReport {
           updateExpandStatusFunc={this.updateGlobalExpand}
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
-          updateEmptyDisplayFunc={this.updateDisplayEmpty}
           updateTagsDisplayFunc={this.updateTagsDisplay}
         />
         <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
@@ -277,7 +264,6 @@ class BatchReportComponent extends BaseReport {
             report={this.state.filteredReport.report}
             selected={selectedEntries}
             filter={this.state.filter}
-            displayEmpty={this.state.displayEmpty}
             displayTags={this.state.displayTags}
             displayTime={this.props.displayTime}
             handleColumnResizing={this.handleColumnResizing}
