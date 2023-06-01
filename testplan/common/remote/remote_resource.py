@@ -492,9 +492,8 @@ class RemoteResource(Entity):
         return push_files, push_dirs
 
     def _build_push_dests(
-        self,
-        push_sources: Union[List[str], List[Tuple[str, str]]]
-    ) -> Union[List[str], List[Tuple [str, str]]]:
+        self, push_sources: Union[List[str], List[Tuple[str, str]]]
+    ) -> Union[List[str], List[Tuple[str, str]]]:
         """
         When the destination paths have not been explicitly specified, build
         them automatically. If an absolute path is given on Linux, we will push
