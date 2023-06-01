@@ -664,7 +664,6 @@ class InteractiveReport extends BaseReport {
             report={this.state.filteredReport.report}
             selected={selectedEntries}
             filter={null}
-            displayEmpty={true}
             displayTags={false}
             displayTime={false}
             // envCtrlCallback and handleClick are passed down to InteractiveNav

@@ -3,6 +3,7 @@
 exports[`Nav with List shallow renders and matches snapshot 1`] = `
 <NavList
   displayEmpty={true}
+  displaySkipped={true}
   displayTags={false}
   displayTime={false}
   entries={
@@ -93,6 +94,7 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
 exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
 <TreeViewNav
   displayEmpty={true}
+  displaySkipped={true}
   displayTags={false}
   displayTime={false}
   entries={

@@ -10,3 +10,7 @@ export const hideEmptyTestcasesPreference = atomWithStorage(
   "hideEmptyTestcases",
   false
 );
+export const hideSkippedTestcasesPreference = atomWithStorage(
+  "hideSkippedTestcases",
+  false
+);

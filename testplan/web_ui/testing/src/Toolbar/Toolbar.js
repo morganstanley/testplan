@@ -46,6 +46,7 @@ import {
   displayPathPreference,
   displayTimeInfoPreference,
   hideEmptyTestcasesPreference,
+  hideSkippedTestcasesPreference,
   useTreeViewPreference,
 } from "../UserSettings/UserSettings";
 import { useAtom } from "jotai";
@@ -165,6 +166,9 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
         </UserPreferenceCheckbox>
         <UserPreferenceCheckbox preferenceAtom={hideEmptyTestcasesPreference}>
           Hide empty testcases
+        </UserPreferenceCheckbox>
+        <UserPreferenceCheckbox preferenceAtom={hideSkippedTestcasesPreference}>
+          Hide skipped testcases
         </UserPreferenceCheckbox>
       </DropdownMenu>
     </UncontrolledDropdown>

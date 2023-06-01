@@ -10,6 +10,7 @@ import {
 import { useAtomValue } from "jotai";
 import {
   hideEmptyTestcasesPreference,
+  hideSkippedTestcasesPreference,
   useTreeViewPreference,
 } from "../UserSettings/UserSettings";
 
@@ -25,6 +26,7 @@ import {
 const Nav = (props) => {
   const useTreeView = useAtomValue(useTreeViewPreference);
   const displayEmpty = !useAtomValue(hideEmptyTestcasesPreference);
+  const displaySkipped = !useAtomValue(hideSkippedTestcasesPreference);
 
   if (useTreeView && !props.interactive) {
     const navEntries = props.report ? props.report.entries : [];
@@ -36,6 +38,7 @@ const Nav = (props) => {
         handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
         displayEmpty={displayEmpty}
+        displaySkipped={displaySkipped}
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selected={props.selected}
@@ -53,6 +56,7 @@ const Nav = (props) => {
         handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
         displayEmpty={displayEmpty}
+        displaySkipped={displaySkipped}
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selectedUid={GetSelectedUid(props.selected)}
@@ -71,6 +75,7 @@ const Nav = (props) => {
         handleColumnResizing={props.handleColumnResizing}
         filter={null}
         displayEmpty={true}
+        displaySkipped={true}
         displayTags={false}
         displayTime={false}
         selected={props.selected}
@@ -90,6 +95,7 @@ const Nav = (props) => {
         handleColumnResizing={props.handleColumnResizing}
         filter={null}
         displayEmpty={true}
+        displaySkipped={true}
         displayTags={false}
         displayTime={false}
         selectedUid={GetSelectedUid(props.selected)}

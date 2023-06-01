@@ -20726,6 +20726,62 @@ ZeroDivisionError: integer division or modulo by zero
                                       </button>
                                     </DropdownItem>
                                   </UserPreferenceCheckbox>
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
+                                  >
+                                    <DropdownItem
+                                      className="dropdownItem_1bl0z5g"
+                                      tag="button"
+                                      toggle={false}
+                                    >
+                                      <button
+                                        className="dropdownItem_1bl0z5g dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
+                                      >
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_17zzvy"
+                                          tag="label"
+                                          widths={
+                                            Array [
+                                              "xs",
+                                              "sm",
+                                              "md",
+                                              "lg",
+                                              "xl",
+                                            ]
+                                          }
+                                        >
+                                          <label
+                                            className="filterLabel_17zzvy form-check-label"
+                                          >
+                                            <Input
+                                              checked={false}
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                            >
+                                              <input
+                                                checked={false}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Hide skipped testcases
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
                                 </div>
                               </DropdownMenu>
                             </li>
@@ -21380,6 +21436,7 @@ ZeroDivisionError: integer division or modulo by zero
       >
         <TreeViewNav
           displayEmpty={true}
+          displaySkipped={true}
           displayTags={false}
           displayTime={false}
           entries={Array []}
@@ -21443,6 +21500,7 @@ ZeroDivisionError: integer division or modulo by zero
                     >
                       <Tree
                         displayEmpty={true}
+                        displaySkipped={true}
                         displayTags={false}
                         displayTime={false}
                         doubleClickCallback={[Function]}
