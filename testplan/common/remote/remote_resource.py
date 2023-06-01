@@ -29,6 +29,7 @@ from testplan.common.utils.remote import (
     IS_WIN,
     rm_cmd,
 )
+from testplan.runnable import TestRunner
 
 
 class WorkerSetupMetadata:
@@ -636,7 +637,7 @@ class RemoteResource(Entity):
 
         return sys_path
 
-    def _get_plan(self) -> Optional[testplan.runnable.TestRunner]:
+    def _get_plan(self) -> Optional[TestRunner]:
         """traverse upwards to find TestRunner"""
 
         parent = getattr(self, "parent", None)
