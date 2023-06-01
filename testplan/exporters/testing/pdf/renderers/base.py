@@ -138,8 +138,8 @@ class MetadataMixin:
         """
         return collections.OrderedDict(
             [
-                (label, source.meta[key])
+                (label, dict(source.information)[key])
                 for key, label in self.get_metadata_labels()
-                if source.meta.get(key)
+                if dict(source.information).get(key)
             ]
         )

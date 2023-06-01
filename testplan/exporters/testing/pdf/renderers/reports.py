@@ -57,6 +57,9 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         ("project", "Project"),
         ("git_url", "Git URL"),
         ("git_commit", "Git commit"),
+        ("hostname", "Host"),
+        ("command_line_string", "Command line string"),
+        ("python_version", "Python version"),
         # These two will be set via `get_tag_pdf_ctx`
         ("report_tags_all", "Report tags (all)"),
         ("report_tags_any", "Report tags (any)"),
