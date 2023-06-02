@@ -1,0 +1,1 @@
+All RemoteResource types now handle file transfer errors more gracefully and continue the traversal.
