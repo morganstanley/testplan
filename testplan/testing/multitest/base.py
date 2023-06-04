@@ -451,6 +451,10 @@ class MultiTest(testing_base.Test):
 
         return report
 
+    @staticmethod
+    def _extract_test_targets(shallow_report):
+        return {}
+
     def run_testcases_iter(
         self,
         testsuite_pattern="*",
@@ -458,24 +462,30 @@ class MultiTest(testing_base.Test):
         shallow_report=None,
     ):
         """Run all testcases and yield testcase reports."""
-        test_filter = filtering.Pattern(
-            pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
-            match_definition=True,
-        )
+        if shallow_report is None:
+            test_filter = filtering.Pattern(
+                pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
+                match_definition=True,
+            )
+        else:
+            test_targets = self._extract_test_targets(shallow_report)
 
         for testsuite, testcases in self.test_context:
             if not self.active:
                 break
 
-            # In interactive mode testcases are selected to run, thus
-            # an extra ``filtering.Pattern`` instance will be applied.
-            testcases = [
-                testcase
-                for testcase in testcases
-                if test_filter.filter(
-                    test=self, suite=testsuite, case=testcase
-                )
-            ]
+            if shallow_report is None:
+                testcases = [
+                    testcase
+                    for testcase in testcases
+                    if test_filter.filter(
+                        test=self, suite=testsuite, case=testcase
+                    )
+                ]
+            else:
+                if testsuite not in test_targets:
+                    continue
+                testcases = test_targets[testsuite]
 
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)
