@@ -160,8 +160,8 @@ def generate_interactive_api(ihandler):
 
         def put(self):
             """Update the state of the root interactive report."""
-            json_body = flask.request.json
-            _validate_json_body(json_body)
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
 
             with ihandler.report_mutex:
                 try:
@@ -236,9 +236,9 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid):
             """Update the state of a specific test."""
-            json_body = flask.request.json
-            _validate_json_body(json_body)
-            filtered = "entries" in json_body
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
+            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 try:
@@ -275,12 +275,16 @@ def generate_interactive_api(ihandler):
                     )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
                     if filtered:
-                        entries = _extract_entries(json_body)
+                        entries = _extract_entries(shallow_report)
                         current_test.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
                             entries,
                         )
-                        ihandler.run_test(test_uid, await_results=False)
+                        ihandler.run_test(
+                            test_uid,
+                            shallow_report=shallow_report,
+                            await_results=False,
+                        )
                         # NOTE: placeholder for identical behavior in dev stage
                     else:
                         current_test.runtime_status = RuntimeStatus.WAITING
@@ -367,9 +371,9 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid):
             """Update the state of a specific test suite."""
-            json_body = flask.request.json
-            _validate_json_body(json_body)
-            filtered = "entries" in json_body
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
+            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 try:
@@ -397,14 +401,17 @@ def generate_interactive_api(ihandler):
                         ihandler.report, test_uid=test_uid, suite_uid=suite_uid
                     )
                     if filtered:
-                        entries = _extract_entries(json_body)
+                        entries = _extract_entries(shallow_report)
                         current_suite.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
                             entries,
                         )
                         # NOTE: placeholder for identical behavior in dev stage
                         ihandler.run_test_suite(
-                            test_uid, suite_uid, await_results=False
+                            test_uid,
+                            suite_uid,
+                            shallow_report=shallow_report,
+                            await_results=False,
                         )
                     else:
                         current_suite.runtime_status = RuntimeStatus.WAITING
@@ -462,9 +469,9 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid, case_uid):
             """Update the state of a specific testcase."""
-            json_body = flask.request.json
-            _validate_json_body(json_body)
-            filtered = "entries" in json_body
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
+            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 suite = ihandler.report[test_uid][suite_uid]
@@ -495,19 +502,26 @@ def generate_interactive_api(ihandler):
                         case_uid=case_uid,
                     )
                     if filtered:
-                        entries = _extract_entries(json_body)
+                        entries = _extract_entries(shallow_report)
                         current_case.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
                             entries,
                         )
                         # NOTE: placeholder for identical behavior in dev stage
                         ihandler.run_test_case(
-                            test_uid, suite_uid, case_uid, await_results=False
+                            test_uid,
+                            suite_uid,
+                            case_uid,
+                            shallow_report=shallow_report,
+                            await_results=False,
                         )
                     else:
                         current_case.runtime_status = RuntimeStatus.WAITING
                         ihandler.run_test_case(
-                            test_uid, suite_uid, case_uid, await_results=False
+                            test_uid,
+                            suite_uid,
+                            case_uid,
+                            await_results=False,
                         )
 
                 return _serialize_report_entry(current_case)
@@ -562,9 +576,9 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid, case_uid, param_uid):
             """Update the state of a specific parametrized testcase."""
-            json_body = flask.request.json
-            _validate_json_body(json_body)
-            filtered = "entries" in json_body
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
+            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 try:
@@ -598,7 +612,7 @@ def generate_interactive_api(ihandler):
                         param_uid=param_uid,
                     )
                     if filtered:
-                        entries = _extract_entries(json_body)
+                        entries = _extract_entries(shallow_report)
                         current_case.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
                             entries,
@@ -609,6 +623,7 @@ def generate_interactive_api(ihandler):
                             suite_uid,
                             case_uid,
                             param_uid,
+                            shallow_report=shallow_report,
                             await_results=False,
                         )
                     else:

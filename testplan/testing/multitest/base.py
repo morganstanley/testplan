@@ -451,7 +451,12 @@ class MultiTest(testing_base.Test):
 
         return report
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(
+        self,
+        testsuite_pattern="*",
+        testcase_pattern="*",
+        shallow_report=None,
+    ):
         """Run all testcases and yield testcase reports."""
         test_filter = filtering.Pattern(
             pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),

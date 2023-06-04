@@ -491,6 +491,8 @@ class TestSingleTestcase:
             raise TypeError("Unexpected report type")
 
         testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        if "entries" in testcase_json:
+            del testcase_json["entries"]
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/{}".format(testcase_uid),
@@ -587,6 +589,8 @@ class TestParametrizedTestCase:
             "MT1S1TC2_0"
         ]
         testcase_json = report_entry.serialize()
+        if "entries" in testcase_json:
+            del testcase_json["entries"]
 
         testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
         rsp = client.put(

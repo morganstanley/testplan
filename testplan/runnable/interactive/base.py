@@ -243,7 +243,7 @@ class TestRunnerIHandler(entity.Entity):
         for test_uid in self.all_tests():
             self.run_test(test_uid)
 
-    def run_test(self, test_uid, await_results=True):
+    def run_test(self, test_uid, shallow_report=None, await_results=True):
         """
         Run a single Test instance.
 
@@ -255,7 +255,9 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_test, test_uid)
+            return self._run_async(
+                self.run_test, test_uid, shallow_report=shallow_report
+            )
 
         try:
             self._auto_start_environment(test_uid)
@@ -270,7 +272,9 @@ class TestRunnerIHandler(entity.Entity):
             self.logger.debug('Run test ["%s"]', test_uid)
             self._update_reports(self.test(test_uid).run_testcases_iter())
 
-    def run_test_suite(self, test_uid, suite_uid, await_results=True):
+    def run_test_suite(
+        self, test_uid, suite_uid, shallow_report=None, await_results=True
+    ):
         """
         Run a single test suite.
 
@@ -283,7 +287,12 @@ class TestRunnerIHandler(entity.Entity):
             when ready.
         """
         if not await_results:
-            return self._run_async(self.run_test_suite, test_uid, suite_uid)
+            return self._run_async(
+                self.run_test_suite,
+                test_uid,
+                suite_uid,
+                shallow_report=shallow_report,
+            )
 
         try:
             self._auto_start_environment(test_uid)
@@ -307,7 +316,14 @@ class TestRunnerIHandler(entity.Entity):
                 )
             )
 
-    def run_test_case(self, test_uid, suite_uid, case_uid, await_results=True):
+    def run_test_case(
+        self,
+        test_uid,
+        suite_uid,
+        case_uid,
+        shallow_report=None,
+        await_results=True,
+    ):
         """
         Run a single testcase.
 
@@ -326,6 +342,7 @@ class TestRunnerIHandler(entity.Entity):
                 test_uid,
                 suite_uid,
                 case_uid,
+                shallow_report=shallow_report,
             )
 
         try:
@@ -361,6 +378,7 @@ class TestRunnerIHandler(entity.Entity):
         suite_uid,
         case_uid,
         param_uid,
+        shallow_report=None,
         await_results=True,
     ):
         """
@@ -383,6 +401,7 @@ class TestRunnerIHandler(entity.Entity):
                 suite_uid,
                 case_uid,
                 param_uid,
+                shallow_report=shallow_report,
             )
 
         try:
