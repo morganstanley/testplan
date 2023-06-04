@@ -276,6 +276,12 @@ def generate_interactive_api(ihandler):
                     _check_execution_order(ihandler.report, test_uid=test_uid)
                     if filtered:
                         entries = _extract_entries(json_body)
+                        current_test.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                        ihandler.run_test(test_uid, await_results=False)
+                        # NOTE: placeholder for identical behavior in dev stage
                     else:
                         current_test.runtime_status = RuntimeStatus.WAITING
                         ihandler.run_test(test_uid, await_results=False)
@@ -392,6 +398,14 @@ def generate_interactive_api(ihandler):
                     )
                     if filtered:
                         entries = _extract_entries(json_body)
+                        current_suite.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                        # NOTE: placeholder for identical behavior in dev stage
+                        ihandler.run_test_suite(
+                            test_uid, suite_uid, await_results=False
+                        )
                     else:
                         current_suite.runtime_status = RuntimeStatus.WAITING
                         ihandler.run_test_suite(
@@ -482,6 +496,14 @@ def generate_interactive_api(ihandler):
                     )
                     if filtered:
                         entries = _extract_entries(json_body)
+                        current_case.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                        # NOTE: placeholder for identical behavior in dev stage
+                        ihandler.run_test_case(
+                            test_uid, suite_uid, case_uid, await_results=False
+                        )
                     else:
                         current_case.runtime_status = RuntimeStatus.WAITING
                         ihandler.run_test_case(
@@ -577,6 +599,18 @@ def generate_interactive_api(ihandler):
                     )
                     if filtered:
                         entries = _extract_entries(json_body)
+                        current_case.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                        # NOTE: placeholder for identical behavior in dev stage
+                        ihandler.run_test_case_param(
+                            test_uid,
+                            suite_uid,
+                            case_uid,
+                            param_uid,
+                            await_results=False,
+                        )
                     else:
                         current_case.runtime_status = RuntimeStatus.WAITING
                         ihandler.run_test_case_param(

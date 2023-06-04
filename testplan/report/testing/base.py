@@ -936,6 +936,17 @@ class TestCaseReport(Report):
         if new_status == RuntimeStatus.FINISHED:
             self._status = Status.PASSED  # passed if case report has no entry
 
+    def set_runtime_status_filtered(self, new_status, entries):
+        for entry in self:
+            if entry.name in entries.keys():
+                if isinstance(entry, TestCaseReport):
+                    entry.runtime_status = new_status
+                else:
+                    entry.set_runtime_status_filtered(
+                        new_status, entries[entry.name]
+                    )
+        self._runtime_status = new_status
+
     def _assertions_status(self):
         for entry in self:
             if entry.get(Status.PASSED) is False:
