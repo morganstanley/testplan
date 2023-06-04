@@ -578,7 +578,6 @@ def generate_interactive_api(ihandler):
             """Update the state of a specific parametrized testcase."""
             shallow_report = flask.request.json
             _validate_json_body(shallow_report)
-            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 try:
@@ -611,30 +610,14 @@ def generate_interactive_api(ihandler):
                         case_uid=case_uid,
                         param_uid=param_uid,
                     )
-                    if filtered:
-                        entries = _extract_entries(shallow_report)
-                        current_case.set_runtime_status_filtered(
-                            RuntimeStatus.WAITING,
-                            entries,
-                        )
-                        # NOTE: placeholder for identical behavior in dev stage
-                        ihandler.run_test_case_param(
-                            test_uid,
-                            suite_uid,
-                            case_uid,
-                            param_uid,
-                            shallow_report=shallow_report,
-                            await_results=False,
-                        )
-                    else:
-                        current_case.runtime_status = RuntimeStatus.WAITING
-                        ihandler.run_test_case_param(
-                            test_uid,
-                            suite_uid,
-                            case_uid,
-                            param_uid,
-                            await_results=False,
-                        )
+                    current_case.runtime_status = RuntimeStatus.WAITING
+                    ihandler.run_test_case_param(
+                        test_uid,
+                        suite_uid,
+                        case_uid,
+                        param_uid,
+                        await_results=False,
+                    )
 
                 return _serialize_report_entry(current_case)
 

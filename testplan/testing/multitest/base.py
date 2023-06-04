@@ -62,6 +62,63 @@ def iterable_suites(obj):
     return suites
 
 
+def _extract_cases_from_parametrization(param_entry):
+    """
+    Given a parametrization entry, extracts the testcases.
+    :param param_entry: parametrization entry
+    :return: list of testcase names
+    """
+    cases = []
+    for entry in param_entry["entries"]:
+        cases.append(entry["name"])
+    return cases
+
+
+def _extract_cases_from_suite(suite_entry):
+    """
+    Given a testsuite entry, extracts the testcases.
+    :param suite_entry: testsuite entry
+    :return: list of testcase names
+    """
+    cases = []
+    for entry in suite_entry["entries"]:
+        if entry["category"] == ReportCategories.TESTCASE:
+            cases.append(entry["name"])
+        elif entry["category"] == ReportCategories.PARAMETRIZATION:
+            cases.extend(_extract_cases_from_parametrization(entry))
+    return cases
+
+
+def _extract_test_targets(shallow_report):
+    """
+    Given a shallow report, extracts the test targets.
+
+    :param shallow_report: holds entry name and category for all children
+    :return: mapping of target testsuites to target testcases
+    """
+    test_targets = {}
+
+    category = shallow_report["category"]
+
+    if category == ReportCategories.MULTITEST:
+        for suite in shallow_report["entries"]:
+            test_targets[suite["name"]] = _extract_cases_from_suite(suite)
+    elif category == ReportCategories.TESTSUITE:
+        test_targets[shallow_report["name"]] = _extract_cases_from_suite(
+            shallow_report
+        )
+    elif category == ReportCategories.PARAMETRIZATION:
+        test_targets[
+            shallow_report["parent_uids"][2]
+        ] = _extract_cases_from_parametrization(shallow_report)
+    elif category == ReportCategories.TESTCASE:
+        test_targets[shallow_report["parent_uids"][2]] = [
+            shallow_report["name"]
+        ]
+
+    return test_targets
+
+
 class MultiTestRuntimeInfo:
     """
     This class provides information about the state of the actual test run
@@ -451,10 +508,6 @@ class MultiTest(testing_base.Test):
 
         return report
 
-    @staticmethod
-    def _extract_test_targets(shallow_report):
-        return {}
-
     def run_testcases_iter(
         self,
         testsuite_pattern="*",
@@ -468,7 +521,7 @@ class MultiTest(testing_base.Test):
                 match_definition=True,
             )
         else:
-            test_targets = self._extract_test_targets(shallow_report)
+            test_targets = _extract_test_targets(shallow_report)
 
         for testsuite, testcases in self.test_context:
             if not self.active:
@@ -483,9 +536,13 @@ class MultiTest(testing_base.Test):
                     )
                 ]
             else:
-                if testsuite not in test_targets:
+                if testsuite.name not in test_targets:
                     continue
-                testcases = test_targets[testsuite]
+                testcases = [
+                    testcase
+                    for testcase in testcases
+                    if testcase.name in test_targets[testsuite.name]
+                ]
 
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)

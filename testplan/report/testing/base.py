@@ -326,6 +326,17 @@ class BaseReportGroup(ReportGroup):
             entry.runtime_status = new_status
         self._runtime_status = new_status
 
+    def set_runtime_status_filtered(self, new_status, entries):
+        for entry in self:
+            if entry.name in entries.keys():
+                if isinstance(entry, TestCaseReport):
+                    entry.runtime_status = new_status
+                else:
+                    entry.set_runtime_status_filtered(
+                        new_status, entries[entry.name]
+                    )
+        self._runtime_status = new_status
+
     def merge_children(self, report, strict=True):
         """
         For report groups, we call `merge` on each child report
@@ -935,17 +946,6 @@ class TestCaseReport(Report):
             self._status = Status.UNKNOWN
         if new_status == RuntimeStatus.FINISHED:
             self._status = Status.PASSED  # passed if case report has no entry
-
-    def set_runtime_status_filtered(self, new_status, entries):
-        for entry in self:
-            if entry.name in entries.keys():
-                if isinstance(entry, TestCaseReport):
-                    entry.runtime_status = new_status
-                else:
-                    entry.set_runtime_status_filtered(
-                        new_status, entries[entry.name]
-                    )
-        self._runtime_status = new_status
 
     def _assertions_status(self):
         for entry in self:

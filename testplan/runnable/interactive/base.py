@@ -270,7 +270,11 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self.logger.debug('Run test ["%s"]', test_uid)
-            self._update_reports(self.test(test_uid).run_testcases_iter())
+            self._update_reports(
+                self.test(test_uid).run_testcases_iter(
+                    shallow_report=shallow_report
+                )
+            )
 
     def run_test_suite(
         self, test_uid, suite_uid, shallow_report=None, await_results=True
@@ -312,7 +316,7 @@ class TestRunnerIHandler(entity.Entity):
             self.logger.debug('Run suite ["%s" / "%s"]', test_uid, suite_uid)
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid
+                    testsuite_pattern=suite_uid, shallow_report=shallow_report
                 )
             )
 
@@ -368,7 +372,9 @@ class TestRunnerIHandler(entity.Entity):
             )
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid, testcase_pattern=case_uid
+                    testsuite_pattern=suite_uid,
+                    testcase_pattern=case_uid,
+                    shallow_report=shallow_report,
                 )
             )
 
@@ -428,7 +434,9 @@ class TestRunnerIHandler(entity.Entity):
             )
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid, testcase_pattern=param_uid
+                    testsuite_pattern=suite_uid,
+                    testcase_pattern=param_uid,
+                    shallow_report=shallow_report,
                 )
             )
 
