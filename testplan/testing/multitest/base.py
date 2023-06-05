@@ -5,7 +5,7 @@ import concurrent
 import functools
 import itertools
 import os
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Dict, List, Generator
 
 from schema import And, Or, Use
 
@@ -62,9 +62,10 @@ def iterable_suites(obj):
     return suites
 
 
-def _extract_cases_from_parametrization(param_entry):
+def _extract_parametrized_testcase_targets(param_entry: Dict) -> List[str]:
     """
     Given a parametrization entry, extracts the testcases.
+
     :param param_entry: parametrization entry
     :return: list of testcase names
     """
@@ -74,9 +75,10 @@ def _extract_cases_from_parametrization(param_entry):
     return cases
 
 
-def _extract_cases_from_suite(suite_entry):
+def _extract_testsuite_targets(suite_entry: Dict) -> List[str]:
     """
     Given a testsuite entry, extracts the testcases.
+
     :param suite_entry: testsuite entry
     :return: list of testcase names
     """
@@ -85,11 +87,11 @@ def _extract_cases_from_suite(suite_entry):
         if entry["category"] == ReportCategories.TESTCASE:
             cases.append(entry["name"])
         elif entry["category"] == ReportCategories.PARAMETRIZATION:
-            cases.extend(_extract_cases_from_parametrization(entry))
+            cases.extend(_extract_parametrized_testcase_targets(entry))
     return cases
 
 
-def _extract_test_targets(shallow_report):
+def _extract_test_targets(shallow_report: Dict) -> Dict[str, List[str]]:
     """
     Given a shallow report, extracts the test targets.
 
@@ -102,15 +104,15 @@ def _extract_test_targets(shallow_report):
 
     if category == ReportCategories.MULTITEST:
         for suite in shallow_report["entries"]:
-            test_targets[suite["name"]] = _extract_cases_from_suite(suite)
+            test_targets[suite["name"]] = _extract_testsuite_targets(suite)
     elif category == ReportCategories.TESTSUITE:
-        test_targets[shallow_report["name"]] = _extract_cases_from_suite(
+        test_targets[shallow_report["name"]] = _extract_testsuite_targets(
             shallow_report
         )
     elif category == ReportCategories.PARAMETRIZATION:
         test_targets[
             shallow_report["parent_uids"][2]
-        ] = _extract_cases_from_parametrization(shallow_report)
+        ] = _extract_parametrized_testcase_targets(shallow_report)
     elif category == ReportCategories.TESTCASE:
         test_targets[shallow_report["parent_uids"][2]] = [
             shallow_report["name"]
@@ -510,11 +512,18 @@ class MultiTest(testing_base.Test):
 
     def run_testcases_iter(
         self,
-        testsuite_pattern="*",
-        testcase_pattern="*",
-        shallow_report=None,
-    ):
-        """Run all testcases and yield testcase reports."""
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        shallow_report: Dict = None,
+    ) -> Generator:
+        """
+        Run all testcases and yield testcase reports.
+
+        :param testsuite_pattern: pattern to match for testsuite names
+        :param testcase_pattern: pattern to match for testcase names
+        :param shallow_report: shallow report entry
+        :return:
+        """
         if shallow_report is None:
             test_filter = filtering.Pattern(
                 pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),

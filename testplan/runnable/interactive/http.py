@@ -2,27 +2,27 @@
 Http handler for interactive mode.
 """
 
-import os
-import time
 import copy
 import functools
+import os
+import time
 import traceback
 from typing import Dict
 
 import flask
 import flask_restx
 import flask_restx.fields
-from flask import request
-from cheroot import wsgi
-import werkzeug.exceptions
 import marshmallow.exceptions
+import werkzeug.exceptions
+from cheroot import wsgi
+from flask import request
 from urllib.parse import unquote_plus
 
 import testplan
+from testplan import defaults
+from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.utils import strings
-from testplan.common import entity
-from testplan import defaults
 from testplan.report import (
     TestReport,
     TestGroupReport,
@@ -46,38 +46,6 @@ def decode_uri_component(func):
         return func(*args, **new_kwargs)
 
     return wrapper
-
-
-def _validate_json_body(json_body: Dict) -> None:
-    """
-    Validates the JSON body for PUT requests.
-
-    :param json_body: decoded JSON
-    :raises BadRequest: raised if JSON body is None
-    """
-    if json_body is None:
-        raise werkzeug.exceptions.BadRequest("JSON body is required for PUT")
-
-
-# NOTE: to drive behavior of runtime status setting between cases of
-#            a filter being present or not, the entries field needs processing
-def _extract_entries(entry) -> Dict[str, Dict]:
-    """
-    Given a report entry, extracts all entry names into a tree structure.
-
-    :param entry: report entry
-    :return: dictionary representing the tree structure of entry names
-    """
-    entries = {}
-
-    # NOTE: we assume "entries" is present, see application of the function
-    for child in entry["entries"]:
-        if child["category"] == ReportCategories.TESTCASE:
-            entries[child["name"]] = {}
-        else:
-            entries[child["name"]] = _extract_entries(child)
-
-    return entries
 
 
 def generate_interactive_api(ihandler):
@@ -238,7 +206,6 @@ def generate_interactive_api(ihandler):
             """Update the state of a specific test."""
             shallow_report = flask.request.json
             _validate_json_body(shallow_report)
-            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 try:
@@ -274,21 +241,20 @@ def generate_interactive_api(ihandler):
                         current_test.env_status, new_test.env_status
                     )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
+                    filtered = "entries" in shallow_report
                     if filtered:
                         entries = _extract_entries(shallow_report)
                         current_test.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
                             entries,
                         )
-                        ihandler.run_test(
-                            test_uid,
-                            shallow_report=shallow_report,
-                            await_results=False,
-                        )
-                        # NOTE: placeholder for identical behavior in dev stage
                     else:
                         current_test.runtime_status = RuntimeStatus.WAITING
-                        ihandler.run_test(test_uid, await_results=False)
+                    ihandler.run_test(
+                        test_uid,
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
+                    )
                 else:
                     next_env_status, env_action = self._check_env_transition(
                         current_test.env_status, new_test.env_status
@@ -373,7 +339,6 @@ def generate_interactive_api(ihandler):
             """Update the state of a specific test suite."""
             shallow_report = flask.request.json
             _validate_json_body(shallow_report)
-            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 try:
@@ -400,24 +365,21 @@ def generate_interactive_api(ihandler):
                     _check_execution_order(
                         ihandler.report, test_uid=test_uid, suite_uid=suite_uid
                     )
+                    filtered = "entries" in shallow_report
                     if filtered:
                         entries = _extract_entries(shallow_report)
                         current_suite.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
                             entries,
                         )
-                        # NOTE: placeholder for identical behavior in dev stage
-                        ihandler.run_test_suite(
-                            test_uid,
-                            suite_uid,
-                            shallow_report=shallow_report,
-                            await_results=False,
-                        )
                     else:
                         current_suite.runtime_status = RuntimeStatus.WAITING
-                        ihandler.run_test_suite(
-                            test_uid, suite_uid, await_results=False
-                        )
+                    ihandler.run_test_suite(
+                        test_uid,
+                        suite_uid,
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
+                    )
 
                 return _serialize_report_entry(current_suite)
 
@@ -471,7 +433,6 @@ def generate_interactive_api(ihandler):
             """Update the state of a specific testcase."""
             shallow_report = flask.request.json
             _validate_json_body(shallow_report)
-            filtered = "entries" in shallow_report
 
             with ihandler.report_mutex:
                 suite = ihandler.report[test_uid][suite_uid]
@@ -501,28 +462,22 @@ def generate_interactive_api(ihandler):
                         suite_uid=suite_uid,
                         case_uid=case_uid,
                     )
+                    filtered = "entries" in shallow_report
                     if filtered:
                         entries = _extract_entries(shallow_report)
                         current_case.set_runtime_status_filtered(
                             RuntimeStatus.WAITING,
                             entries,
                         )
-                        # NOTE: placeholder for identical behavior in dev stage
-                        ihandler.run_test_case(
-                            test_uid,
-                            suite_uid,
-                            case_uid,
-                            shallow_report=shallow_report,
-                            await_results=False,
-                        )
                     else:
                         current_case.runtime_status = RuntimeStatus.WAITING
-                        ihandler.run_test_case(
-                            test_uid,
-                            suite_uid,
-                            case_uid,
-                            await_results=False,
-                        )
+                    ihandler.run_test_case(
+                        test_uid,
+                        suite_uid,
+                        case_uid,
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
+                    )
 
                 return _serialize_report_entry(current_case)
 
@@ -745,6 +700,17 @@ def generate_interactive_api(ihandler):
     return app, api
 
 
+def _validate_json_body(json_body: Dict) -> None:
+    """
+    Validates the JSON body for PUT requests.
+
+    :param json_body: decoded JSON
+    :raises BadRequest: raised if JSON body is None
+    """
+    if json_body is None:
+        raise werkzeug.exceptions.BadRequest("JSON body is required for PUT")
+
+
 def _serialize_report_entry(report_entry):
     """
     Serialize a report entry representing a testcase or a test group.
@@ -925,6 +891,27 @@ def _check_execution_order(
                     "Should run all testcases"
                     f' in test suite "{suite_report.uid}" sequentially.'
                 )
+
+
+# NOTE: to drive behavior of runtime status setting between cases of
+#            a filter being present or not, the entries field needs processing
+def _extract_entries(entry: Dict) -> Dict:
+    """
+    Given a report entry, extracts all entry names into a tree structure.
+
+    :param entry: report entry
+    :return: dictionary representing the tree structure of entry names
+    """
+    entries = {}
+
+    # NOTE: we assume "entries" is present, see application of the function
+    for child in entry["entries"]:
+        if child["category"] == ReportCategories.TESTCASE:
+            entries[child["name"]] = {}
+        else:
+            entries[child["name"]] = _extract_entries(child)
+
+    return entries
 
 
 class TestRunnerHTTPHandlerConfig(entity.EntityConfig):

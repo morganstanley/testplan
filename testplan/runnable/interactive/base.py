@@ -1,26 +1,27 @@
 """
 Interactive handler for TestRunner runnable class.
 """
-
-import os
-import re
 import numbers
+import re
 import threading
 from concurrent import futures
+from typing import Union, Awaitable, Dict, Optional
 
-from testplan.common import entity
-from testplan.common import config
-from testplan.common.utils import networking
+from testplan.common import config, entity
 from testplan.common.report import Report
+from testplan.common.utils import networking
 
-from testplan.runnable.interactive import http
-from testplan.runnable.interactive import reloader
-from testplan.runnable.interactive import resource_loader
+from testplan.runnable.interactive import http, reloader, resource_loader
 
-from testplan.report import TestReport, TestGroupReport, Status, RuntimeStatus
+from testplan.report import (
+    TestReport,
+    TestGroupReport,
+    Status,
+    RuntimeStatus,
+)
 
 
-def _exclude_assertions_filter(obj):
+def _exclude_assertions_filter(obj: object) -> bool:
     try:
         return obj["meta_type"] not in ("entry", "assertion")
     except Exception:
@@ -225,9 +226,11 @@ class TestRunnerIHandler(entity.Entity):
             # After reset the runtime_status will be 'READY'
             self._update_reports([(self.test(test_uid).dry_run().report, [])])
 
-    def run_all_tests(self, await_results=True):
+    def run_all_tests(
+        self, await_results: bool = True
+    ) -> Union[TestReport, Awaitable]:
         """
-        Run all tests.
+        Runs all tests.
 
         :param await_results: Whether to block until tests are finished,
             defaults to True.
@@ -243,11 +246,17 @@ class TestRunnerIHandler(entity.Entity):
         for test_uid in self.all_tests():
             self.run_test(test_uid)
 
-    def run_test(self, test_uid, shallow_report=None, await_results=True):
+    def run_test(
+        self,
+        test_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
+    ) -> Union[TestReport, Awaitable]:
         """
         Run a single Test instance.
 
         :param test_uid: UID of test to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the test is finished,
             defaults to True.
         :return: If await_results is True, returns a test report.
@@ -277,13 +286,18 @@ class TestRunnerIHandler(entity.Entity):
             )
 
     def run_test_suite(
-        self, test_uid, suite_uid, shallow_report=None, await_results=True
-    ):
+        self,
+        test_uid: str,
+        suite_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
+    ) -> Union[TestReport, Awaitable]:
         """
         Run a single test suite.
 
         :param test_uid: UID of the test that owns the suite.
         :param suite_uid: UID of the suite to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the suite is finished,
             defaults to True.
         :return: If await_results is True, returns a testsuite report.
@@ -322,18 +336,19 @@ class TestRunnerIHandler(entity.Entity):
 
     def run_test_case(
         self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        shallow_report=None,
-        await_results=True,
-    ):
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
+    ) -> Union[TestReport, Awaitable]:
         """
         Run a single testcase.
 
         :param test_uid: UID of the test that owns the testcase.
         :param suite_uid: UID of the suite that owns the testcase.
         :param case_uid: UID of the testcase to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a testcase report.
@@ -380,12 +395,12 @@ class TestRunnerIHandler(entity.Entity):
 
     def run_test_case_param(
         self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        param_uid,
-        shallow_report=None,
-        await_results=True,
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        param_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
     ):
         """
         Run a single parametrization of a testcase.
@@ -394,6 +409,7 @@ class TestRunnerIHandler(entity.Entity):
         :param suite_uid: UID of the suite that owns the testcase.
         :param case_uid: UID of the testcase to run.
         :param param_uid: UID of the parametrization to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a testcase report.
@@ -918,7 +934,7 @@ class TestRunnerIHandler(entity.Entity):
             test_report.logs.clear()
             test_report.status_override = None
 
-    def _run_async(self, func, *args, **kwargs):
+    def _run_async(self, func, *args, **kwargs) -> Awaitable:
         """
         Schedule a function to run asynchronously in our task pool. We add a
         callback to ensure that all async exceptions are logged, for debugging
