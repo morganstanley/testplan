@@ -146,7 +146,7 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
           <FontAwesomeIcon
             key="toolbar-details"
             icon="tasks"
-            title="Choose details"
+            title="Preferences"
             className={css(styles.toolbarButton)}
           />
         </DropdownToggle>
