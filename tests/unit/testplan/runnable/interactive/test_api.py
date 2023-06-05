@@ -258,6 +258,33 @@ class TestSingleTest:
             "MTest1", shallow_report=None, await_results=False
         )
 
+    def test_put_filtered(self, api_env):
+        """Test updating the SingleTest resource via PUT."""
+        client, ihandler = api_env
+
+        json_test = ihandler.report["MTest1"].serialize()
+        json_test["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1", json=json_test
+        )
+        assert rsp.status_code == 200
+        json_rsp = rsp.get_json()
+        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
+        compare_json(
+            json_rsp,
+            json_test,
+            ignored_keys=[
+                "runtime_status",
+                "entries",
+                "status_reason",
+                "type",
+            ],
+        )
+
+        ihandler.run_test.assert_called_once_with(
+            "MTest1", shallow_report=json_test, await_results=False
+        )
+
     def test_put_reset(self, api_env):
         """Test resetting the Report resource via PUT."""
         client, ihandler = api_env
@@ -400,6 +427,37 @@ class TestSingleSuite:
             "MTest1", "MT1Suite1", shallow_report=None, await_results=False
         )
 
+    def test_put_filtered(self, api_env):
+        """Test updating the SingleSuite resource via PUT."""
+        client, ihandler = api_env
+
+        suite_json = ihandler.report["MTest1"]["MT1Suite1"].serialize()
+        suite_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1",
+            json=suite_json,
+        )
+        assert rsp.status_code == 200
+        json_rsp = rsp.get_json()
+        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
+        compare_json(
+            json_rsp,
+            suite_json,
+            ignored_keys=[
+                "runtime_status",
+                "type",
+                "status_reason",
+                "entries",
+            ],
+        )
+
+        ihandler.run_test_suite.assert_called_once_with(
+            "MTest1",
+            "MT1Suite1",
+            shallow_report=suite_json,
+            await_results=False,
+        )
+
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""
         client, ihandler = api_env
@@ -508,6 +566,40 @@ class TestSingleTestcase:
             "MT1Suite1",
             testcase_uid,
             shallow_report=None,
+            await_results=False,
+        )
+
+    def test_put_filtered(self, api_env):
+        """Test updating the SingleTestcase resource via PUT."""
+        client, ihandler = api_env
+        report_entry = ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC2"]
+
+        testcase_json = report_entry.serialize()
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/{}".format("MT1S1TC2"),
+            json=testcase_json,
+        )
+        assert rsp.status_code == 200
+        json_rsp = rsp.get_json()
+        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
+        compare_json(
+            json_rsp,
+            testcase_json,
+            ignored_keys=[
+                "runtime_status",
+                "entries",
+                "status_reason",
+                "type",
+            ],
+        )
+
+        ihandler.run_test_case.assert_called_once_with(
+            "MTest1",
+            "MT1Suite1",
+            "MT1S1TC2",
+            shallow_report=testcase_json,
             await_results=False,
         )
 

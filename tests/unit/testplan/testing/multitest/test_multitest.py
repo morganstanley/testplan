@@ -2,21 +2,101 @@
 
 import os
 
+import pytest
+
 from testplan.common import entity
-from testplan.common.utils import path
-from testplan.common.utils import testing
+from testplan.common.utils import path, testing
 from testplan.common.utils.thread import Barrier
-from testplan.testing import multitest
-from testplan.testing import filtering
-from testplan.testing import ordering
-from testplan import defaults
-from testplan import report
+from testplan.testing import multitest, filtering, ordering
+from testplan.testing.multitest import base
+from testplan import defaults, report
+
 
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
     "stdout_style": defaults.STDOUT_STYLE,
 }
+
+
+def test_iterable_suites():
+    @multitest.testsuite
+    class TestSuite:
+        pass
+
+    testsuite = TestSuite()
+    output = base.iterable_suites(testsuite)
+    expected = [testsuite]
+    assert output == expected
+
+    with pytest.raises(ValueError):
+        base.iterable_suites([testsuite, testsuite])
+
+
+def test_extract_parametrized_testcase_targets():
+    entry = {
+        "name": "foo",
+        "entries": [
+            {
+                "name": "bar",
+            },
+            {
+                "name": "baz",
+            },
+        ],
+    }
+    output = base._extract_parametrized_testcase_targets(entry)
+    expected = ["bar", "baz"]
+    assert output == expected
+
+
+def test_extract_testsuite_targets():
+    entry = {
+        "name": "foo",
+        "entries": [
+            {
+                "name": "bar",
+                "category": report.ReportCategories.TESTCASE,
+            },
+            {
+                "name": "baz",
+                "category": report.ReportCategories.PARAMETRIZATION,
+                "entries": [
+                    {
+                        "name": "foo_bar",
+                    },
+                    {
+                        "name": "foo_baz",
+                    },
+                ],
+            },
+        ],
+    }
+    output = base._extract_testsuite_targets(entry)
+    expected = ["bar", "foo_bar", "foo_baz"]
+    assert output == expected
+
+
+def test_extract_test_targets():
+    entry = {
+        "name": "foo",
+        "category": "multitest",
+        "entries": [
+            {
+                "name": "bar",
+                "category": "testsuite",
+                "entries": [
+                    {
+                        "name": "baz",
+                        "category": "testcase",
+                    },
+                ],
+            },
+        ],
+    }
+    output = base._extract_test_targets(entry)
+    expected = {"bar": ["baz"]}
+    assert output == expected
 
 
 def test_multitest_runpath():
