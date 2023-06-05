@@ -2,7 +2,7 @@ import getpass
 import itertools
 import os
 import sys
-from typing import Callable, Iterator, List, Tuple, Union, Dict
+from typing import Callable, Iterator, List, Tuple, Union, Dict, Optional
 
 from schema import Or
 
@@ -491,13 +491,16 @@ class RemoteResource(Entity):
 
         return push_files, push_dirs
 
-    def _build_push_dests(self, push_sources):
+    def _build_push_dests(
+        self, push_sources: Union[List[str], List[Tuple[str, str]]]
+    ) -> Union[List[str], List[Tuple[str, str]]]:
         """
         When the destination paths have not been explicitly specified, build
         them automatically. If an absolute path is given on Linux, we will push
-        to the same path on remote. If on windows or a relative path is given on
+        to the same path on remote. If on Windows or a relative path is given on
         Linux, we will push to the save relative path in respect to working
         directory.
+
         """
         push_locations = []
 
@@ -542,7 +545,7 @@ class RemoteResource(Entity):
 
         return push_locations
 
-    def _push_files_to_dst(self, push_files: List, push_dirs: List):
+    def _push_files_to_dst(self, push_files: List, push_dirs: List) -> None:
         """
         Push files and directories to the remote host. Both the source and
         destination paths should be specified.
@@ -563,7 +566,7 @@ class RemoteResource(Entity):
                 exclude=self.cfg.push_exclude,
             )
 
-    def _fetch_results(self):
+    def _fetch_results(self) -> None:
         """Fetch back to local host the results generated remotely."""
         if not self.cfg.fetch_runpath:
             self.logger.debug(
@@ -581,12 +584,11 @@ class RemoteResource(Entity):
             if self.cfg.pull:
                 self._pull_files()
         except Exception as exc:
-            # TODO: This is so confusing to the user I think it is enough on debug log
             self.logger.debug(
                 "While fetching result from worker [%s]: %s", self, exc
             )
 
-    def _clean_remote(self):
+    def _clean_remote(self) -> None:
         if self.cfg.clean_remote:
             self.logger.debug(
                 "Clean root runpath on remote host - %s", self.ssh_cfg["host"]
@@ -597,21 +599,26 @@ class RemoteResource(Entity):
                 label="Clean remote root runpath",
             )
 
-    def _pull_files(self):
+    def _pull_files(self) -> None:
         """Pull custom files from remote host."""
 
         pull_dst = os.path.join(self.runpath, "pulled_files")
         makedirs(pull_dst)
 
         for entry in self.cfg.pull:
-            self._transfer_data(
-                source=entry,
-                remote_source=True,
-                target=pull_dst,
-                exclude=self.cfg.pull_exclude,
-            )
+            try:
+                self._transfer_data(
+                    source=entry,
+                    remote_source=True,
+                    target=pull_dst,
+                    exclude=self.cfg.pull_exclude,
+                )
+            except Exception as exc:
+                self.logger.debug(
+                    "While fetching result from worker [%s]: %s", self, exc
+                )
 
-    def _remote_sys_path(self):
+    def _remote_sys_path(self) -> List[str]:
 
         sys_path = [self._testplan_import_path.remote]
 
