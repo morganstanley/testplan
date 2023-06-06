@@ -1,5 +1,42 @@
 """
 Report classes that will store the test results.
+
+Assuming we have a Testplan setup like this:
+.. code-block:: python
+  Testplan MyPlan
+    Multitest A
+      Suite A-1
+        TestCase test_method_a_1_x
+        TestCase test_method_a_1_y
+        TestCase (parametrized, with 3 scenarios) test_method_a_1_z
+      Suite A-2
+        Testcase test_method_a_2_x
+    Multitest B
+      Suite B-1
+        Testcase test_method_b_1_x
+    GTest C
+We will have a report tree like:
+.. code-block:: python
+  TestReport(name='MyPlan')
+    TestGroupReport(name='A', category='Multitest')
+      TestGroupReport(name='A-1', category='TestSuite')
+        TestCaseReport(name='test_method_a_1_x')
+        TestCaseReport(name='test_method_a_1_y')
+        TestGroupReport(name='test_method_a_1_z', category='parametrization')
+          TestCaseReport(name='test_method_a_1_z_1')
+          TestCaseReport(name='test_method_a_1_z_2')
+          TestCaseReport(name='test_method_a_1_z_3')
+      TestGroupReport(name='A-2', category='TestSuite')
+        TestCaseReport(name='test_method_a_2_x')
+    TestGroupReport(name='B', category='MultiTest')
+      TestGroupReport(name='B-1', category='TestSuite')
+        TestCaseReport(name='test_method_b_1_x')
+    TestGroupReport(name='C', category='GTest')
+      TestCaseReport(name='<first test of Gtest>') -> can only be retrieved
+                                                      after GTest is run
+      TestCaseReport(name='<second test of Gtest>') -> can only be retrieved
+                                                       after GTest is run
+    ...
 """
 import copy
 import getpass
