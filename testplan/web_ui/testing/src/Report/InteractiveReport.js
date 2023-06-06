@@ -49,7 +49,6 @@ const api_prefix = "/api/v1/interactive";
  * the tests are run interactively. Tests can be run by clicking buttons in
  * the UI.
  */
-
 const InteractiveReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
   return (
