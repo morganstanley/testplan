@@ -157,7 +157,7 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
           Display time information
         </UserPreferenceCheckbox>
         <UserPreferenceCheckbox preferenceAtom={displayPathPreference}>
-          Display file path for assertions
+          Display file path of assertions
         </UserPreferenceCheckbox>
         <DropdownItem divider />
         <DropdownItem header>Navigation preferences</DropdownItem>

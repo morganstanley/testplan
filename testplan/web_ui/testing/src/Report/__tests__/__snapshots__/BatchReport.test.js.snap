@@ -20584,7 +20584,7 @@ ZeroDivisionError: integer division or modulo by zero
                                               />
                                             </Input>
                                              
-                                            Display file path for assertions
+                                            Display file path of assertions
                                           </label>
                                         </Label>
                                       </button>
