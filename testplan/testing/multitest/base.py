@@ -522,7 +522,7 @@ class MultiTest(testing_base.Test):
         :param testsuite_pattern: pattern to match for testsuite names
         :param testcase_pattern: pattern to match for testcase names
         :param shallow_report: shallow report entry
-        :return:
+        :return: generator yielding testcase reports and UIDs for merge steps
         """
         if shallow_report is None:
             test_filter = filtering.Pattern(
