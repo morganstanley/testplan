@@ -3,7 +3,8 @@ PDF Renderer classes for test report objects.
 """
 import logging
 
-from reportlab.lib import colors
+from reportlab.lib import colors, styles
+from reportlab.platypus import Paragraph
 
 from testplan.common.exporters.pdf import RowStyle
 from testplan.common.utils.registry import Registry
@@ -114,31 +115,45 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
             ],
         )
 
+        samplestyles = styles.getSampleStyleSheet()
+        metadata = [
+            [key, Paragraph(value, samplestyles["Normal"]), "", ""]
+            for key, value in self.get_metadata_context(source).items()
+        ]
+
         # Metadata
-        row_data.append(
-            content=[
-                [key, value, "", ""]
-                for key, value in self.get_metadata_context(source).items()
-            ],
-            style=[
-                RowStyle(
-                    bottom_padding=0,
-                    left_padding=0,
-                    top_padding=0,
-                    valign="TOP",
-                ),
-                RowStyle(
-                    font=(const.FONT_BOLD, const.FONT_SIZE_SMALL),
-                    start_column=0,
-                    end_column=0,
-                ),
-                RowStyle(
-                    font=(const.FONT, const.FONT_SIZE_SMALL),
-                    start_column=1,
-                    end_column=1,
-                ),
-            ],
-        )
+        for key, value in self.get_metadata_context(source).items():
+            row_data.append(
+                content=[
+                    key,
+                    Paragraph(value, samplestyles["Normal"]),
+                    "",
+                    "",
+                ],
+                style=[
+                    RowStyle(
+                        bottom_padding=0,
+                        left_padding=0,
+                        top_padding=0,
+                        valign="TOP",
+                    ),
+                    RowStyle(
+                        font=(const.FONT_BOLD, const.FONT_SIZE_SMALL),
+                        start_column=0,
+                        end_column=0,
+                    ),
+                    RowStyle(
+                        font=(const.FONT, const.FONT_SIZE_SMALL),
+                        start_column=1,
+                        end_column=1,
+                    ),
+                    RowStyle(
+                        span=None,
+                        start_column=1,
+                        end_column=3,
+                    ),
+                ],
+            )
 
         # Error logs that are higher than ERROR level
         log_data = self.get_logs(source, depth=depth + 1, row_idx=row_data.end)

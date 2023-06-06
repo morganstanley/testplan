@@ -597,16 +597,22 @@ class RowStyle:
             for key in sorted(self._style_props.keys())
         )
 
-        return tuple(
-            (
+        commands = []
+
+        for key, val in props:
+            command = [
                 key.upper().replace("_", ""),
                 (self.start_column, self.start_row),
                 (self.end_column, self.end_row),
-            )
-            + (val if isinstance(val, tuple) else (val,))
-            for key, val in props
-            if val is not None
-        )
+            ]
+            if val is not None:
+                if isinstance(val, tuple):
+                    command.extend(val)
+                else:
+                    command.append(val)
+            commands.append(tuple(command))
+
+        return tuple(commands)
 
 
 class RowData:
