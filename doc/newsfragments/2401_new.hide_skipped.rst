@@ -1,0 +1,1 @@
+Added a new user preference to hide skipped testcases from the navigation.
