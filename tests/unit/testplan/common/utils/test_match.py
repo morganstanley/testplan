@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+from unittest import mock
 
 import pytest
 
@@ -75,6 +76,10 @@ class TestMatchRegexpsInFile:
         assert isinstance(values["second"], bytes)
 
 
+LOG_MATCHER_TIMEOUT = 0.1
+
+
+@mock.patch("testplan.common.utils.match.LOG_MATCHER_INTERVAL", 0.02)
 class TestLogMatcher:
     """
     Test the LogMatcher class.
@@ -114,46 +119,59 @@ class TestLogMatcher:
         # It shouldn't find this string as it has moved past this position.
         first_string = re.compile(r"first")
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=first_string, timeout=0.5)
+            matcher.match(regex=first_string, timeout=LOG_MATCHER_TIMEOUT)
 
         # When `timeout` is set to zero, it should return None without raising exception.
         assert matcher.match(regex=first_string, timeout=0) is None
         # Same applies when `raise_on_timeout` is set to false.
         assert (
-            matcher.match(regex=first_string, raise_on_timeout=False) is None
+            matcher.match(
+                regex=first_string,
+                timeout=LOG_MATCHER_TIMEOUT,
+                raise_on_timeout=False,
+            )
+            is None
         )
 
     def test_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=r"bob", timeout=0.5)
+            matcher.match(regex=r"bob", timeout=LOG_MATCHER_TIMEOUT)
 
     def test_binary_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
         with pytest.raises(timing.TimeoutException):
-            matcher.match(regex=b"bob", timeout=0.5)
+            matcher.match(regex=b"bob", timeout=LOG_MATCHER_TIMEOUT)
 
     def test_not_match(self, basic_logfile):
         """Does the LogMatcher raise an exception when match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
-        matcher.not_match(regex=re.compile(r"bob"), timeout=0.5)
+        matcher.not_match(
+            regex=re.compile(r"bob"), timeout=LOG_MATCHER_TIMEOUT
+        )
         matcher.seek()
         with pytest.raises(Exception):
-            matcher.not_match(regex=re.compile(r"third"), timeout=0.5)
+            matcher.not_match(
+                regex=re.compile(r"third"), timeout=LOG_MATCHER_TIMEOUT
+            )
         with pytest.raises(Exception):
             matcher.not_match(regex=re.compile(r"fourth"), timeout=0)
 
     def test_match_all(self, basic_logfile):
         """Can the LogMatcher find all the correct lines in the log file."""
         matcher = LogMatcher(log_path=basic_logfile)
-        matches = matcher.match_all(regex=re.compile(r".+ir.+"), timeout=0.5)
+        matches = matcher.match_all(
+            regex=re.compile(r".+ir.+"), timeout=LOG_MATCHER_TIMEOUT
+        )
         assert len(matches) == 2
         assert matches[0].group(0) == "first"
         assert matches[1].group(0) == "third"
         matcher.seek()
-        matches = matcher.match_all(regex=re.compile(r".+th.*"), timeout=0.5)
+        matches = matcher.match_all(
+            regex=re.compile(r".+th.*"), timeout=LOG_MATCHER_TIMEOUT
+        )
         assert len(matches) == 2
         assert matches[0].group(0) == "fourth"
         assert matches[1].group(0) == "fifth"
@@ -162,21 +180,23 @@ class TestLogMatcher:
         """Does the LogMatcher behave properly when no match exists."""
         matcher = LogMatcher(log_path=basic_logfile)
         matches = matcher.match_all(
-            regex=r".+th.+", timeout=0.5, raise_on_timeout=False
+            regex=r".+th.+",
+            timeout=LOG_MATCHER_TIMEOUT,
+            raise_on_timeout=False,
         )
         assert not len(matches)
         matcher.seek()
         with pytest.raises(timing.TimeoutException):
-            matcher.match_all(regex=r".+th.+", timeout=0.5)
+            matcher.match_all(regex=r".+th.+", timeout=LOG_MATCHER_TIMEOUT)
 
     def test_match_between(self, basic_logfile):
         """
         Does the LogMatcher match between the given marks.
         """
         matcher = LogMatcher(log_path=basic_logfile)
-        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.match(regex=re.compile(r"second"))
         matcher.mark("start")
-        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.match(regex=re.compile(r"fourth"))
         matcher.mark("end")
 
         match = matcher.match_between(r"third", "start", "end")
@@ -192,9 +212,9 @@ class TestLogMatcher:
         between the given marks.
         """
         matcher = LogMatcher(log_path=basic_logfile)
-        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.match(regex=re.compile(r"second"))
         matcher.mark("start")
-        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.match(regex=re.compile(r"fourth"))
         matcher.mark("end")
         assert matcher.not_match_between(r"fifth", "start", "end")
         assert not matcher.not_match_between(r"third", "start", "end")
@@ -202,9 +222,9 @@ class TestLogMatcher:
     def test_get_between(self, basic_logfile):
         """Does the LogMatcher return the required content between marks."""
         matcher = LogMatcher(log_path=basic_logfile)
-        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.match(regex=re.compile(r"second"))
         matcher.mark("start")
-        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.match(regex=re.compile(r"fourth"))
         matcher.mark("end")
         content = matcher.get_between()
         assert content == "first\nsecond\nthird\nfourth\nfifth\n"
