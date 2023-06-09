@@ -19,6 +19,18 @@ MTEST_DEFAULT_PARAMS = {
 }
 
 
+@pytest.fixture
+def dummy_mtest():
+    mtest = multitest.MultiTest(
+        name="MTest",
+        suites=[Suite()],
+        thread_pool_size=3,
+        **MTEST_DEFAULT_PARAMS,
+    )
+    mtest.dry_run()
+    return mtest
+
+
 def test_iterable_suites():
     @multitest.testsuite
     class TestSuite:
@@ -360,17 +372,9 @@ def test_run_tests_parallel():
     _check_parallel_param(suite_report["parametrized"])
 
 
-def test_run_testcases_iter():
+def test_run_testcases_iter(dummy_mtest):
     """Test running tests iteratively."""
-    mtest = multitest.MultiTest(
-        name="MTest",
-        suites=[Suite()],
-        thread_pool_size=3,
-        **MTEST_DEFAULT_PARAMS,
-    )
-    mtest.dry_run()
-
-    results = list(mtest.run_testcases_iter())
+    results = list(dummy_mtest.run_testcases_iter())
     assert len(results) == 8
 
     attributes, parent_uids = results[0]
@@ -395,6 +399,48 @@ def test_run_testcases_iter():
         assert parent_uids == ["MTest", "Suite", "parametrized"]
         assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
         _check_param_testcase_report(testcase_report, i)
+
+
+def test_run_testcases_iter_filtered(dummy_mtest):
+    """Test running tests iteratively."""
+    """Test running tests iteratively."""
+    shallow_report = dummy_mtest.report.shallow_serialize()
+    shallow_report["entries"] = [
+        {
+            "name": "Suite",
+            "category": "testsuite",
+            "entries": [
+                {
+                    "name": "parametrized",
+                    "category": "parametrization",
+                    "entries": [
+                        {
+                            "name": "parametrized <val=1>",
+                            "category": "testcase",
+                        }
+                    ],
+                }
+            ],
+        }
+    ]
+    results = list(
+        dummy_mtest.run_testcases_iter(shallow_report=shallow_report)
+    )
+    assert len(results) == 2
+
+    attributes, parent_uids = results[0]
+    assert parent_uids == [
+        "MTest",
+        "Suite",
+        "parametrized",
+        "parametrized__val_1",
+    ]
+    assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    testcase_report, parent_uids = results[1]
+    assert parent_uids == ["MTest", "Suite", "parametrized"]
+    assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
+    _check_param_testcase_report(testcase_report, 0)
 
 
 def _check_parallel_testcase(testcase_report, i):

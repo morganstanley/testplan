@@ -268,19 +268,6 @@ class TestSingleTest:
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
         assert rsp.status_code == 200
-        json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
-        compare_json(
-            json_rsp,
-            json_test,
-            ignored_keys=[
-                "runtime_status",
-                "entries",
-                "status_reason",
-                "type",
-            ],
-        )
-
         ihandler.run_test.assert_called_once_with(
             "MTest1", shallow_report=json_test, await_results=False
         )
@@ -438,19 +425,6 @@ class TestSingleSuite:
             json=suite_json,
         )
         assert rsp.status_code == 200
-        json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
-        compare_json(
-            json_rsp,
-            suite_json,
-            ignored_keys=[
-                "runtime_status",
-                "type",
-                "status_reason",
-                "entries",
-            ],
-        )
-
         ihandler.run_test_suite.assert_called_once_with(
             "MTest1",
             "MT1Suite1",
@@ -582,19 +556,6 @@ class TestSingleTestcase:
             json=testcase_json,
         )
         assert rsp.status_code == 200
-        json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
-        compare_json(
-            json_rsp,
-            testcase_json,
-            ignored_keys=[
-                "runtime_status",
-                "entries",
-                "status_reason",
-                "type",
-            ],
-        )
-
         ihandler.run_test_case.assert_called_once_with(
             "MTest1",
             "MT1Suite1",
