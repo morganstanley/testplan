@@ -1,11 +1,10 @@
 """PyTest test runner."""
 import collections
-import copy
 import inspect
 import os
 import re
-import sys
 import traceback
+from typing import Dict, Generator
 
 import pytest
 from schema import Or
@@ -190,17 +189,19 @@ class PyTest(testing.Test):
 
         return self.result
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(
+        self,
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        shallow_report: Dict = None,
+    ) -> Generator:
         """
-        Run testcases matching the given patterns and yield testcase reports.
+        Run all testcases and yield testcase reports.
 
-        :param testsuite_pattern: Filter pattern for testsuite level.
-        :type testsuite_pattern: ``str``
-        :param testcase_pattern: Filter pattern for testcase level.
-        :type testsuite_pattern: ``str``
-        :yield: generate tuples containing testcase reports and a list of the
-            UIDs required to merge this into the main report tree, starting
-            with the UID of this test.
+        :param testsuite_pattern: pattern to match for testsuite names
+        :param testcase_pattern: pattern to match for testcase names
+        :param shallow_report: shallow report entry
+        :return: generator yielding testcase reports and UIDs for merge step
         """
         if not self._nodeids:
             # Need to collect the tests so we know the nodeids for each
