@@ -9,18 +9,24 @@ from testplan.common.utils import timing
 from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 
 
-@pytest.fixture(scope="module")
-def basic_logfile():
+@pytest.fixture(
+    params=[True, False], ids=["With log rotation", "Without log rotation"]
+)
+def test_rotation(request):
+    return request.param
+
+
+@pytest.fixture
+def basic_logfile(rotating_logger, test_rotation):
     """Write a very small logfile for basic functional testing."""
-    log_lines = ["first\n", "second\n", "third\n", "fourth\n", "fifth\n"]
+    log_lines = ["first", "second", "third", "fourth", "fifth"]
 
-    with tempfile.NamedTemporaryFile("w", delete=False) as logfile:
-        logfile.writelines(log_lines)
-        logfile.flush()
-        filepath = logfile.name
+    for i, line in enumerate(log_lines):
+        rotating_logger.info(line)
+        if test_rotation and i % 2:
+            rotating_logger.doRollover()
 
-    yield filepath
-    os.remove(filepath)
+    return rotating_logger.pattern
 
 
 @pytest.fixture(scope="module")

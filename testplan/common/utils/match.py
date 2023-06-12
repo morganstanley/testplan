@@ -3,6 +3,7 @@ Module of utility types and functions that perform matching.
 """
 import os
 import re
+import sys
 import time
 import warnings
 from contextlib import closing
@@ -14,6 +15,9 @@ from .logfile import (
     FileLogStream,
     BinaryFileLogStream,
     TextFileLogStream,
+    RotatedBinaryFileLogStream,
+    RotatedTextFileLogStream,
+    MTimeBasedLogRotationStrategy,
 )
 
 LOG_MATCHER_INTERVAL = 0.25
@@ -91,10 +95,39 @@ class LogMatcher(logger.Loggable):
         super(LogMatcher, self).__init__()
 
     def _create_log_stream(self):
+
+        # as rotated logstream should be able to handle non-rotated streams
+        # without overhead we use that by default, but give an envvar to be
+        # able to turn it off. We not yet expose the possibility to select the
+        # logstream through the api.
+
+        if os.environ.get("TESTPLAN_NO_LOGROTATION_IN_LOGMATCHER") in (
+            "true",
+            "True",
+            "1",
+            "yes",
+            "Yes",
+        ):
+            return self._create_non_rotated_log_stream()
+
+        return self._create_rotated_log_stream()
+
+    def _create_non_rotated_log_stream(self):
         return (
             BinaryFileLogStream(self.log_path)
             if self.binary
             else TextFileLogStream(self.log_path)
+        )
+
+    def _create_rotated_log_stream(self):
+        return (
+            RotatedBinaryFileLogStream(
+                self.log_path, MTimeBasedLogRotationStrategy()
+            )
+            if self.binary
+            else RotatedTextFileLogStream(
+                self.log_path, MTimeBasedLogRotationStrategy()
+            )
         )
 
     def _prepare_regexp(
@@ -353,7 +386,7 @@ class LogMatcher(logger.Loggable):
                 )
 
         with closing(self.log_stream) as log:
-            start_pos = self.marks[mark1] if mark1 is not None else 0
+            start_pos = self.marks[mark1] if mark1 is not None else None
             end_pos = self.marks[mark2] if mark2 is not None else None
             log.seek(start_pos)
             if not end_pos:

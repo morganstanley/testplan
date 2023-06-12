@@ -283,3 +283,21 @@ class RotatedFileLogStream(LogStream[T]):
         while self._open_next_file():
             chunks.append(self.file.read(-1))
         return (b"" if self._binary else "").join(chunks)
+
+
+class RotatedBinaryFileLogStream(RotatedFileLogStream[bytes]):
+    def __init__(
+        self,
+        path_pattern: Union[PathLike, str],
+        rotation_strategy: LogRotationStrategy,
+    ) -> None:
+        super().__init__(path_pattern, rotation_strategy, True)
+
+
+class RotatedTextFileLogStream(RotatedFileLogStream[str]):
+    def __init__(
+        self,
+        path_pattern: Union[PathLike, str],
+        rotation_strategy: LogRotationStrategy,
+    ) -> None:
+        super().__init__(path_pattern, rotation_strategy, False)

@@ -3,8 +3,6 @@ import time
 from contextlib import closing
 from dataclasses import dataclass
 from glob import glob
-from logging import Logger
-from logging.handlers import RotatingFileHandler
 from os import PathLike
 from typing import Union, List, Optional
 
@@ -19,38 +17,12 @@ from testplan.common.utils.logfile import (
 )
 
 
-class RotatingLogger(Logger):
-    def __init__(self, path: str, name: str) -> None:
-        super().__init__(name)
-        self.path = path
-        self.handler = RotatingFileHandler(
-            path, maxBytes=10 * 1024, backupCount=5
-        )
-        self.addHandler(self.handler)
-
-    @property
-    def pattern(self):
-        return f"{self.path}*"
-
-    def doRollover(self):
-        self.handler.doRollover()
-
-
 class SimpleNameBasedStrategy(LogRotationStrategy):
     def get_files(self, path_info: Union[PathLike, str]) -> List[LogfileInfo]:
         return [
             LogfileInfo(os.stat(path).st_ino, path)
             for path in reversed(glob(path_info))
         ]
-
-
-@pytest.fixture
-def rotating_logger(runpath):
-    logpath = os.path.join(runpath, "test.log")
-    logger = RotatingLogger(logpath, "TestLogger")
-    yield logger
-
-    logger.handler.close()
 
 
 @dataclass
