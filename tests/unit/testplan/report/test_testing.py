@@ -15,6 +15,7 @@ from testplan.report.testing.base import (
     TestGroupReport,
     TestReport,
     ReportCategories,
+    RuntimeStatus,
 )
 from testplan.report.testing.schemas import TestReportSchema
 from testplan.common import report, entity
@@ -561,3 +562,56 @@ def test_env_status_hash():
     report_group.env_status = entity.ResourceStatus.STARTED
 
     assert report_group.hash != orig_hash
+
+
+def iter_report_entries(report):
+    for entry in report.entries:
+        yield entry
+        if report.entries:
+            yield from iter_report_entries(entry)
+
+
+def test_runtime_status_setting(dummy_test_plan_report):
+    for status in RuntimeStatus.STATUS_PRECEDENCE[:-1]:
+        dummy_test_plan_report.runtime_status = status
+        assert dummy_test_plan_report.runtime_status == status
+        for entry in iter_report_entries(dummy_test_plan_report):
+            assert entry.runtime_status == status
+
+
+def test_runtime_status_setting_filtered(dummy_test_plan_report):
+    filtered_entries = {
+        "Test Group 2": {
+            "Test Group 1": {
+                "test_case_1": {},
+                "test_case_2": {},
+            }
+        }
+    }
+    flattened_filtered_entries = [
+        "Test Group 2",
+        "Test Group 1",
+        "test_case_1",
+        "test_case_2",
+    ]
+    for status in RuntimeStatus.STATUS_PRECEDENCE[:-1]:
+        dummy_test_plan_report.set_runtime_status_filtered(
+            status, filtered_entries
+        )
+        # Due to precedence logic, as soon as we hit NOT_RUN and FINISHED
+        # the not run entry's READY status will be returned in the getter.
+        # This is expected behavior.
+        if status in RuntimeStatus.STATUS_PRECEDENCE[:-3]:
+            assert (
+                dummy_test_plan_report["Test Group 2"].runtime_status == status
+            )
+        else:
+            assert (
+                dummy_test_plan_report["Test Group 2"].runtime_status
+                == RuntimeStatus.READY
+            )
+        # For all entries the underlying _runtime_status should be set explicitly
+        # and not derived through precedence and other entries.
+        for entry in iter_report_entries(dummy_test_plan_report):
+            if entry.name in flattened_filtered_entries:
+                assert entry._runtime_status == status

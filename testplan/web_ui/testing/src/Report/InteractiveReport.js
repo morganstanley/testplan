@@ -461,12 +461,41 @@ class InteractiveReportComponent extends BaseReport {
   }
 
   /**
+   * Prunes the report entry recursively so that only name, category, and
+   * entries attributes are preserved.
+   */
+  pruneReportEntry(reportEntry) {
+    const {name, category, entries, ..._} = reportEntry;
+    const pruneEntry = {
+      name: name,
+      category: category,
+    };
+
+    if ((entries.length !== 0) && (category !== "testcase")) {
+      pruneEntry.entries = entries.map(
+        (entry) => this.pruneReportEntry(entry)
+      );
+    };
+
+    return pruneEntry;
+  }
+
+  /**
    * Shallow copy of a report entry, by replacing the "entries" attribute
-   * with an array of entry UIDs.
+   * with an array of entry UIDs if not filter is present.
+   * In case there is a non-empty filter text, the entries attribute is pruned.
    */
   shallowReportEntry(reportEntry) {
     const { entries, ...shallowEntry } = reportEntry;
     shallowEntry.entry_uids = entries.map((entry) => entry.uid);
+
+    // the filter text is either "null" or an empty string, use truthy-falsy
+    if (this.state.filteredReport.filter.text) {
+      shallowEntry.entries = entries.map(
+        (entry) => this.pruneReportEntry(entry)
+      );
+    };
+
     return shallowEntry;
   }
 

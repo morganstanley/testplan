@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 import warnings
-from typing import List, Optional
+from typing import List, Optional, Dict, Generator
 
 from schema import And, Or, Use
 
@@ -18,7 +18,6 @@ from testplan.common.entity import (
 )
 from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.utils import strings
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.process import (
     enforce_timeout,
     kill_process,
@@ -898,7 +897,12 @@ class ProcessRunnerTest(Test):
 
         return result
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(
+        self,
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        shallow_report: Dict = None,
+    ) -> Generator:
         """
         Runs testcases as defined by the given filter patterns and yields
         testcase reports. A single testcase report is made for general checks
@@ -912,13 +916,10 @@ class ProcessRunnerTest(Test):
         reports will not be generated until all testcases have finished
         running.
 
-        :param testsuite_pattern: Filter pattern for testsuite level.
-        :type testsuite_pattern: ``str``
-        :param testcase_pattern: Filter pattern for testcase level.
-        :type testsuite_pattern: ``str``
-        :yield: generate tuples containing testcase reports and a list of the
-            UIDs required to merge this into the main report tree, starting
-            with the UID of this test.
+        :param testsuite_pattern: pattern to match for testsuite names
+        :param testcase_pattern: pattern to match for testcase names
+        :param shallow_report: shallow report entry
+        :return: generator yielding testcase reports and UIDs for merge step
         """
         self.make_runpath_dirs()
 

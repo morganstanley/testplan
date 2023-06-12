@@ -5,7 +5,7 @@ import concurrent
 import functools
 import itertools
 import os
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Dict, List, Generator
 
 from schema import And, Or, Use
 
@@ -60,6 +60,65 @@ def iterable_suites(obj):
         mtest_suite.set_testsuite_testcases(suite)
 
     return suites
+
+
+def _extract_parametrized_testcase_targets(param_entry: Dict) -> List[str]:
+    """
+    Given a parametrization entry, extracts the testcases.
+
+    :param param_entry: parametrization entry
+    :return: list of testcase names
+    """
+    cases = []
+    for entry in param_entry["entries"]:
+        cases.append(entry["name"])
+    return cases
+
+
+def _extract_testsuite_targets(suite_entry: Dict) -> List[str]:
+    """
+    Given a testsuite entry, extracts the testcases.
+
+    :param suite_entry: testsuite entry
+    :return: list of testcase names
+    """
+    cases = []
+    for entry in suite_entry["entries"]:
+        if entry["category"] == ReportCategories.TESTCASE:
+            cases.append(entry["name"])
+        elif entry["category"] == ReportCategories.PARAMETRIZATION:
+            cases.extend(_extract_parametrized_testcase_targets(entry))
+    return cases
+
+
+def _extract_test_targets(shallow_report: Dict) -> Dict[str, List[str]]:
+    """
+    Given a shallow report, extracts the test targets.
+
+    :param shallow_report: holds entry name and category for all children
+    :return: mapping of target testsuites to target testcases
+    """
+    test_targets = {}
+
+    category = shallow_report["category"]
+
+    if category == ReportCategories.MULTITEST:
+        for suite in shallow_report["entries"]:
+            test_targets[suite["name"]] = _extract_testsuite_targets(suite)
+    elif category == ReportCategories.TESTSUITE:
+        test_targets[shallow_report["name"]] = _extract_testsuite_targets(
+            shallow_report
+        )
+    elif category == ReportCategories.PARAMETRIZATION:
+        test_targets[
+            shallow_report["parent_uids"][2]
+        ] = _extract_parametrized_testcase_targets(shallow_report)
+    elif category == ReportCategories.TESTCASE:
+        test_targets[shallow_report["parent_uids"][2]] = [
+            shallow_report["name"]
+        ]
+
+    return test_targets
 
 
 class MultiTestRuntimeInfo:
@@ -451,26 +510,48 @@ class MultiTest(testing_base.Test):
 
         return report
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
-        """Run all testcases and yield testcase reports."""
-        test_filter = filtering.Pattern(
-            pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
-            match_definition=True,
-        )
+    def run_testcases_iter(
+        self,
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        shallow_report: Dict = None,
+    ) -> Generator:
+        """
+        Run all testcases and yield testcase reports.
+
+        :param testsuite_pattern: pattern to match for testsuite names
+        :param testcase_pattern: pattern to match for testcase names
+        :param shallow_report: shallow report entry
+        :return: generator yielding testcase reports and UIDs for merge steps
+        """
+        if shallow_report is None:
+            test_filter = filtering.Pattern(
+                pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
+                match_definition=True,
+            )
+        else:
+            test_targets = _extract_test_targets(shallow_report)
 
         for testsuite, testcases in self.test_context:
             if not self.active:
                 break
 
-            # In interactive mode testcases are selected to run, thus
-            # an extra ``filtering.Pattern`` instance will be applied.
-            testcases = [
-                testcase
-                for testcase in testcases
-                if test_filter.filter(
-                    test=self, suite=testsuite, case=testcase
-                )
-            ]
+            if shallow_report is None:
+                testcases = [
+                    testcase
+                    for testcase in testcases
+                    if test_filter.filter(
+                        test=self, suite=testsuite, case=testcase
+                    )
+                ]
+            else:
+                if testsuite.name not in test_targets:
+                    continue
+                testcases = [
+                    testcase
+                    for testcase in testcases
+                    if testcase.name in test_targets[testsuite.name]
+                ]
 
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)
