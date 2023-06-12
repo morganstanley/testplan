@@ -24,7 +24,8 @@ const CreateNavButtons = (props, createEntryComponent, uidEncoder) => {
   const filteredEntries = applyAllFilters(
     props.filter,
     props.entries,
-    props.displayEmpty
+    props.displayEmpty,
+    props.displaySkipped
   );
 
   // Create buttons for each of the filtered entries.
@@ -78,6 +79,18 @@ const CreateNavButtons = (props, createEntryComponent, uidEncoder) => {
   return navButtons.length > 0 ? navButtons : navButtonsEmpty;
 };
 
+const nonEmptyEntry = (entry) => {
+  if (entry.category === "testcase") {
+    return entry.entries !== null && entry.entries.length > 0;
+  } else {
+    return entry.counter && entry.counter.total > 0;
+  }
+};
+
+const nonSkippedEntry = (entry) => {
+  return entry.status !== "skipped" || entry.status_override !== "skipped";
+};
+
 /**
  * Apply all filters to a list of entries
  *
@@ -85,18 +98,18 @@ const CreateNavButtons = (props, createEntryComponent, uidEncoder) => {
  *    entries).
  *  * Filter out empty testcases if required.
  */
-const applyAllFilters = (filter, entries, displayEmpty) => {
-  if (displayEmpty) {
-    return applyNamedFilter(entries, filter);
-  } else {
-    return applyNamedFilter(entries, filter).filter((entry) => {
-      if (entry.category === "testcase") {
-        return entry.entries !== null && entry.entries.length > 0;
-      } else {
-        return entry.counter && entry.counter.total > 0;
-      }
-    });
+const applyAllFilters = (filter, entries, displayEmpty, displaySkipped) => {
+  const filteredEntries = applyNamedFilter(entries, filter);
+  let composedFilter = (entry) => true;
+  if (!displayEmpty) {
+    composedFilter = nonEmptyEntry;
   }
+  if (!displaySkipped) {
+    const _composedFilter = composedFilter;
+    composedFilter = (entry) =>
+      _composedFilter(entry) && nonSkippedEntry(entry);
+  }
+  return filteredEntries.filter(composedFilter);
 };
 
 /**

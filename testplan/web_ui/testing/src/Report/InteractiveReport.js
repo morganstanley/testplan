@@ -38,6 +38,8 @@ import { encodeURIComponent2, parseToJson } from "../Common/utils";
 import { POLL_MS } from "../Common/defaults.js";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
+import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
+import { useAtomValue } from "jotai";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -47,7 +49,13 @@ const api_prefix = "/api/v1/interactive";
  * the tests are run interactively. Tests can be run by clicking buttons in
  * the UI.
  */
-class InteractiveReport extends BaseReport {
+const InteractiveReport = (props) => {
+  const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
+  return (
+    <InteractiveReportComponent {...props} displayTimeInfo={displayTimeInfo} />
+  );
+};
+class InteractiveReportComponent extends BaseReport {
   constructor(props) {
     super(props);
     this.setReport = this.setReport.bind(this);
@@ -641,7 +649,8 @@ class InteractiveReport extends BaseReport {
       this.state,
       reportFetchMessage,
       null,
-      selectedEntries
+      selectedEntries,
+      this.props.displayTimeInfo
     );
 
     return (
@@ -655,10 +664,7 @@ class InteractiveReport extends BaseReport {
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
-          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={noop}
-          updatePathDisplayFunc={this.updatePathDisplay}
-          updateTimeDisplayFunc={this.updateTimeDisplay}
           extraButtons={[
             <ReloadButton
               key="reload-button"
@@ -695,9 +701,7 @@ class InteractiveReport extends BaseReport {
             navListWidth={this.state.navWidth}
             report={this.state.filteredReport.report}
             selected={selectedEntries}
-            treeView={this.state.treeView}
             filter={null}
-            displayEmpty={true}
             displayTags={false}
             displayTime={false}
             // envCtrlCallback and handleClick are passed down to InteractiveNav
@@ -724,3 +728,4 @@ const styles = StyleSheet.create({
 });
 
 export default InteractiveReport;
+export { InteractiveReportComponent };

@@ -115,6 +115,7 @@ const TreeViewNav = (props) => {
                 interactive={props.interactive}
                 entries={props.entries}
                 displayEmpty={props.displayEmpty}
+                displaySkipped={props.displaySkipped}
                 filter={props.filter}
                 url={props.url}
                 displayTags={props.displayTags}
@@ -154,6 +155,8 @@ TreeViewNav.propTypes = {
   filter: PropTypes.string,
   /** Flag to display empty testcase on navbar */
   displayEmpty: PropTypes.bool,
+  /** Flag to display skipped testcase on navbar */
+  displaySkipped: PropTypes.bool,
   /** Flag to display tags on navbar */
   displayTags: PropTypes.bool,
   /** Flag to display execution time on navbar */
@@ -167,13 +170,17 @@ TreeViewNav.propTypes = {
 export default TreeViewNav;
 
 const Tree = (props) => {
-  let entries = filterEntries(props.filter, props.entries, props.displayEmpty);
+  let entries = filterEntries(
+    props.filter,
+    props.entries,
+    props.displayEmpty,
+    props.displaySkipped
+  );
   return Array.isArray(entries)
     ? entries.map((entry) => (
         <Node
           interactive={props.interactive}
           key={entry.uids ? entry.uids.join("/") : entry.hash || entry.uid}
-          displayEmpty
           displayTags={props.displayTags}
           displayTime={props.displayTime}
           entries={props.entries}
@@ -189,16 +196,28 @@ const Tree = (props) => {
     : null;
 };
 
-const filterEntries = (filter, entries, displayEmpty) => {
-  let filteredEntries = applyAllFilters(filter, entries, displayEmpty);
+const filterEntries = (filter, entries, displayEmpty, displaySkipped) => {
+  let filteredEntries = applyAllFilters(
+    filter,
+    entries,
+    displayEmpty,
+    displaySkipped
+  );
   return filteredEntries.map((entry) =>
-    filterEntriesOfEntry(entry, filter, displayEmpty)
+    filterEntriesOfEntry(entry, filter, displayEmpty, displaySkipped)
   );
 };
 
-const filterEntriesOfEntry = (entry, filter, displayEmpty) => {
+const filterEntriesOfEntry = (entry, filter, displayEmpty, displaySkipped) => {
   if (Array.isArray(entry.entries)) {
-    let tmp = { entries: filterEntries(filter, entry.entries, displayEmpty) };
+    let tmp = {
+      entries: filterEntries(
+        filter,
+        entry.entries,
+        displayEmpty,
+        displaySkipped
+      ),
+    };
     return { ...entry, ...tmp };
   }
   return entry;
@@ -286,7 +305,6 @@ const continueTreeBranch = (props, entry) => {
         <Node
           interactive={props.interactive}
           key={entry.uids ? entry.uids.join("/") : entry.hash || entry.uid}
-          displayEmpty
           displayTags={props.displayTags}
           displayTime={props.displayTime}
           entries={props.entries}
