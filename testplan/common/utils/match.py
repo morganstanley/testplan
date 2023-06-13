@@ -75,13 +75,16 @@ class LogMatcher(logger.Loggable):
     Single line matcher for text files (usually log files). Once matched, it
     remembers the line number of the match and subsequent matches are scanned
     from the current line number. This can be useful when matched lines are not
-    unique for the entire log file.
+    unique for the entire log file. Support simple cases of log rotation
     """
 
-    def __init__(self, log_path: str, binary: bool = False):
+    def __init__(
+        self, log_path: Union[os.PathLike, str], binary: bool = False
+    ):
         """
-        :param log_path: Path to the log file.
-        :type log_path: ``str``
+        :param log_path: Path to the log file. log_path can be a glob then LogMatcher support
+               rotated logfiles, that matching to the glob.
+        :param binary: if True the logfile treated as a binary file, and binary regexps need to be used
         """
         self.log_path = log_path
         self.binary = binary
