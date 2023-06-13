@@ -136,10 +136,11 @@ class MetadataMixin:
         Return metadata context to be rendered
         on the PDF with readable labels.
         """
+        metadata = dict(source.information)
         return collections.OrderedDict(
             [
-                (label, dict(source.information)[key])
+                (label, metadata[key])
                 for key, label in self.get_metadata_labels()
-                if dict(source.information).get(key)
+                if key in metadata
             ]
         )
