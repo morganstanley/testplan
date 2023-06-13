@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+import time
 from unittest import mock
 
 import pytest
@@ -25,6 +26,7 @@ def basic_logfile(rotating_logger, test_rotation):
         rotating_logger.info(line)
         if test_rotation and i % 2:
             rotating_logger.doRollover()
+            time.sleep(0.01)  # to get the mtime to be different
 
     return rotating_logger.pattern if test_rotation else rotating_logger.path
 
