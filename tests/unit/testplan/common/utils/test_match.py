@@ -26,7 +26,7 @@ def basic_logfile(rotating_logger, test_rotation):
         if test_rotation and i % 2:
             rotating_logger.doRollover()
 
-    return rotating_logger.pattern
+    return rotating_logger.pattern if test_rotation else rotating_logger.path
 
 
 @pytest.fixture(scope="module")
@@ -47,6 +47,12 @@ class TestMatchRegexpsInFile:
     """
     Test the match_regexps_in_file function
     """
+
+    @pytest.fixture
+    def basic_logfile(self, test_rotation, basic_logfile):
+        if test_rotation:
+            pytest.skip()
+        return basic_logfile
 
     def test_string(self, basic_logfile):
         log_extracts = [
