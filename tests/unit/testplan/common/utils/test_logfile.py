@@ -21,7 +21,7 @@ class SimpleNameBasedStrategy(LogRotationStrategy):
     def get_files(self, path_info: Union[PathLike, str]) -> List[LogfileInfo]:
         return [
             LogfileInfo(os.stat(path).st_ino, path)
-            for path in reversed(glob(path_info))
+            for path in reversed(sorted(glob(path_info)))
         ]
 
 
