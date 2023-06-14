@@ -12,7 +12,6 @@ exports[`EmptyReport renders a custom error message 1`] = `
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <div
     style={
@@ -42,7 +41,6 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
   <div
     style={

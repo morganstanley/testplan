@@ -12,14 +12,9 @@ class BaseReport extends React.Component {
   constructor(props) {
     super(props);
     this.setError = this.setError.bind(this);
-    //this.setReport = this.setReport.bind(this);
-    //this.getReport = this.getReport.bind(this);
-    this.updateTreeView = this.updateTreeView.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
-    this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
-    this.updatePathDisplay = this.updatePathDisplay.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
 
     defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
@@ -34,9 +29,6 @@ class BaseReport extends React.Component {
       },
       loading: false,
       error: null,
-      treeView: true,
-      displayTime: false,
-      displayPath: false,
       assertionStatus: defaultAssertionStatus,
     };
   }
@@ -94,36 +86,6 @@ class BaseReport extends React.Component {
       });
       return { ...prev, assertionStatus };
     });
-  }
-
-  /**
-   * Update the flag for whether to use tree view navigation or the default one.
-   *
-   * @param {boolean} treeView.
-   * @public
-   */
-  updateTreeView(treeView) {
-    this.setState({ treeView: treeView });
-  }
-
-  /**
-   * Update file path and line number display of each assertion.
-   *
-   * @param {boolean} displayPath.
-   * @public
-   */
-  updatePathDisplay(displayPath) {
-    this.setState({ displayPath: displayPath });
-  }
-
-  /**
-   * Update execution time display of each navigation entry and each assertion.
-   *
-   * @param {boolean} displayTime.
-   * @public
-   */
-  updateTimeDisplay(displayTime) {
-    this.setState({ displayTime: displayTime });
   }
 
   /**

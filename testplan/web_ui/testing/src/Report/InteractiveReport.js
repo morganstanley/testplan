@@ -38,6 +38,8 @@ import { encodeURIComponent2, parseToJson } from "../Common/utils";
 import { POLL_MS } from "../Common/defaults.js";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
+import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
+import { useAtomValue } from "jotai";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -47,7 +49,13 @@ const api_prefix = "/api/v1/interactive";
  * the tests are run interactively. Tests can be run by clicking buttons in
  * the UI.
  */
-class InteractiveReport extends BaseReport {
+const InteractiveReport = (props) => {
+  const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
+  return (
+    <InteractiveReportComponent {...props} displayTimeInfo={displayTimeInfo} />
+  );
+};
+class InteractiveReportComponent extends BaseReport {
   constructor(props) {
     super(props);
     this.setReport = this.setReport.bind(this);
@@ -453,12 +461,41 @@ class InteractiveReport extends BaseReport {
   }
 
   /**
+   * Prunes the report entry recursively so that only name, category, and
+   * entries attributes are preserved.
+   */
+  pruneReportEntry(reportEntry) {
+    const {name, category, entries, ..._} = reportEntry;
+    const pruneEntry = {
+      name: name,
+      category: category,
+    };
+
+    if ((entries.length !== 0) && (category !== "testcase")) {
+      pruneEntry.entries = entries.map(
+        (entry) => this.pruneReportEntry(entry)
+      );
+    };
+
+    return pruneEntry;
+  }
+
+  /**
    * Shallow copy of a report entry, by replacing the "entries" attribute
-   * with an array of entry UIDs.
+   * with an array of entry UIDs if not filter is present.
+   * In case there is a non-empty filter text, the entries attribute is pruned.
    */
   shallowReportEntry(reportEntry) {
     const { entries, ...shallowEntry } = reportEntry;
     shallowEntry.entry_uids = entries.map((entry) => entry.uid);
+
+    // the filter text is either "null" or an empty string, use truthy-falsy
+    if (this.state.filteredReport.filter.text) {
+      shallowEntry.entries = entries.map(
+        (entry) => this.pruneReportEntry(entry)
+      );
+    };
+
     return shallowEntry;
   }
 
@@ -612,7 +649,8 @@ class InteractiveReport extends BaseReport {
       this.state,
       reportFetchMessage,
       null,
-      selectedEntries
+      selectedEntries,
+      this.props.displayTimeInfo
     );
 
     return (
@@ -626,10 +664,7 @@ class InteractiveReport extends BaseReport {
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
-          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={noop}
-          updatePathDisplayFunc={this.updatePathDisplay}
-          updateTimeDisplayFunc={this.updateTimeDisplay}
           extraButtons={[
             <ReloadButton
               key="reload-button"
@@ -666,9 +701,7 @@ class InteractiveReport extends BaseReport {
             navListWidth={this.state.navWidth}
             report={this.state.filteredReport.report}
             selected={selectedEntries}
-            treeView={this.state.treeView}
             filter={null}
-            displayEmpty={true}
             displayTags={false}
             displayTime={false}
             // envCtrlCallback and handleClick are passed down to InteractiveNav
@@ -695,3 +728,4 @@ const styles = StyleSheet.create({
 });
 
 export default InteractiveReport;
+export { InteractiveReportComponent };

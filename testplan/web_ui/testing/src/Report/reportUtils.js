@@ -185,7 +185,8 @@ const GetCenterPane = (
   state,
   reportFetchMessage,
   reportUid,
-  selectedEntries
+  selectedEntries,
+  displayTime
 ) => {
   const selectiedEntry = _.last(selectedEntries);
   const logs = selectiedEntry?.logs || [];
@@ -197,7 +198,7 @@ const GetCenterPane = (
     .filter((element) => {
       return element; // filter empty description
     });
-  const assertions = getAssertions(selectedEntries, state.displayTime);
+  const assertions = getAssertions(selectedEntries, displayTime);
 
   if (state.error) {
     return <Message message={`Error: ${state.error.message}`} />;

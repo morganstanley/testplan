@@ -7,6 +7,12 @@ import {
   GetNavEntries,
   GetInteractiveNavEntries,
 } from "./navUtils";
+import { useAtomValue } from "jotai";
+import {
+  hideEmptyTestcasesPreference,
+  hideSkippedTestcasesPreference,
+  useTreeViewPreference,
+} from "../UserSettings/UserSettings";
 
 /**
  * Nav component:
@@ -18,7 +24,11 @@ import {
  *     environments.
  */
 const Nav = (props) => {
-  if (props.treeView && !props.interactive) {
+  const useTreeView = useAtomValue(useTreeViewPreference);
+  const displayEmpty = !useAtomValue(hideEmptyTestcasesPreference);
+  const displaySkipped = !useAtomValue(hideSkippedTestcasesPreference);
+
+  if (useTreeView && !props.interactive) {
     const navEntries = props.report ? props.report.entries : [];
     return (
       <TreeViewNav
@@ -27,7 +37,8 @@ const Nav = (props) => {
         entries={navEntries}
         handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
-        displayEmpty={props.displayEmpty}
+        displayEmpty={displayEmpty}
+        displaySkipped={displaySkipped}
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selected={props.selected}
@@ -35,7 +46,7 @@ const Nav = (props) => {
         url={props.url}
       />
     );
-  } else if (!props.treeView && !props.interactive) {
+  } else if (!useTreeView && !props.interactive) {
     const navEntries = GetNavEntries(props.selected);
     return (
       <NavList
@@ -44,7 +55,8 @@ const Nav = (props) => {
         entries={navEntries}
         handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
-        displayEmpty={props.displayEmpty}
+        displayEmpty={displayEmpty}
+        displaySkipped={displaySkipped}
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selectedUid={GetSelectedUid(props.selected)}
@@ -53,7 +65,7 @@ const Nav = (props) => {
         url={props.url}
       />
     );
-  } else if (props.treeView && props.interactive) {
+  } else if (useTreeView && props.interactive) {
     const navEntries = props.report ? props.report.entries : [];
     return (
       <TreeViewNav
@@ -63,6 +75,7 @@ const Nav = (props) => {
         handleColumnResizing={props.handleColumnResizing}
         filter={null}
         displayEmpty={true}
+        displaySkipped={true}
         displayTags={false}
         displayTime={false}
         selected={props.selected}
@@ -72,7 +85,7 @@ const Nav = (props) => {
         url={props.url}
       />
     );
-  } else if (!props.treeView && props.interactive) {
+  } else if (!useTreeView && props.interactive) {
     const navEntries = GetInteractiveNavEntries(props.selected);
     return (
       <NavList
@@ -82,6 +95,7 @@ const Nav = (props) => {
         handleColumnResizing={props.handleColumnResizing}
         filter={null}
         displayEmpty={true}
+        displaySkipped={true}
         displayTags={false}
         displayTime={false}
         selectedUid={GetSelectedUid(props.selected)}
@@ -104,8 +118,6 @@ Nav.propTypes = {
   saveAssertions: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
-  /** Flag to display tree view or default view */
-  treeView: PropTypes.bool,
   /** Flag to display tags on navbar */
   displayTags: PropTypes.bool,
   /** Flag to display execution time on navbar */

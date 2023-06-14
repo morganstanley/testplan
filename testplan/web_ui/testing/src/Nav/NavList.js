@@ -87,6 +87,8 @@ NavList.propTypes = {
   filter: PropTypes.string,
   /** Flag to display empty testcase on navbar */
   displayEmpty: PropTypes.bool,
+  /** Flag to display skipped testcase on navbar */
+  displaySkipped: PropTypes.bool,
   /** Flag to display tags on navbar */
   displayTags: PropTypes.bool,
   /** Flag to display execution time on navbar */
