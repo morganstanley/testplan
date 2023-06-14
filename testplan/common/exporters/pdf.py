@@ -489,12 +489,12 @@ class RowStyle:
 
     def __init__(
         self,
-        start_column=0,
-        end_column=-1,
-        start_row=None,
-        end_row=None,
+        start_column: int = 0,
+        end_column: int = -1,
+        start_row: int = None,
+        end_row: int = None,
         **style_props
-    ):
+    ) -> None:
 
         if not style_props:
             raise ValueError(
@@ -508,23 +508,23 @@ class RowStyle:
         self._style_props = style_props
 
     @property
-    def start_column(self):
+    def start_column(self) -> int:
         return self._start_column
 
     @property
-    def end_column(self):
+    def end_column(self) -> int:
         return self._end_column
 
     @property
-    def start_row(self):
+    def start_row(self) -> int:
         return self._start_row
 
     @property
-    def end_row(self):
+    def end_row(self) -> int:
         return self._end_row
 
     @start_row.setter
-    def start_row(self, value):
+    def start_row(self, value: int) -> None:
         if self._start_row is not None:
             raise ValueError(
                 (
@@ -534,7 +534,7 @@ class RowStyle:
         self._start_row = value
 
     @end_row.setter
-    def end_row(self, value):
+    def end_row(self, value: int) -> None:
         if self._end_row is not None:
             raise ValueError(
                 ("Cannot override existing value " "for end row ({})").format(
@@ -543,7 +543,7 @@ class RowStyle:
             )
         self._end_row = value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         tmp = (
             "{class_name}(start_column={start_column}, "
             "end_column={end_column}, start_row={start_row}, "
@@ -563,7 +563,7 @@ class RowStyle:
             ),
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         attrs = (
             "start_column",
             "end_column",
@@ -573,7 +573,7 @@ class RowStyle:
         )
         return all(getattr(self, att) == getattr(other, att) for att in attrs)
 
-    def get_commands(self):
+    def get_commands(self) -> tuple:
         """
         Return Reportlab compliant styling commands.
 
@@ -597,16 +597,23 @@ class RowStyle:
             for key in sorted(self._style_props.keys())
         )
 
-        return tuple(
-            (
-                key.upper().replace("_", ""),
-                (self.start_column, self.start_row),
-                (self.end_column, self.end_row),
-            )
-            + (val if isinstance(val, tuple) else (val,))
-            for key, val in props
-            if val is not None
-        )
+        commands = []
+
+        # We want to skip commands with False or None values
+        for key, val in props:
+            if not (val is None or val is False):
+                command = [
+                    key.upper().replace("_", ""),
+                    (self.start_column, self.start_row),
+                    (self.end_column, self.end_row),
+                ]
+                if isinstance(val, tuple):
+                    command.extend(val)
+                elif not isinstance(val, bool):
+                    command.append(val)
+                commands.append(tuple(command))
+
+        return tuple(commands)
 
 
 class RowData:

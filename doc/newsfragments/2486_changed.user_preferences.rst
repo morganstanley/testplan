@@ -1,0 +1,1 @@
+Report Viewer user preferences are now saved into the browser local storage, so it is kept between sessions. The preferences are moved to a single menu item.

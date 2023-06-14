@@ -29,6 +29,8 @@ import {
   fakeReportAssertionsError,
 } from "../Common/fakeReport";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
+import { useAtomValue } from "jotai";
+import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
 
 /**
  * BatchReport component:
@@ -36,12 +38,16 @@ import { ErrorBoundary } from "../Common/ErrorBoundary";
  *   * display messages when loading report or error in report.
  *   * render toolbar, nav & assertion components.
  */
-class BatchReport extends BaseReport {
+
+const BatchReport = (props) => {
+  const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
+  return <BatchReportComponent {...props} displayTime={displayTimeInfo} />;
+};
+class BatchReportComponent extends BaseReport {
   constructor(props) {
     super(props);
     this.setReport = this.setReport.bind(this);
     this.getReport = this.getReport.bind(this);
-    this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
 
@@ -51,7 +57,6 @@ class BatchReport extends BaseReport {
       testcaseUid: null,
       filter: null,
       displayTags: false,
-      displayEmpty: true,
     };
   }
 
@@ -187,16 +192,6 @@ class BatchReport extends BaseReport {
     this.setState({ displayTags: displayTags });
   }
 
-  /**
-   * Update navigation pane to show/hide entries of empty testcases.
-   *
-   * @param {boolean} displayEmpty.
-   * @public
-   */
-  updateDisplayEmpty(displayEmpty) {
-    this.setState({ displayEmpty: displayEmpty });
-  }
-
   getSelectedUIDsFromPath() {
     const { uid, selection } = this.props.match.params;
     return [uid, ...(selection ? selection.split("/") : [])];
@@ -238,7 +233,8 @@ class BatchReport extends BaseReport {
       this.state,
       reportFetchMessage,
       this.props.match.params.uid,
-      selectedEntries
+      selectedEntries,
+      this.props.displayTime
     );
 
     return (
@@ -252,11 +248,7 @@ class BatchReport extends BaseReport {
           updateExpandStatusFunc={this.updateGlobalExpand}
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
-          updateEmptyDisplayFunc={this.updateDisplayEmpty}
-          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={this.updateTagsDisplay}
-          updatePathDisplayFunc={this.updatePathDisplay}
-          updateTimeDisplayFunc={this.updateTimeDisplay}
         />
         <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
         <div
@@ -272,10 +264,8 @@ class BatchReport extends BaseReport {
             report={this.state.filteredReport.report}
             selected={selectedEntries}
             filter={this.state.filter}
-            treeView={this.state.treeView}
-            displayEmpty={this.state.displayEmpty}
             displayTags={this.state.displayTags}
-            displayTime={this.state.displayTime}
+            displayTime={this.props.displayTime}
             handleColumnResizing={this.handleColumnResizing}
             url={this.props.match.path}
           />
@@ -303,3 +293,4 @@ const styles = StyleSheet.create({
 });
 
 export default BatchReport;
+export { BatchReportComponent };

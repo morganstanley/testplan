@@ -1,6 +1,7 @@
 """PyUnit test runner."""
 
 import unittest
+from typing import Generator, Dict
 
 from testplan.testing import base as testing
 from testplan.testing.multitest.entries import assertions
@@ -89,8 +90,20 @@ class PyUnit(testing.Test):
 
         return self.result
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
-        """Run testcases and yield testcase report and parent UIDs."""
+    def run_testcases_iter(
+        self,
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        shallow_report: Dict = None,
+    ) -> Generator:
+        """
+        Run all testcases and yield testcase reports.
+
+        :param testsuite_pattern: pattern to match for testsuite names
+        :param testcase_pattern: pattern to match for testcase names
+        :param shallow_report: shallow report entry
+        :return: generator yielding testcase reports and UIDs for merge step
+        """
         if testsuite_pattern == "*":
             yield {"runtime_status": RuntimeStatus.RUNNING}, [self.uid()]
             for testsuite_report in self._run_tests():

@@ -5,7 +5,9 @@ import { StyleSheetTestUtils } from "aphrodite";
 import moxios from "moxios";
 import ReactRouterEnzymeContext from "react-router-enzyme-context";
 
-import InteractiveReport from "../InteractiveReport.js";
+import InteractiveReport, {
+  InteractiveReportComponent,
+} from "../InteractiveReport.js";
 import { PropagateIndices } from "../reportUtils.js";
 
 const initialReport = () => ({
@@ -133,7 +135,7 @@ const renderInteractiveReport = () => {
     path: "/interactive/:uid/:selection*",
   };
   return shallow(
-    <InteractiveReport
+    <InteractiveReportComponent
       match={mockMatch}
       history={routerContext.props().history}
       poll_intervall="1000000"

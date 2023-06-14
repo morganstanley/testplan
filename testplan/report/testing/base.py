@@ -2,9 +2,7 @@
 Report classes that will store the test results.
 
 Assuming we have a Testplan setup like this:
-
 .. code-block:: python
-
   Testplan MyPlan
     Multitest A
       Suite A-1
@@ -17,11 +15,8 @@ Assuming we have a Testplan setup like this:
       Suite B-1
         Testcase test_method_b_1_x
     GTest C
-
 We will have a report tree like:
-
 .. code-block:: python
-
   TestReport(name='MyPlan')
     TestGroupReport(name='A', category='Multitest')
       TestGroupReport(name='A-1', category='TestSuite')
@@ -52,7 +47,7 @@ import platform
 import sys
 import traceback
 from collections import Counter
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict
 
 from typing_extensions import Self
 
@@ -324,6 +319,28 @@ class BaseReportGroup(ReportGroup):
         """Set the runtime_status of all child entries."""
         for entry in self:
             entry.runtime_status = new_status
+        self._runtime_status = new_status
+
+    def set_runtime_status_filtered(
+        self,
+        new_status: str,
+        entries: Dict,
+    ) -> None:
+        """
+        Alternative setter for the runtime status of an entry. Propagates only
+          to the specified entries.
+
+        :param new_status: new runtime status to be set
+        :param entries: tree-like structure of entries names
+        """
+        for entry in self:
+            if entry.name in entries.keys():
+                if isinstance(entry, TestCaseReport):
+                    entry.runtime_status = new_status
+                else:
+                    entry.set_runtime_status_filtered(
+                        new_status, entries[entry.name]
+                    )
         self._runtime_status = new_status
 
     def merge_children(self, report, strict=True):

@@ -1,82 +1,49 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { css, StyleSheet } from "aphrodite";
 
 import DescriptionPane from "./DescriptionPane";
 import AssertionGroup from "./AssertionGroup";
 import LogGroup from "./LogGroup";
-import { AssertionContext } from "../Common/context";
+import { useAtomValue } from "jotai";
+import { displayPathPreference } from "../UserSettings/UserSettings";
 
 /**
  * Render the assertions of the selected test case.
  */
-class AssertionPane extends Component {
-  // Context of assertion status
-  static contextType = AssertionContext;
+const AssertionPane = (props) => {
+  const displayPath = useAtomValue(displayPathPreference);
 
-  constructor(props) {
-    super(props);
+  let assertionPaneStyle = {
+    paddingLeft: "20px",
+    flex: "1",
+    overflowY: "auto",
+  };
 
-    this.state = {
-      testcaseUid: undefined,
-    };
-  }
-
-  /**
-   * Set the state on props change. This is needed to recognize that a different
-   * test case is being rendered. The state of the expand all/collapse all
-   * variable is also reset.
-   *
-   * @param {object} props - Current props.
-   * @param {object} state - Previous state.
-   * @returns {object|null} - Return the new state if the test case changed or
-   * null otherwise.
-   * @public
-   */
-  static getDerivedStateFromProps(props, state) {
-    if (
-      props.testcaseUid === undefined ||
-      props.testcaseUid !== state.testcaseUid
-    ) {
-      return { testcaseUid: props.testcaseUid, globalIsOpen: undefined };
-    }
+  if (
+    props.assertions.length !== 0 ||
+    props.logs.length !== 0 ||
+    props.descriptionEntries.length !== 0
+  ) {
+    return (
+      <div style={assertionPaneStyle}>
+        <div className={css(styles.infiniteScrollDiv)}>
+          <DescriptionPane descriptionEntries={props.descriptionEntries} />
+          <AssertionGroup
+            entries={props.assertions}
+            filter={props.filter}
+            displayPath={displayPath}
+            assertionGroupUid={props.testcaseUid}
+            reportUid={props.reportUid}
+          />
+          <LogGroup logs={props.logs} />
+        </div>
+      </div>
+    );
+  } else {
     return null;
   }
-
-  render() {
-    let assertionPaneStyle = {
-      paddingLeft: "20px",
-      flex: "1",
-      overflowY: "auto",
-    };
-
-    if (
-      this.props.assertions.length !== 0 ||
-      this.props.logs.length !== 0 ||
-      this.props.descriptionEntries.length !== 0
-    ) {
-      return (
-        <div style={assertionPaneStyle}>
-          <div className={css(styles.infiniteScrollDiv)}>
-            <DescriptionPane
-              descriptionEntries={this.props.descriptionEntries}
-            />
-            <AssertionGroup
-              entries={this.props.assertions}
-              filter={this.props.filter}
-              displayPath={this.props.displayPath}
-              assertionGroupUid={this.props.testcaseUid}
-              reportUid={this.props.reportUid}
-            />
-            <LogGroup logs={this.props.logs} />
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-}
+};
 
 AssertionPane.propTypes = {
   /** List of assertions to be rendered */

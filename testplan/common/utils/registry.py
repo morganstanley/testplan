@@ -98,13 +98,6 @@ class Registry(logger.Loggable):
 
     def __setitem__(self, key, value):
         key = self.get_record_key(key)
-        if key in self.data:
-            raise ValueError(
-                "Cannot overwrite registry for {key},"
-                " it already has the value: {value}".format(
-                    key=key, value=self[key]
-                )
-            )
         self.data[key] = value
 
     def bind(self, *classes):
