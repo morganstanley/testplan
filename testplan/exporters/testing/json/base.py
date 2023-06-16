@@ -11,7 +11,11 @@ from typing import Optional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExporterResult,
+    ExportContext,
+)
 from testplan.report import ReportCategories
 from testplan.report.testing.base import TestReport
 from testplan.report.testing.schemas import TestReportSchema
@@ -69,8 +73,19 @@ class JSONExporter(Exporter):
     def __init__(self, name="JSON exporter", **options):
         super(JSONExporter, self).__init__(name=name, **options)
 
-    def export(self, source: TestReport) -> Optional[str]:
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
+        """
+        Exports report to JSON files in the given directory.
 
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        """
+        result = ExporterResult(exporter=self)
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 
         if len(source):
@@ -122,12 +137,12 @@ class JSONExporter(Exporter):
                     json.dump(data, json_file)
 
             self.logger.user_info("JSON generated at %s", json_path)
-            return self.cfg.json_path
+            result.result = {"json": self.cfg.json_path}
         else:
             self.logger.user_info(
                 "Skipping JSON creation for empty report: %s", source.name
             )
-            return None
+        return result
 
     @staticmethod
     def split_json_report(data):

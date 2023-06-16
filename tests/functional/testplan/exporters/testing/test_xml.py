@@ -4,6 +4,7 @@ import re
 from testplan.testing import multitest
 
 from testplan import TestplanMock
+from testplan.common.exporters import ExportContext
 from testplan.common.utils.testing import argv_overridden, XMLComparison as XC
 from testplan.exporters.testing import XMLExporter
 from testplan.report import (
@@ -14,6 +15,7 @@ from testplan.report import (
 )
 
 FLOAT_PATTERN = r"{d}+\.?d{d}+"
+export_context = ExportContext()
 
 
 @multitest.testsuite
@@ -177,7 +179,9 @@ def test_xml_exporter_cleanup(tmpdir):
 
     open(xml_dir.join("foo.txt").strpath, "a").close()
 
-    XMLExporter(xml_dir=xml_dir.strpath).export(sample_report)
+    XMLExporter(xml_dir=xml_dir.strpath).export(
+        source=sample_report, export_context=export_context
+    )
 
     assert os.listdir(xml_dir.strpath) == ["my-multitest.xml"]
 

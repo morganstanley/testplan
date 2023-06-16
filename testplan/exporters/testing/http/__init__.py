@@ -10,7 +10,11 @@ import requests
 from schema import Or, And, Use
 
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExporterResult,
+    ExportContext,
+)
 from testplan.common.utils.validation import is_valid_url
 from testplan.report import TestReport
 from testplan.report.testing.schemas import TestReportSchema
@@ -93,15 +97,28 @@ class HTTPExporter(Exporter):
 
         return response, errmsg
 
-    def export(self, source: TestReport) -> Optional[str]:
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
+        """
+        Uploads report to remote HTTP server.
+
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        """
+
         http_url = self.cfg.http_url
         test_plan_schema = TestReportSchema()
         data = test_plan_schema.dump(source)
+        result = ExporterResult(exporter=self)
         _, errmsg = self._upload_report(http_url, data)
 
         if errmsg:
             self.logger.error(errmsg)
-            return None
         else:
             self.logger.user_info("Test report posted to %s", http_url)
-            return http_url
+            result.result = {"url": http_url}
+        return result

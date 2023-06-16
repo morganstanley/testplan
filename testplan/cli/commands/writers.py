@@ -8,6 +8,7 @@ import click
 
 from testplan.cli.utils.actions import ProcessResultAction
 from testplan.cli.utils.command_list import CommandList
+from testplan.common.exporters import ExportContext
 from testplan.common.utils import logger
 from testplan.exporters.testing import JSONExporter, PDFExporter, XMLExporter
 from testplan.report import TestReport
@@ -16,6 +17,7 @@ from testplan.web_ui.server import WebUIServer
 
 
 writer_commands = CommandList()
+export_context = ExportContext()
 
 
 class ToJsonAction(ProcessResultAction):
@@ -34,7 +36,7 @@ class ToJsonAction(ProcessResultAction):
         :param result: Testplan report to export
         """
         exporter = JSONExporter(json_path=self.output)
-        exporter.export(result)
+        exporter.export(source=result, export_context=export_context)
 
         return result
 
@@ -123,7 +125,7 @@ class ToJUnitAction(ProcessResultAction, logger.Loggable):
 
     def __call__(self, result: TestReport) -> TestReport:
         exporter = XMLExporter(xml_dir=self.dir_name)
-        exporter.export(result)
+        exporter.export(source=result, export_context=export_context)
         self.logger.user_info("XML files written to %s", self.dir_name)
         return result
 
@@ -166,7 +168,7 @@ class DisplayAction(ProcessResultAction):
             exporter = JSONExporter(
                 json_path=json_path, split_json_report=False
             )
-            exporter.export(result)
+            exporter.export(source=result, export_context=export_context)
 
             ui_server = WebUIServer(json_path=json_path, ui_port=self.port)
             ui_server.display()
