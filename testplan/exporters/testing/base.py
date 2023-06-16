@@ -14,7 +14,12 @@ except ImportError:
 from schema import Use
 
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import BaseExporter, ExporterConfig
+from testplan.common.exporters import (
+    BaseExporter,
+    ExporterConfig,
+    ExportContext,
+    ExporterResult,
+)
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import makedirs
 from testplan.report.testing.base import TestReport
@@ -128,6 +133,7 @@ class TagFilteredExporter(Exporter):
     def export_clones(
         self,
         source: TestReport,
+        export_context: ExportContext,
         tag_dicts: List[Dict],
         filter_type: str,
     ) -> None:
@@ -137,6 +143,7 @@ class TagFilteredExporter(Exporter):
         operation, if the clone report is not empty.
 
         :param source: Testplan report
+        :param export_context:
         :param tag_dicts: list of tag dictionaries, export is run for each item
         :param filter_type: all / any
         """
@@ -149,7 +156,11 @@ class TagFilteredExporter(Exporter):
             if clone is not None:
                 params = self.get_params(tag_dict, filter_type)
                 exporter = self.get_exporter(**params)
-                exporter.export(clone)
+                export_context.results.append(
+                    exporter.export(
+                        source=clone, export_context=export_context
+                    )
+                )
             else:
                 TESTPLAN_LOGGER.user_info(
                     self.get_skip_message(
@@ -159,21 +170,32 @@ class TagFilteredExporter(Exporter):
                     )
                 )
 
-    def export(self, source: TestReport) -> None:
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
         """
         Runs the export operation for exact (all) and any matching tag groups.
 
         :param source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
         self.export_clones(
-            source=source, tag_dicts=self.cfg.report_tags, filter_type=self.ANY
+            source=source,
+            export_context=export_context,
+            tag_dicts=self.cfg.report_tags,
+            filter_type=self.ANY,
         )
 
         self.export_clones(
             source=source,
+            export_context=export_context,
             tag_dicts=self.cfg.report_tags_all,
             filter_type=self.ALL,
         )
+        return ExporterResult(exporter=self)
 
 
 def save_attachments(report: TestReport, directory: str) -> Dict[str, str]:

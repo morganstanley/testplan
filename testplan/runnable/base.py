@@ -1,11 +1,12 @@
 """Tests runner module."""
 import datetime
 import inspect
+import math
 import os
 import random
 import re
-import math
 import time
+import traceback
 import uuid
 import webbrowser
 from collections import OrderedDict
@@ -33,7 +34,11 @@ from testplan.common.entity import (
     RunnableResult,
     RunnableStatus,
 )
-from testplan.common.exporters import BaseExporter, ExporterResult
+from testplan.common.exporters import (
+    BaseExporter,
+    ExporterResult,
+    ExportContext,
+)
 from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
@@ -228,7 +233,7 @@ class TestRunnerResult(RunnableResult):
     def __init__(self):
         super(TestRunnerResult, self).__init__()
         self.test_results = OrderedDict()
-        self.exporter_results = []
+        self.export_context = ExportContext()
         self.test_report = None
 
     @property
@@ -242,7 +247,7 @@ class TestRunnerResult(RunnableResult):
         return not self.test_report.failed and all(
             [
                 exporter_result.success
-                for exporter_result in self.exporter_results
+                for exporter_result in self.export_context.results
             ]
         )
 
@@ -1174,15 +1179,50 @@ class TestRunner(Runnable):
 
         for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
-                exp_result = ExporterResult.run_exporter(
-                    exporter=exporter,
-                    source=self._result.test_report,
-                    type="test",
-                )
+                traceback_string = None
+                exp_result = None
+                try:
+                    exp_result = exporter.export(
+                        source=self._result.test_report,
+                        export_context=self._result.export_context,
+                    )
+                except TypeError:
+                    # TODO: Remove this except section in the future
+                    self.logger.warning(
+                        (
+                            "Exporter '%s' does not have keyword_argument 'export_context'! "
+                            "This will be prohibited in the future, please modify your custom exporter!"
+                        ),
+                        exporter,
+                    )
+                    exp_result = exporter.export(
+                        source=self._result.test_report,
+                    )
+                except Exception:
+                    traceback_string = traceback.format_exc()
+                finally:
+                    if isinstance(exp_result, ExporterResult):
+                        exp_result.traceback = traceback_string
+                    else:
+                        if not traceback_string:
+                            # TODO: Move this part to the Exception section and remove the else block
+                            # We probably did not fail during the export
+                            self.logger.warning(
+                                (
+                                    "Exporter '%s' returns with not an ExporterResult object! "
+                                    "This will be prohibited in the future, please modify your custom exporter!"
+                                ),
+                                exporter,
+                            )
+                        exp_result = ExporterResult(
+                            exporter=exporter,
+                            traceback=traceback_string,
+                            result={"unknown": exp_result},
+                        )
 
                 if not exp_result.success:
                     logger.TESTPLAN_LOGGER.error(exp_result.traceback)
-                self._result.exporter_results.append(exp_result)
+                self._result.export_context.results.append(exp_result)
             else:
                 raise NotImplementedError(
                     "Exporter logic not implemented for: {}".format(
@@ -1190,12 +1230,14 @@ class TestRunner(Runnable):
                     )
                 )
 
+        self.logger.user_info("Yupi")
+
     def _post_exporters(self):
         # View report in web browser if "--browse" specified
         report_urls = []
         report_opened = False
 
-        for result in self._result.exporter_results:
+        for result in self._result.export_context.results:
             report_url = getattr(result.exporter, "report_url", None)
             if report_url:
                 report_urls.append(report_url)

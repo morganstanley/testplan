@@ -8,7 +8,6 @@ import time
 import traceback
 import uuid
 import warnings
-from typing import Optional
 from urllib.request import pathname2url
 
 from schema import Or
@@ -27,7 +26,11 @@ except Exception as exc:
 
 
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExporterResult,
+    ExportContext,
+)
 from testplan.common.report import Report
 from testplan.common.utils.strings import slugify
 from testplan.report.testing.styles import Style
@@ -228,18 +231,31 @@ class PDFExporter(Exporter):
         template.build(tables)
         return str(pdf_path)
 
-    def export(self, source: TestReport) -> Optional[str]:
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
+        """
+        Exports report to PDF in the given directory.
+
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        """
+
+        result = ExporterResult(exporter=self)
         if len(source):
             pdf_path = self.create_pdf(source)
             self.logger.user_info("PDF generated at %s", pdf_path)
 
             self.url = f"file:{pathname2url(pdf_path)}"
-            return pdf_path
+            result.result = {"pdf": pdf_path}
         else:
             self.logger.user_info(
                 "Skipping PDF creation for empty report: %s", source.name
             )
-            return None
+        return result
 
 
 class TagFilteredPDFExporter(TagFilteredExporter):

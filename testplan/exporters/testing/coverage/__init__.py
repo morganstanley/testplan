@@ -7,9 +7,13 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Generator, Mapping, TextIO, Tuple, Optional
+from typing import Generator, Mapping, TextIO, Tuple
 
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExporterResult,
+    ExportContext,
+)
 from testplan.exporters.testing.base import Exporter
 from testplan.report.testing.base import (
     TestCaseReport,
@@ -28,11 +32,24 @@ class CoveredTestsExporter(Exporter):
     def __init__(self, name: str = "Covered Tests Exporter", **options):
         super(CoveredTestsExporter, self).__init__(name=name, **options)
 
-    def export(self, report: TestReport) -> Optional[str]:
-        if len(report):
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
+        """
+        Exports report coverage data.
+
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        """
+
+        result = ExporterResult(exporter=self)
+        if len(source):
             # here we use an OrderedDict as an ordered set
             results = OrderedDict()
-            for entry in report.entries:
+            for entry in source.entries:
                 if isinstance(entry, TestGroupReport):
                     self._append_covered_group_n_case(entry, [], results)
             if results:
@@ -43,10 +60,11 @@ class CoveredTestsExporter(Exporter):
                     self.logger.user_info(f"Impacted tests output to {fn}.")
                     for k in results.keys():
                         f.write(":".join(k) + "\n")
-                return self.cfg.tracing_tests_output
+                result.result = {"coverage": self.cfg.tracing_tests_output}
+                return result
             self.logger.user_info("No impacted tests found.")
-            return None
-        return None
+            return result
+        return result
 
     def _append_covered_group_n_case(
         self,

@@ -2,11 +2,14 @@
 Web server exporter for test reports, it opens a local http web server
 which can display the test result.
 """
-from typing import Optional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExportContext,
+    ExporterResult,
+)
 from testplan.report.testing.base import TestReport
 from testplan.web_ui.server import WebUIServer
 from ..base import Exporter
@@ -65,13 +68,27 @@ class WebServerExporter(Exporter):
             return self._server.web_server_thread
         return None
 
-    def export(self, source: TestReport) -> Optional[str]:
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
+        """
+        Exports report to JSON then opens a local webserver to display it.
 
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        """
+
+        result = ExporterResult(exporter=self)
         if len(source):
             exporter = JSONExporter(
                 json_path=self.cfg.json_path, split_json_report=False
             )
-            exporter.export(source)
+            export_context.results.append(
+                exporter.export(source=source, export_context=export_context)
+            )
 
             self._server = WebUIServer(
                 json_path=self.cfg.json_path,
@@ -80,10 +97,13 @@ class WebServerExporter(Exporter):
             )
             self._server.display()
 
-            return self.cfg.json_path
+            result.result = {
+                "json": self.cfg.json_path,
+                "port": self.cfg.ui_port,
+            }
         else:
             self.logger.user_info(
                 "Skipping starting web server for empty report: %s",
                 source.name,
             )
-            return None
+        return result

@@ -14,7 +14,11 @@ from lxml.etree import Element
 from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExportContext,
+    ExporterResult,
+)
 from testplan.common.utils.path import unique_name
 from testplan.common.utils.strings import slugify
 from testplan.report import (
@@ -270,12 +274,17 @@ class XMLExporter(Exporter):
     def __init__(self, name="XML exporter", **options):
         super(XMLExporter, self).__init__(name=name, **options)
 
-    def export(self, source: TestReport) -> str:
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
         """
         Creates multiple XML files in the given directory for MultiTest.
 
-        :param source:
-        :return:
+        :param source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
         xml_dir = pathlib.Path(self.cfg.xml_dir).resolve()
 
@@ -316,4 +325,4 @@ class XMLExporter(Exporter):
         self.logger.user_info(
             "%s XML files created at %s", len(source), xml_dir
         )
-        return str(xml_dir)
+        return ExporterResult(exporter=self, result={"xml": str(xml_dir)})

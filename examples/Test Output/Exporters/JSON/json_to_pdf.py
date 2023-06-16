@@ -5,6 +5,7 @@ into the memory for further processing.
 import argparse
 import json
 
+from testplan.common.exporters import ExportContext
 from testplan.report import TestReport
 from testplan.report.testing.styles import Style, StyleEnum
 
@@ -14,6 +15,8 @@ from testplan.exporters.testing import PDFExporter
 def main(source, target):
 
     with open(source) as source_file:
+        export_context = ExportContext()
+
         data = json.loads(source_file.read())
         if data.get("version", 1) >= 2 or len(data.get("entries", [])) == 0:
             raise RuntimeError(
@@ -36,7 +39,7 @@ def main(source, target):
             ),
         )
 
-        exporter.export(report_obj)
+        exporter.export(source=report_obj, export_context=export_context)
 
 
 if __name__ == "__main__":

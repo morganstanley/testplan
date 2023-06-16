@@ -9,6 +9,7 @@ import sys
 from typing import Optional
 
 from testplan import test_plan
+from testplan.common.exporters import ExportContext, ExporterResult
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.exporters.testing import Exporter
 from testplan.report import TestReport
@@ -74,7 +75,19 @@ class TextFileExporter(Exporter):
     def get_text_content(self, source):
         raise NotImplementedError
 
-    def export(self, source: TestReport) -> Optional[str]:
+    def export(
+        self,
+        source: TestReport,
+        export_context: ExportContext,
+    ) -> ExporterResult:
+        """
+        Exports report to tex file in the given directory.
+
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        """
+
         with open(self.file_path, "w+") as report_file:
             report_file.write(self.get_text_content(source))
             TESTPLAN_LOGGER.user_info(
@@ -83,7 +96,9 @@ class TextFileExporter(Exporter):
                 self.file_path,
             )
 
-        return self.file_path
+        return ExporterResult(
+            exporter=self, result={"text_file": self.file_path}
+        )
 
 
 class ReprExporter(TextFileExporter):
