@@ -187,7 +187,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                     key="1"
                   >
                     <code>
-                      r
+                      re
                     </code>
                     <br />
                   </span>
