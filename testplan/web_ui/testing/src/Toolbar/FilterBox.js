@@ -142,7 +142,7 @@ class FilterBox extends Component {
           <br />
           <small>(search for any matches)</small>
         </>,
-        ["regexp", "r"],
+        ["regexp", "re"],
         ["regexp:^addition.*_[0-9]+$", "r:^addition.*_[0-9]+$"],
       ],
       [
