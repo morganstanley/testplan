@@ -32,11 +32,12 @@ SENTENCE = word:WORD words:WWORD* {return word + words.join("")}
 WWORD = ws:_ word:WORD {return ws+word}
 WORD = !KEYWORDS str:[^ \t\n\r\"(){}]+ {return str.join("")}
 
-KEYWORDS = _ kw:(TEST_W/SUITE_W/CASE_W/TAG_W) ":" {return kw}
+KEYWORDS = _ kw:(TEST_W/SUITE_W/CASE_W/TAG_W/RE_W) ":" {return kw}
 TEST_W = ("multitest"/"mt") {return "test"}
 SUITE_W = ("testsuite"/"s") {return "suite"}
 CASE_W = ("testcase"/"c") {return "case" }
 TAG_W = "tag"
+RE_W = ("regexp"/"re") {return "regexp"}
 
 DOUBLE_QUOTE = "\""
 
