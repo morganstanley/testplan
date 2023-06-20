@@ -294,7 +294,7 @@ class RotatedFileLogStream(LogStream[T]):
 
     @staticmethod
     @abstractmethod
-    def _empty_string(self):
+    def _empty_string():
         pass
 
 
