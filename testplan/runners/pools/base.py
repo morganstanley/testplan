@@ -11,12 +11,15 @@ from typing import Optional, Tuple, List, Dict, Union, Type, Generator
 
 from schema import And, Or
 
+from testplan.testing.base import Test, TestResult
 from testplan.common import entity
 from testplan.common.config import ConfigOption
+from testplan.common.report.base import EventRecorder
 from testplan.common.utils import strings
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.report import ReportCategories
+from testplan.report.testing.base import TestGroupReport
 from testplan.runners.base import Executor, ExecutorConfig
 from .communication import Message
 from .connection import QueueClient, QueueServer
@@ -89,6 +92,21 @@ class WorkerBase(entity.Resource):
         self.assigned = set()
         self.requesting = 0
         self.restart_count = self.cfg.restart_count
+        self.event_recorder = EventRecorder(
+            name=str(self), event_type="Worker"
+        )
+
+    @property
+    def host(self) -> str:
+        return "localhost"
+
+    def start(self):
+        self.event_recorder.start_time = time.time()
+        super(WorkerBase, self).start()
+
+    def stop(self):
+        super(WorkerBase, self).stop()
+        self.event_recorder.end_time = time.time()
 
     @property
     def transport(self) -> QueueClient:
@@ -126,7 +144,7 @@ class WorkerBase(entity.Resource):
         """
         self._transport.respond(msg)
 
-    def rebase_attachment(self, result: TaskResult) -> None:
+    def rebase_attachment(self, result: TestResult) -> None:
         """Rebase the path of attachment from remote to local"""
         pass
 
@@ -212,7 +230,7 @@ class Worker(WorkerBase):
         :return: Task result.
         """
         try:
-            runnable = task.materialize()
+            runnable: Test = task.materialize()
 
             if isinstance(runnable, entity.Runnable):
                 if not runnable.parent:
@@ -220,7 +238,7 @@ class Worker(WorkerBase):
                 if not runnable.cfg.parent:
                     runnable.cfg.parent = self.cfg
 
-            result = runnable.run()
+            result: TestResult = runnable.run()
 
         except BaseException:
             task_result = TaskResult(
@@ -560,7 +578,9 @@ class Pool(Executor):
             self.logger.user_info(
                 "De-assign %s from %s", task_result.task, worker
             )
-
+            if isinstance(task_result.result, TestResult):
+                report: TestGroupReport = task_result.result.report
+                report.host = worker.host
             worker.rebase_attachment(task_result.result)
 
             if task_should_rerun():
@@ -891,6 +911,8 @@ class Pool(Executor):
 
     def _stop_workers(self):
         self._workers.stop()
+        for worker in self._workers:
+            self.event_recorder.add_child(worker.event_recorder)
 
     def stopping(self) -> None:
         """Stop connections and workers."""

@@ -1,5 +1,10 @@
 """Unit tests for the Zookeeper drivers."""
 
+from pytest_test_filters import skip_module_on_windows
+
+skip_module_on_windows("Kafka not available on windows")
+
+
 import os
 import uuid
 import pytest

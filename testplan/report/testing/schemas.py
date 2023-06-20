@@ -10,7 +10,10 @@ from marshmallow.utils import EXCLUDE
 
 from testplan.common.serialization.schemas import load_tree_data
 from testplan.common.serialization import fields as custom_fields
-from testplan.common.report.schemas import ReportSchema, ReportLogSchema
+from testplan.common.report.schemas import (
+    ReportSchema,
+    ReportLogSchema,
+)
 
 from testplan.common.utils import timing
 
@@ -154,6 +157,8 @@ class TestGroupReportSchema(TestCaseReportSchema):
         },
         many=True,
     )
+    events = fields.Dict()
+    host = fields.String(allow_none=True)
 
     @post_load
     def make_report(self, data, **kwargs):
@@ -193,6 +198,8 @@ class TestReportSchema(Schema):
     entries = custom_fields.GenericNested(
         schema_context={TestGroupReport: TestGroupReportSchema}, many=True
     )
+
+    events = fields.Dict()
 
     @post_load
     def make_test_report(self, data, **kwargs):

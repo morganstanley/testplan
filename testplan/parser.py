@@ -431,7 +431,7 @@ that match ALL of the given tags.
 
         report_group.add_argument(
             "--label",
-            default=None,
+            default=self._default_options["label"],
             help="Labels the test report with the given name, "
             'useful to categorize or classify similar reports (aka "run-id").',
         )

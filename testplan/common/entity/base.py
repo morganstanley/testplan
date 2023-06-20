@@ -31,6 +31,7 @@ from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
 from testplan.common.utils.timing import wait
 from testplan.common.utils.validation import is_subclass
+from testplan.common.report.base import EventRecorder
 
 
 class Environment:
@@ -1269,6 +1270,9 @@ class Resource(Entity):
                 self.STATUS.STOPPED: self._wait_stopped,
             }
         )
+        self.event_recorder: EventRecorder = EventRecorder(
+            name=self.uid(), event_type="Executor"
+        )
 
     @property
     def context(self):
@@ -1320,6 +1324,8 @@ class Resource(Entity):
             )
             return
 
+        self.event_recorder.start_time = time.time()
+
         self.logger.info("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
@@ -1364,6 +1370,7 @@ class Resource(Entity):
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
             self.logger.info("%s stopped", self)
+        self.event_recorder.end_time = time.time()
 
     def pre_start(self):
         """

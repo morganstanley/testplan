@@ -59,8 +59,8 @@ class DummyTest(Test):
 
 class MyPool(LocalRunner):  # Start is async
     def __init__(self, name=None):
-        super(MyPool, self).__init__()
         self.name = name
+        super(MyPool, self).__init__()
 
     def uid(self):
         return self.name or super(MyPool, self).uid()
