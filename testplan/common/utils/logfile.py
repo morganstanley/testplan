@@ -5,14 +5,14 @@ from glob import glob
 from io import TextIOWrapper
 from itertools import dropwhile
 from os import PathLike, SEEK_END
-from typing import Union, Optional, Generic, TypeVar, List
+from typing import Union, Optional, Generic, List, AnyStr
 
 
 class LogPosition:
     pass
 
 
-T = TypeVar("T", str, bytes)
+T = AnyStr
 
 
 class LogStream(ABC, Generic[T]):
@@ -57,16 +57,19 @@ class FileLogStream(LogStream[T]):
     class FileLogPosition(LogPosition):
         position: int = 0
 
-    def __init__(self, path: Union[PathLike, str], binary: bool) -> None:
+    def __init__(self, path: Union[PathLike, str]) -> None:
         self._path = path
-        self._binary = binary
         self._file: Optional[TextIOWrapper] = None
+
+    @staticmethod
+    @abstractmethod
+    def _file_open_mode() -> str:
+        pass
 
     @property
     def file(self):
-        mode = "rb" if self._binary else "rt"
         if self._file is None:
-            self._file = open(self._path, mode)
+            self._file = open(self._path, self._file_open_mode())
         return self._file
 
     def seek(self, position: Optional[FileLogPosition] = None) -> None:
@@ -101,13 +104,15 @@ class FileLogStream(LogStream[T]):
 
 
 class BinaryFileLogStream(FileLogStream[bytes]):
-    def __init__(self, path: Union[PathLike, str]) -> None:
-        super().__init__(path, True)
+    @staticmethod
+    def _file_open_mode():
+        return "rb"
 
 
 class TextFileLogStream(FileLogStream[str]):
-    def __init__(self, path: Union[PathLike, str]) -> None:
-        super().__init__(path, False)
+    @staticmethod
+    def _file_open_mode():
+        return "rt"
 
 
 @dataclass
@@ -125,7 +130,6 @@ class LogRotationStrategy(ABC):
 class MTimeBasedLogRotationStrategy(LogRotationStrategy):
     @dataclass
     class MTimeLogfileInfo(LogfileInfo):
-
         m_time: float = field(init=False)
 
         def __post_init__(self):
@@ -195,7 +199,7 @@ class RotatedFileLogStream(LogStream[T]):
             if remaining:
                 if not self._open_next_file():
                     break
-        return (b"" if self._binary else "").join(chunks)
+        return self._empty_string().join(chunks)
 
     def readline(self, size: int = -1) -> T:
         line = self.file.readline()
@@ -249,10 +253,14 @@ class RotatedFileLogStream(LogStream[T]):
     def inode(self):
         return os.fstat(self.file.fileno()).st_ino
 
+    @staticmethod
+    @abstractmethod
+    def _file_open_mode():
+        pass
+
     def _open_file(self, path):
         self.close()
-        mode = "rb" if self._binary else "rt"
-        self._file = open(path, mode)
+        self._file = open(path, self._file_open_mode())
 
     def _open_first_file(self):
         files = self._get_files()
@@ -282,22 +290,29 @@ class RotatedFileLogStream(LogStream[T]):
         chunks = [self.file.read(-1)]
         while self._open_next_file():
             chunks.append(self.file.read(-1))
-        return (b"" if self._binary else "").join(chunks)
+        return self._empty_string().join(chunks)
+
+    @staticmethod
+    @abstractmethod
+    def _empty_string(self):
+        pass
 
 
 class RotatedBinaryFileLogStream(RotatedFileLogStream[bytes]):
-    def __init__(
-        self,
-        path_pattern: Union[PathLike, str],
-        rotation_strategy: LogRotationStrategy,
-    ) -> None:
-        super().__init__(path_pattern, rotation_strategy, True)
+    @staticmethod
+    def _file_open_mode():
+        return "rb"
+
+    @staticmethod
+    def _empty_string():
+        return b""
 
 
 class RotatedTextFileLogStream(RotatedFileLogStream[str]):
-    def __init__(
-        self,
-        path_pattern: Union[PathLike, str],
-        rotation_strategy: LogRotationStrategy,
-    ) -> None:
-        super().__init__(path_pattern, rotation_strategy, False)
+    @staticmethod
+    def _file_open_mode():
+        return "rt"
+
+    @staticmethod
+    def _empty_string():
+        return ""

@@ -14,6 +14,8 @@ from testplan.common.utils.logfile import (
     LogfileInfo,
     LogRotationStrategy,
     MTimeBasedLogRotationStrategy,
+    RotatedBinaryFileLogStream,
+    RotatedTextFileLogStream,
 )
 
 
@@ -84,16 +86,26 @@ def binary(request):
     return request.param
 
 
+@pytest.fixture
+def stream_class(binary):
+    return RotatedBinaryFileLogStream if binary else RotatedTextFileLogStream
+
+
 class TestRotatedFileLogStream:
     def test_readline(
-        self, rotating_logger, binary, rotation_strategy, prepare_logfiles
+        self,
+        rotating_logger,
+        binary,
+        rotation_strategy,
+        prepare_logfiles,
+        stream_class,
     ):
-        empty_line = b"" if binary else ""
+        empty_line = stream_class._empty_string()
         log_content = prepare_logfiles(
             rotating_logger, binary, rotation_strategy.wait
         )
-        stream = RotatedFileLogStream(
-            rotating_logger.pattern, rotation_strategy.strategy, binary
+        stream = stream_class(
+            rotating_logger.pattern, rotation_strategy.strategy
         )
         with closing(stream):
             for line in log_content:
@@ -104,14 +116,19 @@ class TestRotatedFileLogStream:
             assert stream.readline() == empty_line
 
     def test_readall(
-        self, rotating_logger, binary, rotation_strategy, prepare_logfiles
+        self,
+        rotating_logger,
+        binary,
+        rotation_strategy,
+        prepare_logfiles,
+        stream_class,
     ):
-        empty_line = b"" if binary else ""
+        empty_line = stream_class._empty_string()
         log_content = prepare_logfiles(
             rotating_logger, binary, rotation_strategy.wait
         )
-        stream = RotatedFileLogStream(
-            rotating_logger.pattern, rotation_strategy.strategy, binary
+        stream = stream_class(
+            rotating_logger.pattern, rotation_strategy.strategy
         )
         with closing(stream):
             assert stream.read() == empty_line.join(log_content)
@@ -121,15 +138,20 @@ class TestRotatedFileLogStream:
             assert stream.read() == empty_line.join(log_content)
 
     def test_read(
-        self, rotating_logger, binary, rotation_strategy, prepare_logfiles
+        self,
+        rotating_logger,
+        binary,
+        rotation_strategy,
+        prepare_logfiles,
+        stream_class,
     ):
-        empty_line = b"" if binary else ""
+        empty_line = stream_class._empty_string()
         log_content = prepare_logfiles(
             rotating_logger, binary, rotation_strategy.wait
         )
         log = empty_line.join(log_content)
-        stream = RotatedFileLogStream(
-            rotating_logger.pattern, rotation_strategy.strategy, binary
+        stream = stream_class(
+            rotating_logger.pattern, rotation_strategy.strategy
         )
         read_size = len(log_content[0]) // 2 - 1
         with closing(stream):
@@ -141,7 +163,12 @@ class TestRotatedFileLogStream:
             assert stream.read(10) == log[:10]
 
     def test_seek(
-        self, rotating_logger, binary, rotation_strategy, prepare_logfiles
+        self,
+        rotating_logger,
+        binary,
+        rotation_strategy,
+        prepare_logfiles,
+        stream_class,
     ):
         log_content = prepare_logfiles(
             rotating_logger, binary, rotation_strategy.wait
@@ -153,8 +180,8 @@ class TestRotatedFileLogStream:
             content: Union[str, bytes]
 
         positions = []
-        stream = RotatedFileLogStream(
-            rotating_logger.pattern, rotation_strategy.strategy, binary
+        stream = stream_class(
+            rotating_logger.pattern, rotation_strategy.strategy
         )
         with closing(stream):
             for _ in range(len(log_content)):
@@ -169,18 +196,22 @@ class TestRotatedFileLogStream:
                 assert stream.readline() == pos.content
 
     def test_flush(
-        self, rotating_logger, binary, rotation_strategy, prepare_logfiles
+        self,
+        rotating_logger,
+        binary,
+        rotation_strategy,
+        prepare_logfiles,
+        stream_class,
     ):
-        empty_line = b"" if binary else ""
+        empty_line = stream_class._empty_string()
         log_content = prepare_logfiles(
             rotating_logger, binary, rotation_strategy.wait
         )
-        stream = RotatedFileLogStream(
-            rotating_logger.pattern, rotation_strategy.strategy, binary
+        stream = stream_class(
+            rotating_logger.pattern, rotation_strategy.strategy
         )
 
         with closing(stream):
-
             assert stream.readline() == log_content[0]
             end = stream.flush()
             assert stream.readline() == empty_line
@@ -197,14 +228,18 @@ class TestRotatedFileLogStream:
             assert stream.readline() == expected
 
     def test_compare(
-        self, rotating_logger, binary, rotation_strategy, prepare_logfiles
+        self,
+        rotating_logger,
+        binary,
+        rotation_strategy,
+        prepare_logfiles,
+        stream_class,
     ):
-
         log_content = prepare_logfiles(
             rotating_logger, binary, rotation_strategy.wait
         )
         log_length = sum(map(len, log_content))
-        stream = RotatedFileLogStream(
+        stream = stream_class(
             rotating_logger.pattern, rotation_strategy.strategy, binary
         )
 
