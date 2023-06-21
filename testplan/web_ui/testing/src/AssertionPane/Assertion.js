@@ -29,6 +29,7 @@ import {
   RegexMatchLineAssertion,
 } from "./AssertionTypes/RegexAssertions";
 import { EXPAND_STATUS } from "../Common/defaults";
+import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 
 /**
  * Component to render one assertion.
@@ -100,6 +101,7 @@ class Assertion extends Component {
       RegexSearchNotExists: RegexAssertion,
       RegexFindIter: RegexAssertion,
       RegexMatchLine: RegexMatchLineAssertion,
+      XMLCheck: XMLCheckAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];

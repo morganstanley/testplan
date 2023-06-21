@@ -7,7 +7,7 @@ const RegexBasedAssertion = ({ pattern, children }) => {
   return (
     <>
       <div>
-        <strong>Pattern: </strong>
+        <strong className={css(styles.title)}>Pattern:</strong>
         <SyntaxHighlighter
           language="regex"
           PreTag="span"
@@ -79,5 +79,8 @@ const styles = StyleSheet.create({
   inputText: {
     paddingTop: "1em",
     marginBottom: "0",
+  },
+  title: {
+    paddingRight: "0.5em",
   },
 });

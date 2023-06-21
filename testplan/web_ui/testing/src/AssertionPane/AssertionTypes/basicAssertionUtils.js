@@ -380,32 +380,6 @@ function prepareExceptionContent(assertion, defaultContent) {
 }
 
 /**
- * Prepare the content for the XMLCheck assertion.
- * @param {object} assertion
- * @param {AssertionContent} defaultContent
- * @return {AssertionContent} Content for XMLCheck assertion
- * @private
- */
-function prepareXMLCheckContent(assertion, defaultContent) {
-  const leftContent = <span>{assertion.xpath}</span>;
-  const rightContent = (
-    <span style={{ whiteSpace: "pre" }}>
-      {assertion.xml.replace(/ {12}/g, "")}
-    </span>
-  );
-  const leftTitle = <span>Expected XPath:</span>;
-  const rightTitle = <span>XML:</span>;
-
-  return {
-    ...defaultContent,
-    leftContent: leftContent,
-    rightContent: rightContent,
-    leftTitle: leftTitle,
-    rightTitle: rightTitle,
-  };
-}
-
-/**
  * Prepare the content for the EqualSlices and EqualExcludesSlices
  * assertions.
  * @param {object} assertion
@@ -626,9 +600,6 @@ function prepareBasicContent(assertion) {
     case "ExceptionRaised":
     case "ExceptionNotRaised":
       return prepareExceptionContent(assertion, defaultContent);
-
-    case "XMLCheck":
-      return prepareXMLCheckContent(assertion, defaultContent);
 
     case "EqualSlices":
     case "EqualExcludeSlices":

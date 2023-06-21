@@ -5,7 +5,7 @@ exports[`RegexAssertions shallow renders RegexFindIter 1`] = `
   pattern="foo"
 >
   <pre
-    className="inputText_1rcvzlm"
+    className="inputText_197f7f1"
   >
     <span
       key="-16494850670,30"
@@ -63,7 +63,7 @@ exports[`RegexAssertions shallow renders RegexMatch 1`] = `
   pattern="foo"
 >
   <pre
-    className="inputText_1rcvzlm"
+    className="inputText_197f7f1"
   >
     <span
       key="-19797186360,30"
@@ -88,7 +88,7 @@ exports[`RegexAssertions shallow renders RegexMatchLineAssertion 1`] = `
   pattern="\\\\w+ line$"
 >
   <pre
-    className="inputText_1rcvzlm"
+    className="inputText_197f7f1"
   >
     <mark
       className="mark_vslfl2"
@@ -120,7 +120,7 @@ exports[`RegexAssertions shallow renders RegexMatchNotExists 1`] = `
   pattern="baz"
 >
   <pre
-    className="inputText_1rcvzlm"
+    className="inputText_197f7f1"
   >
     <span
       key="-13621270830"
@@ -136,7 +136,7 @@ exports[`RegexAssertions shallow renders RegexSearch 1`] = `
   pattern="second"
 >
   <pre
-    className="inputText_1rcvzlm"
+    className="inputText_197f7f1"
   >
     <span
       key="-173699572811,170"
@@ -165,7 +165,7 @@ exports[`RegexAssertions shallow renders RegexSearchNotExists 1`] = `
   pattern="foobar"
 >
   <pre
-    className="inputText_1rcvzlm"
+    className="inputText_197f7f1"
   >
     <span
       key="-2053333250"
