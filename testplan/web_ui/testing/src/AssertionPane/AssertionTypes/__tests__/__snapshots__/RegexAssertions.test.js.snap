@@ -1,0 +1,179 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RegexAssertions shallow renders RegexFindIter 1`] = `
+<RegexBasedAssertion
+  pattern="foo"
+>
+  <pre
+    className="inputText_1rcvzlm"
+  >
+    <span
+      key="-16494850670,30"
+    />
+    <mark
+      className="mark_vslfl2"
+      key="-16494850670,31"
+    >
+      foo
+    </mark>
+    <span
+      key="-16494850674,70"
+    >
+       
+    </span>
+    <mark
+      className="mark_vslfl2"
+      key="-16494850674,71"
+    >
+      foo
+    </mark>
+    <span
+      key="-16494850678,110"
+    >
+       
+    </span>
+    <mark
+      className="mark_vslfl2"
+      key="-16494850678,111"
+    >
+      foo
+    </mark>
+    <span
+      key="-164948506720,230"
+    >
+       bar bar 
+    </span>
+    <mark
+      className="mark_vslfl2"
+      key="-164948506720,231"
+    >
+      foo
+    </mark>
+    <span
+      key="-164948506723"
+    >
+       bar
+    </span>
+  </pre>
+</RegexBasedAssertion>
+`;
+
+exports[`RegexAssertions shallow renders RegexMatch 1`] = `
+<RegexBasedAssertion
+  pattern="foo"
+>
+  <pre
+    className="inputText_1rcvzlm"
+  >
+    <span
+      key="-19797186360,30"
+    />
+    <mark
+      className="mark_vslfl2"
+      key="-19797186360,31"
+    >
+      foo
+    </mark>
+    <span
+      key="-19797186363"
+    >
+      bar
+    </span>
+  </pre>
+</RegexBasedAssertion>
+`;
+
+exports[`RegexAssertions shallow renders RegexMatchLineAssertion 1`] = `
+<RegexBasedAssertion
+  pattern="\\\\w+ line$"
+>
+  <pre
+    className="inputText_1rcvzlm"
+  >
+    <mark
+      className="mark_vslfl2"
+      key="0,0,10"
+    >
+      first line
+
+    </mark>
+    <mark
+      className="mark_vslfl2"
+      key="1,0,11"
+    >
+      second line
+
+    </mark>
+    <mark
+      className="mark_vslfl2"
+      key="2,0,10"
+    >
+      third line
+
+    </mark>
+  </pre>
+</RegexBasedAssertion>
+`;
+
+exports[`RegexAssertions shallow renders RegexMatchNotExists 1`] = `
+<RegexBasedAssertion
+  pattern="baz"
+>
+  <pre
+    className="inputText_1rcvzlm"
+  >
+    <span
+      key="-13621270830"
+    >
+      foobar
+    </span>
+  </pre>
+</RegexBasedAssertion>
+`;
+
+exports[`RegexAssertions shallow renders RegexSearch 1`] = `
+<RegexBasedAssertion
+  pattern="second"
+>
+  <pre
+    className="inputText_1rcvzlm"
+  >
+    <span
+      key="-173699572811,170"
+    >
+      first line
+
+    </span>
+    <mark
+      className="mark_vslfl2"
+      key="-173699572811,171"
+    >
+      second
+    </mark>
+    <span
+      key="-173699572817"
+    >
+       line
+third line
+    </span>
+  </pre>
+</RegexBasedAssertion>
+`;
+
+exports[`RegexAssertions shallow renders RegexSearchNotExists 1`] = `
+<RegexBasedAssertion
+  pattern="foobar"
+>
+  <pre
+    className="inputText_1rcvzlm"
+  >
+    <span
+      key="-2053333250"
+    >
+      first line
+second line
+third line
+    </span>
+  </pre>
+</RegexBasedAssertion>
+`;
