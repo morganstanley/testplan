@@ -3,6 +3,8 @@
 import os
 import sys
 import tempfile
+from logging import Logger
+from logging.handlers import RotatingFileHandler
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 
@@ -93,3 +95,29 @@ def root_directory(pytestconfig):
     Return the root directory of pyTest config as a string.
     """
     return str(pytestconfig.rootdir)
+
+
+class RotatingLogger(Logger):
+    def __init__(self, path: str, name: str) -> None:
+        super().__init__(name)
+        self.path = path
+        self.handler = RotatingFileHandler(
+            path, maxBytes=10 * 1024, backupCount=5
+        )
+        self.addHandler(self.handler)
+
+    @property
+    def pattern(self):
+        return f"{self.path}*"
+
+    def doRollover(self):
+        self.handler.doRollover()
+
+
+@pytest.fixture
+def rotating_logger(runpath):
+    logpath = os.path.join(runpath, "test.log")
+    logger = RotatingLogger(logpath, "TestLogger")
+    yield logger
+
+    logger.handler.close()
