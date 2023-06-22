@@ -1,0 +1,1 @@
+Introduced new :py:class:`ExportContext <testplan.common.exporters.ExportContext>` class for exporters to communicate with each other.

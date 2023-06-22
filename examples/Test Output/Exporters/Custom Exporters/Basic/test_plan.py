@@ -6,7 +6,6 @@ how to integrate it with your test plan.
 """
 import os
 import sys
-from typing import Optional
 
 from testplan import test_plan
 from testplan.common.exporters import ExportContext, ExporterResult
@@ -81,7 +80,7 @@ class TextFileExporter(Exporter):
         export_context: ExportContext,
     ) -> ExporterResult:
         """
-        Exports report to tex file in the given directory.
+        Exports report to text file in the given directory.
 
         :param: source: Testplan report to export
         :param: export_context: information about other exporters
