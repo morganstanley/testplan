@@ -98,7 +98,6 @@ class WebServerExporter(Exporter):
             self._server.display()
 
             result.result = {
-                "json": self.cfg.json_path,
                 "port": self.cfg.ui_port,
             }
         else:

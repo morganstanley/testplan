@@ -7,7 +7,6 @@ import hashlib
 import json
 import os
 import pathlib
-from typing import Optional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption

@@ -15,7 +15,6 @@ from testplan.report import (
 )
 
 FLOAT_PATTERN = r"{d}+\.?d{d}+"
-export_context = ExportContext()
 
 
 @multitest.testsuite
@@ -179,6 +178,7 @@ def test_xml_exporter_cleanup(tmpdir):
 
     open(xml_dir.join("foo.txt").strpath, "a").close()
 
+    export_context = ExportContext()
     XMLExporter(xml_dir=xml_dir.strpath).export(
         source=sample_report, export_context=export_context
     )

@@ -18,8 +18,6 @@ from testplan.report import (
 from testplan.report.testing import styles
 from testplan.testing.multitest.entries import assertions
 
-export_context = ExportContext()
-
 
 def test_create_pdf(tmpdir):
     """PDF exporter should generate a PDF file using the report data."""
@@ -77,6 +75,7 @@ def test_create_pdf(tmpdir):
             passing="assertion-detail", failing="assertion-detail"
         ),
     )
+    export_context = ExportContext()
     exporter.export(source=report, export_context=export_context)
 
     assert os.path.exists(pdf_path)
@@ -125,6 +124,7 @@ def test_tag_filtered_pdf(tmpdir):
             {"simple": ("foo", "bar"), "color": "green"},
         ],
     )
+    export_context = ExportContext()
     exporter.export(source=report, export_context=export_context)
 
     should_exist = [
