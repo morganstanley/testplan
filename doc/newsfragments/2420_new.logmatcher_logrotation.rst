@@ -1,0 +1,1 @@
+:py:class:`~testplan.common.utils.match.LogMatcher` now support log rotation. `log_path` can be a glob pattern matching the rotated logfiles.

@@ -23,6 +23,19 @@ const tag_filter = (entry, filter) => {
   return _(filter).every((tag) => tags.includes(tag.toLowerCase()));
 };
 
+const regexp_filter = (entry, filter) => {
+  if (filter === "") {
+    return true;
+  }
+
+  const regexp = new RegExp(filter);
+
+  const names = (entry.name_type_index)
+    .map((name_type) => name_type.split("|")[0]);
+
+  return names.some((name) => name.match(regexp));
+};
+
 const free_text_filter = (entry, filter) => {
   if (filter === "") return true;
 
@@ -69,6 +82,7 @@ const or_filter = (entry, filters) => {
 
 const filter_processors = {
   "free-text": free_text_filter,
+  regexp: regexp_filter,
   tag: tag_filter,
   test: _.partial(name_filter, "multitest"),
   suite: _.partial(name_filter, "testsuite"),

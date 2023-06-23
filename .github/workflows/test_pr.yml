@@ -133,7 +133,7 @@ jobs:
       - name: Set up Kafka for tests
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          wget https://downloads.apache.org/kafka/2.8.2/kafka_2.12-2.8.2.tgz -O kafka.tgz
+          wget https://downloads.apache.org/kafka/3.4.1/kafka_2.13-3.4.1.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1

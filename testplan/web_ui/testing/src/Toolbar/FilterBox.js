@@ -31,8 +31,10 @@ class FilterBox extends Component {
       <>
         <p>
           Just start typing in the search bar. The test items are filtered
-          automatically. The current selection if available in the serach are
-          maintained. All the search are <b>case insensitive</b>.
+          automatically. The current selection if available in the search are
+          maintained. All searches are <b>case insensitive</b>, except
+          for the regular expression search where case sensitivity is driven
+          by the expression itself.
         </p>
         <p>
           You can search by <b>free text</b>, then each word will be matched
@@ -134,6 +136,15 @@ class FilterBox extends Component {
 
   operatorsTable() {
     const descriptions = [
+      [
+        <>
+          Specify a regular expression
+          <br />
+          <small>(search for any matches)</small>
+        </>,
+        ["regexp", "re"],
+        ["regexp:^addition.*_[0-9]+$", "r:^addition.*_[0-9]+$"],
+      ],
       [
         <>
           Specify a multitest

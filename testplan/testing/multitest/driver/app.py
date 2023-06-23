@@ -65,6 +65,7 @@ class AppConfig(DriverConfig):
             ConfigOption("working_dir", default=None): Or(None, str),
             ConfigOption("expected_retcode", default=None): int,
             ConfigOption("sigint_timeout", default=5): int,
+            ConfigOption("binary_log", default=False): bool,
         }
 
 
@@ -97,6 +98,8 @@ class App(Driver):
         Default value is None meaning it won't be checked. Set it to 0 to
         ennsure the driver is always gracefully shut down.
     :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
+    :param binary_log: if `True` the log_matcher will handle the logfile as binary,
+        and need to use binary regexps. Default value is `False`
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -118,6 +121,7 @@ class App(Driver):
         working_dir: str = None,
         expected_retcode: int = None,
         sigint_timeout: int = 5,
+        binary_log: bool = False,
         **options,
     ) -> None:
         options.update(self.filter_locals(locals()))
@@ -236,7 +240,7 @@ class App(Driver):
         :return: LogMatcher instance
         """
         if not self._log_matcher:
-            self._log_matcher = LogMatcher(self.logpath)
+            self._log_matcher = LogMatcher(self.logpath, self.cfg.binary_log)
         return self._log_matcher
 
     def _prepare_binary(self, path: str) -> str:
