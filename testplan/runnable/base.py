@@ -1175,7 +1175,16 @@ class TestRunner(Runnable):
         exporter: Exporter,
         source: TestReport,
         export_context: ExportContext,
-    ):
+    ) -> ExporterResult:
+        """
+        Wraps an exporter run and handles exceptions.
+
+        :param exporter: exporter to run
+        :param source: Testplan report to export
+        :param export_context: information about other exporters
+        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        """
+
         traceback_string = None
         exp_result = None
         try:
@@ -1218,7 +1227,7 @@ class TestRunner(Runnable):
                 )
             return exp_result
 
-    def _invoke_exporters(self):
+    def _invoke_exporters(self) -> None:
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
 
