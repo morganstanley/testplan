@@ -6,7 +6,7 @@ from marshmallow.utils import EXCLUDE
 
 from testplan.common.serialization import schemas, fields as custom_fields
 
-from .base import Report, ReportGroup
+from .base import Report, ReportGroup, EventRecorder
 
 
 __all__ = ["ReportLogSchema", "ReportSchema", "ReportGroupSchema"]
@@ -64,3 +64,17 @@ class ReportGroupSchema(ReportSchema):
         },
         many=True,
     )
+
+
+class EventRecorderSchema(Schema):
+    """Schema for ``base.EventRecorder``."""
+
+    name = fields.String()
+    event_type = fields.String()
+    start_time = fields.Float(allow_none=True)
+    end_time = fields.Float(allow_none=True)
+    children = fields.Nested("EventRecorderSchema", many=True)
+
+    @post_load
+    def make_event_recorder(self, data, **kwargs):
+        return EventRecorder.load(data)
