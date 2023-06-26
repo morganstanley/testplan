@@ -13,6 +13,7 @@ from testplan.common.serialization import fields as custom_fields
 from testplan.common.report.schemas import (
     ReportSchema,
     ReportLogSchema,
+    EventRecorderSchema,
 )
 
 from testplan.common.utils import timing
@@ -157,7 +158,9 @@ class TestGroupReportSchema(TestCaseReportSchema):
         },
         many=True,
     )
-    events = fields.Dict()
+    events = fields.Dict(
+        keys=fields.String(), values=fields.Nested(EventRecorderSchema)
+    )
     host = fields.String(allow_none=True)
 
     @post_load
@@ -199,7 +202,9 @@ class TestReportSchema(Schema):
         schema_context={TestGroupReport: TestGroupReportSchema}, many=True
     )
 
-    events = fields.Dict()
+    events = fields.Dict(
+        keys=fields.String(), values=fields.Nested(EventRecorderSchema)
+    )
 
     @post_load
     def make_test_report(self, data, **kwargs):
