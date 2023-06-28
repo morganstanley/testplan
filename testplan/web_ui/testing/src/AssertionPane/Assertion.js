@@ -24,7 +24,12 @@ import SummaryBaseAssertion from "./AssertionSummary";
 import AttachmentAssertion from "./AssertionTypes/AttachmentAssertions";
 import PlotlyAssertion from "./AssertionTypes/PlotlyAssertion";
 import AttachedDirAssertion from "./AssertionTypes/AttachedDirAssertion";
+import {
+  RegexAssertion,
+  RegexMatchLineAssertion,
+} from "./AssertionTypes/RegexAssertions";
 import { EXPAND_STATUS } from "../Common/defaults";
+import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 
 /**
  * Component to render one assertion.
@@ -90,6 +95,13 @@ class Assertion extends Component {
       CodeLog: CodeLogAssertion,
       Plotly: PlotlyAssertion,
       Directory: AttachedDirAssertion,
+      RegexMatch: RegexAssertion,
+      RegexMatchNotExists: RegexAssertion,
+      RegexSearch: RegexAssertion,
+      RegexSearchNotExists: RegexAssertion,
+      RegexFindIter: RegexAssertion,
+      RegexMatchLine: RegexMatchLineAssertion,
+      XMLCheck: XMLCheckAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];

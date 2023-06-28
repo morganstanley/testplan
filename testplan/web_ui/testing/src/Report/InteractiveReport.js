@@ -465,17 +465,15 @@ class InteractiveReportComponent extends BaseReport {
    * entries attributes are preserved.
    */
   pruneReportEntry(reportEntry) {
-    const {name, category, entries, ..._} = reportEntry;
+    const { name, category, entries } = reportEntry;
     const pruneEntry = {
       name: name,
       category: category,
     };
 
-    if ((entries.length !== 0) && (category !== "testcase")) {
-      pruneEntry.entries = entries.map(
-        (entry) => this.pruneReportEntry(entry)
-      );
-    };
+    if (entries.length !== 0 && category !== "testcase") {
+      pruneEntry.entries = entries.map((entry) => this.pruneReportEntry(entry));
+    }
 
     return pruneEntry;
   }
@@ -491,10 +489,10 @@ class InteractiveReportComponent extends BaseReport {
 
     // the filter text is either "null" or an empty string, use truthy-falsy
     if (this.state.filteredReport.filter.text) {
-      shallowEntry.entries = entries.map(
-        (entry) => this.pruneReportEntry(entry)
+      shallowEntry.entries = entries.map((entry) =>
+        this.pruneReportEntry(entry)
       );
-    };
+    }
 
     return shallowEntry;
   }
