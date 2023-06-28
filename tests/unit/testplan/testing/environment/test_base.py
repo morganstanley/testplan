@@ -55,7 +55,7 @@ def test_unidentified_driver_exception():
     env.add(a)
     env.add(b)
     with pytest.raises(ValueError, match=r".*not being declared.*"):
-        env.set_dependency(parse_dependency({a: b, a: c}))
+        env.set_dependency(parse_dependency({a: (b, c)}))
 
 
 def test_environment_restart(mocker):

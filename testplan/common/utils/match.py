@@ -3,12 +3,25 @@ Module of utility types and functions that perform matching.
 """
 import os
 import re
+import sys
 import time
-from typing import Dict, List, Match, Optional, Pattern, Tuple, Union
+import warnings
+from contextlib import closing
+from typing import Dict, List, Match, Optional, Pattern, Tuple, Union, AnyStr
 
 from . import logger, timing
+from .logfile import (
+    LogPosition,
+    FileLogStream,
+    BinaryFileLogStream,
+    TextFileLogStream,
+    RotatedBinaryFileLogStream,
+    RotatedTextFileLogStream,
+    MTimeBasedLogRotationStrategy,
+)
 
 LOG_MATCHER_INTERVAL = 0.25
+LOG_MATCHER_DEFAULT_TIMEOUT = 5.0
 
 
 def match_regexps_in_file(
@@ -62,18 +75,94 @@ class LogMatcher(logger.Loggable):
     Single line matcher for text files (usually log files). Once matched, it
     remembers the line number of the match and subsequent matches are scanned
     from the current line number. This can be useful when matched lines are not
-    unique for the entire log file.
+    unique for the entire log file. Support simple cases of log rotation
     """
 
-    def __init__(self, log_path):
+    def __init__(
+        self, log_path: Union[os.PathLike, str], binary: bool = False
+    ):
         """
-        :param log_path: Path to the log file.
-        :type log_path: ``str``
+        :param log_path: Path to the log file. log_path can be a glob then LogMatcher support
+               rotated logfiles, that matching to the glob.
+        :param binary: if True the logfile treated as a binary file, and binary regexps need to be used
         """
         self.log_path = log_path
-        self.position = 0
+        self.binary = binary
         self.marks = {}
+        self.position: Optional[LogPosition] = None
+        self.log_stream: FileLogStream = self._create_log_stream()
+
+        # deprecation helpers
+        self.had_transformed = False
+
         super(LogMatcher, self).__init__()
+
+    def _create_log_stream(self):
+
+        # as rotated logstream should be able to handle non-rotated streams
+        # without overhead we use that by default, but give an envvar to be
+        # able to turn it off. We not yet expose the possibility to select the
+        # logstream through the api.
+
+        if os.environ.get("TESTPLAN_NO_LOGROTATION_IN_LOGMATCHER") in (
+            "true",
+            "True",
+            "1",
+            "yes",
+            "Yes",
+        ):
+            return self._create_non_rotated_log_stream()
+
+        return self._create_rotated_log_stream()
+
+    def _create_non_rotated_log_stream(self):
+        return (
+            BinaryFileLogStream(self.log_path)
+            if self.binary
+            else TextFileLogStream(self.log_path)
+        )
+
+    def _create_rotated_log_stream(self):
+        return (
+            RotatedBinaryFileLogStream(
+                self.log_path, MTimeBasedLogRotationStrategy()
+            )
+            if self.binary
+            else RotatedTextFileLogStream(
+                self.log_path, MTimeBasedLogRotationStrategy()
+            )
+        )
+
+    def _prepare_regexp(
+        self, regexp: Union[Pattern[AnyStr], str, bytes]
+    ) -> Pattern[AnyStr]:
+
+        if isinstance(regexp, (str, bytes)):
+            regexp = re.compile(regexp)
+        try:
+            if self.binary and isinstance(regexp.pattern, str):
+                raise TypeError(
+                    f"LogMatcher is configured for binary match but string regexp was provided. Pattern: {regexp}"
+                )
+            if not self.binary and isinstance(regexp.pattern, bytes):
+                raise TypeError(
+                    f"LogMatcher is configured for text match but bytes regexp was provided. Pattern: {regexp}"
+                )
+        except TypeError as error:
+            if self.had_transformed:
+                raise
+
+            self.had_transformed = True
+            self.binary = not self.binary
+            self.log_stream = self._create_log_stream()
+            warnings.warn(
+                f"Incompatible regexp is used. "
+                f"{error} "
+                f"Transforming LogMatcher to {'binary' if self.binary else 'text'} "
+                f"This fallback will be soon removed please update your LogMatcher or regexps to be in sync."
+            )
+
+        return regexp
 
     def seek(self, mark: Optional[str] = None):
         """
@@ -83,15 +172,13 @@ class LogMatcher(logger.Loggable):
         :param mark: Name of the mark.
         """
         if mark is None:
-            self.position = 0
+            self.position = None
         else:
             self.position = self.marks[mark]
 
     def seek_eof(self):
         """Sets current file position to the current end of file."""
-        with open(self.log_path, "r") as log:
-            log.seek(0, os.SEEK_END)
-            self.position = log.tell()
+        self.position = self.log_stream.flush()
 
     def seek_sof(self):
         """Sets current file position to the start of file."""
@@ -109,7 +196,7 @@ class LogMatcher(logger.Loggable):
     def match(
         self,
         regex: Union[str, bytes, Pattern],
-        timeout: float = 5,
+        timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
         raise_on_timeout: bool = True,
     ) -> Optional[Match]:
         """
@@ -132,14 +219,9 @@ class LogMatcher(logger.Loggable):
         end_time = start_time + timeout
         read_mode = "rb"
 
-        # As a convenience, we create the compiled regex if a string was
-        # passed.
-        if not hasattr(regex, "match"):
-            regex = re.compile(regex)
-        if isinstance(regex.pattern, str):
-            read_mode = "r"
+        regex = self._prepare_regexp(regex)
 
-        with open(self.log_path, read_mode) as log:
+        with closing(self.log_stream) as log:
             log.seek(self.position)
 
             while True:
@@ -155,7 +237,7 @@ class LogMatcher(logger.Loggable):
                 else:
                     break
 
-            self.position = log.tell()
+            self.position = self.log_stream.position
 
         if match is not None:
             self.logger.debug(
@@ -170,7 +252,11 @@ class LogMatcher(logger.Loggable):
 
         return match
 
-    def not_match(self, regex: Union[str, bytes, Pattern], timeout: float = 5):
+    def not_match(
+        self,
+        regex: Union[str, bytes, Pattern],
+        timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
+    ):
         """
         Opposite of :py:meth:`~testplan.common.utils.match.LogMatcher.match`
         which raises an exception if a match is found. Matching is performed
@@ -193,7 +279,7 @@ class LogMatcher(logger.Loggable):
     def match_all(
         self,
         regex: Union[str, bytes, Pattern],
-        timeout: float = 5,
+        timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
         raise_on_timeout: bool = True,
     ) -> List[Match]:
         """
@@ -239,17 +325,12 @@ class LogMatcher(logger.Loggable):
         match = None
         read_mode = "rb"
 
-        # As a convenience, we create the compiled regex if a string was
-        # passed.
-        if not hasattr(regex, "match"):
-            regex = re.compile(regex)
-        if isinstance(regex.pattern, str):
-            read_mode = "r"
+        regex = self._prepare_regexp(regex)
 
-        with open(self.log_path, read_mode) as log:
-            log.seek(self.marks[mark1] if mark1 is not None else 0)
+        with closing(self.log_stream) as log:
+            log.seek(self.marks[mark1] if mark1 is not None else None)
             endpos = self.marks[mark2]
-            while endpos > log.tell():
+            while not self.log_stream.reached_position(endpos):
                 line = log.readline()
                 if not line:
                     break
@@ -297,21 +378,24 @@ class LogMatcher(logger.Loggable):
         :rtype: ``str``
         """
         if mark1 is not None and mark2 is not None:
-            if self.marks[mark1] >= self.marks[mark2]:
+            if (
+                self.log_stream.compare(self.marks[mark1], self.marks[mark2])
+                >= 0
+            ):
                 raise ValueError(
                     'Mark "{}" must be present before mark "{}"'.format(
                         mark1, mark2
                     )
                 )
 
-        with open(self.log_path, "r") as log:
-            start_pos = self.marks[mark1] if mark1 is not None else 0
+        with closing(self.log_stream) as log:
+            start_pos = self.marks[mark1] if mark1 is not None else None
             end_pos = self.marks[mark2] if mark2 is not None else None
             log.seek(start_pos)
             if not end_pos:
                 return log.read()
             lines_between = []
-            while end_pos > log.tell():
+            while not self.log_stream.reached_position(end_pos):
                 line = log.readline()
                 lines_between.append(line)
             return "".join(lines_between)
