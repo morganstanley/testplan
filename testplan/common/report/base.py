@@ -14,7 +14,7 @@ import collections
 import dataclasses
 import itertools
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from testplan.common.utils import strings
 from .log import create_logging_adapter
@@ -222,6 +222,24 @@ class EventRecorder:
     start_time: Optional[float] = None
     end_time: Optional[float] = None
     children: List["EventRecorder"] = dataclasses.field(default_factory=list)
+
+    @classmethod
+    def load(
+        cls, event_record: Union["EventRecorder", Dict]
+    ) -> "EventRecorder":
+        if isinstance(event_record, cls):
+            return event_record
+
+        event = cls(
+            name=event_record["name"],
+            event_type=event_record["event_type"],
+            start_time=event_record["start_time"],
+            end_time=event_record["start_time"],
+        )
+        if event_record.get("children"):
+            for child in event_record["children"]:
+                event.children.append(cls.load(child))
+        return event
 
     def __enter__(self):
         self.start_time = time.time()

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`XMLChekAssertion shallow renders 1`] = `
+<Fragment>
+  <div>
+    <strong
+      className=""
+    >
+      Expected XPath:
+    </strong>
+    <span>
+      /Root/Test
+    </span>
+  </div>
+  <pre
+    className="inputText_197f7f1"
+  >
+    &lt;Root&gt;
+    &lt;Test&gt;Foo&lt;/Test&gt;
+&lt;/Root&gt;
+
+  </pre>
+</Fragment>
+`;
