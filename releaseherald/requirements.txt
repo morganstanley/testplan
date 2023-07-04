@@ -4,6 +4,6 @@ GitPython
 Jinja2
 toml
 parse
-pydantic
+pydantic<2.0
 pluggy
 typing_extensions
