@@ -175,9 +175,9 @@ class TestEnvironment(Environment):
         Stop drivers while skipping previously skipped ones.
         """
         if self._orig_dependency is None:
-            # async_start already overriden
             return super().stop(is_reversed=is_reversed)
 
+        # `async_start` already overriden
         # schedule driver stopping in "reverse" order
         self._rt_dependency = self._orig_dependency.transpose()
 
