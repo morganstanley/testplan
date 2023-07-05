@@ -94,12 +94,14 @@ class TestEnvironment(Environment):
         Start the drivers either in the legacy way or following dependency.
         """
         if self._orig_dependency is None:
-            # we got no dependency declared, go with the legacy way,
-            # override `async_start` of drivers
-            for d in self._resources.values():
-                if d.async_start == UNSET:
-                    d.async_start = False
+            # we got no dependency declared, go with the legacy way
             return super().start()
+
+        # we are in a (specially) managed environment, override `async_start`
+        # of all drivers
+        for d in self._resources.values():
+            if d.async_start == UNSET:
+                d.async_start = True
 
         # (re)set dependency graph
         self._rt_dependency = copy.copy(self._orig_dependency)
