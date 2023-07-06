@@ -8,6 +8,7 @@ import time
 import traceback
 import uuid
 import warnings
+from typing import Optional
 from urllib.request import pathname2url
 
 from schema import Or
@@ -30,12 +31,14 @@ from testplan.common.exporters import (
     ExporterConfig,
     ExporterResult,
     ExportContext,
+    _verify_export_context,
 )
 from testplan.common.report import Report
 from testplan.common.utils.strings import slugify
 from testplan.report.testing.styles import Style
 from testplan.testing import tagging
-from ..base import Exporter, TagFilteredExporter, TagFilteredExporterConfig
+from ..base import Exporter
+from ..tagfiltered import TagFilteredExporter, TagFilteredExporterConfig
 
 try:
     from . import renderers
@@ -234,7 +237,7 @@ class PDFExporter(Exporter):
     def export(
         self,
         source: TestReport,
-        export_context: ExportContext,
+        export_context: Optional[ExportContext] = None,
     ) -> ExporterResult:
         """
         Exports report to PDF in the given directory.
@@ -244,6 +247,9 @@ class PDFExporter(Exporter):
         :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
 
+        export_context = _verify_export_context(
+            exporter=self, export_context=export_context
+        )
         result = ExporterResult(exporter=self)
         if len(source):
             pdf_path = self.create_pdf(source)

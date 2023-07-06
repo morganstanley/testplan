@@ -2,6 +2,7 @@
 Web server exporter for test reports, it opens a local http web server
 which can display the test result.
 """
+from typing import Optional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -9,6 +10,8 @@ from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
     ExporterResult,
+    _verify_export_context,
+    _run_exporter,
 )
 from testplan.report.testing.base import TestReport
 from testplan.web_ui.server import WebUIServer
@@ -71,7 +74,7 @@ class WebServerExporter(Exporter):
     def export(
         self,
         source: TestReport,
-        export_context: ExportContext,
+        export_context: Optional[ExportContext] = None,
     ) -> ExporterResult:
         """
         Exports report to JSON then opens a local webserver to display it.
@@ -81,13 +84,16 @@ class WebServerExporter(Exporter):
         :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
 
+        export_context = _verify_export_context(
+            exporter=self, export_context=export_context
+        )
         result = ExporterResult(exporter=self)
         if len(source):
             exporter = JSONExporter(
                 json_path=self.cfg.json_path, split_json_report=False
             )
-            export_context.results.append(
-                exporter.export(source=source, export_context=export_context)
+            _run_exporter(
+                exporter=exporter, source=source, export_context=export_context
             )
 
             self._server = WebUIServer(

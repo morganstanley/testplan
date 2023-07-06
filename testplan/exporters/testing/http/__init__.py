@@ -14,6 +14,7 @@ from testplan.common.exporters import (
     ExporterConfig,
     ExporterResult,
     ExportContext,
+    _verify_export_context,
 )
 from testplan.common.utils.validation import is_valid_url
 from testplan.report import TestReport
@@ -100,7 +101,7 @@ class HTTPExporter(Exporter):
     def export(
         self,
         source: TestReport,
-        export_context: ExportContext,
+        export_context: Optional[ExportContext] = None,
     ) -> ExporterResult:
         """
         Uploads report to remote HTTP server.
@@ -110,6 +111,9 @@ class HTTPExporter(Exporter):
         :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
 
+        export_context = _verify_export_context(
+            exporter=self, export_context=export_context
+        )
         http_url = self.cfg.http_url
         test_plan_schema = TestReportSchema()
         data = test_plan_schema.dump(source)
