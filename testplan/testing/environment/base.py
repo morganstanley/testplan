@@ -74,6 +74,9 @@ class TestEnvironment(Environment):
                     f"`async_start` parameter of driver {d} should not "
                     "be set if driver dependency is specified."
                 )
+            # we are in a (specially) managed environment, override
+            # `async_start`
+            d.async_start = True
             if d.uid() not in dependency.vertices:
                 dependency.add_vertex(d.uid(), d)
 
@@ -96,12 +99,6 @@ class TestEnvironment(Environment):
         if self._orig_dependency is None:
             # we got no dependency declared, go with the legacy way
             return super().start()
-
-        # we are in a (specially) managed environment, override `async_start`
-        # of all drivers
-        for d in self._resources.values():
-            if d.async_start == UNSET:
-                d.async_start = True
 
         # (re)set dependency graph
         self._rt_dependency = copy.copy(self._orig_dependency)
@@ -177,7 +174,6 @@ class TestEnvironment(Environment):
         if self._orig_dependency is None:
             return super().stop(is_reversed=is_reversed)
 
-        # `async_start` already overriden
         # schedule driver stopping in "reverse" order
         self._rt_dependency = self._orig_dependency.transpose()
 
