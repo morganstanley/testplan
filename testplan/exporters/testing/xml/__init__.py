@@ -7,7 +7,7 @@ import pathlib
 import shutil
 import socket
 from collections import Counter
-from typing import Generator, List, Dict, Union
+from typing import Generator, List, Dict, Union, Optional
 
 from lxml import etree
 from lxml.etree import Element
@@ -18,6 +18,7 @@ from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
     ExporterResult,
+    _verify_export_context,
 )
 from testplan.common.utils.path import unique_name
 from testplan.common.utils.strings import slugify
@@ -277,7 +278,7 @@ class XMLExporter(Exporter):
     def export(
         self,
         source: TestReport,
-        export_context: ExportContext,
+        export_context: Optional[ExportContext] = None,
     ) -> ExporterResult:
         """
         Creates multiple XML files in the given directory for MultiTest.
@@ -286,6 +287,10 @@ class XMLExporter(Exporter):
         :param: export_context: information about other exporters
         :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
+
+        export_context = _verify_export_context(
+            exporter=self, export_context=export_context
+        )
         xml_dir = pathlib.Path(self.cfg.xml_dir).resolve()
 
         if xml_dir.exists():

@@ -8,17 +8,53 @@ import json
 import os
 import pathlib
 
-from testplan import defaults
+from shutil import copyfile
+from typing import Dict, Optional
+
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
     ExporterResult,
     ExportContext,
+    _verify_export_context,
 )
+from testplan.common.utils.path import makedirs
+from testplan.defaults import ATTACHMENTS
 from testplan.report import ReportCategories
 from testplan.report.testing.base import TestReport
 from testplan.report.testing.schemas import TestReportSchema
-from ..base import Exporter, save_attachments
+from ..base import Exporter
+
+
+def save_attachments(report: TestReport, directory: str) -> Dict[str, str]:
+    """
+    Saves the report attachments to the given directory.
+
+    :param report: Testplan report.
+    :param directory: directory to save attachments in
+    :return: dictionary of destination paths
+    """
+    moved_attachments = {}
+    attachments = getattr(report, "attachments", None)
+    if attachments:
+        for dst, src in attachments.items():
+            src = pathlib.Path(src)
+            dst_path = pathlib.Path(directory) / dst
+            makedirs(dst_path.parent)
+            if not src.is_file():
+                dirname = src.parent
+                # Try retrieving the file from "_attachments" directory that is
+                # near to the test report, the downloaded report might be moved
+                src = pathlib.Path.cwd() / ATTACHMENTS / dst
+                if not src.is_file():
+                    raise FileNotFoundError(
+                        f'Attachment "{dst}" not found in either {dirname} or'
+                        f' the nearest "{ATTACHMENTS}" directory of test report'
+                    )
+            copyfile(src=src, dst=dst_path)
+            moved_attachments[dst] = str(dst_path)
+
+    return moved_attachments
 
 
 def gen_attached_report_names(json_path):
@@ -75,7 +111,7 @@ class JSONExporter(Exporter):
     def export(
         self,
         source: TestReport,
-        export_context: ExportContext,
+        export_context: Optional[ExportContext] = None,
     ) -> ExporterResult:
         """
         Exports report to JSON files in the given directory.
@@ -84,6 +120,10 @@ class JSONExporter(Exporter):
         :param: export_context: information about other exporters
         :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
+
+        export_context = _verify_export_context(
+            exporter=self, export_context=export_context
+        )
         result = ExporterResult(exporter=self)
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 
@@ -92,7 +132,7 @@ class JSONExporter(Exporter):
 
             test_plan_schema = TestReportSchema()
             data = test_plan_schema.dump(source)
-            attachments_dir = json_path.parent / defaults.ATTACHMENTS
+            attachments_dir = json_path.parent / ATTACHMENTS
 
             # Save the Testplan report.
             if self.cfg.split_json_report:

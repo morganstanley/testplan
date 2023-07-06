@@ -7,12 +7,13 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Generator, Mapping, TextIO, Tuple
+from typing import Generator, Mapping, TextIO, Tuple, Optional
 
 from testplan.common.exporters import (
     ExporterConfig,
     ExporterResult,
     ExportContext,
+    _verify_export_context,
 )
 from testplan.exporters.testing.base import Exporter
 from testplan.report.testing.base import (
@@ -35,7 +36,7 @@ class CoveredTestsExporter(Exporter):
     def export(
         self,
         source: TestReport,
-        export_context: ExportContext,
+        export_context: Optional[ExportContext] = None,
     ) -> ExporterResult:
         """
         Exports report coverage data.
@@ -45,6 +46,9 @@ class CoveredTestsExporter(Exporter):
         :return: ExporterResult object containing information about the actual exporter object and its possible output
         """
 
+        export_context = _verify_export_context(
+            exporter=self, export_context=export_context
+        )
         result = ExporterResult(exporter=self)
         if len(source):
             # here we use an OrderedDict as an ordered set

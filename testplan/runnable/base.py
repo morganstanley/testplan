@@ -6,7 +6,6 @@ import os
 import random
 import re
 import time
-import traceback
 import uuid
 import webbrowser
 from collections import OrderedDict
@@ -36,8 +35,8 @@ from testplan.common.entity import (
 )
 from testplan.common.exporters import (
     BaseExporter,
-    ExporterResult,
     ExportContext,
+    _run_exporter,
 )
 from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
@@ -1170,63 +1169,6 @@ class TestRunner(Runnable):
                 self._result.test_report
             )
 
-    def _run_exporter(
-        self,
-        exporter: Exporter,
-        source: TestReport,
-        export_context: ExportContext,
-    ) -> ExporterResult:
-        """
-        Wraps an exporter run and handles exceptions.
-
-        :param exporter: exporter to run
-        :param source: Testplan report to export
-        :param export_context: information about other exporters
-        :return: ExporterResult object containing information about the actual exporter object and its possible output
-        """
-
-        traceback_string = None
-        exp_result = None
-        try:
-            exp_result = exporter.export(
-                source=source,
-                export_context=export_context,
-            )
-        except TypeError:
-            # TODO: Remove this except section in the future
-            self.logger.warning(
-                (
-                    "Exporter '%s' does not have keyword_argument 'export_context'! "
-                    "This will be prohibited in the future, please modify your custom exporter!"
-                ),
-                exporter,
-            )
-            exp_result = exporter.export(
-                source=source,
-            )
-        except Exception:
-            traceback_string = traceback.format_exc()
-        finally:
-            if isinstance(exp_result, ExporterResult):
-                exp_result.traceback = traceback_string
-            else:
-                if not traceback_string:
-                    # TODO: Move this part to the Exception section and remove the else block
-                    # We probably did not fail during the export
-                    self.logger.warning(
-                        (
-                            "Exporter '%s' returns with not an ExporterResult object! "
-                            "This will be prohibited in the future, please modify your custom exporter!"
-                        ),
-                        exporter,
-                    )
-                exp_result = ExporterResult(
-                    exporter=exporter,
-                    traceback=traceback_string,
-                    result={"unknown": exp_result},
-                )
-            return exp_result
-
     def _invoke_exporters(self) -> None:
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
@@ -1237,15 +1179,11 @@ class TestRunner(Runnable):
         export_context = ExportContext()
         for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
-                exp_result = self._run_exporter(
+                _run_exporter(
                     exporter=exporter,
                     source=self._result.test_report,
                     export_context=export_context,
                 )
-
-                if not exp_result.success:
-                    logger.TESTPLAN_LOGGER.error(exp_result.traceback)
-                export_context.results.append(exp_result)
             else:
                 raise NotImplementedError(
                     "Exporter logic not implemented for: {}".format(
