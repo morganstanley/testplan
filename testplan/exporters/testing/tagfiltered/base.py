@@ -147,7 +147,7 @@ class TagFilteredExporter(Exporter):
                 exporter = self.get_exporter(**params)
                 _run_exporter(
                     exporter=exporter,
-                    source=source,
+                    source=clone,
                     export_context=export_context,
                 )
             else:
