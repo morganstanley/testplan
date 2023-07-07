@@ -14,14 +14,16 @@ from testplan.common.utils.interface import check_signature
 # handle arbitrary objects (including None).
 ABSENT = Optional._MARKER  # pylint: disable=protected-access
 
-# Another sentinel object indicating a default but truthy value, together
-# with its own type for type-checking.
+# Another sentinel object indicating a default but falsy value.
 class UNSET_T:
     def __eq__(self, other):
         # This is for configuration check of RemoteDriver. Netref from RPyC
         # overrides "__instancecheck__".
         if isinstance(other, self.__class__):
             return True
+        return False
+
+    def __bool__(self):
         return False
 
 
