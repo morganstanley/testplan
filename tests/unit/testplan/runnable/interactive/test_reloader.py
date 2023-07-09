@@ -1,17 +1,16 @@
 """Unit tests for the reloader module."""
-
-import sys
-import os
-import time
 import io
 import modulefinder
-from unittest import mock
+import os
+import sys
+import time
 from contextlib import contextmanager
+from unittest import mock
 
 import pytest
 
-from testplan.runnable.interactive import reloader
 from testplan.common.utils import logger
+from testplan.runnable.interactive import reloader
 from testplan.testing import multitest
 
 
@@ -19,23 +18,27 @@ from testplan.testing import multitest
 class Suite:
     """An example test suite to be reloaded."""
 
-    @multitest.testsuite
+    @multitest.testcase
     def case_1(self, env, result):
         """Assert true"""
-        del env  # Unused
         result.true(True)
 
-    @multitest.testsuite
+    @multitest.testcase
     def case_2(self, env, result):
         """Assert false"""
-        del env  # Unused
+
         result.false(False)
 
-    @multitest.testsuite
+    @multitest.testcase
     def case_3(self, env, result):
         """Oops we failed"""
-        del env  # Unused
         result.fail("oops")
+
+    @multitest.suite.skip_if(lambda testsuite: True)
+    @multitest.testcase
+    def case_skipped(self, env, result):
+        """Oops we failed"""
+        result.log("Skipped.")
 
 
 # Mapping of module name to filepath and a list of owned objects for the mocked
@@ -269,13 +272,8 @@ def test_test_refresh(mock_reload_env):
     test.cfg.suites[0].__module__ = "mod_a"
     mock_stat.modified_files = {MOCK_MODULES["mod_a"]}
 
-    set_testsuite_testcases = (
-        "testplan.testing.multitest.suite.set_testsuite_testcases"
-    )
-    with mock.patch(set_testsuite_testcases) as mock_set_testcases:
-        reload_obj.reload(tests=[test])
-        mock_reload.assert_called_once_with(MOCK_SYSMODULES["mod_a"])
-        mock_set_testcases.assert_called_once_with(test.cfg.suites[0])
+    reload_obj.reload(tests=[test])
+    mock_reload.assert_called_once_with(MOCK_SYSMODULES["mod_a"])
 
 
 def _check_dep_graph(dep_graph):
