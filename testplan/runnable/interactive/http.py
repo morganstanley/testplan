@@ -21,7 +21,7 @@ from urllib.parse import unquote_plus
 import testplan
 from testplan import defaults
 from testplan.common import entity
-from testplan.common.exporters import ExportContext
+from testplan.common.exporters import ExportContext, _run_exporter
 from testplan.common.config import ConfigOption
 from testplan.common.utils import strings
 from testplan.report import (
@@ -609,8 +609,10 @@ def generate_interactive_api(ihandler):
                         try:
                             report = copy.deepcopy(ihandler.report)
                             report.reset_uid()
-                            export_path = exporter.export(
-                                source=report, export_context=export_context
+                            export_path = _run_exporter(
+                                exporter=exporter,
+                                source=report,
+                                export_context=export_context,
                             ).result
                             export_result["success"] = True
                             export_result["message"] = export_path

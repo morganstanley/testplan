@@ -104,7 +104,7 @@ def _run_exporter(
     exporter: BaseExporter,
     source: TestReport,
     export_context: ExportContext,
-) -> None:
+) -> ExporterResult:
     """
     Wraps an exporter run and handles exceptions.
 
@@ -156,3 +156,4 @@ def _run_exporter(
         if not exp_result.success:
             exporter.logger.error(exp_result.traceback)
         export_context.results.append(exp_result)
+        return exp_result
