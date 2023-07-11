@@ -7,7 +7,7 @@ import functools
 import os
 import time
 import traceback
-from typing import Dict
+from typing import Dict, Optional
 
 import flask
 import flask_restx
@@ -595,7 +595,7 @@ def generate_interactive_api(ihandler):
             }
 
         @api.expect(post_export_model)
-        def post(self):
+        def post(self) -> Optional[Dict]:
             save_exports = request.json
             with ihandler.report_mutex:
                 export_context = ExportContext()
@@ -609,23 +609,23 @@ def generate_interactive_api(ihandler):
                         try:
                             report = copy.deepcopy(ihandler.report)
                             report.reset_uid()
-                            export_output = _run_exporter(
+                            exporter_output = _run_exporter(
                                 exporter=exporter,
                                 source=report,
                                 export_context=export_context,
                             ).result
                             export_result["success"] = True
-                            if len(export_output):
-                                if len(export_output) > 1:
+                            if exporter_output:
+                                if len(exporter_output) > 1:
                                     export_result["message"] = "\n".join(
                                         [
                                             f"{k}: {v}"
-                                            for k, v in export_output.items()
+                                            for k, v in exporter_output.items()
                                         ]
                                     )
                                 else:
                                     export_result["message"] = list(
-                                        export_output.values()
+                                        exporter_output.values()
                                     )[0]
                             else:
                                 export_result["message"] = "No output."
