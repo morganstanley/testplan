@@ -9,7 +9,6 @@ from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
-    ExporterResult,
     _verify_export_context,
     _run_exporter,
 )
@@ -163,7 +162,7 @@ class TagFilteredExporter(Exporter):
         self,
         source: TestReport,
         export_context: Optional[ExportContext] = None,
-    ) -> ExporterResult:
+    ) -> None:
         """
         Runs the export operation for exact (all) and any matching tag groups.
 
@@ -188,4 +187,3 @@ class TagFilteredExporter(Exporter):
             tag_dicts=self.cfg.report_tags_all,
             filter_type=self.ALL,
         )
-        return ExporterResult(exporter=self)

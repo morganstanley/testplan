@@ -601,20 +601,21 @@ def generate_interactive_api(ihandler):
                 export_context = ExportContext()
                 for exporter in ihandler.exporters:
                     if exporter.name in save_exports.get("exporters", []):
-                        export_result = {
-                            "time": time.time(),
-                            "name": exporter.name,
-                            "uid": strings.uuid4(),
-                        }
                         try:
                             report = copy.deepcopy(ihandler.report)
                             report.reset_uid()
-                            exporter_output = _run_exporter(
+                            exporter_result = _run_exporter(
                                 exporter=exporter,
                                 source=report,
                                 export_context=export_context,
-                            ).result
-                            export_result["success"] = True
+                            )
+                            export_result = {
+                                "time": exporter_result.start_time.timestamp(),
+                                "name": exporter_result.exporter.name,
+                                "uid": exporter_result.uid,
+                            }
+                            exporter_output = exporter_result.result
+                            export_result["success"] = exporter_result.success
                             if exporter_output:
                                 if len(exporter_output) > 1:
                                     export_result["message"] = "\n".join(

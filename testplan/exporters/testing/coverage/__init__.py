@@ -7,11 +7,10 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Generator, Mapping, TextIO, Tuple, Optional
+from typing import Dict, Generator, Mapping, TextIO, Tuple, Optional
 
 from testplan.common.exporters import (
     ExporterConfig,
-    ExporterResult,
     ExportContext,
     _verify_export_context,
 )
@@ -37,7 +36,7 @@ class CoveredTestsExporter(Exporter):
         self,
         source: TestReport,
         export_context: Optional[ExportContext] = None,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Exports report coverage data.
 
@@ -49,7 +48,6 @@ class CoveredTestsExporter(Exporter):
         export_context = _verify_export_context(
             exporter=self, export_context=export_context
         )
-        result = ExporterResult(exporter=self)
         if len(source):
             # here we use an OrderedDict as an ordered set
             results = OrderedDict()
@@ -64,11 +62,11 @@ class CoveredTestsExporter(Exporter):
                     self.logger.user_info(f"Impacted tests output to {fn}.")
                     for k in results.keys():
                         f.write(":".join(k) + "\n")
-                result.result = {"coverage": self.cfg.tracing_tests_output}
+                result = {"coverage": self.cfg.tracing_tests_output}
                 return result
             self.logger.user_info("No impacted tests found.")
-            return result
-        return result
+            return None
+        return None
 
     def _append_covered_group_n_case(
         self,

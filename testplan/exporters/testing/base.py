@@ -2,9 +2,6 @@
 """
 Implements base exporter objects.
 """
-import pathlib
-from typing import Dict
-from shutil import copyfile
 
 try:
     from typing import TypeAlias  # >= 3.10

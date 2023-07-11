@@ -2,14 +2,13 @@
 Web server exporter for test reports, it opens a local http web server
 which can display the test result.
 """
-from typing import Optional
+from typing import Dict, Optional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
-    ExporterResult,
     _verify_export_context,
     _run_exporter,
 )
@@ -75,7 +74,7 @@ class WebServerExporter(Exporter):
         self,
         source: TestReport,
         export_context: Optional[ExportContext] = None,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Exports report to JSON then opens a local webserver to display it.
 
@@ -87,7 +86,7 @@ class WebServerExporter(Exporter):
         export_context = _verify_export_context(
             exporter=self, export_context=export_context
         )
-        result = ExporterResult(exporter=self)
+        result = None
         if len(source):
             exporter = JSONExporter(
                 json_path=self.cfg.json_path, split_json_report=False
@@ -103,9 +102,7 @@ class WebServerExporter(Exporter):
             )
             self._server.display()
 
-            result.result = {
-                "port": self.cfg.ui_port,
-            }
+            result = {"port": self.cfg.ui_port}
         else:
             self.logger.user_info(
                 "Skipping starting web server for empty report: %s",

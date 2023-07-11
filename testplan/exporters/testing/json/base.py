@@ -14,7 +14,6 @@ from typing import Dict, Optional
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
-    ExporterResult,
     ExportContext,
     _verify_export_context,
 )
@@ -112,7 +111,7 @@ class JSONExporter(Exporter):
         self,
         source: TestReport,
         export_context: Optional[ExportContext] = None,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Exports report to JSON files in the given directory.
 
@@ -124,7 +123,7 @@ class JSONExporter(Exporter):
         export_context = _verify_export_context(
             exporter=self, export_context=export_context
         )
-        result = ExporterResult(exporter=self)
+        result = None
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 
         if len(source):
@@ -176,7 +175,7 @@ class JSONExporter(Exporter):
                     json.dump(data, json_file)
 
             self.logger.user_info("JSON generated at %s", json_path)
-            result.result = {"json": self.cfg.json_path}
+            result = {"json": self.cfg.json_path}
         else:
             self.logger.user_info(
                 "Skipping JSON creation for empty report: %s", source.name

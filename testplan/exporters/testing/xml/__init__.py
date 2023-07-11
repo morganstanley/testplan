@@ -279,7 +279,7 @@ class XMLExporter(Exporter):
         self,
         source: TestReport,
         export_context: Optional[ExportContext] = None,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Creates multiple XML files in the given directory for MultiTest.
 
@@ -330,4 +330,4 @@ class XMLExporter(Exporter):
         self.logger.user_info(
             "%s XML files created at %s", len(source), xml_dir
         )
-        return ExporterResult(exporter=self, result={"xml": str(xml_dir)})
+        return {"xml": str(xml_dir)}

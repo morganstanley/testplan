@@ -8,7 +8,7 @@ import time
 import traceback
 import uuid
 import warnings
-from typing import Optional
+from typing import Dict, Optional
 from urllib.request import pathname2url
 
 from schema import Or
@@ -29,7 +29,6 @@ except Exception as exc:
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
-    ExporterResult,
     ExportContext,
     _verify_export_context,
 )
@@ -238,7 +237,7 @@ class PDFExporter(Exporter):
         self,
         source: TestReport,
         export_context: Optional[ExportContext] = None,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Exports report to PDF in the given directory.
 
@@ -250,13 +249,13 @@ class PDFExporter(Exporter):
         export_context = _verify_export_context(
             exporter=self, export_context=export_context
         )
-        result = ExporterResult(exporter=self)
+        result = None
         if len(source):
             pdf_path = self.create_pdf(source)
             self.logger.user_info("PDF generated at %s", pdf_path)
 
             self.url = f"file:{pathname2url(pdf_path)}"
-            result.result = {"pdf": pdf_path}
+            result = {"pdf": pdf_path}
         else:
             self.logger.user_info(
                 "Skipping PDF creation for empty report: %s", source.name

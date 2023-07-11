@@ -2,9 +2,12 @@
 import traceback
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Dict, List, Optional
 
 from testplan.common.config import Config, Configurable
+from testplan.common.utils import strings
+from testplan.common.utils.timing import utcnow
 from testplan.report import TestReport
 
 
@@ -13,6 +16,9 @@ class ExporterResult:
     exporter: "BaseExporter"
     result: Dict = None
     traceback: str = None
+    uid: str = strings.uuid4()
+    start_time: datetime = utcnow()
+    end_time: datetime = None
 
     @property
     def success(self) -> bool:
@@ -64,13 +70,13 @@ class BaseExporter(Configurable):
         self,
         source: TestReport,
         export_context: ExportContext,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Pseudo export function.
 
         :param: source: Testplan report export
         :param: export_context: information about other exporters
-        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        :return: dictionary containing the possible output
         """
         raise NotImplementedError("Exporter must define export().")
 
@@ -113,10 +119,10 @@ def _run_exporter(
     :param export_context: ExportContext object for storing information about other exporters
     """
 
-    traceback_string = None
-    exp_result = None
+    exp_result = ExporterResult(exporter=exporter)
+    result = None
     try:
-        exp_result = exporter.export(
+        result = exporter.export(
             source=source,
             export_context=export_context,
         )
@@ -129,31 +135,28 @@ def _run_exporter(
             ),
             exporter,
         )
-        exp_result = exporter.export(
+        result = exporter.export(
             source=source,
         )
     except Exception:
-        traceback_string = traceback.format_exc()
+        exp_result.traceback = traceback.format_exc()
     finally:
-        if isinstance(exp_result, ExporterResult):
-            exp_result.traceback = traceback_string
-        else:
-            if not traceback_string:
-                # TODO: Move this part to the Exception section and remove the else block after the grace period
-                # We probably did not fail during the export
+        exp_result.end_time = utcnow()
+        if not exp_result.success:
+            exporter.logger.error(exp_result.traceback)
+        if result:
+            if not isinstance(result, dict):
+                # TODO: Remove this block after the grace period
+                # We have output but in the wrong format
                 exporter.logger.warning(
                     (
-                        "Exporter '%s' returns with not an ExporterResult object! "
+                        "Exporter '%s' does not return with a dictionary object! "
                         "This will be prohibited in the future, please modify your custom exporter!"
                     ),
                     exporter,
                 )
-            exp_result = ExporterResult(
-                exporter=exporter,
-                traceback=traceback_string,
-                result={"unknown": exp_result},
-            )
-        if not exp_result.success:
-            exporter.logger.error(exp_result.traceback)
+                exp_result.result = {"unknown": exp_result}
+            else:
+                exp_result.result = result
         export_context.results.append(exp_result)
         return exp_result

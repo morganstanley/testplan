@@ -4,7 +4,7 @@ must be able to handle POST request and receive data in JSON format.
 """
 
 import json
-from typing import Any, Tuple, Union, Optional
+from typing import Any, Tuple, Union, Optional, Dict
 
 import requests
 from schema import Or, And, Use
@@ -12,7 +12,6 @@ from schema import Or, And, Use
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
-    ExporterResult,
     ExportContext,
     _verify_export_context,
 )
@@ -102,7 +101,7 @@ class HTTPExporter(Exporter):
         self,
         source: TestReport,
         export_context: Optional[ExportContext] = None,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Uploads report to remote HTTP server.
 
@@ -117,12 +116,12 @@ class HTTPExporter(Exporter):
         http_url = self.cfg.http_url
         test_plan_schema = TestReportSchema()
         data = test_plan_schema.dump(source)
-        result = ExporterResult(exporter=self)
+        result = None
         _, errmsg = self._upload_report(http_url, data)
 
         if errmsg:
             self.logger.error(errmsg)
         else:
             self.logger.user_info("Test report posted to %s", http_url)
-            result.result = {"url": http_url}
+            result = {"http_url": http_url}
         return result
