@@ -609,13 +609,19 @@ def generate_interactive_api(ihandler):
                         try:
                             report = copy.deepcopy(ihandler.report)
                             report.reset_uid()
-                            export_path = _run_exporter(
+                            export_output = _run_exporter(
                                 exporter=exporter,
                                 source=report,
                                 export_context=export_context,
                             ).result
                             export_result["success"] = True
-                            export_result["message"] = export_path
+                            if len(export_output):
+                                if len(export_output)>1:
+                                    export_result["message"] = '\n'.join([f"{k}: {v}" for k, v in export_output.items()])
+                                else:
+                                    export_result["message"] = list(export_output.values())[0]
+                            else:
+                                export_result["message"] = "No output."
                         except Exception:
                             export_result["success"] = False
                             export_result["message"] = traceback.format_exc()
