@@ -16,7 +16,7 @@ source (e.g. :py:class:`report <testplan.report.testing.base.TestReport>`).
 
 .. code-block:: python
 
-    from testplan.common.exporters import ExporterResult, ExportContext
+    from testplan.common.exporters import ExportContext
     from testplan.exporters.testing import Exporter
 
 

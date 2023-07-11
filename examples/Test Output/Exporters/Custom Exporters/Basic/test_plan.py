@@ -6,9 +6,10 @@ how to integrate it with your test plan.
 """
 import os
 import sys
+from typing import Dict, Optional
 
 from testplan import test_plan
-from testplan.common.exporters import ExportContext, ExporterResult
+from testplan.common.exporters import ExportContext
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.exporters.testing import Exporter
 from testplan.report import TestReport
@@ -78,13 +79,13 @@ class TextFileExporter(Exporter):
         self,
         source: TestReport,
         export_context: ExportContext,
-    ) -> ExporterResult:
+    ) -> Optional[Dict]:
         """
         Exports report to text file in the given directory.
 
         :param: source: Testplan report to export
         :param: export_context: information about other exporters
-        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        :return: dictionary containing the possible output
         """
 
         with open(self.file_path, "w+") as report_file:
@@ -95,9 +96,7 @@ class TextFileExporter(Exporter):
                 self.file_path,
             )
 
-        return ExporterResult(
-            exporter=self, result={"text_file": self.file_path}
-        )
+        return {"text_file": self.file_path}
 
 
 class ReprExporter(TextFileExporter):

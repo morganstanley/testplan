@@ -80,7 +80,7 @@ class WebServerExporter(Exporter):
 
         :param: source: Testplan report to export
         :param: export_context: information about other exporters
-        :return: ExporterResult object containing information about the actual exporter object and its possible output
+        :return: dictionary containing the possible output
         """
 
         export_context = _verify_export_context(
