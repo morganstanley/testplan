@@ -616,10 +616,17 @@ def generate_interactive_api(ihandler):
                             ).result
                             export_result["success"] = True
                             if len(export_output):
-                                if len(export_output)>1:
-                                    export_result["message"] = '\n'.join([f"{k}: {v}" for k, v in export_output.items()])
+                                if len(export_output) > 1:
+                                    export_result["message"] = "\n".join(
+                                        [
+                                            f"{k}: {v}"
+                                            for k, v in export_output.items()
+                                        ]
+                                    )
                                 else:
-                                    export_result["message"] = list(export_output.values())[0]
+                                    export_result["message"] = list(
+                                        export_output.values()
+                                    )[0]
                             else:
                                 export_result["message"] = "No output."
                         except Exception:
