@@ -26,7 +26,7 @@ source (e.g. :py:class:`report <testplan.report.testing.base.TestReport>`).
             self,
             source: TestReport,
             export_context: ExportContext,
-        ) -> ExporterResult:
+        ) -> Optional[Dict]:
             # Custom logic goes here
             ...
 
