@@ -1,0 +1,1 @@
+Added `stop_on_failure` as a parameter to :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>`. Setting it to `True` will cause the entire MultiTest abort execution upon the first testcase failure. Execution groups will wait for the completion of all pending futures. Default value is `False`.

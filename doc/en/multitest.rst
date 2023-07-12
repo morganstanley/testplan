@@ -1320,6 +1320,10 @@ To enable this feature, instantiate MultiTest with a non-zero ``thread_pool_size
 and define ``execution_group`` for testcases you would like to run in parallel.
 Testcases in the same group will be executed concurrently.
 
+.. warning::
+    When either the `stop_on_error` or `stop_on_failure` parameters are set to
+    `True`, the earliest abort of the execution happens with the next execution group.
+
 .. code-block:: python
 
     @testsuite

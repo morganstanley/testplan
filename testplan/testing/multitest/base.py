@@ -29,6 +29,7 @@ from testplan.report import (
 )
 from testplan.testing import base as testing_base
 from testplan.testing import filtering, tagging
+from testplan.testing.environment import DriverDepGraph
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
@@ -189,6 +190,7 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption("thread_pool_size", default=0): int,
             config.ConfigOption("max_thread_pool_size", default=10): int,
             config.ConfigOption("stop_on_error", default=True): bool,
+            config.ConfigOption("stop_on_failure", default=False): bool,
             config.ConfigOption("part", default=None): Or(
                 None,
                 And(
@@ -218,38 +220,29 @@ class MultiTest(testing_base.Test):
     executes :py:func:`testsuites <testplan.testing.multitest.suite.testsuite>`
     against it.
 
-    :param name: Test instance name, often used as uid of test entity.
-    :type name: ``str``
+    :param name: Test instance name, often used as uid of test entity
     :param suites: List of
         :py:func:`@testsuite <testplan.testing.multitest.suite.testsuite>`
         decorated class instances containing
         :py:func:`@testcase <testplan.testing.multitest.suite.testcase>`
-        decorated methods representing the tests.
-    :type suites: ``list``
-    :param description: Description of test instance.
-    :type description: ``str``
+        decorated methods representing the tests
+    :param description: Description of test instance
     :param thread_pool_size: Size of the thread pool which executes testcases
-        with execution_group specified in parallel (default 0 means no pool).
-    :type thread_pool_size: ``int``
-    :param max_thread_pool_size: Maximum number of threads allowed in the pool.
-    :type max_thread_pool_size: ``int``
+        with execution_group specified in parallel (default 0 means no pool)
+    :param max_thread_pool_size: Maximum number of threads allowed in the pool
     :param stop_on_error: When exception raised, stop executing remaining
         testcases in the current test suite. Default: True
-    :type stop_on_error: ``bool``
+    :param stop_on_failure: when a testcase fails, stop the execution of the MultiTest
     :param part: Execute only a part of the total testcases. MultiTest needs to
         know which part of the total it is. Only works with Multitest.
-    :type part: ``tuple`` of (``int``, ``int``)
     :param multi_part_uid: Custom function to overwrite the uid of test entity
         if `part` attribute is defined, otherwise use default implementation.
-    :type multi_part_uid: ``callable``
     :param result: Result class definition for result object made available
         from within the testcases.
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
     :param fix_spec_path: Path of fix specification file.
-    :type fix_spec_path: ``NoneType`` or ``str``.
     :param testcase_report_target: Whether to mark testcases as assertions for filepath
         and line number information
-    :type testcase_report_target: ``bool``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -267,28 +260,34 @@ class MultiTest(testing_base.Test):
 
     def __init__(
         self,
-        name,
-        suites,
-        description=None,
-        initial_context={},
-        environment=[],
-        dependencies=None,
-        thread_pool_size=0,
-        max_thread_pool_size=10,
-        stop_on_error=True,
-        part=None,
-        multi_part_uid=None,
-        before_start=None,
-        after_start=None,
-        before_stop=None,
-        after_stop=None,
+        name: str,
+        suites: List,
+        description: str = None,
+        initial_context: Optional[Dict] = None,
+        environment: Optional[List] = None,
+        dependencies: Optional[DriverDepGraph] = None,
+        thread_pool_size: int = 0,
+        max_thread_pool_size: int = 10,
+        stop_on_error: bool = True,
+        stop_on_failure: bool = False,
+        part: Optional[Tuple[int, int]] = None,
+        multi_part_uid: Optional[Callable] = None,
+        before_start: Optional[Callable] = None,
+        after_start: Optional[Callable] = None,
+        before_stop: Optional[Callable] = None,
+        after_stop: Optional[Callable] = None,
         stdout_style=None,
         tags=None,
         result=result.Result,
-        fix_spec_path=None,
-        testcase_report_target=True,
+        fix_spec_path: Optional[str] = None,
+        testcase_report_target: bool = True,
         **options,
-    ):
+    ) -> None:
+        if initial_context is None:
+            initial_context = {}
+        if environment is None:
+            environment = []
+
         self._tags_index = None
 
         options.update(self.filter_locals(locals()))
@@ -500,6 +499,18 @@ class MultiTest(testing_base.Test):
                 style = self.get_stdout_style(testsuite_report.passed)
                 if style.display_testsuite:
                     self.log_suite_status(testsuite_report)
+
+                # NOTE: the actual abortion is controlled by the self.active
+                #             above and the _should_abort flag is set at testcase
+                #             level.
+                if (
+                    testsuite_report.status == Status.FAILED
+                    and self.cfg.stop_on_failure
+                ):
+                    self.logger.debug(
+                        'Aborting MultiTest "%s" due to testcase failure.',
+                        self.name,
+                    )
 
             style = self.get_stdout_style(report.passed)
             if style.display_test:
@@ -930,13 +941,23 @@ class MultiTest(testing_base.Test):
             else:
                 testcase_reports.append(testcase_report)
 
+            # NOTE: difference between stop_on_error and stop_on_failure is that the
+            # former terminates only the current testsuite, while the latter the entire
+            # multitest
             if testcase_report.status == Status.ERROR:
                 if self.cfg.stop_on_error:
                     self.logger.debug(
-                        'Stopping exeucution of testsuite "%s" due to error',
+                        'Stopping execution of testsuite "%s" due to error',
                         testsuite.name,
                     )
                     break
+            elif testcase_report.status == Status.FAILED:
+                if self.cfg.stop_on_failure:
+                    self.logger.debug(
+                        'Stopping execution of testsuite "%s" due to testcase failure.',
+                        testsuite.name,
+                    )
+                    self._should_abort = True
 
         if parametrization_reports:
             for param_report in parametrization_reports.values():
@@ -961,6 +982,8 @@ class MultiTest(testing_base.Test):
         post_testcase = getattr(testsuite, "post_testcase", None)
 
         for exec_group in execution_groups:
+            if not self.active:
+                break
             self.logger.debug('Running execution group "%s"', exec_group)
             results = [
                 self._thread_pool.submit(
@@ -988,18 +1011,24 @@ class MultiTest(testing_base.Test):
                 # If any testcase errors and we are configured to stop on
                 # errors, we still wait for the rest of the current execution
                 # group to finish before stopping.
-                if (
-                    testcase_report.status == Status.ERROR
-                    and self.cfg.stop_on_error
-                ):
-                    should_stop = True
-
-            if should_stop:
+            if (
+                any(case.status == Status.ERROR for case in testcase_reports)
+                and self.cfg.stop_on_error
+            ):
                 self.logger.debug(
                     'Stopping execution of testsuite "%s" due to error',
                     self.cfg.name,
                 )
                 break
+            if (
+                any(case.status == Status.FAILED for case in testcase_reports)
+                and self.cfg.stop_on_failure
+            ):
+                self.logger.debug(
+                    'Stopping execution of testsuite "%s" due to testcase failure.',
+                    self.cfg.name,
+                )
+                self._should_abort = True
 
         # Add all non-empty parametrization reports into the list of returned
         # testcase reports, to be added to the suite report.

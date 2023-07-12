@@ -511,3 +511,78 @@ def _check_param_testcase_report(testcase_report, i):
     assert greater_assertion["type"] == "Greater"
     assert greater_assertion["first"] == i + 1
     assert greater_assertion["second"] == 0
+
+
+@multitest.testsuite
+class FastFailSuiteSequential:
+    @multitest.testcase
+    def first_success(self, env, result):
+        result.equal(1, 1)
+
+    @multitest.testcase
+    def first_fail(self, env, result):
+        result.fail("Need to fail")
+
+    @multitest.testcase
+    def second_success(self, env, result):
+        result.equal(1, 1)
+
+
+@multitest.testsuite
+class FastFailSuiteParallel:
+    @multitest.testcase(execution_group="A")
+    def case_a_1(self, env, result):
+        result.equal(1, 1)
+
+    @multitest.testcase(execution_group="A")
+    def case_a_2(self, env, result):
+        result.fail("Need to fail")
+
+    @multitest.testcase(execution_group="B")
+    def case_b_1(self, env, result):
+        result.equal(1, 1)
+
+    @multitest.testcase(execution_group="B")
+    def case_b_2(self, env, result):
+        result.equal(1, 1)
+
+
+def test_stop_on_failure_sequential():
+    mtest = multitest.MultiTest(
+        name="FastFailTest",
+        suites=[FastFailSuiteSequential(), FastFailSuiteParallel()],
+        stop_on_failure=True,
+        **MTEST_DEFAULT_PARAMS,
+    )
+    mtest_report = mtest.run_tests()
+    # We should only see one test suite, the other did not execute due
+    # to the fast fail triggered abort
+    assert len(mtest_report.entries) == 1
+    assert mtest_report.entries[0].name == "FastFailSuiteSequential"
+    # We should only see two testcases in the suite entry, the third did
+    # not execute due to fast fail triggered break of the loop
+    assert len(mtest_report.entries[0].entries) == 2
+    assert mtest_report.entries[0].entries[0].name == "first_success"
+    assert mtest_report.entries[0].entries[1].name == "first_fail"
+    # The MultiTest object should have aborted
+    assert mtest._should_abort
+
+
+def test_stop_on_failure_first_group():
+    mtest = multitest.MultiTest(
+        name="FastFailTest",
+        suites=[FastFailSuiteParallel(), FastFailSuiteSequential()],
+        stop_on_failure=True,
+        **MTEST_DEFAULT_PARAMS,
+    )
+    mtest_report = mtest.run_tests()
+    # We should only see one test suite, the other did not execute due
+    # to the fast fail triggered abort
+    assert len(mtest_report.entries) == 1
+    assert mtest_report.entries[0].name == "FastFailSuiteParallel"
+    # We should only see two testcases in the suite entry, both from
+    # the first group. The second group should not execute due to
+    # fast fail triggered break of the loop
+    assert len(mtest_report.entries[0].entries) == 2
+    # The MultiTest object should have aborted
+    assert mtest._should_abort
