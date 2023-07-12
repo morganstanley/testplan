@@ -1,0 +1,1 @@
+Fixed the problem where `skip_if` with a `True` predicate would cause interactive mode reloader to raise an exception on missing `__skip__` attribute.
