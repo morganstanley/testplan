@@ -9,8 +9,8 @@ from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
-    _verify_export_context,
-    _run_exporter,
+    verify_export_context,
+    run_exporter,
 )
 from testplan.report.testing.base import TestReport
 from testplan.web_ui.server import WebUIServer
@@ -83,7 +83,7 @@ class WebServerExporter(Exporter):
         :return: dictionary containing the possible output
         """
 
-        export_context = _verify_export_context(
+        export_context = verify_export_context(
             exporter=self, export_context=export_context
         )
         result = None
@@ -91,7 +91,7 @@ class WebServerExporter(Exporter):
             exporter = JSONExporter(
                 json_path=self.cfg.json_path, split_json_report=False
             )
-            _run_exporter(
+            run_exporter(
                 exporter=exporter, source=source, export_context=export_context
             )
 

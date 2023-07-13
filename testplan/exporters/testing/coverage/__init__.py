@@ -12,7 +12,7 @@ from typing import Dict, Generator, Mapping, TextIO, Tuple, Optional
 from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
-    _verify_export_context,
+    verify_export_context,
 )
 from testplan.exporters.testing.base import Exporter
 from testplan.report.testing.base import (
@@ -45,7 +45,7 @@ class CoveredTestsExporter(Exporter):
         :return: dictionary containing the possible output
         """
 
-        export_context = _verify_export_context(
+        export_context = verify_export_context(
             exporter=self, export_context=export_context
         )
         if len(source):

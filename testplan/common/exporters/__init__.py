@@ -81,7 +81,7 @@ class BaseExporter(Configurable):
         raise NotImplementedError("Exporter must define export().")
 
 
-def _verify_export_context(
+def verify_export_context(
     exporter: BaseExporter, export_context: Optional[ExportContext]
 ) -> ExportContext:
     """
@@ -106,7 +106,7 @@ def _verify_export_context(
         return export_context
 
 
-def _run_exporter(
+def run_exporter(
     exporter: BaseExporter,
     source: TestReport,
     export_context: ExportContext,

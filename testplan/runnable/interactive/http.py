@@ -5,8 +5,6 @@ Http handler for interactive mode.
 import copy
 import functools
 import os
-import time
-import traceback
 from typing import Dict, Optional
 
 import flask
@@ -21,9 +19,8 @@ from urllib.parse import unquote_plus
 import testplan
 from testplan import defaults
 from testplan.common import entity
-from testplan.common.exporters import ExportContext, _run_exporter
+from testplan.common.exporters import ExportContext, run_exporter
 from testplan.common.config import ConfigOption
-from testplan.common.utils import strings
 from testplan.report import (
     TestReport,
     TestGroupReport,
@@ -596,44 +593,42 @@ def generate_interactive_api(ihandler):
 
         @api.expect(post_export_model)
         def post(self) -> Optional[Dict]:
-            save_exports = request.json
+            request_data = request.json
             with ihandler.report_mutex:
                 export_context = ExportContext()
                 for exporter in ihandler.exporters:
-                    if exporter.name in save_exports.get("exporters", []):
-                        try:
-                            report = copy.deepcopy(ihandler.report)
-                            report.reset_uid()
-                            exporter_result = _run_exporter(
-                                exporter=exporter,
-                                source=report,
-                                export_context=export_context,
-                            )
-                            export_result = {
-                                "time": exporter_result.start_time.timestamp(),
-                                "name": exporter_result.exporter.name,
-                                "uid": exporter_result.uid,
-                            }
-                            exporter_output = exporter_result.result
-                            export_result["success"] = exporter_result.success
-                            if exporter_output:
-                                if len(exporter_output) > 1:
-                                    export_result["message"] = "\n".join(
-                                        [
-                                            f"{k}: {v}"
-                                            for k, v in exporter_output.items()
-                                        ]
-                                    )
-                                else:
-                                    export_result["message"] = list(
-                                        exporter_output.values()
-                                    )[0]
+                    if exporter.name in request_data.get("exporters", []):
+                        report = copy.deepcopy(ihandler.report)
+                        report.reset_uid()
+                        exporter_run_result = run_exporter(
+                            exporter=exporter,
+                            source=report,
+                            export_context=export_context,
+                        )
+                        export_information = {
+                            "time": exporter_run_result.start_time.timestamp(),
+                            "name": exporter_run_result.exporter.name,
+                            "uid": exporter_run_result.uid,
+                            "success": exporter_run_result.success,
+                        }
+                        request_result = exporter_run_result.result
+                        if request_result:
+                            if len(request_result) > 1:
+                                export_information["message"] = "\n".join(
+                                    [
+                                        f"{k}: {v}"
+                                        for k, v in request_result.items()
+                                    ]
+                                )
                             else:
-                                export_result["message"] = "No output."
-                        except Exception:
-                            export_result["success"] = False
-                            export_result["message"] = traceback.format_exc()
-                        export_history.append(export_result)
+                                export_information["message"] = list(
+                                    request_result.values()
+                                )[0]
+                        else:
+                            export_information["message"] = (
+                                exporter_run_result.traceback or "No output."
+                            )
+                        export_history.append(export_information)
             return {"history": export_history}
 
     @api.route("/report/export/<string:uid>")

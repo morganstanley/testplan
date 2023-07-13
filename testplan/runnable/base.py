@@ -36,7 +36,7 @@ from testplan.common.entity import (
 from testplan.common.exporters import (
     BaseExporter,
     ExportContext,
-    _run_exporter,
+    run_exporter,
 )
 from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
@@ -1179,7 +1179,7 @@ class TestRunner(Runnable):
         export_context = ExportContext()
         for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
-                _run_exporter(
+                run_exporter(
                     exporter=exporter,
                     source=self._result.test_report,
                     export_context=export_context,

@@ -13,7 +13,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
-    _verify_export_context,
+    verify_export_context,
 )
 from testplan.common.utils.validation import is_valid_url
 from testplan.report import TestReport
@@ -110,7 +110,7 @@ class HTTPExporter(Exporter):
         :return: dictionary containing the possible output
         """
 
-        export_context = _verify_export_context(
+        export_context = verify_export_context(
             exporter=self, export_context=export_context
         )
         http_url = self.cfg.http_url

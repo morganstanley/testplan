@@ -17,7 +17,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
-    _verify_export_context,
+    verify_export_context,
 )
 from testplan.common.utils.path import unique_name
 from testplan.common.utils.strings import slugify
@@ -287,7 +287,7 @@ class XMLExporter(Exporter):
         :return: dictionary containing the possible output
         """
 
-        export_context = _verify_export_context(
+        export_context = verify_export_context(
             exporter=self, export_context=export_context
         )
         xml_dir = pathlib.Path(self.cfg.xml_dir).resolve()

@@ -9,8 +9,8 @@ from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
     ExporterConfig,
     ExportContext,
-    _verify_export_context,
-    _run_exporter,
+    verify_export_context,
+    run_exporter,
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report.testing.base import TestReport
@@ -144,7 +144,7 @@ class TagFilteredExporter(Exporter):
             if clone is not None:
                 params = self.get_params(tag_dict, filter_type)
                 exporter = self.get_exporter(**params)
-                _run_exporter(
+                run_exporter(
                     exporter=exporter,
                     source=clone,
                     export_context=export_context,
@@ -170,7 +170,7 @@ class TagFilteredExporter(Exporter):
         :param: export_context: information about other exporters
         """
 
-        export_context = _verify_export_context(
+        export_context = verify_export_context(
             exporter=self, export_context=export_context
         )
         self.export_clones(
