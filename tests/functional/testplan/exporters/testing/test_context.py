@@ -32,15 +32,18 @@ class Beta:
 
 class EchoExporter(Exporter):
     """Dummy exporter."""
+
     def __init__(self, name="Echo exporter", message=None):
         super(EchoExporter, self).__init__(name=name)
         self.message = message
+
     def export(self, source, export_context):
         return {"message": self.message}
 
 
 class ParrotExporter(Exporter):
     """Repeats what the previous exporter said."""
+
     def export(self, source, export_context):
         if export_context.results:
             return list(export_context.results)[-1].result
@@ -48,17 +51,13 @@ class ParrotExporter(Exporter):
 
 class FailingExporter(Exporter):
     """This one is not so lucky."""
+
     def export(self, source, export_context):
         raise Exception(EXCEPTION_MSG)
 
 
 def test_exception_getting_caught_in_context():
-    plan = TestplanMock(
-        name="plan",
-        exporters=[
-            FailingExporter(),
-        ]
-    )
+    plan = TestplanMock(name="plan", exporters=FailingExporter())
 
     mt = multitest.MultiTest(name="Primary", suites=[Alpha()])
     plan.add(mt)
@@ -74,7 +73,7 @@ def test_exporter_can_access_previous_exports():
         exporters=[
             EchoExporter(message=EXPORT_MSG),
             ParrotExporter(),
-        ]
+        ],
     )
 
     mt = multitest.MultiTest(name="Primary", suites=[Alpha()])
@@ -87,4 +86,7 @@ def test_exporter_can_access_previous_exports():
     assert type(plan.runnable.exporters[1]) is ParrotExporter
 
     assert plan.runnable.result.exporter_results[1].success == True
-    assert plan.runnable.result.exporter_results[1].result["message"] == EXPORT_MSG
+    assert (
+        plan.runnable.result.exporter_results[1].result["message"]
+        == EXPORT_MSG
+    )
