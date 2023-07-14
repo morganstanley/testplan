@@ -5,9 +5,7 @@ Http handler for interactive mode.
 import copy
 import functools
 import os
-import time
-import traceback
-from typing import Dict
+from typing import Dict, Optional
 
 import flask
 import flask_restx
@@ -21,8 +19,8 @@ from urllib.parse import unquote_plus
 import testplan
 from testplan import defaults
 from testplan.common import entity
+from testplan.common.exporters import ExportContext, run_exporter
 from testplan.common.config import ConfigOption
-from testplan.common.utils import strings
 from testplan.report import (
     TestReport,
     TestGroupReport,
@@ -594,26 +592,43 @@ def generate_interactive_api(ihandler):
             }
 
         @api.expect(post_export_model)
-        def post(self):
-            save_exports = request.json
+        def post(self) -> Optional[Dict]:
+            request_data = request.json
             with ihandler.report_mutex:
+                export_context = ExportContext()
                 for exporter in ihandler.exporters:
-                    if exporter.name in save_exports.get("exporters", []):
-                        export_result = {
-                            "time": time.time(),
-                            "name": exporter.name,
-                            "uid": strings.uuid4(),
+                    if exporter.name in request_data.get("exporters", []):
+                        report = copy.deepcopy(ihandler.report)
+                        report.reset_uid()
+                        exporter_run_result = run_exporter(
+                            exporter=exporter,
+                            source=report,
+                            export_context=export_context,
+                        )
+                        export_information = {
+                            "time": exporter_run_result.start_time.timestamp(),
+                            "name": exporter_run_result.exporter.name,
+                            "uid": exporter_run_result.uid,
+                            "success": exporter_run_result.success,
                         }
-                        try:
-                            report = copy.deepcopy(ihandler.report)
-                            report.reset_uid()
-                            export_path = exporter.export(report)
-                            export_result["success"] = True
-                            export_result["message"] = export_path
-                        except Exception:
-                            export_result["success"] = False
-                            export_result["message"] = traceback.format_exc()
-                        export_history.append(export_result)
+                        request_result = exporter_run_result.result
+                        if request_result:
+                            if len(request_result) > 1:
+                                export_information["message"] = "\n".join(
+                                    [
+                                        f"{k}: {v}"
+                                        for k, v in request_result.items()
+                                    ]
+                                )
+                            else:
+                                export_information["message"] = list(
+                                    request_result.values()
+                                )[0]
+                        else:
+                            export_information["message"] = (
+                                exporter_run_result.traceback or "No output."
+                            )
+                        export_history.append(export_information)
             return {"history": export_history}
 
     @api.route("/report/export/<string:uid>")

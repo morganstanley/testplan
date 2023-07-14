@@ -1,10 +1,10 @@
 """Tests runner module."""
 import datetime
 import inspect
+import math
 import os
 import random
 import re
-import math
 import time
 import uuid
 import webbrowser
@@ -33,7 +33,11 @@ from testplan.common.entity import (
     RunnableResult,
     RunnableStatus,
 )
-from testplan.common.exporters import BaseExporter, ExporterResult
+from testplan.common.exporters import (
+    BaseExporter,
+    ExportContext,
+    run_exporter,
+)
 from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
@@ -1165,30 +1169,29 @@ class TestRunner(Runnable):
                 self._result.test_report
             )
 
-    def _invoke_exporters(self):
+    def _invoke_exporters(self) -> None:
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
 
         if hasattr(self._result.test_report, "bubble_up_attachments"):
             self._result.test_report.bubble_up_attachments()
 
+        export_context = ExportContext()
         for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
-                exp_result = ExporterResult.run_exporter(
+                run_exporter(
                     exporter=exporter,
                     source=self._result.test_report,
-                    type="test",
+                    export_context=export_context,
                 )
-
-                if not exp_result.success:
-                    logger.TESTPLAN_LOGGER.error(exp_result.traceback)
-                self._result.exporter_results.append(exp_result)
             else:
                 raise NotImplementedError(
                     "Exporter logic not implemented for: {}".format(
                         type(exporter)
                     )
                 )
+
+        self._result.exporter_results = export_context.results
 
     def _post_exporters(self):
         # View report in web browser if "--browse" specified

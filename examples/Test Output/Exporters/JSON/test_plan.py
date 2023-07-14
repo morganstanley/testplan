@@ -70,9 +70,6 @@ class BetaSuite:
 # please directly use --json argument because command line arguments can
 # override programmatic declaration.
 
-# After running this example, you can see how a JSON can be converted back
-# into a report object via `json_to_pdf.py` script.
-
 
 @test_plan(
     name="Basic JSON Report Example",

@@ -1,4 +1,5 @@
-from .base import Exporter, save_attachments
+from .base import Exporter
+from .tagfiltered import TagFilteredExporter
 from .coverage import CoveredTestsExporter
 from .http import HTTPExporter
 from .json import JSONExporter

@@ -4,13 +4,17 @@ must be able to handle POST request and receive data in JSON format.
 """
 
 import json
-from typing import Any, Tuple, Union, Optional
+from typing import Any, Tuple, Union, Optional, Dict
 
 import requests
 from schema import Or, And, Use
 
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExportContext,
+    verify_export_context,
+)
 from testplan.common.utils.validation import is_valid_url
 from testplan.report import TestReport
 from testplan.report.testing.schemas import TestReportSchema
@@ -93,15 +97,31 @@ class HTTPExporter(Exporter):
 
         return response, errmsg
 
-    def export(self, source: TestReport) -> Optional[str]:
+    def export(
+        self,
+        source: TestReport,
+        export_context: Optional[ExportContext] = None,
+    ) -> Optional[Dict]:
+        """
+        Uploads report to remote HTTP server.
+
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: dictionary containing the possible output
+        """
+
+        export_context = verify_export_context(
+            exporter=self, export_context=export_context
+        )
         http_url = self.cfg.http_url
         test_plan_schema = TestReportSchema()
         data = test_plan_schema.dump(source)
+        result = None
         _, errmsg = self._upload_report(http_url, data)
 
         if errmsg:
             self.logger.error(errmsg)
-            return None
         else:
             self.logger.user_info("Test report posted to %s", http_url)
-            return http_url
+            result = {"http_url": http_url}
+        return result

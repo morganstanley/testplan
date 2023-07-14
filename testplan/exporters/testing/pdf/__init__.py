@@ -8,7 +8,7 @@ import time
 import traceback
 import uuid
 import warnings
-from typing import Optional
+from typing import Dict, Optional
 from urllib.request import pathname2url
 
 from schema import Or
@@ -27,12 +27,17 @@ except Exception as exc:
 
 
 from testplan.common.config import ConfigOption
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExporterConfig,
+    ExportContext,
+    verify_export_context,
+)
 from testplan.common.report import Report
 from testplan.common.utils.strings import slugify
 from testplan.report.testing.styles import Style
 from testplan.testing import tagging
-from ..base import Exporter, TagFilteredExporter, TagFilteredExporterConfig
+from ..base import Exporter
+from ..tagfiltered import TagFilteredExporter, TagFilteredExporterConfig
 
 try:
     from . import renderers
@@ -228,18 +233,34 @@ class PDFExporter(Exporter):
         template.build(tables)
         return str(pdf_path)
 
-    def export(self, source: TestReport) -> Optional[str]:
+    def export(
+        self,
+        source: TestReport,
+        export_context: Optional[ExportContext] = None,
+    ) -> Optional[Dict]:
+        """
+        Exports report to PDF in the given directory.
+
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: dictionary containing the possible output
+        """
+
+        export_context = verify_export_context(
+            exporter=self, export_context=export_context
+        )
+        result = None
         if len(source):
             pdf_path = self.create_pdf(source)
             self.logger.user_info("PDF generated at %s", pdf_path)
 
             self.url = f"file:{pathname2url(pdf_path)}"
-            return pdf_path
+            result = {"pdf": pdf_path}
         else:
             self.logger.user_info(
                 "Skipping PDF creation for empty report: %s", source.name
             )
-            return None
+        return result
 
 
 class TagFilteredPDFExporter(TagFilteredExporter):

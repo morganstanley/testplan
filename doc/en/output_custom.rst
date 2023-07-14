@@ -16,12 +16,17 @@ source (e.g. :py:class:`report <testplan.report.testing.base.TestReport>`).
 
 .. code-block:: python
 
+    from testplan.common.exporters import ExportContext
     from testplan.exporters.testing import Exporter
 
 
     class CustomExporter(Exporter):
 
-        def export(self, source):
+        def export(
+            self,
+            source: TestReport,
+            export_context: ExportContext,
+        ) -> Optional[Dict]:
             # Custom logic goes here
             ...
 
