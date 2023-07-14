@@ -24,6 +24,17 @@ class ExporterResult:
     def success(self) -> bool:
         return not self.traceback
 
+    @classmethod
+    def run_exporter(self, exporter, source, type):
+        "Putting this back for compatibility reasons"
+
+        result = run_exporter(
+            exporter=exporter,
+            source=source,
+            export_context=None,
+        )
+        return result
+
 
 @dataclass
 class ExportContext:
@@ -135,9 +146,7 @@ def run_exporter(
             ),
             exporter,
         )
-        result = exporter.export(
-            source=source,
-        )
+        result = exporter.export(source)
     except Exception:
         exp_result.traceback = traceback.format_exc()
     finally:
