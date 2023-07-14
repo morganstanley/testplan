@@ -233,6 +233,9 @@ def _gen_skipped_case(skip_reason, orig_case):
     _f.__tags__ = orig_case.__tags__
     _f.__tags_index__ = orig_case.__tags_index__
     _f.__should_skip__ = True
+    # NOTE: interactive reloader will regenerate the skipped testcase
+    #             so it will need the __skip__ attribute.
+    _f.__skip__ = orig_case.__skip__
     _mark_function_as_testcase(_f)
     return _f
 
