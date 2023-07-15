@@ -1,0 +1,1 @@
+Fixed an issue where a too long command caused PDFExporter to fail.
