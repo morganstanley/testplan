@@ -139,7 +139,7 @@ class MetadataMixin:
         metadata = dict(source.information)
         return collections.OrderedDict(
             [
-                (label, metadata[key])
+                (label, metadata[key][:5000])
                 for key, label in self.get_metadata_labels()
                 if key in metadata
             ]
