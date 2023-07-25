@@ -10,13 +10,6 @@ from testplan.common.utils import timing
 from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 
 
-def binary_or_string(value, binary):
-    """
-    Utility to reuse b"..." if binary else "..." logic.
-    """
-    return value.encode() if binary else value
-
-
 @pytest.fixture(
     params=[True, False], ids=["With log rotation", "Without log rotation"]
 )
@@ -243,38 +236,43 @@ class TestLogMatcher:
     @pytest.mark.parametrize("is_binary", [True, False])
     def test_get_between(self, basic_logfile, is_binary):
         """Does the LogMatcher return the required content between marks."""
+
+        def binary_or_string(value):
+            return value.encode() if is_binary else value
+
         matcher = LogMatcher(log_path=basic_logfile, binary=is_binary)
-        matcher.match(regex=re.compile(binary_or_string("second", is_binary)))
-        matcher.mark(binary_or_string("start", is_binary))
-        matcher.match(regex=re.compile(binary_or_string("fourth", is_binary)))
-        matcher.mark(binary_or_string("end", is_binary))
-        content = matcher.get_between().replace(
-            binary_or_string("\r", is_binary), binary_or_string("", is_binary)
+        matcher.match(regex=re.compile(binary_or_string("second")))
+        matcher.mark("start")
+        matcher.match(regex=re.compile(binary_or_string("fourth")))
+        matcher.mark("end")
+
+        newline = os.linesep.encode() if is_binary else "\n"
+        lines = ["first", "second", "third", "fourth", "fifth"]
+
+        content = matcher.get_between()
+        assert (
+            content
+            == newline.join([binary_or_string(line) for line in lines])
+            + newline
         )
-        assert content == binary_or_string(
-            "first\nsecond\nthird\nfourth\nfifth\n", is_binary
+        content = matcher.get_between(None, "end")
+        assert (
+            content
+            == newline.join(binary_or_string(line) for line in lines[:4])
+            + newline
         )
-        content = matcher.get_between(
-            None, binary_or_string("end", is_binary)
-        ).replace(
-            binary_or_string("\r", is_binary), binary_or_string("", is_binary)
+        content = matcher.get_between("start", None)
+        assert (
+            content
+            == newline.join([binary_or_string(line) for line in lines[2:]])
+            + newline
         )
-        assert content == binary_or_string(
-            "first\nsecond\nthird\nfourth\n", is_binary
+        content = matcher.get_between("start", "end")
+        assert (
+            content
+            == newline.join([binary_or_string(line) for line in lines[2:4]])
+            + newline
         )
-        content = matcher.get_between(
-            binary_or_string("start", is_binary), None
-        ).replace(
-            binary_or_string("\r", is_binary), binary_or_string("", is_binary)
-        )
-        assert content == binary_or_string("third\nfourth\nfifth\n", is_binary)
-        content = matcher.get_between(
-            binary_or_string("start", is_binary),
-            binary_or_string("end", is_binary),
-        ).replace(
-            binary_or_string("\r", is_binary), binary_or_string("", is_binary)
-        )
-        assert content == binary_or_string("third\nfourth\n", is_binary)
 
     def test_match_large_file(self, large_logfile):
         """

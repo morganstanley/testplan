@@ -1,1 +1,1 @@
-:py:meth:`~testplan.common.utils.match.LogMatcher.get_between` would raise an exception upon binary configuration of the matcher.
+Fixed an issue where :py:meth:`~testplan.common.utils.match.LogMatcher.get_between` would raise an exception upon binary configuration of the matcher.
