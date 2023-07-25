@@ -249,12 +249,21 @@ class TestLogMatcher:
         matcher.match(regex=re.compile(binary_or_string("fourth", is_binary)))
         matcher.mark(binary_or_string("end", is_binary))
         content = matcher.get_between()
-        assert content == binary_or_string("first\nsecond\nthird\nfourth\nfifth\n", is_binary)
+        assert content == binary_or_string(
+            "first\nsecond\nthird\nfourth\nfifth\n", is_binary
+        )
         content = matcher.get_between(None, binary_or_string("end", is_binary))
-        assert content == binary_or_string("first\nsecond\nthird\nfourth\n", is_binary)
-        content = matcher.get_between(binary_or_string("start", is_binary), None)
+        assert content == binary_or_string(
+            "first\nsecond\nthird\nfourth\n", is_binary
+        )
+        content = matcher.get_between(
+            binary_or_string("start", is_binary), None
+        )
         assert content == binary_or_string("third\nfourth\nfifth\n", is_binary)
-        content = matcher.get_between(binary_or_string("start", is_binary), binary_or_string("end", is_binary))
+        content = matcher.get_between(
+            binary_or_string("start", is_binary),
+            binary_or_string("end", is_binary),
+        )
         assert content == binary_or_string("third\nfourth\n", is_binary)
 
     def test_match_large_file(self, large_logfile):
