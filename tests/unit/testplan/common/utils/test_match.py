@@ -247,32 +247,19 @@ class TestLogMatcher:
         matcher.mark("end")
 
         newline = os.linesep.encode() if is_binary else "\n"
-        lines = ["first", "second", "third", "fourth", "fifth"]
+        lines = [
+            binary_or_string(line)
+            for line in ["first", "second", "third", "fourth", "fifth"]
+        ]
 
         content = matcher.get_between()
-        assert (
-            content
-            == newline.join([binary_or_string(line) for line in lines])
-            + newline
-        )
+        assert content == newline.join(lines) + newline
         content = matcher.get_between(None, "end")
-        assert (
-            content
-            == newline.join(binary_or_string(line) for line in lines[:4])
-            + newline
-        )
+        assert content == newline.join(lines[:4]) + newline
         content = matcher.get_between("start", None)
-        assert (
-            content
-            == newline.join([binary_or_string(line) for line in lines[2:]])
-            + newline
-        )
+        assert content == newline.join(lines[2:]) + newline
         content = matcher.get_between("start", "end")
-        assert (
-            content
-            == newline.join([binary_or_string(line) for line in lines[2:4]])
-            + newline
-        )
+        assert content == newline.join(lines[2:4]) + newline
 
     def test_match_large_file(self, large_logfile):
         """
