@@ -233,21 +233,36 @@ class TestLogMatcher:
         assert matcher.not_match_between(r"fifth", "start", "end")
         assert not matcher.not_match_between(r"third", "start", "end")
 
-    def test_get_between(self, basic_logfile):
+    @pytest.mark.parametrize("is_binary", [True, False])
+    def test_get_between(self, basic_logfile, is_binary):
         """Does the LogMatcher return the required content between marks."""
-        matcher = LogMatcher(log_path=basic_logfile)
-        matcher.match(regex=re.compile(r"second"))
+
+        def binary_or_string(value):
+            return value.encode() if is_binary else value
+
+        matcher = LogMatcher(log_path=basic_logfile, binary=is_binary)
+        matcher.match(regex=re.compile(binary_or_string("second")))
         matcher.mark("start")
-        matcher.match(regex=re.compile(r"fourth"))
+        matcher.match(regex=re.compile(binary_or_string("fourth")))
         matcher.mark("end")
+
+        newline = os.linesep.encode() if is_binary else "\n"
+        lines = [
+            binary_or_string(line)
+            for line in ["first", "second", "third", "fourth", "fifth"]
+        ]
+
+        def construct_expected(slice):
+            return newline.join(slice) + newline
+
         content = matcher.get_between()
-        assert content == "first\nsecond\nthird\nfourth\nfifth\n"
+        assert content == construct_expected(lines)
         content = matcher.get_between(None, "end")
-        assert content == "first\nsecond\nthird\nfourth\n"
+        assert content == construct_expected(lines[:4])
         content = matcher.get_between("start", None)
-        assert content == "third\nfourth\nfifth\n"
+        assert content == construct_expected(lines[2:])
         content = matcher.get_between("start", "end")
-        assert content == "third\nfourth\n"
+        assert content == construct_expected(lines[2:4])
 
     def test_match_large_file(self, large_logfile):
         """

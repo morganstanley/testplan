@@ -398,4 +398,5 @@ class LogMatcher(logger.Loggable):
             while not self.log_stream.reached_position(end_pos):
                 line = log.readline()
                 lines_between.append(line)
-            return "".join(lines_between)
+            separator = b"" if self.binary else ""
+            return separator.join(lines_between)
