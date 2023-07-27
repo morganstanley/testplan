@@ -252,14 +252,17 @@ class TestLogMatcher:
             for line in ["first", "second", "third", "fourth", "fifth"]
         ]
 
+        def construct_expected(slice):
+            return newline.join(slice) + newline
+
         content = matcher.get_between()
-        assert content == newline.join(lines) + newline
+        assert content == construct_expected(lines)
         content = matcher.get_between(None, "end")
-        assert content == newline.join(lines[:4]) + newline
+        assert content == construct_expected(lines[:4])
         content = matcher.get_between("start", None)
-        assert content == newline.join(lines[2:]) + newline
+        assert content == construct_expected(lines[2:])
         content = matcher.get_between("start", "end")
-        assert content == newline.join(lines[2:4]) + newline
+        assert content == construct_expected(lines[2:4])
 
     def test_match_large_file(self, large_logfile):
         """
