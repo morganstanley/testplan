@@ -919,10 +919,10 @@ def _extract_entries(entry: Dict) -> Dict:
     """
     entries = {}
 
-    # NOTE: we assume "entries" is present, see application of the function
-    for child in entry["entries"]:
-        if child["category"] == ReportCategories.TESTCASE:
-            entries[child["name"]] = {}
+    # NOTE: we ignore assertions (DEFAULT category) and testcases
+    for child in entry.get("entries", []):
+        if child["category"] in ("DEFAULT"):
+            pass
         else:
             entries[child["name"]] = _extract_entries(child)
 

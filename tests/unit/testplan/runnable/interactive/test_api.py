@@ -546,6 +546,26 @@ class TestSingleTestcase:
     def test_put_filtered(self, api_env):
         """Test updating the SingleTestcase resource via PUT."""
         client, ihandler = api_env
+        report_entry = ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC1"]
+
+        testcase_json = report_entry.serialize()
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/{}".format("MT1S1TC1"),
+            json=testcase_json,
+        )
+        assert rsp.status_code == 200
+        ihandler.run_test_case.assert_called_once_with(
+            "MTest1",
+            "MT1Suite1",
+            "MT1S1TC1",
+            shallow_report=testcase_json,
+            await_results=False,
+        )
+
+    def test_put_filtered_parametrized(self, api_env):
+        client, ihandler = api_env
         report_entry = ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC2"]
 
         testcase_json = report_entry.serialize()
