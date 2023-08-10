@@ -1,1 +1,0 @@
-Fixed silent exception thrown by the UI when attempting a rerun of a single testcase with an active filter.

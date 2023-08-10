@@ -1,1 +1,1 @@
-Fixed an `AttributeError` raised by running a single testcase on interactive UI with an active filter.
+Fixed both a silent exception and an `AttributeError` raised by running a single testcase on interactive UI with an active filter.

@@ -919,12 +919,11 @@ def _extract_entries(entry: Dict) -> Dict:
     """
     entries = {}
 
-    # NOTE: we ignore assertions (DEFAULT category) and testcases
+    if entry["category"] == "testcase":
+        return entries
+
     for child in entry.get("entries", []):
-        if child["category"] in ("DEFAULT"):
-            pass
-        else:
-            entries[child["name"]] = _extract_entries(child)
+        entries[child["name"]] = _extract_entries(child)
 
     return entries
 
