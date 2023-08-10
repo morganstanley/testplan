@@ -20,6 +20,7 @@ import {
   faFastBackward,
   faTimes,
   faSave,
+  faPlay,
 } from "@fortawesome/free-solid-svg-icons";
 import { format as dateFormat } from "date-fns";
 import { css } from "aphrodite";
@@ -134,6 +135,43 @@ export const AbortButton = (props) => {
             icon={faTimes}
             title="Abort Testplan"
             onClick={props.abortCbk}
+          />
+        </div>
+      </NavItem>
+    );
+  }
+};
+
+/**
+ * Render a button to Run all Multitests.
+ *
+ * If the RunAll action is currently in progress, display an inactive icon
+ * instead.
+ */
+export const RunAllButton = (props) => {
+  if (props.running) {
+    return (
+      <NavItem key="runall-button">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key="toolbar-runall"
+            className={css(styles.toolbarButton, styles.toolbarInactive)}
+            icon={faPlay}
+            title="Running..."
+          />
+        </div>
+      </NavItem>
+    );
+  } else {
+    return (
+      <NavItem key="runall-button">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key="toolbar-runall"
+            className={css(styles.toolbarButton)}
+            icon={faPlay}
+            title="Run all Multitests"
+            onClick={props.runAllCbk}
           />
         </div>
       </NavItem>

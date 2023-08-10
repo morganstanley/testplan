@@ -17,6 +17,7 @@ import {
   ReloadButton,
   ResetButton,
   AbortButton,
+  RunAllButton,
   SaveButton,
 } from "../Toolbar/InteractiveButtons";
 import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
@@ -63,6 +64,7 @@ class InteractiveReportComponent extends BaseReport {
     this.resetAssertionStatus = this.resetAssertionStatus.bind(this);
     this.resetReport = this.resetReport.bind(this);
     this.abortTestplan = this.abortTestplan.bind(this);
+    this.runAll = this.runAll.bind(this);
     this.reloadCode = this.reloadCode.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -72,6 +74,7 @@ class InteractiveReportComponent extends BaseReport {
       navWidth: `${INTERACTIVE_COL_WIDTH}em`,
       resetting: false,
       reloading: false,
+      running: false,
       aborting: false,
       assertionStatus: defaultAssertionStatus,
     };
@@ -123,6 +126,7 @@ class InteractiveReportComponent extends BaseReport {
             response.data.runtime_status === "not_run"
           ) {
             this.setState({ resetting: false });
+            this.setState({ running: false });
           }
           if (
             !this.state.report ||
@@ -498,6 +502,22 @@ class InteractiveReportComponent extends BaseReport {
   }
 
   /**
+   * Send request of start all tests to server.
+   */
+  runAll() {
+    if (this.state.running) {
+      return;
+    } else {
+      const updatedReportEntry = {
+        ...this.shallowReportEntry(this.state.report),
+        runtime_status: "running",
+      };
+      this.putUpdatedReportEntry(updatedReportEntry);
+      this.setState({ running: true });
+    }
+  }
+
+  /**
    * Reset the report state to "resetting" and request the change to server.
    */
   resetReport() {
@@ -664,6 +684,11 @@ class InteractiveReportComponent extends BaseReport {
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
           extraButtons={[
+            <RunAllButton
+              key="runall-button"
+              running={this.state.running}
+              runAllCbk={this.runAll}
+            />,
             <ReloadButton
               key="reload-button"
               reloading={this.state.reloading}
