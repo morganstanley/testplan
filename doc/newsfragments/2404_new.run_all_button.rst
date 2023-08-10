@@ -1,1 +1,1 @@
-Added a new "Run all Multitests" button to interactive toolbar on the web interface.
+Added a new "Run all MultiTests" button to toolbar on the interactive GUI.
