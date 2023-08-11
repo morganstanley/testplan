@@ -505,7 +505,10 @@ class InteractiveReportComponent extends BaseReport {
    * Send request of start all tests to server.
    */
   runAll() {
-    if (this.state.running) {
+    if (
+      this.state.resetting || this.state.reloading ||
+      this.state.aborting || this.state.running
+    ) {
       return;
     } else {
       const updatedReportEntry = {
@@ -521,7 +524,10 @@ class InteractiveReportComponent extends BaseReport {
    * Reset the report state to "resetting" and request the change to server.
    */
   resetReport() {
-    if (this.state.resetting || this.state.reloading || this.state.aborting) {
+    if (
+      this.state.resetting || this.state.reloading ||
+      this.state.aborting || this.state.running
+    ) {
       return;
     } else {
       const updatedReportEntry = {
@@ -537,7 +543,10 @@ class InteractiveReportComponent extends BaseReport {
    * Send request of reloading report to server.
    */
   reloadCode() {
-    if (this.state.resetting || this.state.reloading || this.state.aborting) {
+    if (
+      this.state.resetting || this.state.reloading ||
+      this.state.aborting || this.state.running
+    ) {
       return;
     }
     let currentTime = new Date();
