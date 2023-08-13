@@ -7,6 +7,7 @@ from testplan import defaults
 from testplan import report
 from testplan import runnable
 from testplan.common import entity
+from testplan.report.testing.base import RuntimeStatus
 from testplan.testing import filtering
 from testplan.testing import multitest
 from testplan.testing import ordering
@@ -53,6 +54,25 @@ class TaggedSuite:
         """Parametrized testcase."""
         del env  # unused
         result.gt(val, 0)
+
+
+@multitest.testsuite
+class FailedSetupSuite:
+    """Test suite with a failing setup method."""
+
+    def setup(self, env, result):
+        result.fail("Failing for a reason.")
+
+    @multitest.testcase
+    def case_a(self, env, result):
+        result.equal(5, 5)
+
+    @multitest.testcase
+    def case_b(self, env, result):
+        result.not_equal(5, 5)
+
+    def teardown(self, env, result):
+        result.fail("Failing for yet another reason.")
 
 
 def test_startup():
@@ -159,6 +179,38 @@ def test_run_suite(irunner, sync):
 
     # The test report should have been updated as a side effect.
     assert irunner.report["test_1"]["Suite"].passed
+
+
+def test_run_suite_with_failed_setup():
+    target = runnable.TestRunner(name="TestRunner")
+
+    local_runner = LocalRunner()
+    test = multitest.MultiTest(
+        name="MT",
+        suites=[FailedSetupSuite()],
+        test_filter=filtering.Filter(),
+        test_sorter=ordering.NoopSorter(),
+        stdout_style=defaults.STDOUT_STYLE,
+    )
+    local_runner.add(test, test.uid())
+    target.resources.add(local_runner)
+
+    with mock.patch("cheroot.wsgi.Server"), mock.patch(
+            "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
+        irunner = base.TestRunnerIHandler(target)
+        irunner.setup()
+
+        irunner.run_test_suite("MT", "FailedSetupSuite", await_results=True)
+        assert irunner.report.failed
+        for testcase_report in irunner.report.entries[0].entries[0].entries:
+            if testcase_report.name in ["setup", "teardown"]:
+                assert testcase_report.runtime_status == RuntimeStatus.FINISHED
+            else:
+                assert testcase_report.runtime_status == RuntimeStatus.NOT_RUN
+        irunner.teardown()
 
 
 @pytest.mark.parametrize("sync", [True, False])
