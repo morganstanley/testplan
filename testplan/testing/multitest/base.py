@@ -1297,7 +1297,9 @@ class MultiTest(testing_base.Test):
 
             if setup_report.failed:
                 # NOTE: we are going to skip the cases and update the status
-                for status, parent_uids in self._skip_testcases(testsuite, testcases):
+                for status, parent_uids in self._skip_testcases(
+                    testsuite, testcases
+                ):
                     yield status, parent_uids
                 teardown_report = self._teardown_testsuite(testsuite)
                 if teardown_report is not None:
@@ -1322,9 +1324,7 @@ class MultiTest(testing_base.Test):
         :return: list of parent UIDs
         """
 
-        param_template = getattr(
-            testcase, "_parametrization_template", None
-        )
+        param_template = getattr(testcase, "_parametrization_template", None)
         if param_template:
             parent_uids = [
                 self.uid(),

@@ -196,7 +196,7 @@ def test_run_suite_with_failed_setup():
     target.resources.add(local_runner)
 
     with mock.patch("cheroot.wsgi.Server"), mock.patch(
-            "testplan.runnable.interactive.reloader.ModuleReloader"
+        "testplan.runnable.interactive.reloader.ModuleReloader"
     ) as MockReloader:
         MockReloader.return_value = None
 
