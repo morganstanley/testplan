@@ -919,7 +919,7 @@ def _extract_entries(entry: Dict) -> Dict:
     """
     entries = {}
 
-    if entry["category"] == "testcase":
+    if entry["category"] == ReportCategories.TESTCASE:
         return entries
 
     for child in entry.get("entries", []):
