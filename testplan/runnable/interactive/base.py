@@ -789,38 +789,30 @@ class TestRunnerIHandler(entity.Entity):
     def reload_report(self):
         """Update report with added/removed testcases"""
         new_report = self._initial_report()
-        for mt in self.report.entries:  # multitest level
-            for st_index in range(len(mt.entries)):  # testsuite level
-                st = mt.entries[st_index]
-                new_st = new_report[mt.uid][st.uid]
-                for new_case_index in range(
-                    len(new_report[mt.uid][st.uid].entries)
-                ):  # testcase level
+        for multitest in self.report.entries:  # multitest level
+            for suite_index, suite in enumerate(multitest.entries):
+                new_suite = new_report[multitest.uid][suite.uid]
+                for case_index, case in enumerate(suite.entries):
                     try:
-                        tc = new_report[mt.uid][st.uid].entries[new_case_index]
-                        if isinstance(tc, TestGroupReport):
-                            for new_param_idx in range(
-                                len(new_report[mt.uid][st.uid][tc.uid].entries)
-                            ):  # parametrization level
+                        if isinstance(case, TestGroupReport):
+                            for param_index, param_case in enumerate(
+                                case.entries
+                            ):
                                 try:
-                                    new_report[mt.uid][st.uid][tc.uid].entries[
-                                        new_param_idx
-                                    ] = st[tc.uid][
-                                        tc.entries[new_param_idx].uid
+                                    new_report[multitest.uid][suite.uid][
+                                        case.uid
+                                    ].entries[param_index] = case[
+                                        param_case.uid
                                     ]
-                                except KeyError:  # new parametrization
+                                except KeyError:
                                     continue
                         else:
-                            new_report[mt.uid][st.uid].entries[
-                                new_case_index
-                            ] = st[
-                                new_report[mt.uid][st.uid]
-                                .entries[new_case_index]
-                                .uid
-                            ]
-                    except KeyError:  # new testcase
+                            new_report[multitest.uid][suite.uid].entries[
+                                case_index
+                            ] = suite[case.uid]
+                    except KeyError:
                         continue
-                mt.entries[st_index] = new_st
+                multitest.entries[suite_index] = new_suite
 
     def _setup_http_handler(self):
         """
