@@ -797,16 +797,29 @@ class TestRunnerIHandler(entity.Entity):
                     len(new_report[mt.uid][st.uid].entries)
                 ):  # testcase level
                     try:
-                        # Update new report testcase state
-                        new_report[mt.uid][st.uid].entries[
-                            new_case_index
-                        ] = st[
-                            new_report[mt.uid][st.uid]
-                            .entries[new_case_index]
-                            .uid
-                        ]
+                        tc = new_report[mt.uid][st.uid].entries[new_case_index]
+                        if isinstance(tc, TestGroupReport):
+                            for new_param_idx in range(
+                                len(new_report[mt.uid][st.uid][tc.uid].entries)
+                            ):  # parametrization level
+                                try:
+                                    new_report[mt.uid][st.uid][tc.uid].entries[
+                                        new_param_idx
+                                    ] = st[tc.uid][
+                                        tc.entries[new_param_idx].uid
+                                    ]
+                                except KeyError:  # new parametrization
+                                    continue
+                        else:
+                            new_report[mt.uid][st.uid].entries[
+                                new_case_index
+                            ] = st[
+                                new_report[mt.uid][st.uid]
+                                .entries[new_case_index]
+                                .uid
+                            ]
                     except KeyError:  # new testcase
-                        pass
+                        continue
                 mt.entries[st_index] = new_st
 
     def _setup_http_handler(self):
