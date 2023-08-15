@@ -52,7 +52,7 @@
         "flask_restx",
         "cheroot",
         "boltons",
-        "validators",
+        "validators<=0.20.0",
         "Pillow",
         "plotly",
         "rpyc",
