@@ -940,6 +940,22 @@ class TestCaseReport(Report):
         if new_status == RuntimeStatus.FINISHED:
             self._status = Status.PASSED  # passed if case report has no entry
 
+    # NOTE: this is only for compatibility with the API for filtering.
+    def set_runtime_status_filtered(
+        self,
+        new_status: str,
+        entries: Dict,
+    ) -> None:
+        """
+        Alternative setter for the runtime status of an entry, here it is
+            equivalent to simply setting the runtime status.
+
+        :param new_status: new runtime status to be set
+        :param entries: tree-like structure of entries names, unused, but
+            needed for current API compatibility
+        """
+        self.runtime_status = new_status
+
     def _assertions_status(self):
         for entry in self:
             if entry.get(Status.PASSED) is False:

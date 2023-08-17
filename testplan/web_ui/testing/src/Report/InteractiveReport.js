@@ -471,8 +471,12 @@ class InteractiveReportComponent extends BaseReport {
       category: category,
     };
 
-    if (entries.length !== 0 && category !== "testcase") {
-      pruneEntry.entries = entries.map((entry) => this.pruneReportEntry(entry));
+    if (entries) {
+        if (entries.length && category !== "testcase") {
+            pruneEntry.entries = entries.map(
+                (entry) => this.pruneReportEntry(entry)
+            );
+        }
     }
 
     return pruneEntry;
@@ -480,7 +484,7 @@ class InteractiveReportComponent extends BaseReport {
 
   /**
    * Shallow copy of a report entry, by replacing the "entries" attribute
-   * with an array of entry UIDs if not filter is present.
+   * with an array of entry UIDs if no filter is present.
    * In case there is a non-empty filter text, the entries attribute is pruned.
    */
   shallowReportEntry(reportEntry) {
