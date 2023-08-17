@@ -224,7 +224,7 @@ class InteractiveReportComponent extends BaseReport {
                 const existingParametrization =
                   existingSuite &&
                   existingSuite.entries.find(
-                    (entry) => entry.uid === newTestCase
+                    (entry) => entry.uid === newTestCase.uid
                   );
 
                 if (
