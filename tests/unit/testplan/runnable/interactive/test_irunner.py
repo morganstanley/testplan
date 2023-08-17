@@ -1,4 +1,5 @@
 """Test the interactive test runner."""
+from copy import deepcopy
 from unittest import mock
 
 import pytest
@@ -7,13 +8,14 @@ from testplan import defaults
 from testplan import report
 from testplan import runnable
 from testplan.common import entity
-from testplan.report.testing.base import RuntimeStatus
+from testplan.report import RuntimeStatus, TestCaseReport
 from testplan.testing import filtering
 from testplan.testing import multitest
 from testplan.testing import ordering
 from testplan.testing.multitest import driver
 from testplan.runnable.interactive import base
 from testplan.common.utils.path import default_runpath
+from testplan.common.utils.testing import check_report
 from testplan.runners.local import LocalRunner
 
 
@@ -142,8 +144,6 @@ def irunner():
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_all_tests(irunner, sync):
     """Test running all tests."""
-    _check_initial_report(irunner.report)
-
     ret = irunner.run_all_tests(await_results=sync)
 
     # If the tests were run asynchronously, await the results.
@@ -337,12 +337,11 @@ def test_run_all_tagged_tests(tags, num_of_suite_entries):
         irunner.teardown()
 
 
-def _check_initial_report(initial_report):
+def test_initial_report(irunner):
     """
     Check that the initial report tree is generated correctly.
-
-    First, check that there are three top-level Test reports.
     """
+    initial_report = irunner.report
     assert initial_report.status == report.Status.UNKNOWN
     assert initial_report.runtime_status == report.RuntimeStatus.READY
     assert len(initial_report.entries) == 3
@@ -366,3 +365,87 @@ def _check_initial_report(initial_report):
             param_report = suite_report.entries[1]
             assert isinstance(param_report, report.TestGroupReport)
             assert len(param_report.entries) == 3
+
+
+def test_reload_report(irunner):
+    """
+    Tests report reload of the interactive handler.
+    """
+    # We run one of the MultiTests, the suite for another, and a testcase
+    # and one of the parametrized testcases for the third.
+    irunner.run_test("test_1", await_results=True)
+    irunner.run_test_suite("test_2", "Suite", await_results=True)
+    irunner.run_test_case("test_3", "Suite", "case", await_results=True)
+    irunner.run_test_case_param(
+        "test_1",
+        "Suite",
+        "parametrized",
+        "parametrized__val_2",
+        await_results=True,
+    )
+    # Now we modify the reports forcefully
+    # In test_1, we take no action
+    # In test_2, we remove "parametrized" it needs to be added back, and we
+    # add "new_case" that should be removed
+    irunner.report["test_2"]["Suite"].entries.pop(1)
+    new_case = TestCaseReport(name="new_case", uid="new_case")
+    irunner.report["test_2"]["Suite"].entries.append(new_case)
+    # In test_3, we update "parametrized" by removing "3" and adding
+    # "4", the former will be added back the latter will be removed
+    irunner.report["test_3"]["Suite"]["parametrized"].entries.pop()
+    new_parametrized = TestCaseReport(
+        name="parametrized <val=4>",
+        uid="parametrized__val_4",
+    )
+    irunner.report["test_3"]["Suite"]["parametrized"].entries.append(
+        new_parametrized
+    )
+
+    # We preserve the current report
+    old_report = deepcopy(irunner.report)
+
+    # We reload and assert
+    irunner.reload_report()
+
+    for test in irunner.report:
+        # A MultiTest should reset to ready upon changes underneath
+        assert test.runtime_status == (
+            RuntimeStatus.FINISHED
+            if test.uid == "test_1"
+            else RuntimeStatus.READY
+        )
+        for suite in irunner.report[test.uid]:
+            # A testsuite should reset to ready upon changes underneath
+            assert suite.runtime_status == (
+                RuntimeStatus.FINISHED
+                if test.uid == "test_1"
+                else RuntimeStatus.READY
+            )
+            for index, entry in enumerate(suite):
+                # We need to check explicitly both "case" and "parametrized"
+                assert entry.uid == ("parametrized" if index else "case")
+                if entry.uid == "case":
+                    check_report(
+                        old_report[test.uid][suite.uid][entry.uid],
+                        irunner.report[test.uid][suite.uid][entry.uid],
+                    )
+                elif entry.uid == "parametrized":
+                    for param_index, param in enumerate(entry):
+                        assert (
+                            param.uid
+                            == [
+                                f"parametrized__val_{i + 1}" for i in range(3)
+                            ][param_index]
+                        )
+                        if (test.uid == "test_1") or (
+                            test.uid == "test_3"
+                            and param.uid != "parametrized__val_3"
+                        ):
+                            check_report(
+                                old_report[test.uid][suite.uid][entry.uid][
+                                    param.uid
+                                ],
+                                irunner.report[test.uid][suite.uid][entry.uid][
+                                    param.uid
+                                ],
+                            )
