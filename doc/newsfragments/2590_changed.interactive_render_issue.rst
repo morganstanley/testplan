@@ -1,0 +1,1 @@
+Fix interactive mode table rendered with every poll (Bad UX scroll/highlight not maintained)
