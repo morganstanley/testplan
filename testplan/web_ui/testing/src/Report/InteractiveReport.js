@@ -125,10 +125,10 @@ class InteractiveReportComponent extends BaseReport {
             response.data.runtime_status === "finished" ||
             response.data.runtime_status === "not_run"
           ) {
-            if (this.state.resetting){
+            if (this.state.resetting) {
               this.setState({ resetting: false });
             }
-            if (this.state.running){
+            if (this.state.running) {
               this.setState({ running: false });
             }
           }
@@ -232,7 +232,7 @@ class InteractiveReportComponent extends BaseReport {
                 const existingParametrization =
                   existingSuite &&
                   existingSuite.entries.find(
-                    (entry) => entry.uid === newTestCase
+                    (entry) => entry.uid === newTestCase.uid
                   );
 
                 if (

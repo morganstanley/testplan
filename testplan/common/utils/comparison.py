@@ -329,8 +329,11 @@ class RegexAdapter:
 
     @classmethod
     def match(cls, regex, value):
-
-        return Match.from_bool(bool(regex.match(value)))
+        try:
+            ret = bool(regex.match(value))
+        except TypeError:
+            ret = False
+        return Match.from_bool(ret)
 
     @staticmethod
     def compare(lhs, rhs):
