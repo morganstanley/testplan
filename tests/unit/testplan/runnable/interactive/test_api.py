@@ -198,9 +198,7 @@ class TestReport:
         assert rsp_json["runtime_status"] == report.RuntimeStatus.WAITING
         compare_json(rsp_json, json_report, ignored_keys=["runtime_status"])
 
-        ihandler.reset_all_tests.assert_called_once_with(
-            shallow_report=None, await_results=False
-        )
+        ihandler.reset_all_tests.assert_called_once_with(await_results=False)
 
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""
