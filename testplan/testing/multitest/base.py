@@ -1296,6 +1296,11 @@ class MultiTest(testing_base.Test):
             yield setup_report, [self.uid(), testsuite.uid()]
 
             if setup_report.failed:
+                # NOTE: we are going to skip the cases and update the status
+                for status, parent_uids in self._skip_testcases(
+                    testsuite, testcases
+                ):
+                    yield status, parent_uids
                 teardown_report = self._teardown_testsuite(testsuite)
                 if teardown_report is not None:
                     yield teardown_report, [self.uid(), testsuite.uid()]
@@ -1309,6 +1314,45 @@ class MultiTest(testing_base.Test):
         teardown_report = self._teardown_testsuite(testsuite)
         if teardown_report is not None:
             yield teardown_report, [self.uid(), testsuite.uid()]
+
+    def _get_parent_uids(self, testsuite, testcase):
+        """
+        Utility method to get parent UIDs of a particular testcase.
+
+        :param testsuite: suite to which the case belongs
+        :param testcase: the testcase for which the UIDs are derived
+        :return: list of parent UIDs
+        """
+
+        param_template = getattr(testcase, "_parametrization_template", None)
+        if param_template:
+            parent_uids = [
+                self.uid(),
+                testsuite.uid(),
+                testcase._parametrization_template,
+            ]
+        else:
+            parent_uids = [self.uid(), testsuite.uid()]
+        return parent_uids
+
+    def _skip_testcases(self, testsuite, testcases):
+        """
+        Utility to forcefully skip testcases and modify their runtime status to not
+        run. Used during the failed setup scenario to update the runtime status.
+
+        :param testsuite: testsuite to which the testcases belong
+        :param testcases: testcases to skip
+        :return: generator yielding the not run status for each parent UIDs list
+        """
+        for testcase in testcases:
+            if not self.active:
+                break
+
+            parent_uids = self._get_parent_uids(testsuite, testcase)
+
+            yield {"runtime_status": RuntimeStatus.NOT_RUN}, parent_uids + [
+                testcase.__name__
+            ]
 
     def _run_testcases_iter(self, testsuite, testcases):
         """
@@ -1324,17 +1368,7 @@ class MultiTest(testing_base.Test):
             if not self.active:
                 break
 
-            param_template = getattr(
-                testcase, "_parametrization_template", None
-            )
-            if param_template:
-                parent_uids = [
-                    self.uid(),
-                    testsuite.uid(),
-                    testcase._parametrization_template,
-                ]
-            else:
-                parent_uids = [self.uid(), testsuite.uid()]
+            parent_uids = self._get_parent_uids(testsuite, testcase)
 
             # set the runtime status of testcase report to RUNNING so that
             # client UI can get the change and show testcase is running
