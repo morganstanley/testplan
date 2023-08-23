@@ -125,8 +125,12 @@ class InteractiveReportComponent extends BaseReport {
             response.data.runtime_status === "finished" ||
             response.data.runtime_status === "not_run"
           ) {
-            this.setState({ resetting: false });
-            this.setState({ running: false });
+            if (this.state.resetting){
+              this.setState({ resetting: false });
+            }
+            if (this.state.running){
+              this.setState({ running: false });
+            }
           }
           if (
             !this.state.report ||
