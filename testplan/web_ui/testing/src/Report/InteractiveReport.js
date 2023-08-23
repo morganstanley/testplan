@@ -512,7 +512,7 @@ class InteractiveReportComponent extends BaseReport {
       return;
     } else {
       const updatedReportEntry = {
-        ...this.shallowReportEntry(this.state.report),
+        ...this.shallowReportEntry(this.state.filteredReport.report),
         runtime_status: "running",
       };
       this.putUpdatedReportEntry(updatedReportEntry);
@@ -697,6 +697,7 @@ class InteractiveReportComponent extends BaseReport {
               key="runall-button"
               running={this.state.running}
               runAllCbk={this.runAll}
+              filter={this.state.filteredReport.filter.text}
             />,
             <ReloadButton
               key="reload-button"

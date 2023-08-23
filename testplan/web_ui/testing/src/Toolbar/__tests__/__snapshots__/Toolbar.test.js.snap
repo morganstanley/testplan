@@ -84,7 +84,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             spinReverse={false}
             swapOpacity={false}
             symbol={false}
-            title="Run all Multitests"
+            title="Run all tests"
             titleId={null}
             transform={null}
           />

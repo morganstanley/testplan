@@ -9,6 +9,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     extraButtons={
       Array [
         <RunAllButton
+          filter={null}
           runAllCbk={[Function]}
           running={false}
         />,
@@ -97,6 +98,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     extraButtons={
       Array [
         <RunAllButton
+          filter={null}
           runAllCbk={[Function]}
           running={false}
         />,
@@ -183,6 +185,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     extraButtons={
       Array [
         <RunAllButton
+          filter={null}
           runAllCbk={[Function]}
           running={false}
         />,
@@ -666,6 +669,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     extraButtons={
       Array [
         <RunAllButton
+          filter={null}
           runAllCbk={[Function]}
           running={false}
         />,
@@ -752,6 +756,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     extraButtons={
       Array [
         <RunAllButton
+          filter={null}
           runAllCbk={[Function]}
           running={false}
         />,
@@ -838,6 +843,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     extraButtons={
       Array [
         <RunAllButton
+          filter={null}
           runAllCbk={[Function]}
           running={false}
         />,
@@ -924,6 +930,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     extraButtons={
       Array [
         <RunAllButton
+          filter={null}
           runAllCbk={[Function]}
           running={false}
         />,

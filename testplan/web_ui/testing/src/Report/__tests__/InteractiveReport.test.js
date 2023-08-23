@@ -695,25 +695,11 @@ describe("InteractiveReport", () => {
     const testcase = report.entries[0].entries[0].entries[0];
     expect(testcase.category).toBe("testcase");
 
-    // Add an assertion entry.
-    testcase.entries = [
-      {
-        machine_time: "2020-01-28T17:27:46.134440+00:00",
-        second: "foo",
-        description: null,
-        passed: false,
-        meta_type: "assertion",
-        type: "Equal",
-        category: "DEFAULT",
-        utc_time: "2020-01-28T17:27:46.134429+00:00",
-        line_no: 24,
-        label: "==",
-        first: "foo",
-      },
-    ];
-
     interactiveReport.setState({
-      report: report,
+      filteredReport: {
+        report: report,
+        filter: {text: null}
+      },
     });
     interactiveReport.update();
     interactiveReport.instance().runAll();
@@ -735,6 +721,52 @@ describe("InteractiveReport", () => {
             expect(request.config.method).toBe("put");
             const putData = JSON.parse(request.config.data);
             expect(putData.runtime_status).toBe("running");
+            expect(putData.entries).not.toBeDefined();
+            done();
+          });
+        });
+    });
+  });
+
+  it("Run filtered tests", (done) => {
+    const interactiveReport = renderInteractiveReport();
+
+    const report = initialReport();
+    const multitest = report.entries[0];
+    expect(multitest.category).toBe("multitest");
+    multitest.env_status = "STARTED";
+
+    const testcase = report.entries[0].entries[0].entries[0];
+    expect(testcase.category).toBe("testcase");
+
+    interactiveReport.setState({
+      filteredReport: {
+        report: report,
+        filter: {text: "something"}
+      },
+    });
+    interactiveReport.update();
+    interactiveReport.instance().runAll();
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/interactive/report");
+      expect(request.config.method).toBe("put");
+      const putData = JSON.parse(request.config.data);
+
+      request
+        .respondWith({
+          status: 200,
+          response: putData,
+        })
+        .then(() => {
+          moxios.wait(() => {
+            const request = moxios.requests.mostRecent();
+            expect(request.url).toBe("/api/v1/interactive/report");
+            expect(request.config.method).toBe("put");
+            const putData = JSON.parse(request.config.data);
+            expect(putData.runtime_status).toBe("running");
+            expect(putData.entries).toHaveLength(1);
+            expect(putData.entries[0].name).toBe("MultiTestName");
             done();
           });
         });

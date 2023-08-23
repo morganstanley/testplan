@@ -153,8 +153,19 @@ def generate_interactive_api(ihandler):
                     new_runtime_status,
                 ):
                     _check_execution_order(ihandler.report)
-                    ihandler.report.runtime_status = RuntimeStatus.WAITING
-                    ihandler.run_all_tests(await_results=False)
+                    filtered = "entries" in shallow_report
+                    if filtered:
+                        entries = _extract_entries(shallow_report)
+                        ihandler.report.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                    else:
+                        ihandler.report.runtime_status = RuntimeStatus.WAITING
+                    ihandler.run_all_tests(
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
+                    )
 
                 return _serialize_report_entry(ihandler.report)
 

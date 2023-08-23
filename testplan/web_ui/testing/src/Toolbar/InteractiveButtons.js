@@ -21,6 +21,7 @@ import {
   faTimes,
   faSave,
   faPlay,
+  faHourglass,
 } from "@fortawesome/free-solid-svg-icons";
 import { format as dateFormat } from "date-fns";
 import { css } from "aphrodite";
@@ -156,26 +157,43 @@ export const RunAllButton = (props) => {
           <FontAwesomeIcon
             key="toolbar-runall"
             className={css(styles.toolbarButton, styles.toolbarInactive)}
-            icon={faPlay}
-            title="Running..."
+            icon={faHourglass}
+            title="Running tests..."
+            spin
           />
         </div>
       </NavItem>
     );
   } else {
-    return (
-      <NavItem key="runall-button">
-        <div className={css(styles.buttonsBar)}>
-          <FontAwesomeIcon
-            key="toolbar-runall"
-            className={css(styles.toolbarButton)}
-            icon={faPlay}
-            title="Run all Multitests"
-            onClick={props.runAllCbk}
-          />
-        </div>
-      </NavItem>
-    );
+    if (props.filter) {
+      return (
+        <NavItem key="runall-button">
+          <div className={css(styles.buttonsBar)}>
+            <FontAwesomeIcon
+              key="toolbar-runall"
+              className={css(styles.toolbarButton)}
+              icon={faPlay}
+              title="Run filtered tests"
+              onClick={props.runAllCbk}
+            />
+          </div>
+        </NavItem>
+      );
+    } else {
+      return (
+        <NavItem key="runall-button">
+          <div className={css(styles.buttonsBar)}>
+            <FontAwesomeIcon
+              key="toolbar-runall"
+              className={css(styles.toolbarButton)}
+              icon={faPlay}
+              title="Run all tests"
+              onClick={props.runAllCbk}
+            />
+          </div>
+        </NavItem>
+      );
+    }
   }
 };
 

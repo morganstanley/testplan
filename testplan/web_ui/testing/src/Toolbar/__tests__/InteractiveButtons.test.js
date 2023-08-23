@@ -112,7 +112,7 @@ describe("RunAllButton", () => {
       <RunAllButton runAllCbk={runAllCbk} running={false} />
     );
     expect(button).toMatchSnapshot();
-    button.find({ title: "Run all Multitests" }).simulate("click");
+    button.find({ title: "Run all tests" }).simulate("click");
     expect(runAllCbk.mock.calls.length).toBe(1);
   });
 
