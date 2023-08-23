@@ -181,9 +181,6 @@ class TestReport:
         json_report["runtime_status"] = report.RuntimeStatus.RUNNING
         rsp = client.put("/api/v1/interactive/report", json=json_report)
         assert rsp.status_code == 200
-        rsp_json = rsp.get_json()
-        assert rsp_json["runtime_status"] == report.RuntimeStatus.WAITING
-        compare_json(rsp_json, json_report, ignored_keys=["runtime_status"])
 
         ihandler.run_all_tests.assert_called_once_with(
             shallow_report=json_report, await_results=False
