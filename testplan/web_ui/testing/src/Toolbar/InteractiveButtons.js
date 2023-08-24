@@ -165,35 +165,25 @@ export const RunAllButton = (props) => {
       </NavItem>
     );
   } else {
+    let title;
     if (props.filter) {
-      return (
-        <NavItem key="runall-button">
-          <div className={css(styles.buttonsBar)}>
-            <FontAwesomeIcon
-              key="toolbar-runall"
-              className={css(styles.toolbarButton)}
-              icon={faPlay}
-              title="Run filtered tests"
-              onClick={props.runAllCbk}
-            />
-          </div>
-        </NavItem>
-      );
+      title="Run filtered tests";
     } else {
-      return (
-        <NavItem key="runall-button">
-          <div className={css(styles.buttonsBar)}>
-            <FontAwesomeIcon
-              key="toolbar-runall"
-              className={css(styles.toolbarButton)}
-              icon={faPlay}
-              title="Run all tests"
-              onClick={props.runAllCbk}
-            />
-          </div>
-        </NavItem>
-      );
+      title="Run all tests";
     }
+    return (
+      <NavItem key="runall-button">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key="toolbar-runall"
+            className={css(styles.toolbarButton)}
+            icon={faPlay}
+            title={title}
+            onClick={props.runAllCbk}
+          />
+        </div>
+      </NavItem>
+    );
   }
 };
 

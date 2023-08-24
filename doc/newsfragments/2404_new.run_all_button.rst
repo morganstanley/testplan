@@ -1,1 +1,1 @@
-Added a new "Run all MultiTests" button to toolbar on the interactive GUI.
+Introduced a new plan-level Run button to the toolbar on the interactive GUI.
