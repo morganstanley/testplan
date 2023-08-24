@@ -227,11 +227,14 @@ class TestRunnerIHandler(entity.Entity):
             self._update_reports([(self.test(test_uid).dry_run().report, [])])
 
     def run_all_tests(
-        self, await_results: bool = True
+        self,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
     ) -> Union[TestReport, Awaitable]:
         """
         Runs all tests.
 
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until tests are finished,
             defaults to True.
         :return: If await_results is True, returns a testplan report.
@@ -239,12 +242,20 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_all_tests)
+            return self._run_async(
+                self.run_all_tests, shallow_report=shallow_report
+            )
 
-        self.logger.debug("Interactive mode: Run all tests")
-
-        for test_uid in self.all_tests():
-            self.run_test(test_uid)
+        if shallow_report:
+            self.logger.debug("Interactive mode: Run filtered tests")
+            for multitest in shallow_report["entries"]:
+                self.run_test(
+                    test_uid=multitest["name"], shallow_report=multitest
+                )
+        else:
+            self.logger.debug("Interactive mode: Run all tests")
+            for test_uid in self.all_tests():
+                self.run_test(test_uid=test_uid)
 
     def run_test(
         self,

@@ -320,3 +320,110 @@ exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
   </div>
 </NavItem>
 `;
+
+exports[`RunAllButton Renders a clickable button 1`] = `
+<NavItem
+  key="runall-button"
+  tag="li"
+>
+  <div
+    className="buttonsBar_6zsntc"
+  >
+    <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
+      border={false}
+      bounce={false}
+      className="toolbarButton_1ueb7gu"
+      fade={false}
+      fixedWidth={false}
+      flip={false}
+      icon={
+        Object {
+          "icon": Array [
+            448,
+            512,
+            Array [],
+            "f04b",
+            "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z",
+          ],
+          "iconName": "play",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      key="toolbar-runall"
+      listItem={false}
+      mask={null}
+      maskId={null}
+      onClick={[MockFunction]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      shake={false}
+      size={null}
+      spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
+      symbol={false}
+      title="Run all tests"
+      titleId={null}
+      transform={null}
+    />
+  </div>
+</NavItem>
+`;
+
+exports[`RunAllButton Renders an inactive icon when running is in-progress 1`] = `
+<NavItem
+  key="runall-button"
+  tag="li"
+>
+  <div
+    className="buttonsBar_6zsntc"
+  >
+    <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
+      border={false}
+      bounce={false}
+      className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
+      fade={false}
+      fixedWidth={false}
+      flip={false}
+      icon={
+        Object {
+          "icon": Array [
+            384,
+            512,
+            Array [],
+            "f254",
+            "M360 64c13.255 0 24-10.745 24-24V24c0-13.255-10.745-24-24-24H24C10.745 0 0 10.745 0 24v16c0 13.255 10.745 24 24 24 0 90.965 51.016 167.734 120.842 192C75.016 280.266 24 357.035 24 448c-13.255 0-24 10.745-24 24v16c0 13.255 10.745 24 24 24h336c13.255 0 24-10.745 24-24v-16c0-13.255-10.745-24-24-24 0-90.965-51.016-167.734-120.842-192C308.984 231.734 360 154.965 360 64z",
+          ],
+          "iconName": "hourglass",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      key="toolbar-runall"
+      listItem={false}
+      mask={null}
+      maskId={null}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      shake={false}
+      size={null}
+      spin={true}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
+      symbol={false}
+      title="Running tests..."
+      titleId={null}
+      transform={null}
+    />
+  </div>
+</NavItem>
+`;
