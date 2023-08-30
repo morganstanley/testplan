@@ -368,7 +368,9 @@ class TestSingleTest:
         rsp = client.put(api_url, json=json_test)
         assert rsp.status_code == 200
         rsp = client.put(api_url, json=json_test)
-        assert rsp.status_code == 400
+        assert rsp.status_code == 200
+        json_rsp = rsp.get_json()
+        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING
 
 
 class TestAllSuites:
