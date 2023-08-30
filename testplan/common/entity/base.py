@@ -1678,7 +1678,9 @@ class RunnableManager(Entity):
             break_join=lambda: self.aborted is True,
         )
         if self._runnable.interactive is not None:
-            return self._runnable.interactive
+            # for testing purpose
+            if self.cfg.interactive_block is False:
+                return self._runnable.interactive
         if isinstance(self._runnable.result, Exception):
             raise self._runnable.result
         return self._runnable.result
