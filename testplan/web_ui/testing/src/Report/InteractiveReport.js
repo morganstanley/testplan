@@ -17,6 +17,7 @@ import {
   ReloadButton,
   ResetButton,
   AbortButton,
+  RunAllButton,
   SaveButton,
 } from "../Toolbar/InteractiveButtons";
 import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
@@ -63,6 +64,7 @@ class InteractiveReportComponent extends BaseReport {
     this.resetAssertionStatus = this.resetAssertionStatus.bind(this);
     this.resetReport = this.resetReport.bind(this);
     this.abortTestplan = this.abortTestplan.bind(this);
+    this.runAll = this.runAll.bind(this);
     this.reloadCode = this.reloadCode.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -72,6 +74,7 @@ class InteractiveReportComponent extends BaseReport {
       navWidth: `${INTERACTIVE_COL_WIDTH}em`,
       resetting: false,
       reloading: false,
+      running: false,
       aborting: false,
       assertionStatus: defaultAssertionStatus,
     };
@@ -122,8 +125,11 @@ class InteractiveReportComponent extends BaseReport {
             response.data.runtime_status === "finished" ||
             response.data.runtime_status === "not_run"
           ) {
-            if (this.state.resetting){
+            if (this.state.resetting) {
               this.setState({ resetting: false });
+            }
+            if (this.state.running) {
+              this.setState({ running: false });
             }
           }
           if (
@@ -504,10 +510,32 @@ class InteractiveReportComponent extends BaseReport {
   }
 
   /**
+   * Send request of start all tests to server.
+   */
+  runAll() {
+    if (
+      this.state.resetting || this.state.reloading ||
+      this.state.aborting || this.state.running
+    ) {
+      return;
+    } else {
+      const updatedReportEntry = {
+        ...this.shallowReportEntry(this.state.filteredReport.report),
+        runtime_status: "running",
+      };
+      this.putUpdatedReportEntry(updatedReportEntry);
+      this.setState({ running: true });
+    }
+  }
+
+  /**
    * Reset the report state to "resetting" and request the change to server.
    */
   resetReport() {
-    if (this.state.resetting || this.state.reloading || this.state.aborting) {
+    if (
+      this.state.resetting || this.state.reloading ||
+      this.state.aborting || this.state.running
+    ) {
       return;
     } else {
       const updatedReportEntry = {
@@ -523,7 +551,10 @@ class InteractiveReportComponent extends BaseReport {
    * Send request of reloading report to server.
    */
   reloadCode() {
-    if (this.state.resetting || this.state.reloading || this.state.aborting) {
+    if (
+      this.state.resetting || this.state.reloading ||
+      this.state.aborting || this.state.running
+    ) {
       return;
     }
     let currentTime = new Date();
@@ -670,6 +701,12 @@ class InteractiveReportComponent extends BaseReport {
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
           extraButtons={[
+            <RunAllButton
+              key="runall-button"
+              running={this.state.running}
+              runAllCbk={this.runAll}
+              filter={this.state.filteredReport.filter.text}
+            />,
             <ReloadButton
               key="reload-button"
               reloading={this.state.reloading}

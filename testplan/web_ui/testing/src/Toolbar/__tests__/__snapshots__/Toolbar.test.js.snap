@@ -40,6 +40,57 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
         status="passed"
       />
       <NavItem
+        key="runall-button"
+        tag="li"
+      >
+        <div
+          className="buttonsBar_6zsntc"
+        >
+          <FontAwesomeIcon
+            beat={false}
+            beatFade={false}
+            border={false}
+            bounce={false}
+            className="toolbarButton_1ueb7gu"
+            fade={false}
+            fixedWidth={false}
+            flip={false}
+            icon={
+              Object {
+                "icon": Array [
+                  448,
+                  512,
+                  Array [],
+                  "f04b",
+                  "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z",
+                ],
+                "iconName": "play",
+                "prefix": "fas",
+              }
+            }
+            inverse={false}
+            key="toolbar-runall"
+            listItem={false}
+            mask={null}
+            maskId={null}
+            onClick={[MockFunction]}
+            pull={null}
+            pulse={false}
+            rotation={null}
+            shake={false}
+            size={null}
+            spin={false}
+            spinPulse={false}
+            spinReverse={false}
+            swapOpacity={false}
+            symbol={false}
+            title="Run all tests"
+            titleId={null}
+            transform={null}
+          />
+        </div>
+      </NavItem>
+      <NavItem
         key="reload-button"
         tag="li"
       >

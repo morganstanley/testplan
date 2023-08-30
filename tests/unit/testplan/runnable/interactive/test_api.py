@@ -169,7 +169,22 @@ class TestReport:
         assert rsp_json["runtime_status"] == report.RuntimeStatus.WAITING
         compare_json(rsp_json, json_report, ignored_keys=["runtime_status"])
 
-        ihandler.run_all_tests.assert_called_once_with(await_results=False)
+        ihandler.run_all_tests.assert_called_once_with(
+            shallow_report=None, await_results=False
+        )
+
+    def test_put_filtered(self, api_env):
+        """Test updating the Report resource via PUT."""
+        client, ihandler = api_env
+
+        json_report = ihandler.report.serialize()
+        json_report["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = client.put("/api/v1/interactive/report", json=json_report)
+        assert rsp.status_code == 200
+
+        ihandler.run_all_tests.assert_called_once_with(
+            shallow_report=json_report, await_results=False
+        )
 
     def test_put_reset(self, api_env):
         """Test resetting the Report resource via PUT."""
