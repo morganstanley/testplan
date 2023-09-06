@@ -43,19 +43,14 @@ class TCPClient(Driver):
     {emphasized_members_docs}
 
     :param name: Name of TCPClient.
-    :type name: ``str``
     :param host: Target host name. This can be a
         :py:class:`~testplan.common.utils.context.ContextValue`
         and will be expanded on runtime.
-    :type host: ``str``
     :param port: Target port number. This can be a
         :py:class:`~testplan.common.utils.context.ContextValue`
         and will be expanded on runtime.
-    :type port: ``int``
     :param interface: Interface to bind to.
-    :type interface: ``NoneType`` or ``tuple``(``str, ``int``)
     :param connect_at_start: Connect to server on start. Default: True
-    :type connect_at_start: ``bool``
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -68,73 +63,69 @@ class TCPClient(Driver):
         name: str,
         host: Union[str, ContextValue],
         port: Union[int, str, ContextValue],
-        interface: Optional[Union[str, Tuple[str, int]]] = None,
+        interface: Union[Tuple[str, int], None] = None,
         connect_at_start: bool = True,
         **options
     ):
         options.update(self.filter_locals(locals()))
         super(TCPClient, self).__init__(**options)
-        self._host: str = None
-        self._port: int = None
+        self._host: Optional[str] = None
+        self._port: Optional[int] = None
         self._client = None
         self._server_host = None
         self._server_port = None
 
     @property
-    def host(self):
+    def host(self) -> str:
         """Target host name."""
         return self._host
 
     @property
-    def port(self):
+    def port(self) -> int:
         """Client port number assigned."""
         return self._port
 
     @property
-    def server_port(self):
+    def server_port(self) -> int:
         return self._server_port
 
-    def connect(self):
+    def connect(self) -> None:
         """
         Connect client.
         """
         self._client.connect()
         self._host, self._port = self._client.address
 
-    def send_text(self, msg, standard="utf-8"):
+    def send_text(self, msg: str, standard: str = "utf-8") -> int:
         """
         Encodes to bytes and calls
         :py:meth:`TCPClient.send
         <testplan.testing.multitest.driver.tcp.client.TCPClient.send>`.
         """
-        return self.send(bytes(msg.encode(standard)))
+        return self.send(msg.encode(standard))
 
-    def send(self, msg):
+    def send(self, msg: bytes) -> int:
         """
         Sends bytes.
 
         :param msg: Message to be sent
-        :type msg: ``bytes``
 
         :return: Number of bytes sent
-        :rtype: ``int``
         """
         return self._client.send(msg)[1]
 
-    def send_tsp(self, msg):
+    def send_tsp(self, msg: bytes) -> Tuple[float, int]:
         """
         Sends bytes and returns also timestamp sent.
 
         :param msg: Message to be sent
-        :type msg: ``bytes``
 
         :return: Timestamp when msg sent (in microseconds from epoch)
                  and number of bytes sent
-        :rtype: ``tuple`` of ``long`` and ``int``
         """
         return self._client.send(msg)
 
-    def receive_text(self, standard="utf-8", **kwargs):
+    def receive_text(self, standard: str = "utf-8", **kwargs) -> str:
         """
         Calls
         :py:meth:`TCPClient.receive
@@ -143,7 +134,7 @@ class TCPClient(Driver):
         """
         return self.receive(**kwargs).decode(standard)
 
-    def receive(self, size=1024, timeout=30):
+    def receive(self, size: int = 1024, timeout: int = 30) -> Optional[bytes]:
         """Receive bytes from the given connection."""
         received = None
         timeout_info = TimeoutExceptionInfo()
@@ -158,34 +149,38 @@ class TCPClient(Driver):
                 )
         return received
 
-    def reconnect(self):
+    def reconnect(self) -> None:
         """Client reconnect."""
         self.close()
         self.connect()
 
-    def starting(self):
+    def starting(self) -> None:
         """Start the TCP client and optionally connect to host/post."""
         super(TCPClient, self).starting()
         self._server_host = expand(self.cfg.host, self.context)
         self._server_port = networking.port_to_int(
             expand(self.cfg.port, self.context)
         )
-        self._client = Client(host=self._server_host, port=self._server_port)
+        self._client = Client(
+            host=self._server_host,
+            port=self._server_port,
+            interface=self.cfg.interface,
+        )
         if self.cfg.connect_at_start:
             self.connect()
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Close the client connection."""
         super(TCPClient, self).stopping()
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         """
         Close connection.
         """
         if self._client:
             self._client.close()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the client."""
         self.close()
