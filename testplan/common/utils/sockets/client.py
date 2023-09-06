@@ -2,6 +2,7 @@
 
 import time
 import socket
+from typing import Union, Tuple
 
 
 class Client:
@@ -16,19 +17,21 @@ class Client:
         4. close
     """
 
-    def __init__(self, host, port, interface=None):
+    def __init__(
+        self,
+        host: str,
+        port: Union[str, int],
+        interface: Union[Tuple[str, int], None] = None,
+    ) -> None:
         """
         Create a new TCP client.
         This constructor takes parameters that specify the address (host, port)
         to connect to and an optional logging callback method.
 
         :param host: hostname or IP address to connect to
-        :type host: ``str``
         :param port: port to connect to
-        :type port: ``str`` or ``int``
         :param interface: Local interface to bind to. Defaults to None, in
             which case the socket does not bind before connecting.
-        :type interface: (``str``, ``str`` or ``int``) tuple
         """
         self._input_host = host
         self._input_port = port
@@ -37,49 +40,44 @@ class Client:
         self._timeout = None
 
     @property
-    def address(self):
+    def address(self) -> Tuple[str, int]:
         """
         Returns the host and port information of socket.
         """
         return self._client.getsockname()
 
     @property
-    def port(self):
+    def port(self) -> Union[str, int]:
         return self._input_port
 
-    def connect(self):
+    def connect(self) -> None:
         """
         Connect client to socket.
         """
         self._client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if self._interface is not None:
+        if self._interface:
             self._client.bind(self._interface)
         self._client.connect((self._input_host, self._input_port))
 
-    def send(self, msg):
+    def send(self, msg: bytes) -> Tuple[float, int]:
         """
         Send the given message.
 
         :param msg: Message to be sent.
-        :type msg: ``bytes``
         :return: Timestamp when msg sent (in microseconds from epoch) and
                  number of bytes sent
-        :rtype: ``tuple`` of ``long`` and ``int``
         """
         tsp = time.time() * 1000000
         size = self._client.send(msg)
         return tsp, size
 
-    def receive(self, size, timeout=30):
+    def receive(self, size: int, timeout: int = 30) -> bytes:
         """
         Receive a message.
 
         :param size: Number of bytes to receive.
-        :type size: ``int``
         :param timeout: Timeout in seconds.
-        :type timeout: ``int``
         :return: message received
-        :rtype: ``bytes``
         """
         if timeout != self._timeout:
             self._timeout = timeout
@@ -92,25 +90,19 @@ class Client:
             raise
         return msg
 
-    def recv(self, bufsize, flags=0):
+    def recv(self, bufsize: int, flags: int = 0) -> bytes:
         """
         Proxy for Python's ``socket.recv()``.
 
         :param bufsize: Maximum amount of data to be received at once.
-        :type bufsize: ``int``
         :param flags: Defaults to zero.
-        :type flags: ``int``
         :return: message received
-        :rtype: ``bytes``
         """
         return self._client.recv(bufsize, flags)
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the connection.
-
-        :return: ``None``
-        :rtype: ``NoneType``
         """
         if self._client is not None:
             self._client.close()
