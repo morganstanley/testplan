@@ -567,28 +567,8 @@ def _mark_function_as_testcase(func):
 
 
 def _testcase(function):
-    """Actual decorator that validates & registers a method as a testcase."""
-    global __TESTCASES__
 
-    # Attributes `name` and `__tags__` are added only when function is
-    # decorated by @testcase(...) which has the following parentheses.
-    if not hasattr(function, "name"):
-        _validate_function_name(function)
-        function.name = function.__name__
-
-    if not hasattr(function, "__tags__"):
-        function.__tags__ = {}
-        function.__tags_index__ = {}
-
-    _validate_testcase(function)
-    _mark_function_as_testcase(function)
-
-    function.__seq_number__ = _number_of_testcases()
-    function.__skip__ = []
-
-    __TESTCASES__.append(function.__name__)
-
-    return function
+    return _testcase_meta()(function)
 
 
 def _testcase_meta(
@@ -613,7 +593,7 @@ def _testcase_meta(
 
     @functools.wraps(_testcase)
     def wrapper(function):
-        """Meta logic for test case goes here."""
+        """Actual decorator that validates & registers a method as a testcase."""
         global __TESTCASES__
         global __GENERATED_TESTCASES__
         global __PARAMETRIZATION_TEMPLATE__
