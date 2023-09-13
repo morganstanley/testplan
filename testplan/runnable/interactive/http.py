@@ -827,14 +827,23 @@ def _should_run(uid, curr_status, new_status):
     """
     if new_status == curr_status:
         return False
+
+    # test entry already triggered
+    elif (
+        new_status == RuntimeStatus.RUNNING
+        and curr_status == RuntimeStatus.WAITING
+    ):
+        return False
+
     elif new_status == RuntimeStatus.RUNNING:
-        if curr_status not in (RuntimeStatus.RESETTING, RuntimeStatus.WAITING):
-            return True
-        else:
+
+        if curr_status == RuntimeStatus.RESETTING:
             raise werkzeug.exceptions.BadRequest(
                 "Cannot update runtime status of entry"
                 f' "{uid}" from "{curr_status}" to "{new_status}"'
             )
+        return True
+
     return False
 
 
