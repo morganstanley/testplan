@@ -1,29 +1,43 @@
 """
     This module contains logic for listing representing test context of a plan.
 """
+import dataclasses
+import json
 import os
 from enum import Enum
+from typing import List, Union
 
 from testplan.common.utils.parser import ArgMixin
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan.testing import tagging
 from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.test_metadata import TestPlanMetadata
 
 INDENT = " "
 MAX_TESTCASES = 25
 
 
-class BaseLister:
+class Listertype:
+    NAME = None
+    DESCRIPTION = None
+
+    metadata_based = False
+
+    def name(self):
+        return self.NAME
+
+    def description(self):
+        return self.DESCRIPTION
+
+
+class BaseLister(Listertype):
     """
     Base of all listers, implement the :py:meth:`get_output` give it a name in
     :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or alternatively
     override :py:meth:`name` and/or :py:meth:`description` and it is good to be
     added to :py:data:`listing_registry`.
     """
-
-    NAME = None
-    DESCRIPTION = None
 
     def log_test_info(self, instance):
         output = self.get_output(instance)
@@ -32,12 +46,6 @@ class BaseLister:
 
     def get_output(self, instance):
         raise NotImplementedError
-
-    def name(self):
-        return self.NAME
-
-    def description(self):
-        return self.DESCRIPTION
 
 
 class ExpandedNameLister(BaseLister):
@@ -228,6 +236,33 @@ class ListingArgMixin(ArgMixin):
         return dict([(lister, lister.value.description()) for lister in cls])
 
 
+class MetadataBasedLister(Listertype):
+    """
+    Base of all metadata based listers, implement the :py:meth:`get_output` give it a name in
+    :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or alternatively
+    override :py:meth:`name` and/or :py:meth:`description` and it is good to be
+    added to :py:data:`listing_registry`.
+    """
+
+    metadata_based = True
+
+    def log_test_info(self, metadata: TestPlanMetadata):
+        output = self.get_output(metadata)
+        if output:
+            TESTPLAN_LOGGER.user_info(output)
+
+    def get_output(self, metadata: TestPlanMetadata):
+        raise NotImplementedError
+
+
+class SimpleJsonLister(MetadataBasedLister):
+    NAME = "JSON"
+    DESCRIPTION = "Dump test information in json"
+
+    def get_output(self, metadata: TestPlanMetadata):
+        return json.dumps(dataclasses.asdict(metadata))
+
+
 class ListingRegistry:
     """
     A registry to store listers, add listers to the :py:data:`listing_registry`
@@ -235,7 +270,7 @@ class ListingRegistry:
     """
 
     def __init__(self):
-        self.listers = []
+        self.listers: List[Listertype] = []
 
     def add_lister(self, lister):
         self.listers.append(lister)
@@ -261,3 +296,7 @@ listing_registry.add_lister(NameLister())
 listing_registry.add_lister(ExpandedPatternLister())
 listing_registry.add_lister(ExpandedNameLister())
 listing_registry.add_lister(CountLister())
+listing_registry.add_lister(SimpleJsonLister())
+
+
+Lister = Union[BaseLister, MetadataBasedLister]

@@ -9,6 +9,7 @@ import time
 import uuid
 import webbrowser
 from collections import OrderedDict
+from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
@@ -57,11 +58,26 @@ from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
 from testplan.runners.pools.tasks import Task, TaskResult
-from testplan.runners.pools.tasks.base import is_task_target
+from testplan.runners.pools.tasks.base import (
+    is_task_target,
+    TaskTargetInformation,
+    get_task_target_information,
+)
 from testplan.testing import filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
+from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
 from testplan.runners.pools.base import Pool
+
+
+TestTask = Union[Test, Task, Callable]
+
+
+@dataclass
+class TaskInformation:
+    target: TestTask
+    materialized_test: Test
+    uid: str
 
 
 def get_exporters(values):
@@ -180,7 +196,7 @@ class TestRunnerConfig(RunnableConfig):
             # Test lister is None by default, otherwise Testplan would
             # list tests, not run them
             ConfigOption("test_lister", default=None): Or(
-                None, listing.BaseLister
+                None, listing.BaseLister, listing.MetadataBasedLister
             ),
             ConfigOption("verbose", default=False): bool,
             ConfigOption("debug", default=False): bool,
@@ -513,11 +529,110 @@ class TestRunner(Runnable):
             self.logger.info("Stopping Remote Server %s", name)
             rmt_svc.stop()
 
+    def _clone_task_for_part(self, task_info, _task_arguments, part):
+        _task_arguments["part"] = part
+        self.logger.debug(
+            "Task re-created with arguments: %s",
+            _task_arguments,
+        )
+        _multitest_params = task_info.materialized_test.cfg._cfg_input
+        _multitest_params["part"] = part
+        target = Task(**_task_arguments)
+        materialized_test = task_info.materialized_test.__class__(
+            **_multitest_params
+        )
+        target._uid = materialized_test.uid()
+        new_task = TaskInformation(
+            target,
+            materialized_test,
+            materialized_test.uid(),
+        )
+        return new_task
+
+    def _get_tasks(
+        self, _task_arguments, num_of_parts, runtime_data
+    ) -> List[TaskInformation]:
+        self.logger.debug(
+            "Task created with arguments: %s",
+            _task_arguments,
+        )
+        task = Task(**_task_arguments)
+        task_info = self._collect_task_info(task)
+
+        uid = task_info.uid
+
+        tasks: List[TaskInformation] = []
+        time_info = runtime_data.get(uid, None)
+        if num_of_parts:
+
+            if not isinstance(task_info.materialized_test, MultiTest):
+                raise TypeError(
+                    "multitest_parts specified in @task_target,"
+                    " but the Runnable is not a MultiTest"
+                )
+
+            if num_of_parts == "auto":
+                if not time_info:
+                    self.logger.warning(
+                        "%s parts is auto but cannot find it in runtime-data",
+                        uid,
+                    )
+                    num_of_parts = 1
+                else:
+                    num_of_parts = math.ceil(
+                        time_info["execution_time"]
+                        / (
+                            self.cfg.auto_part_runtime_limit
+                            - time_info["setup_time"]
+                        )
+                    )
+            if "weight" not in _task_arguments:
+                _task_arguments["weight"] = _task_arguments.get(
+                    "weight", None
+                ) or (
+                    math.ceil(
+                        (time_info["execution_time"] / num_of_parts)
+                        + time_info["setup_time"]
+                    )
+                    if time_info
+                    else self.cfg.auto_part_runtime_limit
+                )
+            self.logger.user_info(
+                "%s: parts=%d, weight=%d",
+                uid,
+                num_of_parts,
+                _task_arguments["weight"],
+            )
+            if num_of_parts == 1:
+                task_info.target.weight = _task_arguments["weight"]
+                tasks.append(task_info)
+            else:
+                for i in range(num_of_parts):
+
+                    part = (i, num_of_parts)
+                    new_task = self._clone_task_for_part(
+                        task_info, _task_arguments, part
+                    )
+
+                    tasks.append(new_task)
+
+        else:
+            if time_info and not task.weight:
+                task_info.target.weight = math.ceil(
+                    time_info["execution_time"] + time_info["setup_time"]
+                )
+                self.logger.user_info(
+                    "%s: weight=%d", uid, task_info.target.weight
+                )
+            tasks.append(task_info)
+
+        return tasks
+
     def discover(
         self,
         path: str = ".",
         name_pattern: Union[str, Pattern] = r".*\.py$",
-    ) -> List[Task]:
+    ) -> List[TaskInformation]:
         """
         Discover task targets under path in the modules that matches name pattern,
         and return the created Task object.
@@ -534,75 +649,9 @@ class TestRunner(Runnable):
             path,
         )
         regex = re.compile(name_pattern)
-        tasks = []
+        tasks: List[TaskInformation] = []
 
         runtime_data: dict = self.cfg.runtime_data or {}
-
-        def _add_task(_target, _task_arguments):
-            self.logger.debug(
-                "Task created with arguments: %s",
-                _task_arguments,
-            )
-            task = Task(**_task_arguments)
-            uid = self._verify_test_target(task)
-
-            # nothing to run
-            if not uid:
-                return
-            time_info = runtime_data.get(uid, None)
-            if getattr(_target, "__multitest_parts__", None):
-                num_of_parts = _target.__multitest_parts__
-                if num_of_parts == "auto":
-                    if not time_info:
-                        self.logger.warning(
-                            "%s parts is auto but cannot find it in runtime-data",
-                            uid,
-                        )
-                        num_of_parts = 1
-                    else:
-                        num_of_parts = math.ceil(
-                            time_info["execution_time"]
-                            / (
-                                self.cfg.auto_part_runtime_limit
-                                - time_info["setup_time"]
-                            )
-                        )
-                if "weight" not in _task_arguments:
-                    _task_arguments["weight"] = _task_arguments.get(
-                        "weight", None
-                    ) or (
-                        math.ceil(
-                            (time_info["execution_time"] / num_of_parts)
-                            + time_info["setup_time"]
-                        )
-                        if time_info
-                        else self.cfg.auto_part_runtime_limit
-                    )
-                self.logger.user_info(
-                    "%s: parts=%d, weight=%d",
-                    uid,
-                    num_of_parts,
-                    _task_arguments["weight"],
-                )
-                if num_of_parts == 1:
-                    task.weight = _task_arguments["weight"]
-                    tasks.append(task)
-                else:
-                    for i in range(num_of_parts):
-                        _task_arguments["part"] = (i, num_of_parts)
-                        self.logger.debug(
-                            "Task re-created with arguments: %s",
-                            _task_arguments,
-                        )
-                        tasks.append(Task(**_task_arguments))
-
-            else:
-                if time_info and not task.weight:
-                    task.weight = math.ceil(
-                        time_info["execution_time"] + time_info["setup_time"]
-                    )
-                    self.logger.user_info("%s: weight=%d", uid, task.weight)
-                tasks.append(task)
 
         for root, dirs, files in os.walk(path or "."):
             for filename in files:
@@ -621,15 +670,17 @@ class TestRunner(Runnable):
                         self.logger.debug(
                             "Discovered task target %s::%s", filepath, attr
                         )
+
+                        task_target_info = get_task_target_information(target)
                         task_arguments = dict(
                             target=attr,
                             module=module,
                             path=root,
-                            **target.__task_kwargs__,
+                            **task_target_info.task_kwargs,
                         )
 
-                        if target.__target_params__:
-                            for param in target.__target_params__:
+                        if task_target_info.target_params:
+                            for param in task_target_info.target_params:
                                 if isinstance(param, dict):
                                     task_arguments["args"] = None
                                     task_arguments["kwargs"] = param
@@ -643,9 +694,21 @@ class TestRunner(Runnable):
                                         " received: {param}"
                                     )
                                 task_arguments["part"] = None
-                                _add_task(target, task_arguments)
+                                tasks.extend(
+                                    self._get_tasks(
+                                        task_arguments,
+                                        task_target_info.multitest_parts,
+                                        runtime_data,
+                                    )
+                                )
                         else:
-                            _add_task(target, task_arguments)
+                            tasks.extend(
+                                self._get_tasks(
+                                    task_arguments,
+                                    task_target_info.multitest_parts,
+                                    runtime_data,
+                                )
+                            )
 
         return tasks
 
@@ -733,7 +796,7 @@ class TestRunner(Runnable):
 
         tasks = self.discover(path=path, name_pattern=name_pattern)
         for task in tasks:
-            self.add(task, resource=resource)
+            self._add(task, resource=resource)
         pool: Pool = self.resources[resource]
         if pool.is_auto_size:
             pool_size = self.calculate_pool_size_by_tasks(
@@ -761,75 +824,62 @@ class TestRunner(Runnable):
         :return: Assigned uid for test.
         :rtype: ``str`` or ```NoneType``
         """
+
+        # Get the real test entity and verify if it should be added
+        task_info = self._collect_task_info(target)
+        return self._add(task_info, resource)
+
+    def _add(
+        self, task_info: TaskInformation, resource: Optional[str] = None
+    ) -> Optional[str]:
         local_runner = self.resources.first()
-        resource: Union[Executor, str, None] = resource or local_runner
+        resource: Union[str, None] = resource or local_runner
 
         if resource not in self.resources:
             raise RuntimeError(
                 'Resource "{}" does not exist.'.format(resource)
             )
 
-        # Get the real test entity and verify if it should be added
-        uid = self._verify_test_target(target)
-        if not uid:
+        self._verify_task_info(task_info)
+
+        uid = task_info.uid
+
+        # let see if it is filtered
+        if not self._should_task_running(task_info):
             return None
 
-        # Reset the task uid which will be used for test result transport in
-        # a pool executor, it makes logging or debugging easier.
-        if isinstance(target, Task):
-            target._uid = uid
+        # "--list" option always means not executing tests
+        lister: Lister = self.cfg.test_lister
+        if lister is not None and not lister.metadata_based:
+            self.cfg.test_lister.log_test_info(task_info.materialized_test)
+            return None
 
-        # In batch mode the original target is added into executors, it can be:
-        # 1> A runnable object (generally a test entity or customized by user)
-        # 2> A callable that returns a runnable object
-        # 3> A task that wrapped a runnable object
-        if uid in self._tests:
-            raise ValueError(
-                '{} with uid "{}" already added.'.format(self._tests[uid], uid)
-            )
+        if self.cfg.interactive_port is not None:
+            self._register_task_for_interactive(task_info)
+            #  for interactive always use the local runner
+            resource = local_runner
 
-        self._tests[uid] = resource
-        self.resources[resource].add(target, uid)
+        target = task_info.target
+        # if running in the local runner we can just enqueue the materialized test
+        if resource == local_runner:
+            target = task_info.materialized_test
+
+        self._register_task(
+            resource,
+            target,
+            uid,
+        )
         return uid
 
-    def _verify_test_target(
-        self, target: Union[Test, Task, Callable]
-    ) -> Optional[str]:
-        """
-        Materialize the test target, and:
-        - check uniqueness
-        - check against filter
-        - check against lister
-        - check runnable type
-        - cut corner for interactive mode
-        Return the runnable uid if it should run, otherwise None.
-        """
-        # The target added into TestRunner can be: 1> a real test entity
-        # 2> a task wraps a test entity 3> a callable returns a test entity
+    def _register_task(self, resource, target, uid):
+        self._tests[uid] = resource
+        self.resources[resource].add(target, uid)
 
-        if hasattr(target, "uid"):
-            key = target.uid()
-        else:
-            key = id(target)
-
-        if key in self._verified_targets:
-            return self._verified_targets[key]
-        else:
-            self._verified_targets[key] = None
-
+    def _collect_task_info(self, target: TestTask) -> TaskInformation:
         if isinstance(target, Test):
             target_test = target
         elif isinstance(target, Task):
             target_test = target.materialize()
-            if self.cfg.interactive_port is not None and isinstance(
-                target._target, str
-            ):
-                self.scheduled_modules.append(
-                    (
-                        target._module or target._target.rsplit(".", 1)[0],
-                        os.path.abspath(target._path),
-                    )
-                )
         elif callable(target):
             target_test = target()
         else:
@@ -841,49 +891,54 @@ class TestRunner(Runnable):
             target_test.parent = self
             target_test.cfg.parent = self.cfg
 
-        # verify runnable is unique
         uid = target_test.uid()
+
+        # Reset the task uid which will be used for test result transport in
+        # a pool executor, it makes logging or debugging easier.
+
+        # TODO: This mutating target should we do a copy?
+        if isinstance(target, Task):
+            target._uid = uid
+
+        return TaskInformation(target, target_test, uid)
+
+    def _register_task_for_interactive(self, task_info: TaskInformation):
+        target = task_info.target
+        if isinstance(target, Task) and isinstance(target._target, str):
+            self.scheduled_modules.append(
+                (
+                    target._module or target._target.rsplit(".", 1)[0],
+                    os.path.abspath(target._path),
+                )
+            )
+
+    def _verify_task_info(self, task_info: TaskInformation) -> None:
+        uid = task_info.uid
+        if uid in self._tests:
+            raise ValueError(
+                '{} with uid "{}" already added.'.format(self._tests[uid], uid)
+            )
+
         if uid in self._runnable_uids:
             raise RuntimeError(
                 f"Runnable with uid {uid} has already been verified"
             )
         else:
+            #  TODO: this should be part of the add
             self._runnable_uids.add(uid)
 
-        self._verified_targets[key] = uid
-
-        # if filter is defined
+    def _should_task_running(self, task_info: TaskInformation) -> bool:
+        should_run = True
         if type(self.cfg.test_filter) is not filtering.Filter:
-            should_run = target_test.should_run()
+            test = task_info.materialized_test
+            should_run = test.should_run()
             self.logger.debug(
                 "Should run %s? %s",
-                target_test.name,
+                test.name,
                 "Yes" if should_run else "No",
             )
-            if not should_run:
-                return None
 
-        # "--list" option always means not executing tests
-        if self.cfg.test_lister is not None:
-            self.cfg.test_lister.log_test_info(target_test)
-            return None
-
-        if getattr(target, "__multitest_parts__", None):
-            if not isinstance(target_test, MultiTest):
-                raise TypeError(
-                    "multitest_parts specified in @task_target,"
-                    " but the Runnable is not a MultiTest"
-                )
-
-        # cut corner for interactive mode as we already have the runnable
-        # so add it to local runner and continue
-        if self.cfg.interactive_port is not None:
-            local_runner = self.resources.first()
-            self._tests[uid] = local_runner
-            self.resources[local_runner].add(target_test, uid)
-            return None
-
-        return uid
+        return should_run
 
     def _record_start(self):
         self.report.timer.start("run")

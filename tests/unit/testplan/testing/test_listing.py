@@ -14,11 +14,18 @@ from testplan.testing.listing import (
 
 
 def test_defaults():
-    assert len(listing_registry.listers) == 5
+    assert len(listing_registry.listers) == 6
     arg_enum = listing_registry.to_arg()
     assert issubclass(arg_enum, ArgMixin)
 
-    for enum in ["NAME", "NAME_FULL", "COUNT", "PATTERN", "PATTERN_FULL"]:
+    for enum in [
+        "NAME",
+        "NAME_FULL",
+        "COUNT",
+        "PATTERN",
+        "PATTERN_FULL",
+        "JSON",
+    ]:
         assert arg_enum[enum]
 
 

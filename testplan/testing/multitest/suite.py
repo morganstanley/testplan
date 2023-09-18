@@ -1,23 +1,34 @@
 """Multitest testsuite/testcase module."""
 import collections
 import copy
+import dataclasses
 import functools
 import inspect
 import itertools
 import types
 import warnings
-from typing import Optional
+from typing import Optional, Callable
 
 from testplan import defaults
 from testplan.common.utils import interface, strings
 from testplan.testing import tagging
 
 from . import parametrization
+from .test_metadata import (
+    TestCaseMetadata,
+    LocationMetadata,
+    TestSuiteMetadata,
+    ExtendedTestSuiteMetadata,
+)
 
 # Global variables
 __TESTCASES__ = []
 __PARAMETRIZATION_TEMPLATE__ = []
 __GENERATED_TESTCASES__ = []
+
+
+TESTCASE_METADATA_ATTRIBUTE = "__testcase_metadata__"
+TESTSUITE_METADATA_ATTRIBUTE = "__testsuite_metadata__"
 
 
 def _reset_globals():
@@ -433,6 +444,12 @@ def _testsuite(klass):
     # Suite resolved, clear global variables for resolving the next suite.
     _reset_globals()
 
+    setattr(
+        klass,
+        TESTSUITE_METADATA_ATTRIBUTE,
+        TestSuiteMetadata(klass.name, LocationMetadata.from_object(klass)),
+    )
+
     return klass
 
 
@@ -571,6 +588,10 @@ def _testcase(function):
     return _testcase_meta()(function)
 
 
+def add_testcase_metadata(func: Callable, metadata: TestCaseMetadata):
+    setattr(func, TESTCASE_METADATA_ATTRIBUTE, metadata)
+
+
 def _testcase_meta(
     name=None,
     tags=None,
@@ -652,6 +673,13 @@ def _testcase_meta(
 
                 __GENERATED_TESTCASES__.append(func)
 
+                add_testcase_metadata(
+                    func,
+                    TestCaseMetadata(
+                        func.__name__, LocationMetadata.from_object(function)
+                    ),
+                )
+
             return function
 
         else:
@@ -678,6 +706,13 @@ def _testcase_meta(
                 function = wrapper_func(function)
 
             __TESTCASES__.append(function.__name__)
+
+            add_testcase_metadata(
+                function,
+                TestCaseMetadata(
+                    function.__name__, LocationMetadata.from_object(function)
+                ),
+            )
             return function
 
     return wrapper
@@ -878,3 +913,19 @@ def timeout(seconds):
         return function
 
     return inner
+
+
+def get_metadata(suite: type) -> ExtendedTestSuiteMetadata:
+    metadata = getattr(suite, TESTSUITE_METADATA_ATTRIBUTE)
+    testcase_metadata = [
+        getattr(
+            tc,
+            TESTCASE_METADATA_ATTRIBUTE,
+        )
+        for _, tc in inspect.getmembers(suite)
+        if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
+    ]
+
+    return ExtendedTestSuiteMetadata(
+        **dataclasses.asdict(metadata), test_cases=testcase_metadata
+    )
