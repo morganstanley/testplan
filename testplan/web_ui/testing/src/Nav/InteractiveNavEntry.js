@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     height: "2.4em",
     width: "2.4em",
     cursor: "pointer",
-    color: MEDIUM_GREY,
+    color: BLACK,
     padding: "0.7em 0em 0.7em 0em",
     transition: "all 0.3s ease-out 0s !important",
   },
