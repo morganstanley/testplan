@@ -814,11 +814,11 @@ class Pool(Executor):
         self.logger.critical("Discard pending tasks of %s", self)
         while self.ongoing:
             uid = self.ongoing[0]
-            target = self._input[uid]._target
+            task = self._input[uid]
             self._results[uid] = TaskResult(
                 task=self._input[uid],
                 status=False,
-                reason=f"Task [{target}] discarding due to {self} abort",
+                reason=f"{task} discarding due to {self} abort",
             )
             self.ongoing.pop(0)
 

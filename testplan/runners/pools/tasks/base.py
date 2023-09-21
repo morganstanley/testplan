@@ -7,6 +7,7 @@ import warnings
 from collections import OrderedDict
 from typing import Optional, Tuple, Union, Dict, Sequence, Callable
 
+from testplan.common.entity import Runnable
 from testplan.testing.base import Test, TestResult
 from testplan.common.serialization import SelectiveSerializable
 from testplan.common.utils import strings
@@ -85,7 +86,15 @@ class Task(SelectiveSerializable):
         self._part = part
 
     def __str__(self) -> str:
-        return "{}[{}]".format(self.__class__.__name__, self._uid)
+        if isinstance(self._target, Runnable):
+            name = (
+                getattr(self._target, "name", None)
+                or self._target.__class__.__name__
+            )
+        else:
+            name = self._target
+
+        return f"{self.__class__.__name__}[{name}(uid={self._uid})]"
 
     @property
     def weight(self) -> int:
@@ -110,18 +119,6 @@ class Task(SelectiveSerializable):
     def uid(self) -> str:
         """Task string uid."""
         return self._uid
-
-    @property
-    def name(self) -> str:
-        """Task name."""
-        if not isinstance(self._target, str):
-            try:
-                name = self._target.__class__.__name__
-            except AttributeError:
-                name = self._target
-        else:
-            name = self._target
-        return "Task[{}]".format(name)
 
     @property
     def args(self) -> Tuple:

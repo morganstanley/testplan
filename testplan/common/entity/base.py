@@ -474,7 +474,7 @@ class EntityConfig(Config):
             ConfigOption("initial_context", default={}): dict,
             ConfigOption("path_cleanup", default=False): bool,
             ConfigOption("status_wait_timeout", default=600): int,
-            ConfigOption("abort_wait_timeout", default=30): int,
+            ConfigOption("abort_wait_timeout", default=300): int,
             ConfigOption("active_loop_sleep", default=0.005): float,
         }
 
@@ -632,7 +632,15 @@ class Entity(logger.Loggable):
             self.logger.error(traceback.format_exc())
             self.logger.error("Exception on aborting %s - %s", entity, exc)
         else:
-            if wait(lambda: entity.aborted is True, timeout) is False:
+
+            if (
+                wait(
+                    predicate=lambda: entity.aborted is True,
+                    timeout=timeout,
+                    raise_on_timeout=False,  # continue even if some entity timeout
+                )
+                is False
+            ):
                 self.logger.error("Timeout on waiting to abort %s.", entity)
 
     def aborting(self):
@@ -1133,9 +1141,16 @@ class Runnable(Entity):
                     while self._ihandler.active:
                         time.sleep(self.cfg.active_loop_sleep)
                     else:
+                        # TODO: need some rework
+                        # if we abort from ui, the ihandler.abort executes in http thread
+                        # if we abort by ^C, ihandler.abort is called in main thread
+                        # anyway this join will not be blocked
                         interruptible_join(
                             thread, timeout=self.cfg.abort_wait_timeout
                         )
+                        # if we abort from ui, we abort ihandler first, then testrunner
+                        # this abort will wait ihandler to be aborted
+                        # if we abort by ^C, testrunner.abort is already called, this will be noop
                         self.abort()
                 return self._ihandler
             else:
@@ -1693,6 +1708,7 @@ class RunnableManager(Entity):
             signum,
             threading.current_thread(),
         )
+
         self.abort()
 
     def pausing(self):
