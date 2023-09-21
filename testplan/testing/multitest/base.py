@@ -33,6 +33,8 @@ from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import report_target
+from testplan.testing.multitest.suite import get_suite_metadata
+from testplan.testing.multitest.test_metadata import TestMetadata
 
 
 def iterable_suites(obj):
@@ -713,6 +715,11 @@ class MultiTest(testing_base.Test):
 
         if self.cfg.after_stop:
             self._wrap_run_step(label="after_stop", func=self.cfg.after_stop)()
+
+    def get_metadata(self) -> TestMetadata:
+        return TestMetadata(
+            self.name, self.cfg.description, [get_suite_metadata(suite) for suite in self.suites]
+        )
 
     @property
     def _thread_pool_size(self):

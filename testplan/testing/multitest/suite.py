@@ -15,10 +15,11 @@ from testplan.testing import tagging
 
 from . import parametrization
 from .test_metadata import (
-    TestCaseMetadata,
     LocationMetadata,
     TestSuiteMetadata,
-    ExtendedTestSuiteMetadata,
+    TestSuiteStaticMetadata,
+    TestCaseStaticMetadata,
+    TestCaseMetadata,
 )
 
 # Global variables
@@ -447,7 +448,7 @@ def _testsuite(klass):
     setattr(
         klass,
         TESTSUITE_METADATA_ATTRIBUTE,
-        TestSuiteMetadata(klass.name, LocationMetadata.from_object(klass)),
+        TestSuiteStaticMetadata(LocationMetadata.from_object(klass)),
     )
 
     return klass
@@ -588,7 +589,7 @@ def _testcase(function):
     return _testcase_meta()(function)
 
 
-def add_testcase_metadata(func: Callable, metadata: TestCaseMetadata):
+def add_testcase_metadata(func: Callable, metadata: TestCaseStaticMetadata):
     setattr(func, TESTCASE_METADATA_ATTRIBUTE, metadata)
 
 
@@ -675,8 +676,8 @@ def _testcase_meta(
 
                 add_testcase_metadata(
                     func,
-                    TestCaseMetadata(
-                        func.__name__, LocationMetadata.from_object(function)
+                    TestCaseStaticMetadata(
+                        LocationMetadata.from_object(function)
                     ),
                 )
 
@@ -709,9 +710,7 @@ def _testcase_meta(
 
             add_testcase_metadata(
                 function,
-                TestCaseMetadata(
-                    function.__name__, LocationMetadata.from_object(function)
-                ),
+                TestCaseStaticMetadata(LocationMetadata.from_object(function)),
             )
             return function
 
@@ -915,17 +914,32 @@ def timeout(seconds):
     return inner
 
 
-def get_metadata(suite: type) -> ExtendedTestSuiteMetadata:
-    metadata = getattr(suite, TESTSUITE_METADATA_ATTRIBUTE)
+def get_testcase_metadata(testcase: object):
+    static_metadata = getattr(
+        testcase,
+        TESTCASE_METADATA_ATTRIBUTE,
+    )
+
+    return TestCaseMetadata(
+        **dataclasses.asdict(static_metadata),
+        name=testcase.name,
+        description=testcase.__doc__,
+    )
+
+
+def get_suite_metadata(suite: object) -> TestSuiteMetadata:
+    static_metadata: TestSuiteStaticMetadata = getattr(
+        suite, TESTSUITE_METADATA_ATTRIBUTE
+    )
     testcase_metadata = [
-        getattr(
-            tc,
-            TESTCASE_METADATA_ATTRIBUTE,
-        )
+        get_testcase_metadata(tc)
         for _, tc in inspect.getmembers(suite)
         if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
     ]
 
-    return ExtendedTestSuiteMetadata(
-        **dataclasses.asdict(metadata), test_cases=testcase_metadata
+    return TestSuiteMetadata(
+        **dataclasses.asdict(static_metadata),
+        name=get_testsuite_name(suite),
+        description=get_testsuite_desc(suite),
+        test_cases=testcase_metadata,
     )

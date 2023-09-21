@@ -260,7 +260,7 @@ class SimpleJsonLister(MetadataBasedLister):
     DESCRIPTION = "Dump test information in json"
 
     def get_output(self, metadata: TestPlanMetadata):
-        return json.dumps(dataclasses.asdict(metadata))
+        return json.dumps(dataclasses.asdict(metadata), indent=2)
 
 
 class ListingRegistry:

@@ -368,6 +368,7 @@ class TestRunner(Runnable):
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
         # uid to resource, in definition order
+        self._test_metadata = []
         self._tests: MutableMapping[str, str] = OrderedDict()
         self._result.test_report = TestReport(
             name=self.cfg.name,
@@ -414,6 +415,9 @@ class TestRunner(Runnable):
                     exporter.cfg.parent = self.cfg
                 exporter.parent = self
         return self._exporters
+
+    def get_test_metadata(self):
+        return self._test_metadata
 
     def disable_reset_report_uid(self):
         """Do not generate unique strings in uuid4 format as report uid"""
@@ -865,14 +869,13 @@ class TestRunner(Runnable):
             target = task_info.materialized_test
 
         self._register_task(
-            resource,
-            target,
-            uid,
+            resource, target, uid, task_info.materialized_test.get_metadata()
         )
         return uid
 
-    def _register_task(self, resource, target, uid):
+    def _register_task(self, resource, target, uid, metadata):
         self._tests[uid] = resource
+        self._test_metadata.append(metadata)
         self.resources[resource].add(target, uid)
 
     def _collect_task_info(self, target: TestTask) -> TaskInformation:

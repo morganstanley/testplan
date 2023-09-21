@@ -1,5 +1,6 @@
 """Testplan base module."""
 import argparse
+import json
 import os
 import random
 import signal
@@ -23,6 +24,8 @@ from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.local import LocalRunner
 from testplan.runners.base import Executor
 from testplan.testing import filtering, ordering
+from testplan.testing.listing import Lister, MetadataBasedLister
+from testplan.testing.multitest.test_metadata import TestPlanMetadata
 
 
 def pdb_drop_handler(sig, frame):
@@ -493,6 +496,14 @@ class Testplan(entity.RunnableManager):
                     print("Exception in test_plan definition, aborting plan..")
                     plan.abort()
                     raise
+
+                lister: MetadataBasedLister = plan.cfg.test_lister
+                if lister is not None and lister.metadata_based:
+                    lister.log_test_info(
+                        TestPlanMetadata(
+                            plan.cfg.name, plan.cfg.description, plan.get_test_metadata()
+                        )
+                    )
 
                 plan_result = plan.run()
                 plan_result.decorated_value = returned
