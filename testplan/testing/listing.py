@@ -4,8 +4,11 @@
 import dataclasses
 import json
 import os
+from argparse import Action, ArgumentParser, Namespace
 from enum import Enum
-from typing import List, Union
+from os import PathLike
+from typing import List, Union, Sequence, Any, Tuple
+from urllib.parse import urlparse
 
 from testplan.common.utils.parser import ArgMixin
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -230,10 +233,35 @@ class CountLister(BaseLister):
         return ""
 
 
+class store_lister_and_path(Action):
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: Tuple[Listertype, PathLike],
+        option_string: Union[str, None] = None,
+    ) -> None:
+        setattr(namespace, self.dest, values[0])
+        setattr(namespace, f"{self.dest}_output", values[1])
+
+
 class ListingArgMixin(ArgMixin):
+    @classmethod
+    def parse(cls, arg):
+        uri = urlparse(arg)
+        lister, path = (uri.scheme, uri.path) if uri.scheme else (arg, None)
+        return super().parse(lister), path
+
     @classmethod
     def get_descriptions(cls):
         return dict([(lister, lister.value.description()) for lister in cls])
+
+    @classmethod
+    def get_parser_context(cls, default=None, **kwargs):
+        return dict(
+            **super().get_parser_context(default, **kwargs),
+            action=store_lister_and_path,
+        )
 
 
 class MetadataBasedLister(Listertype):
@@ -257,7 +285,10 @@ class MetadataBasedLister(Listertype):
 
 class SimpleJsonLister(MetadataBasedLister):
     NAME = "JSON"
-    DESCRIPTION = "Dump test information in json"
+    DESCRIPTION = (
+        "Dump test information in json. "
+        "Can take json:/path/to/output.json as well, then the result is dumped to the file"
+    )
 
     def get_output(self, metadata: TestPlanMetadata):
         return json.dumps(dataclasses.asdict(metadata), indent=2)

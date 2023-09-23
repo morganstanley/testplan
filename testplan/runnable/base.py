@@ -198,6 +198,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("test_lister", default=None): Or(
                 None, listing.BaseLister, listing.MetadataBasedLister
             ),
+            ConfigOption("test_lister_output", default=None): Or(str, None),
             ConfigOption("verbose", default=False): bool,
             ConfigOption("debug", default=False): bool,
             ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
