@@ -268,6 +268,15 @@ class TestRunnerResult(RunnableResult):
         )
 
 
+CACHED_TASK_INFO_ATTRIBUTE = "_cached_task_info"
+
+
+def _cache_task_info(task_info: TaskInformation):
+    task = task_info.target
+    setattr(task, CACHED_TASK_INFO_ATTRIBUTE, task_info)
+    return task
+
+
 class TestRunner(Runnable):
     r"""
     Adds tests to test
@@ -637,7 +646,7 @@ class TestRunner(Runnable):
         self,
         path: str = ".",
         name_pattern: Union[str, Pattern] = r".*\.py$",
-    ) -> List[TaskInformation]:
+    ) -> List[Task]:
         """
         Discover task targets under path in the modules that matches name pattern,
         and return the created Task object.
@@ -715,7 +724,7 @@ class TestRunner(Runnable):
                                 )
                             )
 
-        return tasks
+        return [_cache_task_info(task_info) for task_info in tasks]
 
     def calculate_pool_size_by_tasks(self, tasks: Collection[Task]) -> int:
         """
@@ -801,7 +810,7 @@ class TestRunner(Runnable):
 
         tasks = self.discover(path=path, name_pattern=name_pattern)
         for task in tasks:
-            self._add(task, resource=resource)
+            self.add(task, resource=resource)
         pool: Pool = self.resources[resource]
         if pool.is_auto_size:
             pool_size = self.calculate_pool_size_by_tasks(
@@ -832,11 +841,7 @@ class TestRunner(Runnable):
 
         # Get the real test entity and verify if it should be added
         task_info = self._collect_task_info(target)
-        return self._add(task_info, resource)
 
-    def _add(
-        self, task_info: TaskInformation, resource: Optional[str] = None
-    ) -> Optional[str]:
         local_runner = self.resources.first()
         resource: Union[str, None] = resource or local_runner
 
@@ -883,7 +888,18 @@ class TestRunner(Runnable):
         if isinstance(target, Test):
             target_test = target
         elif isinstance(target, Task):
-            target_test = target.materialize()
+
+            # First check if there is a cached task info
+            # that is an optimization flew where task info
+            # need to be created at discover, but the already defined api
+            # need to pass Task, so we attach task_info to the task itself
+            # and here we remove it
+            if hasattr(target, CACHED_TASK_INFO_ATTRIBUTE):
+                task_info = getattr(target, CACHED_TASK_INFO_ATTRIBUTE)
+                setattr(target, CACHED_TASK_INFO_ATTRIBUTE, None)
+                return task_info
+            else:
+                target_test = target.materialize()
         elif callable(target):
             target_test = target()
         else:

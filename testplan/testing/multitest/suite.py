@@ -939,7 +939,7 @@ def get_suite_metadata(suite: object) -> TestSuiteMetadata:
 
     return TestSuiteMetadata(
         **dataclasses.asdict(static_metadata),
-        name=get_testsuite_name(suite),
+        name=suite.name,
         description=get_testsuite_desc(suite),
         test_cases=testcase_metadata,
     )

@@ -59,7 +59,8 @@ def test_help_text():
         assert match
 
         name, text = match.groups()
-        lister = arg_enum.parse(name)
+        lister, path = arg_enum.parse(name)
         assert lister
+        assert not path
 
         assert lister.description() == text

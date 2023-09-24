@@ -228,7 +228,7 @@ class Test(Runnable):
         return self.stdout_style.get_style(passing=passed)
 
     def get_metadata(self) -> TestMetadata:
-        return TestMetadata(self.name, [])
+        return TestMetadata(self.name, self.description, [])
 
     def uid(self):
         """Instance name uid."""
