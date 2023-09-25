@@ -718,7 +718,9 @@ class MultiTest(testing_base.Test):
 
     def get_metadata(self) -> TestMetadata:
         return TestMetadata(
-            self.name, self.cfg.description, [get_suite_metadata(suite) for suite in self.suites]
+            self.name,
+            self.cfg.description,
+            [get_suite_metadata(suite) for suite in self.suites],
         )
 
     @property
