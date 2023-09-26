@@ -1,0 +1,1 @@
+Fixed the coloring of the hourglass on interactive UI that was identical to the hovering background color.
