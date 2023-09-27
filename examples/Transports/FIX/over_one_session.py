@@ -162,6 +162,7 @@ def get_multitest():
                 target="ISLD",
                 msgclass=FixMessage,
                 codec=CODEC,
+                logoff_at_stop=False,
             ),
         ],
     )

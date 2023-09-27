@@ -93,7 +93,7 @@ def result_for_failed_task(original_result):
     """
     result = TestResult()
     result.report = TestGroupReport(
-        name=original_result.task.name, category=ReportCategories.ERROR
+        name=str(original_result.task), category=ReportCategories.ERROR
     )
     attrs = [attr for attr in original_result.task.serializable_attrs]
     result_lines = [
@@ -957,14 +957,16 @@ class TestRunner(Runnable):
 
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
-                self.result.test_report.logger.error(
-                    "Timeout: Aborting execution after %d seconds",
-                    self.cfg.timeout,
+                msg = (
+                    f"Timeout: Aborting execution after {self.cfg.timeout} seconds",
                 )
-                # Abort dependencies, wait sometime till test reports are ready
+                self.result.test_report.logger.error(msg)
+                self.logger.error(msg)
+
+                # Abort resources e.g pools
                 for dep in self.abort_dependencies():
                     self._abort_entity(dep)
-                time.sleep(self.cfg.abort_wait_timeout)
+
                 break
 
             pending_work = False
