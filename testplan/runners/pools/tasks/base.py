@@ -5,7 +5,22 @@ import inspect
 import os
 import warnings
 from collections import OrderedDict
-from typing import Optional, Tuple, Union, Dict, Sequence, Callable
+from dataclasses import dataclass
+from typing import (
+    Optional,
+    Tuple,
+    Union,
+    Dict,
+    Sequence,
+    Callable,
+    Any,
+)
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 from testplan.common.entity import Runnable
 from testplan.testing.base import Test, TestResult
@@ -342,9 +357,16 @@ class RunnableTaskAdaptor:
         return strings.uuid4()
 
 
+@dataclass
+class TaskTargetInformation:
+    target_params: Sequence[Union[Sequence, dict]]
+    task_kwargs: Dict[str, Any]
+    multitest_parts: Union[int, str, None]
+
+
 def task_target(
     parameters: Union[Callable, Sequence[Union[Sequence, dict]]] = None,
-    multitest_parts: Union[int, str, None] = None,
+    multitest_parts: Union[int, Literal["auto"], None] = None,
     **kwargs,
 ):
     """
@@ -366,30 +388,32 @@ def task_target(
     # `task_target` is used without parentheses, then `parameters` is the
     #  real callable object (task target) to be decorated.
     if callable(parameters) and len(kwargs) == 0:
-        set_task_target(parameters)
-        parameters.__target_params__ = None
-        parameters.__task_kwargs__ = {}
-        return parameters
+        func = parameters
+        set_task_target(func, TaskTargetInformation(None, {}, None))
+        return func
 
     def inner(func):
-        set_task_target(func)
-        func.__target_params__ = parameters
-        func.__multitest_parts__ = multitest_parts
-        func.__task_kwargs__ = kwargs
+        set_task_target(
+            func, TaskTargetInformation(parameters, kwargs, multitest_parts)
+        )
 
         return func
 
     return inner
 
 
-def set_task_target(func):
+def set_task_target(func: Callable, info: TaskTargetInformation):
     """
     Mark a callable object as a task target which can be packaged
     in a :py:class:`~testplan.runners.pools.tasks.base.Task` object.
     """
-    func.__is_task_target__ = True
+    func.__task_target_info__ = info
 
 
 def is_task_target(func):
     """Check if a callable object is a task target."""
-    return getattr(func, "__is_task_target__", False)
+    return getattr(func, "__task_target_info__", False)
+
+
+def get_task_target_information(func) -> TaskTargetInformation:
+    return getattr(func, "__task_target_info__")
