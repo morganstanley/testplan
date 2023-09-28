@@ -849,9 +849,10 @@ class ProcessRunnerTest(Test):
         """
 
         def _xfail(pattern, report):
-            found = self.cfg.xfail_tests.get(pattern)
-            if found:
-                report.xfail(strict=found["strict"])
+            if getattr(self.cfg, "xfail_tests", None):
+                found = self.cfg.xfail_tests.get(pattern)
+                if found:
+                    report.xfail(strict=found["strict"])
 
         test_report = self.result.report
         pattern = f"{test_report.name}:*:*"

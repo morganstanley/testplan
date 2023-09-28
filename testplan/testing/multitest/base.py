@@ -735,12 +735,11 @@ class MultiTest(testing_base.Test):
         Testcase level xfail already applied during test execution.
         """
 
-        # import pdb
-        # pdb.set_trace()
         def _xfail(pattern, report):
-            found = self.cfg.xfail_tests.get(pattern)
-            if found:
-                report.xfail(strict=found["strict"])
+            if getattr(self.cfg, "xfail_tests", None):
+                found = self.cfg.xfail_tests.get(pattern)
+                if found:
+                    report.xfail(strict=found["strict"])
 
         test_report = self.result.report
         pattern = f"{test_report.name}:*:*"

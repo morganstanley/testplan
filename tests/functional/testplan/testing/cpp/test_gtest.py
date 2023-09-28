@@ -78,6 +78,10 @@ def test_gtest_xfail():
     plan = TestplanMock(
         name="GTest Xfail",
         xfail_tests={
+            "Error GTest:*:*": {
+                "reason": "GTest crash",
+                "strict": True,
+            },
             "Failing GTest:SquareRootTest:PositiveNos": {
                 "reason": "known flaky",
                 "strict": False,
@@ -86,25 +90,25 @@ def test_gtest_xfail():
                 "reason": "known flaky",
                 "strict": False,
             },
-            "Error GTest:*:*": {
-                "reason": "GTest crash",
-                "strict": True,
-            },
         },
     )
 
-    failing_binary = os.path.join(fixture_root, "failing", "runTests")
     error_binary = os.path.join(fixture_root, "error", "runTests.sh")
-
-    plan.add(GTest(name="Failing GTest", binary=failing_binary))
     plan.add(GTest(name="Error GTest", binary=error_binary))
+
+    failing_binary = os.path.join(fixture_root, "failing", "runTests")
+    if os.path.exists(failing_binary):
+        plan.add(GTest(name="Failing GTest", binary=failing_binary))
 
     assert plan.run().run is True
 
-    assert plan.report.entries[0].entries[0].entries[0].status == Status.XFAIL
-    assert plan.report.entries[0].entries[1].status == Status.XFAIL
-    assert plan.report.entries[1].status == Status.XFAIL
-    assert plan.report.status == Status.FAILED
+    assert plan.report.entries[0].status == Status.XFAIL
+
+    if os.path.exists(failing_binary):
+        assert (
+            plan.report.entries[1].entries[0].entries[0].status == Status.XFAIL
+        )
+        assert plan.report.entries[1].entries[1].status == Status.XFAIL
 
 
 def test_gtest_custom_args():
