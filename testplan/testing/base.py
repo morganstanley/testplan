@@ -35,6 +35,7 @@ from testplan.testing import filtering, ordering, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
+from testplan.testing.multitest.test_metadata import TestMetadata
 
 TEST_INST_INDENT = 2
 SUITE_INDENT = 4
@@ -225,6 +226,9 @@ class Test(Runnable):
     def get_stdout_style(self, passed):
         """Stdout style for status."""
         return self.stdout_style.get_style(passing=passed)
+
+    def get_metadata(self) -> TestMetadata:
+        return TestMetadata(self.name, self.description, [])
 
     def uid(self):
         """Instance name uid."""
