@@ -112,5 +112,8 @@ def test_materialization_fail(mockplan):
     assert res.run is False
     assert res.success is False
     assert mockplan.report.status == Status.ERROR
-    assert mockplan.report.entries[0].name == "Task[target_raises_in_worker(uid=MTest)]"
+    assert (
+        mockplan.report.entries[0].name
+        == "Task[target_raises_in_worker(uid=MTest)]"
+    )
     assert mockplan.report.entries[0].category == Status.ERROR
