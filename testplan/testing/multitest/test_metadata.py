@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from inspect import getsourcefile, getsourcelines
 from typing import List, Optional, Union
 
@@ -24,9 +24,15 @@ class TestCaseStaticMetadata:
 
 
 @dataclass
-class TestCaseMetadata(TestCaseStaticMetadata):
+class BasicInfo:
     name: str
     description: Union[str, None]
+    id: Union[str, None] = field(default=None, init=False)
+
+
+@dataclass
+class TestCaseMetadata(TestCaseStaticMetadata, BasicInfo):
+    pass
 
 
 @dataclass
@@ -36,22 +42,29 @@ class TestSuiteStaticMetadata:
 
 
 @dataclass
-class TestSuiteMetadata(TestSuiteStaticMetadata):
+class TestSuiteMetadata(TestSuiteStaticMetadata, BasicInfo):
 
-    name: str
-    description: Union[str, None]
     test_cases: List[TestCaseMetadata]
 
 
 @dataclass
-class TestMetadata:
-    name: str
-    description: str
+class TestMetadata(BasicInfo):
     test_suites: List[TestSuiteMetadata]
+
+    def __post_init__(self):
+        # computing ids propagating parent ids, this assume that the metadat is used in an
+        # immutable manner. If it is used in a mutable way compute_ids need to be called to
+        # recalculate ids for all siblings
+        self.compute_ids()
+
+    def compute_ids(self):
+        self.id = self.name
+        for suite in self.test_suites:
+            suite.id = f"{self.id}:{suite.name}"
+            for tc in suite.test_cases:
+                tc.id = f"{suite.id}:{tc.name}"
 
 
 @dataclass
-class TestPlanMetadata:
-    name: str
-    description: str
+class TestPlanMetadata(BasicInfo):
     tests: List[TestMetadata]
