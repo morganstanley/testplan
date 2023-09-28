@@ -519,7 +519,6 @@ class Testplan(entity.RunnableManager):
             returned = definition(plan)
         return returned
 
-
     @classmethod
     def _do_listing(cls, plan):
         lister: MetadataBasedLister = plan.cfg.test_lister
