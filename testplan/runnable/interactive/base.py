@@ -855,7 +855,8 @@ class TestRunnerIHandler(entity.Entity):
 
         self.logger.user_info(
             "\nInteractive Testplan web UI is running. Access it at:\n%s:%s/interactive",
-            platform.node(), str(port)
+            platform.node(),
+            str(port),
         )
 
     def _initial_report(self):
