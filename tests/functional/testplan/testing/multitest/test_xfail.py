@@ -1,5 +1,6 @@
 from testplan import TestplanMock
 from testplan.testing.multitest import MultiTest, testcase, testsuite, xfail
+from .test_multitest_drivers import VulnerableDriver1
 
 
 @testsuite
@@ -45,6 +46,16 @@ class DynamicXfailSuite:
         result.equal(2, n)
 
 
+@testsuite
+class SetupFailSuite:
+    def setup(self, env, result):
+        raise RuntimeError("raise in testsuite setup on purpose")
+
+    @testcase
+    def dummy_case(self, env, result):
+        pass
+
+
 def test_dynamic_xfail():
     plan = TestplanMock(
         name="dynamic_xfail_test",
@@ -57,15 +68,43 @@ def test_dynamic_xfail():
                 "reason": "unknown non-flaky",
                 "strict": True,
             },
+            "Startup Error:*:*": {
+                "reason": "known flaky",
+                "strict": False,
+            },
+            "Testsuite Setup Error:SetupFailSuite:*": {
+                "reason": "known flaky",
+                "strict": False,
+            },
         },
     )
     plan.add(MultiTest(name="Dummy", suites=[DynamicXfailSuite()]))
+    plan.add(
+        MultiTest(
+            name="Startup Error",
+            suites=SetupFailSuite(),
+            environment=[
+                VulnerableDriver1(
+                    name="vulnerable_driver_1", report_errors_from_logs=True
+                )
+            ],
+        )
+    )
+    plan.add(
+        MultiTest(
+            name="Testsuite Setup Error",
+            suites=SetupFailSuite(),
+        )
+    )
+
     result = plan.run()
 
     dynamic_xfail_suite_report = result.report.entries[0].entries[0]
-
     assert dynamic_xfail_suite_report.unstable is True
     assert dynamic_xfail_suite_report.entries[0].unstable is True
+
+    assert result.report.entries[1].unstable is True
+    assert result.report.entries[2].entries[0].unstable is True
 
 
 def test_xfail(mockplan):

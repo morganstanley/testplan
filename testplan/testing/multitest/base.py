@@ -589,7 +589,11 @@ class MultiTest(testing_base.Test):
 
     def skip_step(self, step):
         """Check if a step should be skipped."""
-        if step in (self.resources.start, self.resources.stop):
+        if step in (
+            self.resources.start,
+            self.resources.stop,
+            self.apply_xfail_tests,
+        ):
             return False
         elif self.resources.start_exceptions or self.resources.stop_exceptions:
             self.logger.critical('Skipping step "%s"', step.__name__)
@@ -642,6 +646,7 @@ class MultiTest(testing_base.Test):
     def main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
+        self._add_step(self.apply_xfail_tests)
         self._add_step(self.propagate_tag_indices)
 
     def post_main_steps(self):
@@ -722,6 +727,28 @@ class MultiTest(testing_base.Test):
             description=self.cfg.description,
             test_suites=[get_suite_metadata(suite) for suite in self.suites],
         )
+
+    def apply_xfail_tests(self):
+        """
+        Apply xfail tests specified via --xfail-tests or @test_plan(xfail_tests=...).
+        For MultiTest, we only apply MT:*:* & MT:TS:* here.
+        Testcase level xfail already applied during test execution.
+        """
+
+        # import pdb
+        # pdb.set_trace()
+        def _xfail(pattern, report):
+            found = self.cfg.xfail_tests.get(pattern)
+            if found:
+                report.xfail(strict=found["strict"])
+
+        test_report = self.result.report
+        pattern = f"{test_report.name}:*:*"
+        _xfail(pattern, test_report)
+
+        for suite_report in test_report.entries:
+            pattern = f"{test_report.name}:{suite_report.name}:*"
+            _xfail(pattern, suite_report)
 
     @property
     def _thread_pool_size(self):

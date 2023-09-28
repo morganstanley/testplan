@@ -844,15 +844,16 @@ class ProcessRunnerTest(Test):
         )
 
     def apply_xfail_tests(self):
-        # import pdb
-        # pdb.set_trace()
-        test_report = self.result.report
+        """
+        Apply xfail tests specified via --xfail-tests or @test_plan(xfail_tests=...).
+        """
 
         def _xfail(pattern, report):
             found = self.cfg.xfail_tests.get(pattern)
             if found:
-                report.xfail(strict=found['strict'])
+                report.xfail(strict=found["strict"])
 
+        test_report = self.result.report
         pattern = f"{test_report.name}:*:*"
         _xfail(pattern, test_report)
 
@@ -863,8 +864,6 @@ class ProcessRunnerTest(Test):
             for case_report in suite_report.entries:
                 pattern = f"{test_report.name}:{suite_report.name}:{case_report.name}"
                 _xfail(pattern, case_report)
-
-
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
