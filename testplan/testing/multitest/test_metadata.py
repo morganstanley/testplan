@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from inspect import getsourcefile, getsourcelines
 from typing import List, Optional, Union
 
+LOCATION_METADATA_ATTRIBUTE = "__location_metadata__"
+
 
 @dataclass
 class LocationMetadata:
@@ -11,16 +13,24 @@ class LocationMetadata:
     line_no: int
 
     @classmethod
-    def from_object(cls, obj):
-        object_name = obj.__name__
-        file = getsourcefile(obj)
-        _, line_no = getsourcelines(obj)
-        return cls(object_name, file, line_no)
+    def from_object(cls, obj) -> "LocationMetadata":
+        # some cases where testcases /suites generated on the fly user can provide meaningfull metadata
+        # with attaching one to the object
+        if hasattr(obj, LOCATION_METADATA_ATTRIBUTE):
+            return getattr(obj, LOCATION_METADATA_ATTRIBUTE)
+        try:
+            object_name = obj.__name__
+            file = getsourcefile(obj)
+            _, line_no = getsourcelines(obj)
+        except Exception:
+            return None  # we do best effort here
+        else:
+            return cls(object_name, file, line_no)
 
 
 @dataclass
 class TestCaseStaticMetadata:
-    location: LocationMetadata
+    location: Optional[LocationMetadata]
 
 
 @dataclass
@@ -38,7 +48,7 @@ class TestCaseMetadata(TestCaseStaticMetadata, BasicInfo):
 @dataclass
 class TestSuiteStaticMetadata:
 
-    location: LocationMetadata
+    location: Optional[LocationMetadata]
 
 
 @dataclass
