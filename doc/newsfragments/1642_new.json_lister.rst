@@ -1,0 +1,1 @@
+Added a new lister that dumping testplan metadata to json. Try `--info json` to dump to stdout or `--info json:/var/tmp/tests.json` to dump to a file.
