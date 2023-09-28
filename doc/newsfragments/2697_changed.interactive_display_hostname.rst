@@ -1,0 +1,1 @@
+Interactive run now logs the exact hostname rather than localhost or IP address.
