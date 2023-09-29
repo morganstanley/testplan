@@ -15,21 +15,27 @@ export const unselectable = {
 export const statusStyles = {
   passed: {
     color: GREEN,
+    fontStyle: "normal",
   },
   failed: {
     color: RED,
+    fontStyle: "normal",
   },
   error: {
     color: RED,
+    fontStyle: "normal",
   },
   skipped: {
     color: ORANGE,
+    fontStyle: "normal",
   },
   unstable: {
     color: ORANGE,
+    fontStyle: "normal",
   },
   unknown: {
     color: BLACK,
+    fontStyle: "normal",
   },
 };
 

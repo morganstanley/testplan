@@ -20,7 +20,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-passed_1kh4m98"
+    className="entryName_1ocij4b-o_O-passed_ee16j1"
     title="entry description - passed"
   >
     entry name
@@ -33,13 +33,13 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
       title="passed/failed testcases"
     >
       <span
-        className="passed_1kh4m98"
+        className="passed_ee16j1"
       >
         0
       </span>
       /
       <span
-        className="failed_11es5k7"
+        className="failed_lmznuu"
       >
         0
       </span>
@@ -68,7 +68,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-failed_11es5k7"
+    className="entryName_1ocij4b-o_O-failed_lmznuu"
     title="entry description - failed"
   >
     entry name
@@ -81,13 +81,13 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
       title="passed/failed testcases"
     >
       <span
-        className="passed_1kh4m98"
+        className="passed_ee16j1"
       >
         0
       </span>
       /
       <span
-        className="failed_11es5k7"
+        className="failed_lmznuu"
       >
         0
       </span>
@@ -116,7 +116,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-unstable_17i2uy2"
+    className="entryName_1ocij4b-o_O-unstable_13lli17"
     title="entry description - xfail"
   >
     entry name
@@ -129,13 +129,13 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
       title="passed/failed testcases"
     >
       <span
-        className="passed_1kh4m98"
+        className="passed_ee16j1"
       >
         0
       </span>
       /
       <span
-        className="failed_11es5k7"
+        className="failed_lmznuu"
       >
         0
       </span>
