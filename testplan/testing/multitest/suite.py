@@ -1,23 +1,35 @@
 """Multitest testsuite/testcase module."""
 import collections
 import copy
+import dataclasses
 import functools
 import inspect
 import itertools
 import types
 import warnings
-from typing import Optional
+from typing import Optional, Callable
 
 from testplan import defaults
 from testplan.common.utils import interface, strings
 from testplan.testing import tagging
 
 from . import parametrization
+from .test_metadata import (
+    LocationMetadata,
+    TestSuiteMetadata,
+    TestSuiteStaticMetadata,
+    TestCaseStaticMetadata,
+    TestCaseMetadata,
+)
 
 # Global variables
 __TESTCASES__ = []
 __PARAMETRIZATION_TEMPLATE__ = []
 __GENERATED_TESTCASES__ = []
+
+
+TESTCASE_METADATA_ATTRIBUTE = "__testcase_metadata__"
+TESTSUITE_METADATA_ATTRIBUTE = "__testsuite_metadata__"
 
 
 def _reset_globals():
@@ -433,6 +445,12 @@ def _testsuite(klass):
     # Suite resolved, clear global variables for resolving the next suite.
     _reset_globals()
 
+    setattr(
+        klass,
+        TESTSUITE_METADATA_ATTRIBUTE,
+        TestSuiteStaticMetadata(LocationMetadata.from_object(klass)),
+    )
+
     return klass
 
 
@@ -567,28 +585,12 @@ def _mark_function_as_testcase(func):
 
 
 def _testcase(function):
-    """Actual decorator that validates & registers a method as a testcase."""
-    global __TESTCASES__
 
-    # Attributes `name` and `__tags__` are added only when function is
-    # decorated by @testcase(...) which has the following parentheses.
-    if not hasattr(function, "name"):
-        _validate_function_name(function)
-        function.name = function.__name__
+    return _testcase_meta()(function)
 
-    if not hasattr(function, "__tags__"):
-        function.__tags__ = {}
-        function.__tags_index__ = {}
 
-    _validate_testcase(function)
-    _mark_function_as_testcase(function)
-
-    function.__seq_number__ = _number_of_testcases()
-    function.__skip__ = []
-
-    __TESTCASES__.append(function.__name__)
-
-    return function
+def add_testcase_metadata(func: Callable, metadata: TestCaseStaticMetadata):
+    setattr(func, TESTCASE_METADATA_ATTRIBUTE, metadata)
 
 
 def _testcase_meta(
@@ -613,7 +615,7 @@ def _testcase_meta(
 
     @functools.wraps(_testcase)
     def wrapper(function):
-        """Meta logic for test case goes here."""
+        """Actual decorator that validates & registers a method as a testcase."""
         global __TESTCASES__
         global __GENERATED_TESTCASES__
         global __PARAMETRIZATION_TEMPLATE__
@@ -672,6 +674,13 @@ def _testcase_meta(
 
                 __GENERATED_TESTCASES__.append(func)
 
+                add_testcase_metadata(
+                    func,
+                    TestCaseStaticMetadata(
+                        LocationMetadata.from_object(function)
+                    ),
+                )
+
             return function
 
         else:
@@ -698,6 +707,11 @@ def _testcase_meta(
                 function = wrapper_func(function)
 
             __TESTCASES__.append(function.__name__)
+
+            add_testcase_metadata(
+                function,
+                TestCaseStaticMetadata(LocationMetadata.from_object(function)),
+            )
             return function
 
     return wrapper
@@ -898,3 +912,34 @@ def timeout(seconds):
         return function
 
     return inner
+
+
+def get_testcase_metadata(testcase: object):
+    static_metadata = getattr(
+        testcase,
+        TESTCASE_METADATA_ATTRIBUTE,
+    )
+
+    return TestCaseMetadata(
+        **dataclasses.asdict(static_metadata),
+        name=testcase.name,
+        description=testcase.__doc__,
+    )
+
+
+def get_suite_metadata(suite: object) -> TestSuiteMetadata:
+    static_metadata: TestSuiteStaticMetadata = getattr(
+        suite, TESTSUITE_METADATA_ATTRIBUTE
+    )
+    testcase_metadata = [
+        get_testcase_metadata(tc)
+        for _, tc in inspect.getmembers(suite)
+        if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
+    ]
+
+    return TestSuiteMetadata(
+        **dataclasses.asdict(static_metadata),
+        name=suite.name,
+        description=get_testsuite_desc(suite),
+        test_cases=testcase_metadata,
+    )

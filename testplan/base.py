@@ -1,5 +1,6 @@
 """Testplan base module."""
 import argparse
+import json
 import os
 import random
 import signal
@@ -15,6 +16,7 @@ from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.utils import logger, path
 from testplan.common.utils.callable import arity
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser
@@ -23,6 +25,8 @@ from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.local import LocalRunner
 from testplan.runners.base import Executor
 from testplan.testing import filtering, ordering
+from testplan.testing.listing import Lister, MetadataBasedLister
+from testplan.testing.multitest.test_metadata import TestPlanMetadata
 
 
 def pdb_drop_handler(sig, frame):
@@ -160,6 +164,8 @@ class Testplan(entity.RunnableManager):
     :param test_lister: Tests listing class.
     :type test_lister: Subclass of
         :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+    :param test_lister_output: listing results goes to this file, if None goes to stdout
+    :type test_lister: PathLike object
     :param verbose: Enable or disable verbose mode.
     :type verbose: ``bool``
     :param debug: Enable or disable debug mode.
@@ -215,6 +221,7 @@ class Testplan(entity.RunnableManager):
         test_filter=filtering.Filter(),
         test_sorter=ordering.NoopSorter(),
         test_lister=None,
+        test_lister_output=None,
         verbose=False,
         debug=False,
         timeout=defaults.TESTPLAN_TIMEOUT,
@@ -274,6 +281,7 @@ class Testplan(entity.RunnableManager):
             test_filter=test_filter,
             test_sorter=test_sorter,
             test_lister=test_lister,
+            test_lister_output=test_lister_output,
             verbose=verbose,
             debug=debug,
             timeout=timeout,
@@ -416,6 +424,7 @@ class Testplan(entity.RunnableManager):
         test_filter=filtering.Filter(),
         test_sorter=ordering.NoopSorter(),
         test_lister=None,
+        test_lister_output=None,
         verbose=False,
         debug=False,
         timeout=defaults.TESTPLAN_TIMEOUT,
@@ -474,6 +483,7 @@ class Testplan(entity.RunnableManager):
                     test_filter=test_filter,
                     test_sorter=test_sorter,
                     test_lister=test_lister,
+                    test_lister_output=test_lister_output,
                     verbose=verbose,
                     debug=debug,
                     timeout=timeout,
@@ -485,14 +495,13 @@ class Testplan(entity.RunnableManager):
                     **options,
                 )
                 try:
-                    if arity(definition) == 2:
-                        returned = definition(plan, plan.parser)
-                    else:
-                        returned = definition(plan)
+                    returned = cls._prepare_plan(definition, plan)
                 except Exception:
                     print("Exception in test_plan definition, aborting plan..")
                     plan.abort()
                     raise
+
+                cls._do_listing(plan)
 
                 plan_result = plan.run()
                 plan_result.decorated_value = returned
@@ -501,6 +510,31 @@ class Testplan(entity.RunnableManager):
             return test_plan_inner_inner
 
         return test_plan_inner
+
+    @classmethod
+    def _prepare_plan(cls, definition, plan):
+        if arity(definition) == 2:
+            returned = definition(plan, plan.parser)
+        else:
+            returned = definition(plan)
+        return returned
+
+    @classmethod
+    def _do_listing(cls, plan):
+        lister: MetadataBasedLister = plan.cfg.test_lister
+        if lister is not None and lister.metadata_based:
+            output = lister.get_output(
+                TestPlanMetadata(
+                    plan.cfg.name,
+                    plan.cfg.description,
+                    plan.get_test_metadata(),
+                )
+            )
+            if plan.cfg.test_lister_output:
+                with open(plan.cfg.test_lister_output, "wt") as file:
+                    file.write(output)
+            else:
+                TESTPLAN_LOGGER.user_info(output)
 
 
 test_plan = Testplan.main_wrapper
