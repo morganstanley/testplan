@@ -495,29 +495,13 @@ class Testplan(entity.RunnableManager):
                     **options,
                 )
                 try:
-                    if arity(definition) == 2:
-                        returned = definition(plan, plan.parser)
-                    else:
-                        returned = definition(plan)
+                    returned = cls._prepare_plan(definition, plan)
                 except Exception:
                     print("Exception in test_plan definition, aborting plan..")
                     plan.abort()
                     raise
 
-                lister: MetadataBasedLister = plan.cfg.test_lister
-                if lister is not None and lister.metadata_based:
-                    output = lister.get_output(
-                        TestPlanMetadata(
-                            plan.cfg.name,
-                            plan.cfg.description,
-                            plan.get_test_metadata(),
-                        )
-                    )
-                    if plan.cfg.test_lister_output:
-                        with open(plan.cfg.test_lister_output, "wt") as file:
-                            file.write(output)
-                    else:
-                        TESTPLAN_LOGGER.user_info(output)
+                cls._do_listing(plan)
 
                 plan_result = plan.run()
                 plan_result.decorated_value = returned
@@ -526,6 +510,31 @@ class Testplan(entity.RunnableManager):
             return test_plan_inner_inner
 
         return test_plan_inner
+
+    @classmethod
+    def _prepare_plan(cls, definition, plan):
+        if arity(definition) == 2:
+            returned = definition(plan, plan.parser)
+        else:
+            returned = definition(plan)
+        return returned
+
+    @classmethod
+    def _do_listing(cls, plan):
+        lister: MetadataBasedLister = plan.cfg.test_lister
+        if lister is not None and lister.metadata_based:
+            output = lister.get_output(
+                TestPlanMetadata(
+                    plan.cfg.name,
+                    plan.cfg.description,
+                    plan.get_test_metadata(),
+                )
+            )
+            if plan.cfg.test_lister_output:
+                with open(plan.cfg.test_lister_output, "wt") as file:
+                    file.write(output)
+            else:
+                TESTPLAN_LOGGER.user_info(output)
 
 
 test_plan = Testplan.main_wrapper
