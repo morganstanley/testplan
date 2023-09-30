@@ -328,7 +328,7 @@ def _get_actual_reports(plan):
     # Generate a list test reports from Testplan for comparing
     return [
         [
-            plan.i.test_case_report(
+            plan.interactive.test_case_report(
                 test_uid="BasicTest",
                 suite_uid="Suite",
                 case_uid="case",
@@ -336,7 +336,7 @@ def _get_actual_reports(plan):
             )["entries"][0]["entries"][0]["entries"][0],
         ],
         [
-            plan.i.test_case_report(
+            plan.interactive.test_case_report(
                 test_uid="InnerTest",
                 suite_uid="Suite",
                 case_uid="case",
@@ -344,13 +344,13 @@ def _get_actual_reports(plan):
             )["entries"][0]["entries"][0]["entries"][0],
         ],
         [
-            plan.i.test_case_report(
+            plan.interactive.test_case_report(
                 test_uid="ExtraTest",
                 suite_uid="Suite1",
                 case_uid="case",
                 serialized=True,
             )["entries"][0]["entries"][0]["entries"][0],
-            plan.i.test_case_report(
+            plan.interactive.test_case_report(
                 test_uid="ExtraTest",
                 suite_uid="Suite2",
                 case_uid="case",
@@ -358,7 +358,7 @@ def _get_actual_reports(plan):
             )["entries"][0]["entries"][0]["entries"][0],
         ],
         [
-            plan.i.test_case_report(
+            plan.interactive.test_case_report(
                 test_uid="CallableTarget",
                 suite_uid="AnotherSuite",
                 case_uid="case",
@@ -366,7 +366,7 @@ def _get_actual_reports(plan):
             )["entries"][0]["entries"][0]["entries"][0],
         ],
         [
-            plan.i.test_case_report(
+            plan.interactive.test_case_report(
                 test_uid="ScheduledTest1",
                 suite_uid="Suite",
                 case_uid="case",
@@ -374,7 +374,7 @@ def _get_actual_reports(plan):
             )["entries"][0]["entries"][0]["entries"][0],
         ],
         [
-            plan.i.test_case_report(
+            plan.interactive.test_case_report(
                 test_uid="ScheduledTest2",
                 suite_uid="Suite",
                 case_uid="case",
@@ -437,7 +437,7 @@ def main():
     plan.run()
 
     # Run tests
-    plan.i.run_all_tests()
+    plan.interactive.run_all_tests()
 
     # Check reports
     _compare_reports(
@@ -447,7 +447,7 @@ def main():
         actual_reports=_get_actual_reports(plan),
         ignore=["file_path", "line_no", "machine_time", "utc_time"],
     )
-    assert plan.i.report.passed is False
+    assert plan.interactive.report.passed is False
 
     # Apply code changes, two testcase changed and one newly added
     for module_info in TEST_SUITE_MODULES:
@@ -458,16 +458,16 @@ def main():
                 fp_w.write(fp_r.read().format(**module_info.updated_value))
 
     # Reload code from changed files and update report
-    plan.i.reload(rebuild_dependencies=True)
-    plan.i.reload_report()
+    plan.interactive.reload(rebuild_dependencies=True)
+    plan.interactive.reload_report()
 
     # Run tests again
-    plan.i.run_all_tests()
+    plan.interactive.run_all_tests()
 
     # 2 suites has new testcase added respectively
     actual_reports = _get_actual_reports(plan)
     actual_reports[1].append(
-        plan.i.test_case_report(
+        plan.interactive.test_case_report(
             test_uid="InnerTest",
             suite_uid="Suite",
             case_uid="another_case",
@@ -475,7 +475,7 @@ def main():
         )["entries"][0]["entries"][0]["entries"][0]
     )
     actual_reports[5].append(
-        plan.i.test_case_report(
+        plan.interactive.test_case_report(
             test_uid="ScheduledTest2",
             suite_uid="Suite",
             case_uid="another_case",
@@ -492,7 +492,7 @@ def main():
         ignore=["file_path", "line_no", "machine_time", "utc_time"],
     )
 
-    assert plan.i.report.passed is True
+    assert plan.interactive.report.passed is True
 
 
 if __name__ == "__main__":
