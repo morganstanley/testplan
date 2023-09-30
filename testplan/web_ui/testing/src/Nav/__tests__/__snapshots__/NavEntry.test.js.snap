@@ -20,7 +20,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-passed_ee16j1"
+    className="entryName_1ocij4b-o_O-passed_1kh4m98"
     title="entry description - passed"
   >
     entry name
@@ -28,22 +28,22 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
   <div
     className="entryIcons_jqmit5"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
-        className="passed_ee16j1"
+        className="passed_1kh4m98"
       >
         0
       </span>
       /
       <span
-        className="failed_lmznuu"
+        className="failed_11es5k7"
       >
         0
       </span>
-    </i>
+    </span>
   </div>
 </div>
 `;
@@ -68,7 +68,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-failed_lmznuu"
+    className="entryName_1ocij4b-o_O-failed_11es5k7"
     title="entry description - failed"
   >
     entry name
@@ -76,22 +76,22 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
   <div
     className="entryIcons_jqmit5"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
-        className="passed_ee16j1"
+        className="passed_1kh4m98"
       >
         0
       </span>
       /
       <span
-        className="failed_lmznuu"
+        className="failed_11es5k7"
       >
         0
       </span>
-    </i>
+    </span>
   </div>
 </div>
 `;
@@ -116,7 +116,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-unstable_13lli17"
+    className="entryName_1ocij4b-o_O-unstable_17i2uy2"
     title="entry description - xfail"
   >
     entry name
@@ -124,22 +124,22 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
   <div
     className="entryIcons_jqmit5"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
-        className="passed_ee16j1"
+        className="passed_1kh4m98"
       >
         0
       </span>
       /
       <span
-        className="failed_lmznuu"
+        className="failed_11es5k7"
       >
         0
       </span>
-    </i>
+    </span>
   </div>
 </div>
 `;

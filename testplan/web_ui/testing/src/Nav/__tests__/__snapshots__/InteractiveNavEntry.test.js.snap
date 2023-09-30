@@ -28,7 +28,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -43,7 +43,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
       >
         1
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -117,7 +117,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -132,7 +132,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -206,7 +206,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -221,7 +221,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -295,7 +295,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -310,7 +310,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -384,7 +384,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -399,7 +399,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -473,7 +473,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -488,7 +488,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -562,7 +562,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -577,7 +577,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -651,7 +651,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -666,7 +666,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -822,7 +822,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -837,7 +837,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -993,7 +993,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -1008,7 +1008,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
@@ -1164,7 +1164,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
   <div
     className="entryIcons_195essn"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -1179,7 +1179,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
       beat={false}
       beatFade={false}
