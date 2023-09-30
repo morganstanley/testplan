@@ -78,10 +78,10 @@ const InteractiveNavEntry = (props) => {
         {props.name}
       </div>
       <div className={css(styles.entryIcons)}>
-        <i className={css(styles.entryIcon)} title="passed/failed testcases">
+        <span className={css(styles.entryIcon)} title="passed/failed testcases">
           <span className={css(styles.passed)}>{props.caseCountPassed}</span>/
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
-        </i>
+        </span>
         {resetReportIcon}
         {envStatusIcon}
         {statusIcon}
