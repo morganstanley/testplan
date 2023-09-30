@@ -1,5 +1,4 @@
 """Functional tests for interactive HTTP API."""
-import time
 import functools
 from unittest import mock
 
@@ -7,13 +6,15 @@ import pytest
 import requests
 
 import testplan
-from testplan.testing import multitest
-from testplan.testing.multitest import driver
-from testplan.report import Status, RuntimeStatus
 from testplan.common import entity
 from testplan.common.utils import timing
 from testplan.exporters.testing import XMLExporter
-
+from testplan.report import Status, RuntimeStatus
+from testplan.testing import multitest
+from testplan.testing.multitest import driver
+from tests.functional.testplan.runnable.interactive import (
+    wait_for_interactive_start,
+)
 from tests.unit.testplan.runnable.interactive import test_api
 
 
@@ -81,11 +82,7 @@ def plan(tmpdir):
             )
         )
         plan.run()
-        timing.wait(
-            lambda: plan.interactive.http_handler_info[0] is not None,
-            300,
-            raise_on_timeout=True,
-        )
+        wait_for_interactive_start(plan)
         yield plan
         plan.abort()
 
@@ -131,11 +128,7 @@ def plan2(tmpdir):
             )
         )
         plan.run()
-        timing.wait(
-            lambda: plan.interactive.http_handler_info[0] is not None,
-            300,
-            raise_on_timeout=True,
-        )
+        wait_for_interactive_start(plan)
         yield plan
         plan.abort()
 
@@ -207,11 +200,7 @@ def plan3(tmpdir):
             )
         )
         plan.run()
-        timing.wait(
-            lambda: plan.interactive.http_handler_info[0] is not None,
-            300,
-            raise_on_timeout=True,
-        )
+        wait_for_interactive_start(plan)
         yield plan
         plan.abort()
 
