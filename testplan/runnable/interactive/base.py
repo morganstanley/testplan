@@ -4,6 +4,7 @@ Interactive handler for TestRunner runnable class.
 import numbers
 import re
 import threading
+import warnings
 from concurrent import futures
 from typing import Union, Awaitable, Dict, Optional
 
@@ -839,7 +840,11 @@ class TestRunnerIHandler(entity.Entity):
             ihandler=self, port=self.cfg.http_port
         )
         http_handler.cfg.parent = self.cfg
-        http_handler.setup()
+
+        # Mute flask_restx warning.
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            http_handler.setup()
 
         return http_handler
 
