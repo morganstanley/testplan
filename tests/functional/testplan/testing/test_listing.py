@@ -1,5 +1,10 @@
+import json
+from pathlib import Path
+
+import boltons.iterutils
 import pytest
 
+from testplan.testing.listing import SimpleJsonLister
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import TestplanMock
@@ -293,3 +298,85 @@ def test_testcase_trimming(runpath, listing_obj, expected_output):
 
         result = plan.run()
         assert len(result.test_report) == 0, "No tests should be run."
+
+
+def validate_json_result(result_json):
+    result = json.loads(result_json)
+
+    expected = {
+        "name": "plan",
+        "tests.0.name": "Primary",
+        "tests.0.id": "Primary",
+        "tests.0.test_suites.0.name": "Beta",
+        "tests.0.test_suites.0.id": "Primary:Beta",
+        "tests.0.test_suites.0.location.file": __file__,
+        "tests.0.test_suites.0.test_cases.0.name": "test_a",
+        "tests.0.test_suites.0.test_cases.0.id": "Primary:Beta:test_a",
+        "tests.0.test_suites.0.test_cases.0.location.file": __file__,
+        "tests.0.test_suites.0.test_cases.1.name": "test_b",
+        "tests.0.test_suites.0.test_cases.1.id": "Primary:Beta:test_b",
+        "tests.0.test_suites.0.test_cases.1.location.file": __file__,
+        "tests.0.test_suites.0.test_cases.2.name": "test_c",
+        "tests.0.test_suites.0.test_cases.2.id": "Primary:Beta:test_c",
+        "tests.0.test_suites.0.test_cases.2.location.file": __file__,
+        "tests.0.test_suites.1.name": "Alpha",
+        "tests.0.test_suites.1.id": "Primary:Alpha",
+        "tests.0.test_suites.1.test_cases.0.name": "test_a",
+        "tests.0.test_suites.1.test_cases.0.id": "Primary:Alpha:test_a",
+        "tests.0.test_suites.1.test_cases.1.name": "test_b",
+        "tests.0.test_suites.1.test_cases.1.id": "Primary:Alpha:test_b",
+        "tests.1.name": "Secondary",
+        "tests.1.id": "Secondary",
+        "tests.1.test_suites.0.name": "Gamma",
+        "tests.1.test_suites.0.id": "Secondary:Gamma",
+        "tests.1.test_suites.0.test_cases.0.name": "test_a",
+        "tests.1.test_suites.0.test_cases.0.id": "Secondary:Gamma:test_a",
+        "tests.1.test_suites.0.test_cases.1.name": "test_b",
+        "tests.1.test_suites.0.test_cases.1.id": "Secondary:Gamma:test_b",
+        "tests.1.test_suites.0.test_cases.2.name": "test_c",
+        "tests.1.test_suites.0.test_cases.2.id": "Secondary:Gamma:test_c",
+    }
+    for path, expected_value in expected.items():
+        assert (
+            boltons.iterutils.get_path(result, path.split("."))
+            == expected_value
+        )
+
+
+def prepare_plan(plan):
+    multitest_x = MultiTest(name="Primary", suites=[Beta(), Alpha()])
+    multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
+    plan.add(multitest_x)
+    plan.add(multitest_y)
+
+
+def test_json_listing(runpath):
+
+    main = TestplanMock.main_wrapper(
+        name="plan",
+        test_lister=SimpleJsonLister(),
+        runpath=runpath,
+        parse_cmdline=False,
+    )(prepare_plan)
+
+    with captured_logging(TESTPLAN_LOGGER) as log_capture:
+        main()
+
+        result = log_capture.output
+        validate_json_result(result)
+
+
+def test_json_listing_to_file(runpath):
+    result_path = Path(runpath) / "test.json"
+    main = TestplanMock.main_wrapper(
+        name="plan",
+        test_lister=SimpleJsonLister(),
+        test_lister_output=str(result_path),
+        runpath=runpath,
+        parse_cmdline=False,
+    )(prepare_plan)
+
+    main()
+
+    result = result_path.read_text()
+    validate_json_result(result)
