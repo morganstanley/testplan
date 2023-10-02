@@ -27,11 +27,11 @@ const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const executionTime =
     props.displayTime && _.isNumber(props.executionTime) ? (
-      <i className={css(styles.entryIcon)} title="Execution time">
+      <span className={css(styles.entryIcon)} title="Execution time">
         <span className={css(styles[STATUS_CATEGORY[props.status]])}>
           {formatMilliseconds(props.executionTime)}
         </span>
-      </i>
+      </span>
     ) : null;
   return (
     <div
@@ -56,10 +56,10 @@ const NavEntry = (props) => {
       </div>
       <div className={css(styles.entryIcons)}>
         {executionTime}
-        <i className={css(styles.entryIcon)} title="passed/failed testcases">
+        <span className={css(styles.entryIcon)} title="passed/failed testcases">
           <span className={css(styles.passed)}>{props.caseCountPassed}</span>/
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
-        </i>
+        </span>
       </div>
     </div>
   );
