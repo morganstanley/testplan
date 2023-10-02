@@ -2,8 +2,8 @@
 Interactive handler for TestRunner runnable class.
 """
 import numbers
-import platform
 import re
+import socket
 import threading
 import warnings
 from concurrent import futures
@@ -860,7 +860,7 @@ class TestRunnerIHandler(entity.Entity):
 
         self.logger.user_info(
             "\nInteractive Testplan web UI is running. Access it at: %s:%s/interactive",
-            platform.node(),
+            socket.getfqdn(),
             str(port),
         )
 
