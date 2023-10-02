@@ -3,6 +3,7 @@ Interactive handler for TestRunner runnable class.
 """
 import numbers
 import re
+import socket
 import threading
 import warnings
 from concurrent import futures
@@ -10,10 +11,7 @@ from typing import Union, Awaitable, Dict, Optional
 
 from testplan.common import config, entity
 from testplan.common.report import Report
-from testplan.common.utils import networking
-
 from testplan.runnable.interactive import http, reloader, resource_loader
-
 from testplan.report import (
     TestReport,
     TestGroupReport,
@@ -861,8 +859,9 @@ class TestRunnerIHandler(entity.Entity):
             )
 
         self.logger.user_info(
-            "\nInteractive Testplan web UI is running. Access it at:\n%s",
-            networking.format_access_urls(host, port, "/interactive/"),
+            "\nInteractive Testplan web UI is running. Access it at: %s:%s/interactive",
+            socket.getfqdn(),
+            str(port),
         )
 
     def _initial_report(self):
