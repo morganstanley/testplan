@@ -294,7 +294,7 @@ the list of multitests and the number of testsuites & testcases:
   Primary: (2 suites, 6 testcases)
   Secondary: (1 suite, 3 testcases)
 
-``--info json`` dumps many metadata about the testplan, with testsuite and testcase locations.
+``--info json`` dumps many metadata about the testplan with testsuite and testcase locations.
 It is useful for tools that want to gain info about tests without running them. It has a
 form: ``--info json:/path/to/file.json`` in which case the json is saved to ``/path/to/file.json``
 instead of dumping to the stdout.
@@ -346,7 +346,7 @@ A custom test lister can be implemented by subclassing
 
 and overriding ``get_output`` method. The difference is that in Old BaseLister style the
 ``get_output`` is called with all :py:class:`~testplan.testing.base.Test` instance added to the plan
-one by one while the MetadataBasedLister case it is called with
+one by one while the MetadataBasedLister case is called with
 :py:class:`~testplan.testing.multitest.test_metadata.TestPlanMetadata`, which contains all info
 about the testplan.
 
@@ -391,7 +391,7 @@ the full example can be found :ref:`here <example_multitest_listing_custom_cmd>`
 
 The MetadataBasedLister types can take not just a name in the ``--info`` but even an uri where the
 path will be used as the listing location, and the result is written to a file instead of the stdout.
-Currently the only such lister is ``json``. Example call ``--info josn:/path/to/file.json``
+Currently, the only such lister is ``json``. Example call ``--info josn:/path/to/file.json``
 
 .. warning::
 
