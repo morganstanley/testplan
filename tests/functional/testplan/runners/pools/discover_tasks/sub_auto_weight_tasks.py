@@ -1,5 +1,6 @@
 from testplan.runners.pools.tasks.base import task_target
 from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing.multitest.driver import Driver
 
 
 @testsuite
@@ -37,4 +38,9 @@ class Suite2:
 
 @task_target(multitest_parts=2)
 def make_auto_weight_multitest1():
-    return MultiTest(name="Proj1-suite", suites=[Suite1(), Suite2()])
+    return MultiTest(
+        name="Proj1-suite",
+        suites=[Suite1(), Suite2()],
+        # we have a driver as Multitest owning its driver, validate it is not shared
+        environment=[Driver("Noop")],
+    )

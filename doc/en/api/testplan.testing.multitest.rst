@@ -60,6 +60,14 @@ testplan.testing.multitest.suite module
     :undoc-members:
     :show-inheritance:
 
+testplan.testing.multitest.test_metadata module
++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.multitest.test_metadata
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

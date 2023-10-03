@@ -549,18 +549,14 @@ class TestRunner(Runnable):
             "Task re-created with arguments: %s",
             _task_arguments,
         )
-        _multitest_params = task_info.materialized_test.cfg._cfg_input
-        _multitest_params["part"] = part
+
+        # unfortunately it is not easy to clone a Multitest with some parameters changed
+        # ideally we need just the part changed, but Multitests could not share Drivers,
+        # so it could not be recreated from its configuration as then more than one
+        # Multitest would own the same drivers. So here we recreating it from the task
+
         target = Task(**_task_arguments)
-        materialized_test = task_info.materialized_test.__class__(
-            **_multitest_params
-        )
-        target._uid = materialized_test.uid()
-        new_task = TaskInformation(
-            target,
-            materialized_test,
-            materialized_test.uid(),
-        )
+        new_task = self._collect_task_info(target)
         return new_task
 
     def _get_tasks(
