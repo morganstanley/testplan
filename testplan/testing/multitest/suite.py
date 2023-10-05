@@ -929,15 +929,21 @@ def get_testcase_metadata(testcase: object):
     )
 
 
-def get_suite_metadata(suite: object) -> TestSuiteMetadata:
+def get_suite_metadata(
+    suite: object, include_testcases: bool = True
+) -> TestSuiteMetadata:
     static_metadata: TestSuiteStaticMetadata = getattr(
         suite, TESTSUITE_METADATA_ATTRIBUTE
     )
-    testcase_metadata = [
-        get_testcase_metadata(tc)
-        for _, tc in inspect.getmembers(suite)
-        if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
-    ]
+    testcase_metadata = (
+        [
+            get_testcase_metadata(tc)
+            for _, tc in inspect.getmembers(suite)
+            if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
+        ]
+        if include_testcases
+        else []
+    )
 
     return TestSuiteMetadata(
         **dataclasses.asdict(static_metadata),
