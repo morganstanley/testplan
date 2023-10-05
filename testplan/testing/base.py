@@ -843,6 +843,29 @@ class ProcessRunnerTest(Test):
             )
         )
 
+    def apply_xfail_tests(self):
+        """
+        Apply xfail tests specified via --xfail-tests or @test_plan(xfail_tests=...).
+        """
+
+        def _xfail(pattern, report):
+            if getattr(self.cfg, "xfail_tests", None):
+                found = self.cfg.xfail_tests.get(pattern)
+                if found:
+                    report.xfail(strict=found["strict"])
+
+        test_report = self.result.report
+        pattern = f"{test_report.name}:*:*"
+        _xfail(pattern, test_report)
+
+        for suite_report in test_report.entries:
+            pattern = f"{test_report.name}:{suite_report.name}:*"
+            _xfail(pattern, suite_report)
+
+            for case_report in suite_report.entries:
+                pattern = f"{test_report.name}:{suite_report.name}:{case_report.name}"
+                _xfail(pattern, case_report)
+
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
         super(ProcessRunnerTest, self).pre_resource_steps()
@@ -860,6 +883,7 @@ class ProcessRunnerTest(Test):
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
+        self._add_step(self.apply_xfail_tests)
         self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results, top_down=False)
 

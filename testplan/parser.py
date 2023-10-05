@@ -157,10 +157,33 @@ class TestplanParser:
             "--xfail-tests",
             metavar="PATH",
             type=_read_json_file,
-            help="Read a list of known to fail testcases from a JSON file "
-            "with each entry looks like: "
-            '{"<Multitest>:<TestSuite>:<testcase>": '
-            '{"reason": <value>, "strict": <value>} }',
+            help="""
+Read a list of testcase name patterns from a JSON files, and mark matching testcases as xfail.
+This feature works for MultiTest, GTest and CPPUnit.
+A typical input JSON looks like below:
+{
+    "Fatal GTest:*:*": {
+        "reason": "test known to crash",
+        "strict": true
+    },
+    "Flaky GTest:SuiteName:CaseName": {
+        "reason": "test not stable",
+        "strict": false
+    },
+    "Fatal MultiTest:*:*": {
+        "reason": "env does not start",
+        "strict": true
+    },
+    "Flaky MultiTest:Suite Name:*": {
+        "reason": "everything under that suite flaky",
+        "strict": true
+    }
+}
+
+"with each entry looks like: "
+'{"<Multitest>:<TestSuite>:<testcase>": '
+'{"reason": <value>, "strict": <value>} }',
+""",
         )
 
         general_group.add_argument(

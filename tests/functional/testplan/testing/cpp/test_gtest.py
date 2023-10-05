@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from testplan import TestplanMock
 from testplan.common.utils.testing import check_report
 from testplan.testing.cpp import GTest
 from testplan.report import Status
@@ -70,6 +71,44 @@ def test_gtest_no_report(mockplan):
     assert mockplan.run().run is True
     assert mockplan.report.status == Status.ERROR
     assert "FileNotFoundError" in mockplan.report.flattened_logs[-1]["message"]
+
+
+@skip_on_windows(reason="GTest is skipped on Windows.")
+def test_gtest_xfail():
+    plan = TestplanMock(
+        name="GTest Xfail",
+        xfail_tests={
+            "Error GTest:*:*": {
+                "reason": "GTest crash",
+                "strict": True,
+            },
+            "Failing GTest:SquareRootTest:PositiveNos": {
+                "reason": "known flaky",
+                "strict": False,
+            },
+            "Failing GTest:SquareRootTestNonFatal:*": {
+                "reason": "known flaky",
+                "strict": False,
+            },
+        },
+    )
+
+    error_binary = os.path.join(fixture_root, "error", "runTests.sh")
+    plan.add(GTest(name="Error GTest", binary=error_binary))
+
+    failing_binary = os.path.join(fixture_root, "failing", "runTests")
+    if os.path.exists(failing_binary):
+        plan.add(GTest(name="Failing GTest", binary=failing_binary))
+
+    assert plan.run().run is True
+
+    assert plan.report.entries[0].status == Status.XFAIL
+
+    if os.path.exists(failing_binary):
+        assert (
+            plan.report.entries[1].entries[0].entries[0].status == Status.XFAIL
+        )
+        assert plan.report.entries[1].entries[1].status == Status.XFAIL
 
 
 def test_gtest_custom_args():
