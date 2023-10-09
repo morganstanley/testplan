@@ -29,6 +29,7 @@ from testplan.report import (
 )
 from testplan.testing import base as testing_base
 from testplan.testing import filtering, tagging
+from testplan.testing.common import TEST_PART_FORMAT_STRING
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
@@ -346,7 +347,7 @@ class MultiTest(testing_base.Test):
             return (
                 self.cfg.multi_part_uid(self.cfg.name, self.cfg.part)
                 if self.cfg.multi_part_uid
-                else "{} - part({}/{})".format(
+                else TEST_PART_FORMAT_STRING.format(
                     self.cfg.name, self.cfg.part[0], self.cfg.part[1]
                 )
             )
@@ -377,6 +378,14 @@ class MultiTest(testing_base.Test):
 
         for suite in sorted_suites:
             testcases = suite.get_testcases()
+
+            if self.cfg.part and self.cfg.part[1] > 1:
+                testcases = [
+                    testcase
+                    for (idx, testcase) in enumerate(testcases)
+                    if idx % self.cfg.part[1] == self.cfg.part[0]
+                ]
+
             sorted_testcases = (
                 testcases
                 if getattr(suite, "strict_order", False)
@@ -398,13 +407,6 @@ class MultiTest(testing_base.Test):
                 testcases_to_run
             ) < len(sorted_testcases):
                 testcases_to_run = sorted_testcases
-
-            if self.cfg.part and self.cfg.part[1] > 1:
-                testcases_to_run = [
-                    testcase
-                    for (idx, testcase) in enumerate(testcases_to_run)
-                    if idx % self.cfg.part[1] == self.cfg.part[0]
-                ]
 
             if self.cfg.testcase_report_target:
                 testcases_to_run = [

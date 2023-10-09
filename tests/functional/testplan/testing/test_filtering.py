@@ -195,6 +195,45 @@ def test_programmatic_filtering(filter_obj, report_ctx):
 
 
 @pytest.mark.parametrize(
+    "filter_obj, report_ctx",
+    (
+        (
+            filtering.Pattern("XXX:Alpha:test_one")
+            | filtering.Pattern("XXX:Alpha:test_two"),
+            [
+                ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
+                ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
+            ],
+        ),
+        (
+            filtering.Pattern("XXX - part(0/3):Alpha:test_one")
+            | filtering.Pattern("XXX - part(0/3):Beta:test_three"),
+            [
+                ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
+            ],
+        ),
+        (
+            filtering.Pattern("XXX - part([01]/3):Alpha")
+            | filtering.Pattern("XXX:Beta:test_three"),
+            [
+                ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
+                ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
+                ("XXX - part(2/3)", [("Beta", ["test_three"])]),
+            ],
+        ),
+    ),
+)
+def test_programmatic_filtering_with_parts(filter_obj, report_ctx):
+    plan = TestplanMock(name="plan", test_filter=filter_obj)
+    for i in range(0, 3):
+        plan.add(MultiTest(name="XXX", suites=[Alpha(), Beta()], part=(i, 3)))
+    plan.run()
+
+    test_report = plan.report
+    check_report_context(test_report, report_ctx)
+
+
+@pytest.mark.parametrize(
     "cmdline_args, report_ctx",
     (
         # Case 1, no filtering args, full report ctx expected
@@ -226,7 +265,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
         ),
         # Case 4, tag filtering
         (
-            ("--tags", "bar color=red"),
+            ("--tags", "bar", "color=red"),
             [
                 (
                     "XXX",
@@ -244,9 +283,11 @@ def test_programmatic_filtering(filter_obj, report_ctx):
             # as they belong to the same category (tags)
             (
                 "--tags",
-                "bar color=blue",  # bar OR color=blue
+                "bar",
+                "color=blue",  # bar OR color=blue
                 "--tags-all",
-                "baz color=red",  # baz AND color=red
+                "baz",
+                "color=red",  # baz AND color=red
             ),
             [
                 (
@@ -268,9 +309,11 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 "*:*:test_one",
                 "*:*:test_three",
                 "--tags",
-                "bar color=blue",  # bar OR color=blue
+                "bar",
+                "color=blue",  # bar OR color=blue
                 "--tags-all",
-                "baz color=red",  # baz AND color=red
+                "baz",
+                "color=red",  # baz AND color=red
             ),
             [
                 ("XXX", [("Beta", ["test_one", "test_three"])]),
@@ -305,14 +348,12 @@ def test_command_line_filtering(cmdline_args, report_ctx):
 @pytest.mark.parametrize(
     "lines, report_ctx",
     (
-        # Case 1, empty file, nothing matched
-        ([], []),
-        # Case 2, single line of pattern
+        # Case 1, single line of pattern
         (
             ["XXX:*:test_two"],
             [("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])])],
         ),
-        # Case 3, multiple lines of pattern
+        # Case 2, multiple lines of pattern
         (
             ["XXX:*:test_two", "YYY:*:test_three"],
             [

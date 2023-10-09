@@ -62,6 +62,7 @@ from testplan.runners.pools.tasks.base import (
 )
 from testplan.testing import filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
+from testplan.testing.common import TEST_PART_FORMAT_STRING
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
 
@@ -1199,7 +1200,7 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.name = "{} - part({}/{})".format(
+                    report.name = TEST_PART_FORMAT_STRING.format(
                         report.name, report.part[0], report.part[1]
                     )
                     report.uid = strings.uuid4()  # considered as error report

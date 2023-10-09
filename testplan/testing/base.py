@@ -43,6 +43,16 @@ TESTCASE_INDENT = 6
 ASSERTION_INDENT = 8
 
 
+def test_name_sanity_check(name):
+    for s in [" - part", ":"]:
+        if s in name:
+            raise ValueError(
+                f'"{s}" is specially treated by Testplan, '
+                "it cannot be used in Test names."
+            )
+    return True
+
+
 class TestConfig(RunnableConfig):
     """Configuration object for :py:class:`~testplan.testing.base.Test`."""
 
@@ -54,7 +64,9 @@ class TestConfig(RunnableConfig):
 
         return {
             "name": And(
-                str, lambda s: len(s) <= defaults.MAX_TEST_NAME_LENGTH
+                str,
+                lambda s: len(s) <= defaults.MAX_TEST_NAME_LENGTH,
+                test_name_sanity_check,
             ),
             ConfigOption("description", default=None): Or(str, None),
             ConfigOption("environment", default=[]): [
@@ -415,22 +427,7 @@ class Test(Runnable):
         Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
         """
-        suites_to_run = self.test_context
-        self.result.report = self._new_test_report()
-
-        for testsuite, testcases in suites_to_run:
-            testsuite_report = TestGroupReport(
-                name=testsuite,
-                category=ReportCategories.TESTSUITE,
-            )
-
-            for testcase in testcases:
-                testcase_report = TestCaseReport(name=testcase)
-                testsuite_report.append(testcase_report)
-
-            self.result.report.append(testsuite_report)
-
-        return self.result
+        raise NotImplementedError
 
     def set_discover_path(self, path: str) -> None:
         """

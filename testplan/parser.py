@@ -221,7 +221,7 @@ Test filter, supports glob notation & multiple arguments.
 
 --patterns <Multitest Name>
 --patterns <Multitest Name 1> <Multitest Name 2>
---patterns <Multitest Name 1> --pattern <Multitest Name 2>
+--patterns <Multitest Name 1> --patterns <Multitest Name 2>
 --patterns <Multitest Name>:<Suite Name>
 --patterns <Multitest Name>:<Suite Name>:<Testcase name>
 --patterns <Multitest Name>:*:<Testcase name>

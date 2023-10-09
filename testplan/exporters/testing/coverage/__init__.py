@@ -17,10 +17,10 @@ from testplan.common.exporters import (
 from testplan.exporters.testing.base import Exporter
 from testplan.report.testing.base import (
     ReportCategories,
-    TestCaseReport,
     TestGroupReport,
     TestReport,
 )
+from testplan.testing.common import TEST_PART_FORMAT_STRING
 
 
 class CoveredTestsExporter(Exporter):
@@ -83,9 +83,12 @@ class CoveredTestsExporter(Exporter):
         Here we use an OrderedDict as an ordered set.
         """
 
-        mt_pat = report.instance_name
         if report.part is not None:
-            mt_pat += f" - part({report.part[0]}/{report.part[1]})"
+            mt_pat = TEST_PART_FORMAT_STRING.format(
+                report.instance_name, report.part[0], report.part[1]
+            )
+        else:
+            mt_pat = report.instance_name
 
         if report.covered_lines:
             result[(mt_pat,)] = None

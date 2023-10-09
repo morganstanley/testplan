@@ -4,10 +4,15 @@ import argparse
 import collections
 import fnmatch
 import operator
-from enum import Enum
-from typing import Callable, List, Type
+import re
+from enum import Enum, IntEnum, auto
+from typing import TYPE_CHECKING, Callable, List, Type
 
 from testplan.testing import tagging
+from testplan.testing.common import TEST_PART_REGEX
+
+if TYPE_CHECKING:
+    from testplan.testing.base import Test
 
 
 class FilterLevel(Enum):
@@ -21,6 +26,12 @@ class FilterLevel(Enum):
     TEST = "test"
     TESTSUITE = "testsuite"
     TESTCASE = "testcase"
+
+
+class FilterCategory(IntEnum):
+    COMMON = auto()
+    PATTERN = auto()
+    TAG = auto()
 
 
 class BaseFilter:
@@ -54,7 +65,7 @@ class Filter(BaseFilter):
     to apply the filtering logic.
     """
 
-    category = "common"
+    category = FilterCategory.COMMON
 
     def filter_test(self, test) -> bool:
         return True
@@ -66,18 +77,17 @@ class Filter(BaseFilter):
         return True
 
     def filter(self, test, suite, case):
-
-        filter_levels = test.get_filter_levels()
-        results = []
-
-        if FilterLevel.TEST in filter_levels:
-            results.append(self.filter_test(test))
-        if FilterLevel.TESTSUITE in filter_levels:
-            results.append(self.filter_suite(suite))
-        if FilterLevel.TESTCASE in filter_levels:
-            results.append(self.filter_case(case))
-
-        return all(results)
+        res = True
+        for level in test.get_filter_levels():
+            if level is FilterLevel.TEST:
+                res = res and self.filter_test(test)
+            elif level is FilterLevel.TESTSUITE:
+                res = res and self.filter_suite(suite)
+            elif level is FilterLevel.TESTCASE:
+                res = res and self.filter_case(case)
+            if not res:
+                return False
+        return True
 
 
 def flatten_filters(
@@ -136,8 +146,6 @@ class MetaFilter(BaseFilter):
         raise NotImplementedError
 
     def filter(self, test, suite, case):
-        # we might intentionally use another overriden method name
-        # to distinguish MetaFilter from Filter, or shall we?
         return self.composed_filter(test, suite, case)
 
 
@@ -186,7 +194,7 @@ class Not(BaseFilter):
 class BaseTagFilter(Filter):
     """Base filter class for tag based filtering."""
 
-    category = "tag"
+    category = FilterCategory.TAG
 
     def __init__(self, tags):
         self.tags_orig = tags
@@ -256,13 +264,13 @@ class Pattern(Filter):
     DELIMITER = ":"
     ALL_MATCH = "*"
 
-    category = "pattern"
+    category = FilterCategory.PATTERN
 
     def __init__(self, pattern, match_definition=False):
         self.pattern = pattern
         self.match_definition = match_definition
-        patterns = self.parse_pattern(pattern)
-        self.test_pattern, self.suite_pattern, self.case_pattern = patterns
+        self.parse_pattern(pattern)
+        # self.test_pattern, self.suite_pattern, self.case_pattern = patterns
 
     def __eq__(self, other):
         return (
@@ -285,10 +293,61 @@ class Pattern(Filter):
                 )
             )
 
-        return patterns + ([self.ALL_MATCH] * (self.MAX_LEVEL - len(patterns)))
+        test_level, suite_level, case_level = patterns + (
+            [self.ALL_MATCH] * (self.MAX_LEVEL - len(patterns))
+        )
 
-    def filter_test(self, test):
-        return fnmatch.fnmatch(test.name, self.test_pattern)
+        m = re.match(TEST_PART_REGEX, test_level)
+        if m:
+            test_name_p = m.group(1)
+            test_cur_part_p = m.group(2)
+            test_ttl_part_p = m.group(3)
+
+            try:
+                test_cur_part_p, test_ttl_part_p = int(test_cur_part_p), int(
+                    test_ttl_part_p
+                )
+            except ValueError:
+                pass
+            else:
+                if test_ttl_part_p <= test_cur_part_p:
+                    raise ValueError(
+                        f"Meaningless part specified for {test_name_p}, "
+                        f"we cannot cut a pizza by {test_ttl_part_p} and then take "
+                        f"the {test_cur_part_p}-th slice, and we count from 0."
+                    )
+                test_cur_part_p, test_ttl_part_p = str(test_cur_part_p), str(
+                    test_ttl_part_p
+                )
+            self.test_pattern = (
+                test_name_p,
+                (test_cur_part_p, test_ttl_part_p),
+            )
+        else:
+            self.test_pattern = test_level
+
+        self.suite_pattern = suite_level
+        self.case_pattern = case_level
+
+    def filter_test(self, test: "Test"):
+        if isinstance(self.test_pattern, tuple):
+            if not hasattr(test.cfg, "part"):
+                raise ValueError(
+                    f"Invalid pattern, Part feature not implemented for {type(test).__qualname__}."
+                )
+
+            name_p, (cur_part_p, ttl_part_p) = self.test_pattern
+
+            cur_part: int
+            ttl_part: int
+            cur_part, ttl_part = test.cfg.part or (0, 1)
+            return (
+                fnmatch.fnmatch(test.name, name_p)
+                and fnmatch.fnmatch(str(cur_part), cur_part_p)
+                and fnmatch.fnmatch(str(ttl_part), ttl_part_p)
+            )
+        else:
+            return fnmatch.fnmatch(test.name, self.test_pattern)
 
     def filter_suite(self, suite):
         # For test suite uid is the same as name, just like that of Multitest
@@ -332,7 +391,7 @@ class PatternAction(argparse.Action):
 
     .. code-block:: bash
 
-        --pattern foo bar --pattern baz
+        --patterns foo bar --patterns baz
 
     Out:
 
@@ -424,7 +483,7 @@ def parse_filter_args(parsed_args, arg_names):
 
     .. code-block:: bash
 
-        --pattern my_pattern --tags foo --tags-all bar baz
+        --patterns my_pattern --tags foo --tags-all bar baz
 
     Out:
 
