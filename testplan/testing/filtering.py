@@ -275,7 +275,7 @@ class Pattern(Filter):
         return '{}(pattern="{}")'.format(self.__class__.__name__, self.pattern)
 
     def parse_pattern(self, pattern: str) -> List[str]:
-        # ":" or "::" can be used as delimiter
+        # ":" would be used as delimiter
         patterns = [s for s in pattern.split(self.DELIMITER) if s]
 
         if len(patterns) > self.MAX_LEVEL:

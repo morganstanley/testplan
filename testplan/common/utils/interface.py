@@ -1,7 +1,7 @@
 """Validates methods signature."""
 
 from inspect import signature
-from typing import Union, Optional
+from typing import Union
 
 
 class NoSuchMethodInClass(Exception):

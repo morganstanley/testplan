@@ -37,6 +37,8 @@ class NoStrictXfailedSuite:
 class DynamicXfailSuite:
     """A test suite to check dynamic allocation of xfail decorator"""
 
+    name = "DynamicXfailSuiteAlias"
+
     @testcase
     def test_1(self, env, result):
         result.equal(2, 3)
@@ -60,11 +62,11 @@ def test_dynamic_xfail():
     plan = TestplanMock(
         name="dynamic_xfail_test",
         xfail_tests={
-            "Dummy:DynamicXfailSuite:test_1": {
+            "Dummy:DynamicXfailSuiteAlias:test_1": {
                 "reason": "known flaky",
                 "strict": False,
             },
-            "Dummy:DynamicXfailSuite:test_2 <n=3>": {
+            "Dummy:DynamicXfailSuiteAlias:test_2 <n=3>": {
                 "reason": "unknown non-flaky",
                 "strict": True,
             },

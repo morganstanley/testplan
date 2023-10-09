@@ -23,11 +23,11 @@ except ImportError:
 
 
 from testplan.common.entity import Runnable
-from testplan.testing.base import Test, TestResult
 from testplan.common.serialization import SelectiveSerializable
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import is_subdir, pwd, rebase_path
+from testplan.testing.base import Test, TestResult
 from testplan.testing.multitest import MultiTest
 
 
@@ -79,24 +79,21 @@ class Task(SelectiveSerializable):
         self._kwargs = kwargs or dict()
         self._uid = uid or strings.uuid4()
         self._aborted = False
-        self._max_rerun_limit = (
-            self.MAX_RERUN_LIMIT
-            if rerun > self.MAX_RERUN_LIMIT
-            else int(rerun)
-        )
         self._assign_for_rerun = 0
         self._executors = OrderedDict()
         self.priority = -weight
 
-        if self._max_rerun_limit < 0:
+        if rerun < 0:
             raise ValueError("Value of `rerun` cannot be negative.")
-        elif self._max_rerun_limit > self.MAX_RERUN_LIMIT:
+        elif rerun > self.MAX_RERUN_LIMIT:
             warnings.warn(
                 "Value of `rerun` cannot exceed {}".format(
                     self.MAX_RERUN_LIMIT
                 )
             )
             self._max_rerun_limit = self.MAX_RERUN_LIMIT
+        else:
+            self._max_rerun_limit = rerun
 
         self._part = part
 
@@ -167,9 +164,9 @@ class Task(SelectiveSerializable):
     def reassign_cnt(self, value: int):
         if value < 0:
             raise ValueError("Value of `reassign_cnt` cannot be negative")
-        elif value > self.MAX_RERUN_LIMIT:
+        elif value > self._max_rerun_limit:
             raise ValueError(
-                f"Value of `reassign_cnt` cannot exceed {self.MAX_RERUN_LIMIT}"
+                f"Value of `reassign_cnt` cannot exceed {self._max_rerun_limit}"
             )
         self._assign_for_rerun = value
 

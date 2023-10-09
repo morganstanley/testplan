@@ -7,17 +7,18 @@ import socket
 import threading
 import warnings
 from concurrent import futures
-from typing import Union, Awaitable, Dict, Optional
+from typing import Awaitable, Dict, Optional, Union
 
 from testplan.common import config, entity
 from testplan.common.report import Report
-from testplan.runnable.interactive import http, reloader, resource_loader
 from testplan.report import (
-    TestReport,
-    TestGroupReport,
-    Status,
+    ReportCategories,
     RuntimeStatus,
+    Status,
+    TestGroupReport,
+    TestReport,
 )
+from testplan.runnable.interactive import http, reloader, resource_loader
 
 
 def _exclude_assertions_filter(obj: object) -> bool:
@@ -566,7 +567,7 @@ class TestRunnerIHandler(entity.Entity):
                 if obj.uid == case_uid:
                     return True
                 return obj.uid == suite_uid or (
-                    obj.category == "parametrization"
+                    obj.category == ReportCategories.PARAMETRIZATION
                     and any(entry.uid == case_uid for entry in obj.entries)
                 )
             except Exception:

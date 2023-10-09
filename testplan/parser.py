@@ -6,9 +6,11 @@ import argparse
 import copy
 import json
 import sys
+import warnings
 from typing import Dict, List
 
 import schema
+
 from testplan import defaults
 from testplan.common.utils import logger
 from testplan.report.testing import (
@@ -510,6 +512,15 @@ that match ALL of the given tags.
 
         if args["list"] and not args["test_lister"]:
             args["test_lister"] = listing.NameLister()
+
+        if (
+            args["interactive_port"] is not None
+            and args["tracing_tests"] is not None
+        ):
+            warnings.warn(
+                "Tracing tests feature not available in interactive mode."
+            )
+            args["tracing_tests"] = None
 
         return args
 

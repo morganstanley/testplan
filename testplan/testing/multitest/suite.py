@@ -357,24 +357,14 @@ def _ensure_unique_generated_testcase_names(names, functions):
         name = func.__name__
         if name in dupe_names or name in valid_names:
             count = dupe_counter[name]
-            while True:
-                func.__name__ = "{}__{}".format(name, count)
-                dupe_counter[name] += 1
-                if (
-                    func.__name__ not in dupe_names
-                    and func.__name__ not in valid_names
-                ):
-                    valid_names.add(func.__name__)
-                    break
-        else:
-            valid_names.add(name)
+            func.__name__ = "{}__{}".format(name, count)
+            dupe_counter[name] += 1
+        valid_names.add(func.__name__)
 
     # Functions should have different __name__ attributes after the step above
-    name_counts = collections.Counter(
-        itertools.chain(names, (func.__name__ for func in functions))
-    )
-    dupe_names = {k for k, v in name_counts.items() if v > 1}
-    assert len(dupe_names) == 0
+    names = list(itertools.chain(names, (func.__name__ for func in functions)))
+    if len(set(names)) != len(names):
+        raise RuntimeError("Duplicate testcase __name__ found.")
 
 
 def _testsuite(klass):

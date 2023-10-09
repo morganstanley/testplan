@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 import warnings
-from typing import List, Optional, Dict, Generator
+from typing import Dict, Generator, List, Optional
 
 from schema import And, Or, Use
 
@@ -190,7 +190,7 @@ class Test(Runnable):
 
     @property
     def name(self):
-        """Instance name. Also uid."""
+        """Instance name."""
         return self.cfg.name
 
     @property
@@ -254,9 +254,9 @@ class Test(Runnable):
         if isinstance(test_obj, TestGroupReport):
             if depth == 0:
                 return style.display_test, TEST_INST_INDENT
-            elif test_obj.category == "testsuite":
+            elif test_obj.category == ReportCategories.TESTSUITE:
                 return style.display_testsuite, SUITE_INDENT
-            elif test_obj.category == "parametrization":
+            elif test_obj.category == ReportCategories.PARAMETRIZATION:
                 return False, 0  # DO NOT display
             else:
                 raise ValueError(

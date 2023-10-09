@@ -6,9 +6,8 @@ import itertools
 import re
 import warnings
 
-from testplan.common.utils import convert
-from testplan.common.utils import interface
 from testplan.common.utils import callable as callable_utils
+from testplan.common.utils import convert, interface
 from testplan.testing import tagging
 
 # Although any string will be processed as normal, it's a good
@@ -182,7 +181,7 @@ def _generate_kwarg_list(parameters, args, required_args, default_args):
 
 
 def _generate_func(
-    function, name, name_func, tag_func, docstring_func, tag_dict, kwargs
+    function, name, name_func, idx, tag_func, docstring_func, tag_dict, kwargs
 ):
     """
     Generates a new function using the original function, name generation
@@ -205,7 +204,11 @@ def _generate_func(
     _generated.__name__ = _parametrization_name_func_wrapper(
         func_name=function.__name__, kwargs=kwargs
     )
-    _generated.name = name_func(name, kwargs) if name_func else name
+    # Users request the feature that when `name_func` set to `None`,
+    # then simply append integer suffixes to the names of testcases
+    _generated.name = (
+        name_func(name, kwargs) if name_func is not None else f"{name} {idx}"
+    )
 
     if hasattr(function, "__xfail__"):
         _generated.__xfail__ = function.__xfail__
@@ -271,18 +274,18 @@ def _parametrization_name_func_wrapper(func_name, kwargs):
 
     If somehow a 'bad' function name is generated, will just return the
     original ``func_name`` instead (which will later on be suffixed with an
-    integer by :py:func:`_ensure_unique_testcase_names`)
+    integer by :py:func:`_ensure_unique_generated_testcase_names`)
     """
     generated_name = parametrization_name_func(func_name, kwargs)
 
     if not PYTHON_VARIABLE_REGEX.match(generated_name):
-        # Generated method name is not a valid Python attribute name
-        # e.g. "{func_name}_1", "{func_name}_2" will be used.
+        # Generated method name is not a valid Python attribute name,
+        # i.e. "{func_name}__1", "{func_name}__2" will be used.
         return func_name
 
     if len(generated_name) > MAX_METHOD_NAME_LENGTH:
         # Generated method name is a bit too long. Simple index suffixes
-        # e.g. "{func_name}_1", "{func_name}_2" will be used.
+        # e.g. "{func_name}__1", "{func_name}__2" will be used.
         return func_name
 
     return generated_name
@@ -408,6 +411,7 @@ def generate_functions(
         raise ParametrizationError('"parameters" cannot be a empty.')
 
     _check_name_func(name_func)
+    _check_tag_func(tag_func)
 
     argspec = callable_utils.getargspec(function)
     args = argspec.args[3:]  # get rid of self, env, result
@@ -420,30 +424,24 @@ def generate_functions(
         parameters, args, required_args, default_args
     )
 
-    functions = [
-        _generate_func(
+    functions = []
+    for idx, kwargs in enumerate(kwarg_list):
+        func = _generate_func(
             function=function,
             name=name,
             name_func=name_func,
+            idx=idx,
             tag_func=tag_func,
             docstring_func=docstring_func,
             tag_dict=tag_dict,
             kwargs=kwargs,
         )
-        for kwargs in kwarg_list
-    ]
-
-    for idx, func in enumerate(functions):
-        # Users request the feature that when `name_func` set to `None`,
-        # then simply append integer suffixes to the names of testcases
-        if name_func is None:
-            func.name = "{} {}".format(func.name, idx)
-
         func.summarize = summarize
         func.summarize_num_passing = num_passing
         func.summarize_num_failing = num_failing
         func.summarize_key_combs_limit = key_combs_limit
         func.execution_group = execution_group
         func.timeout = timeout
+        functions.append(func)
 
     return functions

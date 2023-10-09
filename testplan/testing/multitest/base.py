@@ -5,7 +5,7 @@ import concurrent
 import functools
 import itertools
 import os
-from typing import Callable, Optional, Tuple, Dict, List, Generator
+from typing import Callable, Dict, Generator, List, Optional, Tuple
 
 from schema import And, Or, Use
 
@@ -361,11 +361,7 @@ class MultiTest(testing_base.Test):
         """
 
         # watch line features depends on configuration from the outside world
-        if (
-            self.cfg.parent is not None
-            and self.cfg.tracing_tests is not None
-            and self.cfg.interactive_port is None
-        ):
+        if self.cfg.parent is not None and self.cfg.tracing_tests is not None:
             self.watcher.set_watching_lines(self.cfg.tracing_tests)
 
     def get_test_context(self):
@@ -429,7 +425,7 @@ class MultiTest(testing_base.Test):
                         testcase_instance = ":".join(
                             [
                                 self.name,
-                                suite.__class__.__name__,
+                                suite.name,
                                 testcase.name,
                             ]
                         )
@@ -812,8 +808,9 @@ class MultiTest(testing_base.Test):
         :return: A new and empty test report object for this MultiTest.
         """
         return TestGroupReport(
-            name=self.cfg.name,
+            name=self.uid(),  # part info populated
             description=self.cfg.description,
+            instance_name=self.cfg.name,
             uid=self.uid(),
             category=ReportCategories.MULTITEST,
             tags=self.cfg.tags,
@@ -829,6 +826,7 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=testsuite.name,
             description=strings.get_docstring(testsuite.__class__),
+            instance_name=testsuite.name,
             uid=testsuite.uid(),
             category=ReportCategories.TESTSUITE,
             tags=testsuite.__tags__,
@@ -842,6 +840,7 @@ class MultiTest(testing_base.Test):
         return TestCaseReport(
             name=testcase.name,
             description=strings.get_docstring(testcase),
+            instance_name=testcase.name,
             uid=testcase.__name__,
             tags=testcase.__tags__,
         )

@@ -36,6 +36,9 @@ class ReportSchema(schemas.TreeNodeSchema):
 
     name = fields.String()
     description = fields.String(allow_none=True)
+    instance_name = fields.String(
+        allow_none=True
+    )  # otherwise new tpr cannot process old report
     entries = fields.List(custom_fields.NativeOrPretty())
     parent_uids = fields.List(fields.String())
 
