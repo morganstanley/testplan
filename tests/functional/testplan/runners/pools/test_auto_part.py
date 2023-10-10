@@ -1,5 +1,6 @@
 import os
 import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -36,6 +37,36 @@ def test_auto_parts_discover():
             assert task.weight == 45
 
         assert pool.size == 2
+
+
+def test_auto_parts_discover_interactive(runpath):
+    mockplan = TestplanMock(
+        "plan",
+        runpath=runpath,
+        merge_scheduled_parts=True,
+        auto_part_runtime_limit=45,
+        plan_runtime_target=200,
+        interactive_port=0,
+        runtime_data={
+            "Proj1-suite": {
+                "execution_time": 199.99,
+                "setup_time": 5,
+            }
+        },
+    )
+    pool = ProcessPool(name="MyPool", size="auto")
+    mockplan.add_resource(pool)
+    current_folder = Path(__file__).resolve().parent
+    mockplan.schedule_all(
+        path=current_folder / "discover_tasks",
+        name_pattern=r".*auto_parts_tasks\.py$",
+        resource="MyPool",
+    )
+
+    local_pool = mockplan.resources.get(mockplan.resources.first())
+    # validate that only on etask added to the local pool without split
+    assert len(pool.added_items) == 0
+    assert len(local_pool.added_items) == 1
 
 
 def test_auto_weight_discover():
