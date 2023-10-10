@@ -197,6 +197,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
 @pytest.mark.parametrize(
     "filter_obj, report_ctx",
     (
+        # Case 1, part not specified
         (
             filtering.Pattern("XXX:Alpha:test_one")
             | filtering.Pattern("XXX:Alpha:test_two"),
@@ -205,6 +206,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
             ],
         ),
+        # Case 2, part specified
         (
             filtering.Pattern("XXX - part(0/3):Alpha:test_one")
             | filtering.Pattern("XXX - part(0/3):Beta:test_three"),
@@ -212,14 +214,23 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
             ],
         ),
+        # Case 3, unix filename pattern in part
         (
-            filtering.Pattern("XXX - part([01]/3):Alpha")
+            filtering.Pattern("XXX - part([012]/*):Alpha")
             | filtering.Pattern("XXX:Beta:test_three"),
             [
                 ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
                 ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
-                ("XXX - part(2/3)", [("Beta", ["test_three"])]),
+                (
+                    "XXX - part(2/3)",
+                    [("Alpha", ["test_three"]), ("Beta", ["test_three"])],
+                ),
             ],
+        ),
+        # Case 4, ill-formed part
+        (
+            filtering.Pattern("XXX - part*"),
+            [],
         ),
     ),
 )

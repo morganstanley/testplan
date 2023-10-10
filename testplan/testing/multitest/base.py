@@ -376,15 +376,18 @@ class MultiTest(testing_base.Test):
         ctx = []
         sorted_suites = self.cfg.test_sorter.sorted_testsuites(self.cfg.suites)
 
+        g_offset = 0
         for suite in sorted_suites:
             testcases = suite.get_testcases()
 
             if self.cfg.part and self.cfg.part[1] > 1:
+                offset = len(testcases)
                 testcases = [
                     testcase
                     for (idx, testcase) in enumerate(testcases)
-                    if idx % self.cfg.part[1] == self.cfg.part[0]
+                    if (idx + g_offset) % self.cfg.part[1] == self.cfg.part[0]
                 ]
+                g_offset += offset
 
             sorted_testcases = (
                 testcases

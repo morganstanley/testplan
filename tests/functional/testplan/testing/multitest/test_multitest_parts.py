@@ -1,11 +1,11 @@
 import itertools
 
-from testplan.testing.multitest import MultiTest, testsuite, testcase
-
 from testplan import TestplanMock
+from testplan.common.utils.testing import check_report_context
+from testplan.report import Status
 from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.runners.pools.tasks import Task
-from testplan.report import Status
+from testplan.testing.multitest import MultiTest, testcase, testsuite
 
 
 @testsuite
@@ -76,19 +76,69 @@ def test_multi_parts_not_merged():
 
     assert plan.run().run is True
 
-    assert len(plan.report.entries) == 3
-    assert plan.report.entries[0].name == "MTest - part(0/3)"
-    assert plan.report.entries[1].name == "MTest - part(1/3)"
-    assert plan.report.entries[2].name == "MTest - part(2/3)"
-    assert len(plan.report.entries[0].entries) == 2  # 2 suites
-    assert plan.report.entries[0].entries[0].name == "Suite1"
-    assert plan.report.entries[0].entries[1].name == "Suite2"
-    assert len(plan.report.entries[0].entries[0].entries) == 1  # param group
-    assert plan.report.entries[0].entries[0].entries[0].name == "test_true"
-    assert len(plan.report.entries[0].entries[1].entries) == 1  # param group
-    assert plan.report.entries[0].entries[1].entries[0].name == "test_false"
-    assert len(plan.report.entries[0].entries[0].entries[0].entries) == 4
-    assert len(plan.report.entries[0].entries[1].entries[0].entries) == 1
+    check_report_context(
+        plan.report,
+        [
+            (
+                "MTest - part(0/3)",
+                [
+                    (
+                        "Suite1",
+                        [
+                            (
+                                "test_true",
+                                [
+                                    "test_true <val=0>",
+                                    "test_true <val=3>",
+                                    "test_true <val=6>",
+                                    "test_true <val=9>",
+                                ],
+                            )
+                        ],
+                    ),
+                    ("Suite2", [("test_false", ["test_false <val=''>"])]),
+                ],
+            ),
+            (
+                "MTest - part(1/3)",
+                [
+                    (
+                        "Suite1",
+                        [
+                            (
+                                "test_true",
+                                [
+                                    "test_true <val=1>",
+                                    "test_true <val=4>",
+                                    "test_true <val=7>",
+                                ],
+                            )
+                        ],
+                    ),
+                    ("Suite2", [("test_false", ["test_false <val=False>"])]),
+                ],
+            ),
+            (
+                "MTest - part(2/3)",
+                [
+                    (
+                        "Suite1",
+                        [
+                            (
+                                "test_true",
+                                [
+                                    "test_true <val=2>",
+                                    "test_true <val=5>",
+                                    "test_true <val=8>",
+                                ],
+                            )
+                        ],
+                    ),
+                    ("Suite2", [("test_false", ["test_false <val=None>"])]),
+                ],
+            ),
+        ],
+    )
 
 
 def test_multi_parts_merged():
