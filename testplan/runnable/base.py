@@ -391,7 +391,7 @@ class TestRunner(Runnable):
         # Before saving test report, recursively generate unique strings in
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
-        self._reset_report_uid = self.cfg.interactive_port is None
+        self._reset_report_uid = not self._is_interactive_run()
         self.scheduled_modules = []  # For interactive reload
         self.remote_services = {}
         self.runid_filename = uuid.uuid4().hex
@@ -452,7 +452,7 @@ class TestRunner(Runnable):
                 test_exporters.WebServerExporter(ui_port=self.cfg.ui_port)
             )
         if (
-            self.cfg.interactive_port is None
+            not self._is_interactive_run()
             and self.cfg.tracing_tests is not None
         ):
             exporters.append(test_exporters.CoveredTestsExporter())
@@ -686,6 +686,12 @@ class TestRunner(Runnable):
                             **task_target_info.task_kwargs,
                         )
 
+                        multitest_parts = (
+                            None
+                            if self._is_interactive_run()
+                            else task_target_info.multitest_parts
+                        )
+
                         if task_target_info.target_params:
                             for param in task_target_info.target_params:
                                 if isinstance(param, dict):
@@ -704,7 +710,7 @@ class TestRunner(Runnable):
                                 tasks.extend(
                                     self._get_tasks(
                                         task_arguments,
-                                        task_target_info.multitest_parts,
+                                        multitest_parts,
                                         runtime_data,
                                     )
                                 )
@@ -712,7 +718,7 @@ class TestRunner(Runnable):
                             tasks.extend(
                                 self._get_tasks(
                                     task_arguments,
-                                    task_target_info.multitest_parts,
+                                    multitest_parts,
                                     runtime_data,
                                 )
                             )
@@ -857,7 +863,7 @@ class TestRunner(Runnable):
             self.cfg.test_lister.log_test_info(task_info.materialized_test)
             return None
 
-        if self.cfg.interactive_port is not None:
+        if self._is_interactive_run():
             self._register_task_for_interactive(task_info)
             #  for interactive always use the local runner
             resource = local_runner
@@ -871,6 +877,9 @@ class TestRunner(Runnable):
             resource, target, uid, task_info.materialized_test.get_metadata()
         )
         return uid
+
+    def _is_interactive_run(self):
+        return self.cfg.interactive_port is not None
 
     def _register_task(self, resource, target, uid, metadata):
         self._tests[uid] = resource

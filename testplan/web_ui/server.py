@@ -8,7 +8,7 @@ import webbrowser
 from testplan import defaults
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait
-from testplan.common.utils.networking import format_access_urls
+from testplan.common.utils.networking import get_hostname_access_url
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from .web_app import WebServer, TESTPLAN_UI_STATIC_DIR
@@ -91,8 +91,8 @@ class WebUIServer(object):
         self._report_url = f"http://localhost:{port}/testplan/local"
 
         TESTPLAN_LOGGER.user_info(
-            "View the JSON report in the browser:\n%s",
-            format_access_urls(host, port, "/testplan/local"),
+            "View the JSON report in the browser: %s",
+            get_hostname_access_url(port, "/testplan/local"),
         )
 
     def wait_for_kb_interrupt(self):

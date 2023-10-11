@@ -11,6 +11,7 @@ from typing import Awaitable, Dict, Optional, Union
 
 from testplan.common import config, entity
 from testplan.common.report import Report
+from testplan.common.utils.networking import get_hostname_access_url
 from testplan.report import (
     ReportCategories,
     RuntimeStatus,
@@ -860,9 +861,8 @@ class TestRunnerIHandler(entity.Entity):
             )
 
         self.logger.user_info(
-            "\nInteractive Testplan web UI is running. Access it at: %s:%s/interactive",
-            socket.getfqdn(),
-            str(port),
+            "\nInteractive Testplan web UI is running. Access it at: %s",
+            get_hostname_access_url(port, "/interactive"),
         )
 
     def _initial_report(self):
