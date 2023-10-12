@@ -106,7 +106,7 @@ class GTest(ProcessRunnerTest):
         super(GTest, self).__init__(**options)
 
     def base_command(self):
-        cmd = [self.cfg.binary]
+        cmd = [self.binary]
         if self.cfg.gtest_filter:
             cmd.append("--gtest_filter={}".format(self.cfg.gtest_filter))
         return cmd

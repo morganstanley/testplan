@@ -129,11 +129,12 @@ class App(Driver):
         super(App, self).__init__(**options)
         self.proc = None
         self.std = None
-        self.binary = None
+        self._binary = None
         self._binpath: str = None
         self._etcpath: str = None
         self._retcode = None
         self._log_matcher = None
+        self._resolved_bin = None
 
     @emphasized
     @property
@@ -164,7 +165,7 @@ class App(Driver):
         pre_args = self.cfg.pre_args or []
         cmd = []
         cmd.extend(pre_args)
-        cmd.append(self.binary or self.cfg.binary)
+        cmd.append(self.binary)
         cmd.extend(args)
         cmd = [
             expand(arg, self.context, str) if is_context(arg) else arg
@@ -229,6 +230,32 @@ class App(Driver):
 
     @emphasized
     @property
+    def binary(self) -> str:
+        """The actual binary to execute"""
+        if not self._binary:
+            if self.cfg.path_cleanup is True:
+                name = os.path.basename(self.cfg.binary)
+            else:
+                name = "{}-{}".format(
+                    os.path.basename(self.cfg.binary), uuid.uuid4()
+                )
+
+            if os.path.isfile(self.resolved_bin):
+                target = os.path.join(self.binpath, name)
+                if self.cfg.binary_strategy == "copy":
+                    shutil.copyfile(self.resolved_bin, target)
+                    self._binary = target
+                elif self.cfg.binary_strategy == "link" and not IS_WIN:
+                    os.symlink(os.path.abspath(self.resolved_bin), target)
+                    self._binary = target
+                # else binary_strategy is noop then we don't do anything
+                else:
+                    self._binary = self.resolved_bin
+
+        return self._binary
+
+    @emphasized
+    @property
     def etcpath(self) -> str:
         """'etc' directory under runpath."""
         return self._etcpath
@@ -245,9 +272,17 @@ class App(Driver):
             self._log_matcher = LogMatcher(self.logpath, self.cfg.binary_log)
         return self._log_matcher
 
-    def _prepare_binary(self, path: str) -> str:
-        """prepare binary path"""
-        return path
+    @property
+    def resolved_bin(self) -> str:
+        """Resolved binary path from self.cfg.binary"""
+        if not self._resolved_bin:
+            self._binary = self._prepare_binary()
+
+        return self._resolved_bin
+
+    def _prepare_binary(self) -> str:
+        """prepare binary path, override for more sophisticated binary discover"""
+        return self.cfg.binary
 
     @property
     def hostname(self) -> str:
@@ -264,25 +299,6 @@ class App(Driver):
         super(App, self).pre_start()
 
         self._make_dirs()
-
-        if self.cfg.path_cleanup is True:
-            name = os.path.basename(self.cfg.binary)
-        else:
-            name = "{}-{}".format(
-                os.path.basename(self.cfg.binary), uuid.uuid4()
-            )
-
-        self.binary = self._prepare_binary(self.cfg.binary)
-        if os.path.isfile(self.binary):
-            target = os.path.join(self._binpath, name)
-            if self.cfg.binary_strategy == "copy":
-                shutil.copyfile(self.binary, target)
-                self.binary = target
-            elif self.cfg.binary_strategy == "link" and not IS_WIN:
-                os.symlink(os.path.abspath(self.binary), target)
-                self.binary = target
-            # else binary_strategy is noop then we don't do anything
-
         makedirs(self.app_path)
         self.std = StdFiles(self.app_path)
 

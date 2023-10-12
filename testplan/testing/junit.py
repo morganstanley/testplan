@@ -79,7 +79,7 @@ class JUnit(ProcessRunnerTest):
 
     def _test_command(self):
         return (
-            [self.cfg.binary]
+            [self.binary]
             + (self.cfg.junit_args or [])
             + (self.cfg.junit_filter or [])
         )

@@ -526,11 +526,7 @@ class ProcessRunnerTest(Test):
         self._test_process_retcode = None  # will be set by `self.run_tests`
         self._test_process_killed = False
         self._test_has_run = False
-
-        # Need to use the binary's absolute path if `proc_cwd` is specified,
-        # otherwise won't be able to find the binary.
-        if self.cfg.proc_cwd:
-            self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
+        self._resolved_bin = None     # resolved binary path
 
     @property
     def stderr(self) -> str:
@@ -547,6 +543,25 @@ class ProcessRunnerTest(Test):
     @property
     def report_path(self) -> str:
         return os.path.join(self._runpath, "report.xml")
+
+    @property
+    def resolved_bin(self) -> str:
+        if not self._resolved_bin:
+            self._resolved_bin = self.prepare_binary()
+
+        return self._resolved_bin
+
+    def prepare_binary(self):
+        """
+        Resolve the real binary path to run
+        """
+        # Need to use the binary's absolute path if `proc_cwd` is specified,
+        # otherwise won't be able to find the binary.
+        if self.cfg.proc_cwd:
+            return os.path.abspath(self.cfg.binary)
+        # use user-specified binary as-is, override if more sophisticated binary resolution is needed.
+        else:
+            return self.cfg.binary
 
     def test_command(self) -> List[str]:
         """
@@ -569,7 +584,7 @@ class ProcessRunnerTest(Test):
         :return: Command to run test process
         :rtype: ``list`` of ``str``
         """
-        return [self.cfg.binary]
+        return [self.resolved_bin]
 
     def list_command(self) -> Optional[List[str]]:
         """
@@ -765,7 +780,7 @@ class ProcessRunnerTest(Test):
         """
         assertion_content = "\n".join(
             [
-                "Process: {}".format(self.cfg.binary),
+                "Process: {}".format(self.resolved_bin),
                 "Exit code: {}".format(retcode),
             ]
         )
