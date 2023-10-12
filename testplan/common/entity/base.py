@@ -20,7 +20,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
-)
+    Any)
 
 import psutil
 from schema import Or
@@ -740,6 +740,10 @@ class Entity(logger.Loggable):
             for key, value in local_vars.items()
             if key not in EXCLUDE and value is not None
         }
+
+    def context_input(self) -> Dict[str, Any]:
+        """Driver context information."""
+        return {attr: getattr(self, attr) for attr in dir(self)}
 
 
 class RunnableStatus(EntityStatus):

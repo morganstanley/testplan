@@ -19,7 +19,8 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import ActionResult
-from testplan.common.utils.context import ContextValue, expand, is_context
+from testplan.common.utils.context import ContextValue, expand, is_context, \
+    render
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, archive, makedirs
@@ -171,13 +172,14 @@ class App(Driver):
         ]
         return cmd
 
+
     @emphasized
     @property
     def env(self) -> Dict[str, str]:
         """Environment variables."""
         if isinstance(self.cfg.env, dict):
             return {
-                key: expand(val, self.context, str) if is_context(val) else val
+                key: expand(val, self.context, str) if is_context(val) else render(val, self.context_input())
                 for key, val in self.cfg.env.items()
             }
         else:

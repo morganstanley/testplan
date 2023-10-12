@@ -18,6 +18,7 @@ from testplan.common.entity import (
 )
 from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.utils import strings
+from testplan.common.utils.context import render
 from testplan.common.utils.process import (
     enforce_timeout,
     kill_process,
@@ -518,10 +519,6 @@ class ProcessRunnerTest(Test):
     _MAX_RETAINED_LOG_SIZE = 4096
 
     def __init__(self, **options):
-        proc_env = os.environ.copy()
-        if options.get("proc_env"):
-            proc_env.update(options["proc_env"])
-        options["proc_env"] = proc_env
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
@@ -669,12 +666,14 @@ class ProcessRunnerTest(Test):
             )
 
     def get_proc_env(self):
-        self._json_ouput = os.path.join(self.runpath, "output.json")
-        self.logger.debug("Json output: %s", self._json_ouput)
-        env = {"JSON_REPORT": self._json_ouput}
-        env.update(
-            {key.upper(): val for key, val in self.cfg.proc_env.items()}
-        )
+
+        env = os.environ.copy()
+        proc_env = {key.upper(): render(val, self.context_input()) for key, val in self.cfg.proc_env.items()}
+        env.update(proc_env)
+
+        json_ouput = os.path.join(self.runpath, "output.json")
+        self.logger.debug("Json output: %s", json_ouput)
+        env["JSON_REPORT"] = json_ouput
 
         for driver in self.resources:
             driver_name = driver.uid()

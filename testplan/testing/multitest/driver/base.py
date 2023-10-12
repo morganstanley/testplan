@@ -308,9 +308,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Triggers driver abort."""
         self._close_file_logger()
 
-    def context_input(self) -> Dict[str, Any]:
-        """Driver context information."""
-        return {attr: getattr(self, attr) for attr in dir(self)}
 
     @property
     def logpath(self):

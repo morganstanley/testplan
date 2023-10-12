@@ -133,7 +133,7 @@ def expand_env(
 
 def render(template: Union[Template, TempitaTemplate, str], context) -> str:
     """
-    Renders the template with the given context, tthat used for expression resolution.
+    Renders the template with the given context, that used for expression resolution.
 
     :param template: A template in str, Jinja2 or Tempita form that will be rendered with the context
     :type template: Union[Template, TempitaTemplate, str]
