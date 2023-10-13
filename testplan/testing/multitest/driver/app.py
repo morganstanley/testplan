@@ -276,7 +276,7 @@ class App(Driver):
     def resolved_bin(self) -> str:
         """Resolved binary path from self.cfg.binary"""
         if not self._resolved_bin:
-            self._binary = self._prepare_binary()
+            self._resolved_bin = self._prepare_binary()
 
         return self._resolved_bin
 
