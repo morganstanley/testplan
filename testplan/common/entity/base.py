@@ -2,7 +2,7 @@
 Module containing base classes that represent object entities that can accept
 configuration, start/stop/run/abort, create results and have some state.
 """
-
+import multiprocessing
 import os
 import signal
 import sys
@@ -1705,8 +1705,14 @@ class RunnableManager(Entity):
             signum,
             threading.current_thread(),
         )
-
-        self.abort()
+        if signum == signal.SIGINT:
+            multiprocessing.Process(
+                target=fast_kill,
+                args=[multiprocessing.current_process().pid],
+                daemon=True,
+            ).start()
+        else:
+            self.abort()
 
     def pausing(self):
         """
@@ -1731,3 +1737,27 @@ class RunnableManager(Entity):
         Suppressing not implemented debug log by parent class.
         """
         pass
+
+
+def fast_kill(pid):
+    """
+    kills the pid and all of its child process from a new process and exit.
+    :param pid: The pid of the main process need to be killed
+    :return:
+    """
+
+    with suppress(AttributeError):
+        # on windows there is no fork but on posix we detach from parent.
+        # so it can be nicely killed
+        if os.fork() != 0:
+            return
+
+    proc = psutil.Process(pid)
+    children = proc.children(recursive=True)
+
+    proc.kill()
+    for child in children:
+        if proc.pid == os.getpid():
+            continue
+        with suppress(psutil.NoSuchProcess):
+            proc.kill()
