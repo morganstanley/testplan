@@ -15,7 +15,7 @@ from testplan.common.entity import (
     Resource,
     ResourceConfig,
 )
-from testplan.common.utils.context import ContextValue
+from testplan.common.utils.context import ContextValue, render
 from testplan.common.utils.documentation_helper import (
     emphasized,
     get_metaclass_for_documentation,
@@ -401,9 +401,11 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """
         Installs the files specified in the install_files parameter at the install target.
         """
-
+        context = self.context_input()
         for install_file in self.cfg.install_files:
             if isinstance(install_file, str):
+                # may have jinja2/tempita template in file path
+                install_file = render(install_file, context)
                 if not os.path.isfile(install_file):
                     raise ValueError("{} is not a file".format(install_file))
                 instantiate(
@@ -416,6 +418,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                         "destination) pair; got {}".format(install_file)
                     )
                 src, dst = install_file
+                # may have jinja2/tempita template in file path
+                src = render(src, context)
+                dst = render(src, context)
                 if not os.path.isabs(dst):
                     dst = os.path.join(self._install_target(), dst)
                 instantiate(src, self.context_input(), dst)
