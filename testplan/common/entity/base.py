@@ -743,7 +743,7 @@ class Entity(logger.Loggable):
         }
 
     def context_input(self) -> Dict[str, Any]:
-        """Driver context information."""
+        """All attr of self in a dict for context resolution"""
         return {attr: getattr(self, attr) for attr in dir(self)}
 
 

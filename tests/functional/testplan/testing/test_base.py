@@ -62,7 +62,7 @@ fixture_root = os.path.join(os.path.dirname(__file__), "fixtures", "base")
                 proc_env={
                     "proc_env1": "abc",
                     "proc_env2": "123",
-                    "test_name": '{{binary.rsplit(sep="/", maxsplit=1)[0]+"../lib/"+":$LD_LIBRARY_PATH"}}',
+                    "test_name": "{{name}}",
                 },
                 environment=[MyDriver(name="My executable", my_val="hello")],
             ),
