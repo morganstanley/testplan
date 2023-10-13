@@ -741,7 +741,9 @@ class TestRunner(Runnable):
                 pool_size = self.calculate_pool_size_by_tasks(
                     list(executor.added_items.values())
                 )
-                self.logger.user_info(f"Set pool size to {pool_size} for {executor.cfg.name}")
+                self.logger.user_info(
+                    f"Set pool size to {pool_size} for {executor.cfg.name}"
+                )
                 executor.size = pool_size
 
     def calculate_pool_size_by_tasks(self, tasks: Collection[Task]) -> int:

@@ -20,7 +20,8 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    Any)
+    Any,
+)
 
 import psutil
 from schema import Or

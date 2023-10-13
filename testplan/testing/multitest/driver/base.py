@@ -308,7 +308,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Triggers driver abort."""
         self._close_file_logger()
 
-
     @property
     def logpath(self):
         """Path for log regexp matching."""

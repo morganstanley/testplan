@@ -526,7 +526,7 @@ class ProcessRunnerTest(Test):
         self._test_process_retcode = None  # will be set by `self.run_tests`
         self._test_process_killed = False
         self._test_has_run = False
-        self._resolved_bin = None     # resolved binary path
+        self._resolved_bin = None  # resolved binary path
 
     @property
     def stderr(self) -> str:
@@ -683,7 +683,10 @@ class ProcessRunnerTest(Test):
     def get_proc_env(self):
 
         env = os.environ.copy()
-        proc_env = {key.upper(): render(val, self.context_input()) for key, val in self.cfg.proc_env.items()}
+        proc_env = {
+            key.upper(): render(val, self.context_input())
+            for key, val in self.cfg.proc_env.items()
+        }
         env.update(proc_env)
 
         json_ouput = os.path.join(self.runpath, "output.json")
