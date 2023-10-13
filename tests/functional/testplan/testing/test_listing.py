@@ -4,17 +4,16 @@ from pathlib import Path
 import boltons.iterutils
 import pytest
 
-from testplan.testing.listing import SimpleJsonLister
-from testplan.testing.multitest import MultiTest, testsuite, testcase
-
 from testplan import TestplanMock
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.testing import (
-    captured_logging,
     argv_overridden,
+    captured_logging,
     to_stdout,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.testing import listing, filtering, ordering
+from testplan.testing import filtering, listing, ordering
+from testplan.testing.listing import SimpleJsonLister
+from testplan.testing.multitest import MultiTest, testcase, testsuite
 
 
 @testsuite
@@ -64,19 +63,39 @@ class Gamma:
 
 DEFAULT_PATTERN_OUTPUT = to_stdout(
     "Primary",
-    "  Primary::Beta  --tags color=yellow",
-    "    Primary::Beta::test_c",
-    "    Primary::Beta::test_b  --tags foo",
-    "    Primary::Beta::test_a  --tags color=red",
-    "  Primary::Alpha",
-    "    Primary::Alpha::test_c",
-    "    Primary::Alpha::test_b  --tags bar foo",
-    "    Primary::Alpha::test_a  --tags color=green",
+    "  Primary:Beta  --tags color=yellow",
+    "    Primary:Beta:test_c",
+    "    Primary:Beta:test_b  --tags foo",
+    "    Primary:Beta:test_a  --tags color=red",
+    "  Primary:Alpha",
+    "    Primary:Alpha:test_c",
+    "    Primary:Alpha:test_b  --tags bar foo",
+    "    Primary:Alpha:test_a  --tags color=green",
     "Secondary",
-    "  Secondary::Gamma",
-    "    Secondary::Gamma::test_c",
-    "    Secondary::Gamma::test_b  --tags bar",
-    "    Secondary::Gamma::test_a  --tags color=blue",
+    "  Secondary:Gamma",
+    "    Secondary:Gamma:test_c",
+    "    Secondary:Gamma:test_b  --tags bar",
+    "    Secondary:Gamma:test_a  --tags color=blue",
+)
+
+PATTERN_OUTPUT_WITH_PARTS = to_stdout(
+    "Primary - part(0/2)",
+    "  Primary - part(0/2):Beta  --tags color=yellow",
+    "    Primary - part(0/2):Beta:test_c",
+    "    Primary - part(0/2):Beta:test_a  --tags color=red",
+    "  Primary - part(0/2):Alpha",
+    "    Primary - part(0/2):Alpha:test_c",
+    "    Primary - part(0/2):Alpha:test_a  --tags color=green",
+    "Primary - part(1/2)",
+    "  Primary - part(1/2):Beta  --tags color=yellow",
+    "    Primary - part(1/2):Beta:test_b  --tags foo",
+    "  Primary - part(1/2):Alpha",
+    "    Primary - part(1/2):Alpha:test_b  --tags bar foo",
+    "Secondary",
+    "  Secondary:Gamma",
+    "    Secondary:Gamma:test_c",
+    "    Secondary:Gamma:test_b  --tags bar",
+    "    Secondary:Gamma:test_a  --tags color=blue",
 )
 
 
@@ -99,13 +118,14 @@ DEFAULT_NAME_OUTPUT = to_stdout(
 
 
 @pytest.mark.parametrize(
-    "listing_obj,filter_obj,sorter_obj,expected_output",
+    "listing_obj,filter_obj,sorter_obj,prim_parts,expected_output",
     [
         # Basic name listing
         (
             listing.ExpandedNameLister(),
             filtering.Filter(),
             ordering.NoopSorter(),
+            1,
             DEFAULT_NAME_OUTPUT,
         ),
         # Basic pattern listing
@@ -113,6 +133,7 @@ DEFAULT_NAME_OUTPUT = to_stdout(
             listing.ExpandedPatternLister(),
             filtering.Filter(),
             ordering.NoopSorter(),
+            1,
             DEFAULT_PATTERN_OUTPUT,
         ),
         # Basic count listing
@@ -120,16 +141,26 @@ DEFAULT_NAME_OUTPUT = to_stdout(
             listing.CountLister(),
             filtering.Filter(),
             ordering.NoopSorter(),
+            1,
             to_stdout(
                 "Primary: (2 suites, 6 testcases)",
                 "Secondary: (1 suite, 3 testcases)",
             ),
+        ),
+        # Basic pattern listing with MultiTest parts
+        (
+            listing.ExpandedPatternLister(),
+            filtering.Filter(),
+            ordering.NoopSorter(),
+            2,
+            PATTERN_OUTPUT_WITH_PARTS,
         ),
         # Custom sort & name listing
         (
             listing.ExpandedNameLister(),
             filtering.Filter(),
             ordering.AlphanumericSorter(),
+            1,
             to_stdout(
                 "Primary",
                 "  Alpha",
@@ -152,6 +183,7 @@ DEFAULT_NAME_OUTPUT = to_stdout(
             listing.ExpandedNameLister(),
             filtering.Pattern("*:Alpha") | filtering.Pattern("*:Beta"),
             ordering.AlphanumericSorter(),
+            1,
             to_stdout(
                 "Primary",
                 "  Alpha",
@@ -167,11 +199,8 @@ DEFAULT_NAME_OUTPUT = to_stdout(
     ],
 )
 def test_programmatic_listing(
-    runpath, listing_obj, filter_obj, sorter_obj, expected_output
+    runpath, listing_obj, filter_obj, sorter_obj, prim_parts, expected_output
 ):
-    multitest_x = MultiTest(name="Primary", suites=[Beta(), Alpha()])
-    multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
-
     plan = TestplanMock(
         name="plan",
         test_lister=listing_obj,
@@ -181,8 +210,18 @@ def test_programmatic_listing(
     )
 
     with captured_logging(TESTPLAN_LOGGER) as log_capture:
-        plan.add(multitest_x)
-        plan.add(multitest_y)
+        if prim_parts == 1:
+            plan.add(MultiTest(name="Primary", suites=[Beta(), Alpha()]))
+        else:
+            for i in range(prim_parts):
+                plan.add(
+                    MultiTest(
+                        name="Primary",
+                        suites=[Beta(), Alpha()],
+                        part=(i, prim_parts),
+                    )
+                )
+        plan.add(MultiTest(name="Secondary", suites=[Gamma()]))
 
         assert log_capture.output == expected_output
 
@@ -191,39 +230,53 @@ def test_programmatic_listing(
 
 
 @pytest.mark.parametrize(
-    "cmdline_args,expected_output",
+    "cmdline_args,prim_parts,expected_output",
     [
-        (["--list"], DEFAULT_NAME_OUTPUT),
-        (["--info", "pattern"], DEFAULT_PATTERN_OUTPUT),
-        (["--info", "name"], DEFAULT_NAME_OUTPUT),
+        (["--list"], 1, DEFAULT_NAME_OUTPUT),
+        (["--info", "pattern"], 1, DEFAULT_PATTERN_OUTPUT),
+        (["--info", "pattern"], 2, PATTERN_OUTPUT_WITH_PARTS),
+        (["--info", "name"], 1, DEFAULT_NAME_OUTPUT),
         (
             ["--info", "name", "--patterns", "*:Alpha", "*:Beta:test_c"],
+            2,
             to_stdout(
-                "Primary",
+                "Primary - part(0/2)",
                 "  Beta",
                 "    test_c",
                 "  Alpha",
                 "    test_c",
-                "    test_b",
                 "    test_a",
+                "Primary - part(1/2)",
+                "  Alpha",
+                "    test_b",
             ),
         ),
     ],
 )
-def test_command_line_listing(runpath, cmdline_args, expected_output):
-    multitest_x = MultiTest(name="Primary", suites=[Beta(), Alpha()])
-    multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
+def test_command_line_listing(
+    runpath, cmdline_args, prim_parts, expected_output
+):
 
     with argv_overridden(*cmdline_args):
         plan = TestplanMock(name="plan", parse_cmdline=True, runpath=runpath)
 
         with captured_logging(TESTPLAN_LOGGER) as log_capture:
-            plan.add(multitest_x)
-            plan.add(multitest_y)
-
-            result = plan.run()
+            if prim_parts == 1:
+                plan.add(MultiTest(name="Primary", suites=[Beta(), Alpha()]))
+            else:
+                for i in range(prim_parts):
+                    plan.add(
+                        MultiTest(
+                            name="Primary",
+                            suites=[Beta(), Alpha()],
+                            part=(i, prim_parts),
+                        )
+                    )
+            plan.add(MultiTest(name="Secondary", suites=[Gamma()]))
 
             assert log_capture.output == expected_output
+
+            result = plan.run()
             assert len(result.test_report) == 0, "No tests should be run."
 
 
@@ -271,10 +324,10 @@ class ParametrizedSuite:
         (
             listing.PatternLister(),
             to_stdout(
-                *["Primary", "  Primary::ParametrizedSuite"]
+                *["Primary", "  Primary:ParametrizedSuite"]
                 + [
-                    "    Primary::ParametrizedSuite"
-                    "::test_method <val={}>".format(idx)
+                    "    Primary:ParametrizedSuite"
+                    ":test_method <val={}>".format(idx)
                     for idx in range(listing.MAX_TESTCASES)
                 ]
                 + [

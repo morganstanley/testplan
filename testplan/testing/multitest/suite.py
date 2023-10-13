@@ -364,7 +364,7 @@ def _ensure_unique_generated_testcase_names(names, functions):
     # Functions should have different __name__ attributes after the step above
     names = list(itertools.chain(names, (func.__name__ for func in functions)))
     if len(set(names)) != len(names):
-        raise RuntimeError("Duplicate testcase __name__ found.")
+        raise RuntimeError("Internal error, duplicate case name found.")
 
 
 def _testsuite(klass):

@@ -279,13 +279,13 @@ def _parametrization_name_func_wrapper(func_name, kwargs):
     generated_name = parametrization_name_func(func_name, kwargs)
 
     if not PYTHON_VARIABLE_REGEX.match(generated_name):
-        # Generated method name is not a valid Python attribute name,
-        # i.e. "{func_name}__1", "{func_name}__2" will be used.
+        # Generated method name is not a valid Python attribute name.
+        # Index suffixed names, e.g. "{func_name}__1", "{func_name}__2", will be used.
         return func_name
 
     if len(generated_name) > MAX_METHOD_NAME_LENGTH:
-        # Generated method name is a bit too long. Simple index suffixes
-        # e.g. "{func_name}__1", "{func_name}__2" will be used.
+        # Generated method name is a bit too long.
+        # Index suffixed names, e.g. "{func_name}__1", "{func_name}__2", will be used.
         return func_name
 
     return generated_name

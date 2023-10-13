@@ -7,15 +7,18 @@ import os
 from argparse import Action, ArgumentParser, Namespace
 from enum import Enum
 from os import PathLike
-from typing import List, Union, Sequence, Any, Tuple
+from typing import TYPE_CHECKING, List, Tuple, Union
 from urllib.parse import urlparse
 
-from testplan.common.utils.parser import ArgMixin
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-
+from testplan.common.utils.parser import ArgMixin
 from testplan.testing import tagging
+from testplan.testing.common import TEST_PART_FORMAT_STRING
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.test_metadata import TestPlanMetadata
+
+if TYPE_CHECKING:
+    from testplan.testing.base import Test
 
 INDENT = " "
 MAX_TESTCASES = 25
@@ -51,6 +54,18 @@ class BaseLister(Listertype):
         raise NotImplementedError
 
 
+def test_name(test_instance: "Test") -> str:
+    if hasattr(test_instance.cfg, "part") and isinstance(
+        test_instance.cfg.part, tuple
+    ):
+        return TEST_PART_FORMAT_STRING.format(
+            test_instance.name,
+            test_instance.cfg.part[0],
+            test_instance.cfg.part[1],
+        )
+    return test_instance.name
+
+
 class ExpandedNameLister(BaseLister):
     """
     Lists names of the items within the test context:
@@ -71,7 +86,7 @@ class ExpandedNameLister(BaseLister):
     DESCRIPTION = "List tests in readable format."
 
     def format_instance(self, instance):
-        return instance.name
+        return test_name(instance)
 
     def format_suite(self, instance, suite):
         return suite if isinstance(suite, str) else suite.name
@@ -132,7 +147,7 @@ class ExpandedPatternLister(ExpandedNameLister):
     DESCRIPTION = "List tests in `--patterns` / `--tags` compatible format."
 
     def format_instance(self, instance):
-        return instance.name
+        return test_name(instance)
 
     def apply_tag_label(self, pattern, obj):
         if obj.__tags__:
@@ -143,17 +158,18 @@ class ExpandedPatternLister(ExpandedNameLister):
 
     def format_suite(self, instance, suite):
         if not isinstance(instance, MultiTest):
-            return "{}::{}".format(instance.name, suite)
+            return "{}:{}".format(test_name(instance), suite)
 
-        pattern = "{}::{}".format(instance.name, suite.name)
+        pattern = "{}:{}".format(test_name(instance), suite.name)
         return self.apply_tag_label(pattern, suite)
 
     def format_testcase(self, instance, suite, testcase):
-
         if not isinstance(instance, MultiTest):
-            return "{}::{}::{}".format(instance.name, suite, testcase)
+            return "{}:{}:{}".format(test_name(instance), suite, testcase)
 
-        pattern = "{}::{}::{}".format(instance.name, suite.name, testcase.name)
+        pattern = "{}:{}:{}".format(
+            test_name(instance), suite.name, testcase.name
+        )
         return self.apply_tag_label(pattern, testcase)
 
 
@@ -223,7 +239,7 @@ class CountLister(BaseLister):
                 " suite{num_suites_plural},"
                 " {num_testcases}"
                 " testcase{num_testcases_plural})".format(
-                    instance_name=instance.name,
+                    instance_name=test_name(instance),
                     num_suites=len(suites),
                     num_suites_plural="s" if len(suites) > 1 else "",
                     num_testcases=total_testcases,

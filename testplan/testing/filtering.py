@@ -261,7 +261,6 @@ class Pattern(Filter):
     """
 
     MAX_LEVEL = 3
-    DELIMITER = ":"
     ALL_MATCH = "*"
 
     category = FilterCategory.PATTERN
@@ -270,7 +269,6 @@ class Pattern(Filter):
         self.pattern = pattern
         self.match_definition = match_definition
         self.parse_pattern(pattern)
-        # self.test_pattern, self.suite_pattern, self.case_pattern = patterns
 
     def __eq__(self, other):
         return (
@@ -283,8 +281,10 @@ class Pattern(Filter):
         return '{}(pattern="{}")'.format(self.__class__.__name__, self.pattern)
 
     def parse_pattern(self, pattern: str) -> List[str]:
-        # ":" would be used as delimiter
-        patterns = [s for s in pattern.split(self.DELIMITER) if s]
+        # ":" or "::" can be used as delimiter
+        patterns = (
+            pattern.split("::") if "::" in pattern else pattern.split(":")
+        )
 
         if len(patterns) > self.MAX_LEVEL:
             raise ValueError(
@@ -332,9 +332,7 @@ class Pattern(Filter):
     def filter_test(self, test: "Test"):
         if isinstance(self.test_pattern, tuple):
             if not hasattr(test.cfg, "part"):
-                raise ValueError(
-                    f"Invalid pattern, Part feature not implemented for {type(test).__qualname__}."
-                )
+                return False
 
             name_p, (cur_part_p, ttl_part_p) = self.test_pattern
 
