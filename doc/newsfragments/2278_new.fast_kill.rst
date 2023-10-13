@@ -1,0 +1,4 @@
+In interactive mode when testplan is stopped with ctr-c, instead of properly shutting down the tests, which can take
+even minutes for a complex environment, now a fast kill approach is killing all started test processes forcefully.
+The same happens when a testplan script is interrupted by ctr-c, or with the SIGINT signal. SIGTERM will shutdown the
+test gracefully.
