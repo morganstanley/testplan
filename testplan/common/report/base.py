@@ -60,14 +60,14 @@ class Report:
         self,
         name: str,
         description: Optional[str] = None,
-        instance_name: Optional[str] = None,
+        definition_name: Optional[str] = None,
         uid: Optional[str] = None,
         entries: Optional[list] = None,
         parent_uids: Optional[List[str]] = None,
     ):
         self.name = name
         self.description = description
-        self.instance_name = instance_name or name
+        self.definition_name = definition_name or name
         self.uid = uid or name
         self.entries = entries or []
 
@@ -137,15 +137,15 @@ class Report:
 
     def _check_report(self, report):
         """
-        Utility method for checking `report` `type` and `instance_name`.
+        Utility method for checking `report` `type` and `definition_name`.
         """
         msg = "Report check failed for `{}` and `{}`. ".format(self, report)
 
-        if report.instance_name != self.instance_name:
+        if report.definition_name != self.definition_name:
             raise AttributeError(
                 msg
-                + "`instance_name` attributes (`{}`, `{}`) do not match.".format(
-                    self.instance_name, report.instance_name
+                + "`definition_name` attributes (`{}`, `{}`) do not match.".format(
+                    self.definition_name, report.definition_name
                 )
             )
 

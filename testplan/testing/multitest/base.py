@@ -29,7 +29,7 @@ from testplan.report import (
 )
 from testplan.testing import base as testing_base
 from testplan.testing import filtering, tagging
-from testplan.testing.common import TEST_PART_FORMAT_STRING
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
@@ -347,7 +347,7 @@ class MultiTest(testing_base.Test):
             return (
                 self.cfg.multi_part_uid(self.cfg.name, self.cfg.part)
                 if self.cfg.multi_part_uid
-                else TEST_PART_FORMAT_STRING.format(
+                else TEST_PART_PATTERN_FORMAT_STRING.format(
                     self.cfg.name, self.cfg.part[0], self.cfg.part[1]
                 )
             )
@@ -530,7 +530,7 @@ class MultiTest(testing_base.Test):
         if shallow_report is None:
             test_filter = filtering.Pattern(
                 pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
-                match_definition=True,
+                match_uid=True,
             )
         else:
             test_targets = _extract_test_targets(shallow_report)
@@ -810,9 +810,9 @@ class MultiTest(testing_base.Test):
         :return: A new and empty test report object for this MultiTest.
         """
         return TestGroupReport(
-            name=self.uid(),  # part info populated
+            name=self.uid(),
             description=self.cfg.description,
-            instance_name=self.cfg.name,
+            definition_name=self.cfg.name,
             uid=self.uid(),
             category=ReportCategories.MULTITEST,
             tags=self.cfg.tags,
@@ -828,7 +828,7 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=testsuite.name,
             description=strings.get_docstring(testsuite.__class__),
-            instance_name=testsuite.name,
+            definition_name=testsuite.name,
             uid=testsuite.uid(),
             category=ReportCategories.TESTSUITE,
             tags=testsuite.__tags__,
@@ -842,7 +842,7 @@ class MultiTest(testing_base.Test):
         return TestCaseReport(
             name=testcase.name,
             description=strings.get_docstring(testcase),
-            instance_name=testcase.name,
+            definition_name=testcase.name,
             uid=testcase.__name__,
             tags=testcase.__tags__,
         )
@@ -856,7 +856,7 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=param_method.name,
             description=strings.get_docstring(param_method),
-            instance_name=param_template,
+            definition_name=param_template,
             uid=param_template,
             category=ReportCategories.PARAMETRIZATION,
             tags=param_method.__tags__,

@@ -56,16 +56,15 @@ from testplan.runners.base import Executor
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.tasks import Task, TaskResult
 from testplan.runners.pools.tasks.base import (
-    is_task_target,
     TaskTargetInformation,
     get_task_target_information,
+    is_task_target,
 )
 from testplan.testing import filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
-from testplan.testing.common import TEST_PART_FORMAT_STRING
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
-
 
 TestTask = Union[Test, Task, Callable]
 
@@ -1099,9 +1098,9 @@ class TestRunner(Runnable):
                 ):
                     # Save the report temporarily and later will merge it
                     test_rep_lookup.setdefault(
-                        report.instance_name, []
+                        report.definition_name, []
                     ).append((test_results[uid].run, report))
-                    if report.instance_name not in test_report.entry_uids:
+                    if report.definition_name not in test_report.entry_uids:
                         # Create a placeholder for merging sibling reports
                         if isinstance(resource_result, TaskResult):
                             # `runnable` must be an instance of MultiTest since
@@ -1116,7 +1115,7 @@ class TestRunner(Runnable):
 
                         else:
                             report = report.__class__(
-                                report.instance_name,
+                                report.definition_name,
                                 category=report.category,
                             )
                     else:
@@ -1209,7 +1208,7 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.name = TEST_PART_FORMAT_STRING.format(
+                    report.name = TEST_PART_PATTERN_FORMAT_STRING.format(
                         report.name, report.part[0], report.part[1]
                     )
                     report.uid = strings.uuid4()  # considered as error report

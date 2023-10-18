@@ -9,7 +9,7 @@ from enum import Enum, IntEnum, auto
 from typing import TYPE_CHECKING, Callable, List, Type
 
 from testplan.testing import tagging
-from testplan.testing.common import TEST_PART_REGEX
+from testplan.testing.common import TEST_PART_PATTERN_REGEX
 
 if TYPE_CHECKING:
     from testplan.testing.base import Test
@@ -265,16 +265,16 @@ class Pattern(Filter):
 
     category = FilterCategory.PATTERN
 
-    def __init__(self, pattern, match_definition=False):
+    def __init__(self, pattern, match_uid=False):
         self.pattern = pattern
-        self.match_definition = match_definition
+        self.match_uid = match_uid
         self.parse_pattern(pattern)
 
     def __eq__(self, other):
         return (
             isinstance(other, self.__class__)
             and self.pattern == other.pattern
-            and self.match_definition == other.match_definition
+            and self.match_uid == other.match_uid
         )
 
     def __repr__(self):
@@ -297,28 +297,26 @@ class Pattern(Filter):
             [self.ALL_MATCH] * (self.MAX_LEVEL - len(patterns))
         )
 
-        m = re.match(TEST_PART_REGEX, test_level)
+        # structural pattern for test level
+        m = re.match(TEST_PART_PATTERN_REGEX, test_level)
         if m:
             test_name_p = m.group(1)
             test_cur_part_p = m.group(2)
             test_ttl_part_p = m.group(3)
 
             try:
-                test_cur_part_p, test_ttl_part_p = int(test_cur_part_p), int(
+                test_cur_part_p_, test_ttl_part_p_ = int(test_cur_part_p), int(
                     test_ttl_part_p
                 )
             except ValueError:
                 pass
             else:
-                if test_ttl_part_p <= test_cur_part_p:
+                if test_ttl_part_p_ <= test_cur_part_p_:
                     raise ValueError(
                         f"Meaningless part specified for {test_name_p}, "
-                        f"we cannot cut a pizza by {test_ttl_part_p} and then take "
-                        f"the {test_cur_part_p}-th slice, and we count from 0."
+                        f"we cannot cut a pizza by {test_ttl_part_p_} and then take "
+                        f"the {test_cur_part_p_}-th slice, and we count from 0."
                     )
-                test_cur_part_p, test_ttl_part_p = str(test_cur_part_p), str(
-                    test_ttl_part_p
-                )
             self.test_pattern = (
                 test_name_p,
                 (test_cur_part_p, test_ttl_part_p),
@@ -330,12 +328,15 @@ class Pattern(Filter):
         self.case_pattern = case_level
 
     def filter_test(self, test: "Test"):
+        # uid and structural pattern may differ under certain circumstances
+        if self.match_uid:
+            return fnmatch.fnmatch(test.uid(), self.test_pattern)
+
         if isinstance(self.test_pattern, tuple):
             if not hasattr(test.cfg, "part"):
                 return False
 
             name_p, (cur_part_p, ttl_part_p) = self.test_pattern
-
             cur_part: int
             ttl_part: int
             cur_part, ttl_part = test.cfg.part or (0, 1)
@@ -344,16 +345,16 @@ class Pattern(Filter):
                 and fnmatch.fnmatch(str(cur_part), cur_part_p)
                 and fnmatch.fnmatch(str(ttl_part), ttl_part_p)
             )
-        else:
-            return fnmatch.fnmatch(test.name, self.test_pattern)
+
+        return fnmatch.fnmatch(test.name, self.test_pattern)
 
     def filter_suite(self, suite):
-        # For test suite uid is the same as name, just like that of Multitest
+        # For test suite uid is the same as name
         return fnmatch.fnmatch(suite.name, self.suite_pattern)
 
     def filter_case(self, case):
         name_match = fnmatch.fnmatch(
-            case.__name__ if self.match_definition else case.name,
+            case.__name__ if self.match_uid else case.name,
             self.case_pattern,
         )
 

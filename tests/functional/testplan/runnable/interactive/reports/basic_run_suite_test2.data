@@ -39,7 +39,7 @@
                             "description": null,
                             "entries": [],
                             "hash": 0,
-                            "instance_name": "basic_case <arg=0>",
+                            "definition_name": "basic_case <arg=0>",
                             "logs": [],
                             "name": "basic_case <arg=0>",
                             "parent_uids": [
@@ -69,7 +69,7 @@
                             "description": null,
                             "entries": [],
                             "hash": 0,
-                            "instance_name": "basic_case <arg=1>",
+                            "definition_name": "basic_case <arg=1>",
                             "logs": [],
                             "name": "basic_case <arg=1>",
                             "parent_uids": [
@@ -99,7 +99,7 @@
                             "description": null,
                             "entries": [],
                             "hash": 0,
-                            "instance_name": "basic_case <arg=2>",
+                            "definition_name": "basic_case <arg=2>",
                             "logs": [],
                             "name": "basic_case <arg=2>",
                             "parent_uids": [
@@ -124,7 +124,7 @@
                     "fix_spec_path": null,
                     "hash": 0,
                     "host": null,
-                    "instance_name": "basic_case",
+                    "definition_name": "basic_case",
                     "logs": [],
                     "name": "basic_case",
                     "parent_uids": [
@@ -149,7 +149,7 @@
             "fix_spec_path": null,
             "hash": 0,
             "host": null,
-            "instance_name": "BasicSuite",
+            "definition_name": "BasicSuite",
             "logs": [],
             "name": "BasicSuite",
             "parent_uids": [
@@ -188,7 +188,7 @@
                     "description": "Client sends a message, server received and responds back.",
                     "entries": [],
                     "hash": 0,
-                    "instance_name": "send_and_receive_msg",
+                    "definition_name": "send_and_receive_msg",
                     "logs": [],
                     "name": "send_and_receive_msg",
                     "parent_uids": [
@@ -212,7 +212,7 @@
             "fix_spec_path": null,
             "hash": 0,
             "host": null,
-            "instance_name": "Custom_0",
+            "definition_name": "Custom_0",
             "logs": [],
             "name": "Custom_0",
             "parent_uids": [
@@ -251,7 +251,7 @@
                     "description": "Client sends a message, server received and responds back.",
                     "entries": [],
                     "hash": 0,
-                    "instance_name": "send_and_receive_msg",
+                    "definition_name": "send_and_receive_msg",
                     "logs": [],
                     "name": "send_and_receive_msg",
                     "parent_uids": [
@@ -275,7 +275,7 @@
             "fix_spec_path": null,
             "hash": 0,
             "host": null,
-            "instance_name": "Custom_1",
+            "definition_name": "Custom_1",
             "logs": [],
             "name": "Custom_1",
             "parent_uids": [
@@ -299,7 +299,7 @@
     "fix_spec_path": null,
     "hash": 0,
     "host": null,
-    "instance_name": "Test2",
+    "definition_name": "Test2",
     "logs": [],
     "name": "Test2",
     "parent_uids": [

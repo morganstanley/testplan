@@ -85,12 +85,12 @@ class TestReport:
 
         assert rep_1 != rep_2
 
-    def test_check_report_instance_name_mismatch(self):
+    def test_check_report_definition_name_mismatch(self):
         """Should raise ValueError on failure"""
 
-        # These will have different ids
-        rep_1 = DummyReport(instance_name=1)
-        rep_2 = DummyReport(instance_name=2)
+        # These correspond to different tests
+        rep_1 = DummyReport(definition_name=1)
+        rep_2 = DummyReport(definition_name=2)
 
         with pytest.raises(AttributeError):
             rep_1._check_report(rep_2)

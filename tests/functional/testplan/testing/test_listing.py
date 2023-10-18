@@ -1,4 +1,5 @@
 import json
+from functools import partial
 from pathlib import Path
 
 import boltons.iterutils
@@ -117,6 +118,21 @@ DEFAULT_NAME_OUTPUT = to_stdout(
 )
 
 
+def prepare_plan(plan, prim_parts):
+    if prim_parts == 1:
+        plan.add(MultiTest(name="Primary", suites=[Beta(), Alpha()]))
+    else:
+        for i in range(prim_parts):
+            plan.add(
+                MultiTest(
+                    name="Primary",
+                    suites=[Beta(), Alpha()],
+                    part=(i, prim_parts),
+                )
+            )
+    plan.add(MultiTest(name="Secondary", suites=[Gamma()]))
+
+
 @pytest.mark.parametrize(
     "listing_obj,filter_obj,sorter_obj,prim_parts,expected_output",
     [
@@ -210,19 +226,7 @@ def test_programmatic_listing(
     )
 
     with captured_logging(TESTPLAN_LOGGER) as log_capture:
-        if prim_parts == 1:
-            plan.add(MultiTest(name="Primary", suites=[Beta(), Alpha()]))
-        else:
-            for i in range(prim_parts):
-                plan.add(
-                    MultiTest(
-                        name="Primary",
-                        suites=[Beta(), Alpha()],
-                        part=(i, prim_parts),
-                    )
-                )
-        plan.add(MultiTest(name="Secondary", suites=[Gamma()]))
-
+        prepare_plan(plan, prim_parts)
         assert log_capture.output == expected_output
 
         result = plan.run()
@@ -261,19 +265,7 @@ def test_command_line_listing(
         plan = TestplanMock(name="plan", parse_cmdline=True, runpath=runpath)
 
         with captured_logging(TESTPLAN_LOGGER) as log_capture:
-            if prim_parts == 1:
-                plan.add(MultiTest(name="Primary", suites=[Beta(), Alpha()]))
-            else:
-                for i in range(prim_parts):
-                    plan.add(
-                        MultiTest(
-                            name="Primary",
-                            suites=[Beta(), Alpha()],
-                            part=(i, prim_parts),
-                        )
-                    )
-            plan.add(MultiTest(name="Secondary", suites=[Gamma()]))
-
+            prepare_plan(plan, prim_parts)
             assert log_capture.output == expected_output
 
             result = plan.run()
@@ -396,13 +388,6 @@ def validate_json_result(result_json):
         )
 
 
-def prepare_plan(plan):
-    multitest_x = MultiTest(name="Primary", suites=[Beta(), Alpha()])
-    multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
-    plan.add(multitest_x)
-    plan.add(multitest_y)
-
-
 def test_json_listing(runpath):
 
     main = TestplanMock.main_wrapper(
@@ -410,7 +395,7 @@ def test_json_listing(runpath):
         test_lister=SimpleJsonLister(),
         runpath=runpath,
         parse_cmdline=False,
-    )(prepare_plan)
+    )(partial(prepare_plan, prim_parts=1))
 
     with captured_logging(TESTPLAN_LOGGER) as log_capture:
         main()
@@ -427,7 +412,7 @@ def test_json_listing_to_file(runpath):
         test_lister_output=str(result_path),
         runpath=runpath,
         parse_cmdline=False,
-    )(prepare_plan)
+    )(partial(prepare_plan, prim_parts=1))
 
     main()
 

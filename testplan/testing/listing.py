@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.parser import ArgMixin
 from testplan.testing import tagging
-from testplan.testing.common import TEST_PART_FORMAT_STRING
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.test_metadata import TestPlanMetadata
 
@@ -54,18 +54,6 @@ class BaseLister(Listertype):
         raise NotImplementedError
 
 
-def test_name(test_instance: "Test") -> str:
-    if hasattr(test_instance.cfg, "part") and isinstance(
-        test_instance.cfg.part, tuple
-    ):
-        return TEST_PART_FORMAT_STRING.format(
-            test_instance.name,
-            test_instance.cfg.part[0],
-            test_instance.cfg.part[1],
-        )
-    return test_instance.name
-
-
 class ExpandedNameLister(BaseLister):
     """
     Lists names of the items within the test context:
@@ -86,7 +74,7 @@ class ExpandedNameLister(BaseLister):
     DESCRIPTION = "List tests in readable format."
 
     def format_instance(self, instance):
-        return test_name(instance)
+        return instance.uid()
 
     def format_suite(self, instance, suite):
         return suite if isinstance(suite, str) else suite.name
@@ -126,6 +114,18 @@ class ExpandedNameLister(BaseLister):
         return result
 
 
+def test_pattern(test_instance: "Test") -> str:
+    if hasattr(test_instance.cfg, "part") and isinstance(
+        test_instance.cfg.part, tuple
+    ):
+        return TEST_PART_PATTERN_FORMAT_STRING.format(
+            test_instance.name,
+            test_instance.cfg.part[0],
+            test_instance.cfg.part[1],
+        )
+    return test_instance.name
+
+
 class ExpandedPatternLister(ExpandedNameLister):
     """
     Lists the items in test context in a copy-pasta friendly format
@@ -147,7 +147,7 @@ class ExpandedPatternLister(ExpandedNameLister):
     DESCRIPTION = "List tests in `--patterns` / `--tags` compatible format."
 
     def format_instance(self, instance):
-        return test_name(instance)
+        return test_pattern(instance)
 
     def apply_tag_label(self, pattern, obj):
         if obj.__tags__:
@@ -158,17 +158,17 @@ class ExpandedPatternLister(ExpandedNameLister):
 
     def format_suite(self, instance, suite):
         if not isinstance(instance, MultiTest):
-            return "{}:{}".format(test_name(instance), suite)
+            return "{}:{}".format(test_pattern(instance), suite)
 
-        pattern = "{}:{}".format(test_name(instance), suite.name)
+        pattern = "{}:{}".format(test_pattern(instance), suite.name)
         return self.apply_tag_label(pattern, suite)
 
     def format_testcase(self, instance, suite, testcase):
         if not isinstance(instance, MultiTest):
-            return "{}:{}:{}".format(test_name(instance), suite, testcase)
+            return "{}:{}:{}".format(test_pattern(instance), suite, testcase)
 
         pattern = "{}:{}:{}".format(
-            test_name(instance), suite.name, testcase.name
+            test_pattern(instance), suite.name, testcase.name
         )
         return self.apply_tag_label(pattern, testcase)
 
@@ -239,7 +239,7 @@ class CountLister(BaseLister):
                 " suite{num_suites_plural},"
                 " {num_testcases}"
                 " testcase{num_testcases_plural})".format(
-                    instance_name=test_name(instance),
+                    instance_name=instance.uid(),
                     num_suites=len(suites),
                     num_suites_plural="s" if len(suites) > 1 else "",
                     num_testcases=total_testcases,

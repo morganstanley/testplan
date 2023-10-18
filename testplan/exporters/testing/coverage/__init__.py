@@ -20,7 +20,7 @@ from testplan.report.testing.base import (
     TestGroupReport,
     TestReport,
 )
-from testplan.testing.common import TEST_PART_FORMAT_STRING
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 
 
 class CoveredTestsExporter(Exporter):
@@ -84,17 +84,17 @@ class CoveredTestsExporter(Exporter):
         """
 
         if report.part is not None:
-            mt_pat = TEST_PART_FORMAT_STRING.format(
-                report.instance_name, report.part[0], report.part[1]
+            mt_pat = TEST_PART_PATTERN_FORMAT_STRING.format(
+                report.definition_name, report.part[0], report.part[1]
             )
         else:
-            mt_pat = report.instance_name
+            mt_pat = report.definition_name
 
         if report.covered_lines:
             result[(mt_pat,)] = None
         for st in report.entries:
             if st.covered_lines:
-                result[(mt_pat, st.instance_name)] = None
+                result[(mt_pat, st.definition_name)] = None
             for tc in st.entries:
                 if tc.category == ReportCategories.PARAMETRIZATION:
                     for sub_tc in tc.entries:
@@ -102,12 +102,14 @@ class CoveredTestsExporter(Exporter):
                             result[
                                 (
                                     mt_pat,
-                                    st.instance_name,
-                                    sub_tc.instance_name,
+                                    st.definition_name,
+                                    sub_tc.definition_name,
                                 )
                             ] = None
                 elif tc.covered_lines:
-                    result[(mt_pat, st.instance_name, tc.instance_name)] = None
+                    result[
+                        (mt_pat, st.definition_name, tc.definition_name)
+                    ] = None
 
 
 @contextmanager

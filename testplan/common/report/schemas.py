@@ -4,10 +4,10 @@
 from marshmallow import Schema, fields, post_load
 from marshmallow.utils import EXCLUDE
 
-from testplan.common.serialization import schemas, fields as custom_fields
+from testplan.common.serialization import fields as custom_fields
+from testplan.common.serialization import schemas
 
-from .base import Report, ReportGroup, EventRecorder
-
+from .base import EventRecorder, Report, ReportGroup
 
 __all__ = ["ReportLogSchema", "ReportSchema", "ReportGroupSchema"]
 
@@ -36,7 +36,7 @@ class ReportSchema(schemas.TreeNodeSchema):
 
     name = fields.String()
     description = fields.String(allow_none=True)
-    instance_name = fields.String(
+    definition_name = fields.String(
         allow_none=True
     )  # otherwise new tpr cannot process old report
     entries = fields.List(custom_fields.NativeOrPretty())
