@@ -479,7 +479,9 @@ class ProcessRunnerTest(Test):
     :type binary: ``str``
     :param description: Description of test instance.
     :type description: ``str``
-    :param proc_env: Environment overrides for ``subprocess.Popen``.
+    :param proc_env: Environment overrides for ``subprocess.Popen``;
+        context value (when referring to other driver) and jinja2 template (when
+        referring to self) will be resolved.
     :type proc_env: ``dict``
     :param proc_cwd: Directory override for ``subprocess.Popen``.
     :type proc_cwd: ``str``
@@ -681,14 +683,16 @@ class ProcessRunnerTest(Test):
             )
 
     def get_proc_env(self):
+        """
+        Fabricate the env var for subprocess.
+        Precedence: user-specified > hardcoded > system env
 
+        """
+
+        # start with system env
         env = os.environ.copy()
-        proc_env = {
-            key.upper(): render(val, self.context_input())
-            for key, val in self.cfg.proc_env.items()
-        }
-        env.update(proc_env)
 
+        # override with hardcoded values
         json_ouput = os.path.join(self.runpath, "output.json")
         self.logger.debug("Json output: %s", json_ouput)
         env["JSON_REPORT"] = json_ouput
@@ -705,6 +709,13 @@ class ProcessRunnerTest(Test):
                         strings.slugify(attr).replace("-", "_"),
                     ).upper()
                 ] = str(value)
+
+        # override with user specified values
+        proc_env = {
+            key.upper(): render(val, self.context_input())
+            for key, val in self.cfg.proc_env.items()
+        }
+        env.update(proc_env)
 
         return env
 

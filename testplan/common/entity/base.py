@@ -744,7 +744,14 @@ class Entity(logger.Loggable):
 
     def context_input(self) -> Dict[str, Any]:
         """All attr of self in a dict for context resolution"""
-        return {attr: getattr(self, attr) for attr in dir(self)}
+        ctx = {}
+        for attr in dir(self):
+            if attr == "env":
+                ctx["env"] = self._env
+            elif attr:
+                ctx[attr] = getattr(self, attr)
+        return ctx
+        # return {attr: getattr(self, attr) for attr in dir(self)}
 
 
 class RunnableStatus(EntityStatus):

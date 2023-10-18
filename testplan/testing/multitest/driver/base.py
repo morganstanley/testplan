@@ -407,9 +407,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                 install_file = render(install_file, context)
                 if not os.path.isfile(install_file):
                     raise ValueError("{} is not a file".format(install_file))
-                instantiate(
-                    install_file, self.context_input(), self._install_target()
-                )
+                instantiate(install_file, context, self._install_target())
             elif isinstance(install_file, tuple):
                 if len(install_file) != 2:
                     raise ValueError(
@@ -419,7 +417,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                 src, dst = install_file
                 # may have jinja2/tempita template in file path
                 src = render(src, context)
-                dst = render(src, context)
+                dst = render(dst, context)
                 if not os.path.isabs(dst):
                     dst = os.path.join(self._install_target(), dst)
                 instantiate(src, self.context_input(), dst)

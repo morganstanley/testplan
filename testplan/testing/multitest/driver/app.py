@@ -92,7 +92,9 @@ class App(Driver):
         can be a :py:class:`~testplan.common.utils.context.ContextValue`
         and will be expanded on runtime.
     :param shell: Invoke shell for command execution.
-    :param env: Environmental variables to be made available to child process.
+    :param env: Environmental variables to be made available to child process;
+        context value (when referring to other driver) and jinja2 template (when
+        referring to self) will be resolved.
     :param binary_strategy: Whether to copy / link binary to runpath.
     :param logname: Base name of driver logfile under `app_path`, in which
         Testplan will look for `log_regexps` as driver start-up condition.
@@ -139,6 +141,7 @@ class App(Driver):
         self._retcode = None
         self._log_matcher = None
         self._resolved_bin = None
+        self._env = None
 
     @emphasized
     @property
@@ -179,17 +182,22 @@ class App(Driver):
 
     @emphasized
     @property
-    def env(self) -> Dict[str, str]:
+    def env(self) -> Optional[Dict[str, str]]:
         """Environment variables."""
+
+        if self._env:
+            return self._env
+
         if isinstance(self.cfg.env, dict):
-            return {
-                key: expand(val, self.context, str)
-                if is_context(val)
-                else render(val, self.context_input())
+            ctx = self.context_input()
+            self._env = {
+                key: expand(val, self.context, str) if is_context(val)
+                # allowing None val for child class use case
+                else (render(val, ctx) if val is not None else None)
                 for key, val in self.cfg.env.items()
             }
-        else:
-            return None
+
+        return self._env
 
     @emphasized
     @property
@@ -236,26 +244,32 @@ class App(Driver):
     @emphasized
     @property
     def binary(self) -> str:
-        """The actual binary to execute"""
-        if not self._binary:
+        """The actual binary to execute, might be copied/linked to runpath"""
+
+        if self._binary and os.path.isfile(self._binary):
+            return self._binary
+
+        if os.path.isfile(self.resolved_bin):
+
             if self.cfg.path_cleanup is True:
                 name = os.path.basename(self.cfg.binary)
             else:
                 name = "{}-{}".format(
                     os.path.basename(self.cfg.binary), uuid.uuid4()
                 )
+            target = os.path.join(self.binpath, name)
 
-            if os.path.isfile(self.resolved_bin):
-                target = os.path.join(self.binpath, name)
-                if self.cfg.binary_strategy == "copy":
-                    shutil.copyfile(self.resolved_bin, target)
-                    self._binary = target
-                elif self.cfg.binary_strategy == "link" and not IS_WIN:
-                    os.symlink(os.path.abspath(self.resolved_bin), target)
-                    self._binary = target
-                # else binary_strategy is noop then we don't do anything
-                else:
-                    self._binary = self.resolved_bin
+            if self.cfg.binary_strategy == "copy":
+                shutil.copyfile(self.resolved_bin, target)
+                self._binary = target
+            elif self.cfg.binary_strategy == "link" and not IS_WIN:
+                os.symlink(os.path.abspath(self.resolved_bin), target)
+                self._binary = target
+            # else binary_strategy is noop then we don't do anything
+            else:
+                self._binary = self.resolved_bin
+        else:
+            self._binary = self.resolved_bin
 
         return self._binary
 

@@ -869,7 +869,7 @@ class TestRunner(Runnable):
             self.cfg.test_lister.log_test_info(task_info.materialized_test)
             return None
 
-        if resource is None or self.cfg.interactive_port:
+        if resource is None or self._is_interactive_run():
             # use local runner for interactive
             resource = self.resources.first()
             # just enqueue the materialized test

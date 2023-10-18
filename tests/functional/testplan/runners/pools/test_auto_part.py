@@ -35,7 +35,7 @@ def test_auto_parts_discover():
         assert len(pool.added_items) == 5
         for task in pool.added_items.values():
             assert task.weight == 45
-
+        mockplan.run()
         assert pool.size == 2
 
 
@@ -64,7 +64,8 @@ def test_auto_parts_discover_interactive(runpath):
     )
 
     local_pool = mockplan.resources.get(mockplan.resources.first())
-    # validate that only on etask added to the local pool without split
+    # validate that only one task added to the local pool without split
+
     assert len(pool.added_items) == 0
     assert len(local_pool.added_items) == 1
 
@@ -94,5 +95,5 @@ def test_auto_weight_discover():
         assert len(pool.added_items) == 2
         for task in pool.added_items.values():
             assert task.weight == 140
-
+        mockplan.run()
         assert pool.size == 1
