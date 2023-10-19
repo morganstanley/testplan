@@ -117,7 +117,7 @@ class AssertionHeader extends Component {
             target={`tooltip_duration_${timeInfoArray[0]}`}
             toggle={this.toggleDurationTooltip}
           >
-            {"Assertion duration"}
+            {"Time elapsed since last assertion"}
           </Tooltip>
         </>
       );
