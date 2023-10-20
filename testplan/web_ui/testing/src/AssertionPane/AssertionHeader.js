@@ -80,7 +80,7 @@ class AssertionHeader extends Component {
           <span
             className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
             id={`tooltip_duration_${timeInfoArray[0]}`}
-            style={{ order: 6, display: "inline-flex", alignItems: "center" }}
+            style={{ order: 4, display: "inline-flex", alignItems: "center" }}
           >
             {timeInfoArray[2]}
           </span>
@@ -93,7 +93,7 @@ class AssertionHeader extends Component {
           <span
             className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
             id={`tooltip_utc_${timeInfoArray[0]}`}
-            style={{ order: 4, display: "inline-flex", alignItems: "center" }}
+            style={{ order: 6, display: "inline-flex", alignItems: "center" }}
           >
             {timeInfoArray[1]}
           </span>
