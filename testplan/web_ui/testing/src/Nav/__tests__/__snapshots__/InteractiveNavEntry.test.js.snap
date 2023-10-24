@@ -921,7 +921,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       title="Environment starting..."
       titleId={null}
       transform={null}
-      transition="opacity 0.25s ease-in-out"
+      transition="opacity 0.175s ease-in-out"
     />
     <FontAwesomeIcon
       beat={false}
@@ -1225,7 +1225,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       transform={null}
     />
     <FontAwesomeIcon
-      animation="pulsate 0.5s infinite"
+      animation="pulsate 0.35s infinite"
       beat={false}
       beatFade={false}
       border={false}
@@ -1252,7 +1252,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       mask={null}
       maskId={null}
       onClick={[Function]}
-      opacity={0.3}
+      opacity={0.5}
       pull={null}
       pulse={false}
       rotation={null}
@@ -1266,7 +1266,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       title="Environment stopping..."
       titleId={null}
       transform={null}
-      transition="opacity 0.25s ease-in-out"
+      transition="opacity 0.175s ease-in-out"
     />
     <FontAwesomeIcon
       beat={false}

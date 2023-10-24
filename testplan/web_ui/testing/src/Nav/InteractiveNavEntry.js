@@ -221,9 +221,9 @@ function StartingStoppingIcon(starting) {
             icon={starting ? faToggleOn : faToggleOff}
             title={starting ? "Environment starting..." : "Environment stopping..."}
             onClick={ignoreClickEvent}
-            transition="opacity 0.25s ease-in-out"
-            animation={isPulsating ? "pulsate 0.5s infinite" : "none"}
-            opacity={isPulsating ? 0.3 : 1}
+            transition="opacity 0.175s ease-in-out"
+            animation={isPulsating ? "pulsate 0.35s infinite" : "none"}
+            opacity={isPulsating ? 0.5 : 1}
         />
     );
 };
