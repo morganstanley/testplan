@@ -1,0 +1,1 @@
+Changed time information logic on the web UI. Assertions now show the elapsed time since last assertion.
