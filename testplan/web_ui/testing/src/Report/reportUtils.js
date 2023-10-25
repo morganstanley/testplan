@@ -247,6 +247,7 @@ const getAssertions = (selectedEntries, displayTime) => {
 
     // get time information of each assertion if needed
     if (displayTime) {
+      // add time information to the array in a human readable format
       for (let i = 0; i < links.length; ++i) {
         links[i].timeInfoArray = [i]; // [index, start_time, duration]
         const idx = links[i].utc_time.lastIndexOf("+");
@@ -263,33 +264,34 @@ const getAssertions = (selectedEntries, displayTime) => {
             : ""
         );
       }
-      for (let i = 0; i < links.length - 1; ++i) {
+      // calculate the time elapsed between assertions
+      for (let i = links.length - 1; i > 0; --i) {
         let duration = "Unknown";
-        if (links[i].utc_time && links[i + 1].utc_time) {
-          const nextEntryTime = new Date(links[i + 1].utc_time).getTime();
+        if (links[i].utc_time && links[i - 1].utc_time) {
+          const previousEntryTime = new Date(links[i - 1].utc_time).getTime();
           const currentEntryTime = new Date(links[i].utc_time).getTime();
-          const durationMilliseconds = nextEntryTime - currentEntryTime;
+          const durationMilliseconds = currentEntryTime - previousEntryTime;
           duration = formatMilliseconds(durationMilliseconds);
         }
-        duration = "(" + duration + ")";
+        duration = "(+" + duration + ")";
         links[i].timeInfoArray.push(duration);
       }
       if (links.length > 0) {
         let duration = "Unknown";
         if (
           selectedEntry.timer &&
-          selectedEntry.timer.run?.end &&
-          links[links.length - 1].utc_time
+          selectedEntry.timer.run?.start &&
+          links[0].utc_time
         ) {
-          const nextEntryTime = new Date(selectedEntry.timer.run.end).getTime();
-          const currentEntryTime = new Date(
-            links[links.length - 1].utc_time
+          const previousEntryTime = new Date(
+            selectedEntry.timer.run.start
           ).getTime();
-          const durationInMilliseconds = nextEntryTime - currentEntryTime;
+          const currentEntryTime = new Date(links[0].utc_time).getTime();
+          const durationInMilliseconds = currentEntryTime - previousEntryTime;
           duration = formatMilliseconds(durationInMilliseconds);
         }
-        duration = "(" + duration + ")";
-        links[links.length - 1].timeInfoArray.push(duration);
+        duration = "(+" + duration + ")";
+        links[0].timeInfoArray.push(duration);
       }
     } else {
       for (let i = 0; i < links.length; ++i) {
