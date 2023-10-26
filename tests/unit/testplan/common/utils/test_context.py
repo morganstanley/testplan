@@ -8,7 +8,6 @@ from pytest import fixture
 from testplan.common.utils.context import (
     ContextValue,
     expand,
-    expand_env,
     render,
 )
 
@@ -63,23 +62,6 @@ def test_expand(driver_context):
     cv = ContextValue("driver", "{{port}}")
     assert expand(cv, driver_context) == "123"
     assert expand(cv, driver_context, int) == 123
-
-
-def test_expand_env(driver_context):
-    env = dict(a="1", b="2")
-    overrides = dict(
-        c="str",
-        d="{{notcontext}}",
-        e=ContextValue("driver", "{{host}}"),
-        b=ContextValue("driver", "{{port}}"),
-    )
-    result = expand_env(env, overrides, driver_context)
-
-    assert result["a"] == "1"
-    assert result["b"] == "123"
-    assert result["c"] == "str"
-    assert result["d"] == "{{notcontext}}"
-    assert result["e"] == "host.ms.com"
 
 
 def test_render():

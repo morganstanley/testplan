@@ -20,6 +20,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
+    Any,
 )
 
 import psutil
@@ -740,6 +741,17 @@ class Entity(logger.Loggable):
             for key, value in local_vars.items()
             if key not in EXCLUDE and value is not None
         }
+
+    def context_input(self) -> Dict[str, Any]:
+        """All attr of self in a dict for context resolution"""
+        ctx = {}
+        for attr in dir(self):
+            if attr == "env":
+                ctx["env"] = self._env
+            elif attr:
+                ctx[attr] = getattr(self, attr)
+        return ctx
+        # return {attr: getattr(self, attr) for attr in dir(self)}
 
 
 class RunnableStatus(EntityStatus):

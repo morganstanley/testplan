@@ -110,7 +110,7 @@ class Cppunit(ProcessRunnerTest):
             return os.path.join(self._runpath, "report.xml")
 
     def _test_command(self):
-        cmd = [self.cfg.binary]
+        cmd = [self.resolved_bin]
         if self.cfg.filtering_flag and self.cfg.cppunit_filter:
             cmd.extend([self.cfg.filtering_flag, self.cfg.cppunit_filter])
         if self.cfg.file_output_flag:
@@ -119,7 +119,7 @@ class Cppunit(ProcessRunnerTest):
 
     def _list_command(self):
         if self.cfg.listing_flag:
-            return [self.cfg.binary, self.cfg.listing_flag]
+            return [self.resolved_bin, self.cfg.listing_flag]
         else:
             return super(Cppunit, self)._list_command()
 
