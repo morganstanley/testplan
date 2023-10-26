@@ -596,10 +596,13 @@ class TestRunner(Runnable):
                             - time_info["setup_time"]
                         )
                     )
+                    if num_of_parts < 1:
+                        raise RuntimeError(
+                            f"Calculated num_of_parts for {uid} is {num_of_parts},"
+                            " check the input runtime_data and auto_part_runtime_limit"
+                        )
             if "weight" not in _task_arguments:
-                _task_arguments["weight"] = _task_arguments.get(
-                    "weight", None
-                ) or (
+                _task_arguments["weight"] = (
                     math.ceil(
                         (time_info["execution_time"] / num_of_parts)
                         + time_info["setup_time"]
@@ -728,6 +731,21 @@ class TestRunner(Runnable):
 
         return [_cache_task_info(task_info) for task_info in tasks]
 
+    def calculate_pool_size(self) -> None:
+        """
+        Calculate the right size of the pool based on the weight (runtime) of the tasks,
+        so that runtime of all tasks meets the plan_runtime_target.
+        """
+        for executor in self.resources:
+            if isinstance(executor, Pool) and executor.is_auto_size:
+                pool_size = self.calculate_pool_size_by_tasks(
+                    list(executor.added_items.values())
+                )
+                self.logger.user_info(
+                    f"Set pool size to {pool_size} for {executor.cfg.name}"
+                )
+                executor.size = pool_size
+
     def calculate_pool_size_by_tasks(self, tasks: Collection[Task]) -> int:
         """
         Calculate the right size of the pool based on the weight (runtime) of the tasks,
@@ -778,8 +796,8 @@ class TestRunner(Runnable):
         :param task: Input task, if it is None, a new Task will be constructed
             using the options parameter.
         :type task: :py:class:`~testplan.runners.pools.tasks.base.Task`
-        :param resource: Name of the target executor, which is usually a remote Pool,
-            the by default None is indicating using local executor.
+        :param resource: Name of the target executor, which is usually a Pool,
+            default value None indicates using local executor.
         :type resource: ``str`` or ``NoneType``
         :param options: Task input options.
         :type options: ``dict``
@@ -805,20 +823,15 @@ class TestRunner(Runnable):
         :type path: ``str``
         :param name_pattern: a regex pattern to match the file name.
         :type name_pattern: ``str``
-        :param resource: Name of the target executor, which is usually a remote Pool,
-            the by default None is indicating using local executor.
+        :param resource: Name of the target executor, which is usually a Pool,
+            default value None indicates using local executor.
         :type resource: ``str`` or ``NoneType``
         """
 
         tasks = self.discover(path=path, name_pattern=name_pattern)
+
         for task in tasks:
             self.add(task, resource=resource)
-        pool: Pool = self.resources[resource]
-        if pool.is_auto_size:
-            pool_size = self.calculate_pool_size_by_tasks(
-                list(pool.added_items.values())
-            )
-            pool.size = pool_size
 
     def add(
         self,
@@ -834,8 +847,8 @@ class TestRunner(Runnable):
         :param target: Test target.
         :type target: :py:class:`~testplan.common.entity.base.Runnable` or
             :py:class:`~testplan.runners.pools.tasks.base.Task` or ``callable``
-        :param resource: Name of the target executor, which is usually a remote Pool,
-            the by default None is indicating using local executor.
+        :param resource: Name of the target executor, which is usually a Pool,
+            default value None indicates using local executor.
         :type resource: ``str`` or ``NoneType``
         :return: Assigned uid for test.
         :rtype: ``str`` or ```NoneType``
@@ -843,17 +856,7 @@ class TestRunner(Runnable):
 
         # Get the real test entity and verify if it should be added
         task_info = self._collect_task_info(target)
-
-        local_runner = self.resources.first()
-        resource: Union[str, None] = resource or local_runner
-
-        if resource not in self.resources:
-            raise RuntimeError(
-                'Resource "{}" does not exist.'.format(resource)
-            )
-
         self._verify_task_info(task_info)
-
         uid = task_info.uid
 
         # let see if it is filtered
@@ -866,15 +869,16 @@ class TestRunner(Runnable):
             self.cfg.test_lister.log_test_info(task_info.materialized_test)
             return None
 
+        if resource is None or self._is_interactive_run():
+            # use local runner for interactive
+            resource = self.resources.first()
+            # just enqueue the materialized test
+            target = task_info.materialized_test
+        else:
+            target = task_info.target
+
         if self._is_interactive_run():
             self._register_task_for_interactive(task_info)
-            #  for interactive always use the local runner
-            resource = local_runner
-
-        target = task_info.target
-        # if running in the local runner we can just enqueue the materialized test
-        if resource == local_runner:
-            target = task_info.materialized_test
 
         self._register_task(
             resource, target, uid, task_info.materialized_test.get_metadata()
@@ -895,7 +899,7 @@ class TestRunner(Runnable):
         elif isinstance(target, Task):
 
             # First check if there is a cached task info
-            # that is an optimization flew where task info
+            # that is an optimization flow where task info
             # need to be created at discover, but the already defined api
             # need to pass Task, so we attach task_info to the task itself
             # and here we remove it
@@ -1004,6 +1008,7 @@ class TestRunner(Runnable):
         self._add_step(self._record_start)
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
+        self._add_step(self.calculate_pool_size)
 
     def main_batch_steps(self):
         """Runnable steps to be executed while resources are running."""
