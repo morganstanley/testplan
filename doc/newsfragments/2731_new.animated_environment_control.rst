@@ -1,0 +1,1 @@
+Environment control button on the interactive UI now provides visual feedback on ongoing start and stop processes.
