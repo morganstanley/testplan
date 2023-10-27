@@ -17,8 +17,9 @@ import re
 import subprocess
 import sys
 import tempfile
-
 import lxml
+
+from ms.fix import FixMessage
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
@@ -1368,6 +1369,25 @@ class FixMatch(DictMatch):
         Otherwise, if either side is untyped we will compare the values as
         strings.
         """
+
+        def get_taglist_from_msg(msg: FixMessage):
+            taglist = []
+            for tag in list(msg):
+                taglist.append(tag)
+                if isinstance(msg[tag], list):
+                    # we hit a repeating group
+                    for fixfragment in msg[tag]:
+                        taglist.extend(
+                            [
+                                fragment_tag
+                                for fragment_tag in get_taglist_from_msg(
+                                    fixfragment
+                                )
+                                if fragment_tag not in taglist
+                            ]
+                        )
+            return taglist
+
         typed_value = getattr(value, "typed_values", False)
         typed_expected = getattr(expected, "typed_values", False)
 
@@ -1379,8 +1399,12 @@ class FixMatch(DictMatch):
         super(FixMatch, self).__init__(
             value=value,
             expected=expected,
-            include_keys=include_tags,
-            exclude_keys=exclude_tags,
+            include_keys=get_taglist_from_msg(include_tags)
+            if isinstance(include_tags, FixMessage)
+            else include_tags,
+            exclude_keys=get_taglist_from_msg(exclude_tags)
+            if isinstance(exclude_tags, FixMessage)
+            else exclude_tags,
             report_mode=report_mode,
             description=description,
             category=category,
