@@ -18,6 +18,7 @@ from testplan.common.entity import (
 )
 from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.utils import strings
+from testplan.common.utils.context import render
 from testplan.common.utils.process import (
     enforce_timeout,
     kill_process,
@@ -475,7 +476,9 @@ class ProcessRunnerTest(Test):
     :type binary: ``str``
     :param description: Description of test instance.
     :type description: ``str``
-    :param proc_env: Environment overrides for ``subprocess.Popen``.
+    :param proc_env: Environment overrides for ``subprocess.Popen``;
+        context value (when referring to other driver) and jinja2 template (when
+        referring to self) will be resolved.
     :type proc_env: ``dict``
     :param proc_cwd: Directory override for ``subprocess.Popen``.
     :type proc_cwd: ``str``
@@ -515,10 +518,6 @@ class ProcessRunnerTest(Test):
     _MAX_RETAINED_LOG_SIZE = 4096
 
     def __init__(self, **options):
-        proc_env = os.environ.copy()
-        if options.get("proc_env"):
-            proc_env.update(options["proc_env"])
-        options["proc_env"] = proc_env
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
@@ -526,11 +525,7 @@ class ProcessRunnerTest(Test):
         self._test_process_retcode = None  # will be set by `self.run_tests`
         self._test_process_killed = False
         self._test_has_run = False
-
-        # Need to use the binary's absolute path if `proc_cwd` is specified,
-        # otherwise won't be able to find the binary.
-        if self.cfg.proc_cwd:
-            self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
+        self._resolved_bin = None  # resolved binary path
 
     @property
     def stderr(self) -> str:
@@ -547,6 +542,25 @@ class ProcessRunnerTest(Test):
     @property
     def report_path(self) -> str:
         return os.path.join(self._runpath, "report.xml")
+
+    @property
+    def resolved_bin(self) -> str:
+        if not self._resolved_bin:
+            self._resolved_bin = self.prepare_binary()
+
+        return self._resolved_bin
+
+    def prepare_binary(self):
+        """
+        Resolve the real binary path to run
+        """
+        # Need to use the binary's absolute path if `proc_cwd` is specified,
+        # otherwise won't be able to find the binary.
+        if self.cfg.proc_cwd:
+            return os.path.abspath(self.cfg.binary)
+        # use user-specified binary as-is, override if more sophisticated binary resolution is needed.
+        else:
+            return self.cfg.binary
 
     def test_command(self) -> List[str]:
         """
@@ -569,7 +583,7 @@ class ProcessRunnerTest(Test):
         :return: Command to run test process
         :rtype: ``list`` of ``str``
         """
-        return [self.cfg.binary]
+        return [self.resolved_bin]
 
     def list_command(self) -> Optional[List[str]]:
         """
@@ -666,12 +680,19 @@ class ProcessRunnerTest(Test):
             )
 
     def get_proc_env(self):
-        self._json_ouput = os.path.join(self.runpath, "output.json")
-        self.logger.debug("Json output: %s", self._json_ouput)
-        env = {"JSON_REPORT": self._json_ouput}
-        env.update(
-            {key.upper(): val for key, val in self.cfg.proc_env.items()}
-        )
+        """
+        Fabricate the env var for subprocess.
+        Precedence: user-specified > hardcoded > system env
+
+        """
+
+        # start with system env
+        env = os.environ.copy()
+
+        # override with hardcoded values
+        json_ouput = os.path.join(self.runpath, "output.json")
+        self.logger.debug("Json output: %s", json_ouput)
+        env["JSON_REPORT"] = json_ouput
 
         for driver in self.resources:
             driver_name = driver.uid()
@@ -685,6 +706,13 @@ class ProcessRunnerTest(Test):
                         strings.slugify(attr).replace("-", "_"),
                     ).upper()
                 ] = str(value)
+
+        # override with user specified values
+        proc_env = {
+            key.upper(): render(val, self.context_input())
+            for key, val in self.cfg.proc_env.items()
+        }
+        env.update(proc_env)
 
         return env
 
@@ -763,7 +791,7 @@ class ProcessRunnerTest(Test):
         """
         assertion_content = "\n".join(
             [
-                "Process: {}".format(self.cfg.binary),
+                "Process: {}".format(self.resolved_bin),
                 "Exit code: {}".format(retcode),
             ]
         )

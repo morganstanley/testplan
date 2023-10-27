@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Badge } from "reactstrap";
 import { StyleSheet, css } from "aphrodite";
@@ -18,7 +18,6 @@ import {
   ORANGE,
   BLACK,
   LIGHT_GREY,
-  MEDIUM_GREY,
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
@@ -199,6 +198,37 @@ const getStatusIcon = (
 };
 
 /**
+ * Returns
+ */
+function StartingStoppingIcon(starting) {
+    const [isPulsating, setIsPulsating] = useState(
+        starting ? false : true
+    );
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setIsPulsating((prevState) => !prevState);
+        }, 500);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
+    return (
+        <FontAwesomeIcon
+            className={css(styles.inactiveEntryButton)}
+            icon={starting ? faToggleOn : faToggleOff}
+            title={starting ? "Environment starting..." : "Environment stopping..."}
+            onClick={ignoreClickEvent}
+            transition="opacity 0.175s ease-in-out"
+            animation={isPulsating ? "pulsate 0.35s infinite" : "none"}
+            opacity={isPulsating ? 0.5 : 1}
+        />
+    );
+};
+
+/**
  * Returns the environment control component for entries that own an
  * environment. Returns null for entries that do not have an environment.
  */
@@ -220,14 +250,7 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
       );
 
     case "STOPPING":
-      return (
-        <FontAwesomeIcon
-          className={css(styles.inactiveEntryButton)}
-          icon={faToggleOn}
-          title="Environment stopping..."
-          onClick={ignoreClickEvent}
-        />
-      );
+      return StartingStoppingIcon(false);
 
     case "STARTED":
       return (
@@ -244,14 +267,7 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
       );
 
     case "STARTING":
-      return (
-        <FontAwesomeIcon
-          className={css(styles.inactiveEntryButton)}
-          icon={faToggleOff}
-          title="Environment starting..."
-          onClick={ignoreClickEvent}
-        />
-      );
+      return StartingStoppingIcon(true);
 
     default:
       return null;

@@ -3,7 +3,7 @@ Driver for Zookeeper server
 """
 import os
 import socket
-from typing import Optional
+from typing import Optional, Dict
 
 from schema import Or
 
@@ -77,7 +77,7 @@ class ZookeeperStandalone(Driver):
         )
         self._host = host
         self._port = port
-        self.env = self.cfg.env.copy() if self.cfg.env else {}
+        self._env = None
         self.config = None
         self.zkdata_path = None
         self.zklog_path = None
@@ -100,6 +100,15 @@ class ZookeeperStandalone(Driver):
     def port(self) -> int:
         """Port to listen on."""
         return self._port
+
+    @emphasized
+    @property
+    def env(self) -> Dict[str, str]:
+        """Environment variables."""
+        if self._env is not None:
+            return self._env
+        self._env = self.cfg.env.copy() if self.cfg.env else {}
+        return self._env
 
     @emphasized
     @property
