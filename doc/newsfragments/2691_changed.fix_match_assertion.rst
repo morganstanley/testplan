@@ -1,1 +1,1 @@
-py:meth:`result.fix.match() <testplan.testing.multitest.result.FixNamespace.match>` assertion now supports repeating groups when a FixMessage object specified in the ``include_tags`` or ``exclude_tags`` parameters.
+py:meth:`result.fix.match() <testplan.testing.multitest.result.FixNamespace.match>` assertion now supports repeating groups when a FIX message is specified in the ``include_tags`` or ``exclude_tags`` parameters.

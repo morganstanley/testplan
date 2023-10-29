@@ -19,8 +19,6 @@ import sys
 import tempfile
 import lxml
 
-from ms.fix import FixMessage
-
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
 from testplan.common.utils.process import subprocess_popen
@@ -1370,7 +1368,13 @@ class FixMatch(DictMatch):
         strings.
         """
 
-        def get_taglist_from_msg(msg: FixMessage):
+        def get_taglist_from_msg(msg: dict) -> list:
+            """
+            Extracts tags from a FIX message-like object.
+
+            :param msg: FIX message-like object
+            :return: list of tags
+            """
             taglist = []
             for tag in list(msg):
                 taglist.append(tag)
@@ -1400,10 +1404,10 @@ class FixMatch(DictMatch):
             value=value,
             expected=expected,
             include_keys=get_taglist_from_msg(include_tags)
-            if isinstance(include_tags, FixMessage)
+            if isinstance(include_tags, dict)
             else include_tags,
             exclude_keys=get_taglist_from_msg(exclude_tags)
-            if isinstance(exclude_tags, FixMessage)
+            if isinstance(exclude_tags, dict)
             else exclude_tags,
             report_mode=report_mode,
             description=description,
