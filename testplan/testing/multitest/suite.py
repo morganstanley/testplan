@@ -7,7 +7,7 @@ import inspect
 import itertools
 import types
 import warnings
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 from testplan import defaults
 from testplan.common.utils import interface, strings
@@ -16,10 +16,10 @@ from testplan.testing import tagging
 from . import parametrization
 from .test_metadata import (
     LocationMetadata,
+    TestCaseMetadata,
+    TestCaseStaticMetadata,
     TestSuiteMetadata,
     TestSuiteStaticMetadata,
-    TestCaseStaticMetadata,
-    TestCaseMetadata,
 )
 
 # Global variables
@@ -356,9 +356,8 @@ def _ensure_unique_generated_testcase_names(names, functions):
     for func in functions:
         name = func.__name__
         if name in dupe_names or name in valid_names:
-            count = dupe_counter[name]
             while True:
-                func.__name__ = "{}__{}".format(name, count)
+                func.__name__ = "{}__{}".format(name, dupe_counter[name])
                 dupe_counter[name] += 1
                 if (
                     func.__name__ not in dupe_names
@@ -367,14 +366,17 @@ def _ensure_unique_generated_testcase_names(names, functions):
                     valid_names.add(func.__name__)
                     break
         else:
-            valid_names.add(name)
+            valid_names.add(func.__name__)
 
     # Functions should have different __name__ attributes after the step above
     name_counts = collections.Counter(
         itertools.chain(names, (func.__name__ for func in functions))
     )
     dupe_names = {k for k, v in name_counts.items() if v > 1}
-    assert len(dupe_names) == 0
+    if len(dupe_names):
+        raise RuntimeError(
+            f"Internal error, duplicate case names found: {dupe_names}"
+        )
 
 
 def _testsuite(klass):

@@ -65,7 +65,8 @@ class BasicSuite:
         parameters={
             "lli1": [to_lazy([None, None, 2, None])],
             "lli2": [to_lazy([NotImplemented, None, 4, NotImplemented])],
-        }
+        },
+        name_func=None,  # only interger postfix in generated testcase name
     )
     def parameter_only_case(self, env, result, lli1, lli2):
         lli = lazy_zip_with(lambda x, y: x * y, lli1, lli2)
@@ -74,6 +75,9 @@ class BasicSuite:
 
 @mt.testsuite
 class ParallelSuite:
+
+    name = "ContainingParallelSuite"
+
     @mt.testcase
     def basic_case(self, env, result):
         lli1 = to_lazy([1, 2, 3])
@@ -174,7 +178,7 @@ def test_trace_tests_basic(subject_path, named_temp_file):
     assert lines[0] == f"{mt_name}:BasicSuite:basic_case"
     for i in range(1, 6):
         assert lines[i].startswith(
-            f"{mt_name}:BasicSuite:parameterized_case:parameterized_case <li=["
+            f"{mt_name}:BasicSuite:parameterized_case <li=["
         )
 
 
@@ -191,9 +195,7 @@ def test_trace_tests_all_lines(subject_path, named_temp_file):
     with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 7
-    assert lines[-1].startswith(
-        f"{mt_name}:BasicSuite:parameter_only_case:parameter_only_case <lli1="
-    )
+    assert lines[6] == f"{mt_name}:BasicSuite:parameter_only_case 0"
 
 
 def test_trace_tests_ignore_parallel(subject_path, named_temp_file):
@@ -209,7 +211,7 @@ def test_trace_tests_ignore_parallel(subject_path, named_temp_file):
     with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 1
-    assert lines[0] == f"{mt_name}:ParallelSuite:basic_case"
+    assert lines[0] == f"{mt_name}:ContainingParallelSuite:basic_case"
 
 
 def test_trace_tests_case_with_pre_post(subject_path, named_temp_file):
@@ -272,5 +274,30 @@ def test_trace_tests_multitest_with_hook(subject_path, named_temp_file):
     with open(named_temp_file, "r") as f:
         lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 2
-    assert lines[0] == f"{mt_name}_1:ParallelSuite:basic_case"
+    assert lines[0] == f"{mt_name}_1:ContainingParallelSuite:basic_case"
     assert lines[1] == f"{mt_name}_2"
+
+
+def test_trace_tests_sliced_multitest(subject_path, named_temp_file):
+    mt_name = "SlicedMultitest"
+    plan = TestplanMock(
+        name=f"{inspect.currentframe().f_code.co_name}_test",
+        tracing_tests={subject_path: get_lines(lazy_apply)},
+        tracing_tests_output=named_temp_file,
+    )
+    for i in range(3):
+        plan.add(
+            mt.MultiTest(
+                name=f"{mt_name}_1",
+                suites=[BasicSuite()],
+                part=(i, 3),
+            )
+        )
+    plan.run()
+
+    with open(named_temp_file, "r") as f:
+        lines = [l.strip() for l in f.readlines() if l]
+    assert (
+        lines[0]
+        == "SlicedMultitest_1 - part(0/3):BasicSuite:parameter_only_case 0"
+    )

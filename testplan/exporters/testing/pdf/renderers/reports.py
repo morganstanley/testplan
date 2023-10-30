@@ -3,25 +3,26 @@ PDF Renderer classes for test report objects.
 """
 import logging
 from collections import OrderedDict
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from reportlab.lib import colors, styles
 from reportlab.platypus import Paragraph
 
 from testplan.common.exporters.pdf import RowStyle
 from testplan.common.utils.registry import Registry
-from testplan.common.utils.strings import format_description, wrap, split_text
+from testplan.common.utils.strings import format_description, split_text, wrap
 from testplan.report import (
-    Status,
-    TestReport,
-    TestGroupReport,
-    TestCaseReport,
     ReportCategories,
+    Status,
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
 )
 from testplan.report.testing.styles import StyleFlag
 from testplan.testing import tagging
+
 from . import constants as const
-from .base import format_duration, RowData, BaseRowRenderer, MetadataMixin
+from .base import BaseRowRenderer, MetadataMixin, RowData, format_duration
 
 
 class ReportRendererRegistry(Registry):
@@ -260,6 +261,9 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
 
         [<TEST_NAME> - <NATIVE TAGS>][][][<TEST_STATUS>]
 
+        This method is also used by its subclass, where source will be of type
+        ``TestCaseReport``.
+
         :param source: Source object for the renderer.
         :param depth: Depth of the source object on report tree. Used for indentation.
         :param row_idx: Index of the current table row to be rendered.
@@ -417,7 +421,7 @@ class MultiTestRowBuilder(TestRowRenderer):
 
     def get_header(
         self,
-        source: TestCaseReport,
+        source: TestGroupReport,
         depth: int,
         row_idx: int,
     ) -> RowData:

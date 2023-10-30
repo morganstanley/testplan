@@ -5,7 +5,7 @@ import concurrent
 import functools
 import itertools
 import os
-from typing import Callable, Optional, Tuple, Dict, List, Generator
+from typing import Callable, Dict, Generator, List, Optional, Tuple
 
 from schema import And, Or, Use
 
@@ -29,6 +29,7 @@ from testplan.report import (
 )
 from testplan.testing import base as testing_base
 from testplan.testing import filtering, tagging
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
@@ -346,7 +347,7 @@ class MultiTest(testing_base.Test):
             return (
                 self.cfg.multi_part_uid(self.cfg.name, self.cfg.part)
                 if self.cfg.multi_part_uid
-                else "{} - part({}/{})".format(
+                else TEST_PART_PATTERN_FORMAT_STRING.format(
                     self.cfg.name, self.cfg.part[0], self.cfg.part[1]
                 )
             )
@@ -361,11 +362,7 @@ class MultiTest(testing_base.Test):
         """
 
         # watch line features depends on configuration from the outside world
-        if (
-            self.cfg.parent is not None
-            and self.cfg.tracing_tests is not None
-            and self.cfg.interactive_port is None
-        ):
+        if self.cfg.parent is not None and self.cfg.tracing_tests is not None:
             self.watcher.set_watching_lines(self.cfg.tracing_tests)
 
     def get_test_context(self):
@@ -381,12 +378,20 @@ class MultiTest(testing_base.Test):
 
         for suite in sorted_suites:
             testcases = suite.get_testcases()
+
             sorted_testcases = (
                 testcases
                 if getattr(suite, "strict_order", False)
                 or not hasattr(self.cfg, "test_sorter")
                 else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
+
+            if self.cfg.part:
+                sorted_testcases = [
+                    testcase
+                    for (idx, testcase) in enumerate(sorted_testcases)
+                    if (idx) % self.cfg.part[1] == self.cfg.part[0]
+                ]
 
             testcases_to_run = [
                 case
@@ -402,13 +407,6 @@ class MultiTest(testing_base.Test):
                 testcases_to_run
             ) < len(sorted_testcases):
                 testcases_to_run = sorted_testcases
-
-            if self.cfg.part and self.cfg.part[1] > 1:
-                testcases_to_run = [
-                    testcase
-                    for (idx, testcase) in enumerate(testcases_to_run)
-                    if idx % self.cfg.part[1] == self.cfg.part[0]
-                ]
 
             if self.cfg.testcase_report_target:
                 testcases_to_run = [
@@ -429,7 +427,7 @@ class MultiTest(testing_base.Test):
                         testcase_instance = ":".join(
                             [
                                 self.name,
-                                suite.__class__.__name__,
+                                suite.name,
                                 testcase.name,
                             ]
                         )
@@ -532,7 +530,7 @@ class MultiTest(testing_base.Test):
         if shallow_report is None:
             test_filter = filtering.Pattern(
                 pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
-                match_definition=True,
+                match_uid=True,
             )
         else:
             test_targets = _extract_test_targets(shallow_report)
@@ -723,7 +721,7 @@ class MultiTest(testing_base.Test):
 
     def get_metadata(self) -> TestMetadata:
         return TestMetadata(
-            name=self.name,
+            name=self.uid(),
             description=self.cfg.description,
             test_suites=[get_suite_metadata(suite) for suite in self.suites],
         )
@@ -812,8 +810,9 @@ class MultiTest(testing_base.Test):
         :return: A new and empty test report object for this MultiTest.
         """
         return TestGroupReport(
-            name=self.cfg.name,
+            name=self.uid(),
             description=self.cfg.description,
+            definition_name=self.cfg.name,
             uid=self.uid(),
             category=ReportCategories.MULTITEST,
             tags=self.cfg.tags,
@@ -829,6 +828,7 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=testsuite.name,
             description=strings.get_docstring(testsuite.__class__),
+            definition_name=testsuite.name,
             uid=testsuite.uid(),
             category=ReportCategories.TESTSUITE,
             tags=testsuite.__tags__,
@@ -842,6 +842,7 @@ class MultiTest(testing_base.Test):
         return TestCaseReport(
             name=testcase.name,
             description=strings.get_docstring(testcase),
+            definition_name=testcase.name,
             uid=testcase.__name__,
             tags=testcase.__tags__,
         )
@@ -855,6 +856,7 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=param_method.name,
             description=strings.get_docstring(param_method),
+            definition_name=param_template,
             uid=param_template,
             category=ReportCategories.PARAMETRIZATION,
             tags=param_method.__tags__,

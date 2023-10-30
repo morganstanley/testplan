@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
+    Collection,
     Dict,
     List,
     MutableMapping,
@@ -20,7 +21,6 @@ from typing import (
     Pattern,
     Tuple,
     Union,
-    Collection,
 )
 
 import pytz
@@ -34,11 +34,7 @@ from testplan.common.entity import (
     RunnableResult,
     RunnableStatus,
 )
-from testplan.common.exporters import (
-    BaseExporter,
-    ExportContext,
-    run_exporter,
-)
+from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
 from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
@@ -57,18 +53,18 @@ from testplan.report.filter import ReportingFilter
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
+from testplan.runners.pools.base import Pool
 from testplan.runners.pools.tasks import Task, TaskResult
 from testplan.runners.pools.tasks.base import (
-    is_task_target,
     TaskTargetInformation,
     get_task_target_information,
+    is_task_target,
 )
 from testplan.testing import filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
-from testplan.runners.pools.base import Pool
-
 
 TestTask = Union[Test, Task, Callable]
 
@@ -1105,12 +1101,11 @@ class TestRunner(Runnable):
                     report.category != ReportCategories.TASK_RERUN
                     and self.cfg.merge_scheduled_parts
                 ):
-                    report.uid = report.name
                     # Save the report temporarily and later will merge it
-                    test_rep_lookup.setdefault(report.uid, []).append(
-                        (test_results[uid].run, report)
-                    )
-                    if report.uid not in test_report.entry_uids:
+                    test_rep_lookup.setdefault(
+                        report.definition_name, []
+                    ).append((test_results[uid].run, report))
+                    if report.definition_name not in test_report.entry_uids:
                         # Create a placeholder for merging sibling reports
                         if isinstance(resource_result, TaskResult):
                             # `runnable` must be an instance of MultiTest since
@@ -1125,16 +1120,11 @@ class TestRunner(Runnable):
 
                         else:
                             report = report.__class__(
-                                report.name,
-                                uid=report.uid,
+                                report.definition_name,
                                 category=report.category,
                             )
                     else:
                         continue  # Wait all sibling reports collected
-                else:
-                    # If do not want to merge sibling reports, then display
-                    # them with different names. (e.g. `MTest - part(0/3)`)
-                    report.name = report.uid
 
             test_report.append(report)
             step_result = step_result and run is True  # boolean or exception
@@ -1223,7 +1213,7 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.name = "{} - part({}/{})".format(
+                    report.name = TEST_PART_PATTERN_FORMAT_STRING.format(
                         report.name, report.part[0], report.part[1]
                     )
                     report.uid = strings.uuid4()  # considered as error report

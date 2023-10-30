@@ -70,6 +70,9 @@ multitest_C = MultiTest(name="CCC", suites=[Gamma()])
 multitest_D = MultiTest(name="DDD", suites=[Alpha(), Beta()])
 multitest_E = MultiTest(name="EEE", suites=[Beta(), Gamma()])
 multitest_F = MultiTest(name="FFF", suites=[Alpha(), Beta(), Gamma()])
+multitest_G0 = MultiTest(name="GGG", suites=[Alpha(), Beta()], part=(0, 3))
+multitest_G1 = MultiTest(name="GGG", suites=[Alpha(), Beta()], part=(1, 3))
+multitest_G2 = MultiTest(name="GGG", suites=[Alpha(), Beta()], part=(2, 3))
 
 
 class TestTags:
@@ -260,6 +263,10 @@ class TestPattern:
             ("A*:*", multitest_A, True),
             ("A*:*:*", multitest_A, True),
             ("AAA:foo:bar", multitest_A, True),
+            ("AAA - part(0/1):*:*", multitest_A, True),
+            ("GGG:Alpha:test_one", multitest_G0, True),
+            ("GGG - part(0/3):*", multitest_G0, True),
+            ("GGG - part(2/3):*", multitest_G1, False),
         ),
     )
     def test_filter_test(self, pattern, multitest, expected):
