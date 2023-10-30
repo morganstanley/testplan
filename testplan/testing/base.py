@@ -428,7 +428,22 @@ class Test(Runnable):
         Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
         """
-        raise NotImplementedError
+        suites_to_run = self.test_context
+        self.result.report = self._new_test_report()
+
+        for testsuite, testcases in suites_to_run:
+            testsuite_report = TestGroupReport(
+                name=testsuite,
+                category=ReportCategories.TESTSUITE,
+            )
+
+            for testcase in testcases:
+                testcase_report = TestCaseReport(name=testcase)
+                testsuite_report.append(testcase_report)
+
+            self.result.report.append(testsuite_report)
+
+        return self.result
 
     def set_discover_path(self, path: str) -> None:
         """
