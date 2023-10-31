@@ -173,6 +173,18 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             self.logger.error(msg)
             raise RuntimeError(msg)
 
+    def _rebase_assertion(self, result) -> None:
+        if isinstance(result, dict) and "source_path" in result:
+            result["source_path"] = rebase_path(
+                result["source_path"],
+                self._remote_plan_runpath,
+                self._get_plan().runpath,
+            )
+        else:
+            entries = getattr(result, "entries", [])
+            for entry in entries:
+                self._rebase_assertion(entry)
+
     def rebase_attachment(self, result) -> None:
         """Rebase the path of attachment from remote to local"""
 
@@ -183,6 +195,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
                     self._remote_plan_runpath,
                     self._get_plan().runpath,
                 )
+            self._rebase_assertion(result.report)
 
     def rebase_task_path(self, task) -> None:
         """Rebase the path of task from local to remote"""
