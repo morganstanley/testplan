@@ -465,7 +465,7 @@ class ProcessRunnerTestConfig(TestConfig):
     def get_options(cls):
         return {
             "binary": str,
-            ConfigOption("proc_env", default={}): dict,
+            ConfigOption("proc_env", default=None): Or(dict, None),
             ConfigOption("proc_cwd", default=None): Or(str, None),
             ConfigOption("timeout", default=None): Or(
                 None, float, int, Use(parse_duration)
@@ -642,7 +642,7 @@ class ProcessRunnerTest(Test):
         proc = subprocess_popen(
             cmd,
             cwd=self.cfg.proc_cwd,
-            env=self.cfg.proc_env,
+            env=self.get_proc_env(),
             stdout=subprocess.PIPE,
         )
         test_list_output = proc.communicate()[0]
@@ -705,9 +705,10 @@ class ProcessRunnerTest(Test):
         env = os.environ.copy()
 
         # override with hardcoded values
-        json_ouput = os.path.join(self.runpath, "output.json")
-        self.logger.debug("Json output: %s", json_ouput)
-        env["JSON_REPORT"] = json_ouput
+        if self.runpath:
+            json_ouput = os.path.join(self.runpath, "output.json")
+            self.logger.debug("Json output: %s", json_ouput)
+            env["JSON_REPORT"] = json_ouput
 
         for driver in self.resources:
             driver_name = driver.uid()
@@ -723,11 +724,12 @@ class ProcessRunnerTest(Test):
                 ] = str(value)
 
         # override with user specified values
-        proc_env = {
-            key.upper(): render(val, self.context_input())
-            for key, val in self.cfg.proc_env.items()
-        }
-        env.update(proc_env)
+        if isinstance(self.cfg.proc_env, dict):
+            proc_env = {
+                key.upper(): render(val, self.context_input())
+                for key, val in self.cfg.proc_env.items()
+            }
+            env.update(proc_env)
 
         return env
 
