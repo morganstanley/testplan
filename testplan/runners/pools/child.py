@@ -92,27 +92,22 @@ class ChildLoop:
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
+        stdout_file = os.path.join(
+            self.runpath, f"{self._metadata['index']}_stdout"
+        )
         stderr_file = os.path.join(
             self.runpath, f"{self._metadata['index']}_stderr"
         )
-        log_file = os.path.join(
-            self.runpath, f"{self._metadata['index']}_stdout"
-        )
-        self.logger.info(
-            "stdout file = %(file)s (log level = %(lvl)s)",
-            {"file": log_file, "lvl": self.logger.level},
-        )
+        log_file = os.path.join(self.runpath, f"{self._metadata['index']}_log")
+        self.logger.info("stdout file = %s", stdout_file)
         self.logger.info("stderr file = %s", stderr_file)
         self.logger.info(
-            "Closing stdin, stdout and stderr file descriptors..."
+            "log file = %(file)s (log level = %(lvl)s)",
+            {"file": log_file, "lvl": self.logger.level},
         )
 
-        # This closes stdin, stdout and stderr for this process.
-        for fdesc in range(3):
-            os.close(fdesc)
-        mode = "w" if platform.python_version().startswith("3") else "wb"
-
-        sys.stderr = open(stderr_file, mode)
+        sys.stderr = open(stderr_file, "w")
+        sys.stdout = open(stdout_file, "w")
         fhandler = logging.FileHandler(log_file, encoding="utf-8")
 
         formatter = logging.Formatter(LOGFILE_FORMAT)
@@ -312,7 +307,6 @@ class RemoteChildLoop(ChildLoop):
 
 def child_logic(args):
     """Able to be imported child logic."""
-
     import psutil
     from testplan.runners.pools.base import Pool, Worker
     from testplan.runners.pools.process import ProcessPool, ProcessWorker
