@@ -246,7 +246,7 @@ class App(Driver):
     def binary(self) -> str:
         """The actual binary to execute, might be copied/linked to runpath"""
 
-        if self._binary and os.path.isfile(self._binary):
+        if self._binary:
             return self._binary
 
         if os.path.isfile(self.resolved_bin):
@@ -395,6 +395,10 @@ class App(Driver):
         self.proc = None
         if self.std:
             self.std.close()
+
+        # reset env, binary etc. as they need re-eval in case of restart
+        self._env = None
+        self._binary = None
         self._log_matcher = None
 
         if (self.cfg.expected_retcode is not None) and (
