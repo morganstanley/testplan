@@ -105,9 +105,14 @@ class ChildLoop:
             "log file = %(file)s (log level = %(lvl)s)",
             {"file": log_file, "lvl": self.logger.level},
         )
+        # redirect stdout/stderr
+        stderr_fd = open(stderr_file, "w")
+        stdout_fd = open(stdout_file, "w")
+        os.close(2)
+        os.close(1)
+        os.dup2(stderr_fd.fileno(), 2)
+        os.dup2(stdout_fd.fileno(), 1)
 
-        sys.stderr = open(stderr_file, "w")
-        sys.stdout = open(stdout_file, "w")
         fhandler = logging.FileHandler(log_file, encoding="utf-8")
 
         formatter = logging.Formatter(LOGFILE_FORMAT)
