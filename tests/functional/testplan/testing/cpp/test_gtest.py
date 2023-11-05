@@ -52,7 +52,11 @@ def test_gtest(mockplan, binary_dir, expected_report, report_status):
         )
         pytest.skip(msg)
 
-    mockplan.add(GTest(name="My GTest", binary=binary_path))
+    mockplan.add(
+        GTest(
+            name="My GTest", binary=binary_path, proc_env={"NAME": "{{name}}"}
+        )
+    )
 
     assert mockplan.run().run is True
 

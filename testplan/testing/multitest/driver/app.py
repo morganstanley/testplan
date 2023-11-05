@@ -189,7 +189,7 @@ class App(Driver):
             return self._env
 
         if isinstance(self.cfg.env, dict):
-            ctx = self.context_input()
+            ctx = self.context_input(exclude=["env"])
             self._env = {
                 key: expand(val, self.context, str) if is_context(val)
                 # allowing None val for child class use case
