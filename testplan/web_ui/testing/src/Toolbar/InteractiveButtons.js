@@ -134,7 +134,7 @@ export const AbortButton = (props) => {
           <FontAwesomeIcon
             key="toolbar-abort"
             className={css(styles.toolbarButton)}
-            icon={faTimes}
+            icon={faPowerOff}
             title="Abort Testplan"
             onClick={props.abortCbk}
           />
