@@ -217,7 +217,7 @@ function StartingStoppingIcon(starting) {
 
     return (
         <FontAwesomeIcon
-            className={css(styles.inactiveEntryButton)}
+            className={css(styles.inactiveEntryButton, styles.onOffButton)}
             icon={starting ? faToggleOn : faToggleOff}
             title={starting ? "Environment starting..." : "Environment stopping..."}
             onClick={ignoreClickEvent}
@@ -239,7 +239,9 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
       return (
         <FontAwesomeIcon
           className={
-            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            disabled ?
+            css(styles.inactiveOnOffButton, styles.onOffButton) :
+            css(styles.entryButton, styles.onOffButton)
           }
           icon={faToggleOff}
           title="Start environment"
@@ -256,7 +258,9 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
       return (
         <FontAwesomeIcon
           className={
-            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            disabled ?
+            css(styles.inactiveEntryButton, styles.onOffButton) :
+            css(styles.entryButton, styles.onOffButton)
           }
           icon={faToggleOn}
           title="Stop environment"
@@ -288,7 +292,7 @@ const getResetReportIcon = (entryStatus, envStatus, handleClick, entryType) => {
           disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
         }
         icon={faFastBackward}
-        title="Reset report"
+        title="Reset MultiTest environment and report"
         onClick={
           disabled ? ignoreClickEvent : (e) => handleClick(e, "resetting")
         }
@@ -389,7 +393,7 @@ const styles = StyleSheet.create({
     width: "2.4em",
     cursor: "pointer",
     color: "black",
-    padding: "0.7em 0em 0.7em 0em",
+    padding: "0.65em 0em 0.65em 0em",
     transition: "all 0.3s ease-out 0s",
     ":hover": {
       color: LIGHT_GREY,
@@ -403,8 +407,11 @@ const styles = StyleSheet.create({
     width: "2.4em",
     cursor: "pointer",
     color: BLACK,
-    padding: "0.7em 0em 0.7em 0em",
+    padding: "0.65em 0em 0.65em 0em",
     transition: "all 0.3s ease-out 0s !important",
+  },
+  onOffButton: {
+    padding: "0.55em 0em 0.55em 0em",
   },
   badge: {
     opacity: 0.5,

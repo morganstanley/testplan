@@ -22,6 +22,7 @@ import {
   faSave,
   faPlay,
   faHourglass,
+  faPowerOff,
 } from "@fortawesome/free-solid-svg-icons";
 import { format as dateFormat } from "date-fns";
 import { css } from "aphrodite";
@@ -97,7 +98,7 @@ export const ResetButton = (props) => {
             key="toolbar-reset"
             className={css(styles.toolbarButton)}
             icon={faFastBackward}
-            title="Reset state"
+            title="Reset plan: resets all MultiTest environments and reports"
             onClick={props.resetStateCbk}
           />
         </div>
@@ -120,7 +121,7 @@ export const AbortButton = (props) => {
           <FontAwesomeIcon
             key="toolbar-abort"
             className={css(styles.toolbarButton, styles.toolbarInactive)}
-            icon={faTimes}
+            icon={faPowerOff}
             title="Aborting..."
           />
         </div>

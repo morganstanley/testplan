@@ -49,7 +49,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -138,7 +138,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -227,7 +227,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -316,7 +316,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -405,7 +405,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -494,7 +494,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -583,7 +583,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -672,7 +672,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -704,7 +704,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       spinReverse={false}
       swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
       titleId={null}
       transform={null}
     />
@@ -713,7 +713,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu-o_O-onOffButton_hnex48"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -754,7 +754,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -843,7 +843,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -875,7 +875,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       spinReverse={false}
       swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
       titleId={null}
       transform={null}
     />
@@ -885,7 +885,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68-o_O-onOffButton_hnex48"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -928,7 +928,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1017,7 +1017,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1049,7 +1049,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       spinReverse={false}
       swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
       titleId={null}
       transform={null}
     />
@@ -1058,7 +1058,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu-o_O-onOffButton_hnex48"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1099,7 +1099,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_yr2g96"
+      className="entryButton_1wtk0bu"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1188,7 +1188,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1220,7 +1220,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       spinReverse={false}
       swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
       titleId={null}
       transform={null}
     />
@@ -1230,7 +1230,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68-o_O-onOffButton_hnex48"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1273,7 +1273,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c"
+      className="inactiveEntryButton_18pzl68"
       fade={false}
       fixedWidth={false}
       flip={false}
