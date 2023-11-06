@@ -1217,9 +1217,10 @@ class FixNamespace(AssertionNamespace):
                          regex patterns or callables for
                          advanced comparison.
         :type expected: ``dict``
-        :param include_tags: Tags to exclusively consider in the comparison. (Accepts FixMessage object)
-        :type include_tags: ``list`` of ``object`` (items must be hashable)
-        :param exclude_tags: Keys to ignore in the comparison. (Accepts FixMessage object)
+        :param include_tags: Tags to exclusively consider in the comparison.
+                             It will automatically use the tags from the expected message when set to True.
+        :type include_tags: ``list`` of ``object`` (items must be hashable) or ``bool``
+        :param exclude_tags: Keys to ignore in the comparison.
         :type exclude_tags: ``list`` of ``object`` (items must be hashable)
         :param report_mode: Specify which comparisons should be kept and
                             reported. Default option is to report all
@@ -1244,8 +1245,7 @@ class FixNamespace(AssertionNamespace):
             expected=expected,
             description=description,
             category=category,
-            include_tags=expected if include_tags is True
-            else include_tags,
+            include_tags=expected if include_tags is True else include_tags,
             exclude_tags=exclude_tags,
             report_mode=report_mode,
             expected_description=expected_description,

@@ -535,7 +535,8 @@ def _cmp_dicts(
                 lhs=lhs_val,
                 rhs=rhs_val,
                 ignore=ignore,
-                only=only[iter_key] if isinstance(only, dict) and iter_key in only
+                only=only[iter_key]
+                if isinstance(only, dict) and iter_key in only
                 else only,
                 key=iter_key,
                 report_mode=report_mode,
@@ -678,7 +679,8 @@ def _rec_compare(
                 lhs=lhs_item,
                 rhs=rhs_item,
                 ignore=ignore,
-                only=only[i] if isinstance(only, list) and i < len(only)
+                only=only[i]
+                if isinstance(only, list) and i < len(only)
                 else only,
                 key=None,
                 report_mode=report_mode,
