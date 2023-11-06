@@ -1244,7 +1244,8 @@ class FixNamespace(AssertionNamespace):
             expected=expected,
             description=description,
             category=category,
-            include_tags=include_tags,
+            include_tags=expected if include_tags is True
+            else include_tags,
             exclude_tags=exclude_tags,
             report_mode=report_mode,
             expected_description=expected_description,

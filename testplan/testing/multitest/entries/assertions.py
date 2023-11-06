@@ -1403,12 +1403,8 @@ class FixMatch(DictMatch):
         super(FixMatch, self).__init__(
             value=value,
             expected=expected,
-            include_keys=get_taglist_from_msg(include_tags)
-            if isinstance(include_tags, dict)
-            else include_tags,
-            exclude_keys=get_taglist_from_msg(exclude_tags)
-            if isinstance(exclude_tags, dict)
-            else exclude_tags,
+            include_keys=include_tags,
+            exclude_keys=exclude_tags,
             report_mode=report_mode,
             description=description,
             category=category,

@@ -532,13 +532,14 @@ def _cmp_dicts(
                 )
         else:
             result = _rec_compare(
-                lhs_val,
-                rhs_val,
-                ignore,
-                only,
-                iter_key,
-                report_mode,
-                value_cmp_func,
+                lhs=lhs_val,
+                rhs=rhs_val,
+                ignore=ignore,
+                only=only[iter_key] if isinstance(only, dict) and iter_key in only
+                else only,
+                key=iter_key,
+                report_mode=report_mode,
+                value_cmp_func=value_cmp_func,
             )
             # Decide whether to keep or discard the result, depending on the
             # reporting mode.
@@ -671,13 +672,14 @@ def _rec_compare(
     if lhs_cat == rhs_cat == Category.ITERABLE:
         results = []
         match = Match.IGNORED
-        for lhs_item, rhs_item in zip_longest(lhs, rhs):
+        for i, (lhs_item, rhs_item) in enumerate(zip_longest(lhs, rhs)):
             # iterate all elems in both iterable non-mapping objects
             result = _rec_compare(
-                lhs_item,
-                rhs_item,
-                ignore,
-                only,
+                lhs=lhs_item,
+                rhs=rhs_item,
+                ignore=ignore,
+                only=only[i] if isinstance(only, list) and i < len(only)
+                else only,
                 key=None,
                 report_mode=report_mode,
                 value_cmp_func=value_cmp_func,
