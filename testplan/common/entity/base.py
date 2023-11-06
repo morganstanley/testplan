@@ -742,16 +742,15 @@ class Entity(logger.Loggable):
             if key not in EXCLUDE and value is not None
         }
 
-    def context_input(self) -> Dict[str, Any]:
+    def context_input(self, exclude: list = None) -> Dict[str, Any]:
         """All attr of self in a dict for context resolution"""
         ctx = {}
+        exclude = exclude or []
         for attr in dir(self):
-            if attr == "env":
-                ctx["env"] = self._env
-            elif attr:
-                ctx[attr] = getattr(self, attr)
+            if attr in exclude:
+                continue
+            ctx[attr] = getattr(self, attr)
         return ctx
-        # return {attr: getattr(self, attr) for attr in dir(self)}
 
 
 class RunnableStatus(EntityStatus):

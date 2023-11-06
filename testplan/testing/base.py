@@ -543,20 +543,24 @@ class ProcessRunnerTest(Test):
         self._resolved_bin = None  # resolved binary path
 
     @property
-    def stderr(self) -> str:
-        return os.path.join(self._runpath, "stderr")
+    def stderr(self) -> Optional[str]:
+        if self._runpath:
+            return os.path.join(self._runpath, "stderr")
 
     @property
-    def stdout(self) -> str:
-        return os.path.join(self._runpath, "stdout")
+    def stdout(self) -> Optional[str]:
+        if self._runpath:
+            return os.path.join(self._runpath, "stdout")
 
     @property
-    def timeout_log(self) -> str:
-        return os.path.join(self._runpath, "timeout.log")
+    def timeout_log(self) -> Optional[str]:
+        if self._runpath:
+            return os.path.join(self._runpath, "timeout.log")
 
     @property
-    def report_path(self) -> str:
-        return os.path.join(self._runpath, "report.xml")
+    def report_path(self) -> Optional[str]:
+        if self._runpath:
+            return os.path.join(self._runpath, "report.xml")
 
     @property
     def resolved_bin(self) -> str:
@@ -726,7 +730,9 @@ class ProcessRunnerTest(Test):
         # override with user specified values
         if isinstance(self.cfg.proc_env, dict):
             proc_env = {
-                key.upper(): render(val, self.context_input())
+                key.upper(): render(
+                    val, self.context_input(exclude=["test_context"])
+                )
                 for key, val in self.cfg.proc_env.items()
             }
             env.update(proc_env)
