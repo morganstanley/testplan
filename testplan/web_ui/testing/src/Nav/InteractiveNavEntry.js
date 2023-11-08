@@ -220,8 +220,8 @@ function StartingStoppingIcon(starting) {
             className={
                 css(
                     styles.inactiveEntryButton,
-                    styles.onOffButton,
-                    styles.busyOnOffButton,
+                    styles.environmentToggle,
+                    styles.busyEnvironmentToggle,
                 )
             }
             icon={starting ? faToggleOn : faToggleOff}
@@ -246,8 +246,8 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
         <FontAwesomeIcon
           className={
             disabled ?
-            css(styles.inactiveOnOffButton, styles.onOffButton) :
-            css(styles.entryButton, styles.onOffButton)
+            css(styles.inactiveEntryButton, styles.environmentToggle) :
+            css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOff}
           title="Start environment"
@@ -265,8 +265,8 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
         <FontAwesomeIcon
           className={
             disabled ?
-            css(styles.inactiveEntryButton, styles.onOffButton) :
-            css(styles.entryButton, styles.onOffButton)
+            css(styles.inactiveEntryButton, styles.environmentToggle) :
+            css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOn}
           title="Stop environment"
@@ -413,10 +413,10 @@ const styles = StyleSheet.create({
     padding: "0.7em 0em 0.7em 0em",
     transition: "all 0.3s ease-out 0s !important",
   },
-  onOffButton: {
+  environmentToggle: {
     padding: "0.65em 0em 0.65em 0em",
   },
-  busyOnOffButton: {
+  busyEnvironmentToggle: {
     color: "orange",
   },
   badge: {

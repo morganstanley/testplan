@@ -713,7 +713,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wwl2v-o_O-onOffButton_q5b348"
+      className="entryButton_1wwl2v-o_O-environmentToggle_q5b348"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -885,7 +885,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c-o_O-onOffButton_q5b348-o_O-busyOnOffButton_2mo5qs"
+      className="inactiveEntryButton_104ny1c-o_O-environmentToggle_q5b348-o_O-busyEnvironmentToggle_2mo5qs"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1058,7 +1058,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wwl2v-o_O-onOffButton_q5b348"
+      className="entryButton_1wwl2v-o_O-environmentToggle_q5b348"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1230,7 +1230,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_104ny1c-o_O-onOffButton_q5b348-o_O-busyOnOffButton_2mo5qs"
+      className="inactiveEntryButton_104ny1c-o_O-environmentToggle_q5b348-o_O-busyEnvironmentToggle_2mo5qs"
       fade={false}
       fixedWidth={false}
       flip={false}
