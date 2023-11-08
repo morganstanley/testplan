@@ -1,0 +1,1 @@
+Fixed a bug whereas an already stopped environment would initiate a its full stop workflow on abort. This was causing report UID clashes and a performance hit during interactive mode abort.
