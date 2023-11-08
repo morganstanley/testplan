@@ -11,7 +11,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-failedBadge_1i8mqax"
+    className="entryIcon_lzttp4-o_O-failedBadge_1i8mqax"
     color="secondary"
     pill={true}
     tag="span"
@@ -29,7 +29,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -49,7 +49,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -100,7 +100,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -118,7 +118,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -138,7 +138,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -189,7 +189,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2"
+    className="entryIcon_lzttp4-o_O-passedBadge_1isorc2"
     color="secondary"
     pill={true}
     tag="span"
@@ -207,7 +207,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -227,7 +227,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -278,7 +278,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -296,7 +296,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -316,7 +316,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -367,7 +367,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -385,7 +385,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -405,7 +405,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68"
+      className="inactiveEntryButton_104ny1c"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -456,7 +456,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -474,7 +474,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -494,7 +494,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68"
+      className="inactiveEntryButton_104ny1c"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -545,7 +545,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -563,7 +563,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -583,7 +583,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68"
+      className="inactiveEntryButton_104ny1c"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -634,7 +634,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -652,7 +652,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -672,7 +672,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -713,7 +713,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu-o_O-onOffButton_hnex48"
+      className="entryButton_1wwl2v-o_O-onOffButton_q5b348"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -754,7 +754,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -805,7 +805,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -823,7 +823,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -843,7 +843,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68"
+      className="inactiveEntryButton_104ny1c"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -885,7 +885,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68-o_O-onOffButton_hnex48"
+      className="inactiveEntryButton_104ny1c-o_O-onOffButton_q5b348-o_O-busyOnOffButton_2mo5qs"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -928,7 +928,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68"
+      className="inactiveEntryButton_104ny1c"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -979,7 +979,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -997,7 +997,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -1017,7 +1017,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1058,7 +1058,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu-o_O-onOffButton_hnex48"
+      className="entryButton_1wwl2v-o_O-onOffButton_q5b348"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1099,7 +1099,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       beatFade={false}
       border={false}
       bounce={false}
-      className="entryButton_1wtk0bu"
+      className="entryButton_1wwl2v"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1150,7 +1150,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -1168,7 +1168,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
     className="entryIcons_195essn"
   >
     <span
-      className="entryIcon_9gb3m5"
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -1188,7 +1188,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68"
+      className="inactiveEntryButton_104ny1c"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1230,7 +1230,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68-o_O-onOffButton_hnex48"
+      className="inactiveEntryButton_104ny1c-o_O-onOffButton_q5b348-o_O-busyOnOffButton_2mo5qs"
       fade={false}
       fixedWidth={false}
       flip={false}
@@ -1273,7 +1273,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       beatFade={false}
       border={false}
       bounce={false}
-      className="inactiveEntryButton_18pzl68"
+      className="inactiveEntryButton_104ny1c"
       fade={false}
       fixedWidth={false}
       flip={false}

@@ -217,7 +217,13 @@ function StartingStoppingIcon(starting) {
 
     return (
         <FontAwesomeIcon
-            className={css(styles.inactiveEntryButton, styles.onOffButton)}
+            className={
+                css(
+                    styles.inactiveEntryButton,
+                    styles.onOffButton,
+                    styles.busyOnOffButton,
+                )
+            }
             icon={starting ? faToggleOn : faToggleOff}
             title={starting ? "Environment starting..." : "Environment stopping..."}
             onClick={ignoreClickEvent}
@@ -382,7 +388,7 @@ const styles = StyleSheet.create({
     "align-items": "center",
   },
   entryIcon: {
-    fontSize: "x-small",
+    fontSize: "small",
     margin: "0em 0.5em 0em 0.5em",
   },
   entryButton: {
@@ -393,11 +399,8 @@ const styles = StyleSheet.create({
     width: "2.4em",
     cursor: "pointer",
     color: "black",
-    padding: "0.65em 0em 0.65em 0em",
+    padding: "0.7em 0em 0.7em 0em",
     transition: "all 0.3s ease-out 0s",
-    ":hover": {
-      color: LIGHT_GREY,
-    },
   },
   inactiveEntryButton: {
     textDecoration: "none",
@@ -407,11 +410,14 @@ const styles = StyleSheet.create({
     width: "2.4em",
     cursor: "pointer",
     color: BLACK,
-    padding: "0.65em 0em 0.65em 0em",
+    padding: "0.7em 0em 0.7em 0em",
     transition: "all 0.3s ease-out 0s !important",
   },
   onOffButton: {
-    padding: "0.55em 0em 0.55em 0em",
+    padding: "0.65em 0em 0.65em 0em",
+  },
+  busyOnOffButton: {
+    color: "orange",
   },
   badge: {
     opacity: 0.5,
