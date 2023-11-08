@@ -730,8 +730,11 @@ class TestFIXNamespace:
             and _700[4] == (None, "ABSENT")  # key not found in expected data
         )
 
-    def test_subset_of_tags_with_only_true(self, fix_ns):
-        """Test the comparison result in flattened entries."""
+    def test_subset_of_tags_with_include_tags_true(self, fix_ns):
+        """
+        Test the comparison result when the expected FIX message with repeating groups is the subset of the actual
+        while include_tags set to True.
+        """
 
         expected = {
             35: "D",
