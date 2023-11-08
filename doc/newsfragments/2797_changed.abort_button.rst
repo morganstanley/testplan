@@ -1,0 +1,1 @@
+Replaced the "times" icon with a "power off" icon for a more intuitive abort control on the interactive UI toolbar.

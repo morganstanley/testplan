@@ -98,7 +98,7 @@ export const ResetButton = (props) => {
             key="toolbar-reset"
             className={css(styles.toolbarButton)}
             icon={faFastBackward}
-            title="Reset plan: resets all MultiTest environments and reports"
+            title="Reset all MultiTest environments and reports"
             onClick={props.resetStateCbk}
           />
         </div>

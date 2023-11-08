@@ -54,7 +54,7 @@ describe("ResetButton", () => {
       <ResetButton resetStateCbk={resetCbk} resetting={false} />
     );
     expect(button).toMatchSnapshot();
-    button.find({ title: "Reset plan: resets all MultiTest environments and reports" }).simulate("click");
+    button.find({ title: "Reset all MultiTest environments and reports" }).simulate("click");
     expect(resetCbk.mock.calls.length).toBe(1);
   });
 

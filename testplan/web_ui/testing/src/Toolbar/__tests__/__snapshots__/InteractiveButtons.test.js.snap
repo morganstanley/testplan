@@ -260,7 +260,7 @@ exports[`ResetButton Renders a clickable button 1`] = `
       spinReverse={false}
       swapOpacity={false}
       symbol={false}
-      title="Reset plan: resets all MultiTest environments and reports"
+      title="Reset all MultiTest environments and reports"
       titleId={null}
       transform={null}
     />
