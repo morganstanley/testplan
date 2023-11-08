@@ -513,6 +513,9 @@ class TestRunnerIHandler(entity.Entity):
         if not await_results:
             return self._run_async(self.stop_test_resources, test_uid)
 
+        if self.report[test_uid].env_status == entity.ResourceStatus.STOPPED:
+            return
+
         self._set_env_status(test_uid, entity.ResourceStatus.STOPPING)
         if self.report[test_uid].status_override == Status.ERROR:
             self._clear_env_errors(test_uid)
