@@ -507,7 +507,10 @@ def _cmp_dicts(
         if key in ignore:
             should_ignore = True
         elif only is not None:
-            should_ignore = key not in only
+            if isinstance(only, Iterable):
+                should_ignore = key not in only
+            else:
+                should_ignore = not key == only
         else:
             should_ignore = False
         return should_ignore
@@ -521,12 +524,14 @@ def _cmp_dicts(
                 #            enforce ignorance of match
                 results.append(
                     _rec_compare(
-                        lhs_val,
-                        rhs_val,
-                        ignore,
-                        only,
-                        iter_key,
-                        report_mode,
+                        lhs=lhs_val,
+                        rhs=rhs_val,
+                        ignore=ignore,
+                        only=only[iter_key]
+                        if isinstance(only, dict) and iter_key in only
+                        else only,
+                        key=iter_key,
+                        report_mode=report_mode,
                         value_cmp_func=None,
                     )
                 )
@@ -680,7 +685,9 @@ def _rec_compare(
                 rhs=rhs_item,
                 ignore=ignore,
                 only=only[i]
-                if isinstance(only, list) and i < len(only)
+                if isinstance(only, Iterable)
+                and i < len(only)
+                and isinstance(only[i], dict)
                 else only,
                 key=None,
                 report_mode=report_mode,
