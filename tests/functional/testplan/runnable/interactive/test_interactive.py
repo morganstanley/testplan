@@ -16,7 +16,7 @@ from testplan.common.utils.timing import wait
 from testplan.environment import LocalEnvironment
 from testplan.testing.multitest import MultiTest, testcase, testsuite
 from testplan.testing.multitest.driver.tcp import TCPClient, TCPServer
-from tests.functional.testplan.runnable.interactive import (
+from tests.functional.testplan.runnable.interactive.interactive_helper import (
     wait_for_interactive_start,
 )
 
