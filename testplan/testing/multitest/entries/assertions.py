@@ -1308,6 +1308,7 @@ class DictMatch(Assertion):
         self,
         value,
         expected,
+        use_keys_of_expected=False,
         include_keys=None,
         exclude_keys=None,
         report_mode=comparison.ReportOptions.ALL,
@@ -1319,6 +1320,7 @@ class DictMatch(Assertion):
     ):
         self.value = value
         self.expected = expected
+        self.use_keys_of_expected = use_keys_of_expected
         self.include_keys = include_keys
         self.exclude_keys = exclude_keys
         self.actual_description = actual_description
@@ -1337,7 +1339,7 @@ class DictMatch(Assertion):
             lhs=self.value,
             rhs=self.expected,
             ignore=self.exclude_keys,
-            only=self.include_keys,
+            only=True if self.use_keys_of_expected else self.include_keys,
             report_mode=self._report_mode,
             value_cmp_func=self._value_cmp_func,
         )
@@ -1355,6 +1357,7 @@ class FixMatch(DictMatch):
         self,
         value,
         expected,
+        use_tags_of_expected=False,
         include_tags=None,
         exclude_tags=None,
         report_mode=comparison.ReportOptions.ALL,
@@ -1379,6 +1382,7 @@ class FixMatch(DictMatch):
         super(FixMatch, self).__init__(
             value=value,
             expected=expected,
+            use_keys_of_expected=use_tags_of_expected,
             include_keys=include_tags,
             exclude_keys=exclude_tags,
             report_mode=report_mode,

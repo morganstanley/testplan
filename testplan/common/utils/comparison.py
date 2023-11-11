@@ -506,11 +506,10 @@ def _cmp_dicts(
         """
         if key in ignore:
             should_ignore = True
+        elif only is True:
+            should_ignore = key not in rhs.keys()
         elif only is not None:
-            if isinstance(only, Iterable):
-                should_ignore = key not in only
-            else:
-                should_ignore = not key == only
+            should_ignore = key not in only
         else:
             should_ignore = False
         return should_ignore
@@ -527,9 +526,7 @@ def _cmp_dicts(
                         lhs=lhs_val,
                         rhs=rhs_val,
                         ignore=ignore,
-                        only=only[iter_key]
-                        if isinstance(only, dict) and iter_key in only
-                        else only,
+                        only=only,
                         key=iter_key,
                         report_mode=report_mode,
                         value_cmp_func=None,
@@ -540,9 +537,7 @@ def _cmp_dicts(
                 lhs=lhs_val,
                 rhs=rhs_val,
                 ignore=ignore,
-                only=only[iter_key]
-                if isinstance(only, dict) and iter_key in only
-                else only,
+                only=only,
                 key=iter_key,
                 report_mode=report_mode,
                 value_cmp_func=value_cmp_func,
@@ -678,17 +673,13 @@ def _rec_compare(
     if lhs_cat == rhs_cat == Category.ITERABLE:
         results = []
         match = Match.IGNORED
-        for i, (lhs_item, rhs_item) in enumerate(zip_longest(lhs, rhs)):
+        for lhs_item, rhs_item in zip_longest(lhs, rhs):
             # iterate all elems in both iterable non-mapping objects
             result = _rec_compare(
                 lhs=lhs_item,
                 rhs=rhs_item,
                 ignore=ignore,
-                only=only[i]
-                if isinstance(only, Iterable)
-                and i < len(only)
-                and isinstance(only[i], dict)
-                else only,
+                only=only,
                 key=None,
                 report_mode=report_mode,
                 value_cmp_func=value_cmp_func,

@@ -12,7 +12,7 @@ import platform
 import re
 import threading
 from functools import wraps
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict, Hashable, List, Any
 import functools
 
 from testplan import defaults
@@ -938,17 +938,20 @@ class DictNamespace(AssertionNamespace):
     @assertion
     def match(
         self,
-        actual,
-        expected,
-        description=None,
-        category=None,
-        include_keys=None,
-        exclude_keys=None,
+        actual: Dict,
+        expected: Dict,
+        use_keys_of_expected: bool = False,
+        description: str = None,
+        category: str = None,
+        include_keys: List[Hashable] = None,
+        exclude_keys: List[Hashable] = None,
         report_mode=comparison.ReportOptions.ALL,
-        actual_description=None,
-        expected_description=None,
-        value_cmp_func=comparison.COMPARE_FUNCTIONS["native_equality"],
-    ):
+        actual_description: str = None,
+        expected_description: str = None,
+        value_cmp_func: Callable[
+            [Any, Any], bool
+        ] = comparison.COMPARE_FUNCTIONS["native_equality"],
+    ) -> bool:
         r"""
         Matches two dictionaries, supports nested data. Custom
         comparators can be used as values on the ``expected`` dict.
@@ -985,40 +988,31 @@ class DictNamespace(AssertionNamespace):
             )
 
         :param actual: Original dictionary.
-        :type actual: ``dict``.
         :param expected: Comparison dictionary, can contain custom comparators
                          (e.g. regex, lambda functions)
-        :type expected: ``dict``
+        :param use_keys_of_expected: Use the keys present in the expected message.
         :param include_keys: Keys to exclusively consider in the comparison.
-        :type include_keys: ``list`` of ``object`` (items must be hashable)
         :param exclude_keys: Keys to ignore in the comparison.
-        :type exclude_keys: ``list`` of ``object`` (items must be hashable)
         :param report_mode: Specify which comparisons should be kept and
                             reported. Default option is to report all
                             comparisons but this can be restricted if desired.
                             See ReportOptions enum for more detail.
-        :type report_mode: ``testplan.common.utils.comparison.ReportOptions``
         :param actual_description: Column header description for original dict.
-        :type actual_description: ``str``
         :param expected_description: Column header
                                     description for expected dict.
-        :type expected_description: ``str``
         :param description: Text description for the assertion.
-        :type description: ``str``
         :param category: Custom category that will be used for summarization.
-        :type category: ``str``
         :param value_cmp_func: Function to use to compare values in expected
                                and actual dicts. Defaults to using
                                `operator.eq()`.
-        :type value_cmp_func: ``Callable[[Any, Any], bool]``
 
         :return: Assertion pass status
-        :rtype: ``bool``
         """
         entry = assertions.DictMatch(
             value=actual,
             expected=expected,
             description=description,
+            use_keys_of_expected=use_keys_of_expected,
             include_keys=include_keys,
             exclude_keys=exclude_keys,
             report_mode=report_mode,
@@ -1178,16 +1172,17 @@ class FixNamespace(AssertionNamespace):
     @assertion
     def match(
         self,
-        actual,
-        expected,
-        description=None,
-        category=None,
-        include_tags=None,
-        exclude_tags=None,
+        actual: Dict,
+        expected: Dict,
+        use_tags_of_expected: bool = False,
+        description: str = None,
+        category: str = None,
+        include_tags: List[Hashable] = None,
+        exclude_tags: List[Hashable] = None,
         report_mode=comparison.ReportOptions.ALL,
-        actual_description=None,
-        expected_description=None,
-    ):
+        actual_description: str = None,
+        expected_description: str = None,
+    ) -> bool:
         """
         Matches two FIX messages, supports repeating groups (nested data).
         Custom comparators can be used as values on the ``expected`` msg.
@@ -1212,40 +1207,31 @@ class FixNamespace(AssertionNamespace):
             )
 
         :param actual: Original FIX message.
-        :type actual: ``dict``
         :param expected: Expected FIX message, can include compiled
                          regex patterns or callables for
                          advanced comparison.
-        :type expected: ``dict``
+        :param use_tags_of_expected: Use the tags present in the expected message.
         :param include_tags: Tags to exclusively consider in the comparison.
-                             It will automatically use the tags from the expected message when set to True.
-        :type include_tags: ``list`` of ``object`` (items must be hashable) or ``bool``
         :param exclude_tags: Keys to ignore in the comparison.
-        :type exclude_tags: ``list`` of ``object`` (items must be hashable)
         :param report_mode: Specify which comparisons should be kept and
                             reported. Default option is to report all
                             comparisons but this can be restricted if desired.
                             See ReportOptions enum for more detail.
-        :type report_mode: ``testplan.common.utils.comparison.ReportOptions``
         :param actual_description: Column header description for original msg.
-        :type actual_description: ``str``
         :param expected_description: Column header
                                      description for expected msg.
-        :type expected_description: ``str``
         :param description: Text description for the assertion.
-        :type description: ``str``
         :param category: Custom category that will be used for summarization.
-        :type category: ``str``
 
         :return: Assertion pass status
-        :rtype: ``bool``
         """
         entry = assertions.FixMatch(
             value=actual,
             expected=expected,
             description=description,
             category=category,
-            include_tags=expected if include_tags is True else include_tags,
+            use_tags_of_expected=use_tags_of_expected,
+            include_tags=include_tags,
             exclude_tags=exclude_tags,
             report_mode=report_mode,
             expected_description=expected_description,
