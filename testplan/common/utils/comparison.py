@@ -246,8 +246,8 @@ class Not(Callable):
 
     def __eq__(self, other):
         return (
-                self.__class__ == other.__class__
-                and self.callable_obj == other.callable_obj
+            self.__class__ == other.__class__
+            and self.callable_obj == other.callable_obj
         )
 
 
@@ -476,13 +476,13 @@ def _partition(results):
 
 
 def _cmp_dicts(
-        lhs: Dict,
-        rhs: Dict,
-        ignore: Container,
-        include: Container,
-        report_mode: int,
-        value_cmp_func: Union[Callable, None],
-        include_only_keys_of_rhs: bool = False,
+    lhs: Dict,
+    rhs: Dict,
+    ignore: Container,
+    include: Container,
+    report_mode: int,
+    value_cmp_func: Union[Callable, None],
+    include_only_keys_of_rhs: bool = False,
 ) -> Tuple[str, List]:
     """
     Compares two dictionaries with optional restriction to keys,
@@ -559,15 +559,15 @@ def _cmp_dicts(
 
 
 def _rec_compare(
-        lhs,
-        rhs,
-        ignore,
-        include,
-        key,
-        report_mode,
-        value_cmp_func,
-        _regex_adapter=RegexAdapter,
-        include_only_keys_of_rhs=False,
+    lhs,
+    rhs,
+    ignore,
+    include,
+    key,
+    report_mode,
+    value_cmp_func,
+    _regex_adapter=RegexAdapter,
+    include_only_keys_of_rhs=False,
 ):
     """
     Recursive deep comparison implementation
@@ -581,9 +581,9 @@ def _rec_compare(
 
     ## NO VALS
     if (
-            ((lhs_cat == Category.ABSENT) or (rhs_cat == Category.ABSENT))
-            and (lhs_cat != Category.CALLABLE)
-            and (rhs_cat != Category.CALLABLE)
+        ((lhs_cat == Category.ABSENT) or (rhs_cat == Category.ABSENT))
+        and (lhs_cat != Category.CALLABLE)
+        and (rhs_cat != Category.CALLABLE)
     ):
         return _build_res(
             key=key,
@@ -732,8 +732,8 @@ def untyped_fixtag(x, y):
 
     if not ret:
         if any(
-                isinstance(val, float) or isinstance(val, decimal.Decimal)
-                for val in (x, y)
+            isinstance(val, float) or isinstance(val, decimal.Decimal)
+            for val in (x, y)
         ):
             x_, y_ = (
                 val.rstrip("0").rstrip(".") if "." in val else val
@@ -781,15 +781,15 @@ class ReportOptions(enum.Enum):
 
 
 def compare(
-        lhs: Dict,
-        rhs: Dict,
-        ignore: List[Hashable] = None,
-        include: List[Hashable] = None,
-        report_mode=ReportOptions.ALL,
-        value_cmp_func: typing_Callable[[Any, Any], bool] = COMPARE_FUNCTIONS[
-            "native_equality"
-        ],
-        include_only_keys_of_rhs: bool = False,
+    lhs: Dict,
+    rhs: Dict,
+    ignore: List[Hashable] = None,
+    include: List[Hashable] = None,
+    report_mode=ReportOptions.ALL,
+    value_cmp_func: typing_Callable[[Any, Any], bool] = COMPARE_FUNCTIONS[
+        "native_equality"
+    ],
+    include_only_keys_of_rhs: bool = False,
 ) -> Tuple[bool, List[Tuple]]:
     """
     Compare two iterable key, value objects (e.g. dict or dict-like mapping)
@@ -951,21 +951,21 @@ def _to_error(cmpr_tuple, weights):
         """
         absent_side = (0, None, Absent.descr)
         return (
-                sum(
-                    [
-                        (0 if entry[2] == absent_side else 1)
-                        for entry in comparisons
-                    ]
-                )
-                == 0
+            sum(
+                [
+                    (0 if entry[2] == absent_side else 1)
+                    for entry in comparisons
+                ]
+            )
+            == 0
         ) or (
-                sum(
-                    [
-                        (0 if entry[3] == absent_side else 1)
-                        for entry in comparisons
-                    ]
-                )
-                == 0
+            sum(
+                [
+                    (0 if entry[3] == absent_side else 1)
+                    for entry in comparisons
+                ]
+            )
+            == 0
         )
 
     pass_flag, comparisons = cmpr_tuple
@@ -982,7 +982,7 @@ def _to_error(cmpr_tuple, weights):
         comparison_match = comparison[1]
         # tag exists and matches, or ignored
         if (comparison_match == Match.PASS) or (
-                comparison_match == Match.IGNORED
+            comparison_match == Match.IGNORED
         ):
             match_err = 0
         else:  # tag exists, but wrong data or tag is missing
@@ -1017,12 +1017,12 @@ class Expected:
 
 
 def unordered_compare(
-        match_name,
-        values,
-        comparisons,
-        description=None,
-        tag_weightings=None,
-        value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
+    match_name,
+    values,
+    comparisons,
+    description=None,
+    tag_weightings=None,
+    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
 ):
     """
     Matches a list of expected values against a list of expected comparisons.
@@ -1350,12 +1350,12 @@ class DictmatchAllResult:
 
 
 def dictmatch_all_compat(
-        match_name,
-        comparisons,
-        values,
-        description,
-        key_weightings,
-        value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
+    match_name,
+    comparisons,
+    values,
+    description,
+    key_weightings,
+    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
 ):
     """This is being used for internal compatibility."""
     matches = unordered_compare(
