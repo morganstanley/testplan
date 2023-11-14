@@ -217,7 +217,13 @@ function StartingStoppingIcon(starting) {
 
     return (
         <FontAwesomeIcon
-            className={css(styles.inactiveEntryButton)}
+            className={
+                css(
+                    styles.inactiveEntryButton,
+                    styles.environmentToggle,
+                    styles.busyEnvironmentToggle,
+                )
+            }
             icon={starting ? faToggleOn : faToggleOff}
             title={starting ? "Environment starting..." : "Environment stopping..."}
             onClick={ignoreClickEvent}
@@ -239,7 +245,9 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
       return (
         <FontAwesomeIcon
           className={
-            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            disabled ?
+            css(styles.inactiveEntryButton, styles.environmentToggle) :
+            css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOff}
           title="Start environment"
@@ -256,7 +264,9 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
       return (
         <FontAwesomeIcon
           className={
-            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            disabled ?
+            css(styles.inactiveEntryButton, styles.environmentToggle) :
+            css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOn}
           title="Stop environment"
@@ -288,7 +298,7 @@ const getResetReportIcon = (entryStatus, envStatus, handleClick, entryType) => {
           disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
         }
         icon={faFastBackward}
-        title="Reset report"
+        title="Reset MultiTest environment and report"
         onClick={
           disabled ? ignoreClickEvent : (e) => handleClick(e, "resetting")
         }
@@ -378,7 +388,7 @@ const styles = StyleSheet.create({
     "align-items": "center",
   },
   entryIcon: {
-    fontSize: "x-small",
+    fontSize: "small",
     margin: "0em 0.5em 0em 0.5em",
   },
   entryButton: {
@@ -391,9 +401,6 @@ const styles = StyleSheet.create({
     color: "black",
     padding: "0.7em 0em 0.7em 0em",
     transition: "all 0.3s ease-out 0s",
-    ":hover": {
-      color: LIGHT_GREY,
-    },
   },
   inactiveEntryButton: {
     textDecoration: "none",
@@ -405,6 +412,12 @@ const styles = StyleSheet.create({
     color: BLACK,
     padding: "0.7em 0em 0.7em 0em",
     transition: "all 0.3s ease-out 0s !important",
+  },
+  environmentToggle: {
+    padding: "0.65em 0em 0.65em 0em",
+  },
+  busyEnvironmentToggle: {
+    color: "orange",
   },
   badge: {
     opacity: 0.5,
