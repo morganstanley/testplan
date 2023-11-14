@@ -24,7 +24,7 @@
     "ag-grid-enterprise": "^29.3.4",
     "ag-grid-react": "^29.3.4",
     "aphrodite": "2.2.3",
-    "axios": "^0.21.4",
+    "axios": "^1.6.0",
     "base64url": "^3.0.1",
     "bootstrap": "^4.6.2",
     "buffer": "^6.0.3",
@@ -93,7 +93,7 @@
       "enzyme-to-json/serializer"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!\\.pnpm|rehype-raw|hast-util-raw|unist-util-position|unist-util-visit|unist-util-is|hast-util-from-parse5|hastscript|property-information|hast-util-parse-selector|space-separated-tokens|comma-separated-tokens|vfile-location|web-namespaces|hast-util-to-parse5|zwitch|html-void-elements).*\\.js"
+      "node_modules/(?!\\.pnpm|rehype-raw|hast-util-raw|unist-util-position|unist-util-visit|unist-util-is|hast-util-from-parse5|hastscript|property-information|hast-util-parse-selector|space-separated-tokens|comma-separated-tokens|vfile-location|web-namespaces|hast-util-to-parse5|zwitch|html-void-elements|axios).*\\.js"
     ]
   },
   "proxy": "http://localhost:59568"

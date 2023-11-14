@@ -6,6 +6,7 @@ import collections
 from testplan import TestplanMock
 from testplan.testing.multitest import MultiTest
 from testplan.common.utils.comparison import compare
+from interactive_helper import wait_for_interactive_start
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -435,6 +436,7 @@ def main():
         kwargs=dict(name="ScheduledTest2"),
     )
     plan.run()
+    wait_for_interactive_start(plan)
 
     # Run tests
     plan.interactive.run_all_tests()
