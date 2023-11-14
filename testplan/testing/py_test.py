@@ -103,7 +103,7 @@ class PyTest(testing.Test):
         # tests are collected via dry_run().
         self._nodeids = None
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
         self._add_step(self.run_tests)
         self._add_step(self.log_test_results, top_down=False)
@@ -173,12 +173,8 @@ class PyTest(testing.Test):
             (suite, list(testcases)) for suite, testcases in suites.items()
         ]
 
-    def dry_run(self):
-        """
-        Collect tests and build a report tree skeleton, but do not run any
-        tests.
-        """
-        self.result.report = self._new_test_report()
+    def _dry_run_testsuites(self):
+
         self._nodeids = {
             "testsuites": {},
             "testcases": collections.defaultdict(dict),
@@ -186,8 +182,6 @@ class PyTest(testing.Test):
 
         for item in self._collect_tests():
             _add_empty_testcase_report(item, self.result.report, self._nodeids)
-
-        return self.result
 
     def run_testcases_iter(
         self,

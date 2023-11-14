@@ -110,12 +110,16 @@ def test_top_level_tests():
         resources = [
             res.uid() for res in plan.interactive.test("Test2").resources
         ]
+
         assert resources == ["server", "client"]
         for resource in plan.interactive.test("Test2").resources:
             assert resource.status == resource.STATUS.NONE
+
         plan.interactive.start_test_resources("Test2")  # START
+
         for resource in plan.interactive.test("Test2").resources:
             assert resource.status == resource.STATUS.STARTED
+
         plan.interactive.stop_test_resources("Test2")  # STOP
         for resource in plan.interactive.test("Test2").resources:
             assert resource.status == resource.STATUS.STOPPED
@@ -126,6 +130,7 @@ def test_top_level_tests():
         BTLReset = load_from_json(
             Path(__file__).parent / "reports" / "basic_top_level_reset.data"
         )
+
         assert (
             compare(
                 BTLReset,
@@ -176,11 +181,12 @@ def test_top_level_tests():
         BRSTest2 = load_from_json(
             Path(__file__).parent / "reports" / "basic_run_suite_test2.data"
         )
+
         assert (
             compare(
                 BRSTest2,
                 plan.i.test_report("Test2"),
-                ignore=["hash", "information"],
+                ignore=["hash", "information", "timer"],
             )[0]
             is True
         )
@@ -203,6 +209,7 @@ def test_top_level_tests():
                     "utc_time",
                     "file_path",
                     "line_no",
+                    "timer",
                 ],
             )[0]
             is True

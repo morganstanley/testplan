@@ -33,23 +33,23 @@ class DummyTest(Test):
             time.sleep(0.5)  # 500ms for execution
             self._result.report.status_override = Status.PASSED
 
-    def pre_resource_steps(self):
+    def add_pre_resource_steps(self):
         self._add_step(lambda: self.result.report.timer.start("flag1"))
-        super(DummyTest, self).pre_resource_steps()
+        super(DummyTest, self).add_pre_resource_steps()
 
-    def pre_main_steps(self):
-        super(DummyTest, self).pre_main_steps()
+    def add_pre_main_steps(self):
+        super(DummyTest, self).add_pre_main_steps()
         self._add_step(lambda: self.result.report.timer.start("flag2"))
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         self._add_step(self.run_tests)
 
-    def post_main_steps(self):
+    def add_post_main_steps(self):
         self._add_step(lambda: self.result.report.timer.end("flag2"))
-        super(DummyTest, self).post_main_steps()
+        super(DummyTest, self).add_post_main_steps()
 
-    def post_resource_steps(self):
-        super(DummyTest, self).post_resource_steps()
+    def add_post_resource_steps(self):
+        super(DummyTest, self).add_post_resource_steps()
         self._add_step(lambda: self.result.report.timer.end("flag1"))
 
 
