@@ -1,1 +1,1 @@
-py:meth:`result.fix.match() <testplan.testing.multitest.result.FixNamespace.match>` assertion now only compares the tags present in the expected message when ``include_tags`` parameter set to `True`.
+Introduced a new parameter ``include_only_tags_of_expected`` for py:meth:`result.fix.match() <testplan.testing.multitest.result.FixNamespace.match>` assertion, It will only compares the tags present in the expected message when the parameter is set to `True`.

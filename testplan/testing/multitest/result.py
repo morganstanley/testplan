@@ -940,7 +940,7 @@ class DictNamespace(AssertionNamespace):
         self,
         actual: Dict,
         expected: Dict,
-        use_keys_of_expected: bool = False,
+        include_only_keys_of_expected: bool = False,
         description: str = None,
         category: str = None,
         include_keys: List[Hashable] = None,
@@ -951,7 +951,7 @@ class DictNamespace(AssertionNamespace):
         value_cmp_func: Callable[
             [Any, Any], bool
         ] = comparison.COMPARE_FUNCTIONS["native_equality"],
-    ) -> bool:
+    ) -> assertions.DictMatch:
         r"""
         Matches two dictionaries, supports nested data. Custom
         comparators can be used as values on the ``expected`` dict.
@@ -990,7 +990,7 @@ class DictNamespace(AssertionNamespace):
         :param actual: Original dictionary.
         :param expected: Comparison dictionary, can contain custom comparators
                          (e.g. regex, lambda functions)
-        :param use_keys_of_expected: Use the keys present in the expected message.
+        :param include_only_keys_of_expected: Use the keys present in the expected message.
         :param include_keys: Keys to exclusively consider in the comparison.
         :param exclude_keys: Keys to ignore in the comparison.
         :param report_mode: Specify which comparisons should be kept and
@@ -1012,7 +1012,7 @@ class DictNamespace(AssertionNamespace):
             value=actual,
             expected=expected,
             description=description,
-            use_keys_of_expected=use_keys_of_expected,
+            include_only_keys_of_expected=include_only_keys_of_expected,
             include_keys=include_keys,
             exclude_keys=exclude_keys,
             report_mode=report_mode,
@@ -1174,7 +1174,7 @@ class FixNamespace(AssertionNamespace):
         self,
         actual: Dict,
         expected: Dict,
-        use_tags_of_expected: bool = False,
+        include_only_tags_of_expected: bool = False,
         description: str = None,
         category: str = None,
         include_tags: List[Hashable] = None,
@@ -1182,7 +1182,7 @@ class FixNamespace(AssertionNamespace):
         report_mode=comparison.ReportOptions.ALL,
         actual_description: str = None,
         expected_description: str = None,
-    ) -> bool:
+    ) -> assertions.FixMatch:
         """
         Matches two FIX messages, supports repeating groups (nested data).
         Custom comparators can be used as values on the ``expected`` msg.
@@ -1210,7 +1210,7 @@ class FixNamespace(AssertionNamespace):
         :param expected: Expected FIX message, can include compiled
                          regex patterns or callables for
                          advanced comparison.
-        :param use_tags_of_expected: Use the tags present in the expected message.
+        :param include_only_tags_of_expected: Use the tags present in the expected message.
         :param include_tags: Tags to exclusively consider in the comparison.
         :param exclude_tags: Keys to ignore in the comparison.
         :param report_mode: Specify which comparisons should be kept and
@@ -1230,7 +1230,7 @@ class FixNamespace(AssertionNamespace):
             expected=expected,
             description=description,
             category=category,
-            use_tags_of_expected=use_tags_of_expected,
+            include_only_tags_of_expected=include_only_tags_of_expected,
             include_tags=include_tags,
             exclude_tags=exclude_tags,
             report_mode=report_mode,

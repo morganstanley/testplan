@@ -787,7 +787,7 @@ class TestFIXNamespace:
             actual=actual,
             expected=expected,
             description="complex fix message comparison",
-            use_tags_of_expected=True,
+            include_only_tags_of_expected=True,
         )
         assert len(fix_ns.result.entries) == 1
 

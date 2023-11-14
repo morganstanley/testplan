@@ -9,6 +9,7 @@ use the result of that call to set its ``passed`` attribute.
 import cmath
 import collections
 import decimal
+import lxml
 import numbers
 import operator
 import os
@@ -17,8 +18,7 @@ import re
 import subprocess
 import sys
 import tempfile
-
-import lxml
+from typing import Dict, Hashable, List
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
@@ -1306,21 +1306,21 @@ class DictMatch(Assertion):
 
     def __init__(
         self,
-        value,
-        expected,
-        use_keys_of_expected=False,
-        include_keys=None,
-        exclude_keys=None,
+        value: Dict,
+        expected: Dict,
+        include_only_keys_of_expected: bool = False,
+        include_keys: List[Hashable] = None,
+        exclude_keys: List[Hashable] = None,
         report_mode=comparison.ReportOptions.ALL,
-        description=None,
-        category=None,
-        actual_description=None,
-        expected_description=None,
+        description: str = None,
+        category: str = None,
+        actual_description: str = None,
+        expected_description: str = None,
         value_cmp_func=comparison.COMPARE_FUNCTIONS["native_equality"],
     ):
         self.value = value
         self.expected = expected
-        self.use_keys_of_expected = use_keys_of_expected
+        self.include_only_keys_of_expected = include_only_keys_of_expected
         self.include_keys = include_keys
         self.exclude_keys = exclude_keys
         self.actual_description = actual_description
@@ -1339,9 +1339,10 @@ class DictMatch(Assertion):
             lhs=self.value,
             rhs=self.expected,
             ignore=self.exclude_keys,
-            only=True if self.use_keys_of_expected else self.include_keys,
+            include=self.include_keys,
             report_mode=self._report_mode,
             value_cmp_func=self._value_cmp_func,
+            include_only_keys_of_rhs=self.include_only_keys_of_expected,
         )
         self.comparison = flatten_dict_comparison(cmp_result)
         return passed
@@ -1355,16 +1356,16 @@ class FixMatch(DictMatch):
 
     def __init__(
         self,
-        value,
-        expected,
-        use_tags_of_expected=False,
-        include_tags=None,
-        exclude_tags=None,
+        value: Dict,
+        expected: Dict,
+        include_only_tags_of_expected: bool = False,
+        include_tags: List[Hashable] = None,
+        exclude_tags: List[Hashable] = None,
         report_mode=comparison.ReportOptions.ALL,
-        description=None,
-        category=None,
-        actual_description=None,
-        expected_description=None,
+        description: str = None,
+        category: str = None,
+        actual_description: str = None,
+        expected_description: str = None,
     ):
         """
         If both FIX messages are typed, we enable strict type checking.
@@ -1382,7 +1383,7 @@ class FixMatch(DictMatch):
         super(FixMatch, self).__init__(
             value=value,
             expected=expected,
-            use_keys_of_expected=use_tags_of_expected,
+            include_only_keys_of_expected=include_only_tags_of_expected,
             include_keys=include_tags,
             exclude_keys=exclude_tags,
             report_mode=report_mode,
