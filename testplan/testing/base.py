@@ -73,6 +73,7 @@ class TestConfig(RunnableConfig):
             ConfigOption("environment", default=[]): [
                 Or(Resource, RemoteDriver)
             ],
+            ConfigOption("environment_factory", default=None): callable,
             ConfigOption("dependencies", default=None): Or(
                 None, Use(parse_dependency)
             ),
@@ -366,9 +367,18 @@ class Test(Runnable):
     def _record_teardown_end(self):
         self.report.timer.end("teardown")
 
+    def _build_environment(self):
+        drivers = self.cfg.environment_factory()
+        for driver in drivers:
+            driver.parent = self
+            driver.cfg.parent = self.cfg
+            self.resources.add(driver)
+
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
         self._add_step(self._record_setup_start)
+        if self.cfg.environment_factory:
+            self._add_step(self._build_environment)
 
     def pre_main_steps(self):
         """Runnable steps to run after environment started."""
