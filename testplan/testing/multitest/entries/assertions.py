@@ -1308,7 +1308,7 @@ class DictMatch(Assertion):
         self,
         value: Dict,
         expected: Dict,
-        include_only_keys_of_expected: bool = False,
+        include_only_expected: bool = False,
         include_keys: List[Hashable] = None,
         exclude_keys: List[Hashable] = None,
         report_mode=comparison.ReportOptions.ALL,
@@ -1320,7 +1320,7 @@ class DictMatch(Assertion):
     ):
         self.value = value
         self.expected = expected
-        self.include_only_keys_of_expected = include_only_keys_of_expected
+        self.include_only_expected = include_only_expected
         self.include_keys = include_keys
         self.exclude_keys = exclude_keys
         self.actual_description = actual_description
@@ -1342,7 +1342,7 @@ class DictMatch(Assertion):
             include=self.include_keys,
             report_mode=self._report_mode,
             value_cmp_func=self._value_cmp_func,
-            include_only_keys_of_rhs=self.include_only_keys_of_expected,
+            include_only_rhs=self.include_only_expected,
         )
         self.comparison = flatten_dict_comparison(cmp_result)
         return passed
@@ -1358,7 +1358,7 @@ class FixMatch(DictMatch):
         self,
         value: Dict,
         expected: Dict,
-        include_only_tags_of_expected: bool = False,
+        include_only_expected: bool = False,
         include_tags: List[Hashable] = None,
         exclude_tags: List[Hashable] = None,
         report_mode=comparison.ReportOptions.ALL,
@@ -1383,7 +1383,7 @@ class FixMatch(DictMatch):
         super(FixMatch, self).__init__(
             value=value,
             expected=expected,
-            include_only_keys_of_expected=include_only_tags_of_expected,
+            include_only_expected=include_only_expected,
             include_keys=include_tags,
             exclude_keys=exclude_tags,
             report_mode=report_mode,

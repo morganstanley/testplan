@@ -482,7 +482,7 @@ def _cmp_dicts(
     include: Container,
     report_mode: int,
     value_cmp_func: Union[Callable, None],
-    include_only_keys_of_rhs: bool = False,
+    include_only_rhs: bool = False,
 ) -> Tuple[str, List]:
     """
     Compares two dictionaries with optional restriction to keys,
@@ -505,7 +505,7 @@ def _cmp_dicts(
         """
         if key in ignore:
             should_ignore = True
-        elif include_only_keys_of_rhs is True:
+        elif include_only_rhs is True:
             should_ignore = key not in rhs.keys()
         elif include is not None:
             should_ignore = key not in include
@@ -529,7 +529,7 @@ def _cmp_dicts(
                         key=iter_key,
                         report_mode=report_mode,
                         value_cmp_func=None,
-                        include_only_keys_of_rhs=include_only_keys_of_rhs,
+                        include_only_rhs=include_only_rhs,
                     )
                 )
         else:
@@ -541,7 +541,7 @@ def _cmp_dicts(
                 key=iter_key,
                 report_mode=report_mode,
                 value_cmp_func=value_cmp_func,
-                include_only_keys_of_rhs=include_only_keys_of_rhs,
+                include_only_rhs=include_only_rhs,
             )
             # Decide whether to keep or discard the result, depending on the
             # reporting mode.
@@ -567,7 +567,7 @@ def _rec_compare(
     report_mode,
     value_cmp_func,
     _regex_adapter=RegexAdapter,
-    include_only_keys_of_rhs=False,
+    include_only_rhs=False,
 ):
     """
     Recursive deep comparison implementation
@@ -685,7 +685,7 @@ def _rec_compare(
                 key=None,
                 report_mode=report_mode,
                 value_cmp_func=value_cmp_func,
-                include_only_keys_of_rhs=include_only_keys_of_rhs,
+                include_only_rhs=include_only_rhs,
             )
 
             match = Match.combine(match, result[1])
@@ -707,7 +707,7 @@ def _rec_compare(
             include=include,
             report_mode=report_mode,
             value_cmp_func=value_cmp_func,
-            include_only_keys_of_rhs=include_only_keys_of_rhs,
+            include_only_rhs=include_only_rhs,
         )
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
@@ -789,7 +789,7 @@ def compare(
     value_cmp_func: typing_Callable[[Any, Any], bool] = COMPARE_FUNCTIONS[
         "native_equality"
     ],
-    include_only_keys_of_rhs: bool = False,
+    include_only_rhs: bool = False,
 ) -> Tuple[bool, List[Tuple]]:
     """
     Compare two iterable key, value objects (e.g. dict or dict-like mapping)
@@ -807,7 +807,7 @@ def compare(
                         for more detail.
     :param value_cmp_func: function to compare values in a dict. Defaults
         to COMPARE_FUNCTIONS['native_equality'].
-    :param include_only_keys_of_rhs: use the keys present in rhs.
+    :param include_only_rhs: use the keys present in rhs.
 
     :return: Tuple of comparison bool ``(passed: True, failed: False)`` and
              a description object for the testdb report
@@ -847,7 +847,7 @@ def compare(
         include=include,
         report_mode=report_mode,
         value_cmp_func=value_cmp_func,
-        include_only_keys_of_rhs=include_only_keys_of_rhs,
+        include_only_rhs=include_only_rhs,
     )
 
     # For the keys in include not matching anything,

@@ -940,7 +940,7 @@ class DictNamespace(AssertionNamespace):
         self,
         actual: Dict,
         expected: Dict,
-        include_only_keys_of_expected: bool = False,
+        include_only_expected: bool = False,
         description: str = None,
         category: str = None,
         include_keys: List[Hashable] = None,
@@ -990,7 +990,7 @@ class DictNamespace(AssertionNamespace):
         :param actual: Original dictionary.
         :param expected: Comparison dictionary, can contain custom comparators
                          (e.g. regex, lambda functions)
-        :param include_only_keys_of_expected: Use the keys present in the expected message.
+        :param include_only_expected: Use the keys present in the expected message.
         :param include_keys: Keys to exclusively consider in the comparison.
         :param exclude_keys: Keys to ignore in the comparison.
         :param report_mode: Specify which comparisons should be kept and
@@ -1012,7 +1012,7 @@ class DictNamespace(AssertionNamespace):
             value=actual,
             expected=expected,
             description=description,
-            include_only_keys_of_expected=include_only_keys_of_expected,
+            include_only_expected=include_only_expected,
             include_keys=include_keys,
             exclude_keys=exclude_keys,
             report_mode=report_mode,
@@ -1174,7 +1174,7 @@ class FixNamespace(AssertionNamespace):
         self,
         actual: Dict,
         expected: Dict,
-        include_only_tags_of_expected: bool = False,
+        include_only_expected: bool = False,
         description: str = None,
         category: str = None,
         include_tags: List[Hashable] = None,
@@ -1210,7 +1210,7 @@ class FixNamespace(AssertionNamespace):
         :param expected: Expected FIX message, can include compiled
                          regex patterns or callables for
                          advanced comparison.
-        :param include_only_tags_of_expected: Use the tags present in the expected message.
+        :param include_only_expected: Use the tags present in the expected message.
         :param include_tags: Tags to exclusively consider in the comparison.
         :param exclude_tags: Keys to ignore in the comparison.
         :param report_mode: Specify which comparisons should be kept and
@@ -1230,7 +1230,7 @@ class FixNamespace(AssertionNamespace):
             expected=expected,
             description=description,
             category=category,
-            include_only_tags_of_expected=include_only_tags_of_expected,
+            include_only_expected=include_only_expected,
             include_tags=include_tags,
             exclude_tags=exclude_tags,
             report_mode=report_mode,
