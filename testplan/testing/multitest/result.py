@@ -990,7 +990,7 @@ class DictNamespace(AssertionNamespace):
         :param actual: Original dictionary.
         :param expected: Comparison dictionary, can contain custom comparators
                          (e.g. regex, lambda functions)
-        :param include_only_expected: Use the keys present in the expected message.
+        :param include_only_expected: Use the keys present in the expected dictionary.
         :param include_keys: Keys to exclusively consider in the comparison.
         :param exclude_keys: Keys to ignore in the comparison.
         :param report_mode: Specify which comparisons should be kept and

@@ -493,6 +493,7 @@ def _cmp_dicts(
     :param include: collection of keys to restrict comparison to
     :param report_mode: report option code
     :param value_cmp_func: value comparison function
+    :param include_only_rhs: use the keys present in rhs.
     :return: pair of match result and comparison result
     """
 
