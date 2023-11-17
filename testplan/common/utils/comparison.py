@@ -4,7 +4,8 @@ import operator
 import traceback
 from collections.abc import Mapping, Iterable, Container
 from itertools import zip_longest
-from typing import List, Tuple, Dict, Hashable, Union
+from typing import Any, List, Tuple, Dict, Hashable, Union
+from typing import Callable as typing_Callable
 
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
@@ -63,7 +64,7 @@ def check_dict_keys(data, has_keys=None, absent_keys=None):
     return existing_diff, absent_intersection
 
 
-class Callable:
+class Callable:  # TODO: This should not be called Callable - needs refactoring
     """
     Some of our assertions can make use of callables that accept a
     single argument as comparator values. We also provide the helper
@@ -187,7 +188,6 @@ class IsFalse(IsTrue):
 
 
 class MetaCallable(Callable):
-
     delimiter = None
 
     def __init__(self, *callables):
@@ -209,7 +209,6 @@ class MetaCallable(Callable):
 
 
 class Or(MetaCallable):
-
     delimiter = "or"
 
     def __call__(self, value):
@@ -220,7 +219,6 @@ class Or(MetaCallable):
 
 
 class And(MetaCallable):
-
     delimiter = "and"
 
     def __call__(self, value):
@@ -481,9 +479,10 @@ def _cmp_dicts(
     lhs: Dict,
     rhs: Dict,
     ignore: Container,
-    only: Container,
+    include: Container,
     report_mode: int,
     value_cmp_func: Union[Callable, None],
+    include_only_rhs: bool = False,
 ) -> Tuple[str, List]:
     """
     Compares two dictionaries with optional restriction to keys,
@@ -491,9 +490,10 @@ def _cmp_dicts(
     :param lhs: dictionary to compare
     :param rhs: dictionary to compare
     :param ignore: collection of keys to ignore during comparison
-    :param only: collection of keys to restrict comparison to
+    :param include: collection of keys to restrict comparison to
     :param report_mode: report option code
     :param value_cmp_func: value comparison function
+    :param include_only_rhs: use the keys present in rhs.
     :return: pair of match result and comparison result
     """
 
@@ -506,8 +506,10 @@ def _cmp_dicts(
         """
         if key in ignore:
             should_ignore = True
-        elif only is not None:
-            should_ignore = key not in only
+        elif include_only_rhs is True:
+            should_ignore = key not in rhs.keys()
+        elif include is not None:
+            should_ignore = key not in include
         else:
             should_ignore = False
         return should_ignore
@@ -521,24 +523,26 @@ def _cmp_dicts(
                 #            enforce ignorance of match
                 results.append(
                     _rec_compare(
-                        lhs_val,
-                        rhs_val,
-                        ignore,
-                        only,
-                        iter_key,
-                        report_mode,
+                        lhs=lhs_val,
+                        rhs=rhs_val,
+                        ignore=ignore,
+                        include=include,
+                        key=iter_key,
+                        report_mode=report_mode,
                         value_cmp_func=None,
+                        include_only_rhs=include_only_rhs,
                     )
                 )
         else:
             result = _rec_compare(
-                lhs_val,
-                rhs_val,
-                ignore,
-                only,
-                iter_key,
-                report_mode,
-                value_cmp_func,
+                lhs=lhs_val,
+                rhs=rhs_val,
+                ignore=ignore,
+                include=include,
+                key=iter_key,
+                report_mode=report_mode,
+                value_cmp_func=value_cmp_func,
+                include_only_rhs=include_only_rhs,
             )
             # Decide whether to keep or discard the result, depending on the
             # reporting mode.
@@ -559,11 +563,12 @@ def _rec_compare(
     lhs,
     rhs,
     ignore,
-    only,
+    include,
     key,
     report_mode,
     value_cmp_func,
     _regex_adapter=RegexAdapter,
+    include_only_rhs=False,
 ):
     """
     Recursive deep comparison implementation
@@ -674,13 +679,14 @@ def _rec_compare(
         for lhs_item, rhs_item in zip_longest(lhs, rhs):
             # iterate all elems in both iterable non-mapping objects
             result = _rec_compare(
-                lhs_item,
-                rhs_item,
-                ignore,
-                only,
+                lhs=lhs_item,
+                rhs=rhs_item,
+                ignore=ignore,
+                include=include,
                 key=None,
                 report_mode=report_mode,
                 value_cmp_func=value_cmp_func,
+                include_only_rhs=include_only_rhs,
             )
 
             match = Match.combine(match, result[1])
@@ -696,7 +702,13 @@ def _rec_compare(
     ## DICTS
     if lhs_cat == rhs_cat == Category.DICT:
         match, results = _cmp_dicts(
-            lhs, rhs, ignore, only, report_mode, value_cmp_func
+            lhs=lhs,
+            rhs=rhs,
+            ignore=ignore,
+            include=include,
+            report_mode=report_mode,
+            value_cmp_func=value_cmp_func,
+            include_only_rhs=include_only_rhs,
         )
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
@@ -724,7 +736,6 @@ def untyped_fixtag(x, y):
             isinstance(val, float) or isinstance(val, decimal.Decimal)
             for val in (x, y)
         ):
-
             x_, y_ = (
                 val.rstrip("0").rstrip(".") if "." in val else val
                 for val in (x_, y_)
@@ -771,39 +782,36 @@ class ReportOptions(enum.Enum):
 
 
 def compare(
-    lhs,
-    rhs,
-    ignore=None,
-    only=None,
+    lhs: Dict,
+    rhs: Dict,
+    ignore: List[Hashable] = None,
+    include: List[Hashable] = None,
     report_mode=ReportOptions.ALL,
-    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
-):
+    value_cmp_func: typing_Callable[[Any, Any], bool] = COMPARE_FUNCTIONS[
+        "native_equality"
+    ],
+    include_only_rhs: bool = False,
+) -> Tuple[bool, List[Tuple]]:
     """
     Compare two iterable key, value objects (e.g. dict or dict-like mapping)
     and return a status and a detailed comparison table, useful for reporting.
 
-    Ignore has precedence over only.
+    Ignore has precedence over include.
 
     :param lhs: object compared against rhs
-    :type lhs: ``dict`` interface (``__contains__`` and ``.items()``)
     :param rhs: object compared against lhs
-    :type rhs: ``dict`` interface (``__contains__`` and ``.items()``)
     :param ignore: list of keys to ignore in the comparison
-    :type ignore: ``list``
-    :param only: list of keys to exclusively consider in the comparison
-    :type only: ``list``
+    :param include: list of keys to exclusively consider in the comparison
     :param report_mode: Specify which comparisons should be kept and reported.
                         Default option is to report all comparisons but this
                         can be restricted if desired. See ReportOptions enum
                         for more detail.
-    :type report_mode: ``ReportOptions``
     :param value_cmp_func: function to compare values in a dict. Defaults
         to COMPARE_FUNCTIONS['native_equality'].
-    :type value_cmp_func: Callable[[Any, Any], bool]
+    :param include_only_rhs: use the keys present in rhs.
 
     :return: Tuple of comparison bool ``(passed: True, failed: False)`` and
              a description object for the testdb report
-    :rtype: ``tuple`` of (``bool``, ``list`` of ``tuple``)
     """
 
     if (lhs is None) and (rhs is None):
@@ -834,16 +842,22 @@ def compare(
     ignore = ignore or []
 
     match, comparisons = _cmp_dicts(
-        lhs, rhs, ignore, only, report_mode, value_cmp_func
+        lhs=lhs,
+        rhs=rhs,
+        ignore=ignore,
+        include=include,
+        report_mode=report_mode,
+        value_cmp_func=value_cmp_func,
+        include_only_rhs=include_only_rhs,
     )
 
-    # For the keys in only not matching anything,
+    # For the keys in include not matching anything,
     # we report them as absent in expected and value.
-    if isinstance(only, list) and only and comparisons is not None:
+    if isinstance(include, list) and include and comparisons is not None:
         keys_found = set()
         for elem in comparisons:
             keys_found.add(elem[0])
-        for key in only:
+        for key in include:
             if key not in keys_found:
                 comparisons.append(
                     (key, Match.IGNORED, Absent.descr, Absent.descr)
@@ -988,19 +1002,19 @@ class Expected:
     Input to the "unordered_compare" function.
     """
 
-    def __init__(self, value, ignore=None, only=None):
+    def __init__(self, value, ignore=None, include=None):
         """
         :param value: object compared against
                         each actual value in unordered_compare
         :type value: ``dict``-like interface (__contains__ and .items())
         :param ignore: list of keys to ignore in the comparison
         :type ignore: ``list``
-        :param only: list of keys to exclusively consider in the comparison
-        :type only: ``list``
+        :param include: list of keys to exclusively consider in the comparison
+        :type include: ``list``
         """
         self.value = value
         self.ignore = ignore
-        self.only = only
+        self.include = include
 
 
 def unordered_compare(
@@ -1105,7 +1119,7 @@ def unordered_compare(
                 cmpr.value,
                 msg,
                 ignore=cmpr.ignore,
-                only=cmpr.only,
+                include=cmpr.include,
                 value_cmp_func=value_cmp_func,
             )
             for cmpr in proc_cmps
