@@ -1247,8 +1247,8 @@ class TestRunner(Runnable):
             )
 
     def _invoke_exporters(self) -> None:
-        # Add this logic into a ReportExporter(Runnable)
-        # that will return a result containing errors
+        if self._result.test_report.is_empty():  # skip empty report
+            return
 
         if hasattr(self._result.test_report, "bubble_up_attachments"):
             self._result.test_report.bubble_up_attachments()
@@ -1274,6 +1274,10 @@ class TestRunner(Runnable):
         # View report in web browser if "--browse" specified
         report_urls = []
         report_opened = False
+
+        if self._result.test_report.is_empty():  # skip empty report
+            self.logger.warning("Empty report, nothing to be exported!")
+            return
 
         for result in self._result.exporter_results:
             report_url = getattr(result.exporter, "report_url", None)
