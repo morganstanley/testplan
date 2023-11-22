@@ -215,6 +215,12 @@ class Report:
         """
         return [(depth, entry) for entry in self]
 
+    def is_empty(self) -> bool:
+        """
+        Check report is empty or not.
+        """
+        return len(self.entries) == len(self.logs) == 0
+
     @property
     def hash(self):
         """Return a hash of all entries in this report."""
