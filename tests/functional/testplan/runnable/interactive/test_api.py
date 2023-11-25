@@ -12,7 +12,7 @@ from testplan.exporters.testing import XMLExporter
 from testplan.report import Status, RuntimeStatus
 from testplan.testing import multitest
 from testplan.testing.multitest import driver
-from tests.functional.testplan.runnable.interactive import (
+from tests.functional.testplan.runnable.interactive.interactive_helper import (
     wait_for_interactive_start,
 )
 from tests.unit.testplan.runnable.interactive import test_api

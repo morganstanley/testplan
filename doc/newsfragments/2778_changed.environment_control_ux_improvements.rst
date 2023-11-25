@@ -1,0 +1,1 @@
+Enlarged the environment control button on Testplan interactive UI navigation to be in line with the run and reset buttons. Environment start and stop now temporarily changes color to orange to provide additional feedback about in progress state.
