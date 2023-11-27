@@ -1,4 +1,3 @@
-import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Card, CardBody, Collapse } from "reactstrap";
 import { css, StyleSheet } from "aphrodite";
@@ -34,36 +33,7 @@ import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 /**
  * Component to render one assertion.
  */
-class Assertion extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    const timeInfoIsEqual = (arr1, arr2) => {
-      if (arr1 === undefined && arr2 === undefined) {
-        return true;
-      } else if (
-        arr1 !== undefined &&
-        arr2 !== undefined &&
-        arr1.length === arr2.length
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    // If we used a PureComponent it would do a shallow prop comparison which
-    // might suffice and we wouldn't need to include this.
-    return (
-      nextProps.assertion !== this.props.assertion ||
-      nextProps.expand !== this.props.expand ||
-      // Inside the group assertions may need to be updated
-      nextProps.assertion.type === "Group" ||
-      !timeInfoIsEqual(
-        nextProps.assertion.timeInfoArray,
-        this.props.timeInfoArray
-      )
-    );
-  }
-
+function Assertion(props) {
   /**
    * Get the component object of the assertion.
    * @param {String} props - Assertion type props.
@@ -71,9 +41,9 @@ class Assertion extends Component {
    * assertion is implemented.
    * @public
    */
-  assertionComponent(assertionType) {
+  const assertionComponent = (assertionType) => {
     let graphAssertion;
-    if (this.props.assertion.discrete_chart) {
+    if (props.assertion.discrete_chart) {
       graphAssertion = DiscreteChartAssertion;
     } else {
       graphAssertion = XYGraphAssertion;
@@ -109,79 +79,77 @@ class Assertion extends Component {
       return BasicAssertion;
     }
     return null;
-  }
+  };
 
-  render() {
-    let isAssertionGroup = false;
-    let assertionType = this.props.assertion.type;
-    switch (assertionType) {
-      case "Group":
-        isAssertionGroup = true;
+  let isAssertionGroup = false;
+  let assertionType = props.assertion.type;
+  switch (assertionType) {
+    case "Group":
+      isAssertionGroup = true;
+      assertionType = (
+        <AssertionGroup
+          assertionGroupUid={props.uid}
+          entries={props.assertion.entries}
+          filter={props.filter}
+          reportUid={props.reportUid}
+          displayPath={props.displayPath}
+        />
+      );
+      break;
+    case "Summary":
+      assertionType = (
+        <SummaryBaseAssertion
+          assertion={props.assertion}
+          assertionGroupUid={props.uid}
+          filter={props.filter}
+        />
+      );
+      break;
+    default: {
+      const AssertionTypeComponent = assertionComponent(assertionType);
+      if (AssertionTypeComponent) {
         assertionType = (
-          <AssertionGroup
-            assertionGroupUid={this.props.uid}
-            entries={this.props.assertion.entries}
-            filter={this.props.filter}
-            reportUid={this.props.reportUid}
-            displayPath={this.props.displayPath}
+          <AssertionTypeComponent
+            assertion={props.assertion}
+            reportUid={props.reportUid}
           />
         );
-        break;
-      case "Summary":
-        assertionType = (
-          <SummaryBaseAssertion
-            assertion={this.props.assertion}
-            assertionGroupUid={this.props.uid}
-            filter={this.props.filter}
-          />
-        );
-        break;
-      default: {
-        const AssertionTypeComponent = this.assertionComponent(assertionType);
-        if (AssertionTypeComponent) {
-          assertionType = (
-            <AssertionTypeComponent
-              assertion={this.props.assertion}
-              reportUid={this.props.reportUid}
-            />
-          );
-        } else {
-          assertionType = <NotImplementedAssertion />;
-        }
+      } else {
+        assertionType = <NotImplementedAssertion />;
       }
     }
+  };
 
-    return (
-      <Card className={css(styles.card)}>
-        <AssertionHeader
-          assertion={this.props.assertion}
-          uid={this.props.uid}
-          toggleExpand={this.props.toggleExpand}
-          index={this.props.index}
-          displayPath={this.props.displayPath}
-        />
-        <Collapse
-          isOpen={this.props.expand === EXPAND_STATUS.EXPAND}
-          className={css(styles.collapseDiv)}
-          style={{ paddingRight: isAssertionGroup ? null : "1.25rem" }}
-        >
-          <ErrorBoundary>
-            <CardBody
-              className={css(
-                isAssertionGroup
-                  ? styles.groupCardBody
-                  : styles.assertionCardBody
-              )}
-            >
-              {this.props.expand === EXPAND_STATUS.EXPAND
-                ? assertionType
-                : null}
-            </CardBody>
-          </ErrorBoundary>
-        </Collapse>
-      </Card>
-    );
-  }
+  return (
+    <Card className={css(styles.card)}>
+      <AssertionHeader
+        assertion={props.assertion}
+        uid={props.uid}
+        toggleExpand={props.toggleExpand}
+        index={props.index}
+        displayPath={props.displayPath}
+      />
+      <Collapse
+        isOpen={props.expand === EXPAND_STATUS.EXPAND}
+        className={css(styles.collapseDiv)}
+        style={{ paddingRight: isAssertionGroup ? null : "1.25rem" }}
+      >
+        <ErrorBoundary>
+          <CardBody
+            className={css(
+              isAssertionGroup
+                ? styles.groupCardBody
+                : styles.assertionCardBody
+            )}
+          >
+            {props.expand === EXPAND_STATUS.EXPAND
+              ? assertionType
+              : null}
+          </CardBody>
+        </ErrorBoundary>
+      </Collapse>
+    </Card>
+  );
 }
 
 Assertion.propTypes = {

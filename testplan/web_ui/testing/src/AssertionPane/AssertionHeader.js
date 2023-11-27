@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { css, StyleSheet } from "aphrodite";
 import { CardHeader, Tooltip } from "reactstrap";
@@ -13,190 +13,178 @@ library.add(faLayerGroup);
 /**
  * Header component of an assertion.
  */
-class AssertionHeader extends Component {
-  constructor(props) {
-    super(props);
+function AssertionHeader(props) {
+  const [isUTCTooltipOpen, setIsUTCTooltipOpen] = useState(false);
+  const [isPathTooltipOpen, setIsPathTooltipOpen] = useState(false);
+  const [isDurationTooltipOpen, setIsDurationTooltipOpen] = useState(false);
 
-    this.state = {
-      isUTCTooltipOpen: false,
-      isPathTooltipOpen: false,
-      isDurationTooltipOpen: false,
-    };
-    this.toggleUTCTooltip = this.toggleUTCTooltip.bind(this);
-    this.togglePathTooltip = this.togglePathTooltip.bind(this);
-    this.toggleDurationTooltip = this.toggleDurationTooltip.bind(this);
-  }
+    // this.toggleUTCTooltip = this.toggleUTCTooltip.bind(this);
+    // this.togglePathTooltip = this.togglePathTooltip.bind(this);
+    // this.toggleDurationTooltip = this.toggleDurationTooltip.bind(this);
 
   /**
    * Toggle the visibility of tooltip of file path.
    */
-  togglePathTooltip() {
-    this.setState((prevState) => ({
-      isPathTooltipOpen: !prevState.isPathTooltipOpen,
-    }));
-  }
+  const togglePathTooltip = () => {
+    setIsPathTooltipOpen(!isPathTooltipOpen);
+  };
 
   /**
    * Toggle the visibility of tooltip of assertion start time.
    */
-  toggleUTCTooltip() {
-    this.setState((prevState) => ({
-      isUTCTooltipOpen: !prevState.isUTCTooltipOpen,
-    }));
-  }
+  const toggleUTCTooltip = () => {
+    setIsUTCTooltipOpen(!isUTCTooltipOpen);
+  };
 
   /**
    * Toggle the visibility of tooltip of duration between assertions.
    */
-  toggleDurationTooltip() {
-    this.setState((prevState) => ({
-      isDurationTooltipOpen: !prevState.isDurationTooltipOpen,
-    }));
-  }
+  const toggleDurationTooltip = () => {
+    setIsDurationTooltipOpen(!isDurationTooltipOpen);
+  };
 
-  render() {
-    const cardHeaderColorStyle =
-      this.props.assertion.passed === undefined
-        ? styles.cardHeaderColorLog
-        : this.props.assertion.passed
-        ? styles.cardHeaderColorPassed
-        : styles.cardHeaderColorFailed;
+  const cardHeaderColorStyle =
+    props.assertion.passed === undefined
+      ? styles.cardHeaderColorLog
+      : props.assertion.passed
+      ? styles.cardHeaderColorPassed
+      : styles.cardHeaderColorFailed;
 
-    const timeInfoArray = this.props.assertion.timeInfoArray || [];
-    let component =
-      this.props.assertion.utc_time === undefined ? (
-        <span className={css(styles.cardHeaderAlignRight)}>
-          <FontAwesomeIcon // Should be a nested assertion group
-            size="sm"
-            key="faLayerGroup"
-            icon="layer-group"
-            className={css(styles.icon)}
-          />
-        </span>
-      ) : timeInfoArray.length === 0 ? (
-        <span className={css(styles.cardHeaderAlignRight)}></span>
-      ) : (
-        <>
-          <span
-            className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
-            id={`tooltip_duration_${timeInfoArray[0]}`}
-            style={{ order: 4, display: "inline-flex", alignItems: "center" }}
-          >
-            {timeInfoArray[2]}
-          </span>
-          <span
-            className={css(styles.cardHeaderAlignRight)}
-            style={{ order: 3 }}
-          >
-            &nbsp;&nbsp;
-          </span>
-          <span
-            className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
-            id={`tooltip_utc_${timeInfoArray[0]}`}
-            style={{ order: 6, display: "inline-flex", alignItems: "center" }}
-          >
-            {timeInfoArray[1]}
-          </span>
-          <span
-            className={css(styles.cardHeaderAlignRight)}
-            style={{ order: 5 }}
-          >
-            &nbsp;&nbsp;
-          </span>
-          <Tooltip
-            placement="bottom"
-            isOpen={this.state.isUTCTooltipOpen}
-            target={`tooltip_utc_${timeInfoArray[0]}`}
-            toggle={this.toggleUTCTooltip}
-          >
-            {"Assertion start time"}
-          </Tooltip>
-          <Tooltip
-            placement="bottom"
-            isOpen={this.state.isDurationTooltipOpen}
-            target={`tooltip_duration_${timeInfoArray[0]}`}
-            toggle={this.toggleDurationTooltip}
-          >
-            {"Time elapsed since last assertion"}
-          </Tooltip>
-        </>
-      );
-
-    let pathButton = this.props.displayPath ? (
+  const timeInfoArray = props.assertion.timeInfoArray || [];
+  let component =
+    props.assertion.utc_time === undefined ? (
+      <span className={css(styles.cardHeaderAlignRight)}>
+        <FontAwesomeIcon // Should be a nested assertion group
+          size="sm"
+          key="faLayerGroup"
+          icon="layer-group"
+          className={css(styles.icon)}
+        />
+      </span>
+    ) : timeInfoArray.length === 0 ? (
+      <span className={css(styles.cardHeaderAlignRight)}></span>
+    ) : (
       <>
-        <Button
-          size="small"
+        <span
           className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
-          onClick={() => {
-            navigator.clipboard.writeText(getPath(this.props.assertion));
-          }}
-          style={{ order: 2, marginLeft: "10px" }}
+          id={`tooltip_duration_${timeInfoArray[0]}`}
+          style={{ order: 4, display: "inline-flex", alignItems: "center" }}
         >
-          <span
-            id={`tooltip_path_${this.props.uid}`}
-            className={css(cardHeaderColorStyle)}
-          >
-            {renderPath(this.props.assertion)}
-          </span>
-        </Button>
+          {timeInfoArray[2]}
+        </span>
+        <span
+          className={css(styles.cardHeaderAlignRight)}
+          style={{ order: 3 }}
+        >
+          &nbsp;&nbsp;
+        </span>
+        <span
+          className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
+          id={`tooltip_utc_${timeInfoArray[0]}`}
+          style={{ order: 6, display: "inline-flex", alignItems: "center" }}
+        >
+          {timeInfoArray[1]}
+        </span>
+        <span
+          className={css(styles.cardHeaderAlignRight)}
+          style={{ order: 5 }}
+        >
+          &nbsp;&nbsp;
+        </span>
         <Tooltip
-          isOpen={this.state.isPathTooltipOpen}
-          target={`tooltip_path_${this.props.uid}`}
-          toggle={this.togglePathTooltip}
+          placement="bottom"
+          isOpen={isUTCTooltipOpen}
+          target={`tooltip_utc_${timeInfoArray[0]}`}
+          toggle={toggleUTCTooltip}
         >
-          {getPath(this.props.assertion)}
+          {"Assertion start time"}
+        </Tooltip>
+        <Tooltip
+          placement="bottom"
+          isOpen={isDurationTooltipOpen}
+          target={`tooltip_duration_${timeInfoArray[0]}`}
+          toggle={toggleDurationTooltip}
+        >
+          {"Time elapsed since last assertion"}
         </Tooltip>
       </>
-    ) : (
-      <></>
     );
 
-    const description = this.props.assertion.description ? (
-      this.props.assertion.type === "Log" ? (
-        <Linkify
-          options={{
-            target: "_blank",
-            validate: {
-              url: (value) => /^https?:\/\//.test(value),
-            },
+  let pathButton = props.displayPath ? (
+    <>
+      <Button
+        size="small"
+        className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
+        onClick={() => {
+          navigator.clipboard.writeText(getPath(props.assertion));
+        }}
+        style={{ order: 2, marginLeft: "10px" }}
+      >
+        <span
+          id={`tooltip_path_${props.uid}`}
+          className={css(cardHeaderColorStyle)}
+        >
+          {renderPath(props.assertion)}
+        </span>
+      </Button>
+      <Tooltip
+        isOpen={isPathTooltipOpen}
+        target={`tooltip_path_${props.uid}`}
+        toggle={togglePathTooltip}
+      >
+        {getPath(props.assertion)}
+      </Tooltip>
+    </>
+  ) : (
+    <></>
+  );
+
+  const description = props.assertion.description ? (
+    props.assertion.type === "Log" ? (
+      <Linkify
+        options={{
+          target: "_blank",
+          validate: {
+            url: (value) => /^https?:\/\//.test(value),
+          },
+        }}
+      >
+        {props.assertion.description}
+      </Linkify>
+    ) : (
+      props.assertion.description + " "
+    )
+  ) : (
+    ""
+  );
+
+  //console.log("AssertionHeader has been rendered.");
+  return (
+    <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
+      <div style={{ display: "flex" }}>
+        <span
+          className={css(styles.button)}
+          onClick={props.toggleExpand}
+          style={{
+            order: 1,
+            flexGrow: 4,
+            padding: ".125rem 0.75rem",
+            ...props.assertion.custom_style,
           }}
         >
-          {this.props.assertion.description}
-        </Linkify>
-      ) : (
-        this.props.assertion.description + " "
-      )
-    ) : (
-      ""
-    );
+          <span style={{ fontWeight: "bold" }}>{description}</span>
+          <span>({props.assertion.type})</span>
+        </span>
 
-    return (
-      <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
-        <div style={{ display: "flex" }}>
-          <span
-            className={css(styles.button)}
-            onClick={this.props.toggleExpand}
-            style={{
-              order: 1,
-              flexGrow: 4,
-              padding: ".125rem 0.75rem",
-              ...this.props.assertion.custom_style,
-            }}
-          >
-            <span style={{ fontWeight: "bold" }}>{description}</span>
-            <span>({this.props.assertion.type})</span>
-          </span>
-
-          {component}
-          {pathButton}
-          {/*
-            TODO will be implemented when complete permalink feature
-            linkIcon
-          */}
-        </div>
-      </CardHeader>
-    );
-  }
+        {component}
+        {pathButton}
+        {/*
+          TODO will be implemented when complete permalink feature
+          linkIcon
+        */}
+      </div>
+    </CardHeader>
+  );
 }
 
 AssertionHeader.propTypes = {
