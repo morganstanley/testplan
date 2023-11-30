@@ -190,7 +190,6 @@ class Test(Runnable):
 
         self._init_test_report()
         self._env_built = False
-        self._build_environment(delay=True)
 
     def __str__(self):
         return "{}[{}]".format(self.__class__.__name__, self.name)
@@ -395,7 +394,7 @@ class Test(Runnable):
         else:
             self.resources._initial_context = self.cfg.initial_context
 
-    def _build_environment(self, delay: bool):
+    def _build_environment(self):
         """
         This method will execute at most twice, once with delay=True during __init__,
         and then with delay=False during _run. It will be no-op if called more
@@ -406,16 +405,10 @@ class Test(Runnable):
         if self._env_built:
             return
 
-        if delay:
-            if callable(self.cfg.environment):
-                return
-            else:
-                drivers = self.cfg.environment
+        if callable(self.cfg.environment):
+            drivers = self.cfg.environment()
         else:
-            if callable(self.cfg.environment):
-                drivers = self.cfg.environment()
-            else:
-                return
+            drivers = self.cfg.environment
 
         for driver in drivers:
             driver.parent = self
@@ -436,7 +429,7 @@ class Test(Runnable):
         self._add_step(self._record_setup_start)
 
         self._add_step(self._init_context)
-        self._add_step(self._build_environment, delay=False)
+        self._add_step(self._build_environment)
         self._add_step(self._set_dependencies)
 
     def add_start_resource_steps(self):

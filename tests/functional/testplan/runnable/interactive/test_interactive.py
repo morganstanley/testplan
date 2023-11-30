@@ -106,15 +106,6 @@ def test_top_level_tests():
         # TESTS AND ASSIGNED RUNNERS
         assert list(plan.interactive.all_tests()) == ["Test1", "Test2"]
 
-        # OPERATE TEST DRIVERS (start/stop)
-        resources = [
-            res.uid() for res in plan.interactive.test("Test2").resources
-        ]
-
-        assert resources == ["server", "client"]
-        for resource in plan.interactive.test("Test2").resources:
-            assert resource.status == resource.STATUS.NONE
-
         plan.interactive.start_test_resources("Test2")  # START
 
         for resource in plan.interactive.test("Test2").resources:
