@@ -522,6 +522,17 @@ class Test(Runnable):
 
         self._run()
 
+    def _get_runtime_environment(self, testcase_name, testcase_report):
+        # TODO: this just for API compatibility
+        # move RuntimeEnv to Test, or get rid of it?
+        return self.resources
+
+    def _get_hook_context(self, case_report):
+        return (
+            case_report.timer.record("run"),
+            case_report.logged_exceptions(),
+        )
+
     def _run_resource_hook(self, hook, label):
         """
         This method runs post/pre_start/stop hooks. User can optionally make
@@ -559,19 +570,18 @@ class Test(Runnable):
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
-        # TODO: we are not using runtime_environment here as it is multitest-only
+        runtime_env = self._get_runtime_environment(
+            testcase_name=hook.__name__,
+            testcase_report=case_report,
+        )
         try:
             interface.check_signature(hook, ["env", "result"])
-            hook_args = (self.resources, case_result)
+            hook_args = (runtime_env, case_result)
         except interface.MethodSignatureMismatch:
             interface.check_signature(hook, ["env"])
-            hook_args = (self.resources,)
+            hook_args = (runtime_env,)
 
-        with compose_contexts(
-            case_report.timer.record("run"),
-            case_report.logged_exceptions(),
-            self.watcher.save_covered_lines_to(self.report),
-        ):
+        with compose_contexts(*self._get_hook_context(case_report)):
             hook(*hook_args)
 
         case_report.extend(case_result.serialized_entries)

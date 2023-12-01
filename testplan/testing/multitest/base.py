@@ -959,6 +959,14 @@ class MultiTest(testing_base.Test):
         runtime_info.testcase.report = testcase_report
         return RuntimeEnvironment(self.resources, runtime_info)
 
+    def _get_hook_context(self, case_report):
+        return (
+            case_report.timer.record("run"),
+            case_report.logged_exceptions(),
+            # before/after_start/stop trace info goes to multitest level
+            self.watcher.save_covered_lines_to(self.report),
+        )
+
     def _setup_testsuite(self, testsuite):
         """
         Run the setup for a testsuite, logging any exceptions.
@@ -1092,37 +1100,33 @@ class MultiTest(testing_base.Test):
                 self.log_testcase_status(testcase_report)
             return testcase_report
 
-        with testcase_report.timer.record("run"):
-            with compose_contexts(
-                testcase_report.logged_exceptions(),
-                self.watcher.save_covered_lines_to(testcase_report),
-            ):
-                if pre_testcase and callable(pre_testcase):
-                    self._run_case_related(
-                        pre_testcase, testcase, resources, case_result
-                    )
+        with compose_contexts(
+            testcase_report.timer.record("run"),
+            testcase_report.logged_exceptions(),
+            self.watcher.save_covered_lines_to(testcase_report),
+        ):
+            if pre_testcase and callable(pre_testcase):
+                self._run_case_related(
+                    pre_testcase, testcase, resources, case_result
+                )
 
-                time_restriction = getattr(testcase, "timeout", None)
-                if time_restriction:
-                    # pylint: disable=unbalanced-tuple-unpacking
-                    executed, execution_result = timing.timeout(
-                        time_restriction,
-                        f"`{testcase.name}` timeout after {{}} second(s)",
-                    )(testcase)(resources, case_result)
-                    if not executed:
-                        testcase_report.logger.error(execution_result)
-                        testcase_report.status_override = Status.ERROR
-                else:
-                    testcase(resources, case_result)
+            time_restriction = getattr(testcase, "timeout", None)
+            if time_restriction:
+                # pylint: disable=unbalanced-tuple-unpacking
+                executed, execution_result = timing.timeout(
+                    time_restriction,
+                    f"`{testcase.name}` timeout after {{}} second(s)",
+                )(testcase)(resources, case_result)
+                if not executed:
+                    testcase_report.logger.error(execution_result)
+                    testcase_report.status_override = Status.ERROR
+            else:
+                testcase(resources, case_result)
 
-            with compose_contexts(
-                testcase_report.logged_exceptions(),
-                self.watcher.save_covered_lines_to(testcase_report),
-            ):
-                if post_testcase and callable(post_testcase):
-                    self._run_case_related(
-                        post_testcase, testcase, resources, case_result
-                    )
+            if post_testcase and callable(post_testcase):
+                self._run_case_related(
+                    post_testcase, testcase, resources, case_result
+                )
 
         # Apply testcase level summarization
         if getattr(testcase, "summarize", False):
