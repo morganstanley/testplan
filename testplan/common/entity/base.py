@@ -963,9 +963,10 @@ class Runnable(Entity):
         self._add_step(self.setup)
         self.add_pre_resource_steps()
         self.add_start_resource_steps()
-
         self.add_pre_main_steps()
+
         self.add_main_batch_steps()
+
         self.add_post_main_steps()
         self.add_stop_resource_steps()
         self.add_post_resource_steps()

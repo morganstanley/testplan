@@ -395,13 +395,7 @@ class Test(Runnable):
             self.resources._initial_context = self.cfg.initial_context
 
     def _build_environment(self):
-        """
-        This method will execute at most twice, once with delay=True during __init__,
-        and then with delay=False during _run. It will be no-op if called more
-        than once in interactive mode.
-        :param delay: delay eval if self.cfg.environment is a callable
-        """
-
+        # build environment only once in interactive mode
         if self._env_built:
             return
 
@@ -1123,14 +1117,6 @@ class ProcessRunnerTest(Test):
         """Runnable steps to be executed before environment starts."""
         super(ProcessRunnerTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
-        if self.cfg.before_start:
-            self._add_step(self.cfg.before_start)
-
-    def add_pre_main_steps(self):
-        """Runnable steps to be executed after environment starts."""
-        if self.cfg.after_start:
-            self._add_step(self.cfg.after_start)
-        super(ProcessRunnerTest, self).add_pre_main_steps()
 
     def add_main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""

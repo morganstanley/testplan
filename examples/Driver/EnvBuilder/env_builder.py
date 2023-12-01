@@ -1,7 +1,6 @@
 """
 This demonstrates one possible way of implementing of EnvBuilder class.
 """
-import functools
 
 from testplan.common.utils.context import context
 from testplan.testing.multitest.driver.tcp import TCPClient, TCPServer
@@ -33,7 +32,6 @@ class EnvBuilder:
             return {self.server1: (self.client1, self.client2)}
 
     @property
-    # @functools.cached_property
     def client1(self):
         if not self._client1:
             self._client1 = TCPClient(
@@ -45,7 +43,6 @@ class EnvBuilder:
         return self._client1
 
     @property
-    # @functools.cached_property
     def client2(self):
         if not self._client2:
             self._client2 = TCPClient(
@@ -57,7 +54,6 @@ class EnvBuilder:
         return self._client2
 
     @property
-    # @functools.cached_property
     def server1(self):
         if not self._server1:
             self._server1 = TCPServer(name="server1")

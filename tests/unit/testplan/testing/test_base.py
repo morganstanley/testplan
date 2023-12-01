@@ -90,9 +90,11 @@ def test_time_information():
     assert task_uid == "Dummy"
     assert len(plan.resources["runner"]._input) == 1
     resources = plan.resources["runner"]._input[task_uid].resources
-    assert len(resources) == 2 and "drv1" in resources and "drv2" in resources
+    assert len(resources) == 0
 
     res = plan.run()
+
+    assert len(resources) == 2 and "drv1" in resources and "drv2" in resources
     assert res.run is True
 
     test_report = res.report["Dummy"]
