@@ -23,18 +23,26 @@ library.add(faSortAmountUp, faSortAmountDown);
  * dictAssertionUtils' {@link sortFlattenedJSON} function is called to sort
  * the table data to be displayed.
  */
-function DictButtonGroup(props) {
+function DictButtonGroup({
+    defaultSortType,
+    defaultFilterOptions,
+    flattenedDict,
+    uid,
+    setRowData,
+    sortTypeList,
+    filterOptionList,
+}) {
   const [selectedSortType, setSelectedSortType] = useState(
-    props.defaultSortType || SORT_TYPES.NONE
+    defaultSortType || SORT_TYPES.NONE
   );
   const [selectedFilterOptions, setSelectedFilterOptions] = useState(
-    props.defaultFilterOptions || []
+    defaultFilterOptions || []
   );
-  const [sortedData, setSortedData] = useState(props.flattenedDict);
+  const [sortedData, setSortedData] = useState(flattenedDict);
   
   const noSort = () => {
-    let sortedData = props.flattenedDict;
-    props.setRowData(sortedData);
+    let sortedData = flattenedDict;
+    setRowData(sortedData);
     setSelectedSortType(SORT_TYPES.NONE);
     setSortedData(sortedData);
   };
@@ -44,7 +52,7 @@ function DictButtonGroup(props) {
       SORT_TYPES.ALPHABETICAL,
       selectedFilterOptions
     );
-    props.setRowData(sortedData);
+    setRowData(sortedData);
     setSelectedSortType(SORT_TYPES.ALPHABETICAL);
     setSortedData(sortedData);
   };
@@ -54,7 +62,7 @@ function DictButtonGroup(props) {
       SORT_TYPES.REVERSE_ALPHABETICAL,
       selectedFilterOptions
     );
-    props.setRowData(sortedData);
+    setRowData(sortedData);
     setSelectedSortType(SORT_TYPES.REVERSE_ALPHABETICAL);
     setSortedData(sortedData);
   };
@@ -64,7 +72,7 @@ function DictButtonGroup(props) {
       SORT_TYPES.BY_STATUS,
       selectedFilterOptions
     );
-    props.setRowData(sortedData);
+    setRowData(sortedData);
     setSelectedSortType(SORT_TYPES.BY_STATUS);
     setSortedData(sortedData);
   };
@@ -79,7 +87,7 @@ function DictButtonGroup(props) {
       selectedSortType,
       filterOptions
     );
-    props.setRowData(sortedData);
+    setRowData(sortedData);
     setSelectedFilterOptions(filterOptions);
     setSortedData(sortedData);
   };
@@ -96,14 +104,14 @@ function DictButtonGroup(props) {
       selectedSortType,
       filterOptions
     );
-    props.setRowData(sortedData);
+    setRowData(sortedData);
     setSelectedFilterOptions(filterOptions);
     setSortedData(sortedData);
   };
 
   const sortAndFilterData = (SortType, filterOptions) => {
     let sortedData = sortFlattenedJSON(
-      props.flattenedDict,
+      flattenedDict,
       0,
       SortType === SORT_TYPES.REVERSE_ALPHABETICAL,
       SortType === SORT_TYPES.BY_STATUS
@@ -117,7 +125,7 @@ function DictButtonGroup(props) {
     return sortedData;
   };
 
-  const uid = props.uid || uniqueId();
+  const buttonUid = uid || uniqueId();
   let buttonMap = {};
 
   buttonMap[SORT_TYPES.NONE] = {
@@ -160,11 +168,11 @@ function DictButtonGroup(props) {
 
   let buttonGroup = [];
 
-  props.sortTypeList.forEach(
+  sortTypeList.forEach(
     (sortType) => {
       buttonGroup.push(
         <Button
-          key={uid + "-" + sortType.toString()}
+          key={buttonUid + "-" + sortType.toString()}
           outline
           color="secondary"
           size="sm"
@@ -177,12 +185,12 @@ function DictButtonGroup(props) {
     }
   );
 
-  if (props.filterOptionList) {
-    props.filterOptionList.forEach(
+  if (filterOptionList) {
+    filterOptionList.forEach(
       (filterOption) => {
         buttonGroup.push(
           <Button
-            key={uid + "-" + filterOption.toString()}
+            key={buttonUid + "-" + filterOption.toString()}
             outline
             color="secondary"
             size="sm"

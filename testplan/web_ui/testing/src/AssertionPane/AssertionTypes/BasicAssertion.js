@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import { css, StyleSheet } from "aphrodite";
 import { Col, Row } from "reactstrap";
@@ -39,7 +39,6 @@ function BasicAssertion({ assertion }) {
     postContent,
   } = prepareBasicContent(assertion);
 
-  console.log("BasicAssertion has been rendered.");
   return (
     <Fragment>
       <Row>

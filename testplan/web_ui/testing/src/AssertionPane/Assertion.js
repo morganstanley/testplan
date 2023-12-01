@@ -33,7 +33,16 @@ import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 /**
  * Component to render one assertion.
  */
-function Assertion(props) {
+function Assertion({
+  assertion,
+  displayPath,
+  expand,
+  filter,
+  index,
+  uid,
+  reportUid,
+  toggleExpand,
+}) {
   /**
    * Get the component object of the assertion.
    * @param {String} props - Assertion type props.
@@ -43,7 +52,7 @@ function Assertion(props) {
    */
   const assertionComponent = (assertionType) => {
     let graphAssertion;
-    if (props.assertion.discrete_chart) {
+    if (assertion.discrete_chart) {
       graphAssertion = DiscreteChartAssertion;
     } else {
       graphAssertion = XYGraphAssertion;
@@ -82,26 +91,26 @@ function Assertion(props) {
   };
 
   let isAssertionGroup = false;
-  let assertionType = props.assertion.type;
+  let assertionType = assertion.type;
   switch (assertionType) {
     case "Group":
       isAssertionGroup = true;
       assertionType = (
         <AssertionGroup
-          assertionGroupUid={props.uid}
-          entries={props.assertion.entries}
-          filter={props.filter}
-          reportUid={props.reportUid}
-          displayPath={props.displayPath}
+          assertionGroupUid={uid}
+          entries={assertion.entries}
+          filter={filter}
+          reportUid={reportUid}
+          displayPath={displayPath}
         />
       );
       break;
     case "Summary":
       assertionType = (
         <SummaryBaseAssertion
-          assertion={props.assertion}
-          assertionGroupUid={props.uid}
-          filter={props.filter}
+          assertion={assertion}
+          assertionGroupUid={uid}
+          filter={filter}
         />
       );
       break;
@@ -110,8 +119,8 @@ function Assertion(props) {
       if (AssertionTypeComponent) {
         assertionType = (
           <AssertionTypeComponent
-            assertion={props.assertion}
-            reportUid={props.reportUid}
+            assertion={assertion}
+            reportUid={reportUid}
           />
         );
       } else {
@@ -123,14 +132,14 @@ function Assertion(props) {
   return (
     <Card className={css(styles.card)}>
       <AssertionHeader
-        assertion={props.assertion}
-        uid={props.uid}
-        toggleExpand={props.toggleExpand}
-        index={props.index}
-        displayPath={props.displayPath}
+        assertion={assertion}
+        uid={uid}
+        toggleExpand={toggleExpand}
+        index={index}
+        displayPath={displayPath}
       />
       <Collapse
-        isOpen={props.expand === EXPAND_STATUS.EXPAND}
+        isOpen={expand === EXPAND_STATUS.EXPAND}
         className={css(styles.collapseDiv)}
         style={{ paddingRight: isAssertionGroup ? null : "1.25rem" }}
       >
@@ -142,7 +151,7 @@ function Assertion(props) {
                 : styles.assertionCardBody
             )}
           >
-            {props.expand === EXPAND_STATUS.EXPAND
+            {expand === EXPAND_STATUS.EXPAND
               ? assertionType
               : null}
           </CardBody>

@@ -13,7 +13,12 @@ library.add(faLayerGroup);
 /**
  * Header component of an assertion.
  */
-function AssertionHeader(props) {
+function AssertionHeader({
+  assertion,
+  displayPath,
+  uid,
+  toggleExpand,
+}) {
   const [isUTCTooltipOpen, setIsUTCTooltipOpen] = useState(false);
   const [isPathTooltipOpen, setIsPathTooltipOpen] = useState(false);
   const [isDurationTooltipOpen, setIsDurationTooltipOpen] = useState(false);
@@ -44,15 +49,15 @@ function AssertionHeader(props) {
   };
 
   const cardHeaderColorStyle =
-    props.assertion.passed === undefined
+    assertion.passed === undefined
       ? styles.cardHeaderColorLog
-      : props.assertion.passed
+      : assertion.passed
       ? styles.cardHeaderColorPassed
       : styles.cardHeaderColorFailed;
 
-  const timeInfoArray = props.assertion.timeInfoArray || [];
+  const timeInfoArray = assertion.timeInfoArray || [];
   let component =
-    props.assertion.utc_time === undefined ? (
+    assertion.utc_time === undefined ? (
       <span className={css(styles.cardHeaderAlignRight)}>
         <FontAwesomeIcon // Should be a nested assertion group
           size="sm"
@@ -110,37 +115,37 @@ function AssertionHeader(props) {
       </>
     );
 
-  let pathButton = props.displayPath ? (
+  let pathButton = displayPath ? (
     <>
       <Button
         size="small"
         className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
         onClick={() => {
-          navigator.clipboard.writeText(getPath(props.assertion));
+          navigator.clipboard.writeText(getPath(assertion));
         }}
         style={{ order: 2, marginLeft: "10px" }}
       >
         <span
-          id={`tooltip_path_${props.uid}`}
+          id={`tooltip_path_${uid}`}
           className={css(cardHeaderColorStyle)}
         >
-          {renderPath(props.assertion)}
+          {renderPath(assertion)}
         </span>
       </Button>
       <Tooltip
         isOpen={isPathTooltipOpen}
-        target={`tooltip_path_${props.uid}`}
+        target={`tooltip_path_${uid}`}
         toggle={togglePathTooltip}
       >
-        {getPath(props.assertion)}
+        {getPath(assertion)}
       </Tooltip>
     </>
   ) : (
     <></>
   );
 
-  const description = props.assertion.description ? (
-    props.assertion.type === "Log" ? (
+  const description = assertion.description ? (
+    assertion.type === "Log" ? (
       <Linkify
         options={{
           target: "_blank",
@@ -149,31 +154,30 @@ function AssertionHeader(props) {
           },
         }}
       >
-        {props.assertion.description}
+        {assertion.description}
       </Linkify>
     ) : (
-      props.assertion.description + " "
+      assertion.description + " "
     )
   ) : (
     ""
   );
 
-  //console.log("AssertionHeader has been rendered.");
   return (
     <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
       <div style={{ display: "flex" }}>
         <span
           className={css(styles.button)}
-          onClick={props.toggleExpand}
+          onClick={toggleExpand}
           style={{
             order: 1,
             flexGrow: 4,
             padding: ".125rem 0.75rem",
-            ...props.assertion.custom_style,
+            ...assertion.custom_style,
           }}
         >
           <span style={{ fontWeight: "bold" }}>{description}</span>
-          <span>({props.assertion.type})</span>
+          <span>({assertion.type})</span>
         </span>
 
         {component}

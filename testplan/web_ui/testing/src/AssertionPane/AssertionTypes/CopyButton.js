@@ -6,8 +6,6 @@ import CopyToClipboard from "react-copy-html-to-clipboard";
  * Component that renders the buttons of copy html to clipboard.
  */
 function CopyButton({ value }) {
-
-  console.log("CopyButton has been rendered.");
   return (
     <CopyToClipboard text={value} options={{ asHtml: true }}>
       <Button outline color="secondary" size="sm" active={false}>

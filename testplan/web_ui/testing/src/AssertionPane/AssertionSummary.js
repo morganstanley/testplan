@@ -6,7 +6,7 @@ import AssertionGroup from "./AssertionGroup";
  */
 
 function SummaryBaseAssertion({
-    assertion, assertionGroupUid, filter, displayPath
+    assertion, assertionGroupUid, displayPath, filter
   }) {
   // Go through categories e.g Category: DEFAULT
   return assertion.entries.map((category) => {
@@ -51,7 +51,6 @@ function SummaryBaseAssertion({
       );
     });
 
-    console.log("AssertionSummary has been rendered.");
     return (
       <div key={category.description}>
         <Row>

@@ -12,7 +12,6 @@ library.add(faFrown);
  * the given assertion.
  */
 function NotImplementedAssertion() {
-
   return (
     <Fragment>
       <FontAwesomeIcon
