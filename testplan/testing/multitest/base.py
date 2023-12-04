@@ -709,7 +709,10 @@ class MultiTest(testing_base.Test):
         interactive mode where a test environment may be stopped on-demand.
         Handles running before/after_stop callables if required.
         """
-        if self.report.env_status == entity.ResourceStatus.STOPPED:
+        if self.report.env_status in [
+            entity.ResourceStatus.STOPPED,
+            entity.ResourceStatus.STOPPING,
+        ]:
             return
         if self.cfg.before_stop:
             self._wrap_run_step(
