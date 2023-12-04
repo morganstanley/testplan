@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import { Fragment } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFrown } from "@fortawesome/free-solid-svg-icons";
@@ -11,22 +11,20 @@ library.add(faFrown);
  * Component that is rendered when there is no defined rendering mechanism for
  * the given assertion.
  */
-class NotImplementedAssertion extends Component {
-  render() {
-    return (
-      <Fragment>
-        <FontAwesomeIcon
-          size="lg"
-          key="faFrown"
-          icon="frown"
-          className={css(styles.icon)}
-        />
-        Currently there is no rendering mechanism for this type of assertion.
-        Please contact <strong>the developers</strong> if you would like to have
-        it implemented.
-      </Fragment>
-    );
-  }
+function NotImplementedAssertion() {
+  return (
+    <Fragment>
+      <FontAwesomeIcon
+        size="lg"
+        key="faFrown"
+        icon="frown"
+        className={css(styles.icon)}
+      />
+      Currently there is no rendering mechanism for this type of assertion.
+      Please contact <strong>the developers</strong> if you would like to have
+      it implemented.
+    </Fragment>
+  );
 }
 
 const styles = StyleSheet.create({
