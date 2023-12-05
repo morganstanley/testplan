@@ -1,14 +1,19 @@
 """Executor base classes."""
 
-import time
 import threading
-
+import time
 from collections import OrderedDict
-from typing import List, Generator, Optional
+from queue import Empty, Queue
+from typing import Callable, Dict, Generator, List, Optional
 
 from testplan.common.entity import Resource, ResourceConfig
-from testplan.common.utils.thread import interruptible_join
 from testplan.common.report.base import EventRecorder
+from testplan.common.utils.thread import interruptible_join
+from testplan.runnable.messaging import (
+    InterExecutorMessage,
+    InterExecutorMessageT,
+    QueueChannels,
+)
 
 
 class ExecutorConfig(ResourceConfig):
@@ -26,8 +31,7 @@ class Executor(Resource):
     """
     Receives items, executes them and create results.
 
-    Subclasses must implement the ``Executor._loop`` and
-    ``Executor._execute`` logic to execute the input items.
+    Subclasses must implement the ``Executor._loop`` logic.
     """
 
     CONFIG = ExecutorConfig
@@ -39,6 +43,16 @@ class Executor(Resource):
         self._input = OrderedDict()
         self._results = OrderedDict()
         self.ongoing = []
+
+        # for cross-executor messaging
+        # XXX: _msg_self_id is a workaround for inconsistent "uid"s
+        self._msg_self_id: Optional[str] = None
+        self._msg_in_channel: Optional[Queue] = None
+        self._msg_out_channels: Optional[QueueChannels] = None
+        self._msg_handlers: Dict[InterExecutorMessageT, Callable] = {
+            InterExecutorMessageT.EXPECTED_ABORT: self._handle_expected_abort
+        }
+        self._msg_thread: Optional[threading.Thread] = None
 
     @property
     def class_name(self) -> str:
@@ -83,7 +97,34 @@ class Executor(Resource):
     def _loop(self) -> None:
         raise NotImplementedError()
 
-    def _execute(self, uid: str) -> None:
+    def _msg_handling_loop(self) -> None:
+        try:
+            interval = self.cfg.active_loop_sleep
+        except AttributeError:
+            # FIXME
+            self.logger.warning(
+                "Config option ``active_loop_sleep`` not found in %s, "
+                "will not start executor messaging loop.",
+                self,
+            )
+            return
+
+        while self.active and self.status.tag not in (
+            self.status.STOPPING,
+            self.status.STOPPED,
+        ):
+            try:
+                msg: InterExecutorMessage = self._msg_in_channel.get_nowait()
+            except Empty:
+                pass
+            else:
+                self.logger.debug(
+                    "Executor[%s] receiving %s.", self.uid(), msg.mark
+                )
+                self._msg_handlers[msg.mark](msg)
+            time.sleep(interval)
+
+    def _handle_expected_abort(self, _):
         raise NotImplementedError()
 
     def _prepopulate_runnables(self) -> None:
@@ -99,10 +140,17 @@ class Executor(Resource):
         self._loop_handler.daemon = True
         self._loop_handler.start()
 
+        if self._msg_self_id:
+            self._msg_thread = threading.Thread(target=self._msg_handling_loop)
+            self._msg_thread.daemon = True
+            self._msg_thread.start()
+
     def stopping(self) -> None:
         """Stop the executor."""
         if self._loop_handler:
             interruptible_join(self._loop_handler, timeout=self._STOP_TIMEOUT)
+        if self._msg_thread:
+            interruptible_join(self._msg_thread, timeout=self._STOP_TIMEOUT)
 
     def abort_dependencies(self) -> Generator:
         """Abort items running before aborting self."""
@@ -120,6 +168,13 @@ class Executor(Resource):
     def pending_work(self) -> bool:
         """Resource has pending work."""
         return len(self.ongoing) > 0
+
+    def set_channel_specs(
+        self, exec_mark: str, exec_chann: Queue, channels: QueueChannels
+    ):
+        self._msg_self_id = exec_mark
+        self._msg_in_channel = exec_chann
+        self._msg_out_channels = channels
 
     def get_current_status_for_debug(self) -> List[str]:
         """

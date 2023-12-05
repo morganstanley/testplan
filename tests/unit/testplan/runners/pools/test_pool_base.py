@@ -3,12 +3,11 @@
 import os
 import random
 
+from testplan import Task
 from testplan.common.utils.path import default_runpath
 from testplan.runners.pools import base as pools_base
 from testplan.runners.pools import communication
-from testplan import Task
 from testplan.runners.pools.base import TaskQueue
-
 from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
 
 
@@ -34,6 +33,7 @@ def test_pool_basic():
     dirname = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(dirname, "tasks", "data", "relative")
 
+    # FIXME: rewrite
     task1 = Task(target=Runnable(5))
     task2 = Task(
         target="Runnable",
@@ -46,7 +46,9 @@ def test_pool_basic():
     assert task1.materialize().run() == 10
     assert task2.materialize().run() == 30
 
-    pool = pools_base.Pool(name="MyPool", size=4, runpath=default_runpath)
+    pool = pools_base.Pool(
+        name="MyPool", size=4, runpath=default_runpath, allow_task_rerun=False
+    )
     pool.add(task1, uid=task1.uid())
     pool.add(task2, uid=task2.uid())
     assert pool._input[task1.uid()] is task1

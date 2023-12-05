@@ -132,13 +132,15 @@ def generate_interactive_api(ihandler):
             with ihandler.report_mutex:
                 try:
                     new_report = _deserialize_report_entry(
-                        flask.request.json, ihandler.report
+                        shallow_report, ihandler.report
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(ihandler.report.uid, new_report.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_reset(
                     ihandler.report.uid,
@@ -224,13 +226,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_test = _deserialize_report_entry(
-                        flask.request.json, current_test
+                        shallow_report, current_test
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_test.uid, new_test.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus(
+                    shallow_report.get("runtime_status")
+                )
 
                 # Trigger a side-effect if either the report or environment
                 # statuses have been updated.
@@ -358,13 +362,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_suite = _deserialize_report_entry(
-                        flask.request.json, current_suite
+                        shallow_report, current_suite
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_suite.uid, new_suite.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_run(
                     current_suite.uid,
@@ -452,13 +458,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_testcase = _deserialize_report_entry(
-                        flask.request.json, current_case
+                        shallow_report, current_case
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_case.uid, new_testcase.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_run(
                     current_case.uid,
@@ -554,13 +562,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_testcase = _deserialize_report_entry(
-                        flask.request.json, current_case
+                        shallow_report, current_case
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_case.uid, new_testcase.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_run(
                     current_case.uid,

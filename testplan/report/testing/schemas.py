@@ -18,7 +18,13 @@ from testplan.common.report.schemas import (
 
 from testplan.common.utils import timing
 
-from .base import TestCaseReport, TestGroupReport, TestReport
+from testplan.report.testing.base import (
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
+    Status,
+    RuntimeStatus,
+)
 
 
 __all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
@@ -104,14 +110,14 @@ class TestCaseReportSchema(ReportSchema):
 
     source_class = TestCaseReport
 
-    status_override = fields.String(allow_none=True)
+    status_override = fields.Enum(Status, allow_none=True, by_value=True)
     status_reason = fields.String(allow_none=True)
 
     entries = fields.List(EntriesField())
 
     category = fields.String(dump_only=True)
-    status = fields.String()
-    runtime_status = fields.String()
+    status = fields.Enum(Status, by_value=True)
+    runtime_status = fields.Enum(RuntimeStatus, by_value=True)
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
     timer = TimerField(required=True)
@@ -125,6 +131,7 @@ class TestCaseReportSchema(ReportSchema):
         """
         timer = data.pop("timer")
         status = data.pop("status")
+        status_override = data.pop("status_override")
         runtime_status = data.pop("runtime_status")
 
         # We can discard the type field since we know what kind of report we
@@ -134,8 +141,9 @@ class TestCaseReportSchema(ReportSchema):
 
         rep = super(TestCaseReportSchema, self).make_report(data)
         rep.timer = timer
-        rep.status = status
-        rep.runtime_status = runtime_status
+        rep.status = Status(status)
+        rep.status_override = Status(status_override)
+        rep.runtime_status = RuntimeStatus(runtime_status)
         return rep
 
 
@@ -187,9 +195,9 @@ class TestReportSchema(Schema):
     meta = fields.Dict()
     label = fields.String(allow_none=True)
 
-    status_override = fields.String(allow_none=True)
-    status = fields.String()
-    runtime_status = fields.String()
+    status_override = fields.Enum(Status, allow_none=True, by_value=True)
+    status = fields.Enum(Status, by_value=True)
+    runtime_status = fields.Enum(RuntimeStatus, by_value=True)
     tags_index = TagField(dump_only=True)
     information = fields.List(fields.List(fields.String()))
     counter = fields.Dict(dump_only=True)
@@ -217,6 +225,7 @@ class TestReportSchema(Schema):
 
         entry_data = data.pop("entries")
         status = data.pop("status")
+        status_override = data.pop("status_override")
         runtime_status = data.pop("runtime_status")
         timer = data.pop("timer")
         logs = data.pop("logs", [])
@@ -225,8 +234,9 @@ class TestReportSchema(Schema):
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
         test_plan_report.propagate_tag_indices()
 
-        test_plan_report.status = status
-        test_plan_report.runtime_status = runtime_status
+        test_plan_report.status = Status(status)
+        test_plan_report.status_override = Status(status_override)
+        test_plan_report.runtime_status = RuntimeStatus(runtime_status)
         test_plan_report.timer = timer
         test_plan_report.logs = logs
 
@@ -247,9 +257,9 @@ class ShallowTestGroupReportSchema(Schema):
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
 
-    status_override = fields.String(allow_none=True)
-    status = fields.String(dump_only=True)
-    runtime_status = fields.String(dump_only=True)
+    status_override = fields.Enum(Status, allow_none=True, by_value=True)
+    status = fields.Enum(Status, by_value=True, dump_only=True)
+    runtime_status = fields.Enum(RuntimeStatus, by_value=True, dump_only=True)
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
     tags = TagField()
@@ -287,10 +297,10 @@ class ShallowTestReportSchema(Schema):
     category = fields.String(dump_only=True)
     timer = TimerField(required=True)
     meta = fields.Dict()
-    status = fields.String(dump_only=True)
-    runtime_status = fields.String(dump_only=True)
+    status = fields.Enum(Status, by_value=True, dump_only=True)
+    runtime_status = fields.Enum(RuntimeStatus, by_value=True, dump_only=True)
     tags_index = TagField(dump_only=True)
-    status_override = fields.String(allow_none=True)
+    status_override = fields.Enum(Status, allow_none=True, by_value=True)
     counter = fields.Dict(dump_only=True)
     attachments = fields.Dict()
     entry_uids = fields.List(fields.String(), dump_only=True)

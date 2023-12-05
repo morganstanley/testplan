@@ -206,7 +206,7 @@ class Config:
         new_options = {}
         for key in self._options:
             value = getattr(self, key)
-            if inspect.isclass(value) or inspect.isroutine(value):
+            if inspect.isroutine(value):
                 # Skipping non-serializable classes and routines.
                 logger.TESTPLAN_LOGGER.debug(
                     "Skip denormalizing option: %s", key
@@ -219,7 +219,13 @@ class Config:
                     "Failed to denormalize option: {} - {}".format(key, exc)
                 )
 
-        new = self.__class__(**new_options)
+        # XXX: we have transformed options, which should not be validated
+        # XXX: against schema again
+        # TODO: refactor
+        new = object.__new__(self.__class__)
+        setattr(new, "_parent", None)
+        setattr(new, "_cfg_input", new_options)
+        setattr(new, "_options", new_options)
         return new
 
     @classmethod

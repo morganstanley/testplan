@@ -444,7 +444,7 @@ class MultiTest(testing_base.Test):
 
         return ctx
 
-    def dry_run(self, status=None):
+    def dry_run(self, status=Status.NONE):
         """
         A testing process that creates a full structured report without
         any assertion entry. Initial status of each entry can be set.
@@ -500,6 +500,14 @@ class MultiTest(testing_base.Test):
                 style = self.get_stdout_style(testsuite_report.passed)
                 if style.display_testsuite:
                     self.log_suite_status(testsuite_report)
+
+                if (
+                    self.cfg.test_breaker_thres.test_level
+                    and testsuite_report.status
+                    <= self.cfg.test_breaker_thres.test_level
+                ):
+                    # omit ``should_stop``
+                    break
 
             style = self.get_stdout_style(report.passed)
             if style.display_test:
@@ -909,7 +917,11 @@ class MultiTest(testing_base.Test):
             # not continue to run the parallel testcases if configured to
             # stop on errrors.
             should_stop = (
-                testsuite_report.status == Status.ERROR
+                self.cfg.test_breaker_thres.suite_level
+                and testsuite_report.status
+                <= self.cfg.test_breaker_thres.suite_level
+            ) or (
+                testsuite_report.status <= Status.ERROR
                 and self.cfg.stop_on_error
             )
 
@@ -967,13 +979,16 @@ class MultiTest(testing_base.Test):
             else:
                 testcase_reports.append(testcase_report)
 
-            if testcase_report.status == Status.ERROR:
-                if self.cfg.stop_on_error:
-                    self.logger.debug(
-                        'Stopping exeucution of testsuite "%s" due to error',
-                        testsuite.name,
-                    )
-                    break
+            if (
+                self.cfg.test_breaker_thres.suite_level
+                and testcase_report.status
+                <= self.cfg.test_breaker_thres.suite_level
+            ) or (
+                testcase_report.status == Status.ERROR
+                and self.cfg.stop_on_error
+            ):
+                # omit ``should_stop`` here
+                break
 
         if parametrization_reports:
             for param_report in parametrization_reports.values():
@@ -1026,16 +1041,16 @@ class MultiTest(testing_base.Test):
                 # errors, we still wait for the rest of the current execution
                 # group to finish before stopping.
                 if (
+                    self.cfg.test_breaker_thres.suite_level
+                    and testcase_report.status
+                    <= self.cfg.test_breaker_thres.suite_level
+                ) or (
                     testcase_report.status == Status.ERROR
                     and self.cfg.stop_on_error
                 ):
                     should_stop = True
 
             if should_stop:
-                self.logger.debug(
-                    'Stopping execution of testsuite "%s" due to error',
-                    self.cfg.name,
-                )
                 break
 
         # Add all non-empty parametrization reports into the list of returned

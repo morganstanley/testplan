@@ -1,9 +1,12 @@
 """Basic local executor."""
+import threading
 import time
 from typing import List
 
-from .base import Executor
-from testplan.report import TestGroupReport, Status, ReportCategories
+import testplan.common.utils.selector as S
+from testplan.report import ReportCategories, Status, TestGroupReport
+from testplan.runnable.messaging import InterExecutorMessage
+from testplan.runners.base import Executor
 from testplan.runners.pools import tasks
 from testplan.testing.base import Test, TestResult
 
@@ -20,8 +23,11 @@ class LocalRunner(Executor):
     def __init__(self, **options) -> None:
         super(LocalRunner, self).__init__(**options)
         self._uid = "local_runner"
+        self._to_abort = False
+        self._curr_runnable_cv = threading.Condition()
+        self._curr_runnable = None
 
-    def _execute(self, uid: str) -> None:
+    def execute(self, uid: str) -> TestResult:
         """Execute item implementation."""
         # First retrieve the input from its UID.
         target = self._input[uid]
@@ -46,9 +52,13 @@ class LocalRunner(Executor):
         if not runnable.cfg.parent:
             runnable.cfg.parent = self.cfg
 
-        result = runnable.run()
+        with self._curr_runnable_cv:
+            self._curr_runnable = runnable
+            self._curr_runnable_cv.notify()
+        result = self._curr_runnable.run()
+        self._curr_runnable = None
 
-        self._results[uid] = result
+        return result
 
     def _loop(self) -> None:
         """Execution loop implementation for local runner."""
@@ -62,7 +72,7 @@ class LocalRunner(Executor):
                     pass
                 else:
                     try:
-                        self._execute(next_uid)
+                        result = self.execute(next_uid)
                     except Exception as exc:
                         result = TestResult()
                         result.report = TestGroupReport(
@@ -75,9 +85,23 @@ class LocalRunner(Executor):
                             self,
                             exc,
                         )
-                        self._results[next_uid] = result
                     finally:
-                        self.ongoing.pop(0)
+                        with self._curr_runnable_cv:
+                            if not self._to_abort:
+                                self._results[next_uid] = result
+                                self.ongoing.pop(0)
+
+                    if (
+                        self.cfg.test_breaker_thres.plan_level
+                        and result.report.status
+                        <= self.cfg.test_breaker_thres.plan_level
+                    ):
+                        if self._msg_self_id is not None:
+                            self._msg_out_channels.cast(
+                                S.Not(S.Lit(self._msg_self_id)),
+                                InterExecutorMessage.make_expected_abort(),
+                            )
+                        self._silently_skip_remaining()
 
             elif self.status == self.status.STOPPING:
                 self.status.change(self.status.STOPPED)
@@ -114,6 +138,18 @@ class LocalRunner(Executor):
                 "Test [%s] discarding due to %s abort.", uid, self.uid()
             )
             self._results[uid] = result
+
+    def _silently_skip_remaining(self):
+        self.ongoing = []
+
+    def _handle_expected_abort(self, _):
+        with self._curr_runnable_cv:
+            if self._curr_runnable is None:
+                if len(self.ongoing):
+                    self._curr_runnable_cv.wait()
+                    self._curr_runnable.abort()
+            self._to_abort = True
+            self._silently_skip_remaining()
 
     def get_current_status_for_debug(self) -> List[str]:
         """

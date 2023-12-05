@@ -4,7 +4,7 @@ import abc
 import queue
 import time
 import warnings
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import zmq
 
@@ -12,6 +12,9 @@ from testplan.common import entity
 from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
 from testplan.runners.pools.communication import Message
+
+if TYPE_CHECKING:
+    from testplan.runners.pools.base import Worker
 
 
 class Client(logger.Loggable, metaclass=abc.ABCMeta):
@@ -229,7 +232,7 @@ class ZMQClient(Client):
         return None
 
 
-class ZMQClientProxy:
+class ZMQServerProxy:
     """
     Representative of a process worker's transport in local worker object.
     """

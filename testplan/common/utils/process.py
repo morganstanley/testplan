@@ -2,14 +2,15 @@
 
 import functools
 import platform
-from signal import Signals
 import subprocess
 import threading
-import psutil
 import time
 import warnings
 from enum import Enum, auto
+from signal import Signals
 from typing import IO, Any, Callable, List, Union
+
+import psutil
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.timing import exponential_interval, get_sleeper
@@ -253,6 +254,7 @@ def execute_cmd(
 
     if isinstance(cmd, list):
         cmd = [str(a) for a in cmd]
+        # FIXME: not good enough, need shell escaping
         cmd_string = " ".join(cmd)  # for logging, easy to copy and execute
     else:
         cmd_string = cmd

@@ -17,6 +17,8 @@ from testplan.runners.local import LocalRunner
 from testplan.report import TestGroupReport, ReportCategories
 from testplan.testing.base import Test, TestResult
 
+from testplan.runners.pools.base import Pool
+
 
 class DummyDriver(Resource):
     def starting(self):
@@ -57,27 +59,6 @@ class DummyTest(Test):
         self._add_step(self.run_tests)
 
 
-class MyPool(LocalRunner):  # Start is async
-    def __init__(self, name=None):
-        self.name = name
-        super(MyPool, self).__init__()
-
-    def uid(self):
-        return self.name or super(MyPool, self).uid()
-
-    def _execute(self, uid):
-        func = self._input[uid]
-        test = func()
-        test.parent = self
-        test.cfg.parent = self.cfg
-        test.run()
-        self._results[uid] = test.result
-        assert isinstance(self._results[uid], DummyTestResult)
-
-    def aborting(self):
-        pass
-
-
 def test_testplan():
     """TODO."""
     from testplan.base import TestplanParser as MyParser
@@ -99,7 +80,7 @@ def test_testplan():
     assert plan.add(DummyTest(name="bob")) == "bob"
 
     assert "pool" not in plan.resources
-    plan.add_resource(MyPool(name="pool"))
+    plan.add_resource(Pool(name="pool"))
     assert "pool" in plan.resources
 
     def task():
@@ -126,7 +107,10 @@ def test_testplan():
         == "DummyTestResult[alice]"
     )
     for key in plan.resources["pool"]._input.keys():
-        assert plan.resources["pool"].get(key).custom == "DummyTestResult[tom]"
+        assert (
+            plan.resources["pool"].get(key).result.custom
+            == "DummyTestResult[tom]"
+        )
 
     results = plan.result.test_results.values()
     expected = [

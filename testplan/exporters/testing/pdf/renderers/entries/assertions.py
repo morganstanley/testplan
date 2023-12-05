@@ -81,7 +81,7 @@ class AssertionRenderer(SerializedEntryRenderer):
                 header,
                 "",
                 "",
-                (Status.PASSED if passed else Status.FAILED).title(),
+                (Status.PASSED if passed else Status.FAILED).value.title(),
             ],
             style=default_assertion_style(passed=passed, depth=depth),
             start=row_idx,
@@ -520,7 +520,9 @@ class DictMatchAllRenderer(AssertionRenderer):
                         description,
                         "",
                         "",
-                        (Status.PASSED if passed else Status.FAILED).title(),
+                        (
+                            Status.PASSED if passed else Status.FAILED
+                        ).value.title(),
                     ],
                     style=styles,
                     start=row_idx + counter,

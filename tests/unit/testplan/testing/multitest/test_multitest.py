@@ -4,18 +4,18 @@ import os
 
 import pytest
 
+from testplan import defaults, report
 from testplan.common import entity
 from testplan.common.utils import path, testing
 from testplan.common.utils.thread import Barrier
-from testplan.testing import multitest, filtering, ordering
+from testplan.testing import common, filtering, multitest, ordering
 from testplan.testing.multitest import base
-from testplan import defaults, report
-
 
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
     "stdout_style": defaults.STDOUT_STYLE,
+    "test_breaker_thres": common.TestBreakerThres.null(),
 }
 
 

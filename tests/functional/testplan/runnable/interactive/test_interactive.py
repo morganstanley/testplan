@@ -121,7 +121,7 @@ def test_top_level_tests():
             assert resource.status == resource.STATUS.STOPPED
 
         # RESET REPORTS
-        plan.i.reset_all_tests()
+        plan.interactive.reset_all_tests()
 
         BTLReset = load_from_json(
             Path(__file__).parent / "reports" / "basic_top_level_reset.data"
@@ -136,7 +136,7 @@ def test_top_level_tests():
         )
 
         # RUN ALL TESTS
-        plan.i.run_all_tests()
+        plan.interactive.run_all_tests()
 
         BTLevel = load_from_json(
             Path(__file__).parent / "reports" / "basic_top_level.data"
@@ -159,7 +159,7 @@ def test_top_level_tests():
         )
 
         # RESET REPORTS
-        plan.i.reset_all_tests()
+        plan.interactive.reset_all_tests()
 
         assert (
             compare(
@@ -171,7 +171,7 @@ def test_top_level_tests():
         )
 
         # RUN SINGLE TESTSUITE (CUSTOM NAME)
-        plan.i.run_test_suite("Test2", "TCPSuite - Custom_1")
+        plan.interactive.run_test_suite("Test2", "TCPSuite - Custom_1")
 
         BRSTest2 = load_from_json(
             Path(__file__).parent / "reports" / "basic_run_suite_test2.data"
@@ -179,14 +179,14 @@ def test_top_level_tests():
         assert (
             compare(
                 BRSTest2,
-                plan.i.test_report("Test2"),
+                plan.interactive.test_report("Test2"),
                 ignore=["hash", "information"],
             )[0]
             is True
         )
 
         # RUN SINGLE TESTCASE
-        plan.i.run_test_case("Test1", "*", "basic_case__arg_1")
+        plan.interactive.run_test_case("Test1", "*", "basic_case__arg_1")
 
         BRCTest1 = load_from_json(
             Path(__file__).parent / "reports" / "basic_run_case_test1.data"

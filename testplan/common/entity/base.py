@@ -12,6 +12,7 @@ import traceback
 from collections import OrderedDict, deque
 from contextlib import suppress
 from typing import (
+    Any,
     Callable,
     Deque,
     Dict,
@@ -20,20 +21,19 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    Any,
 )
 
 import psutil
 from schema import Or
 
 from testplan.common.config import Config, ConfigOption
+from testplan.common.report.base import EventRecorder
 from testplan.common.utils import logger
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
 from testplan.common.utils.timing import wait
 from testplan.common.utils.validation import is_subclass
-from testplan.common.report.base import EventRecorder
 
 
 class Environment:
@@ -165,7 +165,7 @@ class Environment:
         fetch_msg = "\n".join(resource.fetch_error_log())
 
         msg = message.format(
-            resource_name=resource.cfg.name,
+            resource=str(resource),
             traceback_exc=traceback.format_exc(),
             fetch_msg=fetch_msg,
         )
@@ -186,7 +186,8 @@ class Environment:
                 resource.start()
             except Exception:
                 self._record_resource_exception(
-                    message="While starting resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    message="While starting resource {resource}:\n"
+                    "{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -207,7 +208,8 @@ class Environment:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
                 self._record_resource_exception(
-                    message="While waiting for resource [{resource_name}] to start\n{traceback_exc}\n{fetch_msg}",
+                    message="While waiting for resource {resource} to start:\n"
+                    "{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -273,7 +275,8 @@ class Environment:
                 resource.stop()
             except Exception:
                 self._record_resource_exception(
-                    message="While stopping resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    message="While stopping resource {resource}:"
+                    "\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.stop_exceptions,
                 )
@@ -599,8 +602,7 @@ class Entity(logger.Loggable):
 
         self._should_abort = True
         for dep in self.abort_dependencies():
-            if dep is not None:
-                self._abort_entity(dep)
+            self._abort_entity(dep)
 
         self.logger.info("Aborting %s", self)
         self.aborting()
@@ -634,7 +636,6 @@ class Entity(logger.Loggable):
             self.logger.error(traceback.format_exc())
             self.logger.error("Exception on aborting %s - %s", entity, exc)
         else:
-
             if (
                 wait(
                     predicate=lambda: entity.aborted is True,
@@ -643,7 +644,11 @@ class Entity(logger.Loggable):
                 )
                 is False
             ):
-                self.logger.error("Timeout on waiting to abort %s.", entity)
+                self.logger.error(
+                    "Timeout on waiting to abort %s after %d seconds.",
+                    entity,
+                    timeout,
+                )
 
     def aborting(self):
         """

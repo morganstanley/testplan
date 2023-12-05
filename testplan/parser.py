@@ -18,7 +18,7 @@ from testplan.report.testing import (
     ReportTagsAction,
     styles,
 )
-from testplan.testing import filtering, listing, ordering
+from testplan.testing import common, filtering, listing, ordering
 
 
 class HelpParser(argparse.ArgumentParser):
@@ -203,6 +203,17 @@ A typical input JSON looks like below:
     },
     ......
 }""",
+        )
+
+        general_group.add_argument(
+            "--skip-remaining",
+            metavar="OPTION",
+            choices=common.TestBreakerThres.reps(),
+            dest="test_breaker_thres",
+            help="When a Testcase has failed or error has occurred, skip the "
+            "remaining of Testcases in the same Testsuite/Multitest/Testplan (or "
+            "anything with equal level) being executed. Valid values: "
+            + str(common.TestBreakerThres.reps()),
         )
 
         filter_group = parser.add_argument_group("Filtering")

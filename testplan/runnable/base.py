@@ -29,6 +29,7 @@ from schema import And, Or, Use
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
+    Resource,
     Runnable,
     RunnableConfig,
     RunnableResult,
@@ -52,6 +53,7 @@ from testplan.report import (
 from testplan.report.filter import ReportingFilter
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
+from testplan.runnable.messaging import QueueChannels
 from testplan.runners.base import Executor
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.tasks import Task, TaskResult
@@ -60,9 +62,8 @@ from testplan.runners.pools.tasks.base import (
     get_task_target_information,
     is_task_target,
 )
-from testplan.testing import filtering, listing, ordering, tagging
+from testplan.testing import common, filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
-from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
 
@@ -226,6 +227,12 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "plan_runtime_target", default=defaults.PLAN_RUNTIME_TARGET
             ): Or(int, float),
+            ConfigOption(
+                "test_breaker_thres", default=common.TestBreakerThres.null()
+            ): Or(
+                And(str, Use(common.TestBreakerThres.parse)),
+                Use(lambda _: common.TestBreakerThres.null()),
+            ),
         }
 
 
@@ -391,6 +398,7 @@ class TestRunner(Runnable):
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = not self._is_interactive_run()
+        self._exec_channels = QueueChannels()
         self.scheduled_modules = []  # For interactive reload
         self.remote_services = {}
         self.runid_filename = uuid.uuid4().hex
@@ -483,25 +491,27 @@ class TestRunner(Runnable):
         return env_uid
 
     def add_resource(
-        self, resource: Executor, uid: Optional[str] = None
+        self, resource: Resource, uid: Optional[str] = None
     ) -> str:
         """
+        FIXME
         Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
 
         :param resource: Test executor to be added.
-        :type resource: Subclass of :py:class:`~testplan.runners.base.Executor`
         :param uid: Optional input resource uid.
-        :type uid: ``str`` or ``NoneType``
         :return: Resource uid assigned.
-        :rtype:  ``str``
         """
-        # NOTE: expose the config to the executors
+        # FIXME: we are messing up with uid here...
         resource.parent = self
         resource.cfg.parent = self.cfg
-        return self.resources.add(
-            resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
-        )
+        real_uid = uid or getattr(resource, "uid", strings.uuid4)()
+        if isinstance(resource, Executor):
+            exec_id, exec_chann = self._exec_channels.new_channel(real_uid)
+            resource.set_channel_specs(
+                exec_id, exec_chann, self._exec_channels
+            )
+        return self.resources.add(resource, uid=real_uid)
 
     def add_exporters(self, exporters: List[Exporter]):
         """
@@ -890,10 +900,11 @@ class TestRunner(Runnable):
         self.resources[resource].add(target, uid)
 
     def _collect_task_info(self, target: TestTask) -> TaskInformation:
+        if callable(target):
+            target = Task(target)
         if isinstance(target, Test):
             target_test = target
         elif isinstance(target, Task):
-
             # First check if there is a cached task info
             # that is an optimization flow where task info
             # need to be created at discover, but the already defined api
@@ -905,8 +916,6 @@ class TestRunner(Runnable):
                 return task_info
             else:
                 target_test = target.materialize()
-        elif callable(target):
-            target_test = target()
         else:
             raise TypeError(
                 "Unrecognized test target of type {}".format(type(target))
@@ -1213,8 +1222,10 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.name = TEST_PART_PATTERN_FORMAT_STRING.format(
-                        report.name, report.part[0], report.part[1]
+                    report.name = (
+                        common.TEST_PART_PATTERN_FORMAT_STRING.format(
+                            report.name, report.part[0], report.part[1]
+                        )
                     )
                     report.uid = strings.uuid4()  # considered as error report
                     self._result.test_report.append(report)

@@ -1,14 +1,12 @@
 """Unit tests for PyTest runner."""
-import os
 import collections
+import os
 
 import pytest
 
+from testplan import defaults, report
 from testplan.report import TestCaseReport
 from testplan.testing import py_test as pytest_runner
-from testplan import defaults
-from testplan import report
-
 from tests.unit.testplan.testing import pytest_expected_data
 
 
@@ -69,7 +67,7 @@ def test_run_testcases_iter_all(pytest_test_inst):
 
     counter = collections.Counter()
     for testcase_report, _ in all_results[1:]:
-        counter[testcase_report.status] += 1
+        counter[testcase_report.status.value] += 1
     _check_all_testcounts(counter)
 
     testcase_report, _ = all_results[7]
@@ -91,7 +89,7 @@ def test_run_testcases_iter_testsuite(pytest_test_inst):
 
     counter = collections.Counter()
     for testcase_report, _ in all_results[1:]:
-        counter[testcase_report.status] += 1
+        counter[testcase_report.status.value] += 1
         counter["total"] += 1
 
     assert counter["total"] == 5
@@ -148,7 +146,7 @@ def test_run_testcases_iter_param(pytest_test_inst):
             "pytest_tests.py::TestPytestBasics",
             "test_parametrization",
         ]
-        counter[testcase_report.status] += 1
+        counter[testcase_report.status.value] += 1
         counter["total"] += 1
 
     assert counter["total"] == 3

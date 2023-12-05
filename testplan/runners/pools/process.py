@@ -2,22 +2,23 @@
 
 import os
 import re
-import sys
 import signal
 import subprocess
+import sys
 import tempfile
 from typing import List, Type, Union
 
 from schema import Or
 
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.timing import get_sleeper
+
 from . import tasks
 from .base import Pool, PoolConfig, Worker, WorkerConfig
-from .connection import ZMQClientProxy, ZMQServer
+from .connection import ZMQServer, ZMQServerProxy
 
 
 class ProcessWorkerConfig(WorkerConfig):
@@ -32,7 +33,7 @@ class ProcessWorkerConfig(WorkerConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            ConfigOption("transport", default=ZMQClientProxy): object,
+            ConfigOption("transport", default=ZMQServerProxy): object,
             ConfigOption("sigint_timeout", default=5): int,
         }
 
@@ -158,6 +159,9 @@ class ProcessWorker(Worker):
         """Process worker abort logic."""
         self._transport.disconnect()
         self.stop()
+
+    def abort_execution(self):
+        pass
 
 
 class ProcessPoolConfig(PoolConfig):

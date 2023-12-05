@@ -32,7 +32,7 @@ from testplan.report import (
     TestGroupReport,
     test_styles,
 )
-from testplan.testing import filtering, ordering, tagging
+from testplan.testing import common, filtering, ordering, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
@@ -83,6 +83,7 @@ class TestConfig(RunnableConfig):
             ConfigOption("test_filter"): filtering.BaseFilter,
             ConfigOption("test_sorter"): ordering.BaseSorter,
             ConfigOption("stdout_style"): test_styles.Style,
+            ConfigOption("test_breaker_thres"): common.TestBreakerThres,
             ConfigOption("tags", default=None): Or(
                 None, Use(tagging.validate_tag_value)
             ),

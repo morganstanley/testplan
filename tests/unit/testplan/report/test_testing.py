@@ -6,20 +6,18 @@ from unittest import mock
 import pytest
 from boltons.iterutils import get_path
 
-from testplan.common.utils.testing import disable_log_propagation
-
+from testplan.common import entity, report
+from testplan.common.utils.testing import check_report, disable_log_propagation
 from testplan.report.testing.base import (
-    Status,
     BaseReportGroup,
+    ReportCategories,
+    RuntimeStatus,
+    Status,
     TestCaseReport,
     TestGroupReport,
     TestReport,
-    ReportCategories,
-    RuntimeStatus,
 )
 from testplan.report.testing.schemas import TestReportSchema
-from testplan.common import report, entity
-from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result
 
 DummyReport = functools.partial(TestCaseReport, name="dummy")
@@ -34,10 +32,10 @@ def test_report_status_precedent():
 
     assert Status.FAILED == Status.precedent([Status.FAILED, Status.UNKNOWN])
     assert Status.ERROR == Status.precedent([Status.ERROR, Status.UNKNOWN])
-    assert Status.FAILED == Status.precedent(
+    assert Status.INCOMPLETE == Status.precedent(
         [Status.INCOMPLETE, Status.UNKNOWN]
     )
-    assert Status.FAILED == Status.precedent(
+    assert Status.XPASS_STRICT == Status.precedent(
         [Status.XPASS_STRICT, Status.UNKNOWN]
     )
     assert Status.UNKNOWN == Status.precedent([Status.UNKNOWN, Status.PASSED])
@@ -45,7 +43,7 @@ def test_report_status_precedent():
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.XFAIL])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.XPASS])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.UNSTABLE])
-    assert Status.UNSTABLE == Status.precedent([Status.UNSTABLE, None])
+    assert Status.UNSTABLE == Status.precedent([Status.UNSTABLE, Status.NONE])
 
 
 @disable_log_propagation(report.log.LOGGER)
@@ -55,13 +53,13 @@ def test_report_exception_logger():
     `TestReportStatus.FAILED` if `fail` argument is True.
     """
     rep = TestCaseReport(name="foo")
-    assert rep.status_override is None
+    assert rep.status_override is Status.NONE
 
     # should not change status_override
     with rep.logged_exceptions(fail=False):
         raise Exception("foo")
 
-    assert rep.status_override is None
+    assert rep.status_override is Status.NONE
 
     # should change status_override
     with rep.logged_exceptions():
@@ -84,10 +82,10 @@ class TestBaseReportGroup:
             ([Status.FAILED, Status.PASSED], Status.FAILED),
             (
                 [Status.INCOMPLETE, Status.PASSED, Status.SKIPPED],
-                Status.FAILED,
+                Status.INCOMPLETE,
             ),
             ([Status.SKIPPED, Status.PASSED], Status.PASSED),
-            ([Status.INCOMPLETE, Status.FAILED], Status.FAILED),
+            ([Status.INCOMPLETE, Status.FAILED], Status.INCOMPLETE),
         ),
     )
     def test_status(self, statuses, expected):
@@ -107,7 +105,7 @@ class TestBaseReportGroup:
         """
         group = DummyReportGroup()
 
-        assert group.status_override is None
+        assert group.status_override is Status.NONE
         assert group.status == Status.UNKNOWN
 
     def test_status_override(self):
@@ -133,7 +131,7 @@ class TestBaseReportGroup:
         report_orig = DummyReportGroup(uid=1)
         report_clone = DummyReportGroup(uid=1)
 
-        assert report_orig.status_override is None
+        assert report_orig.status_override is Status.NONE
 
         report_clone.status_override = Status.PASSED
 
@@ -572,7 +570,7 @@ def iter_report_entries(report):
 
 
 def test_runtime_status_setting(dummy_test_plan_report):
-    for status in RuntimeStatus.STATUS_PRECEDENCE[:-1]:
+    for status in RuntimeStatus.all_statuses()[:-1]:
         dummy_test_plan_report.runtime_status = status
         assert dummy_test_plan_report.runtime_status == status
         for entry in iter_report_entries(dummy_test_plan_report):
@@ -594,14 +592,14 @@ def test_runtime_status_setting_filtered(dummy_test_plan_report):
         "test_case_1",
         "test_case_2",
     ]
-    for status in RuntimeStatus.STATUS_PRECEDENCE[:-1]:
+    for status in RuntimeStatus.all_statuses()[:-1]:
         dummy_test_plan_report.set_runtime_status_filtered(
             status, filtered_entries
         )
         # Due to precedence logic, as soon as we hit NOT_RUN and FINISHED
         # the not run entry's READY status will be returned in the getter.
         # This is expected behavior.
-        if status in RuntimeStatus.STATUS_PRECEDENCE[:-3]:
+        if status in RuntimeStatus.all_statuses()[:-3]:
             assert (
                 dummy_test_plan_report["Test Group 2"].runtime_status == status
             )
