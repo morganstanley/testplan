@@ -677,7 +677,7 @@ def test_environment_control(plan):
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
-    test_api.compare_json(updated_json, mtest_json)
+    test_api.compare_json(updated_json, mtest_json, ignored_keys=["timer"])
     assert updated_json["hash"] != mtest_json["hash"]
 
     # Wait for the environment to become STOPPED.

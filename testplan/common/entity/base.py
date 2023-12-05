@@ -473,7 +473,6 @@ class EntityConfig(Config):
         """
         return {
             ConfigOption("runpath"): Or(None, str, callable),
-            ConfigOption("initial_context", default={}): dict,
             ConfigOption("path_cleanup", default=False): bool,
             ConfigOption("status_wait_timeout", default=600): int,
             ConfigOption("abort_wait_timeout", default=300): int,
@@ -490,8 +489,6 @@ class Entity(logger.Loggable):
 
     :param runpath: Path to be used for temp/output files by entity.
     :type runpath: ``str`` or ``NoneType`` callable that returns ``str``
-    :param initial_context: Initial key: value pair context information.
-    :type initial_context: ``dict``
     :param path_cleanup: Remove previous runpath created dirs/files.
     :type path_cleanup: ``bool``
     :param status_wait_timeout: Timeout for wait status events.
@@ -964,15 +961,15 @@ class Runnable(Entity):
         start_threads, start_procs = self._get_start_info()
 
         self._add_step(self.setup)
-        self.pre_resource_steps()
-        self._add_step(self.resources.start)
+        self.add_pre_resource_steps()
+        self.add_start_resource_steps()
+        self.add_pre_main_steps()
 
-        self.pre_main_steps()
-        self.main_batch_steps()
-        self.post_main_steps()
+        self.add_main_batch_steps()
 
-        self._add_step(self.resources.stop, is_reversed=True)
-        self.post_resource_steps()
+        self.add_post_main_steps()
+        self.add_stop_resource_steps()
+        self.add_post_resource_steps()
         self._add_step(self.teardown)
 
         self._run()
@@ -1055,31 +1052,43 @@ class Runnable(Entity):
             self.result.step_results[step.__name__] = res
             self.status.update_metadata(**{str(step): res})
 
-    def pre_resource_steps(self):
+    def add_pre_resource_steps(self):
         """
         Runnable steps to run before environment started.
         """
         pass
 
-    def pre_main_steps(self):
+    def add_start_resource_steps(self):
+        """
+        Runnable steps to start environment
+        """
+        self._add_step(self.resources.start)
+
+    def add_pre_main_steps(self):
         """
         Runnable steps to run after environment started.
         """
         pass
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """
         Runnable steps to be executed while environment is running.
         """
         pass
 
-    def post_main_steps(self):
+    def add_post_main_steps(self):
         """
         Runnable steps to run before environment stopped.
         """
         pass
 
-    def post_resource_steps(self):
+    def add_stop_resource_steps(self):
+        """
+        Runnable steps to stop environment
+        """
+        self._add_step(self.resources.stop, is_reversed=True)
+
+    def add_post_resource_steps(self):
         """
         Runnable steps to run after environment stopped.
         """
