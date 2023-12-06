@@ -55,7 +55,7 @@ class DummyTest(Test):
             self.__class__.__name__, self.name
         )
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         self._add_step(self.run_tests)
 
 

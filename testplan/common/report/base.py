@@ -345,6 +345,12 @@ class ReportGroup(Report):
         """
         return self.entries[self._index[uid]]
 
+    def has_uid(self, uid):
+        """
+        Has a child report of `uid`
+        """
+        return uid in self._index
+
     def __getitem__(self, uid):
         """Shortcut to `get_by_uid()` method via [] operator."""
         return self.get_by_uid(uid)

@@ -10,7 +10,6 @@ from typing import Callable, Dict, Generator, List, Optional, Tuple
 from schema import And, Or, Use
 
 from testplan.common import config, entity
-from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import (
     interface,
     strings,
@@ -19,7 +18,6 @@ from testplan.common.utils import (
     watcher,
 )
 from testplan.common.utils.composer import compose_contexts
-from testplan.common.utils.path import change_directory
 from testplan.report import (
     ReportCategories,
     RuntimeStatus,
@@ -177,6 +175,9 @@ class RuntimeEnvironment:
     def __iter__(self):
         return iter(self._environment)
 
+    def __len__(self):
+        return len(self._environment)
+
 
 class MultiTestConfig(testing_base.TestConfig):
     """
@@ -305,8 +306,6 @@ class MultiTest(testing_base.Test):
             for suite in self.suites:
                 mtest_suite.propagate_tag_indices(suite, self.cfg.tags)
 
-        self._pre_post_step_report = None
-
         # MultiTest may start a thread pool for running testcases concurrently,
         # if they are marked with an execution group.
         self._thread_pool = None
@@ -322,16 +321,6 @@ class MultiTest(testing_base.Test):
         )
 
         self.watcher = watcher.Watcher()
-
-    @property
-    def pre_post_step_report(self):
-        if self._pre_post_step_report is None:
-            self._pre_post_step_report = TestGroupReport(
-                name="Before/After Step Checks",
-                category=ReportCategories.TESTSUITE,
-            )
-            self._pre_post_step_report.status = Status.PASSED
-        return self._pre_post_step_report
 
     @property
     def suites(self):
@@ -444,36 +433,23 @@ class MultiTest(testing_base.Test):
 
         return ctx
 
-    def dry_run(self, status=Status.NONE):
-        """
-        A testing process that creates a full structured report without
-        any assertion entry. Initial status of each entry can be set.
-        """
-        self._pre_post_step_report = (
-            None  # TODO: this needs to be more generic
-        )
+    def _dry_run_testsuites(self):
         suites_to_run = self.test_context
-        self.result.report = self._new_test_report()
 
         for testsuite, testcases in suites_to_run:
             testsuite_report = self._new_testsuite_report(testsuite)
-            self.result.report.append(testsuite_report)
 
             if getattr(testsuite, "setup", None):
-                testsuite_report.append(
-                    self._suite_related_report("setup", status)
-                )
+                testsuite_report.append(self._suite_related_report("setup"))
 
             testsuite_report.extend(
-                self._testcase_reports(testsuite, testcases, status)
+                self._testcase_reports(testsuite, testcases)
             )
 
             if getattr(testsuite, "teardown", None):
-                testsuite_report.append(
-                    self._suite_related_report("teardown", status)
-                )
+                testsuite_report.append(self._suite_related_report("teardown"))
 
-        return self.result
+            self.result.report.append(testsuite_report)
 
     def run_tests(self):
         """Run all tests as a batch and return the results."""
@@ -567,20 +543,6 @@ class MultiTest(testing_base.Test):
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)
 
-    def append_pre_post_step_report(self) -> None:
-        """
-        Pre-resource step to append pre/post step report if any is configured.
-        """
-        if any(
-            [
-                self.cfg.before_start,
-                self.cfg.after_start,
-                self.cfg.before_stop,
-                self.cfg.after_stop,
-            ],
-        ):
-            self.report.append(self.pre_post_step_report)
-
     def get_tags_index(self):
         """
         Tags index for a multitest is its native tags merged with tag indices
@@ -627,53 +589,17 @@ class MultiTest(testing_base.Test):
                     if error_log:
                         self.result.report.logger.error(error_log)
 
-    def pre_resource_steps(self):
+    def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
-        super(MultiTest, self).pre_resource_steps()
+
+        super(MultiTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
-        if self.cfg.before_start:
-            self._add_step(
-                self._wrap_run_step(
-                    label="before_start", func=self.cfg.before_start
-                )
-            )
-        self._add_step(self.append_pre_post_step_report)
 
-    def pre_main_steps(self):
-        """Runnable steps to be executed after environment starts."""
-        if self.cfg.after_start:
-            self._add_step(
-                self._wrap_run_step(
-                    label="after_start", func=self.cfg.after_start
-                )
-            )
-        super(MultiTest, self).pre_main_steps()
-
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.apply_xfail_tests)
         self._add_step(self.propagate_tag_indices)
-
-    def post_main_steps(self):
-        """Runnable steps to run before environment stopped."""
-        super(MultiTest, self).post_main_steps()
-        if self.cfg.before_stop:
-            self._add_step(
-                self._wrap_run_step(
-                    label="before_stop", func=self.cfg.before_stop
-                )
-            )
-
-    def post_resource_steps(self):
-        """Runnable steps to be executed after environment stops."""
-        if self.cfg.after_stop:
-            self._add_step(
-                self._wrap_run_step(
-                    label="after_stop", func=self.cfg.after_stop
-                )
-            )
-        super(MultiTest, self).post_resource_steps()
 
     def should_run(self):
         """
@@ -683,49 +609,6 @@ class MultiTest(testing_base.Test):
 
     def aborting(self):
         """Suppressing not implemented debug log from parent class."""
-
-    def start_test_resources(self):
-        """
-        Start all test resources but do not run any tests. Used in the
-        interactive mode when environments may be started/stopped on demand -
-        this method handles running the before/after_start callables if
-        required.
-        """
-        # Need to clean up pre/post steps report in the following scenario:
-        #   - resources are started
-        #   - stopped
-        #   - started again
-        # Reason is that dry_run only applies for state reset while appending of
-        #   the report group happens only in static run we cannot capture
-        self._pre_post_step_report = None
-        self.make_runpath_dirs()
-        if self.cfg.before_start:
-            self._wrap_run_step(
-                label="before_start", func=self.cfg.before_start
-            )()
-        with change_directory(self._discover_path):
-            self.resources.start()
-
-        if self.cfg.after_start:
-            self._wrap_run_step(
-                label="after_start", func=self.cfg.after_start
-            )()
-
-    def stop_test_resources(self):
-        """
-        Stop all test resources. As above, this method is used for the
-        interactive mode where a test environment may be stopped on-demand.
-        Handles running before/after_stop callables if required.
-        """
-        if self.cfg.before_stop:
-            self._wrap_run_step(
-                label="before_stop", func=self.cfg.before_stop
-            )()
-
-        self.resources.stop()
-
-        if self.cfg.after_stop:
-            self._wrap_run_step(label="after_stop", func=self.cfg.after_stop)()
 
     def get_metadata(self) -> TestMetadata:
         return TestMetadata(
@@ -770,7 +653,7 @@ class MultiTest(testing_base.Test):
                 self.DEFAULT_THREAD_POOL_SIZE,
             )
 
-    def _suite_related_report(self, name, status):
+    def _suite_related_report(self, name, status=None):
         """
         Return a report for a testsuite-related action, such as setup or
         teardown.
@@ -783,7 +666,7 @@ class MultiTest(testing_base.Test):
 
         return testcase_report
 
-    def _testcase_reports(self, testsuite, testcases, status):
+    def _testcase_reports(self, testsuite, testcases, status=None):
         """
         Generate a list of reports for testcases, including parametrization
         groups.
@@ -1091,6 +974,14 @@ class MultiTest(testing_base.Test):
         runtime_info.testcase.report = testcase_report
         return RuntimeEnvironment(self.resources, runtime_info)
 
+    def _get_hook_context(self, case_report):
+        return (
+            case_report.timer.record("run"),
+            case_report.logged_exceptions(),
+            # before/after_start/stop trace info goes to multitest level
+            self.watcher.save_covered_lines_to(self.report),
+        )
+
     def _setup_testsuite(self, testsuite):
         """
         Run the setup for a testsuite, logging any exceptions.
@@ -1225,6 +1116,7 @@ class MultiTest(testing_base.Test):
             return testcase_report
 
         with testcase_report.timer.record("run"):
+
             with compose_contexts(
                 testcase_report.logged_exceptions(),
                 self.watcher.save_covered_lines_to(testcase_report),
@@ -1247,6 +1139,7 @@ class MultiTest(testing_base.Test):
                 else:
                     testcase(resources, case_result)
 
+            # always run post_testcase
             with compose_contexts(
                 testcase_report.logged_exceptions(),
                 self.watcher.save_covered_lines_to(testcase_report),
@@ -1282,56 +1175,6 @@ class MultiTest(testing_base.Test):
             self.log_testcase_status(testcase_report)
 
         return testcase_report
-
-    def _wrap_run_step(self, func, label):
-        """
-        Utility wrapper for special step related functions
-        (`before_start`, `after_stop` etc.).
-
-        This method wraps post/pre start/stop related functions so that the
-        user can optionally make use of assertions if the function accepts
-        both ``env`` and ``result`` arguments.
-
-        These functions are also run within report error logging context,
-        meaning that if something goes wrong we will have the stack trace
-        in the final report.
-        """
-
-        @functools.wraps(func)
-        def _wrapper():
-            case_result = self.cfg.result(
-                stdout_style=self.stdout_style, _scratch=self.scratch
-            )
-
-            testcase_report = TestCaseReport(
-                name="{} - {}".format(label, func.__name__),
-                description=strings.get_docstring(func),
-            )
-
-            num_args = len(callable_utils.getargspec(func).args)
-            resources = self._get_runtime_environment(
-                testcase_name=func.__name__, testcase_report=testcase_report
-            )
-
-            args = (resources,) if num_args == 1 else (resources, case_result)
-
-            with compose_contexts(
-                testcase_report.timer.record("run"),
-                testcase_report.logged_exceptions(),
-                self.watcher.save_covered_lines_to(self.report),
-            ):
-                func(*args)
-
-            testcase_report.extend(case_result.serialized_entries)
-            testcase_report.attachments.extend(case_result.attachments)
-
-            if self.get_stdout_style(testcase_report.passed).display_testcase:
-                self.log_testcase_status(testcase_report)
-
-            testcase_report.pass_if_empty()
-            self.pre_post_step_report.append(testcase_report)
-
-        return _wrapper
 
     def _log_status(self, report, indent):
         """Log the test status for a report at the given indent level."""

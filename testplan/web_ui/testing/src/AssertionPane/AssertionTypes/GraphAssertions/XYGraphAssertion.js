@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import "react-vis/dist/style.css";
 import * as GraphUtil from "./graphUtils";
@@ -32,33 +32,20 @@ const components = {
  * Component that are used to render a Graph (Data visualisations that require
  * an XY axis).
  */
-class XYGraphAssertion extends Component {
-  constructor(props) {
-    super(props);
+function XYGraphAssertion({ assertion }) {
+    const [lastDrawLocation, setLastDrawLocation] = useState(null);
 
-    this.state = {
-      series_colour: {},
-      lastDrawLocation: null,
-    };
-
-    let data = this.props.assertion.graph_data;
-    const series_options = this.props.assertion.series_options;
-    let plot_colours = GraphUtil.returnColour(series_options, data);
-    this.state.series_colour = plot_colours;
-  }
-
-  render() {
-    const data = this.props.assertion.graph_data;
-    const graph_options = this.props.assertion.graph_options;
-    const { lastDrawLocation } = this.state;
-    const graph_type = this.props.assertion.graph_type;
+    const data = assertion.graph_data;
+    const seriesColour = GraphUtil.returnColour(assertion.series_options, data);
+    const graph_options = assertion.graph_options;
+    const graph_type = assertion.graph_type;
     const GraphComponent = components[graph_type];
 
     let legend = [];
     let plots = [];
 
     for (let key in data) {
-      let series_colour = this.state.series_colour[key];
+      let series_colour = seriesColour[key];
       plots.push(
         <GraphComponent
           key={key}
@@ -117,15 +104,13 @@ class XYGraphAssertion extends Component {
           {plots}
 
           <Highlight
-            onBrushEnd={(area) => this.setState({ lastDrawLocation: area })}
+            onBrushEnd={(area) => setLastDrawLocation(area)}
             onDrag={(area) => {
-              this.setState({
-                lastDrawLocation: {
-                  bottom: lastDrawLocation.bottom + (area.top - area.bottom),
-                  left: lastDrawLocation.left - (area.right - area.left),
-                  right: lastDrawLocation.right - (area.right - area.left),
-                  top: lastDrawLocation.top + (area.top - area.bottom),
-                },
+              setLastDrawLocation({
+                bottom: lastDrawLocation.bottom + (area.top - area.bottom),
+                left: lastDrawLocation.left - (area.right - area.left),
+                right: lastDrawLocation.right - (area.right - area.left),
+                top: lastDrawLocation.top + (area.top - area.bottom),
               });
             }}
           />
@@ -138,7 +123,6 @@ class XYGraphAssertion extends Component {
       </div>
     );
   }
-}
 
 XYGraphAssertion.propTypes = {
   /** Assertion being rendered */

@@ -224,6 +224,8 @@ class ReportCategories:
     QUNIT = "qunit"
     JUNIT = "junit"
     ERROR = "error"
+    # use for before/after_start/stop, setup, teardown, etc
+    SYNTHESIZED = "synthesized"
 
 
 class ExceptionLogger(ExceptionLoggerBase):
@@ -353,7 +355,9 @@ class BaseReportGroup(ReportGroup):
     def runtime_status(self, new_status):
         """Set the runtime_status of all child entries."""
         for entry in self:
-            entry.runtime_status = new_status
+            # TODO: use suite_related flag for now, use synthesized instead
+            if not getattr(entry, "suite_related", False):
+                entry.runtime_status = new_status
         self._runtime_status = new_status
 
     def set_runtime_status_filtered(
@@ -418,10 +422,14 @@ class BaseReportGroup(ReportGroup):
             {Status.PASSED.value: 0, Status.FAILED.value: 0, "total": 0}
         )
 
+        # exclude rerun and synthesized entries from counter
         for child in self:
             if child.category == ReportCategories.ERROR:
                 counter.update({Status.ERROR.value: 1, "total": 1})
-            elif child.category == ReportCategories.TASK_RERUN:
+            elif child.category in (
+                ReportCategories.TASK_RERUN,
+                ReportCategories.SYNTHESIZED,
+            ):
                 pass
             else:
                 counter.update(child.counter)
@@ -698,6 +706,7 @@ class TestGroupReport(BaseReportGroup):
         fix_spec_path=None,
         env_status=None,
         strict_order=False,
+        suite_related=False,
         **kwargs,
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -727,6 +736,10 @@ class TestGroupReport(BaseReportGroup):
         self.strict_order = strict_order
 
         self.covered_lines: Optional[dict] = None
+
+        # TODO: replace with synthesized flag
+        # this is for special handling in interactive mode, e.g no run button
+        self.suite_related = suite_related
 
     def __str__(self):
         return (
@@ -875,6 +888,7 @@ class TestCaseReport(Report):
         suite_related=False,
         status_override=None,
         status_reason=None,
+        category=ReportCategories.TESTCASE,
         **kwargs,
     ):
         super(TestCaseReport, self).__init__(name=name, **kwargs)
@@ -890,7 +904,7 @@ class TestCaseReport(Report):
         # testcase is default to passed (e.g no assertion)
         self._status = Status.UNKNOWN
         self._runtime_status = RuntimeStatus.READY
-        self.category = ReportCategories.TESTCASE
+        self.category = category
         self.status_reason = status_reason
 
         self.covered_lines: Optional[dict] = None
