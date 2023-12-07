@@ -554,10 +554,6 @@ class Test(Runnable):
             # TODO: use synthesized instead of suite_related
             # category=ReportCategories.SYNTHESIZED,
         )
-        if self.result.report.has_uid(label):
-            self.result.report[label] = suite_report
-        else:
-            self.result.report.append(suite_report)
 
         case_report = TestCaseReport(
             name=hook.__name__,
@@ -593,6 +589,11 @@ class Test(Runnable):
         case_report.pass_if_empty()
         case_report.runtime_status = RuntimeStatus.FINISHED
         suite_report.runtime_status = RuntimeStatus.FINISHED
+
+        if self.result.report.has_uid(label):
+            self.result.report[label] = suite_report
+        else:
+            self.result.report.append(suite_report)
 
     def _dry_run_resource_hook(self, hook, label):
 
