@@ -49,7 +49,7 @@ import traceback
 from collections import Counter
 from enum import Enum
 from functools import reduce
-from typing import Callable, Optional, Dict, List
+from typing import Callable, Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -87,12 +87,28 @@ class RuntimeStatus(Enum):
         """
         return min(stats, key=lambda stat: RUNTIMESTATUS_PRECEDENCE[stat])
 
+    def __lt__(self, other: Self) -> bool:
+        lhs, rhs = (
+            RUNTIMESTATUS_PRECEDENCE[self],
+            RUNTIMESTATUS_PRECEDENCE[other],
+        )
+        if lhs == rhs and self != other:
+            return NotImplemented
+        return lhs < rhs
+
+    def __le__(self, other: Self) -> bool:
+        lhs, rhs = (
+            RUNTIMESTATUS_PRECEDENCE[self],
+            RUNTIMESTATUS_PRECEDENCE[other],
+        )
+        if lhs == rhs and self != other:
+            return NotImplemented
+        return lhs <= rhs
+
+    precede = __lt__
+
     def __bool__(self):
         return self != self.NONE
-
-    @staticmethod
-    def all_statuses() -> List["RuntimeStatus"]:
-        return list(RUNTIMESTATUS_PRECEDENCE.keys())
 
 
 RUNTIMESTATUS_PRECEDENCE = {
@@ -138,18 +154,11 @@ class Status(Enum):
             try:
                 r = x < y
             except TypeError:
-                # NotImplemented was returned
                 return x.normalised()
             else:
                 return x if r else y
 
         return reduce(_cmp, stats, cls.NONE)
-
-    def __le__(self, other: Self) -> bool:
-        lhs, rhs = STATUS_PRECEDENCE[self], STATUS_PRECEDENCE[other]
-        if lhs == rhs and self != other:
-            return NotImplemented
-        return lhs <= rhs
 
     def __lt__(self, other: Self) -> bool:
         lhs, rhs = STATUS_PRECEDENCE[self], STATUS_PRECEDENCE[other]
@@ -157,10 +166,18 @@ class Status(Enum):
             return NotImplemented
         return lhs < rhs
 
+    def __le__(self, other: Self) -> bool:
+        lhs, rhs = STATUS_PRECEDENCE[self], STATUS_PRECEDENCE[other]
+        if lhs == rhs and self != other:
+            return NotImplemented
+        return lhs <= rhs
+
     def precede(self, other: Self) -> bool:
-        # a grep-friendly and more-intuitive version
-        r = self < other
-        return False if r is NotImplemented else r
+        # a (slightly) more intuitive & exception-free version
+        try:
+            return self < other
+        except TypeError:
+            return False
 
     def normalised(self) -> Self:
         return STATUS_NORMED[STATUS_PRECEDENCE[self] // 10]
@@ -171,7 +188,7 @@ class Status(Enum):
 
 # Status Precedence encoded by numeric value and
 # Status categorization done through list indices.
-STATUS_PRECEDENCE: Dict[Status, int] = {
+STATUS_PRECEDENCE = {
     Status.ERROR: 9,
     Status.INCOMPLETE: 18,
     Status.XPASS_STRICT: 18,
@@ -1019,8 +1036,9 @@ class TestCaseReport(Report):
         if self.suite_related and self.status.precede(report.status):
             return
 
-        # FIXME
-        self.status_override = report.status_override
+        self.status_override = Status.precedent(
+            [self.status_override, report.status_override]
+        )
         self.runtime_status = report.runtime_status
         self.logs = report.logs
         self.entries = report.entries

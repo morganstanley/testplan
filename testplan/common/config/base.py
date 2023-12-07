@@ -167,9 +167,7 @@ class Config:
             )
 
     def __repr__(self):
-        return "{}{}".format(
-            self.__class__.__name__, self._cfg_input or self._options
-        )
+        return "{}{}".format(self.__class__.__name__, self._options)
 
     def get_local(self, name, default=None):
         """Returns a local config setting (not from container)"""
@@ -206,12 +204,6 @@ class Config:
         new_options = {}
         for key in self._options:
             value = getattr(self, key)
-            if inspect.isroutine(value):
-                # Skipping non-serializable classes and routines.
-                logger.TESTPLAN_LOGGER.debug(
-                    "Skip denormalizing option: %s", key
-                )
-                continue
             try:
                 new_options[copy.deepcopy(key)] = copy.deepcopy(value)
             except Exception as exc:
@@ -221,7 +213,6 @@ class Config:
 
         # XXX: we have transformed options, which should not be validated
         # XXX: against schema again
-        # TODO: refactor
         new = object.__new__(self.__class__)
         setattr(new, "_parent", None)
         setattr(new, "_cfg_input", new_options)

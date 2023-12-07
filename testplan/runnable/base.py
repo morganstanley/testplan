@@ -231,7 +231,7 @@ class TestRunnerConfig(RunnableConfig):
                 "test_breaker_thres", default=common.TestBreakerThres.null()
             ): Or(
                 And(str, Use(common.TestBreakerThres.parse)),
-                Use(lambda _: common.TestBreakerThres.null()),
+                And(None, Use(lambda _: common.TestBreakerThres.null())),
             ),
         }
 

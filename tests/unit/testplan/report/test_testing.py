@@ -24,6 +24,26 @@ DummyReport = functools.partial(TestCaseReport, name="dummy")
 DummyReportGroup = functools.partial(BaseReportGroup, name="dummy")
 
 
+def test_report_status_basic_op():
+    assert Status.ERROR <= Status.ERROR
+    assert Status.FAILED > Status.ERROR
+    assert Status.INCOMPLETE < Status.FAILED
+    with pytest.raises(TypeError):
+        Status.INCOMPLETE < Status.XPASS_STRICT
+    with pytest.raises(TypeError):
+        Status.XFAIL >= Status.SKIPPED
+    assert Status.XFAIL != Status.XPASS
+    assert Status.XFAIL is not Status.XPASS
+    assert Status.UNKNOWN < Status.NONE
+    assert not Status.NONE
+
+    assert Status.XPASS_STRICT.normalised() is Status.FAILED
+    assert Status.PASSED.normalised() is Status.PASSED
+
+    assert not Status.INCOMPLETE.precede(Status.XPASS_STRICT)
+    assert Status.INCOMPLETE.precede(Status.FAILED)
+
+
 def test_report_status_precedent():
     """
     `precedent` should return the value with the
@@ -569,8 +589,16 @@ def iter_report_entries(report):
             yield from iter_report_entries(entry)
 
 
+def test_runtime_status_basic_op():
+    assert RuntimeStatus.WAITING < RuntimeStatus.READY
+    assert RuntimeStatus.RESETTING >= RuntimeStatus.RUNNING
+    assert RuntimeStatus.RUNNING.precede(RuntimeStatus.FINISHED)
+    assert RuntimeStatus.NOT_RUN < RuntimeStatus.NONE
+    assert not RuntimeStatus.NONE
+
+
 def test_runtime_status_setting(dummy_test_plan_report):
-    for status in RuntimeStatus.all_statuses()[:-1]:
+    for status in list(RuntimeStatus)[:-1]:
         dummy_test_plan_report.runtime_status = status
         assert dummy_test_plan_report.runtime_status == status
         for entry in iter_report_entries(dummy_test_plan_report):
@@ -592,14 +620,14 @@ def test_runtime_status_setting_filtered(dummy_test_plan_report):
         "test_case_1",
         "test_case_2",
     ]
-    for status in RuntimeStatus.all_statuses()[:-1]:
+    for status in list(RuntimeStatus)[:-1]:
         dummy_test_plan_report.set_runtime_status_filtered(
             status, filtered_entries
         )
         # Due to precedence logic, as soon as we hit NOT_RUN and FINISHED
         # the not run entry's READY status will be returned in the getter.
         # This is expected behavior.
-        if status in RuntimeStatus.all_statuses()[:-3]:
+        if status in list(RuntimeStatus)[:-3]:
             assert (
                 dummy_test_plan_report["Test Group 2"].runtime_status == status
             )
