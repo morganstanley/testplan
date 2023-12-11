@@ -3,7 +3,7 @@ from enum import IntEnum, auto
 from queue import Queue
 from typing import Any, Dict, Tuple
 
-from testplan.common.utils.selector import SExpr
+from testplan.common.utils.selector import Expr, apply_on_set
 
 
 class InterExecutorMessageT(IntEnum):
@@ -21,10 +21,6 @@ class InterExecutorMessage:
         return cls(InterExecutorMessageT.EXPECTED_ABORT, None)
 
 
-# shortcuts
-InterExecutorMessage.STOP = InterExecutorMessageT.EXPECTED_ABORT
-
-
 class QueueChannels:
     def __init__(self):
         self._qes: Dict[str, Queue] = {}
@@ -35,7 +31,6 @@ class QueueChannels:
         # XXX: in the future
         return name, self._qes[name]
 
-    def cast(self, selector: SExpr, msg: InterExecutorMessageT):
-        for k, q in self._qes.items():
-            if selector.eval(k):
-                q.put(msg)
+    def cast(self, selector: Expr, msg: InterExecutorMessageT):
+        for k in apply_on_set(selector, set(self._qes.keys())):
+            self._qes[k].put(msg)

@@ -23,13 +23,17 @@ class LocalRunner(Executor):
     def __init__(self, **options) -> None:
         super(LocalRunner, self).__init__(**options)
         self._uid = "local_runner"
-        self._to_abort = False
-        self._curr_runnable_cv = threading.Condition()
+        self._to_skip_remaining = False
+        self._curr_runnable_lock = threading.Lock()
         self._curr_runnable = None
 
     def execute(self, uid: str) -> TestResult:
         """Execute item implementation."""
         # First retrieve the input from its UID.
+        if self._to_skip_remaining:
+            # should be disposed immediately
+            return TestResult()
+
         target = self._input[uid]
 
         # Inspect the input type. Tasks must be materialized before
@@ -52,16 +56,21 @@ class LocalRunner(Executor):
         if not runnable.cfg.parent:
             runnable.cfg.parent = self.cfg
 
-        with self._curr_runnable_cv:
+        with self._curr_runnable_lock:
             self._curr_runnable = runnable
-            self._curr_runnable_cv.notify()
         result = self._curr_runnable.run()
-        self._curr_runnable = None
+        with self._curr_runnable_lock:
+            self._curr_runnable = None
 
         return result
 
     def _loop(self) -> None:
         """Execution loop implementation for local runner."""
+        try:
+            thres = self.cfg.test_breaker_thres.plan_level
+        except AttributeError:
+            thres = None
+
         while self.active:
             if self.status == self.status.STARTING:
                 self.status.change(self.status.STARTED)
@@ -86,19 +95,16 @@ class LocalRunner(Executor):
                             exc,
                         )
                     finally:
-                        with self._curr_runnable_cv:
-                            if not self._to_abort:
+                        with self._curr_runnable_lock:
+                            if not self._to_skip_remaining:
+                                # otherwise result from aborted test included
                                 self._results[next_uid] = result
                                 self.ongoing.pop(0)
 
-                    if (
-                        self.cfg.test_breaker_thres.plan_level
-                        and result.report.status
-                        <= self.cfg.test_breaker_thres.plan_level
-                    ):
+                    if thres and result.report.status <= thres:
                         if self._msg_self_id is not None:
                             self._msg_out_channels.cast(
-                                S.Not(S.Lit(self._msg_self_id)),
+                                S.Not(S.Eq(self._msg_self_id)),
                                 InterExecutorMessage.make_expected_abort(),
                             )
                         self._silently_skip_remaining()
@@ -143,12 +149,10 @@ class LocalRunner(Executor):
         self.ongoing = []
 
     def _handle_expected_abort(self, _):
-        with self._curr_runnable_cv:
-            if self._curr_runnable is None:
-                if len(self.ongoing):
-                    self._curr_runnable_cv.wait()
-                    self._curr_runnable.abort()
-            self._to_abort = True
+        with self._curr_runnable_lock:
+            if self._curr_runnable:
+                self._curr_runnable.abort()
+            self._to_skip_remaining = True
             self._silently_skip_remaining()
 
     def get_current_status_for_debug(self) -> List[str]:

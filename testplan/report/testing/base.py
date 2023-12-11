@@ -48,7 +48,7 @@ import sys
 import traceback
 from collections import Counter
 from enum import Enum
-from functools import reduce
+from functools import reduce, total_ordering
 from typing import Callable, Dict, List, Optional
 
 from typing_extensions import Self
@@ -59,6 +59,7 @@ from testplan.common.utils import timing
 from testplan.testing import tagging
 
 
+@total_ordering
 class RuntimeStatus(Enum):
     """
     Constants for test runtime status - for interactive mode
@@ -88,22 +89,7 @@ class RuntimeStatus(Enum):
         return min(stats, key=lambda stat: RUNTIMESTATUS_PRECEDENCE[stat])
 
     def __lt__(self, other: Self) -> bool:
-        lhs, rhs = (
-            RUNTIMESTATUS_PRECEDENCE[self],
-            RUNTIMESTATUS_PRECEDENCE[other],
-        )
-        if lhs == rhs and self != other:
-            return NotImplemented
-        return lhs < rhs
-
-    def __le__(self, other: Self) -> bool:
-        lhs, rhs = (
-            RUNTIMESTATUS_PRECEDENCE[self],
-            RUNTIMESTATUS_PRECEDENCE[other],
-        )
-        if lhs == rhs and self != other:
-            return NotImplemented
-        return lhs <= rhs
+        return RUNTIMESTATUS_PRECEDENCE[self] < RUNTIMESTATUS_PRECEDENCE[other]
 
     precede = __lt__
 

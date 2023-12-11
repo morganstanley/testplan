@@ -655,7 +655,7 @@ class Pool(Executor):
         ):
             if self._msg_self_id is not None:
                 self._msg_out_channels.cast(
-                    S.Not(S.Lit(self._msg_self_id)),
+                    S.Not(S.Eq(self._msg_self_id)),
                     InterExecutorMessage.make_expected_abort(),
                 )
             self._silently_skip_remaining()

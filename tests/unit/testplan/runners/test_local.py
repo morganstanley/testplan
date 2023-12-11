@@ -1,0 +1,66 @@
+from time import sleep
+
+import pytest
+
+import testplan.testing.multitest as mt
+from testplan.common.utils.selector import Eq
+from testplan.runnable import TestRunner as MyTestRunner
+from testplan.runnable.messaging import InterExecutorMessage
+from testplan.runners.local import LocalRunner
+
+
+@mt.testsuite
+class Suite:
+    def __init__(self, pre_sleep, post_sleep):
+        self.pre = pre_sleep
+        self.post = post_sleep
+
+    @mt.testcase
+    def case_a(self, env, result):
+        sleep(self.pre)
+        result.true(False)
+        sleep(self.post)
+
+    @mt.testcase
+    def case_b(self, env, result):
+        result.true(False)
+
+
+MT_NAME = "dummy_mt"
+
+
+def gen_mt(*suites):
+    return mt.MultiTest(MT_NAME, suites=suites)
+
+
+@pytest.mark.parametrize(
+    "pre_sleep,post_sleep,out_sleep,has_result",
+    (
+        (1, 0, 0.5, False),
+        (0, 1, 0.5, False),
+        (0, 0, 0.5, True),
+    ),
+)
+def test_local_simple_abort(pre_sleep, post_sleep, out_sleep, has_result):
+    par = MyTestRunner(name="in-the-middle-of-unit-tests")
+    par.add_resource(LocalRunner(), "non-express")
+    mt = gen_mt(Suite(pre_sleep, post_sleep))
+    par.add(mt, "non-express")
+    r: LocalRunner = par.resources["non-express"]
+    chs = par._exec_channels
+    r.start()
+    sleep(out_sleep)
+    chs.cast(Eq("non-express"), InterExecutorMessage.make_expected_abort())
+    while r.pending_work():
+        sleep(0.1)
+    r.stop()
+    if has_result:
+        # we don't have other runners here, casted messages might not get
+        # processed in time before runner dies
+        assert MT_NAME in r.results
+        repo = r.results[MT_NAME].report
+        assert len(repo) == 1
+        assert len(repo.entries[0]) == 2
+    else:
+        assert r._to_skip_remaining is True
+        assert len(r.results) == 0
