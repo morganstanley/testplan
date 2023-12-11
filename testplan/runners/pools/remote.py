@@ -4,7 +4,7 @@ import os
 import signal
 import socket
 from multiprocessing.pool import ThreadPool
-from typing import List, Dict, Tuple, Callable, Type, Union
+from typing import List, Dict, Tuple, Callable, Type, Union, Optional
 
 from schema import Or
 
@@ -107,6 +107,13 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             "--sys-path-file",
             self._remote_syspath_file,
         ]
+        if self.parent.resource_monitor_address:
+            cmd.extend(
+                [
+                    "--resource-monitor-server",
+                    self.parent.resource_monitor_address,
+                ]
+            )
 
         return cmd
 
@@ -329,6 +336,11 @@ class RemotePool(Pool):
                 "host": host,
                 "number_of_workers": number_of_workers,
             }
+
+    @property
+    def resource_monitor_address(self) -> Optional[str]:
+        if self.parent.resource_monitor_server:
+            return self.parent.resource_monitor_server.address
 
     @staticmethod
     def _worker_setup_metadata(worker, request, response) -> None:

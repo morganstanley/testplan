@@ -205,6 +205,15 @@ A typical input JSON looks like below:
 }""",
         )
 
+        general_group.add_argument(
+            "-r",
+            "--resource-monitor",
+            dest="resource_monitor",
+            default=self._default_options["resource_monitor"],
+            action="store_true",
+            help="Enables resource monitor",
+        )
+
         filter_group = parser.add_argument_group("Filtering")
 
         filter_pattern_group = filter_group.add_mutually_exclusive_group()

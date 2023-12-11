@@ -37,6 +37,10 @@ from testplan.common.entity import (
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
 from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
+from testplan.monitor.resource import (
+    ResourceMonitorServer,
+    ResourceMonitorClient,
+)
 from testplan.common.utils import logger, strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
@@ -214,6 +218,7 @@ class TestRunnerConfig(RunnableConfig):
                 None,
             ),
             ConfigOption("tracing_tests_output", default="-"): str,
+            ConfigOption("resource_monitor", default=False): bool,
             ConfigOption("reporting_filter", default=None): Or(
                 And(str, Use(ReportingFilter.parse)), None
             ),
@@ -397,6 +402,9 @@ class TestRunner(Runnable):
         self.define_runpath()
         self._runnable_uids = set()
         self._verified_targets = {}  # target object id -> runnable uid
+        self.resource_monitor_server: Optional[ResourceMonitorServer] = None
+        self.resource_monitor_server_file_path: Optional[str] = None
+        self.resource_monitor_client: Optional[ResourceMonitorClient] = None
 
     def __str__(self):
         return f"Testplan[{self.uid()}]"
@@ -998,6 +1006,34 @@ class TestRunner(Runnable):
         ) as fp:
             pass
 
+        if self.cfg.resource_monitor:
+            self.resource_monitor_server_file_path = os.path.join(
+                self.scratch, "resource_monitor"
+            )
+            makedirs(self.resource_monitor_server_file_path)
+
+    def start_resource_monitor(self):
+        """Start resource monitor server and client"""
+        if self.cfg.resource_monitor:
+            self.resource_monitor_server = ResourceMonitorServer(
+                self.resource_monitor_server_file_path,
+                debug=self.cfg.logger_level == logger.DEBUG,
+            )
+            self.resource_monitor_server.start()
+            self.resource_monitor_client = ResourceMonitorClient(
+                self.resource_monitor_server.address
+            )
+            self.resource_monitor_client.start()
+
+    def stop_resource_monitor(self):
+        """Stop resource monitor server and client"""
+        if self.resource_monitor_client:
+            self.resource_monitor_client.stop()
+            self.resource_monitor_client = None
+        if self.resource_monitor_server:
+            self.resource_monitor_server.stop()
+            self.resource_monitor_server = None
+
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before resources started."""
         super(TestRunner, self).add_pre_resource_steps()
@@ -1005,6 +1041,7 @@ class TestRunner(Runnable):
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
         self._add_step(self.calculate_pool_size)
+        self._add_step(self.start_resource_monitor)
 
     def add_main_batch_steps(self):
         """Runnable steps to be executed while resources are running."""
@@ -1021,6 +1058,7 @@ class TestRunner(Runnable):
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
         super(TestRunner, self).add_post_resource_steps()
+        self._add_step(self.stop_resource_monitor)
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
@@ -1319,6 +1357,7 @@ class TestRunner(Runnable):
         """Stop the web server if it is running."""
         if self._web_server_thread is not None:
             self._web_server_thread.stop()
+        self.stop_resource_monitor()
         self._close_file_logger()
 
     def _configure_stdout_logger(self):

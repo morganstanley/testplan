@@ -26,7 +26,7 @@ def parse_cmdline():
     parser.add_argument("--remote-pool-type", action="store", default="thread")
     parser.add_argument("--remote-pool-size", action="store", default=1)
     parser.add_argument("--sys-path-file", action="store")
-
+    parser.add_argument("--resource-monitor-server", action="store")
     return parser.parse_args()
 
 
@@ -443,6 +443,17 @@ if __name__ == "__main__":
         STDOUT_HANDLER,
     )
 
+    resource_monitor_client = None
+    if ARGS.resource_monitor_server:
+        from testplan.monitor.resource import ResourceMonitorClient
+
+        resource_monitor_client = ResourceMonitorClient(
+            ARGS.resource_monitor_server
+        )
+        resource_monitor_client.start()
+
     child_logic(ARGS)
     print("child.py exiting")
+    if resource_monitor_client:
+        resource_monitor_client.stop()
     os._exit(0)
