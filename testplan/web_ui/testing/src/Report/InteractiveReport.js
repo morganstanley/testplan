@@ -68,6 +68,7 @@ class InteractiveReportComponent extends BaseReport {
     this.reloadCode = this.reloadCode.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.setPendingEnvRequest = this.setPendingEnvRequest.bind(this);
 
     this.state = {
       ...this.state,
@@ -77,6 +78,7 @@ class InteractiveReportComponent extends BaseReport {
       running: false,
       aborting: false,
       assertionStatus: defaultAssertionStatus,
+      pendingEnvRequest: "",
     };
   }
 
@@ -368,6 +370,12 @@ class InteractiveReportComponent extends BaseReport {
     }));
   }
 
+  setPendingEnvRequest(status) {
+    this.setState((state, props) => ({
+      pendingEnvRequest: status,
+    }));
+  }
+
   /**
    * Update a single entry in the report tree recursively. This function
    * returns a new report object, it does not mutate the current report.
@@ -515,9 +523,9 @@ class InteractiveReportComponent extends BaseReport {
   runAll() {
     if (
       this.state.resetting || this.state.reloading ||
-      this.state.aborting || this.state.running
+      this.state.aborting || this.state.running || this.state.pendingEnvRequest
     ) {
-      return;
+      alert("There is a pending request, please wait!");
     } else {
       const updatedReportEntry = {
         ...this.shallowReportEntry(this.state.filteredReport.report),
@@ -750,6 +758,8 @@ class InteractiveReportComponent extends BaseReport {
             envCtrlCallback={this.envCtrlCallback}
             handleColumnResizing={this.handleColumnResizing}
             url={this.props.match.path}
+            pendingEnvRequest={this.state.pendingEnvRequest}
+            setPendingEnvRequest={(status) => this.setPendingEnvRequest(status)}
           />
           <AssertionContext.Provider value={this.state.assertionStatus}>
             <ErrorBoundary>{centerPane}</ErrorBoundary>

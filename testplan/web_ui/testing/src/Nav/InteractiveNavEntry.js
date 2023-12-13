@@ -17,7 +17,6 @@ import {
   GREEN,
   ORANGE,
   BLACK,
-  LIGHT_GREY,
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
@@ -35,18 +34,22 @@ import {
  *   * Environment status icon (if required)
  */
 const InteractiveNavEntry = (props) => {
+//  const [pendingEnvRequest, setPendingEnvRequest] = useState("");
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const statusIcon = getStatusIcon(
     props.runtime_status,
     props.envStatus,
     props.handleClick,
     props.suiteRelated,
-    props.action
+    props.action,
+    props.pendingEnvRequest
   );
   const envStatusIcon = getEnvStatusIcon(
     props.runtime_status,
     props.envStatus,
-    props.envCtrlCallback
+    props.envCtrlCallback,
+    props.pendingEnvRequest,
+    props.setPendingEnvRequest,
   );
   const resetReportIcon = getResetReportIcon(
     props.runtime_status,
@@ -109,13 +112,15 @@ const getStatusIcon = (
   envStatus,
   handleClick,
   suiteRelated,
-  action
+  action,
+  pendingEnvRequest,
 ) => {
   if (suiteRelated) {
     return null;
   }
 
-  const disabled = envStatusChanging(envStatus) || action === "prohibit";
+  const disabled = envStatusChanging(envStatus) || action === "prohibit"
+    || pendingEnvRequest === "STARTING" || pendingEnvRequest === "STOPPING";
   switch (entryStatus) {
     case "ready":
       return (
@@ -238,10 +243,17 @@ function StartingStoppingIcon(starting) {
  * Returns the environment control component for entries that own an
  * environment. Returns null for entries that do not have an environment.
  */
-const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
-  const disabled = testInProgress(entryStatus);
+const getEnvStatusIcon = (
+    entryStatus,
+    envStatus,
+    envCtrlCallback,
+    pendingEnvRequest,
+    setPendingEnvRequest,
+  ) => {
+  let disabled = testInProgress(entryStatus);
   switch (envStatus) {
     case "STOPPED":
+      disabled = disabled || pendingEnvRequest === "STARTING";
       return (
         <FontAwesomeIcon
           className={
@@ -250,17 +262,24 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
             css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOff}
-          title="Start environment"
+          title={disabled ? "Pending action" : "Start environment"}
           onClick={
-            disabled ? ignoreClickEvent : (e) => envCtrlCallback(e, "start")
+            disabled ? ignoreClickEvent : (e) => {
+              setPendingEnvRequest("STARTING");
+              envCtrlCallback(e, "start");
+            }
           }
         />
       );
 
     case "STOPPING":
+      if (pendingEnvRequest === "STOPPING") {
+        setPendingEnvRequest("");
+      };
       return StartingStoppingIcon(false);
 
     case "STARTED":
+      disabled = disabled || pendingEnvRequest === "STOPPING";
       return (
         <FontAwesomeIcon
           className={
@@ -269,14 +288,20 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
             css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOn}
-          title="Stop environment"
+          title={disabled ? "Pending action" : "Stop environment"}
           onClick={
-            disabled ? ignoreClickEvent : (e) => envCtrlCallback(e, "stop")
+            disabled ? ignoreClickEvent : (e) => {
+              setPendingEnvRequest("STOPPING");
+              envCtrlCallback(e, "stop");
+            }
           }
         />
       );
 
     case "STARTING":
+      if (pendingEnvRequest === "STARTING") {
+        setPendingEnvRequest("");
+      };
       return StartingStoppingIcon(true);
 
     default:

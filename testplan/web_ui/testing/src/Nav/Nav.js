@@ -83,6 +83,8 @@ const Nav = (props) => {
         handleClick={props.handleClick}
         envCtrlCallback={props.envCtrlCallback}
         url={props.url}
+        pendingEnvRequest={props.pendingEnvRequest}
+        setPendingEnvRequest={(status) => props.setPendingEnvRequest(status)}
       />
     );
   } else if (!useTreeView && props.interactive) {
@@ -102,6 +104,8 @@ const Nav = (props) => {
         handleClick={props.handleClick}
         envCtrlCallback={props.envCtrlCallback}
         url={props.url}
+        pendingEnvRequest={props.pendingEnvRequest}
+        setPendingEnvRequest={(status) => props.setPendingEnvRequest(status)}
       />
     );
   }

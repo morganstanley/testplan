@@ -33,6 +33,8 @@ const NavList = (props) => {
           }
           suiteRelated={entry.suite_related}
           action={entry.action}
+          pendingEnvRequest={props.pendingEnvRequest}
+          setPendingEnvRequest={(status) => props.setPendingEnvRequest(status)}
         />
       ),
       base64url
