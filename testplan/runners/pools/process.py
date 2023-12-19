@@ -6,6 +6,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 from typing import List, Type, Union
 
 from schema import Or
@@ -18,6 +19,7 @@ from testplan.common.utils.timing import get_sleeper
 
 from . import tasks
 from .base import Pool, PoolConfig, Worker, WorkerConfig
+from .communication import Message
 from .connection import ZMQServer, ZMQServerProxy
 
 
@@ -160,7 +162,8 @@ class ProcessWorker(Worker):
         self._transport.disconnect()
         self.stop()
 
-    def abort_execution(self):
+    def discard_running_tasks(self):
+        # discard logic handled by pool in ``_handle_heartbeat``
         pass
 
 
@@ -220,6 +223,12 @@ class ProcessPool(Pool):
     ) -> None:
         options.update(self.filter_locals(locals()))
         super(ProcessPool, self).__init__(**options)
+        self._request_handlers.update(
+            {
+                Message.Heartbeat: self._handle_heartbeat,
+                Message.SetupFailed: self._handle_setupfailed,
+            }
+        )
 
     def add(self, task: tasks.Task, uid: str) -> None:
         """
@@ -229,3 +238,35 @@ class ProcessPool(Pool):
         if isinstance(task, tasks.Task) and task.module == "__main__":
             raise ValueError("Cannot add Tasks from __main__ to ProcessPool")
         super(ProcessPool, self).add(task, uid)
+
+    def _handle_heartbeat(
+        self, worker: Worker, request: Message, response: Message
+    ) -> None:
+        """Handle a Heartbeat message received from a worker."""
+        worker.last_heartbeat = time.time()
+        self.logger.debug(
+            "Received heartbeat from %s at %s after %ss.",
+            worker,
+            request.data,
+            time.time() - request.data,
+        )
+        if self._discard_pending:
+            worker.respond(
+                response.make(
+                    Message.DiscardPending, data=worker.last_heartbeat
+                )
+            )
+        else:
+            worker.respond(
+                response.make(Message.Ack, data=worker.last_heartbeat)
+            )
+
+    def _handle_setupfailed(
+        self, worker: Worker, request: Message, response: Message
+    ) -> None:
+        """Handle a SetupFailed message received from a worker."""
+        self.logger.user_info(
+            "Worker %s setup failed:%s%s", worker, os.linesep, request.data
+        )
+        worker.respond(response.make(Message.Ack))
+        self._decommission_worker(worker, "Aborting {}, setup failed.")

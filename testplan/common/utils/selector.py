@@ -46,7 +46,15 @@ class Not(Generic[T]):
 class Eq(Generic[U]):
     val: U
 
-    def map(self, f):
+    def map(self, _):
+        return self
+
+
+@dataclass
+class Const(Generic[T]):
+    val: bool
+
+    def map(self, _):
         return self
 
 
@@ -60,6 +68,8 @@ def cata(f: Callable, rep: Expr):
 
 def eval_on_set(s: Set) -> Callable:
     def _(x):
+        if isinstance(x, Const):
+            return {i for i in s if x.val}
         if isinstance(x, Eq):
             return {i for i in s if i == x.val}
         if isinstance(x, And2):
@@ -79,6 +89,8 @@ def apply_on_set(rep: Expr, s: Set) -> Set:
 
 def apply_single(rep: Expr, i: Any) -> bool:
     def _(x):
+        if isinstance(x, Const):
+            return x.val
         if isinstance(x, Eq):
             return x.val == i
         if isinstance(x, And2):
@@ -89,4 +101,4 @@ def apply_single(rep: Expr, i: Any) -> bool:
             return not x.term
         raise TypeError(f"unexpected {x}")
 
-    return cata(_(i), rep)
+    return cata(_, rep)

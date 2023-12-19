@@ -1,9 +1,47 @@
 """TODO."""
 
-from testplan.runners.pools.tasks import RunnableTaskAdaptor
+from typing import Any
+from dataclasses import dataclass
+
+from testplan.report.testing import Status
 
 
-class Runnable:
+@dataclass
+class DuckReport:
+    status: Status
+    val: Any
+
+
+@dataclass
+class DuckResult:
+    report: DuckReport
+
+
+class RunnableMixin:
+    def run(self):
+        return DuckResult(DuckReport(Status.PASSED, self._run()))
+
+
+class RunnableTaskAdaptor(RunnableMixin):
+    """Minimal callable to runnable task adaptor."""
+
+    __slots__ = ("_target", "_args", "_kwargs")
+
+    def __init__(self, target, *args, **kwargs):
+        self._target = target
+        self._args = args
+        self._kwargs = kwargs
+
+    def _run(self):
+        """Provide mandatory .run() task method."""
+        return self._target(*self._args, **self._kwargs)
+
+    def uid(self):
+        """Provide mandatory .uid() task method."""
+        return strings.uuid4()
+
+
+class Runnable(RunnableMixin):
     """TODO."""
 
     def __init__(self, number, multiplier=2):
@@ -12,7 +50,7 @@ class Runnable:
         self._multiplier = multiplier
         self._stopped = False
 
-    def run(self):
+    def _run(self):
         """TODO."""
         return self._number * self._multiplier
 
@@ -37,7 +75,7 @@ class NonRunnable:
 class RunnableThatRaises(Runnable):
     """TODO."""
 
-    def run(self):
+    def _run(self):
         """TODO."""
         raise Exception("123")
 
@@ -53,7 +91,7 @@ class RunnableStopRaises(Runnable):
 class NonSerializableResult(Runnable):
     """TODO."""
 
-    def run(self):
+    def _run(self):
         """TODO."""
         return lambda x: x * 2
 
@@ -61,7 +99,7 @@ class NonSerializableResult(Runnable):
 class RunnableThatHungs(Runnable):
     """TODO."""
 
-    def run(self):
+    def _run(self):
         """TODO."""
         while True:
             pass

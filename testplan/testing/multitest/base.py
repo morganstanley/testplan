@@ -12,6 +12,7 @@ from schema import And, Or, Use
 from testplan.common import config, entity
 from testplan.common.utils import (
     interface,
+    logger,
     strings,
     timing,
     validation,
@@ -27,7 +28,10 @@ from testplan.report import (
 )
 from testplan.testing import base as testing_base
 from testplan.testing import filtering, tagging
-from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
+from testplan.testing.common import (
+    TEST_PART_PATTERN_FORMAT_STRING,
+    SkipStrategy,
+)
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
@@ -179,6 +183,14 @@ class RuntimeEnvironment:
         return len(self._environment)
 
 
+def deprecate_stop_on_error(user_input):
+    if user_input == False:
+        return None
+    # logger_ = logger.get_config_logger(MultiTestConfig)
+    # logger_.warning("``stop_on_error`` on MultiTest constructor has been deprecated, please use ``skip_strategy`` instead.")
+    return True
+
+
 class MultiTestConfig(testing_base.TestConfig):
     """
     Configuration object for
@@ -192,7 +204,9 @@ class MultiTestConfig(testing_base.TestConfig):
             "suites": Use(iterable_suites),
             config.ConfigOption("thread_pool_size", default=0): int,
             config.ConfigOption("max_thread_pool_size", default=10): int,
-            config.ConfigOption("stop_on_error", default=True): bool,
+            config.ConfigOption("stop_on_error", default=None): And(
+                bool, Use(deprecate_stop_on_error)
+            ),
             config.ConfigOption("part", default=None): Or(
                 None,
                 And(
@@ -279,7 +293,6 @@ class MultiTest(testing_base.Test):
         dependencies=None,
         thread_pool_size=0,
         max_thread_pool_size=10,
-        stop_on_error=True,
         part=None,
         multi_part_uid=None,
         before_start=None,
@@ -351,8 +364,22 @@ class MultiTest(testing_base.Test):
         """
 
         # watch line features depends on configuration from the outside world
-        if self.cfg.parent is not None and self.cfg.tracing_tests is not None:
-            self.watcher.set_watching_lines(self.cfg.tracing_tests)
+        try:
+            tracing_tests = self.cfg.tracing_tests
+        except AttributeError:
+            tracing_tests = None
+        if tracing_tests is not None:
+            self.watcher.set_watching_lines(tracing_tests)
+
+        # handling deprecated ``stop_on_error``
+        if self.cfg.stop_on_error:
+            o_cfg = SkipStrategy.noop()
+            o_cfg.case_comparable = Status.ERROR
+            try:
+                c_cfg = self.cfg.skip_strategy
+            except AttributeError:
+                c_cfg = SkipStrategy.noop()
+            self.cfg.set_local("skip_strategy", o_cfg.merge(c_cfg))
 
     def get_test_context(self):
         """
@@ -477,10 +504,8 @@ class MultiTest(testing_base.Test):
                 if style.display_testsuite:
                     self.log_suite_status(testsuite_report)
 
-                if (
-                    self.cfg.test_breaker_thres.test_level
-                    and testsuite_report.status
-                    <= self.cfg.test_breaker_thres.test_level
+                if self.cfg.skip_strategy.should_skip_rest_suites(
+                    testsuite_report.status
                 ):
                     # omit ``should_stop``
                     break
@@ -798,14 +823,9 @@ class MultiTest(testing_base.Test):
 
             # If there was any error in running the serial testcases, we will
             # not continue to run the parallel testcases if configured to
-            # stop on errrors.
-            should_stop = (
-                self.cfg.test_breaker_thres.suite_level
-                and testsuite_report.status
-                <= self.cfg.test_breaker_thres.suite_level
-            ) or (
-                testsuite_report.status <= Status.ERROR
-                and self.cfg.stop_on_error
+            # stop on errrors. (skip_strategy.case_comparable == Status.ERROR)
+            should_stop = self.cfg.skip_strategy.should_skip_rest_cases(
+                testsuite_report.status
             )
 
             if parallel_cases and not should_stop:
@@ -862,13 +882,8 @@ class MultiTest(testing_base.Test):
             else:
                 testcase_reports.append(testcase_report)
 
-            if (
-                self.cfg.test_breaker_thres.suite_level
-                and testcase_report.status
-                <= self.cfg.test_breaker_thres.suite_level
-            ) or (
-                testcase_report.status == Status.ERROR
-                and self.cfg.stop_on_error
+            if self.cfg.skip_strategy.should_skip_rest_cases(
+                testcase_report.status
             ):
                 # omit ``should_stop`` here
                 break
@@ -923,13 +938,8 @@ class MultiTest(testing_base.Test):
                 # If any testcase errors and we are configured to stop on
                 # errors, we still wait for the rest of the current execution
                 # group to finish before stopping.
-                if (
-                    self.cfg.test_breaker_thres.suite_level
-                    and testcase_report.status
-                    <= self.cfg.test_breaker_thres.suite_level
-                ) or (
-                    testcase_report.status == Status.ERROR
-                    and self.cfg.stop_on_error
+                if self.cfg.skip_strategy.should_skip_rest_suites(
+                    testcase_report.status
                 ):
                     should_stop = True
 

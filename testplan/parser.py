@@ -208,12 +208,12 @@ A typical input JSON looks like below:
         general_group.add_argument(
             "--skip-remaining",
             metavar="OPTION",
-            choices=common.TestBreakerThres.reps(),
-            dest="test_breaker_thres",
+            choices=common.SkipStrategy.all_options(),
+            dest="skip_strategy",
             help="When a Testcase has failed or error has occurred, skip the "
             "remaining of Testcases in the same Testsuite/Multitest/Testplan (or "
             "anything with equal level) being executed. Valid values: "
-            + str(common.TestBreakerThres.reps()),
+            + str(common.SkipStrategy.all_options()),
         )
 
         filter_group = parser.add_argument_group("Filtering")

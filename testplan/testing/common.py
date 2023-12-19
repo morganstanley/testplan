@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from itertools import product
-from typing import List, Optional
+from typing import List
 
 from typing_extensions import Self
 
@@ -16,40 +16,71 @@ TEST_PART_PATTERN_REGEX = re.compile(
 
 
 @dataclass
-class TestBreakerThres:
-    plan_level: Status
-    test_level: Status
-    suite_level: Status
+class SkipStrategy:
+    case_comparable: Status
+    suite_comparable: Status
+    test_comparable: Status
 
     @classmethod
-    def null(cls) -> Self:
-        return cls(Status(None), Status(None), Status(None))
+    def noop(cls) -> Self:
+        return cls(Status.BOTTOM, Status.BOTTOM, Status.BOTTOM)
 
     @classmethod
-    def parse(cls, option: str) -> Self:
-        tl, sl = option.split("-on-")
-        s = Status(sl)
-        r = cls.null()
-        r.suite_level = s
-        if tl == "test":
-            r.test_level = s
-        elif tl == "plan":
-            r.test_level = s
-            r.plan_level = s
+    def from_option(cls, option: str) -> Self:
+        vals = cls.all_options()
+        if option not in vals:
+            raise ValueError(
+                f"invalid option for ``SkipStrategy``, valid values are {vals}."
+            )
+        sib, st = option.split("-on-")
+        st = Status(st)
+        r = cls.noop()
+        r.case_comparable = st
+        if sib == "suites":
+            r.suite_comparable = st
+        if sib == "tests":
+            r.suite_comparable = st
+            r.test_comparable = st
         return r
 
     @classmethod
-    def reps(cls) -> List[str]:
+    def all_options(cls) -> List[str]:
         return list(
             map(
                 lambda x: "-on-".join(x),
-                product(["suite", "test", "plan"], ["failed", "error"]),
+                product(["cases", "suites", "tests"], ["failed", "error"]),
             )
         )
 
-    def __bool__(self):
-        return (
-            bool(self.plan_level)
-            or bool(self.test_level)
-            or bool(self.suite_level)
+    def should_skip_rest_cases(self, case_status: Status):
+        return case_status <= self.case_comparable
+
+    def should_skip_rest_suites(self, suite_status: Status):
+        return suite_status <= self.suite_comparable
+
+    def should_skip_rest_tests(self, test_status: Status):
+        return test_status <= self.test_comparable
+
+    def merge(self, other: Self) -> Self:
+        self.case_comparable = Status.precedent(
+            [self.case_comparable, other.case_comparable]
+        )
+        self.suite_comparable = Status.precedent(
+            [self.suite_comparable, other.suite_comparable]
+        )
+        self.test_comparable = Status.precedent(
+            [self.test_comparable, other.test_comparable]
+        )
+        return self
+
+    def __bool__(self) -> bool:
+        return any(
+            map(
+                bool,
+                [
+                    self.case_comparable,
+                    self.suite_comparable,
+                    self.test_comparable,
+                ],
+            )
         )

@@ -15,7 +15,7 @@ MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
     "stdout_style": defaults.STDOUT_STYLE,
-    "test_breaker_thres": common.TestBreakerThres.null(),
+    "skip_strategy": common.SkipStrategy.noop(),
 }
 
 
@@ -511,3 +511,45 @@ def _check_param_testcase_report(testcase_report, i):
     assert greater_assertion["type"] == "Greater"
     assert greater_assertion["first"] == i + 1
     assert greater_assertion["second"] == 0
+
+
+@multitest.testsuite
+class MySuite6:
+    def __init__(self, where_to_raise):
+        self.where = where_to_raise
+
+    def pre_testcase(self, env, result):
+        env.mock.custom_method()
+        if self.where == "pre_testcase":
+            raise RuntimeError(self.where)
+        env.mock.custom_method()
+
+    @multitest.testcase
+    def in_the_middle(self, env, result):
+        env.mock.custom_method()
+        if self.where == "in_the_middle":
+            raise RuntimeError(self.where)
+        env.mock.custom_method()
+
+    def post_testcase(self, env, result):
+        env.mock.custom_method()
+        if self.where == "post_testcase":
+            raise RuntimeError(self.where)
+        env.mock.custom_method()
+
+
+@pytest.mark.parametrize(
+    "where,called_times",
+    (
+        ("pre_testcase", 3),
+        ("post_testcase", 5),
+        ("in_the_middle", 5),
+    ),
+)
+def test_multitest_exception_handling(where, called_times, mocker):
+    # TODO
+    ...
+
+
+def test_multitest_skip_remaining():
+    ...

@@ -1,19 +1,15 @@
 """Executor base classes."""
 
 import threading
-import time
 from collections import OrderedDict
-from queue import Empty, Queue
-from typing import Callable, Dict, Generator, List, Optional
+from typing import Generator, List, Optional
 
+from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.report.base import EventRecorder
+from testplan.common.utils.selector import Expr as SExpr
 from testplan.common.utils.thread import interruptible_join
-from testplan.runnable.messaging import (
-    InterExecutorMessage,
-    InterExecutorMessageT,
-    QueueChannels,
-)
+from testplan.testing.common import SkipStrategy
 
 
 class ExecutorConfig(ResourceConfig):
@@ -25,6 +21,14 @@ class ExecutorConfig(ResourceConfig):
     :py:class:`~testplan.common.entity.base.ResourceConfig`
     options.
     """
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption(
+                "skip_strategy", default=SkipStrategy.noop()
+            ): SkipStrategy,
+        }
 
 
 class Executor(Resource):
@@ -44,15 +48,7 @@ class Executor(Resource):
         self._results = OrderedDict()
         self.ongoing = []
 
-        # for cross-executor messaging
-        # XXX: _msg_self_id is a workaround for inconsistent "uid"s
-        self._msg_self_id: Optional[str] = None
-        self._msg_in_channel: Optional[Queue] = None
-        self._msg_out_channels: Optional[QueueChannels] = None
-        self._msg_handlers: Dict[InterExecutorMessageT, Callable] = {
-            InterExecutorMessageT.EXPECTED_ABORT: self._handle_expected_abort
-        }
-        self._msg_thread: Optional[threading.Thread] = None
+        self.id_in_parent: Optional[str] = None
 
     @property
     def class_name(self) -> str:
@@ -97,36 +93,6 @@ class Executor(Resource):
     def _loop(self) -> None:
         raise NotImplementedError()
 
-    def _msg_handling_loop(self) -> None:
-        try:
-            interval = self.cfg.active_loop_sleep
-        except AttributeError:
-            # FIXME
-            self.logger.warning(
-                "Config option ``active_loop_sleep`` not found in %s, "
-                "will not start executor messaging loop.",
-                self,
-            )
-            return
-
-        while self.active and self.status.tag not in (
-            self.status.STOPPING,
-            self.status.STOPPED,
-        ):
-            try:
-                msg: InterExecutorMessage = self._msg_in_channel.get_nowait()
-            except Empty:
-                pass
-            else:
-                self.logger.debug(
-                    "Executor[%s] receiving %s.", self.uid(), msg.mark
-                )
-                self._msg_handlers[msg.mark](msg)
-            time.sleep(interval)
-
-    def _handle_expected_abort(self, _):
-        raise NotImplementedError()
-
     def _prepopulate_runnables(self) -> None:
         # If we are to apply test_sorter, it would be here
         # but it's not easy to implement a reasonable behavior
@@ -140,17 +106,10 @@ class Executor(Resource):
         self._loop_handler.daemon = True
         self._loop_handler.start()
 
-        if self._msg_self_id:
-            self._msg_thread = threading.Thread(target=self._msg_handling_loop)
-            self._msg_thread.daemon = True
-            self._msg_thread.start()
-
     def stopping(self) -> None:
         """Stop the executor."""
         if self._loop_handler:
             interruptible_join(self._loop_handler, timeout=self._STOP_TIMEOUT)
-        if self._msg_thread:
-            interruptible_join(self._msg_thread, timeout=self._STOP_TIMEOUT)
 
     def abort_dependencies(self) -> Generator:
         """Abort items running before aborting self."""
@@ -169,12 +128,24 @@ class Executor(Resource):
         """Resource has pending work."""
         return len(self.ongoing) > 0
 
-    def set_channel_specs(
-        self, exec_mark: str, exec_chann: Queue, channels: QueueChannels
-    ):
-        self._msg_self_id = exec_mark
-        self._msg_in_channel = exec_chann
-        self._msg_out_channels = channels
+    def discard_pending_tasks(self, reluctantly: bool):
+        # should discard current executing runnable as well
+        # in case of timeout, reluctantly
+        # in case of skip-remaining, willingly
+        # NOTE: currently Task src lives under pool, which doesn't reflect the
+        # NOTE: fact that LocalRunner is able to consume them
+        # NOTE: src to be re-arranged, types (TaskResult and TestResult) to be
+        # NOTE: uniformed, before similar logic promoted to their common
+        # NOTE: ancestor - Executor
+        raise NotImplementedError()
+
+    def bubble_up_discard_tasks(self, exec_selector: SExpr):
+        # used by "skip-remaining" feature
+        # should only be triggered when live under TestRunner
+        from testplan.runnable.base import TestRunner
+
+        if self.parent is not None and isinstance(self.parent, TestRunner):
+            self.parent.discard_pending_tasks(exec_selector, reluctantly=False)
 
     def get_current_status_for_debug(self) -> List[str]:
         """

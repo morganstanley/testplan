@@ -182,6 +182,11 @@ class Config:
         else:
             return default
 
+    def set_local(self, name, value):
+        """set without any check"""
+        options = self.__getattribute__("_options")
+        options[name] = value
+
     @property
     def parent(self):
         """Returns the parent configuration."""

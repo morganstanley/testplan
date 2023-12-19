@@ -86,7 +86,7 @@ class TestConfig(RunnableConfig):
             ConfigOption("test_filter"): filtering.BaseFilter,
             ConfigOption("test_sorter"): ordering.BaseSorter,
             ConfigOption("stdout_style"): test_styles.Style,
-            ConfigOption("test_breaker_thres"): common.TestBreakerThres,
+            ConfigOption("skip_strategy"): common.SkipStrategy,
             ConfigOption("tags", default=None): Or(
                 None, Use(tagging.validate_tag_value)
             ),

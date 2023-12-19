@@ -6,6 +6,7 @@ import testplan.common.utils.selector as S
 
 
 def test_basic_op():
+    assert S.apply_single(S.Not(S.Eq("a")), "a") == False
     assert S.apply_on_set(S.Not(S.Eq("a")), {"a", "b"}) == {"b"}
     assert S.apply_on_set(S.Not(S.Eq("a")), {"c", "b"}) == {"b", "c"}
     assert S.apply_on_set(

@@ -33,7 +33,6 @@ def test_pool_basic():
     dirname = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(dirname, "tasks", "data", "relative")
 
-    # FIXME: rewrite
     task1 = Task(target=Runnable(5))
     task2 = Task(
         target="Runnable",
@@ -43,8 +42,8 @@ def test_pool_basic():
         kwargs=dict(multiplier=3),
     )
 
-    assert task1.materialize().run() == 10
-    assert task2.materialize().run() == 30
+    assert task1.materialize().run().report.val == 10
+    assert task2.materialize().run().report.val == 30
 
     pool = pools_base.Pool(
         name="MyPool", size=4, runpath=default_runpath, allow_task_rerun=False
@@ -59,10 +58,14 @@ def test_pool_basic():
             pass
 
     assert (
-        pool.get(task1.uid()).result == pool.results[task1.uid()].result == 10
+        pool.get(task1.uid()).result.report.val
+        == pool.results[task1.uid()].result.report.val
+        == 10
     )
     assert (
-        pool.get(task2.uid()).result == pool.results[task2.uid()].result == 30
+        pool.get(task2.uid()).result.report.val
+        == pool.results[task2.uid()].result.report.val
+        == 30
     )
 
 

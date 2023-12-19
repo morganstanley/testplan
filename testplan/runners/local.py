@@ -5,7 +5,6 @@ from typing import List
 
 import testplan.common.utils.selector as S
 from testplan.report import ReportCategories, Status, TestGroupReport
-from testplan.runnable.messaging import InterExecutorMessage
 from testplan.runners.base import Executor
 from testplan.runners.pools import tasks
 from testplan.testing.base import Test, TestResult
@@ -23,15 +22,16 @@ class LocalRunner(Executor):
     def __init__(self, **options) -> None:
         super(LocalRunner, self).__init__(**options)
         self._uid = "local_runner"
+
         self._to_skip_remaining = False
-        self._curr_runnable_lock = threading.Lock()
+        self._ongoing_lock = threading.Lock()
         self._curr_runnable = None
 
     def execute(self, uid: str) -> TestResult:
         """Execute item implementation."""
         # First retrieve the input from its UID.
         if self._to_skip_remaining:
-            # should be disposed immediately
+            # to skip materialize, should be disposed immediately
             return TestResult()
 
         target = self._input[uid]
@@ -56,21 +56,16 @@ class LocalRunner(Executor):
         if not runnable.cfg.parent:
             runnable.cfg.parent = self.cfg
 
-        with self._curr_runnable_lock:
+        with self._ongoing_lock:
             self._curr_runnable = runnable
         result = self._curr_runnable.run()
-        with self._curr_runnable_lock:
+        with self._ongoing_lock:
             self._curr_runnable = None
 
         return result
 
     def _loop(self) -> None:
         """Execution loop implementation for local runner."""
-        try:
-            thres = self.cfg.test_breaker_thres.plan_level
-        except AttributeError:
-            thres = None
-
         while self.active:
             if self.status == self.status.STARTING:
                 self.status.change(self.status.STARTED)
@@ -95,19 +90,19 @@ class LocalRunner(Executor):
                             exc,
                         )
                     finally:
-                        with self._curr_runnable_lock:
+                        with self._ongoing_lock:
                             if not self._to_skip_remaining:
                                 # otherwise result from aborted test included
                                 self._results[next_uid] = result
                                 self.ongoing.pop(0)
 
-                    if thres and result.report.status <= thres:
-                        if self._msg_self_id is not None:
-                            self._msg_out_channels.cast(
-                                S.Not(S.Eq(self._msg_self_id)),
-                                InterExecutorMessage.make_expected_abort(),
-                            )
-                        self._silently_skip_remaining()
+                    if self.cfg.skip_strategy.should_skip_rest_tests(
+                        result.report.status
+                    ):
+                        self.bubble_up_discard_tasks(
+                            S.Not(S.Eq(self.id_in_parent))
+                        )
+                        self.discard_pending_tasks(reluctantly=False)
 
             elif self.status == self.status.STOPPING:
                 self.status.change(self.status.STOPPED)
@@ -128,32 +123,30 @@ class LocalRunner(Executor):
 
     def aborting(self) -> None:
         """Aborting logic."""
-        self.logger.critical("Discard pending tasks of %s.", self)
-        # Will announce that all the ongoing tasks fail, but there is a buffer
-        # period and some tasks might be finished, so, copy the uids of ongoing
-        # tasks and set test result, although the report could be overwritten.
-        ongoing = self.ongoing[:]
-        while ongoing:
-            uid = ongoing.pop(0)
-            result = TestResult()
-            result.report = TestGroupReport(
-                name=uid, category=ReportCategories.ERROR
-            )
-            result.report.status_override = Status.ERROR
-            result.report.logger.critical(
-                "Test [%s] discarding due to %s abort.", uid, self.uid()
-            )
-            self._results[uid] = result
+        self.discard_pending_tasks(reluctantly=True)
 
-    def _silently_skip_remaining(self):
-        self.ongoing = []
-
-    def _handle_expected_abort(self, _):
-        with self._curr_runnable_lock:
+    def discard_pending_tasks(self, reluctantly: bool):
+        self._to_skip_remaining = True
+        with self._ongoing_lock:
             if self._curr_runnable:
                 self._curr_runnable.abort()
-            self._to_skip_remaining = True
-            self._silently_skip_remaining()
+            if reluctantly:
+                self.logger.critical("Discard pending tasks of %s.", self)
+                while self.ongoing:
+                    uid = self.ongoing.pop(0)
+                    result = TestResult()
+                    result.report = TestGroupReport(
+                        name=uid, category=ReportCategories.ERROR
+                    )
+                    result.report.status_override = Status.ERROR
+                    result.report.logger.critical(
+                        "Test [%s] discarding due to %s abort.",
+                        uid,
+                        self.uid(),
+                    )
+                    self._results[uid] = result
+            else:
+                self.ongoing = []
 
     def get_current_status_for_debug(self) -> List[str]:
         """

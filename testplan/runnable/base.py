@@ -41,6 +41,8 @@ from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
+from testplan.common.utils.selector import Expr as SExpr
+from testplan.common.utils.selector import apply_single
 from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
@@ -53,7 +55,6 @@ from testplan.report import (
 from testplan.report.filter import ReportingFilter
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
-from testplan.runnable.messaging import QueueChannels
 from testplan.runners.base import Executor
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.tasks import Task, TaskResult
@@ -228,10 +229,10 @@ class TestRunnerConfig(RunnableConfig):
                 "plan_runtime_target", default=defaults.PLAN_RUNTIME_TARGET
             ): Or(int, float),
             ConfigOption(
-                "test_breaker_thres", default=common.TestBreakerThres.null()
+                "skip_strategy", default=common.SkipStrategy.noop()
             ): Or(
-                And(str, Use(common.TestBreakerThres.parse)),
-                And(None, Use(lambda _: common.TestBreakerThres.null())),
+                And(None, Use(lambda _: common.SkipStrategy.noop())),
+                And(str, Use(common.SkipStrategy.from_option)),
             ),
         }
 
@@ -398,7 +399,6 @@ class TestRunner(Runnable):
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = not self._is_interactive_run()
-        self._exec_channels = QueueChannels()
         self.scheduled_modules = []  # For interactive reload
         self.remote_services = {}
         self.runid_filename = uuid.uuid4().hex
@@ -507,10 +507,7 @@ class TestRunner(Runnable):
         resource.cfg.parent = self.cfg
         real_uid = uid or getattr(resource, "uid", strings.uuid4)()
         if isinstance(resource, Executor):
-            exec_id, exec_chann = self._exec_channels.new_channel(real_uid)
-            resource.set_channel_specs(
-                exec_id, exec_chann, self._exec_channels
-            )
+            resource.id_in_parent = real_uid
         return self.resources.add(resource, uid=real_uid)
 
     def add_exporters(self, exporters: List[Exporter]):
@@ -900,6 +897,7 @@ class TestRunner(Runnable):
         self.resources[resource].add(target, uid)
 
     def _collect_task_info(self, target: TestTask) -> TaskInformation:
+        # FIXME
         if callable(target):
             target = Task(target)
         if isinstance(target, Test):
@@ -1313,6 +1311,11 @@ class TestRunner(Runnable):
                     "No reports opened, could not find "
                     "an exported result to browse"
                 )
+
+    def discard_pending_tasks(self, exec_selector: SExpr, reluctantly: bool):
+        for k, v in self.resources.items():
+            if isinstance(v, Executor) and apply_single(exec_selector, k):
+                v.discard_pending_tasks(reluctantly)
 
     def abort_dependencies(self):
         """

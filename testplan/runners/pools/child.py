@@ -63,7 +63,7 @@ class ChildLoop:
 
     def _child_pool(self):
         # Local thread pool will not cleanup the previous layer runpath.
-        self._pool = self._pool_type(
+        self._pool: Pool = self._pool_type(
             name=f"Pool_{self._metadata['pid']}",
             worker_type=self._worker_type,
             size=self._pool_size,
@@ -206,6 +206,8 @@ class ChildLoop:
                             hb_resp.data,
                             time.time() - hb_resp.data,
                         )
+                    if hb_resp.cmd == Message.DiscardPending:
+                        self._pool.discard_pending_tasks(reluctantly=False)
                     next_heartbeat = now + self._pool_cfg.worker_heartbeat
 
                 # Send back results
@@ -347,6 +349,7 @@ def child_logic(args):
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
+    # FIXME: dedup
     class NoRunpathThreadPool(Pool):
         """
         Pool that creates no runpath directory.

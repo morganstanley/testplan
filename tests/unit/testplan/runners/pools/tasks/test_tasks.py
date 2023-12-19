@@ -10,10 +10,11 @@ from testplan.common.serialization import (
     SerializationError,
 )
 from testplan.runners.pools.tasks import (
-    RunnableTaskAdaptor,
     Task,
     TaskMaterializationError,
 )
+
+from .data.sample_tasks import RunnableMixin, RunnableTaskAdaptor
 
 
 class NonRunnableObject:
@@ -42,10 +43,10 @@ class RunnableThatRaises:
         return "RunnableThatRaises"
 
 
-class Runnable:
+class Runnable(RunnableMixin):
     """Runnable."""
 
-    def run(self):
+    def _run(self):
         """Run method."""
         return sys.maxsize
 
@@ -54,14 +55,14 @@ class Runnable:
         return "Runnable"
 
 
-class RunnableWithArg:
+class RunnableWithArg(RunnableMixin):
     """Runnable."""
 
     def __init__(self, number=None):
         """Init."""
         self._number = number
 
-    def run(self):
+    def _run(self):
         """Run method."""
         return self._number or sys.maxsize
 
@@ -112,7 +113,7 @@ def materialized_task_result(task, expected, serialize=False):
     if serialize is True:
         serialized = task.dumps()
         task = Task().loads(serialized)
-    assert materialized.run() == expected
+    assert materialized.run().report.val == expected
 
 
 # pylint: disable=R0201

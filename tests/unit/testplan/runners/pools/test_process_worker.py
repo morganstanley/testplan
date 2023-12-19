@@ -43,8 +43,8 @@ class TestProcPool:
 
         # Check that the expected result is stored both on the worker and
         # on the pool's result.
-        assert proc_pool.get(example_task.uid()).result == 21
-        assert proc_pool.results[example_task.uid()].result == 21
+        assert proc_pool.get(example_task.uid()).result.report.val == 21
+        assert proc_pool.results[example_task.uid()].result.report.val == 21
 
     def test_add_main(self, proc_pool):
         """

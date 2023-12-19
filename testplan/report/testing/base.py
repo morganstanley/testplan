@@ -114,6 +114,7 @@ class Status(Enum):
     We have both "less than" and "less than or equal to" as partial order relations.
     """
 
+    BOTTOM = "\\bot"  # for comparing
     ERROR = "error"
     FAILED = "failed"
     INCOMPLETE = "incomplete"
@@ -159,22 +160,26 @@ class Status(Enum):
         return lhs <= rhs
 
     def precede(self, other: Self) -> bool:
-        # a (slightly) more intuitive & exception-free version
+        # a more intuitive & exception-free version
         try:
             return self < other
         except TypeError:
             return False
 
     def normalised(self) -> Self:
-        return STATUS_NORMED[STATUS_PRECEDENCE[self] // 10]
+        idx = STATUS_PRECEDENCE[self] // 10
+        if idx < 0:
+            raise ValueError(f"{self} cannot be normalised")
+        return STATUS_NORMED[idx]
 
     def __bool__(self) -> bool:
-        return self != self.NONE
+        return self not in (self.BOTTOM, self.NONE)
 
 
 # Status Precedence encoded by numeric value and
 # Status categorization done through list indices.
 STATUS_PRECEDENCE = {
+    Status.BOTTOM: -1,
     Status.ERROR: 9,
     Status.INCOMPLETE: 18,
     Status.XPASS_STRICT: 18,

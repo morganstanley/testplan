@@ -17,6 +17,7 @@ class Message:
     ConfigRequest = "ConfigRequest"
     ConfigSending = "ConfigSending"
     SetupFailed = "SetupFailed"
+    DiscardPending = "DiscardPending"
     InitRequest = "InitRequest"
     KeepAlive = "KeepAlive"
 

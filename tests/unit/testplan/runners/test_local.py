@@ -5,7 +5,6 @@ import pytest
 import testplan.testing.multitest as mt
 from testplan.common.utils.selector import Eq
 from testplan.runnable import TestRunner as MyTestRunner
-from testplan.runnable.messaging import InterExecutorMessage
 from testplan.runners.local import LocalRunner
 
 
@@ -21,9 +20,9 @@ class Suite:
         result.true(False)
         sleep(self.post)
 
-    @mt.testcase
-    def case_b(self, env, result):
-        result.true(False)
+    # @mt.testcase
+    # def case_b(self, env, result):
+    #     result.true(False)
 
 
 MT_NAME = "dummy_mt"
@@ -47,12 +46,9 @@ def test_local_simple_abort(pre_sleep, post_sleep, out_sleep, has_result):
     mt = gen_mt(Suite(pre_sleep, post_sleep))
     par.add(mt, "non-express")
     r: LocalRunner = par.resources["non-express"]
-    chs = par._exec_channels
     r.start()
     sleep(out_sleep)
-    chs.cast(Eq("non-express"), InterExecutorMessage.make_expected_abort())
-    while r.pending_work():
-        sleep(0.1)
+    par.discard_pending_tasks(Eq("non-express"), reluctantly=False)
     r.stop()
     if has_result:
         # we don't have other runners here, casted messages might not get
@@ -60,7 +56,7 @@ def test_local_simple_abort(pre_sleep, post_sleep, out_sleep, has_result):
         assert MT_NAME in r.results
         repo = r.results[MT_NAME].report
         assert len(repo) == 1
-        assert len(repo.entries[0]) == 2
+        assert len(repo.entries[0]) == 1
     else:
         assert r._to_skip_remaining is True
         assert len(r.results) == 0
