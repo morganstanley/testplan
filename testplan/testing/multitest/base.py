@@ -397,7 +397,11 @@ class MultiTest(testing_base.Test):
             ) < len(sorted_testcases):
                 testcases_to_run = sorted_testcases
 
-            if self.cfg.testcase_report_target:
+            if self.cfg.testcase_report_target and not (
+                getattr(self, "parent", None)
+                and hasattr(self.parent, "cfg")
+                and self.parent.cfg.interactive_port is not None
+            ):
                 testcases_to_run = [
                     report_target(
                         func=testcase,
@@ -517,7 +521,14 @@ class MultiTest(testing_base.Test):
 
             if shallow_report is None:
                 testcases = [
-                    testcase
+                    report_target(
+                        func=testcase,
+                        ref_func=getattr(
+                            testsuite,
+                            getattr(testcase, "_parametrization_template", ""),
+                            None,
+                        ),
+                    )
                     for testcase in testcases
                     if test_filter.filter(
                         test=self, suite=testsuite, case=testcase
@@ -527,7 +538,14 @@ class MultiTest(testing_base.Test):
                 if testsuite.name not in test_targets:
                     continue
                 testcases = [
-                    testcase
+                    report_target(
+                        func=testcase,
+                        ref_func=getattr(
+                            testsuite,
+                            getattr(testcase, "_parametrization_template", ""),
+                            None,
+                        ),
+                    )
                     for testcase in testcases
                     if testcase.name in test_targets[testsuite.name]
                 ]

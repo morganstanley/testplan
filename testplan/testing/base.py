@@ -244,6 +244,8 @@ class Test(Runnable):
 
     @property
     def test_context(self):
+        # NOTE: there is probably a better way to ask safely if something
+        #             is interactive
         if (
             getattr(self, "parent", None)
             and hasattr(self.parent, "cfg")
