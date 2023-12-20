@@ -1,0 +1,1 @@
+Skip exporters invocation when report is empty.
