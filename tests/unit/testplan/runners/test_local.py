@@ -20,10 +20,6 @@ class Suite:
         result.true(False)
         sleep(self.post)
 
-    # @mt.testcase
-    # def case_b(self, env, result):
-    #     result.true(False)
-
 
 MT_NAME = "dummy_mt"
 
@@ -40,7 +36,7 @@ def gen_mt(*suites):
         (0, 0, 0.5, True),
     ),
 )
-def test_local_simple_abort(pre_sleep, post_sleep, out_sleep, has_result):
+def test_local_discard_pending(pre_sleep, post_sleep, out_sleep, has_result):
     par = MyTestRunner(name="in-the-middle-of-unit-tests")
     par.add_resource(LocalRunner(), "non-express")
     mt = gen_mt(Suite(pre_sleep, post_sleep))

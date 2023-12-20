@@ -8,6 +8,7 @@ from testplan.common.utils.path import default_runpath
 from testplan.runners.pools import base as pools_base
 from testplan.runners.pools import communication
 from testplan.runners.pools.base import TaskQueue
+from testplan.testing.common import SkipStrategy
 from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
 
 
@@ -48,6 +49,7 @@ def test_pool_basic():
     pool = pools_base.Pool(
         name="MyPool", size=4, runpath=default_runpath, allow_task_rerun=False
     )
+    pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
     pool.add(task1, uid=task1.uid())
     pool.add(task2, uid=task2.uid())
     assert pool._input[task1.uid()] is task1

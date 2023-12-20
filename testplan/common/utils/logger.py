@@ -13,7 +13,6 @@ The logging facility is used for:
 import logging
 import os
 import sys
-from typing import Type
 
 from testplan.common.utils.strings import Color, uuid4
 from testplan.report import Status
@@ -183,10 +182,6 @@ def configure_file_logger(level, runpath):
 
         TESTPLAN_LOGGER.debug("Enabled logging to file: %s", logfile_path)
         return file_handler
-
-
-def get_config_logger(config_class: Type) -> TestplanLogger:
-    return logging.getLogger(f"{TESTPLAN_LOGGER}.{config_class.__name__}")
 
 
 class Loggable:

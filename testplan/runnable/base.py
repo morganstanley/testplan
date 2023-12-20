@@ -230,10 +230,7 @@ class TestRunnerConfig(RunnableConfig):
             ): Or(int, float),
             ConfigOption(
                 "skip_strategy", default=common.SkipStrategy.noop()
-            ): Or(
-                And(None, Use(lambda _: common.SkipStrategy.noop())),
-                And(str, Use(common.SkipStrategy.from_option)),
-            ),
+            ): Use(common.SkipStrategy.from_option_or_none),
         }
 
 
@@ -897,9 +894,6 @@ class TestRunner(Runnable):
         self.resources[resource].add(target, uid)
 
     def _collect_task_info(self, target: TestTask) -> TaskInformation:
-        # FIXME
-        if callable(target):
-            target = Task(target)
         if isinstance(target, Test):
             target_test = target
         elif isinstance(target, Task):
@@ -914,6 +908,8 @@ class TestRunner(Runnable):
                 return task_info
             else:
                 target_test = target.materialize()
+        elif callable(target):
+            target_test = target()
         else:
             raise TypeError(
                 "Unrecognized test target of type {}".format(type(target))

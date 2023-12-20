@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from itertools import product
-from typing import List
+from typing import List, Optional
 
 from typing_extensions import Self
 
@@ -44,6 +44,16 @@ class SkipStrategy:
         return r
 
     @classmethod
+    def from_option_or_none(cls, maybe_option: Optional[str]) -> Self:
+        if isinstance(maybe_option, str):
+            return cls.from_option(maybe_option)
+        if maybe_option is None:
+            return cls.noop()
+        raise ValueError(
+            f"Invalid value, expecting None or a string in {cls.all_options()}."
+        )
+
+    @classmethod
     def all_options(cls) -> List[str]:
         return list(
             map(
@@ -61,17 +71,20 @@ class SkipStrategy:
     def should_skip_rest_tests(self, test_status: Status):
         return test_status <= self.test_comparable
 
-    def merge(self, other: Self) -> Self:
-        self.case_comparable = Status.precedent(
-            [self.case_comparable, other.case_comparable]
+    def union(self, other: Self) -> Self:
+        def _cmp(x: Status, y: Status):
+            try:
+                r = x > y
+            except TypeError:
+                return x.normalised()
+            else:
+                return x if r else y
+
+        return self.__class__(
+            _cmp(self.case_comparable, other.case_comparable),
+            _cmp(self.suite_comparable, other.suite_comparable),
+            _cmp(self.test_comparable, other.test_comparable),
         )
-        self.suite_comparable = Status.precedent(
-            [self.suite_comparable, other.suite_comparable]
-        )
-        self.test_comparable = Status.precedent(
-            [self.test_comparable, other.test_comparable]
-        )
-        return self
 
     def __bool__(self) -> bool:
         return any(

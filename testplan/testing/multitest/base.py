@@ -5,6 +5,7 @@ import concurrent
 import functools
 import itertools
 import os
+import warnings
 from typing import Callable, Dict, Generator, List, Optional, Tuple
 
 from schema import And, Or, Use
@@ -12,7 +13,6 @@ from schema import And, Or, Use
 from testplan.common import config, entity
 from testplan.common.utils import (
     interface,
-    logger,
     strings,
     timing,
     validation,
@@ -185,9 +185,19 @@ class RuntimeEnvironment:
 
 def deprecate_stop_on_error(user_input):
     if user_input == False:
+        warnings.warn(
+            "``stop_on_error`` in MultiTest constructor has been deprecated, "
+            "current default behaviour is equivalent to ``stop_on_error=False``, "
+            "thus it's safe to erase it.",
+            DeprecationWarning,
+        )
         return None
-    # logger_ = logger.get_config_logger(MultiTestConfig)
-    # logger_.warning("``stop_on_error`` on MultiTest constructor has been deprecated, please use ``skip_strategy`` instead.")
+    warnings.warn(
+        "``stop_on_error`` in MultiTest constructor has been deprecated, "
+        'please use ``skip_strategy="cases-on-error"`` instead to get the '
+        "same behaviour as ``stop_on_error=True``.",
+        DeprecationWarning,
+    )
     return True
 
 
@@ -371,15 +381,17 @@ class MultiTest(testing_base.Test):
         if tracing_tests is not None:
             self.watcher.set_watching_lines(tracing_tests)
 
-        # handling deprecated ``stop_on_error``
+        # handle possibly missing ``skip_strategy``
+        if not hasattr(self.cfg, "skip_strategy"):
+            self.cfg.set_local("skip_strategy", SkipStrategy.noop())
+
+        # handle deprecated ``stop_on_error``
         if self.cfg.stop_on_error:
-            o_cfg = SkipStrategy.noop()
-            o_cfg.case_comparable = Status.ERROR
-            try:
-                c_cfg = self.cfg.skip_strategy
-            except AttributeError:
-                c_cfg = SkipStrategy.noop()
-            self.cfg.set_local("skip_strategy", o_cfg.merge(c_cfg))
+            o_skip = SkipStrategy.noop()
+            o_skip.case_comparable = Status.ERROR
+            self.cfg.set_local(
+                "skip_strategy", self.cfg.skip_strategy.union(o_skip)
+            )
 
     def get_test_context(self):
         """
@@ -938,7 +950,7 @@ class MultiTest(testing_base.Test):
                 # If any testcase errors and we are configured to stop on
                 # errors, we still wait for the rest of the current execution
                 # group to finish before stopping.
-                if self.cfg.skip_strategy.should_skip_rest_suites(
+                if self.cfg.skip_strategy.should_skip_rest_cases(
                     testcase_report.status
                 ):
                     should_stop = True

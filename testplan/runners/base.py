@@ -4,12 +4,10 @@ import threading
 from collections import OrderedDict
 from typing import Generator, List, Optional
 
-from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.report.base import EventRecorder
 from testplan.common.utils.selector import Expr as SExpr
 from testplan.common.utils.thread import interruptible_join
-from testplan.testing.common import SkipStrategy
 
 
 class ExecutorConfig(ResourceConfig):
@@ -21,14 +19,6 @@ class ExecutorConfig(ResourceConfig):
     :py:class:`~testplan.common.entity.base.ResourceConfig`
     options.
     """
-
-    @classmethod
-    def get_options(cls):
-        return {
-            ConfigOption(
-                "skip_strategy", default=SkipStrategy.noop()
-            ): SkipStrategy,
-        }
 
 
 class Executor(Resource):

@@ -15,7 +15,6 @@ MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
     "stdout_style": defaults.STDOUT_STYLE,
-    "skip_strategy": common.SkipStrategy.noop(),
 }
 
 
@@ -318,6 +317,7 @@ def test_run_all_tests():
     mtest = multitest.MultiTest(
         name="MTest", suites=[Suite()], **MTEST_DEFAULT_PARAMS
     )
+    mtest.cfg.set_local("skip_strategy", common.SkipStrategy.noop())
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -353,6 +353,7 @@ def test_run_tests_parallel():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS,
     )
+    mtest.cfg.set_local("skip_strategy", common.SkipStrategy.noop())
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"

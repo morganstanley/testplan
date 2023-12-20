@@ -5,19 +5,15 @@ import os
 import pytest
 
 from testplan import Testplan, TestplanMock, TestplanResult
-from testplan.common.entity import (
-    Resource,
-    ResourceStatus,
-)
+from testplan.common.entity import Resource, ResourceStatus
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import argv_overridden
-from testplan.runnable import TestRunnerStatus, TestRunner
-from testplan.runners.local import LocalRunner
-from testplan.report import TestGroupReport, ReportCategories
-from testplan.testing.base import Test, TestResult
-
+from testplan.report import ReportCategories, TestGroupReport
+from testplan.runnable import TestRunner, TestRunnerStatus
 from testplan.runners.pools.base import Pool
+from testplan.runners.pools.tasks import Task
+from testplan.testing.base import Test, TestResult
 
 
 class DummyDriver(Resource):
@@ -86,9 +82,9 @@ def test_testplan():
     def task():
         return DummyTest(name="tom")
 
-    assert isinstance(plan.add(task, resource="pool"), str)
+    assert isinstance(plan.add(Task(task), resource="pool"), str)
     with pytest.raises(ValueError):
-        assert plan.add(task, resource="pool")  # duplicate target uid
+        assert plan.add(Task(task), resource="pool")  # duplicate target uid
 
     assert len(plan.resources["local_runner"]._input) == 2
     for key in ("alice", "bob"):

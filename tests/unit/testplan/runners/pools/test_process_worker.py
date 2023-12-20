@@ -7,15 +7,18 @@ import time
 from testplan.runners.pools import process
 from testplan.runners.pools import tasks
 from testplan.common.utils import logger
+from testplan.testing.common import SkipStrategy
 
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
 
 
 @pytest.fixture
 def proc_pool():
-    return process.ProcessPool(
+    pool = process.ProcessPool(
         name="ProcPool", size=2, restart_count=0, async_start=False
     )
+    pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+    return pool
 
 
 class TestProcPool:

@@ -103,7 +103,6 @@ def test_multitest_drivers(runpath):
             stdout_style=defaults.STDOUT_STYLE,
             test_filter=Filter(),
             test_sorter=NoopSorter(),
-            skip_strategy=SkipStrategy.noop(),
         )
 
         mtest = MultiTest(**opts)

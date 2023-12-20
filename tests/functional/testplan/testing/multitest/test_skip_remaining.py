@@ -71,7 +71,7 @@ def descent_assert(abs_struct, group_report):
 
 
 @pytest.mark.parametrize(
-    "cli_arg,abs_report_struct",
+    "strat, abs_report_struct",
     (
         (None, ((3, 1), (1, 3), ((None, 3), 1))),
         ("cases-on-error", ((2, 1), (1, 2), ((None, 3), 1))),
@@ -82,12 +82,10 @@ def descent_assert(abs_struct, group_report):
         ("tests-on-failed", ((1,),)),
     ),
 )
-def test_skip_remaining_intra_executor(cli_arg, abs_report_struct):
+def test_skip_remaining_intra_executor(strat, abs_report_struct):
     mockplan = TestplanMock(
         name="in the middle of functional test",
-        skip_strategy=common.SkipStrategy.from_option(cli_arg)
-        if cli_arg
-        else None,
+        skip_strategy=strat,
     )
     for mt in make_mt():
         mockplan.add(mt)
