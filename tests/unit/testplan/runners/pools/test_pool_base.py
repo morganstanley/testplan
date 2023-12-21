@@ -119,6 +119,7 @@ class TestPoolIsolated:
         pool = pools_base.Pool(
             name="MyPool", size=1, worker_type=ControllableWorker
         )
+        pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
 
         # Start the pool via its context manager - this starts the Pool's main
         # work loop in a separate thread.

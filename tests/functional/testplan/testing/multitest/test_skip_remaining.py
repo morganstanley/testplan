@@ -1,8 +1,13 @@
+import time
+from itertools import permutations
+
 import pytest
 
-import testplan.testing.common as common
 import testplan.testing.multitest as mt
 from testplan.base import TestplanMock
+from testplan.runners.local import LocalRunner
+from testplan.runners.pools.base import Pool
+from testplan.runners.pools.process import ProcessPool
 
 
 @mt.testsuite
@@ -52,10 +57,9 @@ class Suite4:
 
 
 def make_mt():
-    # NOTE: ``stop_on_error`` default value to be changed to ``False``
-    yield mt.MultiTest("mt1", [Suite1(), Suite2()], stop_on_error=False)
-    yield mt.MultiTest("mt2", [Suite3(), Suite1()], stop_on_error=False)
-    yield mt.MultiTest("mt3", [Suite4(), Suite2()], stop_on_error=False)
+    yield mt.MultiTest("mt1", [Suite1(), Suite2()])
+    yield mt.MultiTest("mt2", [Suite3(), Suite1()])
+    yield mt.MultiTest("mt3", [Suite4(), Suite2()])
 
 
 def descent_assert(abs_struct, group_report):
@@ -70,24 +74,88 @@ def descent_assert(abs_struct, group_report):
         descent_assert(s, r)
 
 
+def lrunner(_=1):
+    return LocalRunner()
+
+
+def tpool(size=2):
+    return Pool("", size=size)
+
+
+def ppool(size=2):
+    return ProcessPool("", size=size)
+
+
 @pytest.mark.parametrize(
-    "strat, abs_report_struct",
+    "exec_gen, option, abs_report_struct",
     (
-        (None, ((3, 1), (1, 3), ((None, 3), 1))),
-        ("cases-on-error", ((2, 1), (1, 2), ((None, 3), 1))),
-        ("cases-on-failed", ((1, 1), (1, 1), ((None, 2), 1))),
-        ("suites-on-error", ((2,), (1,), ((None, 3), 1))),
-        ("suites-on-failed", ((1,), (1,), ((None, 2),))),
-        ("tests-on-error", ((2,),)),
-        ("tests-on-failed", ((1,),)),
+        (lrunner, None, ((3, 1), (1, 3), ((None, 3), 1))),
+        (lrunner, "cases-on-error", ((2, 1), (1, 2), ((None, 3), 1))),
+        (lrunner, "cases-on-failed", ((1, 1), (1, 1), ((None, 2), 1))),
+        (lrunner, "suites-on-error", ((2,), (1,), ((None, 3), 1))),
+        (lrunner, "suites-on-failed", ((1,), (1,), ((None, 2),))),
+        (lrunner, "tests-on-error", ((2,),)),
+        (lrunner, "tests-on-failed", ((1,),)),
+        (tpool, "tests-on-error", ((2,),)),
+        (tpool, "tests-on-failed", ((1,),)),
+        (ppool, "tests-on-error", ((2,),)),
+        (ppool, "tests-on-failed", ((1,),)),
     ),
 )
-def test_skip_remaining_intra_executor(strat, abs_report_struct):
+def test_skip_remaining_intra_executor(exec_gen, option, abs_report_struct):
     mockplan = TestplanMock(
         name="in the middle of functional test",
-        skip_strategy=strat,
+        skip_strategy=option,
     )
+    mockplan.add_resource(exec_gen(1), "exec")
     for mt in make_mt():
-        mockplan.add(mt)
+        mockplan.schedule(target=mt, resource="exec")
     report = mockplan.run().report
     descent_assert(abs_report_struct, report)
+
+
+@mt.testsuite
+class Suite5:
+    @mt.testcase
+    def passed_5(self, env, result):
+        result.true(True)
+
+    @mt.testcase
+    def fainted_5(self, env, result):
+        while True:
+            time.sleep(1)
+
+
+@mt.testsuite
+class Suite6:
+    @mt.testcase
+    def failed_6(self, env, result):
+        time.sleep(0.5)
+        result.true(False)
+
+
+def make_mt2():
+    yield mt.MultiTest("mt4", [Suite5()])
+    yield mt.MultiTest("mt5", [Suite6()])
+    yield mt.MultiTest("mt6", [Suite2(), Suite5()])
+
+
+@pytest.mark.parametrize(
+    "exec_ids",
+    (
+        *permutations(("lrunner", "tpool", "ppool"), 2),
+        ("tpool", "lrunner", "tpool"),
+    ),
+)
+def test_skip_remaining_inter_executor(exec_ids):
+    mockplan = TestplanMock(
+        name="in the middle of functional test",
+        skip_strategy="tests-on-failed",
+    )
+    mockplan.add_resource(lrunner(), "lrunner")
+    mockplan.add_resource(tpool(4), "tpool")
+    mockplan.add_resource(ppool(4), "ppool")
+    for mt, rid in zip(make_mt2(), exec_ids):
+        mockplan.schedule(target=mt, resource=rid)
+    report = mockplan.run().report
+    assert len(report) == 1

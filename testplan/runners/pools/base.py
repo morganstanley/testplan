@@ -168,6 +168,8 @@ class Worker(WorkerBase):
     Worker that runs a thread and pull tasks from transport
     """
 
+    _STOP_TIMEOUT = 10
+
     def __init__(self, **options) -> None:
         super().__init__(**options)
         self._handler = None
@@ -190,7 +192,7 @@ class Worker(WorkerBase):
     def stopping(self) -> None:
         """Stops the worker."""
         if self._handler:
-            interruptible_join(self._handler)
+            interruptible_join(self._handler, self._STOP_TIMEOUT)
         self._handler = None
 
     def aborting(self) -> None:
@@ -359,7 +361,7 @@ class Pool(Executor):
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
         self._pool_lock = threading.Lock()
-        self._a_pool_lock = threading.Lock()
+        self._a_pool_lock = threading.RLock()
         self._metadata = None
         # Will set False when Pool is starting.
         self._exit_loop = True
@@ -371,12 +373,11 @@ class Pool(Executor):
             Message.ConfigRequest: self._handle_cfg_request,
             Message.TaskPullRequest: self._handle_taskpull_request,
             Message.TaskResults: self._handle_taskresults,
+            # process & remote only
+            Message.Heartbeat: self._handle_heartbeat,
+            Message.SetupFailed: self._handle_setupfailed,
         }
         # for skip-remaining feature
-        try:
-            self._skip_strategy = self.cfg.skip_strategy
-        except AttributeError:
-            self._skip_strategy = SkipStrategy.noop()
         self._discard_pending = False
 
     def uid(self) -> str:
@@ -589,7 +590,7 @@ class Pool(Executor):
         def task_should_rerun():
             if not self.cfg.allow_task_rerun:
                 return False
-            if self._skip_strategy:
+            if self.cfg.skip_strategy:
                 return False
             if not task_result.task:
                 return False
@@ -652,9 +653,41 @@ class Pool(Executor):
             self._results[uid] = task_result
             self.ongoing.remove(uid)
 
-        if self._skip_strategy.should_skip_rest_tests(agg_report_status):
+        if self.cfg.skip_strategy.should_skip_rest_tests(agg_report_status):
             self.bubble_up_discard_tasks(S.Not(S.Eq(self.id_in_parent)))
             self.discard_pending_tasks(reluctantly=False)
+
+    def _handle_heartbeat(
+        self, worker: Worker, request: Message, response: Message
+    ) -> None:
+        """Handle a Heartbeat message received from a worker."""
+        worker.last_heartbeat = time.time()
+        self.logger.debug(
+            "Received heartbeat from %s at %s after %ss.",
+            worker,
+            request.data,
+            time.time() - request.data,
+        )
+        if self._discard_pending:
+            worker.respond(
+                response.make(
+                    Message.DiscardPending, data=worker.last_heartbeat
+                )
+            )
+        else:
+            worker.respond(
+                response.make(Message.Ack, data=worker.last_heartbeat)
+            )
+
+    def _handle_setupfailed(
+        self, worker: Worker, request: Message, response: Message
+    ) -> None:
+        """Handle a SetupFailed message received from a worker."""
+        self.logger.user_info(
+            "Worker %s setup failed:%s%s", worker, os.linesep, request.data
+        )
+        worker.respond(response.make(Message.Ack))
+        self._decommission_worker(worker, "Aborting {}, setup failed.")
 
     def _decommission_worker(self, worker: Worker, message: str) -> None:
         """
