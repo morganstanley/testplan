@@ -23,43 +23,44 @@ class LocalRunner(Executor):
         super(LocalRunner, self).__init__(**options)
         self._uid = "local_runner"
 
-        self._to_skip_remaining = False
-        self._ongoing_lock = threading.Lock()
+        self._curr_runnable_lock = threading.Lock()
         self._curr_runnable = None
 
     def execute(self, uid: str) -> TestResult:
         """Execute item implementation."""
         # First retrieve the input from its UID.
-        if self._to_skip_remaining:
+        target = self._input[uid]
+
+        if self._discard_pending:
             # to skip materialize, should be disposed immediately
             return TestResult()
 
-        target = self._input[uid]
+        with self._curr_runnable_lock:
+            # Inspect the input type. Tasks must be materialized before
+            # they can be run.
+            if isinstance(target, Test):
+                runnable = target
+            elif isinstance(target, tasks.Task):
+                runnable = target.materialize()
+            elif callable(target):
+                runnable = target()
+            else:
+                raise TypeError(
+                    f"Cannot execute target of type {type(target)}"
+                )
 
-        # Inspect the input type. Tasks must be materialized before
-        # they can be run.
-        if isinstance(target, Test):
-            runnable = target
-        elif isinstance(target, tasks.Task):
-            runnable = target.materialize()
-        elif callable(target):
-            runnable = target()
-        else:
-            raise TypeError(f"Cannot execute target of type {type(target)}")
-
-        # guard
-        if not isinstance(runnable, Test):
-            raise TypeError(f"Cannot execute target of type {type(runnable)}")
-        # pass the ball
-        if not runnable.parent:
-            runnable.parent = self
-        if not runnable.cfg.parent:
-            runnable.cfg.parent = self.cfg
-
-        with self._ongoing_lock:
+            if not isinstance(runnable, Test):
+                raise TypeError(
+                    f"Cannot execute target of type {type(runnable)}"
+                )
+            if not runnable.parent:
+                runnable.parent = self
+                runnable.cfg.parent = self.cfg
             self._curr_runnable = runnable
+
         result = self._curr_runnable.run()
-        with self._ongoing_lock:
+
+        with self._curr_runnable_lock:
             self._curr_runnable = None
 
         return result
@@ -90,8 +91,8 @@ class LocalRunner(Executor):
                             exc,
                         )
                     finally:
-                        with self._ongoing_lock:
-                            if not self._to_skip_remaining:
+                        with self._curr_runnable_lock:
+                            if not self._discard_pending:
                                 # otherwise result from aborted test included
                                 self._results[next_uid] = result
                                 self.ongoing.pop(0)
@@ -126,8 +127,8 @@ class LocalRunner(Executor):
         self.discard_pending_tasks(reluctantly=True)
 
     def discard_pending_tasks(self, reluctantly: bool):
-        self._to_skip_remaining = True
-        with self._ongoing_lock:
+        with self._curr_runnable_lock:
+            self._discard_pending = True
             if self._curr_runnable:
                 self._curr_runnable.abort()
             if reluctantly:

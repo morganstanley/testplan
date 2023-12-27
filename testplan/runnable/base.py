@@ -915,6 +915,7 @@ class TestRunner(Runnable):
                 "Unrecognized test target of type {}".format(type(target))
             )
 
+        # TODO: include executor in ancestor chain?
         if isinstance(target_test, Runnable):
             target_test.parent = self
             target_test.cfg.parent = self.cfg

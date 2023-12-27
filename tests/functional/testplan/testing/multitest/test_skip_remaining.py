@@ -102,7 +102,7 @@ def ppool(size=2):
         (ppool, "tests-on-failed", ((1,),)),
     ),
 )
-def test_skip_remaining_intra_executor(exec_gen, option, abs_report_struct):
+def test_intra_executor(exec_gen, option, abs_report_struct):
     mockplan = TestplanMock(
         name="in the middle of functional test",
         skip_strategy=option,
@@ -145,9 +145,10 @@ def make_mt2():
     (
         *permutations(("lrunner", "tpool", "ppool"), 2),
         ("tpool", "lrunner", "tpool"),
+        ("ppool", "ppool", "ppool"),
     ),
 )
-def test_skip_remaining_inter_executor(exec_ids):
+def test_inter_executor(exec_ids):
     mockplan = TestplanMock(
         name="in the middle of functional test",
         skip_strategy="tests-on-failed",
@@ -159,3 +160,4 @@ def test_skip_remaining_inter_executor(exec_ids):
         mockplan.schedule(target=mt, resource=rid)
     report = mockplan.run().report
     assert len(report) == 1
+    assert report.entries[0].name == "mt5"

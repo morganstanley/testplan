@@ -1,14 +1,15 @@
+# ``stop_on_error`` deprecated, for testing compatibility
+
 import time
 
 import testplan.testing.multitest as mt
-
 from testplan.common.utils.testing import check_report
 from testplan.report import (
-    Status,
-    TestReport,
-    TestGroupReport,
-    TestCaseReport,
     ReportCategories,
+    Status,
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
 )
 
 

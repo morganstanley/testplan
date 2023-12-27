@@ -162,7 +162,7 @@ class ProcessWorker(Worker):
 
     def discard_running_tasks(self):
         # discard logic handled by pool in ``_handle_heartbeat``
-        pass
+        super(Worker, self).discard_running_tasks()
 
 
 class ProcessPoolConfig(PoolConfig):

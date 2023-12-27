@@ -38,6 +38,7 @@ class Executor(Resource):
         self._results = OrderedDict()
         self.ongoing = []
 
+        self._discard_pending = False
         self.id_in_parent: Optional[str] = None
 
     @property
@@ -84,6 +85,9 @@ class Executor(Resource):
         raise NotImplementedError()
 
     def _prepopulate_runnables(self) -> None:
+        # _discard_pending can be set any time
+        if self._discard_pending:
+            return
         # If we are to apply test_sorter, it would be here
         # but it's not easy to implement a reasonable behavior
         # as _input could be a mixture of runnable/task/callable

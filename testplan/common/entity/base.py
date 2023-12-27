@@ -1008,9 +1008,7 @@ class Runnable(Entity):
         :param start_procs: processes before run
         :type start_procs: ``list`` of ``Process``
         """
-        # XXX: pools may not be fully stopped, a call to this method may be
-        # XXX: delayed till then, requiring pools having async_start to falsy
-        # XXX: and corresponding status maintaining
+        # XXX: do we want to suppress process/thread check for tests?
         end_threads = threading.enumerate()
         if start_threads != end_threads:
             new_threads = [

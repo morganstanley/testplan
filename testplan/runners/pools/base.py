@@ -157,7 +157,7 @@ class WorkerBase(entity.Resource):
         pass
 
     def discard_running_tasks(self):
-        pass
+        self._discard_running.set()
 
     def __str__(self):
         return f"{self.__class__.__name__}[{self.cfg.index}]"
@@ -173,8 +173,8 @@ class Worker(WorkerBase):
     def __init__(self, **options) -> None:
         super().__init__(**options)
         self._handler = None
-        self._curr = None
-        self._curr_mutex = threading.Lock()
+        self._curr_runnable_lock = threading.Lock()
+        self._curr_runnable = None
 
     @property
     def handler(self):
@@ -227,13 +227,12 @@ class Worker(WorkerBase):
             elif received.cmd == Message.TaskSending:
                 results = []
                 for item in received.data:
-                    # XXX
                     if self._discard_running.is_set():
                         break
+
                     task_result = self.execute(item)
                     if not self._discard_running.is_set():
                         results.append(task_result)
-
                     if self.cfg.skip_strategy.should_skip_rest_tests(
                         task_result.result.report.status
                     ):
@@ -256,19 +255,18 @@ class Worker(WorkerBase):
         :return: Task result.
         """
         try:
-            runnable: Test = task.materialize()
+            with self._curr_runnable_lock:
+                runnable: Test = task.materialize()
 
-            if isinstance(runnable, entity.Runnable):
-                if not runnable.parent:
-                    runnable.parent = self
-                if not runnable.cfg.parent:
-                    runnable.cfg.parent = self.cfg
-
-            with self._curr_mutex:
-                self._curr = runnable
+                if isinstance(runnable, entity.Runnable):
+                    if not runnable.parent:
+                        runnable.parent = self
+                    if not runnable.cfg.parent:
+                        runnable.cfg.parent = self.cfg
+                self._curr_runnable = runnable
             result: TestResult = runnable.run()
-            with self._curr_mutex:
-                self._curr = None
+            with self._curr_runnable_lock:
+                self._curr_runnable = None
 
         except BaseException:
             task_result = TaskResult(
@@ -283,10 +281,10 @@ class Worker(WorkerBase):
         return task_result
 
     def discard_running_tasks(self):
-        self._discard_running.set()
-        with self._curr_mutex:
-            if self._curr is not None:
-                self._curr.abort()
+        super().discard_running_tasks()
+        with self._curr_runnable_lock:
+            if self._curr_runnable is not None:
+                self._curr_runnable.abort()
 
 
 class PoolConfig(ExecutorConfig):

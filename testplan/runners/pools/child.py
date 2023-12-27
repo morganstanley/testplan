@@ -257,7 +257,6 @@ class ChildLoop:
                             self._pool_cfg.max_active_loop_sleep,
                         )
                         next_possible_request = time.time() + request_delay
-                        pass
                 time.sleep(self._pool_cfg.active_loop_sleep)
         self.logger.info("Local pool %s stopped.", self._pool)
 

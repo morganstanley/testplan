@@ -4,7 +4,7 @@ import pytest
 
 import testplan.testing.multitest as mt
 from testplan.common.utils.selector import Eq
-from testplan.runnable import TestRunner as MyTestRunner
+from testplan.runnable import TestRunner
 from testplan.runners.local import LocalRunner
 
 
@@ -37,7 +37,7 @@ def gen_mt(*suites):
     ),
 )
 def test_local_discard_pending(pre_sleep, post_sleep, out_sleep, has_result):
-    par = MyTestRunner(name="in-the-middle-of-unit-tests")
+    par = TestRunner(name="in-the-middle-of-unit-tests")
     par.add_resource(LocalRunner(), "non-express")
     mt = gen_mt(Suite(pre_sleep, post_sleep))
     par.add(mt, "non-express")
@@ -54,5 +54,5 @@ def test_local_discard_pending(pre_sleep, post_sleep, out_sleep, has_result):
         assert len(repo) == 1
         assert len(repo.entries[0]) == 1
     else:
-        assert r._to_skip_remaining is True
+        assert r._discard_pending is True
         assert len(r.results) == 0
