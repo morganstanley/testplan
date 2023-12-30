@@ -289,6 +289,7 @@ class ShallowTestReportSchema(Schema):
     meta = fields.Dict()
     status = fields.String(dump_only=True)
     runtime_status = fields.String(dump_only=True)
+    information = fields.List(fields.List(fields.String()))
     tags_index = TagField(dump_only=True)
     status_override = fields.String(allow_none=True)
     counter = fields.Dict(dump_only=True)

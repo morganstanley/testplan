@@ -1,0 +1,1 @@
+Testplan interactive UI now supplies information metadata to the info panel accessible on the toolbar. It contains runpath in addition to the ones used in the static report browser UI.

@@ -437,6 +437,7 @@ const getInfoTable = (report) => {
       "command_line_string",
       "python_version",
       "hostname",
+      "runpath",
       "start",
       "end",
     ];

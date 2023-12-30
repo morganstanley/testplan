@@ -694,6 +694,7 @@ class InteractiveReportComponent extends BaseReport {
           filterBoxWidth={this.state.navWidth}
           filterText={this.state.filteredReport.filter.text}
           status={reportStatus}
+          report={this.state.report}
           expandStatus={this.state.assertionStatus.globalExpand.status}
           updateExpandStatusFunc={this.updateGlobalExpand}
           handleNavFilter={this.handleNavFilter}
