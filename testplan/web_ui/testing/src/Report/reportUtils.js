@@ -222,7 +222,7 @@ const GetCenterPane = (
     );
   } else if (reportFetchMessage !== null) {
     return <Message message={reportFetchMessage} />;
-  } else if (selectedEntry.entries.length > 0 ) {
+  } else if (selectedEntry && selectedEntry.entries.length > 0 ) {
     return <Message message="Please select an entry." />;
   } else {
     return <Message message="No entries to be displayed." />;
