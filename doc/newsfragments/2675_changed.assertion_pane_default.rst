@@ -1,0 +1,1 @@
+Selecting entries on the navigation with no child entries will display a message about no entries.
