@@ -188,8 +188,8 @@ const GetCenterPane = (
   selectedEntries,
   displayTime
 ) => {
-  const selectiedEntry = _.last(selectedEntries);
-  const logs = selectiedEntry?.logs || [];
+  const selectedEntry = _.last(selectedEntries);
+  const logs = selectedEntry?.logs || [];
   const selectedDescription = selectedEntries
     .slice(-1)
     .map((element) => {
@@ -209,12 +209,12 @@ const GetCenterPane = (
   ) {
     return (
       <AssertionPane
-        key={selectiedEntry ? selectiedEntry.hash || selectiedEntry.uid : null}
+        key={selectedEntry ? selectedEntry.hash || selectedEntry.uid : null}
         assertions={assertions}
         logs={logs}
         descriptionEntries={selectedDescription}
         left={state.navWidth}
-        testcaseUid={selectiedEntry.uid}
+        testcaseUid={selectedEntry.uid}
         filter={state.filter}
         displayPath={state.displayPath}
         reportUid={reportUid}
@@ -222,8 +222,10 @@ const GetCenterPane = (
     );
   } else if (reportFetchMessage !== null) {
     return <Message message={reportFetchMessage} />;
-  } else {
+  } else if (selectedEntry && selectedEntry.entries.length > 0 ) {
     return <Message message="Please select an entry." />;
+  } else {
+    return <Message message="No entries to be displayed." />;
   }
 };
 

@@ -287,7 +287,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -503,7 +503,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -1416,7 +1416,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -1711,7 +1711,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -2006,7 +2006,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -2301,7 +2301,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
