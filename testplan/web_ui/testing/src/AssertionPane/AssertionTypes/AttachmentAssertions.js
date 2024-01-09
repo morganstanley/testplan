@@ -5,8 +5,6 @@ import React from "react";
 import { css, StyleSheet } from "aphrodite";
 
 import {
-  createTheme,
-  ThemeProvider,
   Card,
   CardContent,
   Box,
@@ -15,26 +13,6 @@ import {
 import TextAttachment from "./TextAttachment";
 import AttachmentAssertionCardHeader from "./AttachmentAssertionCardHeader";
 import { getAttachmentUrl } from "../../Common/utils";
-
-// TODO: move theme out to a common place
-const theme = createTheme({
-  typography: {
-    fontFamily: [
-      "-apple-system",
-      "BlinkMacSystemFont",
-      "Segoe UI",
-      "Roboto",
-      "Helvetica Neue",
-      "Arial",
-      "Noto Sans",
-      "sans-serif",
-      "Apple Color Emoji",
-      "Segoe UI Emoji",
-      "Segoe UI Symbol",
-      "Noto Color Emoji",
-    ].join(","),
-  },
-});
 
 /**
  * Generic file attachments component.
@@ -45,7 +23,7 @@ const theme = createTheme({
  */
 export const AttachmentAssertion = (props) => {
   const content = getAttachmentContent(props.assertion, props.reportUid);
-  return <ThemeProvider theme={theme}>{content}</ThemeProvider>;
+  return content;
 };
 
 /* Render the attachment content, depending on the filetype. */
