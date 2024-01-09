@@ -1,0 +1,1 @@
+Fixed the issue whereas expanding the card of the Attachment type assertions erroneously modified the font of the navigation and breadcrumbs.

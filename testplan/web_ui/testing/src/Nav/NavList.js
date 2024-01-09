@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import _ from "lodash";
 import base64url from "base64url";
 
 import InteractiveNavEntry from "./InteractiveNavEntry";
