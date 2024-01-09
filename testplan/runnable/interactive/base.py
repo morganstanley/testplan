@@ -489,6 +489,7 @@ class TestRunnerIHandler(entity.Entity):
 
         exceptions = self.test(test_uid).resources.start_exceptions
         if exceptions:
+            self.test(test_uid).stop_test_resources()
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
             raise RuntimeError(
                 "Exception raised during starting drivers: {}".format(
