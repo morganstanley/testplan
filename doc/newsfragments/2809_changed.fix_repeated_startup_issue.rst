@@ -1,0 +1,1 @@
+Fixed a bug whereas failed startup would leave drivers in wrong status.
