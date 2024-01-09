@@ -37,7 +37,7 @@
     "linkifyjs": "^4.1.1",
     "lodash": "~4.17.21",
     "pegjs": "^0.11.0-master.b7b87ea",
-    "plotly.js": "^1.58.5",
+    "plotly.js": "^2.25.2",
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-app-polyfill": "1.0.6",
