@@ -100,9 +100,12 @@ class LocalRunner(Executor):
                     if self.cfg.skip_strategy.should_skip_rest_tests(
                         result.report.status
                     ):
-                        self.bubble_up_discard_tasks(S.Not(S.Eq(self.uid())))
+                        self.bubble_up_discard_tasks(
+                            S.Not(S.Eq(self.uid())),
+                            report_reason="per skip strategy",
+                        )
                         self.discard_pending_tasks(
-                            report_reason=self.cfg.skip_strategy.to_skip_reason()
+                            report_reason="per skip strategy"
                         )
 
             elif self.status == self.status.STOPPING:
@@ -125,7 +128,7 @@ class LocalRunner(Executor):
     def aborting(self) -> None:
         """Aborting logic."""
         self.discard_pending_tasks(
-            report_status=Status.ERROR, report_reason=f"{self} aborted"
+            report_status=Status.ERROR, report_reason=f"due to {self} aborted"
         )
 
     def discard_pending_tasks(
@@ -143,20 +146,18 @@ class LocalRunner(Executor):
                     result = TestResult()
                     result.report = TestGroupReport(
                         name=uid,
-                        category=ReportCategories.ERROR
-                        if report_status <= Status.FAILED
-                        else ReportCategories.TESTGROUP,
+                        category=ReportCategories.ERROR,
                     )
                     result.report.status_override = report_status
                     result.report.logger.warning(
-                        "Test[%s] discarding due to %s",
+                        "Test[%s] discarded%s.",
                         uid,
-                        report_reason,
+                        " " + report_reason if report_reason else "",
                     )
                     self._results[uid] = result
                 if report_reason:
                     self.logger.warning(
-                        "Discard Test[%s] due to %s", uid, report_reason
+                        "Discarding Test[%s] %s.", uid, report_reason
                     )
 
     def get_current_status_for_debug(self) -> List[str]:

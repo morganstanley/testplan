@@ -1,0 +1,3 @@
+Added a new command line argument ``--skip-remaining``, a new argument ``skip_strategy`` to MultiTest, allowing certain test execution being skipped for a better user experience.
+
+Argument ``uid`` of :py:meth:`Testplan.add_resource <testplan.base.Testplan.add_resource>` should match the uid of the ``resource`` argument.

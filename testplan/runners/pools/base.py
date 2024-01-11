@@ -652,10 +652,10 @@ class Pool(Executor):
             self.ongoing.remove(uid)
 
         if self.cfg.skip_strategy.should_skip_rest_tests(agg_report_status):
-            self.bubble_up_discard_tasks(S.Not(S.Eq(self.uid())))
-            self.discard_pending_tasks(
-                report_reason=self.cfg.skip_strategy.to_skip_reason()
+            self.bubble_up_discard_tasks(
+                S.Not(S.Eq(self.uid())), report_reason="per skip strategy"
             )
+            self.discard_pending_tasks(report_reason="per skip strategy")
 
     def _handle_heartbeat(
         self, worker: Worker, request: Message, response: Message
@@ -884,11 +884,16 @@ class Pool(Executor):
                 # do real discard
                 w.discard_running_tasks()
 
-            self.logger.warning("Discard pending tasks of %s", self)
+            self.logger.warning("Discard pending tasks of %s.", self)
             while self.ongoing:
                 uid = self.ongoing[0]
                 task = self._input[uid]
                 if report_status:
+                    reason = (
+                        f"{task} discarded"
+                        + (" " + report_reason if report_reason else "")
+                        + "."
+                    )
                     result = TestResult()
                     result.report = TestGroupReport(
                         name=str(task), category=ReportCategories.ERROR
@@ -898,19 +903,17 @@ class Pool(Executor):
                         for attr in task.serializable_attrs
                     ]
                     result.report.logger.error(os.linesep.join(result_lines))
-                    result.report.logger.error(
-                        report_reason or "unknown reason."
-                    )
+                    result.report.logger.error(reason)
                     result.report.status_override = report_status
                     self._results[uid] = TaskResult(
                         task=self._input[uid],
                         status=False,
-                        reason=report_reason or "unknown reason.",
+                        reason=reason,
                         result=result,
                     )
                 if report_reason:
                     self.logger.warning(
-                        "Discarding %s due to %s.", task, report_reason
+                        "Discarding %s %s.", task, report_reason
                     )
                 self.ongoing.pop(0)
             self.unassigned = TaskQueue()
@@ -1032,7 +1035,7 @@ class Pool(Executor):
 
         self._conn.abort()
         self.discard_pending_tasks(
-            report_status=Status.ERROR, report_reason=f"{self} aborted"
+            report_status=Status.ERROR, report_reason=f"due to {self} aborted."
         )
 
     def record_execution(self, uid) -> None:

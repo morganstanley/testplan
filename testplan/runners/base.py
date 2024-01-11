@@ -2,7 +2,7 @@
 
 import threading
 from collections import OrderedDict
-from typing import Generator, List, Optional
+from typing import Generator, List
 
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.report.base import EventRecorder
@@ -134,7 +134,12 @@ class Executor(Resource):
         # NOTE: common ancestor - Executor
         raise NotImplementedError()
 
-    def bubble_up_discard_tasks(self, exec_selector: SExpr):
+    def bubble_up_discard_tasks(
+        self,
+        exec_selector: SExpr,
+        report_status: Status = Status.NONE,
+        report_reason: str = "",
+    ):
         # used by "skip-remaining" feature
         # should only be triggered when executors living under TestRunner
         from testplan.runnable.base import TestRunner
@@ -142,7 +147,8 @@ class Executor(Resource):
         if self.parent is not None and isinstance(self.parent, TestRunner):
             self.parent.discard_pending_tasks(
                 exec_selector,
-                report_reason=f"Skipping due to {self.cfg.skip_strategy.to_skip_reason()}",
+                report_status=report_status,
+                report_reason=report_reason,
             )
 
     def get_current_status_for_debug(self) -> List[str]:

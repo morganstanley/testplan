@@ -87,7 +87,7 @@ class TestConfig(RunnableConfig):
             ConfigOption("test_sorter"): ordering.BaseSorter,
             ConfigOption("stdout_style"): test_styles.Style,
             ConfigOption("skip_strategy"): Use(
-                common.SkipStrategy.from_option_or_none
+                common.SkipStrategy.from_test_option
             ),
             ConfigOption("tags", default=None): Or(
                 None, Use(tagging.validate_tag_value)

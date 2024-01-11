@@ -42,7 +42,7 @@ class SkipStrategy:
         vals = cls.all_options()
         if option not in vals:
             raise ValueError(
-                f"invalid option for ``SkipStrategy``, valid values are {vals}."
+                f"Invalid option for ``SkipStrategy``, valid values are {vals}."
             )
         sib, st = option.split("-on-")
         return cls(
@@ -58,6 +58,31 @@ class SkipStrategy:
         raise TypeError(
             f"Invalid type, expecting None or a string in {cls.all_options()}."
         )
+
+    @classmethod
+    def from_test_option(cls, maybe_option: Optional[str]) -> Self:
+        # we disable tests-on-failed & tests-on-error here, they are ambiguous
+        # in test context
+        if maybe_option is None:
+            return cls.noop()
+        vals = list(
+            map(
+                lambda x: "-on-".join(x),
+                product(["cases", "suites"], ["failed", "error"]),
+            )
+        )
+        if isinstance(maybe_option, str):
+            if maybe_option not in vals:
+                raise ValueError(
+                    "Invalid option for test-level ``SkipStrategy``, "
+                    f"valid values are {vals}."
+                )
+            sib, st = maybe_option.split("-on-")
+            return cls(
+                _SkipStrategyOffset[sib.upper()],
+                Status.from_json_compatible(st),
+            )
+        raise TypeError(f"Invalid type, expecting None or a string in {vals}.")
 
     @classmethod
     def all_options(cls) -> List[str]:
@@ -102,11 +127,3 @@ class SkipStrategy:
 
     def __bool__(self) -> bool:
         return self.offset > _SkipStrategyOffset.NONE and bool(self.threshold)
-
-    def to_skip_reason(self) -> str:
-        if not self:
-            raise RuntimeError("``to_skip_reason`` shouldn't be invoked here")
-        return (
-            f"previously reported {self.threshold.name.lower()} meeting the "
-            "skip condition, which is configured by skip strategy"
-        )

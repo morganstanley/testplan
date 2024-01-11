@@ -3,6 +3,7 @@
 import os
 
 import pytest
+from schema import SchemaError
 
 from testplan import defaults, report
 from testplan.common import entity
@@ -573,9 +574,21 @@ def test_case_level_exception_handling(where, call_count, mocker):
     (
         (None, 2),
         ("cases-on-error", 1),
+        ("tests-on-error", -1),
     ),
 )
 def test_skip_strategy(skip_strategy, case_count):
+    if case_count < 0:
+        with pytest.raises(
+            SchemaError, match=r".*Invalid option for test-level.*"
+        ):
+            mt = multitest.MultiTest(
+                name="Mtest",
+                suites=[RaisingSuite("in_the_middle")],
+                skip_strategy=skip_strategy,
+                **MTEST_DEFAULT_PARAMS,
+            )
+        return
     mt = multitest.MultiTest(
         name="Mtest",
         suites=[RaisingSuite("in_the_middle")],

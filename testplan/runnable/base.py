@@ -503,7 +503,8 @@ class TestRunner(Runnable):
         resource.cfg.parent = self.cfg
         if uid and uid != resource.uid():
             raise ValueError(
-                f"Unexpected uid value ``{uid}`` received, mismatching with Resource uid ``{resource.uid()}``"
+                f"Unexpected uid value ``{uid}`` received, mismatched with "
+                f"Resource uid ``{resource.uid()}``"
             )
         return self.resources.add(resource, uid=uid)
 
