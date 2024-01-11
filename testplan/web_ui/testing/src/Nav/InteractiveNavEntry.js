@@ -34,7 +34,6 @@ import {
  *   * Environment status icon (if required)
  */
 const InteractiveNavEntry = (props) => {
-//  const [pendingEnvRequest, setPendingEnvRequest] = useState("");
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const statusIcon = getStatusIcon(
     props.runtime_status,
@@ -120,7 +119,7 @@ const getStatusIcon = (
   }
 
   const disabled = envStatusChanging(envStatus) || action === "prohibit"
-    || pendingEnvRequest === "STARTING" || pendingEnvRequest === "STOPPING";
+    || envStatusChanging(pendingEnvRequest);
   switch (entryStatus) {
     case "ready":
       return (
@@ -250,10 +249,10 @@ const getEnvStatusIcon = (
     pendingEnvRequest,
     setPendingEnvRequest,
   ) => {
-  let disabled = testInProgress(entryStatus);
+  let disabled = testInProgress(entryStatus)
+    || envStatusChanging(pendingEnvRequest);
   switch (envStatus) {
     case "STOPPED":
-      disabled = disabled || pendingEnvRequest === "STARTING";
       return (
         <FontAwesomeIcon
           className={
@@ -279,7 +278,6 @@ const getEnvStatusIcon = (
       return StartingStoppingIcon(false);
 
     case "STARTED":
-      disabled = disabled || pendingEnvRequest === "STOPPING";
       return (
         <FontAwesomeIcon
           className={

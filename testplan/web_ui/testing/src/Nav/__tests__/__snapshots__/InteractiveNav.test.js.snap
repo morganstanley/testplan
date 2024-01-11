@@ -87,7 +87,9 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
   filter={null}
   handleClick={[MockFunction]}
   interactive={true}
+  pendingEnvRequest=""
   selectedUid="_dev"
+  setPendingEnvRequest={[Function]}
 />
 `;
 
@@ -178,6 +180,7 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
   filter={null}
   handleClick={[MockFunction]}
   interactive={true}
+  pendingEnvRequest=""
   selected={
     Array [
       Object {
@@ -273,5 +276,6 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
     ]
   }
   selectedUid="_dev"
+  setPendingEnvRequest={[Function]}
 />
 `;

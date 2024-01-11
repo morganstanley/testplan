@@ -253,6 +253,8 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={() => undefined}
+        pendingEnvRequest={""}
+        setPendingEnvRequest={() => undefined}
       />
     );
     expect(renderedEntry).toMatchSnapshot();
@@ -272,6 +274,8 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
+        pendingEnvRequest={""}
+        setPendingEnvRequest={() => undefined}
       />
     );
 
@@ -304,6 +308,8 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
+        pendingEnvRequest={""}
+        setPendingEnvRequest={() => undefined}
       />
     );
 
