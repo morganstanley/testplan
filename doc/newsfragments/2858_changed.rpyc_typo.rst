@@ -1,0 +1,1 @@
+Fixed a typo in an rpyc default config field override.

@@ -18,7 +18,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSync,
   faFastBackward,
-  faTimes,
   faSave,
   faPlay,
   faHourglass,
