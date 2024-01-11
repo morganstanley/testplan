@@ -515,42 +515,72 @@ def _check_param_testcase_report(testcase_report, i):
 
 
 @multitest.testsuite
-class MySuite6:
-    def __init__(self, where_to_raise):
+class RaisingSuite:
+    def __init__(self, where_to_raise, mock_cb=None):
         self.where = where_to_raise
+        self.cb = mock_cb or (lambda: None)
 
-    def pre_testcase(self, env, result):
-        env.mock.custom_method()
+    def pre_testcase(self, name, env, result):
+        self.cb()
+        result.true(True)
         if self.where == "pre_testcase":
             raise RuntimeError(self.where)
-        env.mock.custom_method()
+        self.cb()
 
     @multitest.testcase
     def in_the_middle(self, env, result):
-        env.mock.custom_method()
+        self.cb()
+        result.true(True)
         if self.where == "in_the_middle":
             raise RuntimeError(self.where)
-        env.mock.custom_method()
+        self.cb()
 
-    def post_testcase(self, env, result):
-        env.mock.custom_method()
+    @multitest.testcase
+    def in_the_middle_2(self, env, result):
+        self.cb()
+        result.true(True)
+        self.cb()
+
+    def post_testcase(self, name, env, result):
+        self.cb()
+        result.true(True)
         if self.where == "post_testcase":
             raise RuntimeError(self.where)
-        env.mock.custom_method()
+        self.cb()
 
 
 @pytest.mark.parametrize(
-    "where,called_times",
+    "where,call_count",
     (
-        ("pre_testcase", 3),
-        ("post_testcase", 5),
-        ("in_the_middle", 5),
+        ("pre_testcase", 6),
+        ("post_testcase", 10),
+        ("in_the_middle", 11),
     ),
 )
-def test_multitest_exception_handling(where, called_times, mocker):
-    # TODO
-    ...
+def test_case_level_exception_handling(where, call_count, mocker):
+    # as a guard to a possible wrong refactor, i.e., post_testcase should
+    # always be invoked
+    cb = mocker.Mock()
+    mt = multitest.MultiTest(
+        name="Mtest", suites=[RaisingSuite(where, cb)], **MTEST_DEFAULT_PARAMS
+    )
+    mt.run()
+    assert cb.call_count == call_count
 
 
-def test_multitest_skip_remaining():
-    ...
+@pytest.mark.parametrize(
+    "skip_strategy,case_count",
+    (
+        (None, 2),
+        ("cases-on-error", 1),
+    ),
+)
+def test_skip_strategy(skip_strategy, case_count):
+    mt = multitest.MultiTest(
+        name="Mtest",
+        suites=[RaisingSuite("in_the_middle")],
+        skip_strategy=skip_strategy,
+        **MTEST_DEFAULT_PARAMS,
+    )
+    ret = mt.run()
+    assert len(ret.report.entries[0]) == case_count

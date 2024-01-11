@@ -38,13 +38,13 @@ def gen_mt(*suites):
 )
 def test_local_discard_pending(pre_sleep, post_sleep, out_sleep, has_result):
     par = TestRunner(name="in-the-middle-of-unit-tests")
-    par.add_resource(LocalRunner(), "non-express")
+    par.add_resource(LocalRunner("non-express"))
     mt = gen_mt(Suite(pre_sleep, post_sleep))
     par.add(mt, "non-express")
     r: LocalRunner = par.resources["non-express"]
     r.start()
     sleep(out_sleep)
-    par.discard_pending_tasks(Eq("non-express"), reluctantly=False)
+    par.discard_pending_tasks(Eq("non-express"))
     r.stop()
     if has_result:
         # we don't have other runners here, casted messages might not get

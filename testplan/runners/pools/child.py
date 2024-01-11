@@ -207,7 +207,9 @@ class ChildLoop:
                             time.time() - hb_resp.data,
                         )
                     if hb_resp.cmd == Message.DiscardPending:
-                        self._pool.discard_pending_tasks(reluctantly=False)
+                        self._pool.discard_pending_tasks(
+                            report_reason="DiscardPending received"
+                        )
                     next_heartbeat = now + self._pool_cfg.worker_heartbeat
 
                 # Send back results

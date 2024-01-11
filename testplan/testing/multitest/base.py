@@ -387,8 +387,7 @@ class MultiTest(testing_base.Test):
 
         # handle deprecated ``stop_on_error``
         if self.cfg.stop_on_error:
-            o_skip = SkipStrategy.noop()
-            o_skip.case_comparable = Status.ERROR
+            o_skip = SkipStrategy.from_option("cases-on-error")
             self.cfg.set_local(
                 "skip_strategy", self.cfg.skip_strategy.union(o_skip)
             )
@@ -504,8 +503,7 @@ class MultiTest(testing_base.Test):
             for testsuite, testcases in testsuites:
                 if not self.active:
                     report.logger.error("Not all of the suites are done.")
-                    st = Status.precedent([report.status, Status.INCOMPLETE])
-                    if st != report.status:
+                    if Status.INCOMPLETE.precede(report.status):
                         report.status_override = Status.INCOMPLETE
                     break
 
@@ -519,7 +517,13 @@ class MultiTest(testing_base.Test):
                 if self.cfg.skip_strategy.should_skip_rest_suites(
                     testsuite_report.status
                 ):
-                    # omit ``should_stop``
+                    # omit ``should_stop`` here
+                    self.logger.debug(
+                        "Stopping execution of remaining testsuites in %s due to "
+                        "``skip_strategy`` set to %s",
+                        self,
+                        self.cfg.skip_strategy.to_option(),
+                    )
                     break
 
             style = self.get_stdout_style(report.passed)
@@ -850,6 +854,13 @@ class MultiTest(testing_base.Test):
                         testsuite, parallel_cases
                     )
                     testsuite_report.extend(testcase_reports)
+            if should_stop:
+                self.logger.debug(
+                    "Skipping all parallel cases in %s due to "
+                    "``skip_strategy`` set to %s",
+                    self,
+                    self.cfg.skip_strategy.to_option(),
+                )
 
             with self.watcher.save_covered_lines_to(testsuite_report):
                 teardown_report = self._teardown_testsuite(testsuite)
@@ -898,6 +909,12 @@ class MultiTest(testing_base.Test):
                 testcase_report.status
             ):
                 # omit ``should_stop`` here
+                self.logger.debug(
+                    "Skipping execution of remaining testcases in %s due to "
+                    "``skip_strategy`` set to %s",
+                    mtest_suite.get_testsuite_name(testsuite),
+                    self.cfg.skip_strategy.to_option(),
+                )
                 break
 
         if parametrization_reports:
@@ -923,6 +940,9 @@ class MultiTest(testing_base.Test):
         post_testcase = getattr(testsuite, "post_testcase", None)
 
         for exec_group in execution_groups:
+            if not self.active:
+                break
+
             self.logger.debug('Running execution group "%s"', exec_group)
             results = [
                 self._thread_pool.submit(
@@ -956,6 +976,12 @@ class MultiTest(testing_base.Test):
                     should_stop = True
 
             if should_stop:
+                self.logger.debug(
+                    "Stopping execution of parallel cases in %s due to "
+                    "``skip_strategy`` set to %s",
+                    self,
+                    self.cfg.skip_strategy.to_option(),
+                )
                 break
 
         # Add all non-empty parametrization reports into the list of returned
@@ -1025,6 +1051,9 @@ class MultiTest(testing_base.Test):
             return None
         elif not callable(testsuite_method):
             raise TypeError("{} expected to be callable.".format(method_name))
+
+        if not self.active:
+            return None
 
         method_report = TestCaseReport(
             name=method_name, uid=method_name, suite_related=True

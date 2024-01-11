@@ -138,7 +138,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(ihandler.report.uid, new_report.uid)
-                new_runtime_status = RuntimeStatus(
+                new_runtime_status = RuntimeStatus.from_json_compatible(
                     shallow_report.get("runtime_status")
                 )
 
@@ -232,7 +232,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_test.uid, new_test.uid)
-                new_runtime_status = RuntimeStatus(
+                new_runtime_status = RuntimeStatus.from_json_compatible(
                     shallow_report.get("runtime_status")
                 )
 
@@ -368,7 +368,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_suite.uid, new_suite.uid)
-                new_runtime_status = RuntimeStatus(
+                new_runtime_status = RuntimeStatus.from_json_compatible(
                     shallow_report.get("runtime_status")
                 )
 
@@ -464,7 +464,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_case.uid, new_testcase.uid)
-                new_runtime_status = RuntimeStatus(
+                new_runtime_status = RuntimeStatus.from_json_compatible(
                     shallow_report.get("runtime_status")
                 )
 
@@ -568,7 +568,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_case.uid, new_testcase.uid)
-                new_runtime_status = RuntimeStatus(
+                new_runtime_status = RuntimeStatus.from_json_compatible(
                     shallow_report.get("runtime_status")
                 )
 

@@ -19,9 +19,9 @@ class LocalRunner(Executor):
     options.
     """
 
-    def __init__(self, **options) -> None:
+    def __init__(self, uid=None, **options) -> None:
         super(LocalRunner, self).__init__(**options)
-        self._uid = "local_runner"
+        self._uid = uid or "local_runner"
 
         self._curr_runnable_lock = threading.Lock()
         self._curr_runnable = None
@@ -100,10 +100,10 @@ class LocalRunner(Executor):
                     if self.cfg.skip_strategy.should_skip_rest_tests(
                         result.report.status
                     ):
-                        self.bubble_up_discard_tasks(
-                            S.Not(S.Eq(self.id_in_parent))
+                        self.bubble_up_discard_tasks(S.Not(S.Eq(self.uid())))
+                        self.discard_pending_tasks(
+                            report_reason=self.cfg.skip_strategy.to_skip_reason()
                         )
-                        self.discard_pending_tasks(reluctantly=False)
 
             elif self.status == self.status.STOPPING:
                 self.status.change(self.status.STOPPED)
@@ -124,30 +124,40 @@ class LocalRunner(Executor):
 
     def aborting(self) -> None:
         """Aborting logic."""
-        self.discard_pending_tasks(reluctantly=True)
+        self.discard_pending_tasks(
+            report_status=Status.ERROR, report_reason=f"{self} aborted"
+        )
 
-    def discard_pending_tasks(self, reluctantly: bool):
+    def discard_pending_tasks(
+        self, report_status: Status = Status.NONE, report_reason: str = ""
+    ):
         with self._curr_runnable_lock:
             self._discard_pending = True
             if self._curr_runnable:
                 self._curr_runnable.abort()
-            if reluctantly:
-                self.logger.critical("Discard pending tasks of %s.", self)
-                while self.ongoing:
-                    uid = self.ongoing.pop(0)
+
+            self.logger.warning("Discard pending tasks of %s.", self)
+            while self.ongoing:
+                uid = self.ongoing.pop(0)
+                if report_status:
                     result = TestResult()
                     result.report = TestGroupReport(
-                        name=uid, category=ReportCategories.ERROR
+                        name=uid,
+                        category=ReportCategories.ERROR
+                        if report_status <= Status.FAILED
+                        else ReportCategories.TESTGROUP,
                     )
-                    result.report.status_override = Status.ERROR
-                    result.report.logger.critical(
-                        "Test [%s] discarding due to %s abort.",
+                    result.report.status_override = report_status
+                    result.report.logger.warning(
+                        "Test[%s] discarding due to %s",
                         uid,
-                        self.uid(),
+                        report_reason,
                     )
                     self._results[uid] = result
-            else:
-                self.ongoing = []
+                if report_reason:
+                    self.logger.warning(
+                        "Discard Test[%s] due to %s", uid, report_reason
+                    )
 
     def get_current_status_for_debug(self) -> List[str]:
         """

@@ -153,7 +153,10 @@ class TestReport:
         rsp = client.get("/api/v1/interactive/report")
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.READY.value
+        assert (
+            json_rsp["runtime_status"]
+            == report.RuntimeStatus.READY.to_json_compatible()
+        )
         compare_json(json_rsp, json_report)
 
     def test_put(self, api_env):
@@ -161,11 +164,16 @@ class TestReport:
         client, ihandler = api_env
 
         json_report = ihandler.report.shallow_serialize()
-        json_report["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        json_report[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put("/api/v1/interactive/report", json=json_report)
         assert rsp.status_code == 200
         rsp_json = rsp.get_json()
-        assert rsp_json["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            rsp_json["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
         compare_json(rsp_json, json_report, ignored_keys=["runtime_status"])
 
         ihandler.run_all_tests.assert_called_once_with(
@@ -177,7 +185,9 @@ class TestReport:
         client, ihandler = api_env
 
         json_report = ihandler.report.serialize()
-        json_report["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        json_report[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put("/api/v1/interactive/report", json=json_report)
         assert rsp.status_code == 200
 
@@ -190,11 +200,16 @@ class TestReport:
         client, ihandler = api_env
 
         json_report = ihandler.report.shallow_serialize()
-        json_report["runtime_status"] = report.RuntimeStatus.RESETTING.value
+        json_report[
+            "runtime_status"
+        ] = report.RuntimeStatus.RESETTING.to_json_compatible()
         rsp = client.put("/api/v1/interactive/report", json=json_report)
         assert rsp.status_code == 200
         rsp_json = rsp.get_json()
-        assert rsp_json["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            rsp_json["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
         compare_json(rsp_json, json_report, ignored_keys=["runtime_status"])
 
         ihandler.reset_all_tests.assert_called_once_with(await_results=False)
@@ -259,13 +274,18 @@ class TestSingleTest:
         client, ihandler = api_env
 
         json_test = ihandler.report["MTest1"].shallow_serialize()
-        json_test["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        json_test[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            json_rsp["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
         compare_json(json_rsp, json_test, ignored_keys=["runtime_status"])
 
         ihandler.run_test.assert_called_once_with(
@@ -277,7 +297,9 @@ class TestSingleTest:
         client, ihandler = api_env
 
         json_test = ihandler.report["MTest1"].serialize()
-        json_test["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        json_test[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
@@ -291,13 +313,18 @@ class TestSingleTest:
         client, ihandler = api_env
 
         json_test = ihandler.report["MTest1"].shallow_serialize()
-        json_test["runtime_status"] = report.RuntimeStatus.RESETTING.value
+        json_test[
+            "runtime_status"
+        ] = report.RuntimeStatus.RESETTING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            json_rsp["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
         compare_json(json_rsp, json_test, ignored_keys=["runtime_status"])
 
         ihandler.reset_test.assert_called_once_with(
@@ -363,13 +390,18 @@ class TestSingleTest:
 
         # Cannot change status if test is already running/resetting/waiting
         json_test = ihandler.report["MTest1"].shallow_serialize()
-        json_test["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        json_test[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(api_url, json=json_test)
         assert rsp.status_code == 200
         rsp = client.put(api_url, json=json_test)
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            json_rsp["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
 
 
 class TestAllSuites:
@@ -416,14 +448,19 @@ class TestSingleSuite:
         client, ihandler = api_env
 
         suite_json = ihandler.report["MTest1"]["MT1Suite1"].shallow_serialize()
-        suite_json["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        suite_json[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1",
             json=suite_json,
         )
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            json_rsp["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
         compare_json(json_rsp, suite_json, ignored_keys=["runtime_status"])
 
         ihandler.run_test_suite.assert_called_once_with(
@@ -435,7 +472,9 @@ class TestSingleSuite:
         client, ihandler = api_env
 
         suite_json = ihandler.report["MTest1"]["MT1Suite1"].serialize()
-        suite_json["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        suite_json[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1",
             json=suite_json,
@@ -538,7 +577,9 @@ class TestSingleTestcase:
         else:
             raise TypeError("Unexpected report type")
 
-        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        testcase_json[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         if "entries" in testcase_json:
             del testcase_json["entries"]
         rsp = client.put(
@@ -548,7 +589,10 @@ class TestSingleTestcase:
         )
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            json_rsp["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
         compare_json(json_rsp, testcase_json, ignored_keys=["runtime_status"])
 
         ihandler.run_test_case.assert_called_once_with(
@@ -565,7 +609,9 @@ class TestSingleTestcase:
         report_entry = ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC1"]
 
         testcase_json = report_entry.serialize()
-        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        testcase_json[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/{}".format("MT1S1TC1"),
@@ -585,7 +631,9 @@ class TestSingleTestcase:
         report_entry = ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC2"]
 
         testcase_json = report_entry.serialize()
-        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        testcase_json[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/{}".format("MT1S1TC2"),
@@ -684,8 +732,9 @@ class TestParametrizedTestCase:
         testcase_json = report_entry.serialize()
         if "entries" in testcase_json:
             del testcase_json["entries"]
-
-        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING.value
+        testcase_json[
+            "runtime_status"
+        ] = report.RuntimeStatus.RUNNING.to_json_compatible()
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/MT1S1TC2/parametrizations/MT1S1TC2_0",
@@ -693,7 +742,10 @@ class TestParametrizedTestCase:
         )
         assert rsp.status_code == 200
         json_rsp = rsp.get_json()
-        assert json_rsp["runtime_status"] == report.RuntimeStatus.WAITING.value
+        assert (
+            json_rsp["runtime_status"]
+            == report.RuntimeStatus.WAITING.to_json_compatible()
+        )
         compare_json(json_rsp, testcase_json, ignored_keys=["runtime_status"])
 
         ihandler.run_test_case_param.assert_called_once_with(

@@ -27,7 +27,7 @@ def test_skip_strategy_basic_op():
     s = SkipStrategy.noop()
     assert not s
 
-    s.case_comparable = Status.FAILED
+    s = SkipStrategy.from_option("cases-on-failed")
     assert s.should_skip_rest_cases(Status.INCOMPLETE)
     assert s
 
@@ -37,6 +37,4 @@ def test_skip_strategy_round_trip():
 
     for op in SKIP_STRATEGY_OPTIONS_ON_PAPER:
         ret = SkipStrategy.from_option(op)
-        assert ret.test_comparable <= Status.FAILED
-        assert ret.suite_comparable <= Status.FAILED
-        assert ret.case_comparable <= Status.FAILED
+        assert ret.threshold <= Status.FAILED

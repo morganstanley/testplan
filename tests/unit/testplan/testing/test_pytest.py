@@ -67,7 +67,7 @@ def test_run_testcases_iter_all(pytest_test_inst):
 
     counter = collections.Counter()
     for testcase_report, _ in all_results[1:]:
-        counter[testcase_report.status.value] += 1
+        counter[testcase_report.status.to_json_compatible()] += 1
     _check_all_testcounts(counter)
 
     testcase_report, _ = all_results[7]
@@ -89,7 +89,7 @@ def test_run_testcases_iter_testsuite(pytest_test_inst):
 
     counter = collections.Counter()
     for testcase_report, _ in all_results[1:]:
-        counter[testcase_report.status.value] += 1
+        counter[testcase_report.status.to_json_compatible()] += 1
         counter["total"] += 1
 
     assert counter["total"] == 5
@@ -146,7 +146,7 @@ def test_run_testcases_iter_param(pytest_test_inst):
             "pytest_tests.py::TestPytestBasics",
             "test_parametrization",
         ]
-        counter[testcase_report.status.value] += 1
+        counter[testcase_report.status.to_json_compatible()] += 1
         counter["total"] += 1
 
     assert counter["total"] == 3

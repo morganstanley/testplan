@@ -74,16 +74,16 @@ def descent_assert(abs_struct, group_report):
         descent_assert(s, r)
 
 
-def lrunner(_=1):
-    return LocalRunner()
+def lrunner(name, _=1):
+    return LocalRunner(name)
 
 
-def tpool(size=2):
-    return Pool("", size=size)
+def tpool(name, size=2):
+    return Pool(name, size=size)
 
 
-def ppool(size=2):
-    return ProcessPool("", size=size)
+def ppool(name, size=2):
+    return ProcessPool(name, size=size)
 
 
 @pytest.mark.parametrize(
@@ -107,7 +107,7 @@ def test_intra_executor(exec_gen, option, abs_report_struct):
         name="in the middle of functional test",
         skip_strategy=option,
     )
-    mockplan.add_resource(exec_gen(1), "exec")
+    mockplan.add_resource(exec_gen("exec", 1))
     for mt in make_mt():
         mockplan.schedule(target=mt, resource="exec")
     report = mockplan.run().report
@@ -153,9 +153,9 @@ def test_inter_executor(exec_ids):
         name="in the middle of functional test",
         skip_strategy="tests-on-failed",
     )
-    mockplan.add_resource(lrunner(), "lrunner")
-    mockplan.add_resource(tpool(4), "tpool")
-    mockplan.add_resource(ppool(4), "ppool")
+    mockplan.add_resource(lrunner("lrunner"))
+    mockplan.add_resource(tpool("tpool", 4))
+    mockplan.add_resource(ppool("ppool", 4))
     for mt, rid in zip(make_mt2(), exec_ids):
         mockplan.schedule(target=mt, resource=rid)
     report = mockplan.run().report

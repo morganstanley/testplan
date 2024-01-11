@@ -491,21 +491,21 @@ class TestRunner(Runnable):
         self, resource: Resource, uid: Optional[str] = None
     ) -> str:
         """
-        FIXME
         Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
 
         :param resource: Test executor to be added.
-        :param uid: Optional input resource uid.
+        :param uid: Optional input resource uid. We now force its equality with
+            resource's own uid.
         :return: Resource uid assigned.
         """
-        # FIXME: we are messing up with uid here...
         resource.parent = self
         resource.cfg.parent = self.cfg
-        real_uid = uid or getattr(resource, "uid", strings.uuid4)()
-        if isinstance(resource, Executor):
-            resource.id_in_parent = real_uid
-        return self.resources.add(resource, uid=real_uid)
+        if uid and uid != resource.uid():
+            raise ValueError(
+                f"Unexpected uid value ``{uid}`` received, mismatching with Resource uid ``{resource.uid()}``"
+            )
+        return self.resources.add(resource, uid=uid)
 
     def add_exporters(self, exporters: List[Exporter]):
         """
@@ -1091,7 +1091,7 @@ class TestRunner(Runnable):
             if not resource_result:
                 continue
             elif isinstance(resource_result, TaskResult):
-                if resource_result.status is False:
+                if resource_result.result is None:
                     test_results[uid] = result_for_failed_task(resource_result)
                 else:
                     test_results[uid] = resource_result.result
@@ -1313,10 +1313,15 @@ class TestRunner(Runnable):
                     "an exported result to browse"
                 )
 
-    def discard_pending_tasks(self, exec_selector: SExpr, reluctantly: bool):
+    def discard_pending_tasks(
+        self,
+        exec_selector: SExpr,
+        report_status: Status = Status.NONE,
+        report_reason: str = "",
+    ):
         for k, v in self.resources.items():
             if isinstance(v, Executor) and apply_single(exec_selector, k):
-                v.discard_pending_tasks(reluctantly)
+                v.discard_pending_tasks(report_status, report_reason)
 
     def abort_dependencies(self):
         """

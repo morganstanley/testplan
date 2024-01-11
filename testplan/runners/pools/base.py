@@ -22,7 +22,6 @@ from testplan.report import ReportCategories
 from testplan.report.testing.base import Status, TestGroupReport
 from testplan.runners.base import Executor, ExecutorConfig
 from testplan.testing.base import Test, TestResult
-from testplan.testing.common import SkipStrategy
 
 from .communication import Message
 from .connection import QueueClient, QueueServer
@@ -359,7 +358,6 @@ class Pool(Executor):
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
         self._pool_lock = threading.Lock()
-        self._a_pool_lock = threading.RLock()
         self._metadata = None
         # Will set False when Pool is starting.
         self._exit_loop = True
@@ -376,6 +374,7 @@ class Pool(Executor):
             Message.SetupFailed: self._handle_setupfailed,
         }
         # for skip-remaining feature
+        self._discard_pending_lock = threading.RLock()
         self._discard_pending = False
 
     def uid(self) -> str:
@@ -398,6 +397,7 @@ class Pool(Executor):
         :param task: Task to be scheduled to workers
         :param uid: Task uid
         """
+        # XXX: signature mismatch with ``Executor.add``
         if not isinstance(task, Task):
             raise ValueError(f"Task was expected, got {type(task)} instead.")
         super(Pool, self).add(task, uid)
@@ -482,7 +482,7 @@ class Pool(Executor):
             worker.respond(response.make(Message.Stop))
         elif request.cmd in self._request_handlers:
             try:
-                with self._a_pool_lock:
+                with self._discard_pending_lock:
                     self._request_handlers[request.cmd](
                         worker, request, response
                     )
@@ -652,8 +652,10 @@ class Pool(Executor):
             self.ongoing.remove(uid)
 
         if self.cfg.skip_strategy.should_skip_rest_tests(agg_report_status):
-            self.bubble_up_discard_tasks(S.Not(S.Eq(self.id_in_parent)))
-            self.discard_pending_tasks(reluctantly=False)
+            self.bubble_up_discard_tasks(S.Not(S.Eq(self.uid())))
+            self.discard_pending_tasks(
+                report_reason=self.cfg.skip_strategy.to_skip_reason()
+            )
 
     def _handle_heartbeat(
         self, worker: Worker, request: Message, response: Message
@@ -871,8 +873,10 @@ class Pool(Executor):
         )
         self.ongoing.remove(uid)
 
-    def discard_pending_tasks(self, reluctantly: bool):
-        with self._a_pool_lock:
+    def discard_pending_tasks(
+        self, report_status: Status = Status.NONE, report_reason: str = ""
+    ):
+        with self._discard_pending_lock:
             self._discard_pending = True
 
             for w in self._workers:
@@ -880,19 +884,35 @@ class Pool(Executor):
                 # do real discard
                 w.discard_running_tasks()
 
-            if reluctantly:
-                self.logger.critical("Discard pending tasks of %s", self)
-                while self.ongoing:
-                    uid = self.ongoing[0]
-                    task = self._input[uid]
+            self.logger.warning("Discard pending tasks of %s", self)
+            while self.ongoing:
+                uid = self.ongoing[0]
+                task = self._input[uid]
+                if report_status:
+                    result = TestResult()
+                    result.report = TestGroupReport(
+                        name=str(task), category=ReportCategories.ERROR
+                    )
+                    result_lines = [
+                        "{}: {}".format(attr, getattr(task, attr, None) or "")
+                        for attr in task.serializable_attrs
+                    ]
+                    result.report.logger.error(os.linesep.join(result_lines))
+                    result.report.logger.error(
+                        report_reason or "unknown reason."
+                    )
+                    result.report.status_override = report_status
                     self._results[uid] = TaskResult(
                         task=self._input[uid],
                         status=False,
-                        reason=f"{task} discarding due to {self} abort",
+                        reason=report_reason or "unknown reason.",
+                        result=result,
                     )
-                    self.ongoing.pop(0)
-            else:
-                self.ongoing = []
+                if report_reason:
+                    self.logger.warning(
+                        "Discarding %s due to %s.", task, report_reason
+                    )
+                self.ongoing.pop(0)
             self.unassigned = TaskQueue()
 
     def _append_temporary_task_result(self, task_result: TaskResult) -> None:
@@ -1011,7 +1031,9 @@ class Pool(Executor):
         super(Pool, self).stopping()  # stop the loop and the monitor
 
         self._conn.abort()
-        self.discard_pending_tasks(reluctantly=True)
+        self.discard_pending_tasks(
+            report_status=Status.ERROR, report_reason=f"{self} aborted"
+        )
 
     def record_execution(self, uid) -> None:
         self._executed_tests.append(uid)

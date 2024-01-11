@@ -83,13 +83,13 @@ class TestplanLogger(logging.Logger):
     ):
         """Shortcut to log a pass/fail status for a test."""
         if status.normalised() == Status.PASSED:
-            pass_label = Color.green(status.value.title())
+            pass_label = Color.green(status.name.title())
         elif status <= Status.FAILED:
-            pass_label = Color.red(status.value.title())
+            pass_label = Color.red(status.name.title())
         elif status.normalised() == Status.UNSTABLE:
-            pass_label = Color.yellow(status.value.title())
+            pass_label = Color.yellow(status.name.title())
         else:  # unknown
-            pass_label = status.value.title()
+            pass_label = status.name.title()
 
         indent_str = indent * " "
         msg = self._TEST_STATUS_FORMAT

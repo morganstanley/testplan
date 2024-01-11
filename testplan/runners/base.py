@@ -8,6 +8,7 @@ from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.report.base import EventRecorder
 from testplan.common.utils.selector import Expr as SExpr
 from testplan.common.utils.thread import interruptible_join
+from testplan.report.testing.base import Status
 
 
 class ExecutorConfig(ResourceConfig):
@@ -39,7 +40,6 @@ class Executor(Resource):
         self.ongoing = []
 
         self._discard_pending = False
-        self.id_in_parent: Optional[str] = None
 
     @property
     def class_name(self) -> str:
@@ -122,24 +122,28 @@ class Executor(Resource):
         """Resource has pending work."""
         return len(self.ongoing) > 0
 
-    def discard_pending_tasks(self, reluctantly: bool):
-        # should discard current executing runnable as well
-        # in case of timeout, reluctantly
-        # in case of skip-remaining, willingly
-        # NOTE: currently Task src lives under pool, which doesn't reflect the
-        # NOTE: fact that LocalRunner is able to consume them
-        # NOTE: src to be re-arranged, types (TaskResult and TestResult) to be
-        # NOTE: uniformed, before similar logic promoted to their common
-        # NOTE: ancestor - Executor
+    def discard_pending_tasks(
+        self, report_status: Status = Status.NONE, report_reason: str = ""
+    ):
+        # NOTE: should discard currently running task as well
+        # NOTE: currently Task class is defined under sub-package pool, which
+        # NOTE: doesn't reflect the fact that LocalRunner is also able to
+        # NOTE: consume them
+        # NOTE: src to be re-composed, types (TaskResult and TestResult) to be
+        # NOTE: uniformed, before similar logic could be promoted to their
+        # NOTE: common ancestor - Executor
         raise NotImplementedError()
 
     def bubble_up_discard_tasks(self, exec_selector: SExpr):
         # used by "skip-remaining" feature
-        # should only be triggered when live under TestRunner
+        # should only be triggered when executors living under TestRunner
         from testplan.runnable.base import TestRunner
 
         if self.parent is not None and isinstance(self.parent, TestRunner):
-            self.parent.discard_pending_tasks(exec_selector, reluctantly=False)
+            self.parent.discard_pending_tasks(
+                exec_selector,
+                report_reason=f"Skipping due to {self.cfg.skip_strategy.to_skip_reason()}",
+            )
 
     def get_current_status_for_debug(self) -> List[str]:
         """

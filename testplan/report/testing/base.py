@@ -47,7 +47,7 @@ import platform
 import sys
 import traceback
 from collections import Counter
-from enum import Enum
+from enum import Enum, auto
 from functools import reduce, total_ordering
 from typing import Callable, Dict, List, Optional
 
@@ -63,18 +63,20 @@ from testplan.testing import tagging
 class RuntimeStatus(Enum):
     """
     Constants for test runtime status - for interactive mode
+
+    total order encoded in value, serialized to "lower-case string" of name
     """
 
-    READY = "ready"
-    WAITING = "waiting"
-    RUNNING = "running"
-    RESETTING = "resetting"
-    FINISHED = "finished"
-    NOT_RUN = "not_run"
-    NONE = None  # an "unset" value
+    RUNNING = auto()
+    RESETTING = auto()
+    WAITING = auto()
+    READY = auto()
+    NOT_RUN = auto()
+    FINISHED = auto()
+    NONE = auto()  # an "unset" value
 
     @classmethod
-    def precedent(cls, stats):
+    def precedent(cls, stats: List[Self]) -> Self:
         """
         Return the precedent status from a list of statuses, using the
         ordering of statuses in `rule`.
@@ -86,46 +88,50 @@ class RuntimeStatus(Enum):
 
         :param stats: List of statuses of which we want to get the precedent.
         """
-        return min(stats, key=lambda stat: RUNTIMESTATUS_PRECEDENCE[stat])
+        return min(stats, key=lambda x: x.value)
 
     def __lt__(self, other: Self) -> bool:
-        return RUNTIMESTATUS_PRECEDENCE[self] < RUNTIMESTATUS_PRECEDENCE[other]
+        return self.value < other.value
 
     precede = __lt__
 
     def __bool__(self):
         return self != self.NONE
 
+    def to_json_compatible(self) -> Optional[str]:
+        if self.name == "NONE":
+            return None
+        return self.name.lower().replace("_", "-")
 
-RUNTIMESTATUS_PRECEDENCE = {
-    RuntimeStatus.RUNNING: 0,
-    RuntimeStatus.RESETTING: 1,
-    RuntimeStatus.WAITING: 2,
-    RuntimeStatus.READY: 3,
-    RuntimeStatus.NOT_RUN: 4,
-    RuntimeStatus.FINISHED: 5,
-    RuntimeStatus.NONE: 6,
-}
+    @classmethod
+    def from_json_compatible(cls, s: Optional[str]) -> Self:
+        if s is None:
+            return cls.NONE
+        return cls[s.replace("-", "_").upper()]
 
 
 class Status(Enum):
     """
     Constants for test result and utilities for propagating status upward.
-    We have both "less than" and "less than or equal to" as partial order relations.
+
+    partial order encoded by value, serialized to "lower-case string" of name
+
+    tens of value encoding status category, tenths of value only for
+    differentiating enum members
     """
 
-    BOTTOM = "\\bot"  # for comparing
-    ERROR = "error"
-    FAILED = "failed"
-    INCOMPLETE = "incomplete"
-    XPASS_STRICT = "xpass-strict"
-    PASSED = "passed"
-    UNSTABLE = "unstable"
-    SKIPPED = "skipped"
-    XFAIL = "xfail"
-    XPASS = "xpass"
-    UNKNOWN = "unknown"
-    NONE = None  # an "unset" value
+    BOTTOM = -1  # minimal
+    ERROR = 9
+    INCOMPLETE = 18.1
+    XPASS_STRICT = 18.2
+    FAILED = 19  # red
+    UNKNOWN = 29  # black
+    PASSED = 39  # green
+    SKIPPED = 48.1
+    XFAIL = 48.2
+    XPASS = 48.3
+    UNSTABLE = 49  # yellow
+    NONE = 59  # maxium, "unset"
 
     @classmethod
     def precedent(cls, stats: List[Self]) -> Self:
@@ -148,13 +154,13 @@ class Status(Enum):
         return reduce(_cmp, stats, cls.NONE)
 
     def __lt__(self, other: Self) -> bool:
-        lhs, rhs = STATUS_PRECEDENCE[self], STATUS_PRECEDENCE[other]
+        lhs, rhs = int(self.value), int(other.value)
         if lhs == rhs and self != other:
             return NotImplemented
         return lhs < rhs
 
     def __le__(self, other: Self) -> bool:
-        lhs, rhs = STATUS_PRECEDENCE[self], STATUS_PRECEDENCE[other]
+        lhs, rhs = int(self.value), int(other.value)
         if lhs == rhs and self != other:
             return NotImplemented
         return lhs <= rhs
@@ -167,40 +173,21 @@ class Status(Enum):
             return False
 
     def normalised(self) -> Self:
-        idx = STATUS_PRECEDENCE[self] // 10
-        if idx < 0:
-            raise ValueError(f"{self} cannot be normalised")
-        return STATUS_NORMED[idx]
+        return self.__class__(self.value // 10 * 10 + 9)
 
     def __bool__(self) -> bool:
-        return self not in (self.BOTTOM, self.NONE)
+        return self != self.NONE and self != self.BOTTOM
 
+    def to_json_compatible(self) -> Optional[str]:
+        if self.name == "NONE":
+            return None
+        return self.name.lower().replace("_", "-")
 
-# Status Precedence encoded by numeric value and
-# Status categorization done through list indices.
-STATUS_PRECEDENCE = {
-    Status.BOTTOM: -1,
-    Status.ERROR: 9,
-    Status.INCOMPLETE: 18,
-    Status.XPASS_STRICT: 18,
-    Status.FAILED: 19,
-    Status.UNKNOWN: 29,
-    Status.PASSED: 39,
-    Status.SKIPPED: 48,
-    Status.XFAIL: 48,
-    Status.XPASS: 48,
-    Status.UNSTABLE: 49,
-    Status.NONE: 59,
-}
-
-STATUS_NORMED = [
-    Status.ERROR,  # red
-    Status.FAILED,  # red
-    Status.UNKNOWN,  # black
-    Status.PASSED,  # green
-    Status.UNSTABLE,  # yellow
-    Status.NONE,  # "default"
-]
+    @classmethod
+    def from_json_compatible(cls, s: Optional[str]) -> Self:
+        if s is None:
+            return cls.NONE
+        return cls[s.replace("-", "_").upper()]
 
 
 class ReportCategories:
@@ -427,13 +414,19 @@ class BaseReportGroup(ReportGroup):
         children and so on.
         """
         counter = Counter(
-            {Status.PASSED.value: 0, Status.FAILED.value: 0, "total": 0}
+            {
+                Status.PASSED.to_json_compatible(): 0,
+                Status.FAILED.to_json_compatible(): 0,
+                "total": 0,
+            }
         )
 
         # exclude rerun and synthesized entries from counter
         for child in self:
             if child.category == ReportCategories.ERROR:
-                counter.update({Status.ERROR.value: 1, "total": 1})
+                counter.update(
+                    {Status.ERROR.to_json_compatible(): 1, "total": 1}
+                )
             elif child.category in (
                 ReportCategories.TASK_RERUN,
                 ReportCategories.SYNTHESIZED,
@@ -1012,6 +1005,7 @@ class TestCaseReport(Report):
         self.runtime_status = new_status
 
     def _assertions_status(self):
+        # entries already serialized here
         for entry in self:
             if entry.get("passed") is False:
                 return Status.FAILED
@@ -1111,9 +1105,13 @@ class TestCaseReport(Report):
         Return counts for current status.
         """
         counter = Counter(
-            {Status.PASSED.value: 0, Status.FAILED.value: 0, "total": 0}
+            {
+                Status.PASSED.to_json_compatible(): 0,
+                Status.FAILED.to_json_compatible(): 0,
+                "total": 0,
+            }
         )
-        counter.update({self.status.value: 1, "total": 1})
+        counter.update({self.status.to_json_compatible(): 1, "total": 1})
         return counter
 
     def pass_if_empty(self):

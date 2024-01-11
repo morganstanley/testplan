@@ -1,5 +1,15 @@
-# decouple represetation from evaluation
-# typevar always of kind *, type hint won't work much here
+"""
+inspired by recursion schemes from the functional programming world, to de-
+couple represetation (of operators) from evaluation (of them on different
+types)
+
+see https://blog.sumtypeofway.com/posts/introduction-to-recursion-schemes.html
+
+unlike statically-typed languages, python doesn't need a representation for
+a possibly infinite recursively type, thus we omit a "fixed-point" type here
+
+typevar in current python always of kind *, type hint won't work much here
+"""
 
 from dataclasses import dataclass
 from typing import Any, Callable, Generic, Set, TypeVar
@@ -18,6 +28,7 @@ class Functor(Protocol, Generic[T]):
 
 @dataclass
 class And2(Generic[T]):
+    # logic and accepting 2 operands
     lterm: T
     rterm: T
 
@@ -27,6 +38,7 @@ class And2(Generic[T]):
 
 @dataclass
 class Or2(Generic[T]):
+    # logic or accepting 2 operands
     lterm: T
     rterm: T
 
@@ -62,6 +74,7 @@ Expr = TypeVar("Expr", bound=Functor)
 
 
 def cata(f: Callable, rep: Expr):
+    # i.e. catamorphism
     # cata :: (f t -> t) -> f (f (f ...)) -> t
     return f(rep.map(lambda x: cata(f, x)))
 

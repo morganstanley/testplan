@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from enum import IntEnum, auto
 from itertools import product
 from typing import List, Optional
 
@@ -15,15 +16,26 @@ TEST_PART_PATTERN_REGEX = re.compile(
 )
 
 
+class _SkipStrategyOffset(IntEnum):
+    NONE = auto()  # empty
+    CASES = auto()
+    SUITES = auto()
+    TESTS = auto()  # universe
+
+
 @dataclass
 class SkipStrategy:
-    case_comparable: Status
-    suite_comparable: Status
-    test_comparable: Status
+    offset: _SkipStrategyOffset
+    threshold: Status
 
     @classmethod
     def noop(cls) -> Self:
-        return cls(Status.BOTTOM, Status.BOTTOM, Status.BOTTOM)
+        return cls(_SkipStrategyOffset.NONE, Status.NONE)
+
+    def to_option(self) -> str:
+        if not self:
+            return "None"
+        return f"{self.offset.name.lower()}-on-{self.threshold.to_json_compatible()}"
 
     @classmethod
     def from_option(cls, option: str) -> Self:
@@ -33,24 +45,18 @@ class SkipStrategy:
                 f"invalid option for ``SkipStrategy``, valid values are {vals}."
             )
         sib, st = option.split("-on-")
-        st = Status(st)
-        r = cls.noop()
-        r.case_comparable = st
-        if sib == "suites":
-            r.suite_comparable = st
-        if sib == "tests":
-            r.suite_comparable = st
-            r.test_comparable = st
-        return r
+        return cls(
+            _SkipStrategyOffset[sib.upper()], Status.from_json_compatible(st)
+        )
 
     @classmethod
     def from_option_or_none(cls, maybe_option: Optional[str]) -> Self:
-        if isinstance(maybe_option, str):
-            return cls.from_option(maybe_option)
         if maybe_option is None:
             return cls.noop()
-        raise ValueError(
-            f"Invalid value, expecting None or a string in {cls.all_options()}."
+        if isinstance(maybe_option, str):
+            return cls.from_option(maybe_option)
+        raise TypeError(
+            f"Invalid type, expecting None or a string in {cls.all_options()}."
         )
 
     @classmethod
@@ -63,37 +69,44 @@ class SkipStrategy:
         )
 
     def should_skip_rest_cases(self, case_status: Status):
-        return case_status <= self.case_comparable
+        return (
+            self.offset >= _SkipStrategyOffset.CASES
+            and case_status <= self.threshold
+        )
 
     def should_skip_rest_suites(self, suite_status: Status):
-        return suite_status <= self.suite_comparable
+        return (
+            self.offset >= _SkipStrategyOffset.SUITES
+            and suite_status <= self.threshold
+        )
 
     def should_skip_rest_tests(self, test_status: Status):
-        return test_status <= self.test_comparable
+        return (
+            self.offset >= _SkipStrategyOffset.TESTS
+            and test_status <= self.threshold
+        )
 
     def union(self, other: Self) -> Self:
         def _cmp(x: Status, y: Status):
             try:
-                r = x > y
+                r = x < y
             except TypeError:
                 return x.normalised()
             else:
                 return x if r else y
 
         return self.__class__(
-            _cmp(self.case_comparable, other.case_comparable),
-            _cmp(self.suite_comparable, other.suite_comparable),
-            _cmp(self.test_comparable, other.test_comparable),
+            max(self.offset, other.offset),
+            _cmp(self.threshold, other.threshold),
         )
 
     def __bool__(self) -> bool:
-        return any(
-            map(
-                bool,
-                [
-                    self.case_comparable,
-                    self.suite_comparable,
-                    self.test_comparable,
-                ],
-            )
+        return self.offset > _SkipStrategyOffset.NONE and bool(self.threshold)
+
+    def to_skip_reason(self) -> str:
+        if not self:
+            raise RuntimeError("``to_skip_reason`` shouldn't be invoked here")
+        return (
+            f"previously reported {self.threshold.name.lower()} meeting the "
+            "skip condition, which is configured by skip strategy"
         )

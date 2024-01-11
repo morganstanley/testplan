@@ -64,9 +64,10 @@ class Environments(Resource):
     :py:class:`~testplan.common.entity.base.Resource` options.
     """
 
-    def __init__(self, **options):
+    def __init__(self, uid=None, **options):
         super(Environments, self).__init__(**options)
         self._envs = {}
+        self._uid = uid or "environments"
 
     @property
     def envs(self):

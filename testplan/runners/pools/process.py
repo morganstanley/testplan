@@ -18,7 +18,7 @@ from testplan.common.utils.timing import get_sleeper
 
 from . import tasks
 from .base import Pool, PoolConfig, Worker, WorkerConfig
-from .connection import ZMQServer, ZMQServerProxy
+from .connection import ZMQClientProxy, ZMQServer
 
 
 class ProcessWorkerConfig(WorkerConfig):
@@ -33,7 +33,7 @@ class ProcessWorkerConfig(WorkerConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            ConfigOption("transport", default=ZMQServerProxy): object,
+            ConfigOption("transport", default=ZMQClientProxy): object,
             ConfigOption("sigint_timeout", default=5): int,
         }
 
