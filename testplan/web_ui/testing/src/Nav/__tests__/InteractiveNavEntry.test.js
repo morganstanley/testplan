@@ -262,6 +262,7 @@ describe("InteractiveNavEntry", () => {
 
   it("calls callback to start environment when toggle is clicked", () => {
     const envCtrlCallback = jest.fn();
+    const setPendingEnvRequest = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={"FakeTestcase"}
@@ -275,7 +276,7 @@ describe("InteractiveNavEntry", () => {
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
         pendingEnvRequest={""}
-        setPendingEnvRequest={() => undefined}
+        setPendingEnvRequest={setPendingEnvRequest}
       />
     );
 
@@ -292,10 +293,16 @@ describe("InteractiveNavEntry", () => {
     expect(envCtrlCallback.mock.calls).toHaveLength(1);
     expect(envCtrlCallback.mock.calls[0]).toHaveLength(2);
     expect(envCtrlCallback.mock.calls[0][1]).toBe("start");
+
+    // The pending request should have been set.
+    expect(setPendingEnvRequest.mock.calls).toHaveLength(1);
+    expect(setPendingEnvRequest.mock.calls[0]).toHaveLength(1);
+    expect(setPendingEnvRequest.mock.calls[0][0]).toBe("STARTING");
   });
 
   it("calls callback to stop environment when toggle is clicked", () => {
     const envCtrlCallback = jest.fn();
+    const setPendingEnvRequest = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={"FakeTestcase"}
@@ -309,7 +316,7 @@ describe("InteractiveNavEntry", () => {
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
         pendingEnvRequest={""}
-        setPendingEnvRequest={() => undefined}
+        setPendingEnvRequest={setPendingEnvRequest}
       />
     );
 
@@ -326,5 +333,86 @@ describe("InteractiveNavEntry", () => {
     expect(envCtrlCallback.mock.calls).toHaveLength(1);
     expect(envCtrlCallback.mock.calls[0]).toHaveLength(2);
     expect(envCtrlCallback.mock.calls[0][1]).toBe("stop");
+
+    // The pending request should have been set.
+    expect(setPendingEnvRequest.mock.calls).toHaveLength(1);
+    expect(setPendingEnvRequest.mock.calls[0]).toHaveLength(1);
+    expect(setPendingEnvRequest.mock.calls[0][0]).toBe("STOPPING");
+  });
+
+  it("disables action when environment change request sent", () => {
+    const envCtrlCallback = jest.fn();
+    const setPendingEnvRequest = jest.fn();
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={"FakeTestcase"}
+        description={"TestCaseDesc"}
+        status={"unknown"}
+        runtime_status={"ready"}
+        envStatus={"STOPPED"}
+        type={"multitest"}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handleClick={() => undefined}
+        envCtrlCallback={envCtrlCallback}
+        pendingEnvRequest={"STARTING"}
+        setPendingEnvRequest={setPendingEnvRequest}
+      />
+    );
+
+    // Find the environment control. Since there are two FontAwesomeIcons,
+    // we need to additionally filter for the one which is the environment
+    // controller - we do this by matching on the title text.
+    const faIcons = renderedEntry.find(FontAwesomeIcon);
+    expect(faIcons).toHaveLength(3);
+    faIcons.find({ title: "Pending action" }).simulate("click", {
+      preventDefault: () => {},
+      stopPropagation: () => {}
+    });
+
+    // The callback should not have been called.
+    expect(envCtrlCallback.mock.calls).toHaveLength(0);
+
+    // The pending request setter should not have been called.
+    expect(setPendingEnvRequest.mock.calls).toHaveLength(0);
+  });
+
+  it("clears pending environment request when backend acknowledged", () => {
+    const envCtrlCallback = jest.fn();
+    const setPendingEnvRequest = jest.fn();
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={"FakeTestcase"}
+        description={"TestCaseDesc"}
+        status={"unknown"}
+        runtime_status={"ready"}
+        envStatus={"STARTING"}
+        type={"multitest"}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handleClick={() => undefined}
+        envCtrlCallback={envCtrlCallback}
+        pendingEnvRequest={"STARTING"}
+        setPendingEnvRequest={setPendingEnvRequest}
+      />
+    );
+
+    // Find the environment control. Since there are two FontAwesomeIcons,
+    // we need to additionally filter for the one which is the environment
+    // controller - we do this by matching on the title text.
+    const faIcons = renderedEntry.find(FontAwesomeIcon);
+    expect(faIcons).toHaveLength(3);
+    faIcons.find({ title: "Environment starting..." }).simulate("click", {
+      preventDefault: () => {},
+      stopPropagation: () => {}
+    });
+    
+    // The callback should not have been called.
+    expect(envCtrlCallback.mock.calls).toHaveLength(0);
+
+    // The pending request should have been cleared.
+    expect(setPendingEnvRequest.mock.calls).toHaveLength(1);
+    expect(setPendingEnvRequest.mock.calls[0]).toHaveLength(1);
+    expect(setPendingEnvRequest.mock.calls[0][0]).toBe("");
   });
 });
