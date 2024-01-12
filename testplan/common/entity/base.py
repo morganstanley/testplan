@@ -168,7 +168,7 @@ class Environment:
         fetch_msg = "\n".join(resource.fetch_error_log())
 
         msg = message.format(
-            resource=str(resource),
+            resource=resource,
             traceback_exc=traceback.format_exc(),
             fetch_msg=fetch_msg,
         )

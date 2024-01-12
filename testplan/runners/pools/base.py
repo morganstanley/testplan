@@ -11,11 +11,10 @@ from typing import Dict, Generator, List, Optional, Tuple, Type, Union
 
 from schema import And, Or
 
-import testplan.common.utils.selector as S
 from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.report.base import EventRecorder
-from testplan.common.utils import strings
+from testplan.common.utils import selector, strings
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.report import ReportCategories
@@ -374,6 +373,10 @@ class Pool(Executor):
             Message.SetupFailed: self._handle_setupfailed,
         }
         # for skip-remaining feature
+        # like LocalRunner, ``_loop`` & ``discard_pending_tasks`` will be
+        # triggered in different threads
+        # NOTE: pool operations should all take little time, to narrow down
+        # NOTE: the critical section would be rather meaningless
         self._discard_pending_lock = threading.RLock()
         self._discard_pending = False
 
@@ -397,7 +400,7 @@ class Pool(Executor):
         :param task: Task to be scheduled to workers
         :param uid: Task uid
         """
-        # XXX: signature mismatch with ``Executor.add``
+        # FIXME: signature mismatch with ``Executor.add``
         if not isinstance(task, Task):
             raise ValueError(f"Task was expected, got {type(task)} instead.")
         super(Pool, self).add(task, uid)
@@ -653,7 +656,8 @@ class Pool(Executor):
 
         if self.cfg.skip_strategy.should_skip_rest_tests(agg_report_status):
             self.bubble_up_discard_tasks(
-                S.Not(S.Eq(self.uid())), report_reason="per skip strategy"
+                selector.Not(selector.Eq(self.uid())),
+                report_reason="per skip strategy",
             )
             self.discard_pending_tasks(report_reason="per skip strategy")
 

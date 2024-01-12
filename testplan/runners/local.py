@@ -3,7 +3,7 @@ import threading
 import time
 from typing import List
 
-import testplan.common.utils.selector as S
+from testplan.common.utils import selector
 from testplan.report import ReportCategories, Status, TestGroupReport
 from testplan.runners.base import Executor
 from testplan.runners.pools import tasks
@@ -19,10 +19,12 @@ class LocalRunner(Executor):
     options.
     """
 
-    def __init__(self, uid=None, **options) -> None:
+    def __init__(self, uid="local_runner", **options) -> None:
         super(LocalRunner, self).__init__(**options)
-        self._uid = uid or "local_runner"
+        self._uid = uid
 
+        # ``_loop`` & ``discard_pending_tasks`` are triggered in different
+        # threads
         self._curr_runnable_lock = threading.Lock()
         self._curr_runnable = None
 
@@ -93,7 +95,7 @@ class LocalRunner(Executor):
                     finally:
                         with self._curr_runnable_lock:
                             if not self._discard_pending:
-                                # otherwise result from aborted test included
+                                # otherwise result from aborted test is used
                                 self._results[next_uid] = result
                                 self.ongoing.pop(0)
 
@@ -101,7 +103,7 @@ class LocalRunner(Executor):
                         result.report.status
                     ):
                         self.bubble_up_discard_tasks(
-                            S.Not(S.Eq(self.uid())),
+                            selector.Not(selector.Eq(self.uid())),
                             report_reason="per skip strategy",
                         )
                         self.discard_pending_tasks(
