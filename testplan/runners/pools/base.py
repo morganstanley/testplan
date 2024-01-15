@@ -1039,7 +1039,7 @@ class Pool(Executor):
 
         self._conn.abort()
         self.discard_pending_tasks(
-            report_status=Status.ERROR, report_reason=f"due to {self} aborted."
+            report_status=Status.ERROR, report_reason=f"due to {self} aborted"
         )
 
     def record_execution(self, uid) -> None:
