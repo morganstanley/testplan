@@ -206,6 +206,15 @@ A typical input JSON looks like below:
         )
 
         general_group.add_argument(
+            "-r",
+            "--resource-monitor",
+            dest="resource_monitor",
+            default=self._default_options["resource_monitor"],
+            action="store_true",
+            help="Enables resource monitor",
+        )
+
+        general_group.add_argument(
             "--skip-remaining",
             choices=common.SkipStrategy.all_options(),
             dest="skip_strategy",
