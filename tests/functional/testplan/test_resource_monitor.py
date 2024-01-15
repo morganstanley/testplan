@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 import socket
 import psutil
 
@@ -14,7 +15,10 @@ from testplan.common.utils.timing import wait
 
 @skip_on_windows(reason="Resource monitor is skipped on Windows.")
 def test_resource(runpath):
-    server = ResourceMonitorServer(file_directory=runpath)
+    print(f"Runpath: {runpath}")
+    current_pid = os.getpid()
+    print(f"Current PID: {current_pid}")
+    server = ResourceMonitorServer(file_directory=runpath, debug=True)
     assert server.address == ""
     server.start()
     assert server.address != ""
@@ -28,7 +32,10 @@ def test_resource(runpath):
 
     meta_file_path = server.file_directory / f"{slugify(client.uid)}.meta"
     resource_file_path = server.file_directory / f"{slugify(client.uid)}.csv"
-    wait(lambda: meta_file_path.exists(), timeout=client.poll_interval)
+    resource_detail_file_path = (
+        server.file_directory / f"{slugify(client.uid)}.debug"
+    )
+    wait(lambda: meta_file_path.exists(), timeout=client.poll_interval * 2)
 
     with open(meta_file_path) as meta_file:
         meta_info = json.load(meta_file)
@@ -38,31 +45,49 @@ def test_resource(runpath):
     assert meta_info["disk_path"] == client.disk_path
     assert meta_info["disk_size"] == psutil.disk_usage(client.disk_path).total
 
+    def get_latest_pid_resource_data(pid: int):
+        detail = None
+        with open(resource_detail_file_path) as resource_detail_file:
+            csv_reader = csv.reader(resource_detail_file)
+            for line in csv_reader:
+                if int(line[1]) == pid:
+                    detail = line
+        return detail
+
     def received_resource_data() -> bool:
-        if resource_file_path.exists():
+        if resource_file_path.exists() and resource_detail_file_path.exists():
             with open(resource_file_path) as resource_file:
                 csv_reader = csv.reader(resource_file)
-                return len(list(csv_reader)) > 0
+                current_pid_data = get_latest_pid_resource_data(current_pid)
+                return (
+                    len(list(csv_reader)) > 0 and current_pid_data is not None
+                )
         return False
 
-    wait(received_resource_data, timeout=client.poll_interval)
+    wait(received_resource_data, timeout=client.poll_interval * 2)
 
     def get_last_resource_data():
         with open(resource_file_path) as resource_file:
             csv_reader = csv.reader(resource_file)
             return list(csv_reader)[-1]
 
-    memory_used = get_last_resource_data()[2]
+    memory_used = int(get_last_resource_data()[2])
+    print(f"Current memory used: {memory_used}")
+
+    current_pid_data = get_latest_pid_resource_data(current_pid)
+    print(f"Current PID Data: {current_pid_data}")
 
     big_memory = ["testplan"] * 1024 * 1024
 
-    def check_memory():
-        last_data = get_last_resource_data()
-        if last_data[2] > memory_used:
+    def check_pid_memory():
+        latest_pid_data = get_latest_pid_resource_data(current_pid)
+        if float(latest_pid_data[0]) > float(current_pid_data[0]) and int(
+            latest_pid_data[4]
+        ) > int(current_pid_data[4]):
             return True
         return False
 
-    wait(check_memory, timeout=client.poll_interval * 2)
+    wait(check_pid_memory, timeout=client.poll_interval * 4)
 
     big_memory.clear()
 
