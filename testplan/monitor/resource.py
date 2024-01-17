@@ -240,7 +240,7 @@ class ResourceMonitorClient:
 
 
 class ResourceMonitorServer:
-    def __init__(self, file_directory: Union[str, pathlib.Path], debug=True):
+    def __init__(self, file_directory: Union[str, pathlib.Path], debug=False):
         """
         Start a ZMQ server for receiving resource data from client.
 
