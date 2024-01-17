@@ -14,7 +14,7 @@ from testplan.common.exporters.pdf import format_table_style, format_cell_data
 from testplan.common.utils.strings import split_line, split_text
 from testplan.common.utils.comparison import is_regex
 from testplan.exporters.testing.pdf.renderers.base import SlicedParagraph
-from testplan.report import Status
+from testplan.common.report.base import Status
 from testplan.testing.multitest.entries import assertions
 from .base import SerializedEntryRenderer, registry
 from .. import constants as const

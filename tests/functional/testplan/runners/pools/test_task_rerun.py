@@ -18,7 +18,7 @@ from testplan.common.config import ConfigOption
 from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.runners.pools.process import ProcessPool
 from testplan.common.utils.path import makedirs
-from testplan.report import ReportCategories
+from testplan.common.report.base import ReportCategories
 
 
 class MockDriverConfig(DriverConfig):

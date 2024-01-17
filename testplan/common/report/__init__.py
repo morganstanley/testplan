@@ -1,7 +1,8 @@
 from .base import (
     Report,
-    ReportGroup,
-    ExceptionLogger,
+    BaseReportGroup,
     MergeError,
     SkipTestcaseException,
+    ExceptionLogger,
 )
+# from testplan.common.report import ExceptionLogger

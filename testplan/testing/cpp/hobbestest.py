@@ -5,11 +5,10 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.report import (
-    ReportCategories,
-    RuntimeStatus,
     TestCaseReport,
     TestGroupReport,
 )
+from testplan.common.report.base import RuntimeStatus, ReportCategories
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 

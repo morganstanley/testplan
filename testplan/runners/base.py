@@ -8,7 +8,7 @@ from typing import List, Generator, Optional
 
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.utils.thread import interruptible_join
-from testplan.common.report.base import EventRecorder
+# from testplan.common.report.base import EventRecorder
 
 
 class ExecutorConfig(ResourceConfig):

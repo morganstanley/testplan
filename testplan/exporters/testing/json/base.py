@@ -19,7 +19,7 @@ from testplan.common.exporters import (
 )
 from testplan.common.utils.path import makedirs
 from testplan.defaults import ATTACHMENTS
-from testplan.report import ReportCategories
+from testplan.common.report.base import ReportCategories
 from testplan.report.testing.base import TestReport
 from testplan.report.testing.schemas import TestReportSchema
 from ..base import Exporter

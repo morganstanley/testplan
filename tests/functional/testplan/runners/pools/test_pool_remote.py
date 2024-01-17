@@ -8,7 +8,7 @@ import pytest
 
 from testplan.common.utils.process import execute_cmd
 from testplan.common.utils.remote import ssh_cmd
-from testplan.report import Status
+from testplan.common.report.base import Status
 from testplan.runners.pools.remote import RemotePool
 from tests.functional.testplan.runners.pools.test_pool_base import (
     schedule_tests_to_pool,

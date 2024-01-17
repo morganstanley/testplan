@@ -16,10 +16,10 @@ from testplan.common.exporters import (
 )
 from testplan.exporters.testing.base import Exporter
 from testplan.report.testing.base import (
-    ReportCategories,
     TestGroupReport,
     TestReport,
 )
+from testplan.common.report.base import ReportCategories
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 
 

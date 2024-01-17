@@ -11,7 +11,7 @@ from testplan.common.report.log import LOGGER
 from testplan.common.utils.testing import disable_log_propagation
 
 DummyReport = functools.partial(report.Report, name="dummy")
-DummyReportGroup = functools.partial(report.ReportGroup, name="dummy")
+DummyReportGroup = functools.partial(report.BaseReportGroup, name="dummy")
 
 
 @disable_log_propagation(LOGGER)
@@ -209,7 +209,7 @@ class TestReportGroup:
         with pytest.raises(ValueError):
             parent.build_index()
 
-    def test_merge_children(self):
+    def test_merge_entries(self):
         """Should merge each children separately."""
         child_clone_1 = DummyReport(uid=10)
         child_clone_2 = DummyReport(uid=20)
@@ -234,7 +234,7 @@ class TestReportGroup:
                     child_clone_2, strict=True
                 )
 
-    def test_merge_children_fail(self):
+    def test_merge_entries_fail(self):
         """Should raise `MergeError` if child `uid`s do not match."""
         child_clone_1 = DummyReport(uid=10)
         child_clone_2 = DummyReport(uid=20)
@@ -249,7 +249,7 @@ class TestReportGroup:
             parent_orig.merge(parent_clone)
 
     def test_append(self):
-        """`ReportGroup.append` should append the `report` to `self.entries` and update `self._index`."""
+        """`BaseReportGroup.append` should append the `report` to `self.entries` and update `self._index`."""
         group = DummyReportGroup()
         child = DummyReport()
 
@@ -262,13 +262,13 @@ class TestReportGroup:
         assert group._index == {child.uid: 0}
 
     def test_append_type_error(self):
-        """`ReportGroup.append` should raise `TypeError` if `report` is not of type `report.Report`."""
+        """`BaseReportGroup.append` should raise `TypeError` if `report` is not of type `report.Report`."""
         with pytest.raises(TypeError):
             DummyReportGroup().append(object())
 
     def test_append_value_error(self):
         """
-        `ReportGroup.append` should raise `ValueError` if `self._index`
+        `BaseReportGroup.append` should raise `ValueError` if `self._index`
         has already a matching key to `report.uid`.
         """
 
@@ -287,7 +287,7 @@ class TestReportGroup:
             return True
 
         def node_filter(obj):
-            if isinstance(obj, (report.Report, report.ReportGroup)):
+            if isinstance(obj, (report.Report, report.BaseReportGroup)):
                 return obj.name in ["foo", "bar", "alpha", "beta", "root"]
             return True
 

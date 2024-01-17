@@ -4,7 +4,7 @@ import pytest
 
 from testplan.common.utils.testing import check_report
 from testplan.testing.cpp import Cppunit
-from testplan.report import Status
+from testplan.common.report.base import Status
 
 from tests.functional.testplan.testing.fixtures.cpp import cppunit
 

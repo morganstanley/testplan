@@ -14,7 +14,8 @@ from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import argv_overridden
 from testplan.runnable import TestRunnerStatus, TestRunner
 from testplan.runners.local import LocalRunner
-from testplan.report import TestGroupReport, ReportCategories
+from testplan.report import TestGroupReport
+from testplan.common.report.base import ReportCategories
 from testplan.testing.base import Test, TestResult
 
 
@@ -49,7 +50,7 @@ class DummyTest(Test):
         self.resources.add(DummyDriver())
 
     def run_tests(self):
-        self._result.custom = "{}Result[{}]".format(
+        self.result.custom = "{}Result[{}]".format(
             self.__class__.__name__, self.name
         )
 

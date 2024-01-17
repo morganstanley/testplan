@@ -3,8 +3,6 @@ from .testing import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    Status,
-    RuntimeStatus,
     styles as test_styles,
-    ReportCategories,
 )
+from testplan.common.report.base import RuntimeStatus, Status, ReportCategories

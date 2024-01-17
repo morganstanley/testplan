@@ -1,7 +1,7 @@
 import logging
 
 from testplan import test_plan
-from testplan.report import Status
+from testplan.common.report.base import Status
 from testplan.report.testing.styles import Style, StyleEnum
 from testplan.testing.base import ASSERTION_INDENT
 from testplan.testing.multitest import MultiTest, testsuite, testcase

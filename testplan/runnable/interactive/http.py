@@ -25,9 +25,8 @@ from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    RuntimeStatus,
-    ReportCategories,
 )
+from testplan.common.report.base import RuntimeStatus, ReportCategories
 
 
 class OutOfOrderError(Exception):

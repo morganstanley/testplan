@@ -26,12 +26,11 @@ from testplan.common.utils.process import (
 )
 from testplan.common.utils.timing import format_duration, parse_duration
 from testplan.report import (
-    ReportCategories,
-    RuntimeStatus,
     TestCaseReport,
     TestGroupReport,
     test_styles,
 )
+from testplan.common.report.base import RuntimeStatus, ReportCategories
 from testplan.testing import filtering, ordering, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
@@ -126,7 +125,7 @@ class Test(Runnable):
         client1 and client2. Can also take a callable that returns a dict.
     :type dependencies: ``dict`` or ``callable``
     :param initial_context: key: value pairs that will be made available as
-        context for drivers in environment. Can also take a callbale that
+        context for drivers in environment. Can also take a callable that
         returns a dict.
     :type initial_context: ``dict`` or ``callable``
     :param test_filter: Class with test filtering logic.
@@ -255,6 +254,14 @@ class Test(Runnable):
             self._test_context = self.get_test_context()
         return self._test_context
 
+    # @property
+    # def timer(self):
+    #     return self.report.timer
+
+    # @property
+    # def event_recorder(self):
+    #     return self.report.event_recorder
+
     def get_test_context(self):
         raise NotImplementedError
 
@@ -369,24 +376,24 @@ class Test(Runnable):
         """
         if len(self.report):
             self.report.propagate_tag_indices()
+    #
+    # def _record_start(self):
+    #     self.report.timer.start("run")
+    #
+    # def _record_end(self):
+    #     self.report.timer.end("run")
 
-    def _record_start(self):
-        self.report.timer.start("run")
+    # def _record_setup_start(self):
+    #     self.report.timer.start("setup")
 
-    def _record_end(self):
-        self.report.timer.end("run")
-
-    def _record_setup_start(self):
-        self.report.timer.start("setup")
-
-    def _record_setup_end(self):
-        self.report.timer.end("setup")
-
-    def _record_teardown_start(self):
-        self.report.timer.start("teardown")
-
-    def _record_teardown_end(self):
-        self.report.timer.end("teardown")
+    # def _record_setup_end(self):
+    #     self.report.timer.end("setup")
+    #
+    # def _record_teardown_start(self):
+    #     self.report.timer.start("teardown")
+    #
+    # def _record_teardown_end(self):
+    #     self.report.timer.end("teardown")
 
     def _init_context(self):
         if callable(self.cfg.initial_context):
@@ -420,8 +427,8 @@ class Test(Runnable):
 
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
-        self._add_step(self._record_setup_start)
-
+        # self._add_step(self._record_setup_start)
+        self._add_step(self.timer.start, "setup")
         self._add_step(self._init_context)
         self._add_step(self._build_environment)
         self._add_step(self._set_dependencies)
@@ -458,15 +465,17 @@ class Test(Runnable):
 
     def add_pre_main_steps(self):
         """Runnable steps to run after environment started."""
-        self._add_step(self._record_setup_end)
+        self._add_step(self.timer.end, "setup")
 
     def add_post_main_steps(self):
         """Runnable steps to run before environment stopped."""
-        self._add_step(self._record_teardown_start)
+        self._add_step(self.timer.start, "teardown")
+        # self._add_step(self._record_teardown_start)
 
     def add_post_resource_steps(self):
         """Runnable steps to run after environment stopped."""
-        self._add_step(self._record_teardown_end)
+        # self._add_step(self._record_teardown_end)
+        self._add_step(self.timer.end, "teardown")
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """
@@ -498,8 +507,8 @@ class Test(Runnable):
         The base implementation is very simple but may be overridden in sub-
         classes to run additional setup pre- and post-environment start.
         """
-        # in case this is called more than once from interactive
-        self.report.timer.clear()
+        # # in case this is called more than once from interactive
+        # self.report.timer.clear()
 
         self._add_step(self.setup)
         self.add_pre_resource_steps()

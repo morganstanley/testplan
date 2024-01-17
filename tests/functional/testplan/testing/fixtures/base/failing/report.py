@@ -4,8 +4,8 @@ from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    RuntimeStatus,
 )
+from testplan.common.report.base import RuntimeStatus
 
 testcase_report = TestCaseReport(
     name="ExitCodeCheck",

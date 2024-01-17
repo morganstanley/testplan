@@ -8,7 +8,8 @@ from schema import And
 from testplan.common.config.base import ConfigOption
 from testplan.common.entity import Entity
 from testplan.common.entity.base import EntityConfig
-from testplan.report.testing.base import Status, TestReport
+from testplan.report.testing.base import TestReport
+from testplan.common.report.base import Status
 
 
 class ReportingFilterConfig(EntityConfig):

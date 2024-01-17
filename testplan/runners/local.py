@@ -3,7 +3,8 @@ import time
 from typing import List
 
 from .base import Executor
-from testplan.report import TestGroupReport, Status, ReportCategories
+from testplan.report import TestGroupReport
+from testplan.common.report.base import Status, ReportCategories
 from testplan.runners.pools import tasks
 from testplan.testing.base import Test, TestResult
 

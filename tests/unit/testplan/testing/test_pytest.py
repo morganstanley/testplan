@@ -4,6 +4,7 @@ import collections
 
 import pytest
 
+import testplan.common.report.base
 from testplan.report import TestCaseReport
 from testplan.testing import py_test as pytest_runner
 from testplan import defaults
@@ -49,7 +50,7 @@ def test_run_tests(pytest_test_inst):
     pytest_test_inst.setup()
     pytest_test_inst.run_tests()
 
-    assert pytest_test_inst.report.status == report.Status.FAILED
+    assert pytest_test_inst.report.status == testplan.common.report.base.Status.FAILED
     _check_attachements(
         pytest_test_inst.result.report["pytest_tests.py::TestWithAttachments"][
             "test_attachment"
@@ -65,7 +66,7 @@ def test_run_testcases_iter_all(pytest_test_inst):
 
     report_attributes, current_uids = all_results[0]
     assert current_uids == ["My PyTest"]
-    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert report_attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     counter = collections.Counter()
     for testcase_report, _ in all_results[1:]:
@@ -87,7 +88,7 @@ def test_run_testcases_iter_testsuite(pytest_test_inst):
 
     report_attributes, current_uids = all_results[0]
     assert current_uids == ["My PyTest", "pytest_tests.py::TestPytestBasics"]
-    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert report_attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     counter = collections.Counter()
     for testcase_report, _ in all_results[1:]:
@@ -116,10 +117,10 @@ def test_run_testcases_iter_testcase(pytest_test_inst):
         "pytest_tests.py::TestPytestBasics",
         "test_success",
     ]
-    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert report_attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     testcase_report, parent_uids = all_results[1]
-    assert testcase_report.status == report.Status.PASSED
+    assert testcase_report.status == testplan.common.report.base.Status.PASSED
     assert parent_uids == ["My PyTest", "pytest_tests.py::TestPytestBasics"]
 
 
@@ -139,7 +140,7 @@ def test_run_testcases_iter_param(pytest_test_inst):
         "pytest_tests.py::TestPytestBasics",
         "test_parametrization",
     ]
-    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert report_attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     counter = collections.Counter()
     for testcase_report, parent_uids in all_results[1:]:
@@ -165,7 +166,7 @@ def test_capture_stdout(pytest_test_inst):
             testcase_pattern="test_failure",
         )
     )
-    assert all_results[0][0]["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert all_results[0][0]["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
     assert all_results[1][0].entries[1]["message"] == "test output\n"
 
 

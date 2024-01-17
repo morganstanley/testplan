@@ -25,9 +25,8 @@ from testplan.report import (
     TestReport,
     TestCaseReport,
     TestGroupReport,
-    ReportCategories,
-    Status,
 )
+from testplan.common.report.base import Status, ReportCategories
 from testplan.report.testing.base import Report
 from ..base import Exporter
 

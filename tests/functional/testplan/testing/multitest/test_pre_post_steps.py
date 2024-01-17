@@ -6,9 +6,8 @@ from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    ReportCategories,
-    Status,
 )
+from testplan.common.report.base import Status, ReportCategories
 
 CURRENT_FILE = os.path.abspath(__file__)
 

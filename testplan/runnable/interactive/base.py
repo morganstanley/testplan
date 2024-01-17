@@ -13,12 +13,10 @@ from testplan.common import config, entity
 from testplan.common.report import Report
 from testplan.common.utils.networking import get_hostname_access_url
 from testplan.report import (
-    ReportCategories,
-    RuntimeStatus,
-    Status,
     TestGroupReport,
     TestReport,
 )
+from testplan.common.report.base import RuntimeStatus, Status, ReportCategories
 from testplan.runnable.interactive import http, reloader, resource_loader
 
 

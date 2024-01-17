@@ -3,6 +3,7 @@
 import unittest
 import pytest
 
+import testplan.common.report.base
 from testplan.testing import pyunit
 from testplan.testing import filtering
 from testplan.testing import ordering
@@ -57,11 +58,11 @@ def pyunit_runner_inst():
 def test_run_tests(pyunit_runner_inst):
     """Test running all PyUnit Testcases as a batch."""
     result = pyunit_runner_inst.run()
-    assert result.report.status == report.Status.FAILED
+    assert result.report.status == testplan.common.report.base.Status.FAILED
     assert len(result.report.entries) == 2
 
     passing_testsuite_report = result.report["Passing"]
-    assert passing_testsuite_report.status == report.Status.PASSED
+    assert passing_testsuite_report.status == testplan.common.report.base.Status.PASSED
     assert passing_testsuite_report.name == "Passing"
     assert len(passing_testsuite_report.entries) == 1
 
@@ -69,7 +70,7 @@ def test_run_tests(pyunit_runner_inst):
     _check_passing_testcase_report(passing_testcase_report)
 
     failing_testsuite_report = result.report["Failing"]
-    assert failing_testsuite_report.status == report.Status.FAILED
+    assert failing_testsuite_report.status == testplan.common.report.base.Status.FAILED
     assert failing_testsuite_report.name == "Failing"
     assert len(failing_testsuite_report.entries) == 1
 
@@ -91,7 +92,7 @@ def test_run_testcases_iter_all(pyunit_runner_inst):
 
     report_attributes, current_uids = results[0]
     assert current_uids == ["My PyUnit"]
-    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert report_attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     passing_testcase_report, passing_parent_uids = results[1]
     assert passing_parent_uids == ["My PyUnit", "Passing"]
@@ -111,7 +112,7 @@ def test_run_testcases_iter_single_testsuite(pyunit_runner_inst):
 
     report_attributes, current_uids = results[0]
     assert current_uids == ["My PyUnit", "Passing"]
-    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert report_attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     testcase_report, parent_uids = results[1]
     assert parent_uids == ["My PyUnit", "Passing"]
@@ -130,7 +131,7 @@ def test_run_testcases_iter_single_testcase(pyunit_runner_inst):
 
     report_attributes, current_uids = results[0]
     assert current_uids == ["My PyUnit", "Failing"]
-    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert report_attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     testcase_report, parent_uids = results[1]
     assert parent_uids == ["My PyUnit", "Failing"]

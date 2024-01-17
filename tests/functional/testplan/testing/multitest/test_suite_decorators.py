@@ -8,12 +8,11 @@ from schema import SchemaError
 from testplan.common.utils.callable import post, pre
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.report import (
-    ReportCategories,
-    Status,
     TestCaseReport,
     TestGroupReport,
     TestReport,
 )
+from testplan.common.report.base import Status, ReportCategories
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import (
     skip_if,

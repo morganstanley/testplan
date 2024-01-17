@@ -9,11 +9,10 @@ from lxml.objectify import parse, Element
 from .base import ThreePhaseFileImporter
 from .suitesresults import SuitesResult
 from testplan.report import (
-    ReportCategories,
     TestGroupReport,
     TestCaseReport,
-    RuntimeStatus,
 )
+from testplan.common.report.base import RuntimeStatus, ReportCategories
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
