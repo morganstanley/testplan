@@ -610,7 +610,7 @@ class MultiTest(testing_base.Test):
     def get_metadata(self) -> TestMetadata:
 
         suites = []
-        for suite, testcases in self.get_test_context():
+        for suite, testcases in self.test_context:
             suite_metadata = get_suite_metadata(suite, include_testcases=False)
             suite_metadata.test_cases = [
                 get_testcase_metadata(tc) for tc in testcases

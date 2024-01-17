@@ -1,1 +1,1 @@
-`--info json` now working well with multipart multitests.
+`--info json` is now working well with multitest multiparts.
