@@ -36,8 +36,13 @@ from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import report_target
-from testplan.testing.multitest.suite import get_suite_metadata
-from testplan.testing.multitest.test_metadata import TestMetadata
+from testplan.testing.multitest.suite import (
+    get_suite_metadata,
+    get_testcase_metadata,
+)
+from testplan.testing.multitest.test_metadata import (
+    TestMetadata,
+)
 
 
 def iterable_suites(obj):
@@ -652,10 +657,19 @@ class MultiTest(testing_base.Test):
         """Suppressing not implemented debug log from parent class."""
 
     def get_metadata(self) -> TestMetadata:
+
+        suites = []
+        for suite, testcases in self.test_context:
+            suite_metadata = get_suite_metadata(suite, include_testcases=False)
+            suite_metadata.test_cases = [
+                get_testcase_metadata(tc) for tc in testcases
+            ]
+            suites.append(suite_metadata)
+
         return TestMetadata(
             name=self.uid(),
             description=self.cfg.description,
-            test_suites=[get_suite_metadata(suite) for suite in self.suites],
+            test_suites=suites,
         )
 
     def apply_xfail_tests(self):
