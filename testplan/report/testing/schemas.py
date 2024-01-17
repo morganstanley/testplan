@@ -322,6 +322,7 @@ class ShallowTestReportSchema(Schema):
     runtime_status = fields.Function(
         lambda x: x.runtime_status.to_json_compatible()
     )
+    information = fields.List(fields.List(fields.String()))
     tags_index = TagField(dump_only=True)
     status_override = fields.Function(
         lambda x: x.status_override.to_json_compatible(), allow_none=True
