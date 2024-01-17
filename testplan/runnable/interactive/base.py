@@ -122,6 +122,7 @@ class TestRunnerIHandler(entity.Entity):
     def setup(self):
         """Set up the task pool and HTTP handler."""
         self.target.make_runpath_dirs()
+        self.report.information.append(("runpath", self.target.runpath))
         self.target._configure_file_logger()
         self.logger.info(
             "Starting %s for %s",
