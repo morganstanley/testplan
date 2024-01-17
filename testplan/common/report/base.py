@@ -12,10 +12,18 @@ import uuid
 import itertools
 import collections
 import dataclasses
-from typing import Dict, List, Optional
 
 from testplan.common.utils import strings
 from testplan.monitor.event import EventRecorder
+import traceback
+from collections import Counter
+from typing import Dict, List, Optional, Callable
+from typing_extensions import Self
+
+from testplan.common.utils import strings, timing
+from testplan.common.entity.base import Child
+from testplan.testing import tagging
+
 from .log import create_logging_adapter
 
 
@@ -27,7 +35,7 @@ class SkipTestcaseException(Exception):
     """Raised from an explicit call to result.skip."""
 
 
-class ExceptionLogger:
+class ExceptionLoggerBase:
     """
     A context manager used for suppressing & logging an exception.
     """
@@ -46,6 +54,36 @@ class ExceptionLogger:
             self.report.logger.exception(exc_value)
             return True
 
+class ExceptionLogger(ExceptionLoggerBase):
+    """
+    When we run tests, we always want to return a report object,
+    However we also want to mark the test as failed if an
+    exception is raised (unless kwargs['fail'] is `False`).
+    """
+
+    def __init__(self, *exception_classes, **kwargs):
+        self.fail = kwargs.get("fail", True)
+        super(ExceptionLogger, self).__init__(*exception_classes, **kwargs)
+
+    def __exit__(self, exc_type, exc_value, tb):
+        if exc_type is not None:
+            if exc_type is SkipTestcaseException:
+                self.report.logger.critical(
+                    'Skipping testcase "%s", reason: %s',
+                    self.report.name,
+                    str(exc_value),
+                )
+                self.report.status_override = Status.SKIPPED
+            elif issubclass(exc_type, self.exception_classes):
+                # Custom exception message with extra args
+                exc_msg = "".join(
+                    traceback.format_exception(exc_type, exc_value, tb)
+                )
+                self.report.logger.error(exc_msg)
+
+                if self.fail:
+                    self.report.status_override = Status.ERROR
+            return True
 
 class Report:
     """
@@ -63,12 +101,16 @@ class Report:
         uid: Optional[str] = None,
         entries: Optional[list] = None,
         parent_uids: Optional[List[str]] = None,
+        status_override=None,
+        status_reason=None,
     ):
         self.name = name
         self.description = description
         self.definition_name = definition_name or name
         self.uid = uid or name
         self.entries = entries or []
+        self.status_override = status_override
+        self.status_reason = status_reason
 
         self.logs = []
         self.logger = create_logging_adapter(report=self)
@@ -80,6 +122,16 @@ class Report:
         # This allows any entry to be quickly looked up and updated in the
         # report tree.
         self.parent_uids = parent_uids or []
+
+        # Normally, a report group derives its statuses from its child
+        # entries. However, in case there are no child entries we use the
+        # following values as a fallback.
+
+        # testcase is default to passed (e.g no assertion)
+        self._status = Status.UNKNOWN
+        self._runtime_status = RuntimeStatus.READY
+
+        self.timer = timing.Timer()
 
     def __str__(self):
         return '{kls}(name="{name}", uid="{uid}")'.format(
@@ -169,10 +221,11 @@ class Report:
         :param strict: Flag for enabling / disabling strict merge ops.
         :type strict: ``bool``
         """
-        self._check_report(report)
-        # Merge logs
-        log_ids = [rec["uid"] for rec in self.logs]
-        self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
+        raise NotImplementedError
+        # self._check_report(report)
+        # # Merge logs
+        # log_ids = [rec["uid"] for rec in self.logs]
+        # self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
 
     def append(self, item):
         """Append ``item`` to ``self.entries``, no restrictions."""
@@ -225,6 +278,41 @@ class Report:
         """Return a hash of all entries in this report."""
         return hash((self.uid, tuple(id(entry) for entry in self.entries)))
 
+#
+# @dataclasses.dataclass
+# class EventRecorder:
+#     name: str
+#     event_type: str
+#     start_time: Optional[float] = None
+#     end_time: Optional[float] = None
+#     children: List["EventRecorder"] = dataclasses.field(default_factory=list)
+#
+#     @classmethod
+#     def load(
+#         cls, event_record: Union["EventRecorder", Dict]
+#     ) -> "EventRecorder":
+#         if isinstance(event_record, cls):
+#             return event_record
+#
+#         event = cls(
+#             name=event_record["name"],
+#             event_type=event_record["event_type"],
+#             start_time=event_record["start_time"],
+#             end_time=event_record["start_time"],
+#         )
+#         if event_record.get("children"):
+#             for child in event_record["children"]:
+#                 event.children.append(cls.load(child))
+#         return event
+#
+#     def __enter__(self):
+#         self.start_time = time.time()
+#
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         self.end_time = time.time()
+#
+#     def add_child(self, event_executor: "EventRecorder"):
+#         self.children.append(event_executor)
 
 class ReportGroup(Report):
     """
@@ -232,35 +320,305 @@ class ReportGroup(Report):
     Allows O(1) child report lookup via `get_by_uid` method.
     """
 
-    def __init__(
-        self,
-        name: str,
-        events: Dict = None,
-        host: Optional[str] = None,
-        **kwargs
-    ):
-        super(ReportGroup, self).__init__(name=name, **kwargs)
+    exception_logger = ExceptionLogger
 
-        # Mapping of UID to index in the list of entries.
-        self.host: Optional[str] = host
+    def __init__(self, name, **kwargs):
+
+        super(BaseReportGroup, self).__init__(name=name, **kwargs)
+
         self._index: Dict = {}
-        self._events: Dict[str, EventRecorder] = events or {}
-        self.build_index()
+        self.children: List[Child] = []
 
-        for child in self.entries:
-            self.set_parent_uids(child)
 
-    def add_event(
-        self, event_executor: EventRecorder, event_id: Optional[str] = None
-    ) -> str:
-        if event_id is None:
-            event_id = uuid.uuid4().hex
-        self._events[event_id] = event_executor
-        return event_id
+
+
+    def _get_comparison_attrs(self):
+        return super(BaseReportGroup, self)._get_comparison_attrs() + [
+            "status_override",
+            "timer",
+        ]
 
     @property
-    def events(self) -> Dict[str, Dict]:
-        return {k: dataclasses.asdict(v) for k, v in self._events.items()}
+    def passed(self):
+        """Shortcut for getting if report status should be considered passed."""
+        return Status.STATUS_CATEGORY[self.status] == Status.PASSED
+
+    @property
+    def failed(self):
+        """
+        Shortcut for checking if report status should be considered failed.
+        """
+        return Status.STATUS_CATEGORY[self.status] in (
+            Status.FAILED,
+            Status.ERROR,
+        )
+
+    @property
+    def unstable(self):
+        """
+        Shortcut for checking if report status should be considered unstable.
+        """
+        return Status.STATUS_CATEGORY[self.status] == Status.UNSTABLE
+
+    @property
+    def unknown(self):
+        """
+        Shortcut for checking if report status is unknown.
+        """
+        return Status.STATUS_CATEGORY[self.status] == Status.UNKNOWN
+
+    @property
+    def status(self):
+        """
+        Status of the report, will be used to decide
+        if a Testplan run has completed successfully or not.
+
+        `status_override` always takes precedence,
+        otherwise we fall back to precedent status from `self.entries`.
+
+        If a report group has no children, it is assumed to be passing.
+        """
+        if self.status_override:
+            return self.status_override
+
+        if self.entries:
+            return Status.precedent([entry.status for entry in self])
+
+        return self._status
+
+    @status.setter
+    def status(self, new_status):
+        self._status = new_status
+
+    @property
+    def runtime_status(self):
+        """
+        The runtime status is used for interactive running, and reports
+        whether a particular entry is READY, WAITING, RUNNING, RESETTING,
+        FINISHED or NOT_RUN.
+
+        A test group inherits its runtime status from its child entries.
+        """
+        if self.entries:
+            return RuntimeStatus.precedent(
+                [entry.runtime_status for entry in self]
+            )
+
+        return self._runtime_status
+
+    @runtime_status.setter
+    def runtime_status(self, new_status):
+        """Set the runtime_status of all child entries."""
+        for entry in self:
+            # TODO: use suite_related flag for now, use synthesized instead
+            if not getattr(entry, "suite_related", False):
+                entry.runtime_status = new_status
+        self._runtime_status = new_status
+
+    def set_runtime_status_filtered(
+        self,
+        new_status: str,
+        entries: Dict,
+    ) -> None:
+        """
+        Alternative setter for the runtime status of an entry. Propagates only
+          to the specified entries.
+
+        :param new_status: new runtime status to be set
+        :param entries: tree-like structure of entries names
+        """
+        for entry in self:
+            if entry.name in entries.keys():
+                if hasattr(entry, "set_runtime_status_filtered"):
+                    entry.set_runtime_status_filtered(
+                        new_status, entries[entry.name]
+                    )
+                else:
+                    entry.runtime_status = new_status
+
+        self._runtime_status = new_status
+
+    def merge_entries(self, report, strict=True):
+        """
+        For report groups, we call `merge` on each child report
+        and later merge basic attributes.
+
+        With default strict=True, ``MergeError`` will be raise if `uid`
+        does not match.
+
+        However sometimes original report may not have matching child reports.
+        For example this happens when the test target's test cases cannot be
+        inspected on initialization time (e.g. GTest).
+
+        In this case we can merge with `strict=False` so that child reports
+        are directly appended to original report's entries.
+        """
+        if strict:
+            for entry in report:
+                try:
+                    self.get_by_uid(entry.uid).merge(entry, strict=strict)
+                except KeyError:
+                    raise MergeError(
+                        "Cannot merge {report} onto {self},"
+                        " child report with `uid`: {uid} not found.".format(
+                            report=report, self=self, uid=entry.uid
+                        )
+                    )
+
+        else:
+            for entry in report:
+                if entry.uid not in self._index:
+                    self.append(entry)
+                else:
+                    self.get_by_uid(entry.uid).merge(entry, strict=strict)
+
+    def merge(self, report, strict=True):
+        """Update `status_override` as well."""
+        self._check_report(report)
+
+        self.merge_entries(report, strict=strict)
+
+        # Merge logs
+        log_ids = [rec["uid"] for rec in self.logs]
+        self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
+
+        self.timer.merge(report.timer)
+        self.children.extend(report.children)
+
+        self.status_override = Status.precedent(
+            [self.status_override, report.status_override],
+            rule=Status.STATUS_PRECEDENCE,
+        )
+
+    @property
+    def counter(self):
+        """
+        Return counts for each status, will recursively get aggregates from
+        children and so on.
+        """
+        counter = Counter({Status.PASSED: 0, Status.FAILED: 0, "total": 0})
+
+        # exclude rerun and synthesized entries from counter
+        for child in self:
+            if child.category == ReportCategories.ERROR:
+                counter.update({Status.ERROR: 1, "total": 1})
+            elif child.category in (
+                ReportCategories.TASK_RERUN,
+                ReportCategories.SYNTHESIZED,
+            ):
+                pass
+            else:
+                counter.update(child.counter)
+
+        return counter
+
+    def filter(self, *functions, **kwargs):
+        """
+        Tag indices are updated after filter operations.
+        """
+        result = super(BaseReportGroup, self).filter(*functions, **kwargs)
+
+        # We'd like to call tag propagation before returning the root node,
+        # so we rely on absence of implicit `__copy` arg to decide if we should
+        # trigger tag index propagation or not. If we don't do this check
+        # then tag propagation will be called for each filter call on
+        # sub-nodes which is going to be a redundant operation.
+
+        if kwargs.get("__copy", True):
+            result.propagate_tag_indices()
+        return result
+
+    def filter_cases(
+        self,
+        predicate: Callable[["BaseReportGroup"], bool],
+        is_root: bool = False
+    ) -> Self:
+        """
+        Case-level filter with status retained
+        """
+        report_obj = copy.deepcopy(self) if is_root else self
+        statuses = []
+        entries = []
+
+        for entry in report_obj.entries:
+            if hasattr(entry, "filter_cases"):
+                statuses.append(entry.status)
+                entry = entry.filter_cases(predicate)
+                if len(entry):
+                    entries.append(entry)
+            else:
+                statuses.append(entry.status)
+                if predicate(entry):
+                    entries.append(entry)
+
+        report_obj.entries = entries
+        report_obj.status_override = Status.precedent(statuses)
+        if is_root:
+            report_obj.build_index(recursive=True)
+
+        return report_obj
+
+    def filter_by_tags(self, tag_value, all_tags=False):
+        """Shortcut method for filtering the report by given tags."""
+
+        def _filter_func(obj):
+            # Include all testcase entries, which are in dict form
+            if isinstance(obj, dict):
+                return True
+
+            tag_dict = tagging.validate_tag_value(tag_value)
+            if all_tags:
+                match_func = tagging.check_all_matching_tags
+            else:
+                match_func = tagging.check_any_matching_tags
+
+            return match_func(
+                tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index
+            )
+
+        return self.filter(_filter_func)
+
+    @property
+    def hash(self):
+        """
+        Generate a hash of this report object, including its entries. This
+        hash is used to detect when changes are made under particular nodes
+        in the report tree. Since all report entries are mutable, this hash
+        should NOT be used to index the report entry in a set or dict - we
+        have avoided using the magic __hash__ method for this reason. Always
+        use the UID for indexing purposes.
+
+        :return: a hash of all entries in this report group.
+        :rtype: ``int``
+        """
+        return hash(
+            (
+                self.uid,
+                self.status,
+                self.runtime_status,
+                tuple(entry.hash for entry in self.entries),
+            )
+        )
+
+    def xfail(self, strict):
+        """
+        Override report status for test that is marked xfail by user
+        :param strict: whether consider XPASS as failure
+        """
+
+        if self.failed:
+            self.status_override = Status.XFAIL
+        elif self.passed:
+            if strict:
+                self.status_override = Status.XPASS_STRICT
+            else:
+                self.status_override = Status.XPASS
+
+        # do not override if derived status is UNKNOWN/UNSTABLE
+
+        # propagate xfail down to testcase
+        for child in self:
+            child.xfail(strict)
 
     def build_index(self, recursive=False):
         """
@@ -290,7 +648,7 @@ class ReportGroup(Report):
 
         if recursive:
             for child in self:
-                if isinstance(child, ReportGroup):
+                if isinstance(child, BaseReportGroup):
                     child.build_index(recursive=recursive)
 
     def get_by_uids(self, uids):
@@ -352,37 +710,21 @@ class ReportGroup(Report):
         """Shortcut to `set_by_uid()` method via [] operator."""
         self.set_by_uid(uid, item)
 
-    @property
-    def entry_uids(self):
-        """Return the UIDs of all entries in this report group."""
-        return [entry.uid for entry in self]
-
-    def merge_children(self, report, strict=True):
+    def set_parent_uids(self, item):
         """
-        Merge each children separately, raising ``MergeError`` if `uid`
-        does not match.
+        Set the parent UIDs recursively of an item and its child entries
+        after it has been added into this report group.
         """
-        for entry in report:
-            try:
-                self.get_by_uid(entry.uid).merge(entry, strict=strict)
-            except KeyError:
-                raise MergeError(
-                    "Cannot merge {report} onto {self},"
-                    " child report with `uid`: {uid} not found.".format(
-                        report=report, self=self, uid=entry.uid
-                    )
-                )
-
-    def merge(self, report, strict=True):
-        """Merge child reports first, propagating `strict` flag."""
-        self.merge_children(report, strict=strict)
-        super(ReportGroup, self).merge(report, strict=strict)
+        item.parent_uids = self.parent_uids + [self.uid]
+        if isinstance(item, BaseReportGroup):
+            for child in item.entries:
+                item.set_parent_uids(child)
 
     def append(self, item):
         """Add `item` to `self.entries`, checking type & index."""
         if not isinstance(item, Report):
             raise TypeError(
-                "ReportGroup entries must be of "
+                "BaseReportGroup entries must be of "
                 "`Report` type, {item} was of: {type} type.".format(
                     item=item, type=type(item)
                 )
@@ -394,43 +736,14 @@ class ReportGroup(Report):
                 " in {self}".format(uid=item.uid, self=self)
             )
 
-        super(ReportGroup, self).append(item)
+        super(BaseReportGroup, self).append(item)
         self._index[item.uid] = len(self.entries) - 1
         self.set_parent_uids(item)
-
-    def set_parent_uids(self, item):
-        """
-        Set the parent UIDs recursively of an item and its child entries
-        after it has been added into this report group.
-        """
-        item.parent_uids = self.parent_uids + [self.uid]
-        if isinstance(item, ReportGroup):
-            for child in item.entries:
-                item.set_parent_uids(child)
 
     def extend(self, items):
         """Add `items` to `self.entries`, checking type & index."""
         for item in items:
             self.append(item)
-
-    def filter(self, *functions, **kwargs):
-        """Recursively filter report entries and sub-entries."""
-        is_root = kwargs.get("__copy", True)
-        report_obj = copy.deepcopy(self) if is_root else self
-
-        entries = []
-        for entry in report_obj.entries:
-            if any(func(entry) for func in functions):
-
-                if isinstance(entry, Report):
-                    entry = entry.filter(*functions, __copy=False)
-                entries.append(entry)
-
-        report_obj.entries = entries
-        if is_root:
-            report_obj.build_index(recursive=True)
-
-        return report_obj
 
     def reset_uid(self, uid=None):
         """
@@ -440,7 +753,7 @@ class ReportGroup(Report):
         """
         self.uid = uid or strings.uuid4()
         for entry in self:
-            if isinstance(entry, (Report, ReportGroup)):
+            if isinstance(entry, (Report, BaseReportGroup)):
                 entry.reset_uid()
         self.build_index()
 
@@ -458,7 +771,7 @@ class ReportGroup(Report):
             result = [(depth, rep_obj)]
 
             for entry in rep_obj:
-                if isinstance(entry, ReportGroup):
+                if isinstance(entry, BaseReportGroup):
                     result.extend(flat_func(entry, depth + 1))
                 elif isinstance(entry, Report):
                     result.append((depth + 1, entry))
@@ -480,3 +793,43 @@ class ReportGroup(Report):
                 (rep.logs) for rep in self.flatten() if isinstance(rep, Report)
             )
         )
+
+    @property
+    def entry_uids(self):
+        """Return the UIDs of all entries in this report group."""
+        return [entry.uid for entry in self]
+
+
+class ReportCategories:
+    """
+    Enumeration of possible categories of report nodes.
+
+    Note: we don't use the enum.Enum base class to simplify report
+    serialization via marshmallow.
+    """
+
+    TESTPLAN = "testplan"
+    TESTGROUP = "testgroup"  # test group of unspecific type?
+    MULTITEST = "multitest"
+    TASK_RERUN = "task_rerun"
+    TESTSUITE = "testsuite"
+    TESTCASE = "testcase"
+    PARAMETRIZATION = "parametrization"
+    GTEST = "gtest"
+    GTEST_SUITE = "gtest-suite"
+    CPPUNIT = "cppunit"
+    CPPUNIT_SUITE = "cppunit-suite"
+    BOOST_TEST = "boost-test"
+    BOOST_SUITE = "boost-suite"
+    HOBBESTEST = "hobbestest"
+    HOBBESTEST_SUITE = "hobbestest-suite"
+    PYTEST = "pytest"
+    PYUNIT = "pyunit"
+    UNITTEST = "unittest"
+    QUNIT = "qunit"
+    JUNIT = "junit"
+    ERROR = "error"
+    # use for before/after_start/stop, setup, teardown, etc
+    SYNTHESIZED = "synthesized"
+
+

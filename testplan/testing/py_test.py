@@ -12,12 +12,10 @@ from schema import Or
 from testplan.common.config import ConfigOption
 from testplan.common.utils import validation
 from testplan.report import (
-    ReportCategories,
-    RuntimeStatus,
-    Status,
     TestCaseReport,
     TestGroupReport,
 )
+from testplan.common.report.base import RuntimeStatus, Status, ReportCategories
 from testplan.testing import base as testing
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import base as entries_base

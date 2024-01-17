@@ -13,8 +13,8 @@ from testplan.report import (
     TestReport,
     TestCaseReport,
     TestGroupReport,
-    ReportCategories,
 )
+from testplan.common.report.base import ReportCategories
 from testplan.report.testing import styles
 from testplan.testing.multitest.entries import assertions
 

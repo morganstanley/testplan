@@ -2,8 +2,8 @@ from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    RuntimeStatus,
 )
+from testplan.common.report.base import RuntimeStatus
 from testplan.testing.multitest.entries.assertions import RawAssertion
 
 testcase_report = TestCaseReport(

@@ -16,8 +16,8 @@ from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    ReportCategories,
 )
+from testplan.common.report.base import ReportCategories
 from testplan.common.utils.testing import check_report, warnings_suppressed
 from testplan.common.utils.timing import Interval
 

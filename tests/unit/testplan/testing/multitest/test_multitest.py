@@ -4,6 +4,7 @@ import os
 
 import pytest
 
+import testplan.common.report.base
 from testplan.common import entity
 from testplan.common.utils import path, testing
 from testplan.common.utils.thread import Barrier
@@ -68,11 +69,11 @@ def test_extract_testsuite_targets():
         "entries": [
             {
                 "name": "bar",
-                "category": report.ReportCategories.TESTCASE,
+                "category": testplan.common.report.base.ReportCategories.TESTCASE,
             },
             {
                 "name": "baz",
-                "category": report.ReportCategories.PARAMETRIZATION,
+                "category": testplan.common.report.base.ReportCategories.PARAMETRIZATION,
                 "entries": [
                     {
                         "name": "foo_bar",
@@ -246,14 +247,14 @@ class ParallelSuite:
 EXPECTED_REPORT_SKELETON = report.TestGroupReport(
     name="MTest",
     description="Basic multitest.",
-    category=report.ReportCategories.MULTITEST,
+    category=testplan.common.report.base.ReportCategories.MULTITEST,
     uid="MTest",
     env_status=entity.ResourceStatus.STOPPED,
     entries=[
         report.TestGroupReport(
             name="Suite",
             description="Basic testsuite.",
-            category=report.ReportCategories.TESTSUITE,
+            category=testplan.common.report.base.ReportCategories.TESTSUITE,
             uid="Suite",
             parent_uids=["MTest"],
             entries=[
@@ -266,7 +267,7 @@ EXPECTED_REPORT_SKELETON = report.TestGroupReport(
                 report.TestGroupReport(
                     name="parametrized",
                     description="Parametrized testcase.",
-                    category=report.ReportCategories.PARAMETRIZATION,
+                    category=testplan.common.report.base.ReportCategories.PARAMETRIZATION,
                     uid="parametrized",
                     parent_uids=["MTest", "Suite"],
                     entries=[
@@ -321,13 +322,13 @@ def test_run_all_tests():
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
-    assert mtest_report.category == report.ReportCategories.MULTITEST
+    assert mtest_report.category == testplan.common.report.base.ReportCategories.MULTITEST
     assert len(mtest_report.entries) == 1  # One suite.
 
     suite_report = mtest_report.entries[0]
     assert suite_report.passed
     assert suite_report.name == "Suite"
-    assert suite_report.category == report.ReportCategories.TESTSUITE
+    assert suite_report.category == testplan.common.report.base.ReportCategories.TESTSUITE
     assert len(suite_report.entries) == 2  # Two testcases.
 
     testcase_report = suite_report.entries[0]
@@ -336,7 +337,7 @@ def test_run_all_tests():
     param_report = suite_report.entries[1]
     assert param_report.passed
     assert param_report.name == "parametrized"
-    assert param_report.category == report.ReportCategories.PARAMETRIZATION
+    assert param_report.category == testplan.common.report.base.ReportCategories.PARAMETRIZATION
     assert len(param_report.entries) == 3  # Three parametrized testcases
 
     for i, testcase_report in enumerate(param_report.entries):
@@ -356,13 +357,13 @@ def test_run_tests_parallel():
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
-    assert mtest_report.category == report.ReportCategories.MULTITEST
+    assert mtest_report.category == testplan.common.report.base.ReportCategories.MULTITEST
     assert len(mtest_report.entries) == 1  # One suite.
 
     suite_report = mtest_report.entries[0]
     assert suite_report.passed
     assert suite_report.name == "ParallelSuite"
-    assert suite_report.category == report.ReportCategories.TESTSUITE
+    assert suite_report.category == testplan.common.report.base.ReportCategories.TESTSUITE
     assert len(suite_report.entries) == 4  # Four testcases.
 
     for i in range(3):
@@ -379,11 +380,11 @@ def test_run_testcases_iter(dummy_mtest):
 
     attributes, parent_uids = results[0]
     assert parent_uids == ["MTest", "Suite", "case"]
-    assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     testcase_report, parent_uids = results[1]
     assert parent_uids == ["MTest", "Suite"]
-    assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
+    assert testcase_report.runtime_status == testplan.common.report.base.RuntimeStatus.FINISHED
     _check_testcase_report(testcase_report)
 
     for i, (attributes, parent_uids) in enumerate(results[2::2]):
@@ -393,11 +394,11 @@ def test_run_testcases_iter(dummy_mtest):
             "parametrized",
             "parametrized__val_{}".format(i + 1),
         ]
-        assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+        assert attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     for i, (testcase_report, parent_uids) in enumerate(results[3::2]):
         assert parent_uids == ["MTest", "Suite", "parametrized"]
-        assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
+        assert testcase_report.runtime_status == testplan.common.report.base.RuntimeStatus.FINISHED
         _check_param_testcase_report(testcase_report, i)
 
 
@@ -435,11 +436,11 @@ def test_run_testcases_iter_filtered(dummy_mtest):
         "parametrized",
         "parametrized__val_1",
     ]
-    assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+    assert attributes["runtime_status"] == testplan.common.report.base.RuntimeStatus.RUNNING
 
     testcase_report, parent_uids = results[1]
     assert parent_uids == ["MTest", "Suite", "parametrized"]
-    assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
+    assert testcase_report.runtime_status == testplan.common.report.base.RuntimeStatus.FINISHED
     _check_param_testcase_report(testcase_report, 0)
 
 
@@ -449,7 +450,7 @@ def _check_parallel_testcase(testcase_report, i):
     a full run.
     """
     assert testcase_report.name == "case{}".format(i + 1)
-    assert testcase_report.category == report.ReportCategories.TESTCASE
+    assert testcase_report.category == testplan.common.report.base.ReportCategories.TESTCASE
     assert len(testcase_report.entries) == 1  # One assertion
 
     equals_assertion = testcase_report.entries[0]
@@ -465,12 +466,12 @@ def _check_parallel_param(param_report):
     expected after a full run.
     """
     assert param_report.name == "parametrized"
-    assert param_report.category == report.ReportCategories.PARAMETRIZATION
+    assert param_report.category == testplan.common.report.base.ReportCategories.PARAMETRIZATION
     assert len(param_report.entries) == 3  # Three parametrized testcases.
 
     for i, testcase_report in enumerate(param_report.entries):
         assert testcase_report.name == "parametrized <val={}>".format(i + 1)
-        assert testcase_report.category == report.ReportCategories.TESTCASE
+        assert testcase_report.category == testplan.common.report.base.ReportCategories.TESTCASE
         assert len(testcase_report.entries) == 1  # One assertion
 
         greater_assertion = testcase_report.entries[0]
@@ -487,7 +488,7 @@ def _check_testcase_report(testcase_report):
     """
     assert testcase_report.passed
     assert testcase_report.name == "case"
-    assert testcase_report.category == report.ReportCategories.TESTCASE
+    assert testcase_report.category == testplan.common.report.base.ReportCategories.TESTCASE
     assert len(testcase_report.entries) == 1  # One assertion.
 
     truth_assertion = testcase_report.entries[0]
@@ -503,7 +504,7 @@ def _check_param_testcase_report(testcase_report, i):
     """
     assert testcase_report.passed
     assert testcase_report.name == "parametrized <val={}>".format(i + 1)
-    assert testcase_report.category == report.ReportCategories.TESTCASE
+    assert testcase_report.category == testplan.common.report.base.ReportCategories.TESTCASE
     assert len(testcase_report.entries) == 1  # One assertion
 
     greater_assertion = testcase_report.entries[0]

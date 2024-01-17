@@ -9,7 +9,7 @@ import testplan
 from testplan.common import entity
 from testplan.common.utils import timing
 from testplan.exporters.testing import XMLExporter
-from testplan.report import Status, RuntimeStatus
+from testplan.common.report.base import RuntimeStatus, Status
 from testplan.testing import multitest
 from testplan.testing.multitest import driver
 from tests.functional.testplan.runnable.interactive.interactive_helper import (

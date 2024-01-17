@@ -5,8 +5,8 @@ from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    ReportCategories,
 )
+from testplan.common.report.base import ReportCategories
 
 from .suites import always_true
 

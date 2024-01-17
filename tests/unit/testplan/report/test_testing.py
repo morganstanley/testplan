@@ -9,14 +9,12 @@ from boltons.iterutils import get_path
 from testplan.common.utils.testing import disable_log_propagation
 
 from testplan.report.testing.base import (
-    Status,
-    BaseReportGroup,
     TestCaseReport,
     TestGroupReport,
     TestReport,
-    ReportCategories,
-    RuntimeStatus,
 )
+from testplan.common.report import BaseReportGroup
+from testplan.common.report.base import RuntimeStatus, Status, ReportCategories
 from testplan.report.testing.schemas import TestReportSchema
 from testplan.common import report, entity
 from testplan.common.utils.testing import check_report
@@ -137,14 +135,14 @@ class TestBaseReportGroup:
 
         report_clone.status_override = Status.PASSED
 
-        with mock.patch.object(report_orig, "merge_children"):
+        with mock.patch.object(report_orig, "merge_entries"):
             report_orig.merge(report_clone)
-            report_orig.merge_children.assert_called_once_with(
+            report_orig.merge_entries.assert_called_once_with(
                 report_clone, strict=True
             )
             assert report_orig.status_override == report_clone.status_override
 
-    def test_merge_children_not_strict(self):
+    def test_merge_entries_not_strict(self):
         """
         Not strict merge should append child entries and update
         the index if they do not exist in the parent.

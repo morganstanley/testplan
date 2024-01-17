@@ -1,6 +1,7 @@
 """Unit tests for the JUnit test runner."""
 import os
 
+import testplan.common.report.base
 import testplan.report
 from testplan.testing import junit
 from testplan.report import TestGroupReport, TestCaseReport
@@ -126,7 +127,7 @@ def test_run_test(mockplan):
     assert mockplan.run().run is True
 
     report = mockplan.report
-    assert report.status == testplan.report.Status.FAILED
+    assert report.status == testplan.common.report.base.Status.FAILED
 
     mt_report = report.entries[0]
     assert len(mt_report.entries) == 3

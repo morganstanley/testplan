@@ -7,12 +7,11 @@ from testplan.runners.pools.tasks import Task
 
 from testplan.common.utils.testing import check_report
 from testplan.report import (
-    Status,
     TestReport,
     TestGroupReport,
     TestCaseReport,
-    ReportCategories,
 )
+from testplan.common.report.base import Status, ReportCategories
 
 
 @testsuite

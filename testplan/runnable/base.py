@@ -48,11 +48,10 @@ from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
 from testplan.report import (
-    ReportCategories,
-    Status,
     TestGroupReport,
     TestReport,
 )
+from testplan.common.report.base import Status, ReportCategories
 from testplan.report.filter import ReportingFilter
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
@@ -251,17 +250,12 @@ class TestRunnerResult(RunnableResult):
         super(TestRunnerResult, self).__init__()
         self.test_results = OrderedDict()
         self.exporter_results = []
-        self.test_report = None
-
-    @property
-    def report(self):
-        """Tests report."""
-        return self.test_report
+        self.report = None
 
     @property
     def success(self):
         """Run was successful."""
-        return not self.test_report.failed and all(
+        return not self.report.failed and all(
             [
                 exporter_result.success
                 for exporter_result in self.exporter_results
@@ -381,7 +375,7 @@ class TestRunner(Runnable):
         # uid to resource, in definition order
         self._test_metadata = []
         self._tests: MutableMapping[str, str] = OrderedDict()
-        self._result.test_report = TestReport(
+        self.result.report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
             uid=self.cfg.name,
@@ -412,7 +406,16 @@ class TestRunner(Runnable):
     @property
     def report(self) -> TestReport:
         """Tests report."""
-        return self._result.test_report
+        return self.result.report
+
+    # @property
+    # def event_recoder(self) -> EventRecorder:
+    #     return self.report.event_recoder
+
+
+    # @property
+    # def timer(self):
+    #     return self.report.timer
 
     @property
     def exporters(self):
@@ -972,12 +975,12 @@ class TestRunner(Runnable):
             )
 
         return should_run
-
-    def _record_start(self):
-        self.report.timer.start("run")
-
-    def _record_end(self):
-        self.report.timer.end("run")
+    #
+    # def _record_start(self):
+    #     self.report.timer.start("run")
+    #
+    # def _record_end(self):
+    #     self.report.timer.end("run")
 
     def make_runpath_dirs(self):
         """
@@ -1035,9 +1038,10 @@ class TestRunner(Runnable):
             self.resource_monitor_server = None
 
     def add_pre_resource_steps(self):
+        self._add_step(self.timer.start, "run")
         """Runnable steps to be executed before resources started."""
         super(TestRunner, self).add_pre_resource_steps()
-        self._add_step(self._record_start)
+        # self._add_step(self._record_start)
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
         self._add_step(self.calculate_pool_size)
@@ -1052,7 +1056,8 @@ class TestRunner(Runnable):
         self._add_step(self._stop_remote_services)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
-        self._add_step(self._record_end)  # needs to happen before export
+        self._add_step(self.timer.end, "run")
+        # self._add_step(self._record_end)  # needs to happen before export
         self._add_step(self._pre_exporters)
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
@@ -1069,17 +1074,20 @@ class TestRunner(Runnable):
                 )
                 resource.abort()
 
-        _start_ts = (
-            self.result.test_report.timer["run"][0]
-            - datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
-        ).total_seconds()
+        _start_ts = time.time()
+
+        # TODO: with_timer has not write to timer yet
+        # _start_ts = (
+        #     self.result.report.timer["run"][0]
+        #     - datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
+        # ).total_seconds()
 
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
                 msg = (
                     f"Timeout: Aborting execution after {self.cfg.timeout} seconds",
                 )
-                self.result.test_report.logger.error(msg)
+                self.result.report.logger.error(msg)
                 self.logger.error(msg)
 
                 # Abort resources e.g pools
@@ -1097,7 +1105,7 @@ class TestRunner(Runnable):
                 # Poll the resource's health - if it has unexpectedly died
                 # then abort the entire test to avoid hanging.
                 if not resource.is_alive:
-                    self.result.test_report.status_override = Status.ERROR
+                    self.result.report.status_override = Status.ERROR
                     self.logger.critical(
                         "Aborting %s - %s unexpectedly died", self, resource
                     )
@@ -1110,8 +1118,8 @@ class TestRunner(Runnable):
     def _create_result(self):
         """Fetch task result from executors and create a full test result."""
         step_result = True
-        test_results = self._result.test_results
-        test_report = self._result.test_report
+        test_results = self.result.test_results
+        plan_report = self.result.report
         test_rep_lookup = {}
 
         for uid, resource in self._tests.items():
@@ -1143,7 +1151,7 @@ class TestRunner(Runnable):
                     test_rep_lookup.setdefault(
                         report.definition_name, []
                     ).append((test_results[uid].run, report))
-                    if report.definition_name not in test_report.entry_uids:
+                    if report.definition_name not in plan_report.entry_uids:
                         # Create a placeholder for merging sibling reports
                         if isinstance(resource_result, TaskResult):
                             # `runnable` must be an instance of MultiTest since
@@ -1164,19 +1172,19 @@ class TestRunner(Runnable):
                     else:
                         continue  # Wait all sibling reports collected
 
-            test_report.append(report)
+            plan_report.append(report)
             step_result = step_result and run is True  # boolean or exception
 
         step_result = self._merge_reports(test_rep_lookup) and step_result
 
         # Reset UIDs of the test report and all of its children in UUID4 format
         if self._reset_report_uid:
-            test_report.reset_uid()
+            plan_report.reset_uid()
 
-        # Attach pool event into report
-        for executor in self.resources:
-            if isinstance(executor, Executor):
-                self.report.add_event(executor.event_recorder)
+        # # Attach pool event into report
+        # for executor in self.resources:
+        #     if isinstance(executor, Executor):
+        #         self.report.add_event(executor.event_recorder)
 
         return step_result
 
@@ -1201,7 +1209,7 @@ class TestRunner(Runnable):
         merge_result = True
 
         for uid, result in test_report_lookup.items():
-            placeholder_report = self._result.test_report.get_by_uid(uid)
+            placeholder_report = self.result.report.get_by_uid(uid)
             num_of_parts = 0
             part_indexes = set()
             merged = False
@@ -1255,7 +1263,7 @@ class TestRunner(Runnable):
                         report.name, report.part[0], report.part[1]
                     )
                     report.uid = strings.uuid4()  # considered as error report
-                    self._result.test_report.append(report)
+                    self.result.report.append(report)
 
             merge_result = (
                 merge_result and placeholder_report.status != Status.ERROR
@@ -1268,35 +1276,41 @@ class TestRunner(Runnable):
         return self.cfg.name
 
     def _log_test_status(self):
-        if not self._result.test_report.entries:
+        if not self.result.report.entries:
             self.logger.warning(
                 "No tests were run - check your filter patterns."
             )
         else:
             self.logger.log_test_status(
-                self.cfg.name, self._result.test_report.status
+                self.cfg.name, self.result.report.status
             )
 
     def _pre_exporters(self):
         # Apply report filter if one exists
+
+        # import pdb
+        # pdb.set_trace()
         if self.cfg.reporting_filter is not None:
-            self._result.test_report = self.cfg.reporting_filter(
-                self._result.test_report
+            self.result.report = self.cfg.reporting_filter(
+                self.result.report
             )
 
     def _invoke_exporters(self) -> None:
-        if self._result.test_report.is_empty():  # skip empty report
+        if self.result.report.is_empty():  # skip empty report
             return
 
-        if hasattr(self._result.test_report, "bubble_up_attachments"):
-            self._result.test_report.bubble_up_attachments()
+        # import pdb
+        # pdb.set_trace()
+
+        if hasattr(self.result.report, "bubble_up_attachments"):
+            self.result.report.bubble_up_attachments()
 
         export_context = ExportContext()
         for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
                 run_exporter(
                     exporter=exporter,
-                    source=self._result.test_report,
+                    source=self.result.report,
                     export_context=export_context,
                 )
             else:
@@ -1306,18 +1320,18 @@ class TestRunner(Runnable):
                     )
                 )
 
-        self._result.exporter_results = export_context.results
+        self.result.exporter_results = export_context.results
 
     def _post_exporters(self):
         # View report in web browser if "--browse" specified
         report_urls = []
         report_opened = False
 
-        if self._result.test_report.is_empty():  # skip empty report
+        if self.result.report.is_empty():  # skip empty report
             self.logger.warning("Empty report, nothing to be exported!")
             return
 
-        for result in self._result.exporter_results:
+        for result in self.result.exporter_results:
             report_url = getattr(result.exporter, "report_url", None)
             if report_url:
                 report_urls.append(report_url)
@@ -1398,7 +1412,7 @@ class TestRunner(Runnable):
         Executes the defined steps and populates the result object.
         """
         if self.cfg.test_lister:
-            self._result.run = True
-            return self._result
+            self.result.run = True
+            return self.result
 
         return super(TestRunner, self).run()

@@ -12,12 +12,11 @@ from testplan.common.exporters.pdf import RowStyle
 from testplan.common.utils.registry import Registry
 from testplan.common.utils.strings import format_description, split_text, wrap
 from testplan.report import (
-    ReportCategories,
-    Status,
     TestCaseReport,
     TestGroupReport,
     TestReport,
 )
+from testplan.common.report.base import Status, ReportCategories
 from testplan.report.testing.styles import StyleFlag
 from testplan.testing import tagging
 
@@ -90,7 +89,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         )
 
         if "run" in source.timer:
-            run_interval = source.timer["run"]
+            run_interval = source.timer["run"][-1]
             ctx.update(
                 [
                     (
@@ -452,7 +451,7 @@ class MultiTestRowBuilder(TestRowRenderer):
 
         if "run" in source.timer:
             summary += ", total run time: {}.".format(
-                format_duration(source.timer["run"].elapsed)
+                format_duration(source.timer["run"][-1].elapsed)
             )
 
         row_data.append(

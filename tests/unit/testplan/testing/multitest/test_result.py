@@ -14,6 +14,7 @@ import matplotlib
 import pytest
 import matplotlib.pyplot as plot
 
+import testplan.common.report.base
 from testplan.common.utils import comparison
 from testplan.common.utils import testing
 from testplan.common.utils import callable
@@ -340,15 +341,15 @@ def test_assertion_skip(mockplan):
     skip_multitest = mtest.report.flatten()[0]
     skip_suite = skip_multitest.entries[0]
     skip_me_case = skip_suite.entries[0]
-    assert skip_me_case.status == report_base.Status.SKIPPED
+    assert skip_me_case.status == testplan.common.report.base.Status.SKIPPED
     assert skip_me_case.failed is False
     assert len(skip_me_case.entries) == 2
 
     for index, condition_skip_case in enumerate(skip_suite.entries[1]):
         if index % 2 == 0:
-            assert condition_skip_case.status == report_base.Status.SKIPPED
+            assert condition_skip_case.status == testplan.common.report.base.Status.SKIPPED
         else:
-            assert condition_skip_case.status == report_base.Status.PASSED
+            assert condition_skip_case.status == testplan.common.report.base.Status.PASSED
         assert len(condition_skip_case.entries) == 1
 
 

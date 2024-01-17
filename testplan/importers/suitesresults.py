@@ -1,7 +1,8 @@
 from typing import List
 
 from testplan.importers import ImportedResult
-from testplan.report import TestGroupReport, TestReport, ReportCategories
+from testplan.report import TestGroupReport, TestReport
+from testplan.common.report.base import ReportCategories
 
 
 class SuitesResult(ImportedResult):

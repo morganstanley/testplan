@@ -11,8 +11,8 @@ from testplan.report import (
     TestReport,
     TestCaseReport,
     TestGroupReport,
-    ReportCategories,
 )
+from testplan.common.report.base import ReportCategories
 
 FLOAT_PATTERN = r"{d}+\.?d{d}+"
 

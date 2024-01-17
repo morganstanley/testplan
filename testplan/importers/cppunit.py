@@ -13,10 +13,9 @@ from testplan.importers.base import ThreePhaseFileImporter, T
 from testplan.importers.suitesresults import SuitesResult
 from testplan.report import (
     TestGroupReport,
-    ReportCategories,
     TestCaseReport,
-    RuntimeStatus,
 )
+from testplan.common.report.base import RuntimeStatus, ReportCategories
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 

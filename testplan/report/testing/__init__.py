@@ -2,11 +2,9 @@
 
 from . import styles
 from .base import (
-    ReportCategories,
-    RuntimeStatus,
-    Status,
     TestCaseReport,
     TestGroupReport,
     TestReport,
 )
+from testplan.common.report.base import RuntimeStatus, Status, ReportCategories
 from .parser import ReportFilterAction, ReportTagsAction

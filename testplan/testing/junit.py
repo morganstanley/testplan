@@ -7,11 +7,10 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.report import (
-    ReportCategories,
-    RuntimeStatus,
     TestCaseReport,
     TestGroupReport,
 )
+from testplan.common.report.base import RuntimeStatus, ReportCategories
 from testplan.testing.base import ProcessRunnerTest, ProcessRunnerTestConfig
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries.base import CodeLog

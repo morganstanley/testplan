@@ -4,11 +4,13 @@ from unittest import mock
 
 import pytest
 
+import testplan.common.report.base
 from testplan import defaults
 from testplan import report
 from testplan import runnable
 from testplan.common import entity
-from testplan.report import RuntimeStatus, TestCaseReport
+from testplan.report import TestCaseReport
+from testplan.common.report.base import RuntimeStatus
 from testplan.testing import filtering
 from testplan.testing import multitest
 from testplan.testing import ordering
@@ -342,18 +344,18 @@ def test_initial_report(irunner):
     Check that the initial report tree is generated correctly.
     """
     initial_report = irunner.report
-    assert initial_report.status == report.Status.UNKNOWN
-    assert initial_report.runtime_status == report.RuntimeStatus.READY
+    assert initial_report.status == testplan.common.report.base.Status.UNKNOWN
+    assert initial_report.runtime_status == testplan.common.report.base.RuntimeStatus.READY
     assert len(initial_report.entries) == 3
     for test_report in initial_report:
         # Each Test contains one suite.
-        assert test_report.status == report.Status.UNKNOWN
-        assert test_report.runtime_status == report.RuntimeStatus.READY
+        assert test_report.status == testplan.common.report.base.Status.UNKNOWN
+        assert test_report.runtime_status == testplan.common.report.base.RuntimeStatus.READY
         assert len(test_report.entries) == 1
         for suite_report in test_report:
             # Each suite contains two testcase.
-            assert suite_report.status == report.Status.UNKNOWN
-            assert suite_report.runtime_status == report.RuntimeStatus.READY
+            assert suite_report.status == testplan.common.report.base.Status.UNKNOWN
+            assert suite_report.runtime_status == testplan.common.report.base.RuntimeStatus.READY
             assert len(suite_report.entries) == 2
 
             # The first entry in the suite report is a regular testcase.

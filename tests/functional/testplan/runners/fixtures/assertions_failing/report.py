@@ -5,11 +5,11 @@ import sys
 
 from testplan.common.utils.testing import check_iterable
 from testplan.report import (
-    ReportCategories,
     TestCaseReport,
     TestGroupReport,
     TestReport,
 )
+from testplan.common.report.base import ReportCategories
 
 from .suites import ERROR_MSG, always_false, always_true, error_func
 

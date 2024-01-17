@@ -31,9 +31,18 @@ from testplan.common.utils import logger
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
-from testplan.common.utils.timing import wait
+from testplan.common.utils.timing import wait, Timer
 from testplan.common.utils.validation import is_subclass
-from testplan.common.report.base import EventRecorder
+
+
+class Child:
+    """
+    A recursive container that will be available to all Entity object.
+    """
+    def __init__(self, name: str):
+        self.name = name
+        self.timer = Timer()
+        self.children: List["Child"] = []
 
 
 class Environment:
@@ -513,6 +522,7 @@ class Entity(logger.Loggable):
         self._uid = None
         self._should_abort = False
         self._aborted = False
+        self._report = None
 
     def __str__(self):
         return f"{self.__class__.__name__}[{self.uid()}]"
@@ -572,6 +582,26 @@ class Entity(logger.Loggable):
         Reference to parent object.
         """
         self._parent = value
+
+    @property
+    def report(self):
+        """
+        A handle to access the report via recursive parent
+        """
+        if not self._report:
+            self._report = Child(name=str(self))
+            self.parent.report.children.append(self._report)
+
+        return self._report
+
+    @property
+    def timer(self):
+        return self.report.timer
+        # if not self._timer:
+        #     # TODO: what parameters?
+        #     self._timer = self.parent.timer.add_child(source=str(self))
+        #
+        # return self._timer
 
     def pause(self):
         """
@@ -851,17 +881,9 @@ class Runnable(Entity):
         self._environment: Environment = self.__class__.ENVIRONMENT(
             parent=self
         )
-        self._result: RunnableResult = self.__class__.RESULT()
+        self.result: RunnableResult = self.__class__.RESULT()
         self._steps: Deque[Tuple[Callable, List, Dict]] = deque()
         self._ihandler = None
-
-    @property
-    def result(self):
-        """
-        Returns a
-        :py:class:`~testplan.common.entity.base.RunnableResult`
-        """
-        return self._result
 
     @property
     def resources(self):
@@ -1135,6 +1157,7 @@ class Runnable(Entity):
         """
         return True
 
+    # @with_timer
     def run(self):
         """
         Executes the defined steps and populates the result object.
@@ -1177,15 +1200,15 @@ class Runnable(Entity):
             else:
                 self._run_batch_steps()
         except Exception as exc:
-            self._result.run = exc
+            self.result.run = exc
             self.logger.error(traceback.format_exc())
         else:
-            # TODO fix swallow exceptions in self._result.step_results.values()
-            self._result.run = (
+            # TODO fix swallow exceptions in self.result.step_results.values()
+            self.result.run = (
                 self.status == RunnableStatus.FINISHED
                 and self.run_result() is True
             )
-        return self._result
+        return self.result
 
     def run_result(self):
         """
@@ -1193,7 +1216,7 @@ class Runnable(Entity):
         """
         return all(
             not isinstance(val, Exception) and val is not False
-            for val in self._result.step_results.values()
+            for val in self.result.step_results.values()
         )
 
     def dry_run(self):
@@ -1306,9 +1329,9 @@ class Resource(Entity):
                 self.STATUS.STOPPED: self._wait_stopped,
             }
         )
-        self.event_recorder: EventRecorder = EventRecorder(
-            name=self.uid(), event_type="Executor"
-        )
+        # self.event_recorder: EventRecorder = EventRecorder(
+        #     name=self.uid(), event_type="Executor"
+        # )
 
     @property
     def context(self):
@@ -1360,7 +1383,8 @@ class Resource(Entity):
             )
             return
 
-        self.event_recorder.start_time = time.time()
+        self.timer.start("lifespan")
+        # self.event_recorder.start_time = time.time()
 
         self.logger.info("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
@@ -1406,7 +1430,7 @@ class Resource(Entity):
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
             self.logger.info("%s stopped", self)
-        self.event_recorder.end_time = time.time()
+        self.timer.end("lifespan")
 
     def pre_start(self):
         """
@@ -1751,3 +1775,5 @@ class RunnableManager(Entity):
         Suppressing not implemented debug log by parent class.
         """
         pass
+
+

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from testplan.report import Status
+from testplan.common.report.base import Status
 from testplan.runners.pools.process import ProcessPool
 from testplan.runners.pools.tasks import TaskMaterializationError
 from testplan.testing import multitest

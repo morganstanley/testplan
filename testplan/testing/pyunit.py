@@ -10,9 +10,8 @@ from testplan.testing.multitest.entries import base as entries_base
 from testplan.report import (
     TestGroupReport,
     TestCaseReport,
-    ReportCategories,
-    RuntimeStatus,
 )
+from testplan.common.report.base import RuntimeStatus, ReportCategories
 
 
 class PyUnitConfig(testing.TestConfig):

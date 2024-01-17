@@ -2,7 +2,7 @@ import time
 
 from testplan import TestplanMock
 from testplan.common.entity import Runnable
-from testplan.report import Status
+from testplan.common.report.base import Status
 from testplan.runnable import TestRunnerStatus
 from testplan.runners.local import LocalRunner
 from testplan.testing.base import Test, TestResult
@@ -29,9 +29,9 @@ class DummyTest(Test):
         )
 
     def run_tests(self):
-        with self._result.report.timer.record("run"):
+        with self.result.report.timer.record("run"):
             time.sleep(0.5)  # 500ms for execution
-            self._result.report.status_override = Status.PASSED
+            self.result.report.status_override = Status.PASSED
 
     def add_pre_resource_steps(self):
         self._add_step(lambda: self.result.report.timer.start("flag1"))

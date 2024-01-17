@@ -13,10 +13,8 @@ from testplan.common.serialization import fields as custom_fields
 from testplan.common.report.schemas import (
     ReportSchema,
     ReportLogSchema,
-    EventRecorderSchema,
-)
-
-from testplan.common.utils import timing
+    # EventRecorderSchema,
+    BaseReportGroupSchema, TimerField)
 
 from .base import TestCaseReport, TestGroupReport, TestReport
 
@@ -24,18 +22,6 @@ from .base import TestCaseReport, TestGroupReport, TestReport
 __all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
 
 # pylint: disable=unused-argument
-
-
-class IntervalSchema(Schema):
-    """Schema for ``timer.Interval``"""
-
-    start = custom_fields.UTCDateTime()
-    end = custom_fields.UTCDateTime(allow_none=True)
-
-    @post_load
-    def make_interval(self, data, **kwargs):
-        """Create an Interal object."""
-        return timing.Interval(**data)
 
 
 class TagField(fields.Field):
@@ -51,21 +37,6 @@ class TagField(fields.Field):
         return {
             tag_name: set(tag_values) for tag_name, tag_values in value.items()
         }
-
-
-class TimerField(fields.Field):
-    """
-    Field for serializing ``timer.Timer`` objects, which is a ``dict``
-    of ``timer.Interval``.
-    """
-
-    def _serialize(self, value, attr, obj, **kwargs):
-        return {k: IntervalSchema().dump(v) for k, v in value.items()}
-
-    def _deserialize(self, value, attr, data, **kwargs):
-        return timing.Timer(
-            {k: IntervalSchema().load(v) for k, v in value.items()}
-        )
 
 
 class EntriesField(fields.Field):
@@ -104,8 +75,8 @@ class TestCaseReportSchema(ReportSchema):
 
     source_class = TestCaseReport
 
-    status_override = fields.String(allow_none=True)
-    status_reason = fields.String(allow_none=True)
+    # status_override = fields.String(allow_none=True)
+    # status_reason = fields.String(allow_none=True)
 
     entries = fields.List(EntriesField())
 
@@ -114,7 +85,6 @@ class TestCaseReportSchema(ReportSchema):
     runtime_status = fields.String()
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
-    timer = TimerField(required=True)
     tags = TagField()
 
     @post_load
@@ -123,9 +93,9 @@ class TestCaseReportSchema(ReportSchema):
         Create the report object, assign ``timer`` &
         ``status_override`` attributes explicitly
         """
-        timer = data.pop("timer")
-        status = data.pop("status")
-        runtime_status = data.pop("runtime_status")
+        # # timer = data.pop("timer")
+        # status = data.pop("status")
+        # runtime_status = data.pop("runtime_status")
 
         # We can discard the type field since we know what kind of report we
         # are making.
@@ -133,18 +103,19 @@ class TestCaseReportSchema(ReportSchema):
             data.pop("type")
 
         rep = super(TestCaseReportSchema, self).make_report(data)
-        rep.timer = timer
-        rep.status = status
-        rep.runtime_status = runtime_status
+        # rep.timer = timer
+        # rep.status = status
+        # rep.runtime_status = runtime_status
         return rep
 
 
-class TestGroupReportSchema(TestCaseReportSchema):
+class TestGroupReportSchema(BaseReportGroupSchema):
     """
     Schema for ``testing.TestGroupReportSchema``, supports tree serialization.
     """
 
     source_class = TestGroupReport
+
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
@@ -158,9 +129,6 @@ class TestGroupReportSchema(TestCaseReportSchema):
         },
         many=True,
     )
-    events = fields.Dict(
-        keys=fields.String(), values=fields.Nested(EventRecorderSchema)
-    )
     host = fields.String(allow_none=True)
 
     @post_load
@@ -173,37 +141,23 @@ class TestGroupReportSchema(TestCaseReportSchema):
         return rep
 
 
-class TestReportSchema(Schema):
+class TestReportSchema(BaseReportGroupSchema):
     """Schema for test report root, ``testing.TestReport``."""
 
     class Meta:
         unknown = EXCLUDE
 
-    name = fields.String(required=True)
-    description = fields.String(allow_none=True)
-    uid = fields.String(required=True)
-    category = fields.String(dump_only=True)
-    timer = TimerField(required=True)
-    meta = fields.Dict()
-    label = fields.String(allow_none=True)
+    source_class = TestReport
 
-    status_override = fields.String(allow_none=True)
-    status = fields.String()
-    runtime_status = fields.String()
+    category = fields.String(dump_only=True)
+    label = fields.String(allow_none=True)
     tags_index = TagField(dump_only=True)
     information = fields.List(fields.List(fields.String()))
-    counter = fields.Dict(dump_only=True)
-
     attachments = fields.Dict()
-    logs = fields.Nested(ReportLogSchema, many=True)
     timeout = fields.Integer(allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={TestGroupReport: TestGroupReportSchema}, many=True
-    )
-
-    events = fields.Dict(
-        keys=fields.String(), values=fields.Nested(EventRecorderSchema)
     )
 
     @post_load
@@ -244,6 +198,7 @@ class ShallowTestGroupReportSchema(Schema):
     uid = fields.String(required=True)
     category = fields.String()
     timer = TimerField(required=True)
+    # timer = fields.Nested(TimerSchema)
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
 
@@ -286,7 +241,8 @@ class ShallowTestReportSchema(Schema):
     uid = fields.String(required=True)
     category = fields.String(dump_only=True)
     timer = TimerField(required=True)
-    meta = fields.Dict()
+    # timer = fields.Nested(TimerSchema)
+    # meta = fields.Dict()
     status = fields.String(dump_only=True)
     runtime_status = fields.String(dump_only=True)
     information = fields.List(fields.List(fields.String()))
