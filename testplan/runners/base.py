@@ -1,14 +1,14 @@
 """Executor base classes."""
 
-import time
 import threading
-
 from collections import OrderedDict
-from typing import List, Generator, Optional
+from typing import Generator, List
 
 from testplan.common.entity import Resource, ResourceConfig
-from testplan.common.utils.thread import interruptible_join
 from testplan.common.report.base import EventRecorder
+from testplan.common.utils.selector import Expr as SExpr
+from testplan.common.utils.thread import interruptible_join
+from testplan.report.testing.base import Status
 
 
 class ExecutorConfig(ResourceConfig):
@@ -26,8 +26,7 @@ class Executor(Resource):
     """
     Receives items, executes them and create results.
 
-    Subclasses must implement the ``Executor._loop`` and
-    ``Executor._execute`` logic to execute the input items.
+    Subclasses must implement the ``Executor._loop`` logic.
     """
 
     CONFIG = ExecutorConfig
@@ -39,6 +38,8 @@ class Executor(Resource):
         self._input = OrderedDict()
         self._results = OrderedDict()
         self.ongoing = []
+
+        self._discard_pending = False
 
     @property
     def class_name(self) -> str:
@@ -83,10 +84,10 @@ class Executor(Resource):
     def _loop(self) -> None:
         raise NotImplementedError()
 
-    def _execute(self, uid: str) -> None:
-        raise NotImplementedError()
-
     def _prepopulate_runnables(self) -> None:
+        # _discard_pending can be set any time
+        if self._discard_pending:
+            return
         # If we are to apply test_sorter, it would be here
         # but it's not easy to implement a reasonable behavior
         # as _input could be a mixture of runnable/task/callable
@@ -120,6 +121,35 @@ class Executor(Resource):
     def pending_work(self) -> bool:
         """Resource has pending work."""
         return len(self.ongoing) > 0
+
+    def discard_pending_tasks(
+        self, report_status: Status = Status.NONE, report_reason: str = ""
+    ):
+        # NOTE: should discard currently running task as well
+        # NOTE: currently Task class is defined under sub-package pool, which
+        # NOTE: doesn't reflect the fact that LocalRunner is also able to
+        # NOTE: consume them
+        # NOTE: src to be re-composed, types (TaskResult and TestResult) to be
+        # NOTE: uniformed, before similar logic could be promoted to their
+        # NOTE: common ancestor - Executor
+        raise NotImplementedError()
+
+    def bubble_up_discard_tasks(
+        self,
+        exec_selector: SExpr,
+        report_status: Status = Status.NONE,
+        report_reason: str = "",
+    ):
+        # used by "skip-remaining" feature
+        # should only be triggered when executors living under TestRunner
+        from testplan.runnable.base import TestRunner
+
+        if self.parent is not None and isinstance(self.parent, TestRunner):
+            self.parent.discard_pending_tasks(
+                exec_selector,
+                report_status=report_status,
+                report_reason=report_reason,
+            )
 
     def get_current_status_for_debug(self) -> List[str]:
         """

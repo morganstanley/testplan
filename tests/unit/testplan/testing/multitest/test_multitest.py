@@ -3,14 +3,14 @@
 import os
 
 import pytest
+from schema import SchemaError
 
+from testplan import defaults, report
 from testplan.common import entity
 from testplan.common.utils import path, testing
 from testplan.common.utils.thread import Barrier
-from testplan.testing import multitest, filtering, ordering
+from testplan.testing import common, filtering, multitest, ordering
 from testplan.testing.multitest import base
-from testplan import defaults, report
-
 
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
@@ -318,6 +318,7 @@ def test_run_all_tests():
     mtest = multitest.MultiTest(
         name="MTest", suites=[Suite()], **MTEST_DEFAULT_PARAMS
     )
+    mtest.cfg.set_local("skip_strategy", common.SkipStrategy.noop())
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -353,6 +354,7 @@ def test_run_tests_parallel():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS,
     )
+    mtest.cfg.set_local("skip_strategy", common.SkipStrategy.noop())
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -511,3 +513,87 @@ def _check_param_testcase_report(testcase_report, i):
     assert greater_assertion["type"] == "Greater"
     assert greater_assertion["first"] == i + 1
     assert greater_assertion["second"] == 0
+
+
+@multitest.testsuite
+class RaisingSuite:
+    def __init__(self, where_to_raise, mock_cb=None):
+        self.where = where_to_raise
+        self.cb = mock_cb or (lambda: None)
+
+    def pre_testcase(self, name, env, result):
+        self.cb()
+        result.true(True)
+        if self.where == "pre_testcase":
+            raise RuntimeError(self.where)
+        self.cb()
+
+    @multitest.testcase
+    def in_the_middle(self, env, result):
+        self.cb()
+        result.true(True)
+        if self.where == "in_the_middle":
+            raise RuntimeError(self.where)
+        self.cb()
+
+    @multitest.testcase
+    def in_the_middle_2(self, env, result):
+        self.cb()
+        result.true(True)
+        self.cb()
+
+    def post_testcase(self, name, env, result):
+        self.cb()
+        result.true(True)
+        if self.where == "post_testcase":
+            raise RuntimeError(self.where)
+        self.cb()
+
+
+@pytest.mark.parametrize(
+    "where,call_count",
+    (
+        ("pre_testcase", 6),
+        ("post_testcase", 10),
+        ("in_the_middle", 11),
+    ),
+)
+def test_case_level_exception_handling(where, call_count, mocker):
+    # as a guard to a possible wrong refactor, i.e., post_testcase should
+    # always be invoked
+    cb = mocker.Mock()
+    mt = multitest.MultiTest(
+        name="Mtest", suites=[RaisingSuite(where, cb)], **MTEST_DEFAULT_PARAMS
+    )
+    mt.run()
+    assert cb.call_count == call_count
+
+
+@pytest.mark.parametrize(
+    "skip_strategy,case_count",
+    (
+        (None, 2),
+        ("cases-on-error", 1),
+        ("tests-on-error", -1),
+    ),
+)
+def test_skip_strategy(skip_strategy, case_count):
+    if case_count < 0:
+        with pytest.raises(
+            SchemaError, match=r".*Invalid option for test-level.*"
+        ):
+            mt = multitest.MultiTest(
+                name="Mtest",
+                suites=[RaisingSuite("in_the_middle")],
+                skip_strategy=skip_strategy,
+                **MTEST_DEFAULT_PARAMS,
+            )
+        return
+    mt = multitest.MultiTest(
+        name="Mtest",
+        suites=[RaisingSuite("in_the_middle")],
+        skip_strategy=skip_strategy,
+        **MTEST_DEFAULT_PARAMS,
+    )
+    ret = mt.run()
+    assert len(ret.report.entries[0]) == case_count

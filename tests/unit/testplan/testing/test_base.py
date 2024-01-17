@@ -61,22 +61,6 @@ class MyRunner(LocalRunner):  # Start is async
     def uid(self):
         return self.name or super(MyRunner, self).uid()
 
-    def _execute(self, uid):
-        runnable = self._input[uid]
-        assert isinstance(runnable, Runnable)
-
-        if not runnable.parent:
-            runnable.parent = self
-        if not runnable.cfg.parent:
-            runnable.cfg.parent = self.cfg
-
-        runnable.run()
-        self._results[uid] = runnable.result
-        assert isinstance(self._results[uid], TestResult)
-
-    def aborting(self):
-        pass
-
 
 def test_time_information():
     """TODO."""

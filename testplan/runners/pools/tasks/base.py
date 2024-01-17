@@ -335,25 +335,6 @@ class TaskResult(SelectiveSerializable):
         return "TaskResult[{}, {}]".format(self.status, self.reason)
 
 
-class RunnableTaskAdaptor:
-    """Minimal callable to runnable task adaptor."""
-
-    __slots__ = ("_target", "_args", "_kwargs")
-
-    def __init__(self, target, *args, **kwargs):
-        self._target = target
-        self._args = args
-        self._kwargs = kwargs
-
-    def run(self):
-        """Provide mandatory .run() task method."""
-        return self._target(*self._args, **self._kwargs)
-
-    def uid(self):
-        """Provide mandatory .uid() task method."""
-        return strings.uuid4()
-
-
 @dataclass
 class TaskTargetInformation:
     target_params: Sequence[Union[Sequence, dict]]

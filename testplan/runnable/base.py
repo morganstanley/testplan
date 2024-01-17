@@ -29,6 +29,7 @@ from schema import And, Or, Use
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
+    Resource,
     Runnable,
     RunnableConfig,
     RunnableResult,
@@ -44,6 +45,8 @@ from testplan.monitor.resource import (
 from testplan.common.utils import logger, strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
+from testplan.common.utils.selector import Expr as SExpr
+from testplan.common.utils.selector import apply_single
 from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
@@ -64,9 +67,8 @@ from testplan.runners.pools.tasks.base import (
     get_task_target_information,
     is_task_target,
 )
-from testplan.testing import filtering, listing, ordering, tagging
+from testplan.testing import common, filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
-from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
 
@@ -231,6 +233,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "plan_runtime_target", default=defaults.PLAN_RUNTIME_TARGET
             ): Or(int, float),
+            ConfigOption(
+                "skip_strategy", default=common.SkipStrategy.noop()
+            ): Use(common.SkipStrategy.from_option_or_none),
         }
 
 
@@ -491,25 +496,25 @@ class TestRunner(Runnable):
         return env_uid
 
     def add_resource(
-        self, resource: Executor, uid: Optional[str] = None
+        self, resource: Resource, uid: Optional[str] = None
     ) -> str:
         """
         Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
 
         :param resource: Test executor to be added.
-        :type resource: Subclass of :py:class:`~testplan.runners.base.Executor`
-        :param uid: Optional input resource uid.
-        :type uid: ``str`` or ``NoneType``
+        :param uid: Optional input resource uid. We now force its equality with
+            resource's own uid.
         :return: Resource uid assigned.
-        :rtype:  ``str``
         """
-        # NOTE: expose the config to the executors
         resource.parent = self
         resource.cfg.parent = self.cfg
-        return self.resources.add(
-            resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
-        )
+        if uid and uid != resource.uid():
+            raise ValueError(
+                f"Unexpected uid value ``{uid}`` received, mismatched with "
+                f"Resource uid ``{resource.uid()}``"
+            )
+        return self.resources.add(resource, uid=uid)
 
     def add_exporters(self, exporters: List[Exporter]):
         """
@@ -901,7 +906,6 @@ class TestRunner(Runnable):
         if isinstance(target, Test):
             target_test = target
         elif isinstance(target, Task):
-
             # First check if there is a cached task info
             # that is an optimization flow where task info
             # need to be created at discover, but the already defined api
@@ -920,6 +924,7 @@ class TestRunner(Runnable):
                 "Unrecognized test target of type {}".format(type(target))
             )
 
+        # TODO: include executor in ancestor chain?
         if isinstance(target_test, Runnable):
             target_test.parent = self
             target_test.cfg.parent = self.cfg
@@ -1125,7 +1130,7 @@ class TestRunner(Runnable):
             if not resource_result:
                 continue
             elif isinstance(resource_result, TaskResult):
-                if resource_result.status is False:
+                if resource_result.result is None:
                     test_results[uid] = result_for_failed_task(resource_result)
                 else:
                     test_results[uid] = resource_result.result
@@ -1251,8 +1256,10 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.name = TEST_PART_PATTERN_FORMAT_STRING.format(
-                        report.name, report.part[0], report.part[1]
+                    report.name = (
+                        common.TEST_PART_PATTERN_FORMAT_STRING.format(
+                            report.name, report.part[0], report.part[1]
+                        )
                     )
                     report.uid = strings.uuid4()  # considered as error report
                     self._result.test_report.append(report)
@@ -1344,6 +1351,16 @@ class TestRunner(Runnable):
                     "No reports opened, could not find "
                     "an exported result to browse"
                 )
+
+    def discard_pending_tasks(
+        self,
+        exec_selector: SExpr,
+        report_status: Status = Status.NONE,
+        report_reason: str = "",
+    ):
+        for k, v in self.resources.items():
+            if isinstance(v, Executor) and apply_single(exec_selector, k):
+                v.discard_pending_tasks(report_status, report_reason)
 
     def abort_dependencies(self):
         """
