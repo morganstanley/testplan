@@ -9,7 +9,7 @@ import testplan
 from testplan.common import entity
 from testplan.common.utils import timing
 from testplan.exporters.testing import XMLExporter
-from testplan.report import Status, RuntimeStatus
+from testplan.report import RuntimeStatus, Status
 from testplan.testing import multitest
 from testplan.testing.multitest import driver
 from tests.functional.testplan.runnable.interactive.interactive_helper import (
@@ -602,18 +602,50 @@ EXPECTED_INITIAL_GET = [
 
 # Expected results of testcases.
 EXPECTED_TESTCASE_RESULTS = [
-    ("test_passes", Status.PASSED, RuntimeStatus.FINISHED),
-    ("test_fails", Status.FAILED, RuntimeStatus.FINISHED),
-    ("test_logs", Status.PASSED, RuntimeStatus.FINISHED),
-    ("test_attach", Status.PASSED, RuntimeStatus.FINISHED),
-    ("test_parametrized", Status.PASSED, RuntimeStatus.FINISHED),
+    (
+        "test_passes",
+        Status.PASSED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
+    (
+        "test_fails",
+        Status.FAILED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
+    (
+        "test_logs",
+        Status.PASSED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
+    (
+        "test_attach",
+        Status.PASSED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
+    (
+        "test_parametrized",
+        Status.PASSED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
 ]
 
 # Expected results of parametrized testcases.
 EXPECTED_PARAM_TESTCASE_RESULTS = [
-    ("test_parametrized__val_1", Status.PASSED, RuntimeStatus.FINISHED),
-    ("test_parametrized__val_2", Status.PASSED, RuntimeStatus.FINISHED),
-    ("test_parametrized__val_3", Status.PASSED, RuntimeStatus.FINISHED),
+    (
+        "test_parametrized__val_1",
+        Status.PASSED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
+    (
+        "test_parametrized__val_2",
+        Status.PASSED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
+    (
+        "test_parametrized__val_3",
+        Status.PASSED.to_json_compatible(),
+        RuntimeStatus.FINISHED.to_json_compatible(),
+    ),
 ]
 
 
@@ -709,13 +741,16 @@ def test_run_all_tests(plan):
 
     # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
-    report_json["runtime_status"] = RuntimeStatus.RUNNING
+    report_json["runtime_status"] = RuntimeStatus.RUNNING.to_json_compatible()
     rsp = requests.put(report_url, json=report_json)
     assert rsp.status_code == 200
 
     updated_json = rsp.json()
     assert updated_json["hash"] != last_hash
-    assert updated_json["runtime_status"] == RuntimeStatus.WAITING
+    assert (
+        updated_json["runtime_status"]
+        == RuntimeStatus.WAITING.to_json_compatible()
+    )
     test_api.compare_json(
         updated_json, report_json, ignored_keys=["runtime_status"]
     )
@@ -724,8 +759,8 @@ def test_run_all_tests(plan):
         functools.partial(
             _check_test_status,
             report_url,
-            Status.FAILED,
-            RuntimeStatus.FINISHED,
+            Status.FAILED.to_json_compatible(),
+            RuntimeStatus.FINISHED.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -752,12 +787,15 @@ def test_run_and_reset_mtest(plan):
 
     # Trigger multitest to run by updating the report status to RUNNING
     # and PUTting back the data.
-    mtest_json["runtime_status"] = RuntimeStatus.RUNNING
+    mtest_json["runtime_status"] = RuntimeStatus.RUNNING.to_json_compatible()
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
     assert updated_json["hash"] != mtest_json["hash"]
-    assert updated_json["runtime_status"] == RuntimeStatus.WAITING
+    assert (
+        updated_json["runtime_status"]
+        == RuntimeStatus.WAITING.to_json_compatible()
+    )
     test_api.compare_json(
         updated_json, mtest_json, ignored_keys=["runtime_status"]
     )
@@ -766,8 +804,8 @@ def test_run_and_reset_mtest(plan):
         functools.partial(
             _check_test_status,
             mtest_url,
-            Status.FAILED,
-            RuntimeStatus.FINISHED,
+            Status.FAILED.to_json_compatible(),
+            RuntimeStatus.FINISHED.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -782,12 +820,15 @@ def test_run_and_reset_mtest(plan):
 
     # Trigger multitest to run by updating the report status to RESETTING
     # and PUTting back the data.
-    mtest_json["runtime_status"] = RuntimeStatus.RESETTING
+    mtest_json["runtime_status"] = RuntimeStatus.RESETTING.to_json_compatible()
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
     assert updated_json["hash"] != mtest_json["hash"]
-    assert updated_json["runtime_status"] == RuntimeStatus.WAITING
+    assert (
+        updated_json["runtime_status"]
+        == RuntimeStatus.WAITING.to_json_compatible()
+    )
     test_api.compare_json(
         updated_json, mtest_json, ignored_keys=["runtime_status", "env_status"]
     )
@@ -796,8 +837,8 @@ def test_run_and_reset_mtest(plan):
         functools.partial(
             _check_test_status,
             mtest_url,
-            Status.UNKNOWN,
-            RuntimeStatus.READY,
+            Status.UNKNOWN.to_json_compatible(),
+            RuntimeStatus.READY.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -808,7 +849,10 @@ def test_run_and_reset_mtest(plan):
     rsp = requests.get(mtest_url)
     assert rsp.status_code == 200
     mtest_json = rsp.json()
-    assert mtest_json["runtime_status"] == RuntimeStatus.READY
+    assert (
+        mtest_json["runtime_status"]
+        == RuntimeStatus.READY.to_json_compatible()
+    )
     assert mtest_json["env_status"] == entity.ResourceStatus.STOPPED
 
 
@@ -827,12 +871,15 @@ def test_run_suite(plan):
 
     # Trigger test suite to run by updating the report status to RUNNING
     # and PUTting back the data.
-    suite_json["runtime_status"] = RuntimeStatus.RUNNING
+    suite_json["runtime_status"] = RuntimeStatus.RUNNING.to_json_compatible()
     rsp = requests.put(suite_url, json=suite_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
     assert updated_json["hash"] != suite_json["hash"]
-    assert updated_json["runtime_status"] == RuntimeStatus.WAITING
+    assert (
+        updated_json["runtime_status"]
+        == RuntimeStatus.WAITING.to_json_compatible()
+    )
     test_api.compare_json(
         updated_json, suite_json, ignored_keys=["runtime_status"]
     )
@@ -841,8 +888,8 @@ def test_run_suite(plan):
         functools.partial(
             _check_test_status,
             suite_url,
-            Status.FAILED,
-            RuntimeStatus.FINISHED,
+            Status.FAILED.to_json_compatible(),
+            RuntimeStatus.FINISHED.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -874,14 +921,19 @@ def test_run_testcase(plan):
 
         # Trigger testcase to run by updating the report status to RUNNING
         # and PUTting back the data.
-        testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+        testcase_json[
+            "runtime_status"
+        ] = RuntimeStatus.RUNNING.to_json_compatible()
         if "entries" in testcase_json:
             del testcase_json["entries"]
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
         assert updated_json["hash"] != testcase_json["hash"]
-        assert updated_json["runtime_status"] == RuntimeStatus.WAITING
+        assert (
+            updated_json["runtime_status"]
+            == RuntimeStatus.WAITING.to_json_compatible()
+        )
         test_api.compare_json(
             updated_json, testcase_json, ignored_keys=["runtime_status"]
         )
@@ -922,12 +974,17 @@ def test_run_param_testcase(plan):
 
         # Trigger testcase to run by updating the report status to RUNNING
         # and PUTting back the data.
-        testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+        testcase_json[
+            "runtime_status"
+        ] = RuntimeStatus.RUNNING.to_json_compatible()
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
         assert updated_json["hash"] != testcase_json["hash"]
-        assert updated_json["runtime_status"] == RuntimeStatus.WAITING
+        assert (
+            updated_json["runtime_status"]
+            == RuntimeStatus.WAITING.to_json_compatible()
+        )
         test_api.compare_json(
             updated_json, testcase_json, ignored_keys=["runtime_status"]
         )
@@ -1025,12 +1082,15 @@ def test_cannot_run_mtest(plan2):
 
     # Trigger multitest to run by updating the report status to RUNNING
     # and PUTting back the data.
-    mtest_json["runtime_status"] = RuntimeStatus.RUNNING
+    mtest_json["runtime_status"] = RuntimeStatus.RUNNING.to_json_compatible()
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
     assert updated_json["hash"] != mtest_json["hash"]
-    assert updated_json["runtime_status"] == RuntimeStatus.WAITING
+    assert (
+        updated_json["runtime_status"]
+        == RuntimeStatus.WAITING.to_json_compatible()
+    )
     test_api.compare_json(
         updated_json, mtest_json, ignored_keys=["runtime_status"]
     )
@@ -1039,8 +1099,8 @@ def test_cannot_run_mtest(plan2):
         functools.partial(
             _check_test_status,
             mtest_url,
-            Status.ERROR,
-            RuntimeStatus.NOT_RUN,
+            Status.ERROR.to_json_compatible(),
+            RuntimeStatus.NOT_RUN.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -1085,7 +1145,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+        testcase_json[
+            "runtime_status"
+        ] = RuntimeStatus.RUNNING.to_json_compatible()
         if "entries" in testcase_json:
             del testcase_json["entries"]
         rsp = requests.put(testcase_url, json=testcase_json)
@@ -1111,7 +1173,9 @@ def test_run_testcases_sequentially(plan3):
     rsp = requests.get(testcase_url)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
-    testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+    testcase_json[
+        "runtime_status"
+    ] = RuntimeStatus.RUNNING.to_json_compatible()
     rsp = requests.put(testcase_url, json=testcase_json)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
@@ -1130,7 +1194,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+        testcase_json[
+            "runtime_status"
+        ] = RuntimeStatus.RUNNING.to_json_compatible()
         if "entries" in testcase_json:
             del testcase_json["entries"]
         rsp = requests.put(testcase_url, json=testcase_json)
@@ -1160,7 +1226,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+        testcase_json[
+            "runtime_status"
+        ] = RuntimeStatus.RUNNING.to_json_compatible()
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
@@ -1188,7 +1256,9 @@ def test_run_testcases_sequentially(plan3):
     rsp = requests.get(testcase_url)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
-    testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+    testcase_json[
+        "runtime_status"
+    ] = RuntimeStatus.RUNNING.to_json_compatible()
     rsp = requests.put(testcase_url, json=testcase_json)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
@@ -1207,7 +1277,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json["runtime_status"] = RuntimeStatus.RUNNING
+        testcase_json[
+            "runtime_status"
+        ] = RuntimeStatus.RUNNING.to_json_compatible()
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
@@ -1230,7 +1302,7 @@ def test_run_testcases_sequentially(plan3):
     rsp = requests.get(suite_url.format(port))
     assert rsp.status_code == 200
     suite_json = rsp.json()
-    suite_json["runtime_status"] = RuntimeStatus.RUNNING
+    suite_json["runtime_status"] = RuntimeStatus.RUNNING.to_json_compatible()
     rsp = requests.put(suite_url, json=suite_json)
     assert rsp.status_code == 200
     suite_json = rsp.json()
@@ -1278,9 +1350,9 @@ def _check_test_status(
     report_json = rsp.json()
 
     if report_json["runtime_status"] in (
-        RuntimeStatus.RUNNING,
-        RuntimeStatus.RESETTING,
-        RuntimeStatus.WAITING,
+        RuntimeStatus.RUNNING.to_json_compatible(),
+        RuntimeStatus.RESETTING.to_json_compatible(),
+        RuntimeStatus.WAITING.to_json_compatible(),
     ):
         # when running a test entity, the whole test report can be reset by
         # `dry_run` and `runtime_status` is changed to "ready".

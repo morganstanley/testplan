@@ -45,8 +45,8 @@ def format_status(report_status: Status) -> str:
     erroneous tests will be displayed as failed.
     """
     if report_status in (Status.FAILED, Status.ERROR):
-        return Status.FAILED.title()
-    return report_status.title()
+        return Status.FAILED.name.title()
+    return report_status.name.title()
 
 
 @registry.bind(TestReport)

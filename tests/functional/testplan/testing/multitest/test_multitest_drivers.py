@@ -12,6 +12,7 @@ from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.timing import TimeoutException
+from testplan.testing.common import SkipStrategy
 from testplan.testing.filtering import Filter
 from testplan.testing.multitest import MultiTest, testcase, testsuite
 from testplan.testing.multitest.base import RuntimeEnvironment

@@ -10,9 +10,9 @@ The logging facility is used for:
     - Test progress information (e.g. Pass / Fail status)
     - Exporter statuses
 """
+import logging
 import os
 import sys
-import logging
 
 from testplan.common.utils.strings import Color, uuid4
 from testplan.report import Status
@@ -74,16 +74,22 @@ class TestplanLogger(logging.Logger):
         """Log 'msg % args' with severity 'USER_INFO'"""
         self._custom_log(USER_INFO, msg, *args, **kwargs)
 
-    def log_test_status(self, name, status, indent=0, level=USER_INFO):
+    def log_test_status(
+        self,
+        name: str,
+        status: Status,
+        indent: int = 0,
+        level: int = USER_INFO,
+    ):
         """Shortcut to log a pass/fail status for a test."""
-        if Status.STATUS_CATEGORY[status] == Status.PASSED:
-            pass_label = Color.green(status.title())
-        elif Status.STATUS_CATEGORY[status] in [Status.FAILED, Status.ERROR]:
-            pass_label = Color.red(status.title())
-        elif Status.STATUS_CATEGORY[status] == Status.UNSTABLE:
-            pass_label = Color.yellow(status.title())
+        if status.normalised() == Status.PASSED:
+            pass_label = Color.green(status.name.title())
+        elif status <= Status.FAILED:
+            pass_label = Color.red(status.name.title())
+        elif status.normalised() == Status.UNSTABLE:
+            pass_label = Color.yellow(status.name.title())
         else:  # unknown
-            pass_label = status
+            pass_label = status.name.title()
 
         indent_str = indent * " "
         msg = self._TEST_STATUS_FORMAT

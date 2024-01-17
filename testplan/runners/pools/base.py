@@ -7,20 +7,21 @@ import queue
 import threading
 import time
 import traceback
-from typing import Optional, Tuple, List, Dict, Union, Type, Generator
+from typing import Dict, Generator, List, Optional, Tuple, Type, Union
 
 from schema import And, Or
 
-from testplan.testing.base import Test, TestResult
 from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.report.base import EventRecorder
-from testplan.common.utils import strings
+from testplan.common.utils import selector, strings
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.report import ReportCategories
-from testplan.report.testing.base import TestGroupReport
+from testplan.report.testing.base import Status, TestGroupReport
 from testplan.runners.base import Executor, ExecutorConfig
+from testplan.testing.base import Test, TestResult
+
 from .communication import Message
 from .connection import QueueClient, QueueServer
 from .tasks import Task, TaskResult
@@ -95,6 +96,7 @@ class WorkerBase(entity.Resource):
         self.event_recorder = EventRecorder(
             name=str(self), event_type="Worker"
         )
+        self._discard_running = threading.Event()
 
     @property
     def host(self) -> str:
@@ -152,6 +154,9 @@ class WorkerBase(entity.Resource):
         """Rebase the path of task from local to remote"""
         pass
 
+    def discard_running_tasks(self):
+        self._discard_running.set()
+
     def __str__(self):
         return f"{self.__class__.__name__}[{self.cfg.index}]"
 
@@ -161,9 +166,13 @@ class Worker(WorkerBase):
     Worker that runs a thread and pull tasks from transport
     """
 
+    _STOP_TIMEOUT = 10
+
     def __init__(self, **options) -> None:
         super().__init__(**options)
         self._handler = None
+        self._curr_runnable_lock = threading.Lock()
+        self._curr_runnable = None
 
     @property
     def handler(self):
@@ -181,12 +190,15 @@ class Worker(WorkerBase):
     def stopping(self) -> None:
         """Stops the worker."""
         if self._handler:
-            interruptible_join(self._handler)
+            interruptible_join(self._handler, self._STOP_TIMEOUT)
         self._handler = None
 
     def aborting(self) -> None:
         """Aborting logic, will not wait running tasks."""
         self._transport.disconnect()
+        # NOTE: set to None to skip gracefully waiting till stop logic,
+        # NOTE: it would be killed when process exits
+        self._handler = None
 
     def _wait_started(self, timeout: int = None) -> None:
         """Ready to communicate with pool."""
@@ -213,11 +225,22 @@ class Worker(WorkerBase):
             elif received.cmd == Message.TaskSending:
                 results = []
                 for item in received.data:
-                    results.append(self.execute(item))
-                transport.send_and_receive(
+                    if self._discard_running.is_set():
+                        break
+
+                    task_result = self.execute(item)
+                    if not self._discard_running.is_set():
+                        results.append(task_result)
+                    if self.cfg.skip_strategy.should_skip_rest_tests(
+                        task_result.result.report.status
+                    ):
+                        break
+                received_ = transport.send_and_receive(
                     message.make(message.TaskResults, data=results),
-                    expect=message.Ack,
+                    expect=(message.Ack, message.Stop),
                 )
+                if received_.cmd == Message.Stop:
+                    break
             elif received.cmd == Message.Ack:
                 pass
             time.sleep(self.cfg.active_loop_sleep)
@@ -230,15 +253,18 @@ class Worker(WorkerBase):
         :return: Task result.
         """
         try:
-            runnable: Test = task.materialize()
+            with self._curr_runnable_lock:
+                runnable: Test = task.materialize()
 
-            if isinstance(runnable, entity.Runnable):
-                if not runnable.parent:
-                    runnable.parent = self
-                if not runnable.cfg.parent:
-                    runnable.cfg.parent = self.cfg
-
+                if isinstance(runnable, entity.Runnable):
+                    if not runnable.parent:
+                        runnable.parent = self
+                    if not runnable.cfg.parent:
+                        runnable.cfg.parent = self.cfg
+                self._curr_runnable = runnable
             result: TestResult = runnable.run()
+            with self._curr_runnable_lock:
+                self._curr_runnable = None
 
         except BaseException:
             task_result = TaskResult(
@@ -251,6 +277,12 @@ class Worker(WorkerBase):
             task_result = TaskResult(task=task, result=result, status=True)
 
         return task_result
+
+    def discard_running_tasks(self):
+        super().discard_running_tasks()
+        with self._curr_runnable_lock:
+            if self._curr_runnable is not None:
+                self._curr_runnable.abort()
 
 
 class PoolConfig(ExecutorConfig):
@@ -322,7 +354,6 @@ class Pool(Executor):
         self._task_retries_cnt = {}  # uid: times_reassigned_without_result
         self._task_retries_limit = 2
         self._workers = entity.Environment(parent=self)
-        self._workers_last_result = {}
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
         self._pool_lock = threading.Lock()
@@ -337,9 +368,17 @@ class Pool(Executor):
             Message.ConfigRequest: self._handle_cfg_request,
             Message.TaskPullRequest: self._handle_taskpull_request,
             Message.TaskResults: self._handle_taskresults,
+            # process & remote only
             Message.Heartbeat: self._handle_heartbeat,
             Message.SetupFailed: self._handle_setupfailed,
         }
+        # for skip-remaining feature
+        # like LocalRunner, ``_loop`` & ``discard_pending_tasks`` will be
+        # triggered in different threads
+        # NOTE: pool operations should all take little time, to narrow down
+        # NOTE: the critical section would be rather meaningless
+        self._discard_pending_lock = threading.RLock()
+        self._discard_pending = False
 
     def uid(self) -> str:
         """Pool name."""
@@ -361,6 +400,7 @@ class Pool(Executor):
         :param task: Task to be scheduled to workers
         :param uid: Task uid
         """
+        # FIXME: signature mismatch with ``Executor.add``
         if not isinstance(task, Task):
             raise ValueError(f"Task was expected, got {type(task)} instead.")
         super(Pool, self).add(task, uid)
@@ -445,7 +485,10 @@ class Pool(Executor):
             worker.respond(response.make(Message.Stop))
         elif request.cmd in self._request_handlers:
             try:
-                self._request_handlers[request.cmd](worker, request, response)
+                with self._discard_pending_lock:
+                    self._request_handlers[request.cmd](
+                        worker, request, response
+                    )
             except Exception:
                 self.logger.error(traceback.format_exc())
                 self.logger.debug(
@@ -539,9 +582,16 @@ class Pool(Executor):
         self, worker: Worker, request: Message, response: Message
     ) -> None:
         """Handle a TaskResults message from a worker."""
+        worker.respond(response.make(Message.Ack))
+
+        if self._discard_pending:
+            # real clean up done in ``discard_pending_tasks``
+            return
 
         def task_should_rerun():
             if not self.cfg.allow_task_rerun:
+                return False
+            if self.cfg.skip_strategy:
                 return False
             if not task_result.task:
                 return False
@@ -570,17 +620,18 @@ class Pool(Executor):
 
             return True
 
-        worker.respond(response.make(Message.Ack))
+        agg_report_status = Status.NONE
         for task_result in request.data:
             uid = task_result.task.uid()
             worker.assigned.remove(uid)
-            self._workers_last_result.setdefault(worker, time.time())
             self.logger.user_info(
                 "De-assign %s from %s", task_result.task, worker
             )
-            if isinstance(task_result.result, TestResult):
-                report: TestGroupReport = task_result.result.report
-                report.host = worker.host
+            report: TestGroupReport = task_result.result.report
+            report.host = worker.host
+            agg_report_status = Status.precedent(
+                [agg_report_status, report.status]
+            )
             worker.rebase_attachment(task_result.result)
 
             if task_should_rerun():
@@ -603,6 +654,13 @@ class Pool(Executor):
             self._results[uid] = task_result
             self.ongoing.remove(uid)
 
+        if self.cfg.skip_strategy.should_skip_rest_tests(agg_report_status):
+            self.bubble_up_discard_tasks(
+                selector.Not(selector.Eq(self.uid())),
+                report_reason="per skip strategy",
+            )
+            self.discard_pending_tasks(report_reason="per skip strategy")
+
     def _handle_heartbeat(
         self, worker: Worker, request: Message, response: Message
     ) -> None:
@@ -614,7 +672,16 @@ class Pool(Executor):
             request.data,
             time.time() - request.data,
         )
-        worker.respond(response.make(Message.Ack, data=worker.last_heartbeat))
+        if self._discard_pending:
+            worker.respond(
+                response.make(
+                    Message.DiscardPending, data=worker.last_heartbeat
+                )
+            )
+        else:
+            worker.respond(
+                response.make(Message.Ack, data=worker.last_heartbeat)
+            )
 
     def _handle_setupfailed(
         self, worker: Worker, request: Message, response: Message
@@ -810,17 +877,50 @@ class Pool(Executor):
         )
         self.ongoing.remove(uid)
 
-    def _discard_pending_tasks(self):
-        self.logger.critical("Discard pending tasks of %s", self)
-        while self.ongoing:
-            uid = self.ongoing[0]
-            task = self._input[uid]
-            self._results[uid] = TaskResult(
-                task=self._input[uid],
-                status=False,
-                reason=f"{task} discarding due to {self} abort",
-            )
-            self.ongoing.pop(0)
+    def discard_pending_tasks(
+        self, report_status: Status = Status.NONE, report_reason: str = ""
+    ):
+        with self._discard_pending_lock:
+            self._discard_pending = True
+
+            for w in self._workers:
+                w: WorkerBase
+                # do real discard
+                w.discard_running_tasks()
+
+            self.logger.warning("Discard pending tasks of %s.", self)
+            while self.ongoing:
+                uid = self.ongoing[0]
+                task = self._input[uid]
+                if report_status:
+                    reason = (
+                        f"{task} discarded"
+                        + (" " + report_reason if report_reason else "")
+                        + "."
+                    )
+                    result = TestResult()
+                    result.report = TestGroupReport(
+                        name=str(task), category=ReportCategories.ERROR
+                    )
+                    result_lines = [
+                        "{}: {}".format(attr, getattr(task, attr, None) or "")
+                        for attr in task.serializable_attrs
+                    ]
+                    result.report.logger.error(os.linesep.join(result_lines))
+                    result.report.logger.error(reason)
+                    result.report.status_override = report_status
+                    self._results[uid] = TaskResult(
+                        task=self._input[uid],
+                        status=False,
+                        reason=reason,
+                        result=result,
+                    )
+                if report_reason:
+                    self.logger.warning(
+                        "Discarding %s %s.", task, report_reason
+                    )
+                self.ongoing.pop(0)
+            self.unassigned = TaskQueue()
 
     def _append_temporary_task_result(self, task_result: TaskResult) -> None:
         """If a task should rerun, append the task result already fetched."""
@@ -833,7 +933,7 @@ class Pool(Executor):
         test_report.name = f"{test_report.name}{postfix}"
         test_report.uid = f"{test_report.uid}{postfix}"
         test_report.category = ReportCategories.TASK_RERUN
-        test_report.status_override = "xfail"
+        test_report.status_override = Status.XFAIL
         new_uuid = strings.uuid4()
         self._results[new_uuid] = task_result
         self.parent._tests[new_uuid] = self.cfg.name
@@ -882,7 +982,6 @@ class Pool(Executor):
 
     def starting(self) -> None:
         """Starting the pool and workers."""
-        # TODO do we need a lock here?
         self.make_runpath_dirs()
         if self.runpath is None:
             raise RuntimeError("runpath was not set correctly")
@@ -927,7 +1026,6 @@ class Pool(Executor):
         self._conn.stop()
 
     def abort_dependencies(self) -> Generator:
-        """Empty generator to override parent implementation."""
         return
         yield
 
@@ -940,7 +1038,9 @@ class Pool(Executor):
         super(Pool, self).stopping()  # stop the loop and the monitor
 
         self._conn.abort()
-        self._discard_pending_tasks()
+        self.discard_pending_tasks(
+            report_status=Status.ERROR, report_reason=f"due to {self} aborted"
+        )
 
     def record_execution(self, uid) -> None:
         self._executed_tests.append(uid)

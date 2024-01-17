@@ -258,10 +258,10 @@ class Testplan(entity.RunnableManager):
         )
 
         # By default, a LocalRunner is added to store and execute the tests.
-        self._runnable.add_resource(LocalRunner(), uid="local_runner")
+        self._runnable.add_resource(LocalRunner())
 
         # Stores independent environments.
-        self._runnable.add_resource(Environments(), uid="environments")
+        self._runnable.add_resource(Environments())
 
     @property
     def parser(self):

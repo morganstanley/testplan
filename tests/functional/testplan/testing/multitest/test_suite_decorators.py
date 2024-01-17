@@ -83,7 +83,7 @@ class Suite2:
     def case5(self, env, result):
         result.equal(1, 2)
 
-    # case5 is ERROR instead of FAILED, case6 won't be recorded
+    # case5 is ERROR, case6 should be made unreachable below
     @skip_if(lambda testsuite: True)
     @testcase
     def case6(self, env, result):
@@ -112,7 +112,9 @@ class Suite3:
 def test_basic_multitest(mockplan):
     """Basic test for suite decorator."""
     mtest = MultiTest(
-        name="MTest", suites=[Suite1(), Suite2(0), Suite2(1), Suite3()]
+        name="MTest",
+        suites=[Suite1(), Suite2(0), Suite2(1), Suite3()],
+        skip_strategy="cases-on-error",  # due to ``stop_on_error`` "default" flipped
     )
     mockplan.add(mtest)
     res = mockplan.run()
