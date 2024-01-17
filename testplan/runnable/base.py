@@ -29,6 +29,7 @@ from schema import And, Or, Use
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
+    Resource,
     Runnable,
     RunnableConfig,
     RunnableResult,
@@ -37,9 +38,15 @@ from testplan.common.entity import (
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
 from testplan.common.remote.remote_service import RemoteService
 from testplan.common.report import MergeError
+from testplan.monitor.resource import (
+    ResourceMonitorServer,
+    ResourceMonitorClient,
+)
 from testplan.common.utils import logger, strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
+from testplan.common.utils.selector import Expr as SExpr
+from testplan.common.utils.selector import apply_single
 from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
@@ -60,9 +67,8 @@ from testplan.runners.pools.tasks.base import (
     get_task_target_information,
     is_task_target,
 )
-from testplan.testing import filtering, listing, ordering, tagging
+from testplan.testing import common, filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
-from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
 
@@ -214,6 +220,7 @@ class TestRunnerConfig(RunnableConfig):
                 None,
             ),
             ConfigOption("tracing_tests_output", default="-"): str,
+            ConfigOption("resource_monitor", default=False): bool,
             ConfigOption("reporting_filter", default=None): Or(
                 And(str, Use(ReportingFilter.parse)), None
             ),
@@ -226,6 +233,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "plan_runtime_target", default=defaults.PLAN_RUNTIME_TARGET
             ): Or(int, float),
+            ConfigOption(
+                "skip_strategy", default=common.SkipStrategy.noop()
+            ): Use(common.SkipStrategy.from_option_or_none),
         }
 
 
@@ -397,6 +407,9 @@ class TestRunner(Runnable):
         self.define_runpath()
         self._runnable_uids = set()
         self._verified_targets = {}  # target object id -> runnable uid
+        self.resource_monitor_server: Optional[ResourceMonitorServer] = None
+        self.resource_monitor_server_file_path: Optional[str] = None
+        self.resource_monitor_client: Optional[ResourceMonitorClient] = None
 
     def __str__(self):
         return f"Testplan[{self.uid()}]"
@@ -483,25 +496,25 @@ class TestRunner(Runnable):
         return env_uid
 
     def add_resource(
-        self, resource: Executor, uid: Optional[str] = None
+        self, resource: Resource, uid: Optional[str] = None
     ) -> str:
         """
         Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
 
         :param resource: Test executor to be added.
-        :type resource: Subclass of :py:class:`~testplan.runners.base.Executor`
-        :param uid: Optional input resource uid.
-        :type uid: ``str`` or ``NoneType``
+        :param uid: Optional input resource uid. We now force its equality with
+            resource's own uid.
         :return: Resource uid assigned.
-        :rtype:  ``str``
         """
-        # NOTE: expose the config to the executors
         resource.parent = self
         resource.cfg.parent = self.cfg
-        return self.resources.add(
-            resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
-        )
+        if uid and uid != resource.uid():
+            raise ValueError(
+                f"Unexpected uid value ``{uid}`` received, mismatched with "
+                f"Resource uid ``{resource.uid()}``"
+            )
+        return self.resources.add(resource, uid=uid)
 
     def add_exporters(self, exporters: List[Exporter]):
         """
@@ -893,7 +906,6 @@ class TestRunner(Runnable):
         if isinstance(target, Test):
             target_test = target
         elif isinstance(target, Task):
-
             # First check if there is a cached task info
             # that is an optimization flow where task info
             # need to be created at discover, but the already defined api
@@ -912,6 +924,7 @@ class TestRunner(Runnable):
                 "Unrecognized test target of type {}".format(type(target))
             )
 
+        # TODO: include executor in ancestor chain?
         if isinstance(target_test, Runnable):
             target_test.parent = self
             target_test.cfg.parent = self.cfg
@@ -998,6 +1011,34 @@ class TestRunner(Runnable):
         ) as fp:
             pass
 
+        if self.cfg.resource_monitor:
+            self.resource_monitor_server_file_path = os.path.join(
+                self.scratch, "resource_monitor"
+            )
+            makedirs(self.resource_monitor_server_file_path)
+
+    def start_resource_monitor(self):
+        """Start resource monitor server and client"""
+        if self.cfg.resource_monitor:
+            self.resource_monitor_server = ResourceMonitorServer(
+                self.resource_monitor_server_file_path,
+                debug=self.cfg.logger_level == logger.DEBUG,
+            )
+            self.resource_monitor_server.start()
+            self.resource_monitor_client = ResourceMonitorClient(
+                self.resource_monitor_server.address
+            )
+            self.resource_monitor_client.start()
+
+    def stop_resource_monitor(self):
+        """Stop resource monitor server and client"""
+        if self.resource_monitor_client:
+            self.resource_monitor_client.stop()
+            self.resource_monitor_client = None
+        if self.resource_monitor_server:
+            self.resource_monitor_server.stop()
+            self.resource_monitor_server = None
+
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before resources started."""
         super(TestRunner, self).add_pre_resource_steps()
@@ -1005,6 +1046,7 @@ class TestRunner(Runnable):
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
         self._add_step(self.calculate_pool_size)
+        self._add_step(self.start_resource_monitor)
 
     def add_main_batch_steps(self):
         """Runnable steps to be executed while resources are running."""
@@ -1021,6 +1063,7 @@ class TestRunner(Runnable):
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
         super(TestRunner, self).add_post_resource_steps()
+        self._add_step(self.stop_resource_monitor)
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
@@ -1087,7 +1130,7 @@ class TestRunner(Runnable):
             if not resource_result:
                 continue
             elif isinstance(resource_result, TaskResult):
-                if resource_result.status is False:
+                if resource_result.result is None:
                     test_results[uid] = result_for_failed_task(resource_result)
                 else:
                     test_results[uid] = resource_result.result
@@ -1213,8 +1256,10 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.name = TEST_PART_PATTERN_FORMAT_STRING.format(
-                        report.name, report.part[0], report.part[1]
+                    report.name = (
+                        common.TEST_PART_PATTERN_FORMAT_STRING.format(
+                            report.name, report.part[0], report.part[1]
+                        )
                     )
                     report.uid = strings.uuid4()  # considered as error report
                     self._result.test_report.append(report)
@@ -1307,6 +1352,16 @@ class TestRunner(Runnable):
                     "an exported result to browse"
                 )
 
+    def discard_pending_tasks(
+        self,
+        exec_selector: SExpr,
+        report_status: Status = Status.NONE,
+        report_reason: str = "",
+    ):
+        for k, v in self.resources.items():
+            if isinstance(v, Executor) and apply_single(exec_selector, k):
+                v.discard_pending_tasks(report_status, report_reason)
+
     def abort_dependencies(self):
         """
         Yield all dependencies to be aborted before self abort.
@@ -1319,6 +1374,7 @@ class TestRunner(Runnable):
         """Stop the web server if it is running."""
         if self._web_server_thread is not None:
             self._web_server_thread.stop()
+        self.stop_resource_monitor()
         self._close_file_logger()
 
     def _configure_stdout_logger(self):

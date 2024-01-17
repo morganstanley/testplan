@@ -47,7 +47,9 @@ import platform
 import sys
 import traceback
 from collections import Counter
-from typing import Callable, Optional, Dict
+from enum import Enum, auto
+from functools import reduce, total_ordering
+from typing import Callable, Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -57,30 +59,24 @@ from testplan.common.utils import timing
 from testplan.testing import tagging
 
 
-class RuntimeStatus:
+@total_ordering
+class RuntimeStatus(Enum):
     """
     Constants for test runtime status - for interactive mode
+
+    total order encoded in value, serialized to "lower-case string" of name
     """
 
-    READY = "ready"
-    WAITING = "waiting"
-    RUNNING = "running"
-    RESETTING = "resetting"
-    FINISHED = "finished"
-    NOT_RUN = "not_run"
-
-    STATUS_PRECEDENCE = (
-        RUNNING,
-        RESETTING,
-        WAITING,
-        READY,
-        NOT_RUN,
-        FINISHED,
-        None,
-    )
+    RUNNING = auto()
+    RESETTING = auto()
+    WAITING = auto()
+    READY = auto()
+    NOT_RUN = auto()
+    FINISHED = auto()
+    NONE = auto()  # an "unset" value
 
     @classmethod
-    def precedent(cls, stats, rule=STATUS_PRECEDENCE):
+    def precedent(cls, stats: List[Self]) -> Self:
         """
         Return the precedent status from a list of statuses, using the
         ordering of statuses in `rule`.
@@ -91,70 +87,107 @@ class RuntimeStatus:
         reset the report goes to READY status.
 
         :param stats: List of statuses of which we want to get the precedent.
-        :type stats: ``sequence``
-        :param rule: Precedence rules for the given statuses.
-        :type rule: ``sequence``
         """
-        return min(stats, key=lambda stat: rule.index(stat))
+        return min(stats, key=lambda x: x.value)
 
+    def __lt__(self, other: Self) -> bool:
+        return self.value < other.value
 
-class Status:
-    """
-    Constants for test result and utilities for propagating status upward.
-    """
+    precede = __lt__
 
-    ERROR = "error"
-    FAILED = "failed"
-    INCOMPLETE = "incomplete"
-    PASSED = "passed"
-    SKIPPED = "skipped"
-    XFAIL = "xfail"
-    XPASS = "xpass"
-    XPASS_STRICT = "xpass-strict"
-    UNSTABLE = "unstable"
-    UNKNOWN = "unknown"
+    def __bool__(self):
+        return self != self.NONE
 
-    # We only maintain precedence among these status categories
-    STATUS_PRECEDENCE = (
-        ERROR,  # red
-        FAILED,  # red
-        UNKNOWN,  # black
-        PASSED,  # green
-        UNSTABLE,  # yellow
-        None,  # `status_override` is default to None
-    )
-
-    # And we map status to a category when we propagate upward or decide
-    # if an entry should be considered error/passed/failed/unstable/unknown
-    STATUS_CATEGORY = {
-        ERROR: ERROR,
-        FAILED: FAILED,
-        INCOMPLETE: FAILED,
-        XPASS_STRICT: FAILED,
-        UNKNOWN: UNKNOWN,
-        PASSED: PASSED,
-        SKIPPED: UNSTABLE,
-        XFAIL: UNSTABLE,
-        XPASS: UNSTABLE,
-        UNSTABLE: UNSTABLE,
-        None: None,  # `status_override` is default to None
-    }
+    def to_json_compatible(self) -> Optional[str]:
+        if self.name == "NONE":
+            return None
+        return self.name.lower().replace("_", "-")
 
     @classmethod
-    def precedent(cls, stats, rule=STATUS_PRECEDENCE):
+    def from_json_compatible(cls, s: Optional[str]) -> Self:
+        if s is None:
+            return cls.NONE
+        return cls[s.replace("-", "_").upper()]
+
+
+class Status(Enum):
+    """
+    Constants for test result and utilities for propagating status upward.
+
+    partial order encoded by value, serialized to "lower-case string" of name
+
+    tens of value encoding status category, tenths of value only for
+    differentiating enum members
+    """
+
+    BOTTOM = -1  # minimal
+    ERROR = 9
+    INCOMPLETE = 18.1
+    XPASS_STRICT = 18.2
+    FAILED = 19  # red
+    UNKNOWN = 29  # black
+    PASSED = 39  # green
+    SKIPPED = 48.1
+    XFAIL = 48.2
+    XPASS = 48.3
+    UNSTABLE = 49  # yellow
+    NONE = 59  # maxium, "unset"
+
+    @classmethod
+    def precedent(cls, stats: List[Self]) -> Self:
         """
         Return the precedent status from a list of statuses, using the
         ordering of statuses in `rule`.
 
         :param stats: List of statuses of which we want to get the precedent.
-        :type stats: ``sequence``
-        :param rule: Precedence rules for the given statuses.
-        :type rule: ``sequence``
         """
-        return min(
-            [cls.STATUS_CATEGORY[stat] for stat in stats],
-            key=lambda stat: rule.index(stat),
-        )
+
+        # unrelated pair fallback to norm
+        def _cmp(x: Self, y: Self) -> Self:
+            try:
+                r = x < y
+            except TypeError:
+                return x.normalised()
+            else:
+                return x if r else y
+
+        return reduce(_cmp, stats, cls.NONE)
+
+    def __lt__(self, other: Self) -> bool:
+        lhs, rhs = int(self.value), int(other.value)
+        if lhs == rhs and self != other:
+            return NotImplemented
+        return lhs < rhs
+
+    def __le__(self, other: Self) -> bool:
+        lhs, rhs = int(self.value), int(other.value)
+        if lhs == rhs and self != other:
+            return NotImplemented
+        return lhs <= rhs
+
+    def precede(self, other: Self) -> bool:
+        # a more intuitive & exception-free version
+        try:
+            return self < other
+        except TypeError:
+            return False
+
+    def normalised(self) -> Self:
+        return self.__class__(self.value // 10 * 10 + 9)
+
+    def __bool__(self) -> bool:
+        return self != self.NONE and self != self.BOTTOM
+
+    def to_json_compatible(self) -> Optional[str]:
+        if self.name == "NONE":
+            return None
+        return self.name.lower().replace("_", "-")
+
+    @classmethod
+    def from_json_compatible(cls, s: Optional[str]) -> Self:
+        if s is None:
+            return cls.NONE
+        return cls[s.replace("-", "_").upper()]
 
 
 class ReportCategories:
@@ -229,7 +262,7 @@ class BaseReportGroup(ReportGroup):
 
     def __init__(self, name, **kwargs):
         self.meta = kwargs.pop("meta", {})
-        self.status_override = kwargs.pop("status_override", None)
+        self.status_override = kwargs.pop("status_override", Status.NONE)
         self.status_reason = kwargs.pop("status_reason", None)
 
         super(BaseReportGroup, self).__init__(name=name, **kwargs)
@@ -251,31 +284,28 @@ class BaseReportGroup(ReportGroup):
     @property
     def passed(self):
         """Shortcut for getting if report status should be considered passed."""
-        return Status.STATUS_CATEGORY[self.status] == Status.PASSED
+        return self.status.normalised() == Status.PASSED
 
     @property
     def failed(self):
         """
         Shortcut for checking if report status should be considered failed.
         """
-        return Status.STATUS_CATEGORY[self.status] in (
-            Status.FAILED,
-            Status.ERROR,
-        )
+        return self.status <= Status.FAILED
 
     @property
     def unstable(self):
         """
         Shortcut for checking if report status should be considered unstable.
         """
-        return Status.STATUS_CATEGORY[self.status] == Status.UNSTABLE
+        return self.status.normalised() == Status.UNSTABLE
 
     @property
     def unknown(self):
         """
         Shortcut for checking if report status is unknown.
         """
-        return Status.STATUS_CATEGORY[self.status] == Status.UNKNOWN
+        return self.status.normalised() == Status.UNKNOWN
 
     @property
     def status(self):
@@ -375,21 +405,28 @@ class BaseReportGroup(ReportGroup):
         self.timer.update(report.timer)
         self.status_override = Status.precedent(
             [self.status_override, report.status_override],
-            rule=Status.STATUS_PRECEDENCE,
         )
 
     @property
-    def counter(self):
+    def counter(self) -> Counter:
         """
         Return counts for each status, will recursively get aggregates from
         children and so on.
         """
-        counter = Counter({Status.PASSED: 0, Status.FAILED: 0, "total": 0})
+        counter = Counter(
+            {
+                Status.PASSED.to_json_compatible(): 0,
+                Status.FAILED.to_json_compatible(): 0,
+                "total": 0,
+            }
+        )
 
         # exclude rerun and synthesized entries from counter
         for child in self:
             if child.category == ReportCategories.ERROR:
-                counter.update({Status.ERROR: 1, "total": 1})
+                counter.update(
+                    {Status.ERROR.to_json_compatible(): 1, "total": 1}
+                )
             elif child.category in (
                 ReportCategories.TASK_RERUN,
                 ReportCategories.SYNTHESIZED,
@@ -400,7 +437,7 @@ class BaseReportGroup(ReportGroup):
 
         return counter
 
-    def filter(self, *functions, **kwargs):
+    def filter(self, *functions, **kwargs) -> Self:
         """
         Tag indices are updated after filter operations.
         """
@@ -448,7 +485,7 @@ class BaseReportGroup(ReportGroup):
 
         return report_obj
 
-    def filter_by_tags(self, tag_value, all_tags=False):
+    def filter_by_tags(self, tag_value, all_tags=False) -> Self:
         """Shortcut method for filtering the report by given tags."""
 
         def _filter_func(obj):
@@ -469,7 +506,7 @@ class BaseReportGroup(ReportGroup):
         return self.filter(_filter_func)
 
     @property
-    def hash(self):
+    def hash(self) -> int:
         """
         Generate a hash of this report object, including its entries. This
         hash is used to detect when changes are made under particular nodes
@@ -861,7 +898,7 @@ class TestCaseReport(Report):
         self.tags_index = copy.deepcopy(self.tags)
         self.suite_related = suite_related
 
-        self.status_override = status_override
+        self.status_override = status_override or Status.NONE
         self.timer = timing.Timer()
 
         self.attachments = []
@@ -884,31 +921,28 @@ class TestCaseReport(Report):
     @property
     def passed(self) -> bool:
         """Shortcut for getting if report status should be considered passed."""
-        return Status.STATUS_CATEGORY[self.status] == Status.PASSED
+        return self.status.normalised() == Status.PASSED
 
     @property
     def failed(self) -> bool:
         """
         Shortcut for checking if report status should be considered failed.
         """
-        return Status.STATUS_CATEGORY[self.status] in (
-            Status.FAILED,
-            Status.ERROR,
-        )
+        return self.status <= Status.FAILED
 
     @property
     def unstable(self) -> bool:
         """
         Shortcut for checking if report status should be considered unstable.
         """
-        return Status.STATUS_CATEGORY[self.status] == Status.UNSTABLE
+        return self.status.normalised() == Status.UNSTABLE
 
     @property
     def unknown(self) -> bool:
         """
         Shortcut for checking if report status is unknown.
         """
-        return Status.STATUS_CATEGORY[self.status] == Status.UNKNOWN
+        return self.status.normalised() == Status.UNKNOWN
 
     @property
     def status(self) -> Status:
@@ -971,8 +1005,9 @@ class TestCaseReport(Report):
         self.runtime_status = new_status
 
     def _assertions_status(self):
+        # entries already serialized here
         for entry in self:
-            if entry.get(Status.PASSED) is False:
+            if entry.get("passed") is False:
                 return Status.FAILED
         return Status.PASSED
 
@@ -983,12 +1018,12 @@ class TestCaseReport(Report):
         test cases, choose the one whose status is of higher precedence.
         """
         self._check_report(report)
-        if self.suite_related and Status.precedent(
-            [self.status]
-        ) < Status.precedent([report.status]):
+        if self.suite_related and self.status.precede(report.status):
             return
 
-        self.status_override = report.status_override
+        self.status_override = Status.precedent(
+            [self.status_override, report.status_override]
+        )
         self.runtime_status = report.runtime_status
         self.logs = report.logs
         self.entries = report.entries
@@ -1069,8 +1104,14 @@ class TestCaseReport(Report):
         """
         Return counts for current status.
         """
-        counter = Counter({Status.PASSED: 0, Status.FAILED: 0, "total": 0})
-        counter.update({self.status: 1, "total": 1})
+        counter = Counter(
+            {
+                Status.PASSED.to_json_compatible(): 0,
+                Status.FAILED.to_json_compatible(): 0,
+                "total": 0,
+            }
+        )
+        counter.update({self.status.to_json_compatible(): 1, "total": 1})
         return counter
 
     def pass_if_empty(self):

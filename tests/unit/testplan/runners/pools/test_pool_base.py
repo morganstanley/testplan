@@ -3,12 +3,12 @@
 import os
 import random
 
+from testplan import Task
 from testplan.common.utils.path import default_runpath
 from testplan.runners.pools import base as pools_base
 from testplan.runners.pools import communication
-from testplan import Task
 from testplan.runners.pools.base import TaskQueue
-
+from testplan.testing.common import SkipStrategy
 from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
 
 
@@ -43,10 +43,13 @@ def test_pool_basic():
         kwargs=dict(multiplier=3),
     )
 
-    assert task1.materialize().run() == 10
-    assert task2.materialize().run() == 30
+    assert task1.materialize().run().report.val == 10
+    assert task2.materialize().run().report.val == 30
 
-    pool = pools_base.Pool(name="MyPool", size=4, runpath=default_runpath)
+    pool = pools_base.Pool(
+        name="MyPool", size=4, runpath=default_runpath, allow_task_rerun=False
+    )
+    pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
     pool.add(task1, uid=task1.uid())
     pool.add(task2, uid=task2.uid())
     assert pool._input[task1.uid()] is task1
@@ -57,10 +60,14 @@ def test_pool_basic():
             pass
 
     assert (
-        pool.get(task1.uid()).result == pool.results[task1.uid()].result == 10
+        pool.get(task1.uid()).result.report.val
+        == pool.results[task1.uid()].result.report.val
+        == 10
     )
     assert (
-        pool.get(task2.uid()).result == pool.results[task2.uid()].result == 30
+        pool.get(task2.uid()).result.report.val
+        == pool.results[task2.uid()].result.report.val
+        == 30
     )
 
 
@@ -112,6 +119,7 @@ class TestPoolIsolated:
         pool = pools_base.Pool(
             name="MyPool", size=1, worker_type=ControllableWorker
         )
+        pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
 
         # Start the pool via its context manager - this starts the Pool's main
         # work loop in a separate thread.

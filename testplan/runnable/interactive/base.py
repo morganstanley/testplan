@@ -122,6 +122,7 @@ class TestRunnerIHandler(entity.Entity):
     def setup(self):
         """Set up the task pool and HTTP handler."""
         self.target.make_runpath_dirs()
+        self.report.information.append(("runpath", self.target.runpath))
         self.target._configure_file_logger()
         self.logger.info(
             "Starting %s for %s",
@@ -489,6 +490,7 @@ class TestRunnerIHandler(entity.Entity):
 
         exceptions = self.test(test_uid).resources.start_exceptions
         if exceptions:
+            self.test(test_uid).stop_test_resources()
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
             raise RuntimeError(
                 "Exception raised during starting drivers: {}".format(

@@ -7,15 +7,18 @@ import time
 from testplan.runners.pools import process
 from testplan.runners.pools import tasks
 from testplan.common.utils import logger
+from testplan.testing.common import SkipStrategy
 
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
 
 
 @pytest.fixture
 def proc_pool():
-    return process.ProcessPool(
+    pool = process.ProcessPool(
         name="ProcPool", size=2, restart_count=0, async_start=False
     )
+    pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+    return pool
 
 
 class TestProcPool:
@@ -43,8 +46,8 @@ class TestProcPool:
 
         # Check that the expected result is stored both on the worker and
         # on the pool's result.
-        assert proc_pool.get(example_task.uid()).result == 21
-        assert proc_pool.results[example_task.uid()].result == 21
+        assert proc_pool.get(example_task.uid()).result.report.val == 21
+        assert proc_pool.results[example_task.uid()].result.report.val == 21
 
     def test_add_main(self, proc_pool):
         """
