@@ -245,6 +245,11 @@ def _gen_skipped_case(skip_reason, orig_case):
     _f.__tags__ = orig_case.__tags__
     _f.__tags_index__ = orig_case.__tags_index__
     _f.__should_skip__ = True
+    setattr(
+        _f,
+        TESTCASE_METADATA_ATTRIBUTE,
+        getattr(orig_case, TESTCASE_METADATA_ATTRIBUTE),
+    )
     # NOTE: interactive reloader will regenerate the skipped testcase
     #             so it will need the __skip__ attribute.
     _f.__skip__ = orig_case.__skip__
@@ -929,15 +934,21 @@ def get_testcase_metadata(testcase: object):
     )
 
 
-def get_suite_metadata(suite: object) -> TestSuiteMetadata:
+def get_suite_metadata(
+    suite: object, include_testcases: bool = True
+) -> TestSuiteMetadata:
     static_metadata: TestSuiteStaticMetadata = getattr(
         suite, TESTSUITE_METADATA_ATTRIBUTE
     )
-    testcase_metadata = [
-        get_testcase_metadata(tc)
-        for _, tc in inspect.getmembers(suite)
-        if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
-    ]
+    testcase_metadata = (
+        [
+            get_testcase_metadata(tc)
+            for _, tc in inspect.getmembers(suite)
+            if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
+        ]
+        if include_testcases
+        else []
+    )
 
     return TestSuiteMetadata(
         **dataclasses.asdict(static_metadata),
