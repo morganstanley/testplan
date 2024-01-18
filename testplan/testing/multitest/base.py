@@ -454,7 +454,7 @@ class MultiTest(testing_base.Test):
                             testcase_instance, None
                         )
                         if data is not None:
-                            testcase.__xfail__ = {
+                            testcase.__func__.__xfail__ = {
                                 "reason": data["reason"],
                                 "strict": data["strict"],
                             }
