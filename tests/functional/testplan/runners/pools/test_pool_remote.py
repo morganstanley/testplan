@@ -116,4 +116,7 @@ def test_materialization_fail(mockplan):
         mockplan.report.entries[0].name
         == "Task[target_raises_in_worker(uid=MTest)]"
     )
-    assert mockplan.report.entries[0].category == Status.ERROR
+    assert (
+        mockplan.report.entries[0].category
+        == Status.ERROR.to_json_compatible()
+    )
