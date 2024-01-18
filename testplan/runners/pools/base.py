@@ -627,12 +627,13 @@ class Pool(Executor):
             self.logger.user_info(
                 "De-assign %s from %s", task_result.task, worker
             )
-            report: TestGroupReport = task_result.result.report
-            report.host = worker.host
-            agg_report_status = Status.precedent(
-                [agg_report_status, report.status]
-            )
-            worker.rebase_attachment(task_result.result)
+            if isinstance(task_result.result, TestResult):
+                report: TestGroupReport = task_result.result.report
+                report.host = worker.host
+                agg_report_status = Status.precedent(
+                    [agg_report_status, report.status]
+                )
+                worker.rebase_attachment(task_result.result)
 
             if task_should_rerun():
                 self.logger.user_info(
