@@ -947,7 +947,11 @@ class MultiTest(testing_base.Test):
             self.logger.debug('Running execution group "%s"', exec_group)
             results = [
                 self._thread_pool.submit(
-                    self._run_testcase, testcase, testsuite, pre_testcase, post_testcase
+                    self._run_testcase,
+                    testcase,
+                    testsuite,
+                    pre_testcase,
+                    post_testcase,
                 )
                 for testcase in execution_groups[exec_group]
             ]
