@@ -440,23 +440,6 @@ class MultiTest(testing_base.Test):
             ) < len(sorted_testcases):
                 testcases_to_run = sorted_testcases
 
-            if self.cfg.testcase_report_target and not (
-                getattr(self, "parent", None)
-                and hasattr(self.parent, "cfg")
-                and self.parent.cfg.interactive_port is not None
-            ):
-                testcases_to_run = [
-                    report_target(
-                        func=testcase,
-                        ref_func=getattr(
-                            suite,
-                            getattr(testcase, "_parametrization_template", ""),
-                            None,
-                        ),
-                    )
-                    for testcase in testcases_to_run
-                ]
-
             if testcases_to_run:
                 if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:
                     for testcase in testcases_to_run:
@@ -575,14 +558,7 @@ class MultiTest(testing_base.Test):
 
             if shallow_report is None:
                 testcases = [
-                    report_target(
-                        func=testcase,
-                        ref_func=getattr(
-                            testsuite,
-                            getattr(testcase, "_parametrization_template", ""),
-                            None,
-                        ),
-                    )
+                    testcase
                     for testcase in testcases
                     if test_filter.filter(
                         test=self, suite=testsuite, case=testcase
@@ -592,14 +568,7 @@ class MultiTest(testing_base.Test):
                 if testsuite.name not in test_targets:
                     continue
                 testcases = [
-                    report_target(
-                        func=testcase,
-                        ref_func=getattr(
-                            testsuite,
-                            getattr(testcase, "_parametrization_template", ""),
-                            None,
-                        ),
-                    )
+                    testcase
                     for testcase in testcases
                     if testcase.name in test_targets[testsuite.name]
                 ]
@@ -919,7 +888,7 @@ class MultiTest(testing_base.Test):
                 break
 
             testcase_report = self._run_testcase(
-                testcase, pre_testcase, post_testcase
+                testcase, testsuite, pre_testcase, post_testcase
             )
 
             param_template = getattr(
@@ -978,7 +947,7 @@ class MultiTest(testing_base.Test):
             self.logger.debug('Running execution group "%s"', exec_group)
             results = [
                 self._thread_pool.submit(
-                    self._run_testcase, testcase, pre_testcase, post_testcase
+                    self._run_testcase, testcase, testsuite, pre_testcase, post_testcase
                 )
                 for testcase in execution_groups[exec_group]
             ]
@@ -1164,6 +1133,7 @@ class MultiTest(testing_base.Test):
     def _run_testcase(
         self,
         testcase,
+        testsuite,
         pre_testcase: Callable,
         post_testcase: Callable,
         testcase_report: Optional[TestCaseReport] = None,
@@ -1184,6 +1154,16 @@ class MultiTest(testing_base.Test):
         resources = self._get_runtime_environment(
             testcase_name=testcase.name, testcase_report=testcase_report
         )
+
+        if self.cfg.testcase_report_target:
+            testcase = report_target(
+                func=testcase,
+                ref_func=getattr(
+                    testsuite,
+                    getattr(testcase, "_parametrization_template", ""),
+                    None,
+                ),
+            )
 
         # specially handle skipped testcases
         if hasattr(testcase, "__should_skip__"):
@@ -1355,7 +1335,7 @@ class MultiTest(testing_base.Test):
             ]
 
             testcase_report = self._run_testcase(
-                testcase, pre_testcase, post_testcase
+                testcase, testsuite, pre_testcase, post_testcase
             )
             yield testcase_report, parent_uids
 
