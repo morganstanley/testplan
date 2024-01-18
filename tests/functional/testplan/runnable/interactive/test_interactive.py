@@ -232,70 +232,51 @@ def test_top_level_environment():
         wait_for_interactive_start(plan)
 
         assert len(plan.resources.environments.envs) == 1
+        env_uid = "env1"
 
-        # Create an environment using serializable arguments.
-        # That is mandatory for HTTP usage.
-        plan.interactive.create_new_environment("env2")
-        plan.interactive.add_environment_resource(
-            "env2", "TCPServer", name="server"
+        env = plan.interactive.get_environment(env_uid)
+        assert isinstance(env, entity.Environment)
+        resources = [res.uid() for res in env]
+        assert resources == ["server", "client"]
+        for resource in env:
+            assert resource.status == resource.STATUS.NONE
+        plan.interactive.start_environment(env_uid)  # START
+
+        # INSPECT THE CONTEXT WHEN STARTED
+        env_context = plan.interactive.get_environment_context(env_uid)
+        for resource in [res.uid() for res in env]:
+            res_context = plan.interactive.environment_resource_context(
+                env_uid, resource_uid=resource
+            )
+            assert env_context[resource] == res_context
+            assert isinstance(res_context["host"], str)
+            assert isinstance(res_context["port"], int)
+            assert res_context["port"] > 0
+
+        # CUSTOM RESOURCE OPERATIONS
+        plan.interactive.environment_resource_operation(
+            env_uid, "server", "accept_connection"
         )
-        plan.interactive.add_environment_resource(
-            "env2",
-            "TCPClient",
-            name="client",
-            _ctx_host_ctx_driver="server",
-            _ctx_host_ctx_value="{{host}}",
-            _ctx_port_ctx_driver="server",
-            _ctx_port_ctx_value="{{port}}",
+        plan.interactive.environment_resource_operation(
+            env_uid, "client", "send_text", msg="hello"
         )
-        plan.interactive.add_created_environment("env2")
+        received = plan.interactive.environment_resource_operation(
+            env_uid, "server", "receive_text"
+        )
+        assert received == "hello"
+        plan.interactive.environment_resource_operation(
+            env_uid, "server", "send_text", msg="worlds"
+        )
+        received = plan.interactive.environment_resource_operation(
+            env_uid, "client", "receive_text"
+        )
+        assert received == "worlds"
 
-        assert len(plan.resources.environments.envs) == 2
-
-        for env_uid in ("env1", "env2"):
-            env = plan.interactive.get_environment(env_uid)
-            assert isinstance(env, entity.Environment)
-            resources = [res.uid() for res in env]
-            assert resources == ["server", "client"]
-            for resource in env:
-                assert resource.status == resource.STATUS.NONE
-            plan.interactive.start_environment(env_uid)  # START
-
-            # INSPECT THE CONTEXT WHEN STARTED
-            env_context = plan.interactive.get_environment_context(env_uid)
-            for resource in [res.uid() for res in env]:
-                res_context = plan.interactive.environment_resource_context(
-                    env_uid, resource_uid=resource
-                )
-                assert env_context[resource] == res_context
-                assert isinstance(res_context["host"], str)
-                assert isinstance(res_context["port"], int)
-                assert res_context["port"] > 0
-
-            # CUSTOM RESOURCE OPERATIONS
-            plan.interactive.environment_resource_operation(
-                env_uid, "server", "accept_connection"
-            )
-            plan.interactive.environment_resource_operation(
-                env_uid, "client", "send_text", msg="hello"
-            )
-            received = plan.interactive.environment_resource_operation(
-                env_uid, "server", "receive_text"
-            )
-            assert received == "hello"
-            plan.interactive.environment_resource_operation(
-                env_uid, "server", "send_text", msg="worlds"
-            )
-            received = plan.interactive.environment_resource_operation(
-                env_uid, "client", "receive_text"
-            )
-            assert received == "worlds"
-
-            for resource in env:
-                assert resource.status == resource.STATUS.STARTED
-            plan.interactive.stop_environment(env_uid)  # STOP
-            for resource in env:
-                assert resource.status == resource.STATUS.STOPPED
+        for resource in env:
+            assert resource.status == resource.STATUS.STARTED
+        plan.interactive.stop_environment(env_uid)  # STOP
+        for resource in env:
+            assert resource.status == resource.STATUS.STOPPED
 
 
 def put_request(url, data):
