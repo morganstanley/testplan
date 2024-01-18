@@ -17,7 +17,7 @@ from testplan.common.utils.process import kill_process
 from testplan.common.utils.timing import get_sleeper
 
 from . import tasks
-from .base import Pool, PoolConfig, Worker, WorkerConfig
+from .base import Pool, PoolConfig, Worker, WorkerBase, WorkerConfig
 from .connection import ZMQClientProxy, ZMQServer
 
 
@@ -162,7 +162,7 @@ class ProcessWorker(Worker):
 
     def discard_running_tasks(self):
         # discard logic handled by pool in ``_handle_heartbeat``
-        super(Worker, self).discard_running_tasks()
+        WorkerBase.discard_running_tasks(self)
 
 
 class ProcessPoolConfig(PoolConfig):
