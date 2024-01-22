@@ -23,10 +23,6 @@ function AssertionHeader({
   const [isPathTooltipOpen, setIsPathTooltipOpen] = useState(false);
   const [isDurationTooltipOpen, setIsDurationTooltipOpen] = useState(false);
 
-    // this.toggleUTCTooltip = this.toggleUTCTooltip.bind(this);
-    // this.togglePathTooltip = this.togglePathTooltip.bind(this);
-    // this.toggleDurationTooltip = this.toggleDurationTooltip.bind(this);
-
   /**
    * Toggle the visibility of tooltip of file path.
    */

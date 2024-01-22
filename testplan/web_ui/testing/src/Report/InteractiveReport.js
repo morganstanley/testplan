@@ -10,6 +10,7 @@ import axios from "axios";
 import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
 import base64url from "base64url";
+import { atom, useAtomValue } from "jotai";
 
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar.js";
@@ -22,7 +23,7 @@ import {
 } from "../Toolbar/InteractiveButtons";
 import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav.js";
-import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
+import { INTERACTIVE_COL_WIDTH, ENV_STATUSES } from "../Common/defaults";
 import { FakeInteractiveReport } from "../Common/sampleReports.js";
 import {
   PropagateIndices,
@@ -40,9 +41,9 @@ import { POLL_MS } from "../Common/defaults.js";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
 import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
-import { useAtomValue } from "jotai";
 
 const api_prefix = "/api/v1/interactive";
+const pendingEnvRequestAtom = atom("");
 
 /**
  * Interactive report viewer. As opposed to a batch report, an interactive
@@ -52,8 +53,11 @@ const api_prefix = "/api/v1/interactive";
  */
 const InteractiveReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
+  const pendingEnvRequest = useAtomValue(pendingEnvRequestAtom);
   return (
-    <InteractiveReportComponent {...props} displayTimeInfo={displayTimeInfo} />
+    <InteractiveReportComponent {...props} displayTimeInfo={displayTimeInfo} 
+      pendingEnvRequest={pendingEnvRequest}
+    />
   );
 };
 class InteractiveReportComponent extends BaseReport {
@@ -76,7 +80,7 @@ class InteractiveReportComponent extends BaseReport {
       reloading: false,
       running: false,
       aborting: false,
-      assertionStatus: defaultAssertionStatus,
+      assertionStatus: defaultAssertionStatus
     };
   }
 
@@ -458,10 +462,10 @@ class InteractiveReportComponent extends BaseReport {
   actionToEnvStatus(action) {
     switch (action) {
       case "start":
-        return "STARTING";
+        return ENV_STATUSES.starting;
 
       case "stop":
-        return "STOPPING";
+        return ENV_STATUSES.stopping;
 
       default:
         throw new Error("Invalid action: " + action);
@@ -515,9 +519,9 @@ class InteractiveReportComponent extends BaseReport {
   runAll() {
     if (
       this.state.resetting || this.state.reloading ||
-      this.state.aborting || this.state.running
+      this.state.aborting || this.state.running || this.props.pendingEnvRequest
     ) {
-      return;
+      alert("There is a pending request, please wait!");
     } else {
       const updatedReportEntry = {
         ...this.shallowReportEntry(this.state.filteredReport.report),
@@ -650,8 +654,8 @@ class InteractiveReportComponent extends BaseReport {
         const updatedReportEntry = {
           ...reportEntry,
           env_status:
-            reportEntry.env_status === "STARTED"
-              ? "STOPPING"
+            reportEntry.env_status === ENV_STATUSES.started
+              ? ENV_STATUSES.stopping
               : reportEntry.env_status,
         };
         return this.putUpdatedReportEntry(updatedReportEntry);
@@ -771,3 +775,4 @@ const styles = StyleSheet.create({
 
 export default InteractiveReport;
 export { InteractiveReportComponent };
+export { pendingEnvRequestAtom };
