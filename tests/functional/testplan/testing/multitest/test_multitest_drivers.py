@@ -12,6 +12,7 @@ from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.timing import TimeoutException
+from testplan.testing.common import SkipStrategy
 from testplan.testing.filtering import Filter
 from testplan.testing.multitest import MultiTest, testcase, testsuite
 from testplan.testing.multitest.base import RuntimeEnvironment
@@ -453,3 +454,53 @@ def test_multitest_driver_startup_mode(mockplan):
     assert custom_driver_2.pre_stop_fn_cnt == 2
     assert custom_driver_2.post_stop_cnt == 2
     assert custom_driver_2.post_stop_fn_cnt == 2
+
+
+class EnvBuilder:
+    class DummyDriver(Driver):
+        def starting(self):
+            pass
+
+        def stopping(self):
+            pass
+
+    def __init__(self):
+        self.a = self.DummyDriver(name="a")
+        self.b = self.DummyDriver(name="b")
+
+    def env_func(self):
+        return [self.a, self.b]
+
+    def init_ctx_func(self):
+        return {"dummy_ctx": "dummy_value"}
+
+    def dp_func(self):
+        return {self.a: self.b}
+
+
+@testsuite
+class EnvBuilderTest:
+    @testcase
+    def test_env_builder(self, env, result):
+        result.equal(len(env), 2)
+        result.equal(env["dummy_ctx"], "dummy_value")
+
+
+def test_env_builder(mockplan):
+    env_builder = EnvBuilder()
+    mt = MultiTest(
+        name="EnvBuilderTest",
+        suites=EnvBuilderTest(),
+        environment=env_builder.env_func,
+        initial_context=env_builder.init_ctx_func,
+        dependencies=env_builder.dp_func,
+    )
+    mockplan.add(mt)
+    assert len(mt.resources) == 0
+    assert "dummy_ctx" not in mt.resources
+    assert mt.resources._orig_dependency is None
+
+    assert mockplan.run().success is True
+    assert len(mt.resources) == 2
+    assert mt.resources["dummy_ctx"] == "dummy_value"
+    assert mt.resources._rt_dependency.processed == ["b", "a"]

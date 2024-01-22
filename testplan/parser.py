@@ -18,7 +18,7 @@ from testplan.report.testing import (
     ReportTagsAction,
     styles,
 )
-from testplan.testing import filtering, listing, ordering
+from testplan.testing import common, filtering, listing, ordering
 
 
 class HelpParser(argparse.ArgumentParser):
@@ -203,6 +203,23 @@ A typical input JSON looks like below:
     },
     ......
 }""",
+        )
+
+        general_group.add_argument(
+            "-r",
+            "--resource-monitor",
+            dest="resource_monitor",
+            default=self._default_options["resource_monitor"],
+            action="store_true",
+            help="Enables resource monitor",
+        )
+
+        general_group.add_argument(
+            "--skip-remaining",
+            choices=common.SkipStrategy.all_options(),
+            dest="skip_strategy",
+            help="Skip the remaining Testcases/Testsuites/Multitests being "
+            "executed when a Testcase has failed or raised exception.",
         )
 
         filter_group = parser.add_argument_group("Filtering")

@@ -1,70 +1,126 @@
 {
-    "attachments": {},
     "category": "testplan",
-    "counter": {
-        "failed": 0,
-        "passed": 10,
-        "total": 10
-    },
-    "description": null,
+    "timer": {},
+    "timeout": null,
+    "label": null,
+    "tags_index": {},
     "entries": [
         {
-            "category": "multitest",
-            "counter": {
-                "failed": 0,
-                "passed": 5,
-                "total": 5
+            "timer": {
+                "setup": {
+                    "end": "2023-11-28T01:37:32.827827+00:00",
+                    "start": "2023-11-28T01:37:32.732003+00:00"
+                }
             },
+            "env_status": "STARTED",
+            "parent_uids": [
+                "InteractivePlan"
+            ],
+            "suite_related": false,
+            "status_reason": null,
+            "tags": {},
             "description": null,
             "entries": [
                 {
-                    "category": "testsuite",
-                    "counter": {
-                        "failed": 0,
-                        "passed": 3,
-                        "total": 3
-                    },
+                    "timer": {},
+                    "env_status": null,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test1"
+                    ],
+                    "suite_related": true,
+                    "status_reason": null,
+                    "tags": {},
                     "description": null,
                     "entries": [
                         {
-                            "category": "parametrization",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 3,
-                                "total": 3
+                            "category": "testcase",
+                            "timer": {
+                                "run": {
+                                    "end": "2023-11-28T01:37:32.822326+00:00",
+                                    "start": "2023-11-28T01:37:32.822288+00:00"
+                                }
                             },
+                            "name": "accept_connection",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test1",
+                                "After Start"
+                            ],
+                            "status_override": null,
+                            "suite_related": true,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "logs": [],
+                            "uid": "accept_connection",
+                            "status_reason": null,
+                            "tags": {},
+                            "description": null,
+                            "definition_name": "accept_connection",
+                            "hash": 0,
+                            "type": "TestCaseReport",
+                            "entries": [],
+                            "runtime_status": "finished",
+                            "status": "passed"
+                        }
+                    ],
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "runtime_status": "finished",
+                    "fix_spec_path": null,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "After Start",
+                    "host": null,
+                    "definition_name": "After Start",
+                    "type": "TestGroupReport",
+                    "name": "After Start",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
+                },
+                {
+                    "timer": {},
+                    "env_status": null,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test1"
+                    ],
+                    "suite_related": false,
+                    "status_reason": null,
+                    "tags": {},
+                    "description": null,
+                    "entries": [
+                        {
+                            "timer": {},
+                            "env_status": null,
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test1",
+                                "BasicSuite"
+                            ],
+                            "suite_related": false,
+                            "status_reason": null,
+                            "tags": {},
                             "description": null,
                             "entries": [
                                 {
                                     "category": "testcase",
-                                    "counter": {
-                                        "failed": 0,
-                                        "passed": 1,
-                                        "total": 1
-                                    },
-                                    "description": null,
-                                    "entries": [
-                                        {
-                                            "category": "DEFAULT",
-                                            "description": "Passing assertion",
-                                            "file_path": "",
-                                            "first": 1,
-                                            "flag": "DEFAULT",
-                                            "label": "==",
-                                            "line_no": 0,
-                                            "machine_time": "",
-                                            "meta_type": "assertion",
-                                            "passed": true,
-                                            "second": 1,
-                                            "type": "Equal",
-                                            "type_actual": "int",
-                                            "type_expected": "int",
-                                            "utc_time": ""
+                                    "timer": {
+                                        "run": {
+                                            "end": "2023-11-28T01:37:33.128568+00:00",
+                                            "start": "2023-11-28T01:37:32.836496+00:00"
                                         }
-                                    ],
-                                    "hash": 0,
-                                    "definition_name": "basic_case <arg=0>",
-                                    "logs": [],
+                                    },
                                     "name": "basic_case <arg=0>",
                                     "parent_uids": [
                                         "InteractivePlan",
@@ -72,51 +128,51 @@
                                         "BasicSuite",
                                         "basic_case"
                                     ],
-                                    "runtime_status": "finished",
-                                    "status": "passed",
                                     "status_override": null,
-                                    "status_reason": null,
                                     "suite_related": false,
-                                    "tags": {},
-                                    "timer": {
-                                        "run": {
-                                            "end": "",
-                                            "start": ""
-                                        }
+                                    "counter": {
+                                        "passed": 1,
+                                        "failed": 0,
+                                        "total": 1
                                     },
+                                    "logs": [],
+                                    "uid": "basic_case__arg_0",
+                                    "status_reason": null,
+                                    "tags": {},
+                                    "description": null,
+                                    "definition_name": "basic_case <arg=0>",
+                                    "hash": 0,
                                     "type": "TestCaseReport",
-                                    "uid": "basic_case__arg_0"
+                                    "entries": [
+                                        {
+                                            "line_no": 47,
+                                            "category": "DEFAULT",
+                                            "type_actual": "int",
+                                            "type_expected": "int",
+                                            "file_path": "",
+                                            "label": "==",
+                                            "flag": "DEFAULT",
+                                            "passed": true,
+                                            "second": 1,
+                                            "first": 1,
+                                            "description": "Passing assertion",
+                                            "machine_time": "2023-11-28T09:37:32.836576+08:00",
+                                            "type": "Equal",
+                                            "meta_type": "assertion",
+                                            "utc_time": "2023-11-28T01:37:32.836568+00:00"
+                                        }
+                                    ],
+                                    "runtime_status": "finished",
+                                    "status": "passed"
                                 },
                                 {
                                     "category": "testcase",
-                                    "counter": {
-                                        "failed": 0,
-                                        "passed": 1,
-                                        "total": 1
-                                    },
-                                    "description": null,
-                                    "entries": [
-                                        {
-                                            "category": "DEFAULT",
-                                            "description": "Passing assertion",
-                                            "file_path": "",
-                                            "first": 1,
-                                            "flag": "DEFAULT",
-                                            "label": "==",
-                                            "line_no": 0,
-                                            "machine_time": "",
-                                            "meta_type": "assertion",
-                                            "passed": true,
-                                            "second": 1,
-                                            "type": "Equal",
-                                            "type_actual": "int",
-                                            "type_expected": "int",
-                                            "utc_time": ""
+                                    "timer": {
+                                        "run": {
+                                            "end": "2023-11-28T01:37:33.132432+00:00",
+                                            "start": "2023-11-28T01:37:33.129520+00:00"
                                         }
-                                    ],
-                                    "hash": 0,
-                                    "definition_name": "basic_case <arg=1>",
-                                    "logs": [],
+                                    },
                                     "name": "basic_case <arg=1>",
                                     "parent_uids": [
                                         "InteractivePlan",
@@ -124,51 +180,51 @@
                                         "BasicSuite",
                                         "basic_case"
                                     ],
-                                    "runtime_status": "finished",
-                                    "status": "passed",
                                     "status_override": null,
-                                    "status_reason": null,
                                     "suite_related": false,
-                                    "tags": {},
-                                    "timer": {
-                                        "run": {
-                                            "end": "",
-                                            "start": ""
-                                        }
+                                    "counter": {
+                                        "passed": 1,
+                                        "failed": 0,
+                                        "total": 1
                                     },
+                                    "logs": [],
+                                    "uid": "basic_case__arg_1",
+                                    "status_reason": null,
+                                    "tags": {},
+                                    "description": null,
+                                    "definition_name": "basic_case <arg=1>",
+                                    "hash": 0,
                                     "type": "TestCaseReport",
-                                    "uid": "basic_case__arg_1"
+                                    "entries": [
+                                        {
+                                            "line_no": 47,
+                                            "category": "DEFAULT",
+                                            "type_actual": "int",
+                                            "type_expected": "int",
+                                            "file_path": "",
+                                            "label": "==",
+                                            "flag": "DEFAULT",
+                                            "passed": true,
+                                            "second": 1,
+                                            "first": 1,
+                                            "description": "Passing assertion",
+                                            "machine_time": "2023-11-28T09:37:33.129578+08:00",
+                                            "type": "Equal",
+                                            "meta_type": "assertion",
+                                            "utc_time": "2023-11-28T01:37:33.129569+00:00"
+                                        }
+                                    ],
+                                    "runtime_status": "finished",
+                                    "status": "passed"
                                 },
                                 {
                                     "category": "testcase",
-                                    "counter": {
-                                        "failed": 0,
-                                        "passed": 1,
-                                        "total": 1
-                                    },
-                                    "description": null,
-                                    "entries": [
-                                        {
-                                            "category": "DEFAULT",
-                                            "description": "Passing assertion",
-                                            "file_path": "",
-                                            "first": 1,
-                                            "flag": "DEFAULT",
-                                            "label": "==",
-                                            "line_no": 0,
-                                            "machine_time": "",
-                                            "meta_type": "assertion",
-                                            "passed": true,
-                                            "second": 1,
-                                            "type": "Equal",
-                                            "type_actual": "int",
-                                            "type_expected": "int",
-                                            "utc_time": ""
+                                    "timer": {
+                                        "run": {
+                                            "end": "2023-11-28T01:37:33.136022+00:00",
+                                            "start": "2023-11-28T01:37:33.133301+00:00"
                                         }
-                                    ],
-                                    "hash": 0,
-                                    "definition_name": "basic_case <arg=2>",
-                                    "logs": [],
+                                    },
                                     "name": "basic_case <arg=2>",
                                     "parent_uids": [
                                         "InteractivePlan",
@@ -176,352 +232,429 @@
                                         "BasicSuite",
                                         "basic_case"
                                     ],
-                                    "runtime_status": "finished",
-                                    "status": "passed",
                                     "status_override": null,
-                                    "status_reason": null,
                                     "suite_related": false,
-                                    "tags": {},
-                                    "timer": {
-                                        "run": {
-                                            "end": "",
-                                            "start": ""
-                                        }
+                                    "counter": {
+                                        "passed": 1,
+                                        "failed": 0,
+                                        "total": 1
                                     },
+                                    "logs": [],
+                                    "uid": "basic_case__arg_2",
+                                    "status_reason": null,
+                                    "tags": {},
+                                    "description": null,
+                                    "definition_name": "basic_case <arg=2>",
+                                    "hash": 0,
                                     "type": "TestCaseReport",
-                                    "uid": "basic_case__arg_2"
+                                    "entries": [
+                                        {
+                                            "line_no": 47,
+                                            "category": "DEFAULT",
+                                            "type_actual": "int",
+                                            "type_expected": "int",
+                                            "file_path": "",
+                                            "label": "==",
+                                            "flag": "DEFAULT",
+                                            "passed": true,
+                                            "second": 1,
+                                            "first": 1,
+                                            "description": "Passing assertion",
+                                            "machine_time": "2023-11-28T09:37:33.133353+08:00",
+                                            "type": "Equal",
+                                            "meta_type": "assertion",
+                                            "utc_time": "2023-11-28T01:37:33.133348+00:00"
+                                        }
+                                    ],
+                                    "runtime_status": "finished",
+                                    "status": "passed"
                                 }
                             ],
-                            "env_status": null,
-                            "events": {},
+                            "counter": {
+                                "passed": 3,
+                                "failed": 0,
+                                "total": 3
+                            },
+                            "runtime_status": "finished",
                             "fix_spec_path": null,
-                            "hash": 0,
+                            "logs": [],
+                            "status_override": null,
+                            "events": {},
+                            "category": "parametrization",
+                            "part": null,
+                            "uid": "basic_case",
                             "host": null,
                             "definition_name": "basic_case",
-                            "logs": [],
-                            "name": "basic_case",
-                            "parent_uids": [
-                                "InteractivePlan",
-                                "Test1",
-                                "BasicSuite"
-                            ],
-                            "part": null,
-                            "runtime_status": "finished",
-                            "status": "passed",
-                            "status_override": null,
-                            "status_reason": null,
-                            "strict_order": false,
-                            "tags": {},
-                            "timer": {},
                             "type": "TestGroupReport",
-                            "uid": "basic_case"
+                            "name": "basic_case",
+                            "strict_order": false,
+                            "hash": 0,
+                            "status": "passed"
                         }
                     ],
-                    "env_status": null,
-                    "events": {},
+                    "counter": {
+                        "passed": 3,
+                        "failed": 0,
+                        "total": 3
+                    },
+                    "runtime_status": "finished",
                     "fix_spec_path": null,
-                    "hash": 0,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "BasicSuite",
                     "host": null,
                     "definition_name": "BasicSuite",
-                    "logs": [],
+                    "type": "TestGroupReport",
                     "name": "BasicSuite",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
+                },
+                {
+                    "timer": {},
+                    "env_status": null,
                     "parent_uids": [
                         "InteractivePlan",
                         "Test1"
                     ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
+                    "suite_related": false,
                     "status_reason": null,
-                    "strict_order": false,
                     "tags": {},
-                    "timer": {},
-                    "type": "TestGroupReport",
-                    "uid": "BasicSuite"
-                },
-                {
-                    "category": "testsuite",
-                    "counter": {
-                        "failed": 0,
-                        "passed": 1,
-                        "total": 1
-                    },
                     "description": null,
                     "entries": [
                         {
                             "category": "testcase",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 1,
-                                "total": 1
-                            },
-                            "description": "Client sends a message, server received and responds back.",
-                            "entries": [
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Server received",
-                                    "file_path": "",
-                                    "first": "hello",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "hello",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
-                                },
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Client received",
-                                    "file_path": "",
-                                    "first": "world",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "world",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
+                            "timer": {
+                                "run": {
+                                    "end": "2023-11-28T01:37:33.142366+00:00",
+                                    "start": "2023-11-28T01:37:33.136925+00:00"
                                 }
-                            ],
-                            "hash": 0,
-                            "definition_name": "send_and_receive_msg",
-                            "logs": [],
+                            },
                             "name": "send_and_receive_msg",
                             "parent_uids": [
                                 "InteractivePlan",
                                 "Test1",
                                 "Custom_0"
                             ],
-                            "runtime_status": "finished",
-                            "status": "passed",
                             "status_override": null,
-                            "status_reason": null,
                             "suite_related": false,
-                            "tags": {},
-                            "timer": {
-                                "run": {
-                                    "end": "",
-                                    "start": ""
-                                }
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
                             },
+                            "logs": [],
+                            "uid": "send_and_receive_msg",
+                            "status_reason": null,
+                            "tags": {},
+                            "description": "Client sends a message, server received and responds back.",
+                            "definition_name": "send_and_receive_msg",
+                            "hash": 0,
                             "type": "TestCaseReport",
-                            "uid": "send_and_receive_msg"
+                            "entries": [
+                                {
+                                    "line_no": 62,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "hello",
+                                    "first": "hello",
+                                    "description": "Server received",
+                                    "machine_time": "2023-11-28T09:37:33.137081+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.137075+00:00"
+                                },
+                                {
+                                    "line_no": 66,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "world",
+                                    "first": "world",
+                                    "description": "Client received",
+                                    "machine_time": "2023-11-28T09:37:33.139719+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.139713+00:00"
+                                }
+                            ],
+                            "runtime_status": "finished",
+                            "status": "passed"
                         }
                     ],
-                    "env_status": null,
-                    "events": {},
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "runtime_status": "finished",
                     "fix_spec_path": null,
-                    "hash": 0,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "Custom_0",
                     "host": null,
                     "definition_name": "Custom_0",
-                    "logs": [],
+                    "type": "TestGroupReport",
                     "name": "Custom_0",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
+                },
+                {
+                    "timer": {},
+                    "env_status": null,
                     "parent_uids": [
                         "InteractivePlan",
                         "Test1"
                     ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
+                    "suite_related": false,
                     "status_reason": null,
-                    "strict_order": false,
                     "tags": {},
-                    "timer": {},
-                    "type": "TestGroupReport",
-                    "uid": "Custom_0"
-                },
-                {
-                    "category": "testsuite",
-                    "counter": {
-                        "failed": 0,
-                        "passed": 1,
-                        "total": 1
-                    },
                     "description": null,
                     "entries": [
                         {
                             "category": "testcase",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 1,
-                                "total": 1
-                            },
-                            "description": "Client sends a message, server received and responds back.",
-                            "entries": [
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Server received",
-                                    "file_path": "",
-                                    "first": "hello",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "hello",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
-                                },
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Client received",
-                                    "file_path": "",
-                                    "first": "world",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "world",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
+                            "timer": {
+                                "run": {
+                                    "end": "2023-11-28T01:37:33.149147+00:00",
+                                    "start": "2023-11-28T01:37:33.143734+00:00"
                                 }
-                            ],
-                            "hash": 0,
-                            "definition_name": "send_and_receive_msg",
-                            "logs": [],
+                            },
                             "name": "send_and_receive_msg",
                             "parent_uids": [
                                 "InteractivePlan",
                                 "Test1",
                                 "Custom_1"
                             ],
-                            "runtime_status": "finished",
-                            "status": "passed",
                             "status_override": null,
-                            "status_reason": null,
                             "suite_related": false,
-                            "tags": {},
-                            "timer": {
-                                "run": {
-                                    "end": "",
-                                    "start": ""
-                                }
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
                             },
+                            "logs": [],
+                            "uid": "send_and_receive_msg",
+                            "status_reason": null,
+                            "tags": {},
+                            "description": "Client sends a message, server received and responds back.",
+                            "definition_name": "send_and_receive_msg",
+                            "hash": 0,
                             "type": "TestCaseReport",
-                            "uid": "send_and_receive_msg"
+                            "entries": [
+                                {
+                                    "line_no": 62,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "hello",
+                                    "first": "hello",
+                                    "description": "Server received",
+                                    "machine_time": "2023-11-28T09:37:33.143891+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.143884+00:00"
+                                },
+                                {
+                                    "line_no": 66,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "world",
+                                    "first": "world",
+                                    "description": "Client received",
+                                    "machine_time": "2023-11-28T09:37:33.146491+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.146485+00:00"
+                                }
+                            ],
+                            "runtime_status": "finished",
+                            "status": "passed"
                         }
                     ],
-                    "env_status": null,
-                    "events": {},
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "runtime_status": "finished",
                     "fix_spec_path": null,
-                    "hash": 0,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "Custom_1",
                     "host": null,
                     "definition_name": "Custom_1",
-                    "logs": [],
-                    "name": "Custom_1",
-                    "parent_uids": [
-                        "InteractivePlan",
-                        "Test1"
-                    ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
-                    "status_reason": null,
-                    "strict_order": false,
-                    "tags": {},
-                    "timer": {},
                     "type": "TestGroupReport",
-                    "uid": "Custom_1"
+                    "name": "Custom_1",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
                 }
             ],
-            "env_status": "STARTED",
-            "events": {},
+            "counter": {
+                "passed": 6,
+                "failed": 0,
+                "total": 6
+            },
+            "runtime_status": "finished",
             "fix_spec_path": null,
-            "hash": 0,
+            "logs": [],
+            "status_override": null,
+            "events": {},
+            "category": "multitest",
+            "part": null,
+            "uid": "Test1",
             "host": null,
             "definition_name": "Test1",
-            "logs": [],
+            "type": "TestGroupReport",
             "name": "Test1",
+            "strict_order": false,
+            "hash": 0,
+            "status": "passed"
+        },
+        {
+            "timer": {
+                "setup": {
+                    "end": "2023-11-28T01:37:33.252825+00:00",
+                    "start": "2023-11-28T01:37:33.156004+00:00"
+                }
+            },
+            "env_status": "STARTED",
             "parent_uids": [
                 "InteractivePlan"
             ],
-            "part": null,
-            "runtime_status": "finished",
-            "status": "passed",
-            "status_override": null,
+            "suite_related": false,
             "status_reason": null,
-            "strict_order": false,
             "tags": {},
-            "timer": {},
-            "type": "TestGroupReport",
-            "uid": "Test1"
-        },
-        {
-            "category": "multitest",
-            "counter": {
-                "failed": 0,
-                "passed": 5,
-                "total": 5
-            },
             "description": null,
             "entries": [
                 {
-                    "category": "testsuite",
-                    "counter": {
-                        "failed": 0,
-                        "passed": 3,
-                        "total": 3
-                    },
+                    "timer": {},
+                    "env_status": null,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2"
+                    ],
+                    "suite_related": true,
+                    "status_reason": null,
+                    "tags": {},
                     "description": null,
                     "entries": [
                         {
-                            "category": "parametrization",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 3,
-                                "total": 3
+                            "category": "testcase",
+                            "timer": {
+                                "run": {
+                                    "end": "2023-11-28T01:37:33.247217+00:00",
+                                    "start": "2023-11-28T01:37:33.247184+00:00"
+                                }
                             },
+                            "name": "accept_connection",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "After Start"
+                            ],
+                            "status_override": null,
+                            "suite_related": true,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "logs": [],
+                            "uid": "accept_connection",
+                            "status_reason": null,
+                            "tags": {},
+                            "description": null,
+                            "definition_name": "accept_connection",
+                            "hash": 0,
+                            "type": "TestCaseReport",
+                            "entries": [],
+                            "runtime_status": "finished",
+                            "status": "passed"
+                        }
+                    ],
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "runtime_status": "finished",
+                    "fix_spec_path": null,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "After Start",
+                    "host": null,
+                    "definition_name": "After Start",
+                    "type": "TestGroupReport",
+                    "name": "After Start",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
+                },
+                {
+                    "timer": {},
+                    "env_status": null,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2"
+                    ],
+                    "suite_related": false,
+                    "status_reason": null,
+                    "tags": {},
+                    "description": null,
+                    "entries": [
+                        {
+                            "timer": {},
+                            "env_status": null,
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "BasicSuite"
+                            ],
+                            "suite_related": false,
+                            "status_reason": null,
+                            "tags": {},
                             "description": null,
                             "entries": [
                                 {
                                     "category": "testcase",
-                                    "counter": {
-                                        "failed": 0,
-                                        "passed": 1,
-                                        "total": 1
-                                    },
-                                    "description": null,
-                                    "entries": [
-                                        {
-                                            "category": "DEFAULT",
-                                            "description": "Passing assertion",
-                                            "file_path": "",
-                                            "first": 1,
-                                            "flag": "DEFAULT",
-                                            "label": "==",
-                                            "line_no": 0,
-                                            "machine_time": "",
-                                            "meta_type": "assertion",
-                                            "passed": true,
-                                            "second": 1,
-                                            "type": "Equal",
-                                            "type_actual": "int",
-                                            "type_expected": "int",
-                                            "utc_time": ""
+                                    "timer": {
+                                        "run": {
+                                            "end": "2023-11-28T01:37:33.263859+00:00",
+                                            "start": "2023-11-28T01:37:33.261016+00:00"
                                         }
-                                    ],
-                                    "hash": 0,
-                                    "definition_name": "basic_case <arg=0>",
-                                    "logs": [],
+                                    },
                                     "name": "basic_case <arg=0>",
                                     "parent_uids": [
                                         "InteractivePlan",
@@ -529,51 +662,51 @@
                                         "BasicSuite",
                                         "basic_case"
                                     ],
-                                    "runtime_status": "finished",
-                                    "status": "passed",
                                     "status_override": null,
-                                    "status_reason": null,
                                     "suite_related": false,
-                                    "tags": {},
-                                    "timer": {
-                                        "run": {
-                                            "end": "",
-                                            "start": ""
-                                        }
+                                    "counter": {
+                                        "passed": 1,
+                                        "failed": 0,
+                                        "total": 1
                                     },
+                                    "logs": [],
+                                    "uid": "basic_case__arg_0",
+                                    "status_reason": null,
+                                    "tags": {},
+                                    "description": null,
+                                    "definition_name": "basic_case <arg=0>",
+                                    "hash": 0,
                                     "type": "TestCaseReport",
-                                    "uid": "basic_case__arg_0"
+                                    "entries": [
+                                        {
+                                            "line_no": 47,
+                                            "category": "DEFAULT",
+                                            "type_actual": "int",
+                                            "type_expected": "int",
+                                            "file_path": "",
+                                            "label": "==",
+                                            "flag": "DEFAULT",
+                                            "passed": true,
+                                            "second": 1,
+                                            "first": 1,
+                                            "description": "Passing assertion",
+                                            "machine_time": "2023-11-28T09:37:33.261072+08:00",
+                                            "type": "Equal",
+                                            "meta_type": "assertion",
+                                            "utc_time": "2023-11-28T01:37:33.261067+00:00"
+                                        }
+                                    ],
+                                    "runtime_status": "finished",
+                                    "status": "passed"
                                 },
                                 {
                                     "category": "testcase",
-                                    "counter": {
-                                        "failed": 0,
-                                        "passed": 1,
-                                        "total": 1
-                                    },
-                                    "description": null,
-                                    "entries": [
-                                        {
-                                            "category": "DEFAULT",
-                                            "description": "Passing assertion",
-                                            "file_path": "",
-                                            "first": 1,
-                                            "flag": "DEFAULT",
-                                            "label": "==",
-                                            "line_no": 0,
-                                            "machine_time": "",
-                                            "meta_type": "assertion",
-                                            "passed": true,
-                                            "second": 1,
-                                            "type": "Equal",
-                                            "type_actual": "int",
-                                            "type_expected": "int",
-                                            "utc_time": ""
+                                    "timer": {
+                                        "run": {
+                                            "end": "2023-11-28T01:37:33.267536+00:00",
+                                            "start": "2023-11-28T01:37:33.264749+00:00"
                                         }
-                                    ],
-                                    "hash": 0,
-                                    "definition_name": "basic_case <arg=1>",
-                                    "logs": [],
+                                    },
                                     "name": "basic_case <arg=1>",
                                     "parent_uids": [
                                         "InteractivePlan",
@@ -581,51 +714,51 @@
                                         "BasicSuite",
                                         "basic_case"
                                     ],
-                                    "runtime_status": "finished",
-                                    "status": "passed",
                                     "status_override": null,
-                                    "status_reason": null,
                                     "suite_related": false,
-                                    "tags": {},
-                                    "timer": {
-                                        "run": {
-                                            "end": "",
-                                            "start": ""
-                                        }
+                                    "counter": {
+                                        "passed": 1,
+                                        "failed": 0,
+                                        "total": 1
                                     },
+                                    "logs": [],
+                                    "uid": "basic_case__arg_1",
+                                    "status_reason": null,
+                                    "tags": {},
+                                    "description": null,
+                                    "definition_name": "basic_case <arg=1>",
+                                    "hash": 0,
                                     "type": "TestCaseReport",
-                                    "uid": "basic_case__arg_1"
+                                    "entries": [
+                                        {
+                                            "line_no": 47,
+                                            "category": "DEFAULT",
+                                            "type_actual": "int",
+                                            "type_expected": "int",
+                                            "file_path": "",
+                                            "label": "==",
+                                            "flag": "DEFAULT",
+                                            "passed": true,
+                                            "second": 1,
+                                            "first": 1,
+                                            "description": "Passing assertion",
+                                            "machine_time": "2023-11-28T09:37:33.264809+08:00",
+                                            "type": "Equal",
+                                            "meta_type": "assertion",
+                                            "utc_time": "2023-11-28T01:37:33.264804+00:00"
+                                        }
+                                    ],
+                                    "runtime_status": "finished",
+                                    "status": "passed"
                                 },
                                 {
                                     "category": "testcase",
-                                    "counter": {
-                                        "failed": 0,
-                                        "passed": 1,
-                                        "total": 1
-                                    },
-                                    "description": null,
-                                    "entries": [
-                                        {
-                                            "category": "DEFAULT",
-                                            "description": "Passing assertion",
-                                            "file_path": "",
-                                            "first": 1,
-                                            "flag": "DEFAULT",
-                                            "label": "==",
-                                            "line_no": 0,
-                                            "machine_time": "",
-                                            "meta_type": "assertion",
-                                            "passed": true,
-                                            "second": 1,
-                                            "type": "Equal",
-                                            "type_actual": "int",
-                                            "type_expected": "int",
-                                            "utc_time": ""
+                                    "timer": {
+                                        "run": {
+                                            "end": "2023-11-28T01:37:33.271152+00:00",
+                                            "start": "2023-11-28T01:37:33.268423+00:00"
                                         }
-                                    ],
-                                    "hash": 0,
-                                    "definition_name": "basic_case <arg=2>",
-                                    "logs": [],
+                                    },
                                     "name": "basic_case <arg=2>",
                                     "parent_uids": [
                                         "InteractivePlan",
@@ -633,307 +766,341 @@
                                         "BasicSuite",
                                         "basic_case"
                                     ],
-                                    "runtime_status": "finished",
-                                    "status": "passed",
                                     "status_override": null,
-                                    "status_reason": null,
                                     "suite_related": false,
-                                    "tags": {},
-                                    "timer": {
-                                        "run": {
-                                            "end": "",
-                                            "start": ""
-                                        }
+                                    "counter": {
+                                        "passed": 1,
+                                        "failed": 0,
+                                        "total": 1
                                     },
+                                    "logs": [],
+                                    "uid": "basic_case__arg_2",
+                                    "status_reason": null,
+                                    "tags": {},
+                                    "description": null,
+                                    "definition_name": "basic_case <arg=2>",
+                                    "hash": 0,
                                     "type": "TestCaseReport",
-                                    "uid": "basic_case__arg_2"
+                                    "entries": [
+                                        {
+                                            "line_no": 47,
+                                            "category": "DEFAULT",
+                                            "type_actual": "int",
+                                            "type_expected": "int",
+                                            "file_path": "",
+                                            "label": "==",
+                                            "flag": "DEFAULT",
+                                            "passed": true,
+                                            "second": 1,
+                                            "first": 1,
+                                            "description": "Passing assertion",
+                                            "machine_time": "2023-11-28T09:37:33.268477+08:00",
+                                            "type": "Equal",
+                                            "meta_type": "assertion",
+                                            "utc_time": "2023-11-28T01:37:33.268473+00:00"
+                                        }
+                                    ],
+                                    "runtime_status": "finished",
+                                    "status": "passed"
                                 }
                             ],
-                            "env_status": null,
-                            "events": {},
+                            "counter": {
+                                "passed": 3,
+                                "failed": 0,
+                                "total": 3
+                            },
+                            "runtime_status": "finished",
                             "fix_spec_path": null,
-                            "hash": 0,
+                            "logs": [],
+                            "status_override": null,
+                            "events": {},
+                            "category": "parametrization",
+                            "part": null,
+                            "uid": "basic_case",
                             "host": null,
                             "definition_name": "basic_case",
-                            "logs": [],
-                            "name": "basic_case",
-                            "parent_uids": [
-                                "InteractivePlan",
-                                "Test2",
-                                "BasicSuite"
-                            ],
-                            "part": null,
-                            "runtime_status": "finished",
-                            "status": "passed",
-                            "status_override": null,
-                            "status_reason": null,
-                            "strict_order": false,
-                            "tags": {},
-                            "timer": {},
                             "type": "TestGroupReport",
-                            "uid": "basic_case"
+                            "name": "basic_case",
+                            "strict_order": false,
+                            "hash": 0,
+                            "status": "passed"
                         }
                     ],
-                    "env_status": null,
-                    "events": {},
+                    "counter": {
+                        "passed": 3,
+                        "failed": 0,
+                        "total": 3
+                    },
+                    "runtime_status": "finished",
                     "fix_spec_path": null,
-                    "hash": 0,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "BasicSuite",
                     "host": null,
                     "definition_name": "BasicSuite",
-                    "logs": [],
+                    "type": "TestGroupReport",
                     "name": "BasicSuite",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
+                },
+                {
+                    "timer": {},
+                    "env_status": null,
                     "parent_uids": [
                         "InteractivePlan",
                         "Test2"
                     ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
+                    "suite_related": false,
                     "status_reason": null,
-                    "strict_order": false,
                     "tags": {},
-                    "timer": {},
-                    "type": "TestGroupReport",
-                    "uid": "BasicSuite"
-                },
-                {
-                    "category": "testsuite",
-                    "counter": {
-                        "failed": 0,
-                        "passed": 1,
-                        "total": 1
-                    },
                     "description": null,
                     "entries": [
                         {
                             "category": "testcase",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 1,
-                                "total": 1
-                            },
-                            "description": "Client sends a message, server received and responds back.",
-                            "entries": [
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Server received",
-                                    "file_path": "",
-                                    "first": "hello",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "hello",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
-                                },
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Client received",
-                                    "file_path": "",
-                                    "first": "world",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "world",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
+                            "timer": {
+                                "run": {
+                                    "end": "2023-11-28T01:37:33.277749+00:00",
+                                    "start": "2023-11-28T01:37:33.272092+00:00"
                                 }
-                            ],
-                            "hash": 0,
-                            "definition_name": "send_and_receive_msg",
-                            "logs": [],
+                            },
                             "name": "send_and_receive_msg",
                             "parent_uids": [
                                 "InteractivePlan",
                                 "Test2",
                                 "Custom_0"
                             ],
-                            "runtime_status": "finished",
-                            "status": "passed",
                             "status_override": null,
-                            "status_reason": null,
                             "suite_related": false,
-                            "tags": {},
-                            "timer": {
-                                "run": {
-                                    "end": "",
-                                    "start": ""
-                                }
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
                             },
+                            "logs": [],
+                            "uid": "send_and_receive_msg",
+                            "status_reason": null,
+                            "tags": {},
+                            "description": "Client sends a message, server received and responds back.",
+                            "definition_name": "send_and_receive_msg",
+                            "hash": 0,
                             "type": "TestCaseReport",
-                            "uid": "send_and_receive_msg"
+                            "entries": [
+                                {
+                                    "line_no": 62,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "hello",
+                                    "first": "hello",
+                                    "description": "Server received",
+                                    "machine_time": "2023-11-28T09:37:33.272240+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.272224+00:00"
+                                },
+                                {
+                                    "line_no": 66,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "world",
+                                    "first": "world",
+                                    "description": "Client received",
+                                    "machine_time": "2023-11-28T09:37:33.275067+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.275060+00:00"
+                                }
+                            ],
+                            "runtime_status": "finished",
+                            "status": "passed"
                         }
                     ],
-                    "env_status": null,
-                    "events": {},
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "runtime_status": "finished",
                     "fix_spec_path": null,
-                    "hash": 0,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "Custom_0",
                     "host": null,
                     "definition_name": "Custom_0",
-                    "logs": [],
+                    "type": "TestGroupReport",
                     "name": "Custom_0",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
+                },
+                {
+                    "timer": {},
+                    "env_status": null,
                     "parent_uids": [
                         "InteractivePlan",
                         "Test2"
                     ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
+                    "suite_related": false,
                     "status_reason": null,
-                    "strict_order": false,
                     "tags": {},
-                    "timer": {},
-                    "type": "TestGroupReport",
-                    "uid": "Custom_0"
-                },
-                {
-                    "category": "testsuite",
-                    "counter": {
-                        "failed": 0,
-                        "passed": 1,
-                        "total": 1
-                    },
                     "description": null,
                     "entries": [
                         {
                             "category": "testcase",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 1,
-                                "total": 1
-                            },
-                            "description": "Client sends a message, server received and responds back.",
-                            "entries": [
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Server received",
-                                    "file_path": "",
-                                    "first": "hello",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "hello",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
-                                },
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "Client received",
-                                    "file_path": "",
-                                    "first": "world",
-                                    "flag": "DEFAULT",
-                                    "label": "==",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "meta_type": "assertion",
-                                    "passed": true,
-                                    "second": "world",
-                                    "type": "Equal",
-                                    "type_actual": "str",
-                                    "type_expected": "str",
-                                    "utc_time": ""
+                            "timer": {
+                                "run": {
+                                    "end": "2023-11-28T01:37:33.284805+00:00",
+                                    "start": "2023-11-28T01:37:33.279347+00:00"
                                 }
-                            ],
-                            "hash": 0,
-                            "definition_name": "send_and_receive_msg",
-                            "logs": [],
+                            },
                             "name": "send_and_receive_msg",
                             "parent_uids": [
                                 "InteractivePlan",
                                 "Test2",
                                 "Custom_1"
                             ],
-                            "runtime_status": "finished",
-                            "status": "passed",
                             "status_override": null,
-                            "status_reason": null,
                             "suite_related": false,
-                            "tags": {},
-                            "timer": {
-                                "run": {
-                                    "end": "",
-                                    "start": ""
-                                }
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
                             },
+                            "logs": [],
+                            "uid": "send_and_receive_msg",
+                            "status_reason": null,
+                            "tags": {},
+                            "description": "Client sends a message, server received and responds back.",
+                            "definition_name": "send_and_receive_msg",
+                            "hash": 0,
                             "type": "TestCaseReport",
-                            "uid": "send_and_receive_msg"
+                            "entries": [
+                                {
+                                    "line_no": 62,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "hello",
+                                    "first": "hello",
+                                    "description": "Server received",
+                                    "machine_time": "2023-11-28T09:37:33.279453+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.279447+00:00"
+                                },
+                                {
+                                    "line_no": 66,
+                                    "category": "DEFAULT",
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "file_path": "",
+                                    "label": "==",
+                                    "flag": "DEFAULT",
+                                    "passed": true,
+                                    "second": "world",
+                                    "first": "world",
+                                    "description": "Client received",
+                                    "machine_time": "2023-11-28T09:37:33.282080+08:00",
+                                    "type": "Equal",
+                                    "meta_type": "assertion",
+                                    "utc_time": "2023-11-28T01:37:33.282073+00:00"
+                                }
+                            ],
+                            "runtime_status": "finished",
+                            "status": "passed"
                         }
                     ],
-                    "env_status": null,
-                    "events": {},
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "runtime_status": "finished",
                     "fix_spec_path": null,
-                    "hash": 0,
+                    "logs": [],
+                    "status_override": null,
+                    "events": {},
+                    "category": "testsuite",
+                    "part": null,
+                    "uid": "Custom_1",
                     "host": null,
                     "definition_name": "Custom_1",
-                    "logs": [],
-                    "name": "Custom_1",
-                    "parent_uids": [
-                        "InteractivePlan",
-                        "Test2"
-                    ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
-                    "status_reason": null,
-                    "strict_order": false,
-                    "tags": {},
-                    "timer": {},
                     "type": "TestGroupReport",
-                    "uid": "Custom_1"
+                    "name": "Custom_1",
+                    "strict_order": false,
+                    "hash": 0,
+                    "status": "passed"
                 }
             ],
-            "env_status": "STARTED",
-            "events": {},
+            "counter": {
+                "passed": 6,
+                "failed": 0,
+                "total": 6
+            },
+            "runtime_status": "finished",
             "fix_spec_path": null,
-            "hash": 0,
+            "logs": [],
+            "status_override": null,
+            "events": {},
+            "category": "multitest",
+            "part": null,
+            "uid": "Test2",
             "host": null,
             "definition_name": "Test2",
-            "logs": [],
-            "name": "Test2",
-            "parent_uids": [
-                "InteractivePlan"
-            ],
-            "part": null,
-            "runtime_status": "finished",
-            "status": "passed",
-            "status_override": null,
-            "status_reason": null,
-            "strict_order": false,
-            "tags": {},
-            "timer": {},
             "type": "TestGroupReport",
-            "uid": "Test2"
+            "name": "Test2",
+            "strict_order": false,
+            "hash": 0,
+            "status": "passed"
         }
     ],
-    "events": {},
-    "information": [],
-    "label": null,
+    "counter": {
+        "passed": 12,
+        "failed": 0,
+        "total": 12
+    },
     "logs": [],
-    "meta": {},
-    "name": "InteractivePlan",
+    "uid": "InteractivePlan",
     "runtime_status": "finished",
-    "status": "passed",
+    "events": {},
+    "information": [
+        [
+            "user",
+            "yifan"
+        ],
+        [
+            "command_line_string",
+            "script/run_pytest.py --tests oss/tests/functional/testplan/runnable/interactive/test_interactive.py::test_top_level_tests"
+        ],
+        [
+            "python_version",
+            "3.7.5"
+        ]
+    ],
+    "attachments": {},
     "status_override": null,
-    "tags_index": {},
-    "timeout": null,
-    "timer": {},
-    "uid": "InteractivePlan"
+    "description": null,
+    "name": "InteractivePlan",
+    "status": "passed",
+    "meta": {}
 }

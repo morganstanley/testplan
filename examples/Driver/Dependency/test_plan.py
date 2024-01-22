@@ -51,9 +51,9 @@ def main(plan):
         port=context("server_2", "{{port}}"),
     )
 
-    # If driver A depends on driver B to start, we will put driver A in the key
+    # If driver A is a dependency for driver B to start, we put driver A in the key
     # of dependencies dictionary and driver B as its corresponding value, so
-    # driver A is before driver B visually.
+    # visually driver A appears before driver B.
 
     # Here server_1 and server_2 will be started simutaneously to reduce the
     # overall test running time while not violating the dependencies.

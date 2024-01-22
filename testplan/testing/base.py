@@ -3,8 +3,7 @@ import os
 import subprocess
 import sys
 import warnings
-from typing import Dict, Generator, List, Optional
-
+from typing import Dict, Generator, List, Optional, Union, Callable, Iterable
 from schema import And, Or, Use
 
 from testplan import defaults
@@ -17,7 +16,8 @@ from testplan.common.entity import (
     RunnableResult,
 )
 from testplan.common.remote.remote_driver import RemoteDriver
-from testplan.common.utils import strings
+from testplan.common.utils import strings, interface
+from testplan.common.utils.composer import compose_contexts
 from testplan.common.utils.context import render
 from testplan.common.utils.process import (
     enforce_timeout,
@@ -32,7 +32,7 @@ from testplan.report import (
     TestGroupReport,
     test_styles,
 )
-from testplan.testing import filtering, ordering, tagging
+from testplan.testing import common, filtering, ordering, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
@@ -70,11 +70,14 @@ class TestConfig(RunnableConfig):
                 test_name_sanity_check,
             ),
             ConfigOption("description", default=None): Or(str, None),
-            ConfigOption("environment", default=[]): [
-                Or(Resource, RemoteDriver)
-            ],
+            ConfigOption("environment", default=[]): Or(
+                [Or(Resource, RemoteDriver)], validate_func()
+            ),
             ConfigOption("dependencies", default=None): Or(
-                None, Use(parse_dependency)
+                Use(parse_dependency), validate_func()
+            ),
+            ConfigOption("initial_context", default={}): Or(
+                dict, validate_func()
             ),
             ConfigOption("before_start", default=None): start_stop_signature,
             ConfigOption("after_start", default=None): start_stop_signature,
@@ -83,6 +86,9 @@ class TestConfig(RunnableConfig):
             ConfigOption("test_filter"): filtering.BaseFilter,
             ConfigOption("test_sorter"): ordering.BaseSorter,
             ConfigOption("stdout_style"): test_styles.Style,
+            ConfigOption("skip_strategy"): Use(
+                common.SkipStrategy.from_test_option
+            ),
             ConfigOption("tags", default=None): Or(
                 None, Use(tagging.validate_tag_value)
             ),
@@ -115,8 +121,17 @@ class Test(Runnable):
     :type description: ``str``
     :param environment: List of
         :py:class:`drivers <testplan.tesitng.multitest.driver.base.Driver>` to
-        be started and made available on tests execution.
-    :type environment: ``list``
+        be started and made available on tests execution. Can also take a
+        callable that returns the list of drivers.
+    :type environment: ``list`` or ``callable``
+    :param dependencies: driver start-up dependencies as a directed graph,
+        e.g {server1: (client1, client2)} indicates server1 shall start before
+        client1 and client2. Can also take a callable that returns a dict.
+    :type dependencies: ``dict`` or ``callable``
+    :param initial_context: key: value pairs that will be made available as
+        context for drivers in environment. Can also take a callbale that
+        returns a dict.
+    :type initial_context: ``dict`` or ``callable``
     :param test_filter: Class with test filtering logic.
     :type test_filter: :py:class:`~testplan.testing.filtering.BaseFilter`
     :param test_sorter: Class with tests sorting logic.
@@ -146,7 +161,24 @@ class Test(Runnable):
     # Base test class only allows Test (top level) filtering
     filter_levels = [filtering.FilterLevel.TEST]
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name: str,
+        description: str = None,
+        environment: Union[list, Callable] = None,
+        dependencies: Union[dict, Callable] = None,
+        initial_context: Union[dict, Callable] = None,
+        before_start: callable = None,
+        after_start: callable = None,
+        before_stop: callable = None,
+        after_stop: callable = None,
+        test_filter: filtering.BaseFilter = None,
+        test_sorter: ordering.BaseSorter = None,
+        stdout_style: test_styles.Style = None,
+        tags: Union[str, Iterable[str]] = None,
+        **options,
+    ):
+        options.update(self.filter_locals(locals()))
         super(Test, self).__init__(**options)
 
         if ":" in self.cfg.name:
@@ -156,18 +188,11 @@ class Test(Runnable):
                 )
             )
 
-        self.resources._initial_context = self.cfg.initial_context
-        for driver in self.cfg.environment:
-            driver.parent = self
-            driver.cfg.parent = self.cfg
-            self.resources.add(driver)
-
-        if self.cfg.dependencies is not None:
-            self.resources.set_dependency(self.cfg.dependencies)
-
         self._test_context = None
-        self._init_test_report()
         self._discover_path = None
+
+        self._init_test_report()
+        self._env_built = False
 
     def __str__(self):
         return "{}[{}]".format(self.__class__.__name__, self.name)
@@ -366,19 +391,83 @@ class Test(Runnable):
     def _record_teardown_end(self):
         self.report.timer.end("teardown")
 
-    def pre_resource_steps(self):
+    def _init_context(self):
+        if callable(self.cfg.initial_context):
+            self.resources._initial_context = self.cfg.initial_context()
+        else:
+            self.resources._initial_context = self.cfg.initial_context
+
+    def _build_environment(self):
+        # build environment only once in interactive mode
+        if self._env_built:
+            return
+
+        if callable(self.cfg.environment):
+            drivers = self.cfg.environment()
+        else:
+            drivers = self.cfg.environment
+
+        for driver in drivers:
+            driver.parent = self
+            driver.cfg.parent = self.cfg
+            self.resources.add(driver)
+        self._env_built = True
+
+    def _set_dependencies(self):
+        if callable(self.cfg.dependencies):
+            deps = parse_dependency(self.cfg.dependencies())
+        else:
+            deps = self.cfg.dependencies
+        if deps:
+            self.resources.set_dependency(deps)
+
+    def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
         self._add_step(self._record_setup_start)
 
-    def pre_main_steps(self):
+        self._add_step(self._init_context)
+        self._add_step(self._build_environment)
+        self._add_step(self._set_dependencies)
+
+    def add_start_resource_steps(self):
+        self._add_step(
+            self._run_resource_hook,
+            hook=self.cfg.before_start,
+            label="Before Start",
+        )
+
+        self._add_step(self.resources.start)
+
+        self._add_step(
+            self._run_resource_hook,
+            hook=self.cfg.after_start,
+            label="After Start",
+        )
+
+    def add_stop_resource_steps(self):
+        self._add_step(
+            self._run_resource_hook,
+            hook=self.cfg.before_stop,
+            label="Before Stop",
+        )
+
+        self._add_step(self.resources.stop, is_reversed=True)
+
+        self._add_step(
+            self._run_resource_hook,
+            hook=self.cfg.after_stop,
+            label="After Stop",
+        )
+
+    def add_pre_main_steps(self):
         """Runnable steps to run after environment started."""
         self._add_step(self._record_setup_end)
 
-    def post_main_steps(self):
+    def add_post_main_steps(self):
         """Runnable steps to run before environment stopped."""
         self._add_step(self._record_teardown_start)
 
-    def post_resource_steps(self):
+    def add_post_resource_steps(self):
         """Runnable steps to run after environment stopped."""
         self._add_step(self._record_teardown_end)
 
@@ -412,8 +501,15 @@ class Test(Runnable):
         The base implementation is very simple but may be overridden in sub-
         classes to run additional setup pre- and post-environment start.
         """
-        self.make_runpath_dirs()
-        self.resources.start()
+        # in case this is called more than once from interactive
+        self.report.timer.clear()
+
+        self._add_step(self.setup)
+        self.add_pre_resource_steps()
+        self.add_start_resource_steps()
+        self.add_pre_main_steps()
+
+        self._run()
 
     def stop_test_resources(self):
         """
@@ -421,15 +517,110 @@ class Test(Runnable):
         interactive mode and is very simple in this base Test class, but may
         be overridden by sub-classes.
         """
-        self.resources.stop()
 
-    def dry_run(self):
+        self.add_post_main_steps()
+        self.add_stop_resource_steps()
+        self.add_post_resource_steps()
+        self._add_step(self.teardown)
+
+        self._run()
+
+    def _get_runtime_environment(self, testcase_name, testcase_report):
+        # TODO: this just for API compatibility
+        # move RuntimeEnv to Test, or get rid of it?
+        return self.resources
+
+    def _get_hook_context(self, case_report):
+        return (
+            case_report.timer.record("run"),
+            case_report.logged_exceptions(),
+        )
+
+    def _run_resource_hook(self, hook, label):
         """
-        Return an empty report skeleton for this test including all
-        testsuites, testcases etc. hierarchy. Does not run any tests.
+        This method runs post/pre_start/stop hooks. User can optionally make
+        use of assertions if the function accepts both ``env`` and ``result``
+        arguments.
+
+        These functions are also run within report error logging context,
+        meaning that if something goes wrong we will have the stack trace
+        in the final report.
         """
+
+        if not hook:
+            return
+
+        suite_report = TestGroupReport(
+            name=label,
+            category=ReportCategories.TESTSUITE,
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
+        )
+
+        case_report = TestCaseReport(
+            name=hook.__name__,
+            description=strings.get_docstring(hook),
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
+        )
+        suite_report.append(case_report)
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self.scratch
+        )
+        runtime_env = self._get_runtime_environment(
+            testcase_name=hook.__name__,
+            testcase_report=case_report,
+        )
+        try:
+            interface.check_signature(hook, ["env", "result"])
+            hook_args = (runtime_env, case_result)
+        except interface.MethodSignatureMismatch:
+            interface.check_signature(hook, ["env"])
+            hook_args = (runtime_env,)
+
+        with compose_contexts(*self._get_hook_context(case_report)):
+            hook(*hook_args)
+
+        case_report.extend(case_result.serialized_entries)
+        case_report.attachments.extend(case_result.attachments)
+
+        if self.get_stdout_style(case_report.passed).display_testcase:
+            self.log_testcase_status(case_report)
+
+        case_report.pass_if_empty()
+        case_report.runtime_status = RuntimeStatus.FINISHED
+        suite_report.runtime_status = RuntimeStatus.FINISHED
+
+        if self.result.report.has_uid(label):
+            self.result.report[label] = suite_report
+        else:
+            self.result.report.append(suite_report)
+
+    def _dry_run_resource_hook(self, hook, label):
+
+        if not hook:
+            return
+
+        suite_report = TestGroupReport(
+            name=label,
+            category=ReportCategories.TESTSUITE,
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
+        )
+        case_report = TestCaseReport(
+            name=hook.__name__,
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
+        )
+        suite_report.append(case_report)
+        self.result.report.append(suite_report)
+
+    def _dry_run_testsuites(self):
         suites_to_run = self.test_context
-        self.result.report = self._new_test_report()
 
         for testsuite, testcases in suites_to_run:
             testsuite_report = TestGroupReport(
@@ -442,6 +633,28 @@ class Test(Runnable):
                 testsuite_report.append(testcase_report)
 
             self.result.report.append(testsuite_report)
+
+    def dry_run(self):
+        """
+        Return an empty report skeleton for this test including all
+        testsuites, testcases etc. hierarchy. Does not run any tests.
+        """
+
+        self.result.report = self._new_test_report()
+
+        for hook, label in (
+            (self.cfg.before_start, "Before Start"),
+            (self.cfg.after_start, "After Start"),
+        ):
+            self._dry_run_resource_hook(hook, label)
+
+        self._dry_run_testsuites()
+
+        for hook, label in (
+            (self.cfg.before_stop, "Before Stop"),
+            (self.cfg.after_stop, "After Stop"),
+        ):
+            self._dry_run_resource_hook(hook, label)
 
         return self.result
 
@@ -914,20 +1127,12 @@ class ProcessRunnerTest(Test):
                 pattern = f"{test_report.name}:{suite_report.name}:{case_report.name}"
                 _xfail(pattern, case_report)
 
-    def pre_resource_steps(self):
+    def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
-        super(ProcessRunnerTest, self).pre_resource_steps()
+        super(ProcessRunnerTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
-        if self.cfg.before_start:
-            self._add_step(self.cfg.before_start)
 
-    def pre_main_steps(self):
-        """Runnable steps to be executed after environment starts."""
-        if self.cfg.after_start:
-            self._add_step(self.cfg.after_start)
-        super(ProcessRunnerTest, self).pre_main_steps()
-
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
@@ -935,30 +1140,14 @@ class ProcessRunnerTest(Test):
         self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results, top_down=False)
 
-    def post_main_steps(self):
-        """Runnable steps to run before environment stopped."""
-        super(ProcessRunnerTest, self).post_main_steps()
-        if self.cfg.before_stop:
-            self._add_step(self.cfg.before_stop)
-
-    def post_resource_steps(self):
-        """Runnable steps to be executed after environment stops."""
-        if self.cfg.after_stop:
-            self._add_step(self.cfg.after_stop)
-        super(ProcessRunnerTest, self).post_resource_steps()
-
     def aborting(self):
         if self._test_process is not None:
             kill_process(self._test_process)
             self._test_process_killed = True
 
-    def dry_run(self):
-        """
-        Return an empty report skeleton for this test including all
-        testsuites, testcases etc. hierarchy. Does not run any tests.
-        """
-        result = super(ProcessRunnerTest, self).dry_run()
-        report = result.report
+    def _dry_run_testsuites(self):
+
+        super(ProcessRunnerTest, self)._dry_run_testsuites()
 
         testcase_report = TestCaseReport(
             name=self._VERIFICATION_TESTCASE_NAME,
@@ -969,9 +1158,7 @@ class ProcessRunnerTest(Test):
             category=ReportCategories.TESTSUITE,
             entries=[testcase_report],
         )
-        report.append(testsuite_report)
-
-        return result
+        self.result.report.append(testsuite_report)
 
     def run_testcases_iter(
         self,

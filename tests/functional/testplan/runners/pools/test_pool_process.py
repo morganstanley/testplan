@@ -8,6 +8,7 @@ import pytest
 from testplan.report import Status
 from testplan.runners.pools.process import ProcessPool
 from testplan.runners.pools.tasks import TaskMaterializationError
+from testplan.runners.pools.tasks.base import task_target
 from testplan.testing import multitest
 from tests.functional.testplan.runners.pools.test_pool_base import (
     schedule_tests_to_pool,
@@ -355,4 +356,35 @@ def test_restart_worker(mockplan):
     assert res.run is False
     assert res.success is False
     assert mockplan.report.status == Status.ERROR
-    assert mockplan.report.counter[Status.ERROR] == 1
+    assert mockplan.report.counter[Status.ERROR.to_json_compatible()] == 1
+
+
+def test_materialization_fail(mockplan):
+    """Test task target will fail to materialize in worker"""
+    pool_name = ProcessPool.__name__
+    pool = ProcessPool(pool_name)
+    mockplan.add_resource(pool)
+
+    @task_target
+    def only_fail_under_ppool(ppid):
+        if os.getpid() == ppid:
+            from .func_pool_base_tasks import get_imported_mtest
+
+            return get_imported_mtest("passing")
+        raise RuntimeError("mock failure")
+
+    mockplan.schedule(
+        target=only_fail_under_ppool,
+        args=(os.getpid(),),
+        resource=pool_name,
+    )
+
+    res = mockplan.run()
+
+    assert res.run is False
+    assert res.success is False
+    assert mockplan.report.status == Status.ERROR
+    assert (
+        mockplan.report.entries[0].category
+        == Status.ERROR.to_json_compatible()
+    )

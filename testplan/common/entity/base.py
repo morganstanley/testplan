@@ -12,6 +12,7 @@ import traceback
 from collections import OrderedDict, deque
 from contextlib import suppress
 from typing import (
+    Any,
     Callable,
     Deque,
     Dict,
@@ -20,20 +21,19 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    Any,
 )
 
 import psutil
 from schema import Or
 
 from testplan.common.config import Config, ConfigOption
+from testplan.common.report.base import EventRecorder
 from testplan.common.utils import logger
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
 from testplan.common.utils.timing import wait
 from testplan.common.utils.validation import is_subclass
-from testplan.common.report.base import EventRecorder
 
 
 class Environment:
@@ -149,6 +149,9 @@ class Environment:
     def __len__(self):
         return len(self._resources)
 
+    def items(self):
+        return self._resources.items()
+
     def all_status(self, target) -> bool:
         """
         Checks whether all resources have target status.
@@ -165,7 +168,7 @@ class Environment:
         fetch_msg = "\n".join(resource.fetch_error_log())
 
         msg = message.format(
-            resource_name=resource.cfg.name,
+            resource=resource,
             traceback_exc=traceback.format_exc(),
             fetch_msg=fetch_msg,
         )
@@ -186,7 +189,8 @@ class Environment:
                 resource.start()
             except Exception:
                 self._record_resource_exception(
-                    message="While starting resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    message="While starting resource {resource}:\n"
+                    "{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -207,7 +211,8 @@ class Environment:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
                 self._record_resource_exception(
-                    message="While waiting for resource [{resource_name}] to start\n{traceback_exc}\n{fetch_msg}",
+                    message="While waiting for resource {resource} to start:\n"
+                    "{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -273,7 +278,8 @@ class Environment:
                 resource.stop()
             except Exception:
                 self._record_resource_exception(
-                    message="While stopping resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    message="While stopping resource {resource}:"
+                    "\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.stop_exceptions,
                 )
@@ -473,7 +479,6 @@ class EntityConfig(Config):
         """
         return {
             ConfigOption("runpath"): Or(None, str, callable),
-            ConfigOption("initial_context", default={}): dict,
             ConfigOption("path_cleanup", default=False): bool,
             ConfigOption("status_wait_timeout", default=600): int,
             ConfigOption("abort_wait_timeout", default=300): int,
@@ -490,8 +495,6 @@ class Entity(logger.Loggable):
 
     :param runpath: Path to be used for temp/output files by entity.
     :type runpath: ``str`` or ``NoneType`` callable that returns ``str``
-    :param initial_context: Initial key: value pair context information.
-    :type initial_context: ``dict``
     :param path_cleanup: Remove previous runpath created dirs/files.
     :type path_cleanup: ``bool``
     :param status_wait_timeout: Timeout for wait status events.
@@ -599,8 +602,7 @@ class Entity(logger.Loggable):
 
         self._should_abort = True
         for dep in self.abort_dependencies():
-            if dep is not None:
-                self._abort_entity(dep)
+            self._abort_entity(dep)
 
         self.logger.info("Aborting %s", self)
         self.aborting()
@@ -634,7 +636,6 @@ class Entity(logger.Loggable):
             self.logger.error(traceback.format_exc())
             self.logger.error("Exception on aborting %s - %s", entity, exc)
         else:
-
             if (
                 wait(
                     predicate=lambda: entity.aborted is True,
@@ -643,7 +644,11 @@ class Entity(logger.Loggable):
                 )
                 is False
             ):
-                self.logger.error("Timeout on waiting to abort %s.", entity)
+                self.logger.error(
+                    "Timeout on waiting to abort %s after %d seconds.",
+                    entity,
+                    timeout,
+                )
 
     def aborting(self):
         """
@@ -964,15 +969,15 @@ class Runnable(Entity):
         start_threads, start_procs = self._get_start_info()
 
         self._add_step(self.setup)
-        self.pre_resource_steps()
-        self._add_step(self.resources.start)
+        self.add_pre_resource_steps()
+        self.add_start_resource_steps()
+        self.add_pre_main_steps()
 
-        self.pre_main_steps()
-        self.main_batch_steps()
-        self.post_main_steps()
+        self.add_main_batch_steps()
 
-        self._add_step(self.resources.stop, is_reversed=True)
-        self.post_resource_steps()
+        self.add_post_main_steps()
+        self.add_stop_resource_steps()
+        self.add_post_resource_steps()
         self._add_step(self.teardown)
 
         self._run()
@@ -1003,6 +1008,7 @@ class Runnable(Entity):
         :param start_procs: processes before run
         :type start_procs: ``list`` of ``Process``
         """
+        # XXX: do we want to suppress process/thread check for tests?
         end_threads = threading.enumerate()
         if start_threads != end_threads:
             new_threads = [
@@ -1055,31 +1061,43 @@ class Runnable(Entity):
             self.result.step_results[step.__name__] = res
             self.status.update_metadata(**{str(step): res})
 
-    def pre_resource_steps(self):
+    def add_pre_resource_steps(self):
         """
         Runnable steps to run before environment started.
         """
         pass
 
-    def pre_main_steps(self):
+    def add_start_resource_steps(self):
+        """
+        Runnable steps to start environment
+        """
+        self._add_step(self.resources.start)
+
+    def add_pre_main_steps(self):
         """
         Runnable steps to run after environment started.
         """
         pass
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """
         Runnable steps to be executed while environment is running.
         """
         pass
 
-    def post_main_steps(self):
+    def add_post_main_steps(self):
         """
         Runnable steps to run before environment stopped.
         """
         pass
 
-    def post_resource_steps(self):
+    def add_stop_resource_steps(self):
+        """
+        Runnable steps to stop environment
+        """
+        self._add_step(self.resources.stop, is_reversed=True)
+
+    def add_post_resource_steps(self):
         """
         Runnable steps to run after environment stopped.
         """

@@ -5,16 +5,14 @@ import os
 import pytest
 
 from testplan import Testplan, TestplanMock, TestplanResult
-from testplan.common.entity import (
-    Resource,
-    ResourceStatus,
-)
+from testplan.common.entity import Resource, ResourceStatus
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import argv_overridden
-from testplan.runnable import TestRunnerStatus, TestRunner
-from testplan.runners.local import LocalRunner
-from testplan.report import TestGroupReport, ReportCategories
+from testplan.report import ReportCategories, TestGroupReport
+from testplan.runnable import TestRunner, TestRunnerStatus
+from testplan.runners.pools.base import Pool
+from testplan.runners.pools.tasks import Task
 from testplan.testing.base import Test, TestResult
 
 
@@ -53,29 +51,8 @@ class DummyTest(Test):
             self.__class__.__name__, self.name
         )
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         self._add_step(self.run_tests)
-
-
-class MyPool(LocalRunner):  # Start is async
-    def __init__(self, name=None):
-        self.name = name
-        super(MyPool, self).__init__()
-
-    def uid(self):
-        return self.name or super(MyPool, self).uid()
-
-    def _execute(self, uid):
-        func = self._input[uid]
-        test = func()
-        test.parent = self
-        test.cfg.parent = self.cfg
-        test.run()
-        self._results[uid] = test.result
-        assert isinstance(self._results[uid], DummyTestResult)
-
-    def aborting(self):
-        pass
 
 
 def test_testplan():
@@ -99,15 +76,15 @@ def test_testplan():
     assert plan.add(DummyTest(name="bob")) == "bob"
 
     assert "pool" not in plan.resources
-    plan.add_resource(MyPool(name="pool"))
+    plan.add_resource(Pool(name="pool"))
     assert "pool" in plan.resources
 
     def task():
         return DummyTest(name="tom")
 
-    assert isinstance(plan.add(task, resource="pool"), str)
+    assert isinstance(plan.add(Task(task), resource="pool"), str)
     with pytest.raises(ValueError):
-        assert plan.add(task, resource="pool")  # duplicate target uid
+        assert plan.add(Task(task), resource="pool")  # duplicate target uid
 
     assert len(plan.resources["local_runner"]._input) == 2
     for key in ("alice", "bob"):
@@ -126,7 +103,10 @@ def test_testplan():
         == "DummyTestResult[alice]"
     )
     for key in plan.resources["pool"]._input.keys():
-        assert plan.resources["pool"].get(key).custom == "DummyTestResult[tom]"
+        assert (
+            plan.resources["pool"].get(key).result.custom
+            == "DummyTestResult[tom]"
+        )
 
     results = plan.result.test_results.values()
     expected = [

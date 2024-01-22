@@ -124,7 +124,7 @@ class TestEnvironment(Environment):
                     driver.start()
                 except Exception:
                     self._record_resource_exception(
-                        message="While starting driver [{resource_name}]\n"
+                        message="While starting driver {resource}:\n"
                         "{traceback_exc}\n{fetch_msg}",
                         resource=driver,
                         msg_store=self.start_exceptions,
@@ -150,7 +150,7 @@ class TestEnvironment(Environment):
                         res = driver.started_check()
                 except Exception:
                     self._record_resource_exception(
-                        message="While waiting for driver [{resource_name}] to start\n"
+                        message="While waiting for driver {resource} to start:\n"
                         "{traceback_exc}\n{fetch_msg}",
                         resource=driver,
                         msg_store=self.start_exceptions,
@@ -203,7 +203,7 @@ class TestEnvironment(Environment):
                     driver.stop()
                 except Exception:
                     self._record_resource_exception(
-                        message="While stopping driver [{resource_name}]\n"
+                        message="While stopping driver {resource}:\n"
                         "{traceback_exc}\n{fetch_msg}",
                         resource=driver,
                         msg_store=self.stop_exceptions,
@@ -228,7 +228,7 @@ class TestEnvironment(Environment):
                         res = driver.stopped_check()
                 except Exception:
                     self._record_resource_exception(
-                        message="While waiting for driver [{resource_name}] to stop\n"
+                        message="While waiting for driver {resource} to stop:\n"
                         "{traceback_exc}\n{fetch_msg}",
                         resource=driver,
                         msg_store=self.stop_exceptions,

@@ -2,21 +2,22 @@
 
 import os
 import re
-import sys
 import signal
 import subprocess
+import sys
 import tempfile
 from typing import List, Type, Union
 
 from schema import Or
 
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.timing import get_sleeper
+
 from . import tasks
-from .base import Pool, PoolConfig, Worker, WorkerConfig
+from .base import Pool, PoolConfig, Worker, WorkerBase, WorkerConfig
 from .connection import ZMQClientProxy, ZMQServer
 
 
@@ -158,6 +159,10 @@ class ProcessWorker(Worker):
         """Process worker abort logic."""
         self._transport.disconnect()
         self.stop()
+
+    def discard_running_tasks(self):
+        # discard logic handled by pool in ``_handle_heartbeat``
+        WorkerBase.discard_running_tasks(self)
 
 
 class ProcessPoolConfig(PoolConfig):

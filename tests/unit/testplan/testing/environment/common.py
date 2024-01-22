@@ -60,6 +60,9 @@ class MockDriver(Driver):
         self._mock.post(self.name)
         super().post_start()
 
+    def custom_method(self, *args, **kwargs):
+        self._mock.custom_method(*args, **kwargs)
+
 
 class FlakyDriver(Driver):
     def __init__(

@@ -340,7 +340,17 @@ Command line
       --trace-tests-output
                             Specify output file for tests impacted by change in Testplan pattern format (see --trace-tests). Will be ignored if --trace-tests is not specified. Default to standard output.
       --xfail-tests         Read a list of known to fail testcases from a JSON file with each entry looks like: {"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>} }
+      --runtime-data PATH   Historical runtime data which will be used for Multitest auto-part and weight-based Task smart-scheduling with entries looks like:
 
+                            {
+                                "<Multitest>": {
+                                    "execution_time": 199.99,
+                                    "setup_time": 39.99,
+                                },
+                                ......
+                            }
+      --skip-remaining {cases-on-failed,cases-on-error,suites-on-failed,suites-on-error,tests-on-failed,tests-on-error}
+                            Skip the remaining Testcases/Testsuites/Multitests being executed when a Testcase has failed or raised exception.
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.
 
@@ -427,7 +437,7 @@ Command line
                             --report-tags-all <tag_name_1> --report-tags-all <tag_name 2>
 
                             --report-tags-all <tag_name_1> <tag_category_1>=<tag_name_2>
-      --file-log-level      {exporter_info,test_info,driver_info,critical,error,warning,info,debug,none}
+      --file-log-level {USER_INFO,CRITICAL,ERROR,WARNING,INFO,DEBUG,NONE}
 
                             Specify log level for file logs. Set to None to disable file logging.
 

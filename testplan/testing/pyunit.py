@@ -51,7 +51,7 @@ class PyUnit(testing.Test):
             testcase.__name__: testcase for testcase in self.cfg.testcases
         }
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
         self._add_step(self.run_tests)
         self._add_step(self.log_test_results)
@@ -71,9 +71,7 @@ class PyUnit(testing.Test):
             for testcase in self._pyunit_testcases.keys()
         ]
 
-    def dry_run(self):
-        """Return an empty report tree."""
-        self.result.report = self._new_test_report()
+    def _dry_run_testsuites(self):
 
         for pyunit_testcase in self.cfg.testcases:
             testsuite_report = TestGroupReport(
@@ -87,8 +85,6 @@ class PyUnit(testing.Test):
                 ],
             )
             self.result.report.append(testsuite_report)
-
-        return self.result
 
     def run_testcases_iter(
         self,

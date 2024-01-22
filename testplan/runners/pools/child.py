@@ -26,7 +26,7 @@ def parse_cmdline():
     parser.add_argument("--remote-pool-type", action="store", default="thread")
     parser.add_argument("--remote-pool-size", action="store", default=1)
     parser.add_argument("--sys-path-file", action="store")
-
+    parser.add_argument("--resource-monitor-server", action="store")
     return parser.parse_args()
 
 
@@ -63,7 +63,7 @@ class ChildLoop:
 
     def _child_pool(self):
         # Local thread pool will not cleanup the previous layer runpath.
-        self._pool = self._pool_type(
+        self._pool: Pool = self._pool_type(
             name=f"Pool_{self._metadata['pid']}",
             worker_type=self._worker_type,
             size=self._pool_size,
@@ -206,6 +206,10 @@ class ChildLoop:
                             hb_resp.data,
                             time.time() - hb_resp.data,
                         )
+                    if hb_resp.cmd == Message.DiscardPending:
+                        self._pool.discard_pending_tasks(
+                            report_reason="DiscardPending received"
+                        )
                     next_heartbeat = now + self._pool_cfg.worker_heartbeat
 
                 # Send back results
@@ -255,7 +259,6 @@ class ChildLoop:
                             self._pool_cfg.max_active_loop_sleep,
                         )
                         next_possible_request = time.time() + request_delay
-                        pass
                 time.sleep(self._pool_cfg.active_loop_sleep)
         self.logger.info("Local pool %s stopped.", self._pool)
 
@@ -347,6 +350,7 @@ def child_logic(args):
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
+    # FIXME: dedup
     class NoRunpathThreadPool(Pool):
         """
         Pool that creates no runpath directory.
@@ -443,6 +447,17 @@ if __name__ == "__main__":
         STDOUT_HANDLER,
     )
 
+    resource_monitor_client = None
+    if ARGS.resource_monitor_server:
+        from testplan.monitor.resource import ResourceMonitorClient
+
+        resource_monitor_client = ResourceMonitorClient(
+            ARGS.resource_monitor_server
+        )
+        resource_monitor_client.start()
+
     child_logic(ARGS)
     print("child.py exiting")
+    if resource_monitor_client:
+        resource_monitor_client.stop()
     os._exit(0)

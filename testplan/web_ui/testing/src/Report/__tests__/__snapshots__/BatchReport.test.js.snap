@@ -23208,12 +23208,12 @@ ZeroDivisionError: integer division or modulo by zero
       </Nav>
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         >
           <h1
             className="message_1s94nt7"
           >
-            Please select an entry.
+            No entries to be displayed.
           </h1>
         </Message>
       </ErrorBoundary>

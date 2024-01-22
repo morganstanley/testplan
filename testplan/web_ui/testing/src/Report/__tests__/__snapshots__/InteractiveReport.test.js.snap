@@ -31,6 +31,214 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     filterBoxWidth="28em"
     filterText={null}
     handleNavFilter={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "counter": undefined,
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [],
+                    "env_status": null,
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "name_type_index": Array [
+                      "testcaseName|testcase",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "testcaseUID",
+                    ],
+                  },
+                  Object {
+                    "category": "parametrization",
+                    "description": "Parametrized testcase.",
+                    "entries": Array [
+                      Object {
+                        "category": "testcase",
+                        "description": null,
+                        "entries": Array [],
+                        "logs": Array [],
+                        "name": "ParametrizationName__val_1",
+                        "name_type_index": Array [
+                          "ParametrizationName__val_1|testcase",
+                          "ParametrizationName|parametrization",
+                          "SuiteName|testsuite",
+                          "MultiTestName|multitest",
+                          "TestplanName|testplan",
+                        ],
+                        "parent_uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                        ],
+                        "runtime_status": "ready",
+                        "status": "unknown",
+                        "status_override": null,
+                        "suite_related": false,
+                        "tags": Object {},
+                        "tags_index": Object {},
+                        "timer": Object {},
+                        "type": "TestCaseReport",
+                        "uid": "ParametrizationUID__val_1",
+                        "uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                          "ParametrizationUID__val_1",
+                        ],
+                      },
+                    ],
+                    "env_status": null,
+                    "fix_spec_path": null,
+                    "name": "ParametrizationName",
+                    "name_type_index": Array [
+                      "ParametrizationName|parametrization",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                      "ParametrizationName__val_1|testcase",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "part": null,
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "uid": "ParametrizationUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "ParametrizationUID",
+                    ],
+                  },
+                ],
+                "env_status": null,
+                "fix_spec_path": null,
+                "hash": 12345,
+                "name": "SuiteName",
+                "name_type_index": Array [
+                  "SuiteName|testsuite",
+                  "MultiTestName|multitest",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
+                  "ParametrizationName|parametrization",
+                  "ParametrizationName__val_1|testcase",
+                ],
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "runtime_status": "ready",
+                "status": "unknown",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+                "uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                  "SuiteUID",
+                ],
+              },
+            ],
+            "env_status": "STARTING",
+            "fix_spec_path": null,
+            "hash": 12345,
+            "name": "MultiTestName",
+            "name_type_index": Array [
+              "MultiTestName|multitest",
+              "TestplanName|testplan",
+              "SuiteName|testsuite",
+              "testcaseName|testcase",
+              "ParametrizationName|parametrization",
+              "ParametrizationName__val_1|testcase",
+            ],
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "runtime_status": "ready",
+            "status": "unknown",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+            "uids": Array [
+              "TestplanUID",
+              "MultiTestUID",
+            ],
+          },
+        ],
+        "env_status": null,
+        "hash": null,
+        "meta": Object {},
+        "name": "TestplanName",
+        "name_type_index": Array [
+          "TestplanName|testplan",
+          "MultiTestName|multitest",
+          "SuiteName|testsuite",
+          "testcaseName|testcase",
+          "ParametrizationName|parametrization",
+          "ParametrizationName__val_1|testcase",
+        ],
+        "parent_uids": Array [],
+        "runtime_status": "ready",
+        "status": "unknown",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+        "uids": Array [
+          "TestplanUID",
+        ],
+      }
+    }
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
@@ -79,7 +287,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -120,6 +328,133 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     filterBoxWidth="28em"
     filterText={null}
     handleNavFilter={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [],
+                    "env_status": null,
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                  },
+                  Object {
+                    "category": "parametrization",
+                    "description": "Parametrized testcase.",
+                    "entries": Array [
+                      Object {
+                        "category": "testcase",
+                        "description": null,
+                        "entries": Array [],
+                        "logs": Array [],
+                        "name": "ParametrizationName__val_1",
+                        "parent_uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                        ],
+                        "runtime_status": "ready",
+                        "status": "unknown",
+                        "status_override": null,
+                        "suite_related": false,
+                        "tags": Object {},
+                        "timer": Object {},
+                        "type": "TestCaseReport",
+                        "uid": "ParametrizationUID__val_1",
+                      },
+                    ],
+                    "env_status": null,
+                    "fix_spec_path": null,
+                    "name": "ParametrizationName",
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "part": null,
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "tags": Object {},
+                    "timer": Object {},
+                    "uid": "ParametrizationUID",
+                  },
+                ],
+                "env_status": null,
+                "fix_spec_path": null,
+                "hash": 12345,
+                "name": "SuiteName",
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "runtime_status": "ready",
+                "status": "unknown",
+                "status_override": null,
+                "tags": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+              },
+            ],
+            "env_status": "STOPPED",
+            "fix_spec_path": null,
+            "hash": 12345,
+            "name": "MultiTestName",
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "runtime_status": "ready",
+            "status": "unknown",
+            "status_override": null,
+            "tags": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+          },
+        ],
+        "env_status": null,
+        "hash": 12345,
+        "meta": Object {},
+        "name": "TestplanName",
+        "parent_uids": Array [],
+        "runtime_status": "ready",
+        "status": "unknown",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+      }
+    }
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
@@ -168,7 +503,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -207,6 +542,138 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     filterBoxWidth="28em"
     filterText={null}
     handleNavFilter={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [],
+                    "hash": 44444,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "name_type_index": Array [
+                      "testcaseName|testcase",
+                      "SuiteName|testsuite",
+                      "MultitestName|multitest",
+                      "TestplanName|testplan",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultitestUID",
+                      "SuiteUID",
+                    ],
+                    "runtime_status": "running",
+                    "status": "ready",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "TestcaseUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultitestUID",
+                      "SuiteUID",
+                      "TestcaseUID",
+                    ],
+                  },
+                ],
+                "entry_uids": Array [
+                  "test_basic_assertions",
+                ],
+                "fix_spec_path": null,
+                "hash": 33333,
+                "name": "SuiteName",
+                "name_type_index": Array [
+                  "SuiteName|testsuite",
+                  "MultitestName|multitest",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
+                ],
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultitestUID",
+                ],
+                "part": null,
+                "runtime_status": "ready",
+                "status": "running",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "uid": "SuiteUID",
+                "uids": Array [
+                  "TestplanUID",
+                  "MultitestUID",
+                  "SuiteUID",
+                ],
+              },
+            ],
+            "entry_uids": Array [
+              "SuiteUID",
+            ],
+            "fix_spec_path": null,
+            "hash": 22222,
+            "name": "MultitestName",
+            "name_type_index": Array [
+              "MultitestName|multitest",
+              "TestplanName|testplan",
+              "SuiteName|testsuite",
+              "testcaseName|testcase",
+            ],
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "runtime_status": "running",
+            "status": "ready",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "uid": "MultitestUID",
+            "uids": Array [
+              "TestplanUID",
+              "MultitestUID",
+            ],
+          },
+        ],
+        "entry_uids": Array [
+          "MultitestUID",
+        ],
+        "hash": 11111,
+        "meta": Object {},
+        "name": "TestplanName",
+        "name_type_index": Array [
+          "TestplanName|testplan",
+          "MultitestName|multitest",
+          "SuiteName|testsuite",
+          "testcaseName|testcase",
+        ],
+        "parent_uids": Array [],
+        "runtime_status": "running",
+        "status": "unknown",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "uid": "TestplanUID",
+        "uids": Array [
+          "TestplanUID",
+        ],
+      }
+    }
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
@@ -691,6 +1158,216 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     filterBoxWidth="28em"
     filterText={null}
     handleNavFilter={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [],
+                    "env_status": null,
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "name_type_index": Array [
+                      "testcaseName|testcase",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "testcaseUID",
+                    ],
+                  },
+                  Object {
+                    "category": "parametrization",
+                    "description": "Parametrized testcase.",
+                    "entries": Array [
+                      Object {
+                        "category": "testcase",
+                        "counter": undefined,
+                        "description": null,
+                        "entries": Array [],
+                        "hash": undefined,
+                        "logs": Array [],
+                        "name": "ParametrizationName__val_1",
+                        "name_type_index": Array [
+                          "ParametrizationName__val_1|testcase",
+                          "ParametrizationName|parametrization",
+                          "SuiteName|testsuite",
+                          "MultiTestName|multitest",
+                          "TestplanName|testplan",
+                        ],
+                        "parent_uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                        ],
+                        "runtime_status": "running",
+                        "status": "unknown",
+                        "status_override": null,
+                        "suite_related": false,
+                        "tags": Object {},
+                        "tags_index": Object {},
+                        "timer": Object {},
+                        "type": "TestCaseReport",
+                        "uid": "ParametrizationUID__val_1",
+                        "uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                          "ParametrizationUID__val_1",
+                        ],
+                      },
+                    ],
+                    "env_status": null,
+                    "fix_spec_path": null,
+                    "hash": null,
+                    "name": "ParametrizationName",
+                    "name_type_index": Array [
+                      "ParametrizationName|parametrization",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                      "ParametrizationName__val_1|testcase",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "part": null,
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "uid": "ParametrizationUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "ParametrizationUID",
+                    ],
+                  },
+                ],
+                "env_status": null,
+                "fix_spec_path": null,
+                "hash": null,
+                "name": "SuiteName",
+                "name_type_index": Array [
+                  "SuiteName|testsuite",
+                  "MultiTestName|multitest",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
+                  "ParametrizationName|parametrization",
+                  "ParametrizationName__val_1|testcase",
+                ],
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "runtime_status": "ready",
+                "status": "unknown",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+                "uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                  "SuiteUID",
+                ],
+              },
+            ],
+            "env_status": "STOPPED",
+            "fix_spec_path": null,
+            "hash": null,
+            "name": "MultiTestName",
+            "name_type_index": Array [
+              "MultiTestName|multitest",
+              "TestplanName|testplan",
+              "SuiteName|testsuite",
+              "testcaseName|testcase",
+              "ParametrizationName|parametrization",
+              "ParametrizationName__val_1|testcase",
+            ],
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "runtime_status": "ready",
+            "status": "unknown",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+            "uids": Array [
+              "TestplanUID",
+              "MultiTestUID",
+            ],
+          },
+        ],
+        "env_status": null,
+        "hash": null,
+        "meta": Object {},
+        "name": "TestplanName",
+        "name_type_index": Array [
+          "TestplanName|testplan",
+          "MultiTestName|multitest",
+          "SuiteName|testsuite",
+          "testcaseName|testcase",
+          "ParametrizationName|parametrization",
+          "ParametrizationName__val_1|testcase",
+        ],
+        "parent_uids": Array [],
+        "runtime_status": "ready",
+        "status": "unknown",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+        "uids": Array [
+          "TestplanUID",
+        ],
+      }
+    }
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
@@ -739,7 +1416,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -778,6 +1455,214 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     filterBoxWidth="28em"
     filterText={null}
     handleNavFilter={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "counter": undefined,
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [],
+                    "env_status": null,
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "name_type_index": Array [
+                      "testcaseName|testcase",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "testcaseUID",
+                    ],
+                  },
+                  Object {
+                    "category": "parametrization",
+                    "description": "Parametrized testcase.",
+                    "entries": Array [
+                      Object {
+                        "category": "testcase",
+                        "description": null,
+                        "entries": Array [],
+                        "logs": Array [],
+                        "name": "ParametrizationName__val_1",
+                        "name_type_index": Array [
+                          "ParametrizationName__val_1|testcase",
+                          "ParametrizationName|parametrization",
+                          "SuiteName|testsuite",
+                          "MultiTestName|multitest",
+                          "TestplanName|testplan",
+                        ],
+                        "parent_uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                        ],
+                        "runtime_status": "ready",
+                        "status": "unknown",
+                        "status_override": null,
+                        "suite_related": false,
+                        "tags": Object {},
+                        "tags_index": Object {},
+                        "timer": Object {},
+                        "type": "TestCaseReport",
+                        "uid": "ParametrizationUID__val_1",
+                        "uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                          "ParametrizationUID__val_1",
+                        ],
+                      },
+                    ],
+                    "env_status": null,
+                    "fix_spec_path": null,
+                    "name": "ParametrizationName",
+                    "name_type_index": Array [
+                      "ParametrizationName|parametrization",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                      "ParametrizationName__val_1|testcase",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "part": null,
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "uid": "ParametrizationUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "ParametrizationUID",
+                    ],
+                  },
+                ],
+                "env_status": null,
+                "fix_spec_path": null,
+                "hash": 12345,
+                "name": "SuiteName",
+                "name_type_index": Array [
+                  "SuiteName|testsuite",
+                  "MultiTestName|multitest",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
+                  "ParametrizationName|parametrization",
+                  "ParametrizationName__val_1|testcase",
+                ],
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "runtime_status": "running",
+                "status": "unknown",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+                "uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                  "SuiteUID",
+                ],
+              },
+            ],
+            "env_status": "STOPPED",
+            "fix_spec_path": null,
+            "hash": null,
+            "name": "MultiTestName",
+            "name_type_index": Array [
+              "MultiTestName|multitest",
+              "TestplanName|testplan",
+              "SuiteName|testsuite",
+              "testcaseName|testcase",
+              "ParametrizationName|parametrization",
+              "ParametrizationName__val_1|testcase",
+            ],
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "runtime_status": "ready",
+            "status": "unknown",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+            "uids": Array [
+              "TestplanUID",
+              "MultiTestUID",
+            ],
+          },
+        ],
+        "env_status": null,
+        "hash": null,
+        "meta": Object {},
+        "name": "TestplanName",
+        "name_type_index": Array [
+          "TestplanName|testplan",
+          "MultiTestName|multitest",
+          "SuiteName|testsuite",
+          "testcaseName|testcase",
+          "ParametrizationName|parametrization",
+          "ParametrizationName__val_1|testcase",
+        ],
+        "parent_uids": Array [],
+        "runtime_status": "ready",
+        "status": "unknown",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+        "uids": Array [
+          "TestplanUID",
+        ],
+      }
+    }
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
@@ -826,7 +1711,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -865,6 +1750,214 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     filterBoxWidth="28em"
     filterText={null}
     handleNavFilter={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "counter": undefined,
+                    "description": null,
+                    "entries": Array [],
+                    "env_status": null,
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "name_type_index": Array [
+                      "testcaseName|testcase",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "runtime_status": "running",
+                    "status": "unknown",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "testcaseUID",
+                    ],
+                  },
+                  Object {
+                    "category": "parametrization",
+                    "description": "Parametrized testcase.",
+                    "entries": Array [
+                      Object {
+                        "category": "testcase",
+                        "description": null,
+                        "entries": Array [],
+                        "logs": Array [],
+                        "name": "ParametrizationName__val_1",
+                        "name_type_index": Array [
+                          "ParametrizationName__val_1|testcase",
+                          "ParametrizationName|parametrization",
+                          "SuiteName|testsuite",
+                          "MultiTestName|multitest",
+                          "TestplanName|testplan",
+                        ],
+                        "parent_uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                        ],
+                        "runtime_status": "ready",
+                        "status": "unknown",
+                        "status_override": null,
+                        "suite_related": false,
+                        "tags": Object {},
+                        "tags_index": Object {},
+                        "timer": Object {},
+                        "type": "TestCaseReport",
+                        "uid": "ParametrizationUID__val_1",
+                        "uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                          "ParametrizationUID__val_1",
+                        ],
+                      },
+                    ],
+                    "env_status": null,
+                    "fix_spec_path": null,
+                    "name": "ParametrizationName",
+                    "name_type_index": Array [
+                      "ParametrizationName|parametrization",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                      "ParametrizationName__val_1|testcase",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "part": null,
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "uid": "ParametrizationUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "ParametrizationUID",
+                    ],
+                  },
+                ],
+                "env_status": null,
+                "fix_spec_path": null,
+                "hash": null,
+                "name": "SuiteName",
+                "name_type_index": Array [
+                  "SuiteName|testsuite",
+                  "MultiTestName|multitest",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
+                  "ParametrizationName|parametrization",
+                  "ParametrizationName__val_1|testcase",
+                ],
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "runtime_status": "ready",
+                "status": "unknown",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+                "uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                  "SuiteUID",
+                ],
+              },
+            ],
+            "env_status": "STOPPED",
+            "fix_spec_path": null,
+            "hash": null,
+            "name": "MultiTestName",
+            "name_type_index": Array [
+              "MultiTestName|multitest",
+              "TestplanName|testplan",
+              "SuiteName|testsuite",
+              "testcaseName|testcase",
+              "ParametrizationName|parametrization",
+              "ParametrizationName__val_1|testcase",
+            ],
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "runtime_status": "ready",
+            "status": "unknown",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+            "uids": Array [
+              "TestplanUID",
+              "MultiTestUID",
+            ],
+          },
+        ],
+        "env_status": null,
+        "hash": null,
+        "meta": Object {},
+        "name": "TestplanName",
+        "name_type_index": Array [
+          "TestplanName|testplan",
+          "MultiTestName|multitest",
+          "SuiteName|testsuite",
+          "testcaseName|testcase",
+          "ParametrizationName|parametrization",
+          "ParametrizationName__val_1|testcase",
+        ],
+        "parent_uids": Array [],
+        "runtime_status": "ready",
+        "status": "unknown",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+        "uids": Array [
+          "TestplanUID",
+        ],
+      }
+    }
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
@@ -913,7 +2006,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>
@@ -952,6 +2045,214 @@ exports[`InteractiveReport handles tests being run 1`] = `
     filterBoxWidth="28em"
     filterText={null}
     handleNavFilter={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "counter": undefined,
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "testsuite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [],
+                    "env_status": null,
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "name_type_index": Array [
+                      "testcaseName|testcase",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "testcaseUID",
+                    ],
+                  },
+                  Object {
+                    "category": "parametrization",
+                    "description": "Parametrized testcase.",
+                    "entries": Array [
+                      Object {
+                        "category": "testcase",
+                        "description": null,
+                        "entries": Array [],
+                        "logs": Array [],
+                        "name": "ParametrizationName__val_1",
+                        "name_type_index": Array [
+                          "ParametrizationName__val_1|testcase",
+                          "ParametrizationName|parametrization",
+                          "SuiteName|testsuite",
+                          "MultiTestName|multitest",
+                          "TestplanName|testplan",
+                        ],
+                        "parent_uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                        ],
+                        "runtime_status": "ready",
+                        "status": "unknown",
+                        "status_override": null,
+                        "suite_related": false,
+                        "tags": Object {},
+                        "tags_index": Object {},
+                        "timer": Object {},
+                        "type": "TestCaseReport",
+                        "uid": "ParametrizationUID__val_1",
+                        "uids": Array [
+                          "TestplanUID",
+                          "MultiTestUID",
+                          "SuiteUID",
+                          "ParametrizationUID",
+                          "ParametrizationUID__val_1",
+                        ],
+                      },
+                    ],
+                    "env_status": null,
+                    "fix_spec_path": null,
+                    "name": "ParametrizationName",
+                    "name_type_index": Array [
+                      "ParametrizationName|parametrization",
+                      "SuiteName|testsuite",
+                      "MultiTestName|multitest",
+                      "TestplanName|testplan",
+                      "ParametrizationName__val_1|testcase",
+                    ],
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "part": null,
+                    "runtime_status": "ready",
+                    "status": "unknown",
+                    "status_override": null,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "uid": "ParametrizationUID",
+                    "uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                      "ParametrizationUID",
+                    ],
+                  },
+                ],
+                "env_status": null,
+                "fix_spec_path": null,
+                "hash": 12345,
+                "name": "SuiteName",
+                "name_type_index": Array [
+                  "SuiteName|testsuite",
+                  "MultiTestName|multitest",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
+                  "ParametrizationName|parametrization",
+                  "ParametrizationName__val_1|testcase",
+                ],
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "runtime_status": "ready",
+                "status": "unknown",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+                "uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                  "SuiteUID",
+                ],
+              },
+            ],
+            "env_status": "STOPPED",
+            "fix_spec_path": null,
+            "hash": 12345,
+            "name": "MultiTestName",
+            "name_type_index": Array [
+              "MultiTestName|multitest",
+              "TestplanName|testplan",
+              "SuiteName|testsuite",
+              "testcaseName|testcase",
+              "ParametrizationName|parametrization",
+              "ParametrizationName__val_1|testcase",
+            ],
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "runtime_status": "running",
+            "status": "unknown",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+            "uids": Array [
+              "TestplanUID",
+              "MultiTestUID",
+            ],
+          },
+        ],
+        "env_status": null,
+        "hash": null,
+        "meta": Object {},
+        "name": "TestplanName",
+        "name_type_index": Array [
+          "TestplanName|testplan",
+          "MultiTestName|multitest",
+          "SuiteName|testsuite",
+          "testcaseName|testcase",
+          "ParametrizationName|parametrization",
+          "ParametrizationName__val_1|testcase",
+        ],
+        "parent_uids": Array [],
+        "runtime_status": "ready",
+        "status": "unknown",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+        "uids": Array [
+          "TestplanUID",
+        ],
+      }
+    }
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
@@ -1000,7 +2301,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     >
       <ErrorBoundary>
         <Message
-          message="Please select an entry."
+          message="No entries to be displayed."
         />
       </ErrorBoundary>
     </ContextProvider>

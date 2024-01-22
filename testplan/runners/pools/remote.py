@@ -4,21 +4,22 @@ import os
 import signal
 import socket
 from multiprocessing.pool import ThreadPool
-from typing import List, Dict, Tuple, Callable, Type, Union
+from typing import Callable, Dict, List, Optional, Tuple, Type, Union
 
 from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.remote.remote_resource import (
-    RemoteResourceConfig,
     RemoteResource,
+    RemoteResourceConfig,
     UnboundRemoteResourceConfig,
 )
 from testplan.common.report.base import EventRecorder
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import rebase_path
-from testplan.common.utils.remote import ssh_cmd, copy_cmd
+from testplan.common.utils.remote import copy_cmd, ssh_cmd
 from testplan.common.utils.timing import get_sleeper, wait
+
 from .base import Pool, PoolConfig
 from .communication import Message
 from .connection import ZMQServer
@@ -107,6 +108,13 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             "--sys-path-file",
             self._remote_syspath_file,
         ]
+        if self.parent.resource_monitor_address:
+            cmd.extend(
+                [
+                    "--resource-monitor-server",
+                    self.parent.resource_monitor_address,
+                ]
+            )
 
         return cmd
 
@@ -188,14 +196,13 @@ class RemoteWorker(ProcessWorker, RemoteResource):
     def rebase_attachment(self, result) -> None:
         """Rebase the path of attachment from remote to local"""
 
-        if result:
-            for attachment in result.report.attachments:
-                attachment.source_path = rebase_path(
-                    attachment.source_path,
-                    self._remote_plan_runpath,
-                    self._get_plan().runpath,
-                )
-            self._rebase_assertion(result.report)
+        for attachment in result.report.attachments:
+            attachment.source_path = rebase_path(
+                attachment.source_path,
+                self._remote_plan_runpath,
+                self._get_plan().runpath,
+            )
+        self._rebase_assertion(result.report)
 
     def rebase_task_path(self, task) -> None:
         """Rebase the path of task from local to remote"""
@@ -329,6 +336,11 @@ class RemotePool(Pool):
                 "host": host,
                 "number_of_workers": number_of_workers,
             }
+
+    @property
+    def resource_monitor_address(self) -> Optional[str]:
+        if self.parent.resource_monitor_server:
+            return self.parent.resource_monitor_server.address
 
     @staticmethod
     def _worker_setup_metadata(worker, request, response) -> None:
