@@ -36,8 +36,6 @@ describe.each([
         handleNavClick={jest.fn()}
         handleClick={jest.fn()}
         envCtrlCallback={jest.fn()}
-        pendingEnvRequest={""}
-        setPendingEnvRequest={jest.fn()}
       />
     );
     expect(renderedNav).toMatchSnapshot();

@@ -315,7 +315,6 @@ const continueTreeBranch = (props, entry) => {
           handleClick={props.handleClick}
           envCtrlCallback={props.envCtrlCallback}
           selected={props.selected}
-          pendingEnvRequest={props.pendingEnvRequest}
         />
       ))
     : null;

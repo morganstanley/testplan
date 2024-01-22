@@ -319,7 +319,6 @@ describe("InteractiveNavEntry", () => {
     // controller - we do this by matching on the title text.
     const faIcons = renderedEntry.find(FontAwesomeIcon);
     expect(faIcons).toHaveLength(3);
-    console.log(faIcons);
     faIcons.find({ title: "Stop environment" }).simulate("click");
 
     // The callback should have been called once when the component was

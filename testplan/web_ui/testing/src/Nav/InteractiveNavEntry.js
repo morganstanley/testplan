@@ -126,8 +126,6 @@ const getStatusIcon = (
     return null;
   }
 
-  console.log("getStatusIcon");
-
   const disabled = envStatusChanging(envStatus) || action === "prohibit"
     || envStatusChanging(pendingEnvRequest);
   switch (entryStatus) {
