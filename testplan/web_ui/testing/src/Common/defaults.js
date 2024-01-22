@@ -137,6 +137,13 @@ const RUNTIME_STATUS = [
   "not_run",
 ];
 
+const ENV_STATUSES = {
+  stopped: "STOPPED",
+  starting: "STARTING",
+  started: "STARTED",
+  stopping: "STOPPING"
+};
+
 const NAV_ENTRY_ACTIONS = ["play", "open", "prohibit"];
 
 const NAV_ENTRY_DISPLAY_DATA = [
@@ -255,6 +262,7 @@ export {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  ENV_STATUSES,
   NAV_ENTRY_ACTIONS,
   NAV_ENTRY_DISPLAY_DATA,
   BASIC_ASSERTION_TYPES,

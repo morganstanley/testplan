@@ -124,10 +124,6 @@ const TreeViewNav = (props) => {
                 handleClick={props.handleClick}
                 envCtrlCallback={props.envCtrlCallback}
                 selected={props.selected}
-                pendingEnvRequest={props.pendingEnvRequest}
-                setPendingEnvRequest={(status) => props.setPendingEnvRequest(
-                  status
-                )}
               />
             }
           </TreeView>
@@ -195,8 +191,6 @@ const Tree = (props) => {
           handleClick={props.handleClick}
           envCtrlCallback={props.envCtrlCallback}
           selected={props.selected}
-          pendingEnvRequest={props.pendingEnvRequest}
-          setPendingEnvRequest={(status) => props.setPendingEnvRequest(status)}
         />
       ))
     : null;
@@ -344,8 +338,6 @@ const createNavEntry = (props, entry) => {
         envCtrlCallback={(e, action) => props.envCtrlCallback(e, entry, action)}
         suiteRelated={entry.suite_related}
         action={entry.action}
-        pendingEnvRequest={props.pendingEnvRequest}
-        setPendingEnvRequest={(status) => props.setPendingEnvRequest(status)}
       />
     );
   } else {

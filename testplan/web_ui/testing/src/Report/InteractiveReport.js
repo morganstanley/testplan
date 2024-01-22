@@ -10,6 +10,7 @@ import axios from "axios";
 import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
 import base64url from "base64url";
+import { atom, useAtomValue } from "jotai";
 
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar.js";
@@ -22,7 +23,7 @@ import {
 } from "../Toolbar/InteractiveButtons";
 import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
 import Nav from "../Nav/Nav.js";
-import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
+import { INTERACTIVE_COL_WIDTH, ENV_STATUSES } from "../Common/defaults";
 import { FakeInteractiveReport } from "../Common/sampleReports.js";
 import {
   PropagateIndices,
@@ -40,9 +41,9 @@ import { POLL_MS } from "../Common/defaults.js";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
 import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
-import { useAtomValue } from "jotai";
 
 const api_prefix = "/api/v1/interactive";
+const pendingEnvRequestAtom = atom("");
 
 /**
  * Interactive report viewer. As opposed to a batch report, an interactive
@@ -52,8 +53,11 @@ const api_prefix = "/api/v1/interactive";
  */
 const InteractiveReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
+  const pendingEnvRequest = useAtomValue(pendingEnvRequestAtom);
   return (
-    <InteractiveReportComponent {...props} displayTimeInfo={displayTimeInfo} />
+    <InteractiveReportComponent {...props} displayTimeInfo={displayTimeInfo} 
+      pendingEnvRequest={pendingEnvRequest}
+    />
   );
 };
 class InteractiveReportComponent extends BaseReport {
@@ -68,7 +72,6 @@ class InteractiveReportComponent extends BaseReport {
     this.reloadCode = this.reloadCode.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.handleClick = this.handleClick.bind(this);
-    this.setPendingEnvRequest = this.setPendingEnvRequest.bind(this);
 
     this.state = {
       ...this.state,
@@ -77,8 +80,7 @@ class InteractiveReportComponent extends BaseReport {
       reloading: false,
       running: false,
       aborting: false,
-      assertionStatus: defaultAssertionStatus,
-      pendingEnvRequest: "",
+      assertionStatus: defaultAssertionStatus
     };
   }
 
@@ -370,12 +372,6 @@ class InteractiveReportComponent extends BaseReport {
     }));
   }
 
-  setPendingEnvRequest(status) {
-    this.setState((state, props) => ({
-      pendingEnvRequest: status,
-    }));
-  }
-
   /**
    * Update a single entry in the report tree recursively. This function
    * returns a new report object, it does not mutate the current report.
@@ -466,10 +462,10 @@ class InteractiveReportComponent extends BaseReport {
   actionToEnvStatus(action) {
     switch (action) {
       case "start":
-        return "STARTING";
+        return ENV_STATUSES.starting;
 
       case "stop":
-        return "STOPPING";
+        return ENV_STATUSES.stopping;
 
       default:
         throw new Error("Invalid action: " + action);
@@ -523,7 +519,7 @@ class InteractiveReportComponent extends BaseReport {
   runAll() {
     if (
       this.state.resetting || this.state.reloading ||
-      this.state.aborting || this.state.running || this.state.pendingEnvRequest
+      this.state.aborting || this.state.running || this.props.pendingEnvRequest
     ) {
       alert("There is a pending request, please wait!");
     } else {
@@ -658,8 +654,8 @@ class InteractiveReportComponent extends BaseReport {
         const updatedReportEntry = {
           ...reportEntry,
           env_status:
-            reportEntry.env_status === "STARTED"
-              ? "STOPPING"
+            reportEntry.env_status === ENV_STATUSES.started
+              ? ENV_STATUSES.stopping
               : reportEntry.env_status,
         };
         return this.putUpdatedReportEntry(updatedReportEntry);
@@ -758,8 +754,6 @@ class InteractiveReportComponent extends BaseReport {
             envCtrlCallback={this.envCtrlCallback}
             handleColumnResizing={this.handleColumnResizing}
             url={this.props.match.path}
-            pendingEnvRequest={this.state.pendingEnvRequest}
-            setPendingEnvRequest={(status) => this.setPendingEnvRequest(status)}
           />
           <AssertionContext.Provider value={this.state.assertionStatus}>
             <ErrorBoundary>{centerPane}</ErrorBoundary>
@@ -780,3 +774,4 @@ const styles = StyleSheet.create({
 
 export default InteractiveReport;
 export { InteractiveReportComponent };
+export { pendingEnvRequestAtom };

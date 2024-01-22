@@ -23188,7 +23188,6 @@ ZeroDivisionError: integer division or modulo by zero
                         filter={null}
                         interactive={false}
                         selected={Array []}
-                        setPendingEnvRequest={[Function]}
                         url="/testplan/:uid/:selection*"
                       />
                     </ul>

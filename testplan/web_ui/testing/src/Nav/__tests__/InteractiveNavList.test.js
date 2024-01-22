@@ -33,8 +33,6 @@ describe("InteractiveNavList", () => {
         displayTime={false}
         handleClick={(e, action) => undefined}
         envCtrlCallback={(e, action) => undefined}
-        pendingEnvRequest={""}
-        setPendingEnvRequest={() => undefined}
       />
     );
     expect(renderedNavList).toMatchSnapshot();

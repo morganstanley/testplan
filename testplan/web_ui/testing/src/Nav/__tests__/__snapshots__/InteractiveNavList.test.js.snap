@@ -48,9 +48,7 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
         handleClick={[Function]}
         key="bbb"
         name="Interactive MTest"
-        pendingEnvRequest=""
         runtime_status="ready"
-        setPendingEnvRequest={[Function]}
         status="unknown"
         type="multitest"
       />

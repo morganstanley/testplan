@@ -1,11 +1,12 @@
 /* Unit tests for the InteractiveNavEntry component. */
 import React from "react";
-import { shallow } from "enzyme";
+import { render, shallow } from "enzyme";
 import { StyleSheetTestUtils } from "aphrodite";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useAtom, getDefaultStore } from "jotai";
 
+import { pendingEnvRequestAtom } from "../../Report/InteractiveReport.js";
 import InteractiveNavEntry from "../InteractiveNavEntry.js";
-import { FakeInteractiveReport } from "../../Common/sampleReports.js";
 
 describe("InteractiveNavEntry", () => {
   beforeEach(() => {
@@ -16,6 +17,8 @@ describe("InteractiveNavEntry", () => {
   afterEach(() => {
     // Resume style injection once test is finished.
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
+    // Make sure the pendingEnvRequestAtom is set to default value
+    getDefaultStore().set(pendingEnvRequestAtom, "");
   });
 
   it('renders a testcase in "ready" state', () => {
@@ -253,8 +256,6 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={() => undefined}
-        pendingEnvRequest={""}
-        setPendingEnvRequest={() => undefined}
       />
     );
     expect(renderedEntry).toMatchSnapshot();
@@ -262,7 +263,6 @@ describe("InteractiveNavEntry", () => {
 
   it("calls callback to start environment when toggle is clicked", () => {
     const envCtrlCallback = jest.fn();
-    const setPendingEnvRequest = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={"FakeTestcase"}
@@ -275,8 +275,6 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
-        pendingEnvRequest={""}
-        setPendingEnvRequest={setPendingEnvRequest}
       />
     );
 
@@ -295,14 +293,12 @@ describe("InteractiveNavEntry", () => {
     expect(envCtrlCallback.mock.calls[0][1]).toBe("start");
 
     // The pending request should have been set.
-    expect(setPendingEnvRequest.mock.calls).toHaveLength(1);
-    expect(setPendingEnvRequest.mock.calls[0]).toHaveLength(1);
-    expect(setPendingEnvRequest.mock.calls[0][0]).toBe("STARTING");
+    expect(getDefaultStore().get(pendingEnvRequestAtom)).toBe("STARTING");
   });
 
   it("calls callback to stop environment when toggle is clicked", () => {
+    getDefaultStore().set(pendingEnvRequestAtom, "");
     const envCtrlCallback = jest.fn();
-    const setPendingEnvRequest = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={"FakeTestcase"}
@@ -315,8 +311,6 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
-        pendingEnvRequest={""}
-        setPendingEnvRequest={setPendingEnvRequest}
       />
     );
 
@@ -325,6 +319,7 @@ describe("InteractiveNavEntry", () => {
     // controller - we do this by matching on the title text.
     const faIcons = renderedEntry.find(FontAwesomeIcon);
     expect(faIcons).toHaveLength(3);
+    console.log(faIcons);
     faIcons.find({ title: "Stop environment" }).simulate("click");
 
     // The callback should have been called once when the component was
@@ -334,15 +329,13 @@ describe("InteractiveNavEntry", () => {
     expect(envCtrlCallback.mock.calls[0]).toHaveLength(2);
     expect(envCtrlCallback.mock.calls[0][1]).toBe("stop");
 
-    // The pending request should have been set.
-    expect(setPendingEnvRequest.mock.calls).toHaveLength(1);
-    expect(setPendingEnvRequest.mock.calls[0]).toHaveLength(1);
-    expect(setPendingEnvRequest.mock.calls[0][0]).toBe("STOPPING");
+    // The pending request should have been set
+    expect(getDefaultStore().get(pendingEnvRequestAtom)).toBe("STOPPING");
   });
 
   it("disables action when environment change request sent", () => {
+    getDefaultStore().set(pendingEnvRequestAtom, "STARTING");
     const envCtrlCallback = jest.fn();
-    const setPendingEnvRequest = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={"FakeTestcase"}
@@ -355,8 +348,6 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
-        pendingEnvRequest={"STARTING"}
-        setPendingEnvRequest={setPendingEnvRequest}
       />
     );
 
@@ -373,13 +364,13 @@ describe("InteractiveNavEntry", () => {
     // The callback should not have been called.
     expect(envCtrlCallback.mock.calls).toHaveLength(0);
 
-    // The pending request setter should not have been called.
-    expect(setPendingEnvRequest.mock.calls).toHaveLength(0);
+    // The pending env request should not have been changed.
+    expect(getDefaultStore().get(pendingEnvRequestAtom)).toBe("STARTING");
   });
 
   it("clears pending environment request when backend acknowledged", () => {
+    getDefaultStore().set(pendingEnvRequestAtom, "STARTING");
     const envCtrlCallback = jest.fn();
-    const setPendingEnvRequest = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={"FakeTestcase"}
@@ -392,8 +383,6 @@ describe("InteractiveNavEntry", () => {
         caseCountFailed={0}
         handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
-        pendingEnvRequest={"STARTING"}
-        setPendingEnvRequest={setPendingEnvRequest}
       />
     );
 
@@ -411,8 +400,6 @@ describe("InteractiveNavEntry", () => {
     expect(envCtrlCallback.mock.calls).toHaveLength(0);
 
     // The pending request should have been cleared.
-    expect(setPendingEnvRequest.mock.calls).toHaveLength(1);
-    expect(setPendingEnvRequest.mock.calls[0]).toHaveLength(1);
-    expect(setPendingEnvRequest.mock.calls[0][0]).toBe("");
+    expect(getDefaultStore().get(pendingEnvRequestAtom)).toBe("");
   });
 });

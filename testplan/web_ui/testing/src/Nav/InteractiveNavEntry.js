@@ -11,6 +11,7 @@ import {
   faToggleOn,
   faFastBackward,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAtom } from "jotai";
 
 import {
   RED,
@@ -22,8 +23,12 @@ import {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  ENV_STATUSES,
   NAV_ENTRY_ACTIONS,
 } from "../Common/defaults";
+import { 
+  pendingEnvRequestAtom,
+} from "../Report/InteractiveReport";
 
 /**
  * Display interactive NavEntry information:
@@ -34,6 +39,9 @@ import {
  *   * Environment status icon (if required)
  */
 const InteractiveNavEntry = (props) => {
+  const [pendingEnvRequest, setPendingEnvRequest] = useAtom(
+    pendingEnvRequestAtom
+  );
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const statusIcon = getStatusIcon(
     props.runtime_status,
@@ -41,14 +49,14 @@ const InteractiveNavEntry = (props) => {
     props.handleClick,
     props.suiteRelated,
     props.action,
-    props.pendingEnvRequest
+    pendingEnvRequest
   );
   const envStatusIcon = getEnvStatusIcon(
     props.runtime_status,
     props.envStatus,
     props.envCtrlCallback,
-    props.pendingEnvRequest,
-    props.setPendingEnvRequest,
+    pendingEnvRequest,
+    setPendingEnvRequest,
   );
   const resetReportIcon = getResetReportIcon(
     props.runtime_status,
@@ -117,6 +125,8 @@ const getStatusIcon = (
   if (suiteRelated) {
     return null;
   }
+
+  console.log("getStatusIcon");
 
   const disabled = envStatusChanging(envStatus) || action === "prohibit"
     || envStatusChanging(pendingEnvRequest);
@@ -252,7 +262,7 @@ const getEnvStatusIcon = (
   let disabled = testInProgress(entryStatus)
     || envStatusChanging(pendingEnvRequest);
   switch (envStatus) {
-    case "STOPPED":
+    case ENV_STATUSES.stopped:
       return (
         <FontAwesomeIcon
           className={
@@ -264,20 +274,20 @@ const getEnvStatusIcon = (
           title={disabled ? "Pending action" : "Start environment"}
           onClick={
             disabled ? ignoreClickEvent : (e) => {
-              setPendingEnvRequest("STARTING");
+              setPendingEnvRequest(ENV_STATUSES.starting);
               envCtrlCallback(e, "start");
             }
           }
         />
       );
 
-    case "STOPPING":
-      if (pendingEnvRequest === "STOPPING") {
+    case ENV_STATUSES.stopping:
+      if (pendingEnvRequest === ENV_STATUSES.stopping) {
         setPendingEnvRequest("");
       };
       return StartingStoppingIcon(false);
 
-    case "STARTED":
+    case ENV_STATUSES.started:
       return (
         <FontAwesomeIcon
           className={
@@ -289,15 +299,15 @@ const getEnvStatusIcon = (
           title={disabled ? "Pending action" : "Stop environment"}
           onClick={
             disabled ? ignoreClickEvent : (e) => {
-              setPendingEnvRequest("STOPPING");
+              setPendingEnvRequest(ENV_STATUSES.stopping);
               envCtrlCallback(e, "stop");
             }
           }
         />
       );
 
-    case "STARTING":
-      if (pendingEnvRequest === "STARTING") {
+    case ENV_STATUSES.starting:
+      if (pendingEnvRequest === ENV_STATUSES.starting) {
         setPendingEnvRequest("");
       };
       return StartingStoppingIcon(true);
@@ -354,7 +364,8 @@ const isTestInstance = (entryType) => {
  * Is environment in the process of starting or stopping.
  */
 const envStatusChanging = (envStatus) => {
-  return envStatus === "STARTING" || envStatus === "STOPPING";
+  return envStatus === ENV_STATUSES.starting
+    || envStatus === ENV_STATUSES.stopping;
 };
 
 /**

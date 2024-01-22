@@ -60,10 +60,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
       handleColumnResizing={[Function]}
       interactive={true}
       navListWidth="28em"
-      pendingEnvRequest=""
       report={null}
       selected={Array []}
-      setPendingEnvRequest={[Function]}
       url="/interactive/:uid/:selection*"
     />
     <ContextProvider
@@ -151,10 +149,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
       handleColumnResizing={[Function]}
       interactive={true}
       navListWidth="28em"
-      pendingEnvRequest=""
       report={null}
       selected={Array []}
-      setPendingEnvRequest={[Function]}
       url="/interactive/:uid/:selection*"
     />
     <ContextProvider
@@ -373,7 +369,6 @@ exports[`InteractiveReport Updates testcase state 1`] = `
       handleColumnResizing={[Function]}
       interactive={true}
       navListWidth="28em"
-      pendingEnvRequest=""
       report={
         Object {
           "attachments": Object {},
@@ -640,7 +635,6 @@ exports[`InteractiveReport Updates testcase state 1`] = `
           },
         ]
       }
-      setPendingEnvRequest={[Function]}
       url="/interactive/:uid/:selection*"
     />
     <ContextProvider
@@ -726,10 +720,8 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
       handleColumnResizing={[Function]}
       interactive={true}
       navListWidth="28em"
-      pendingEnvRequest=""
       report={null}
       selected={Array []}
-      setPendingEnvRequest={[Function]}
       url="/interactive/:uid/:selection*"
     />
     <ContextProvider
@@ -815,10 +807,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
       handleColumnResizing={[Function]}
       interactive={true}
       navListWidth="28em"
-      pendingEnvRequest=""
       report={null}
       selected={Array []}
-      setPendingEnvRequest={[Function]}
       url="/interactive/:uid/:selection*"
     />
     <ContextProvider
@@ -904,10 +894,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
       handleColumnResizing={[Function]}
       interactive={true}
       navListWidth="28em"
-      pendingEnvRequest=""
       report={null}
       selected={Array []}
-      setPendingEnvRequest={[Function]}
       url="/interactive/:uid/:selection*"
     />
     <ContextProvider
@@ -993,10 +981,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
       handleColumnResizing={[Function]}
       interactive={true}
       navListWidth="28em"
-      pendingEnvRequest=""
       report={null}
       selected={Array []}
-      setPendingEnvRequest={[Function]}
       url="/interactive/:uid/:selection*"
     />
     <ContextProvider
