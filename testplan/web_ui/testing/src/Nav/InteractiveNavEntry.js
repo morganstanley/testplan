@@ -11,6 +11,7 @@ import {
   faToggleOn,
   faFastBackward,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAtom } from "jotai";
 
 import {
   RED,
@@ -22,8 +23,12 @@ import {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  ENV_STATUSES,
   NAV_ENTRY_ACTIONS,
 } from "../Common/defaults";
+import { 
+  pendingEnvRequestAtom,
+} from "../Report/InteractiveReport";
 
 /**
  * Display interactive NavEntry information:
@@ -34,18 +39,24 @@ import {
  *   * Environment status icon (if required)
  */
 const InteractiveNavEntry = (props) => {
+  const [pendingEnvRequest, setPendingEnvRequest] = useAtom(
+    pendingEnvRequestAtom
+  );
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const statusIcon = getStatusIcon(
     props.runtime_status,
     props.envStatus,
     props.handleClick,
     props.suiteRelated,
-    props.action
+    props.action,
+    pendingEnvRequest
   );
   const envStatusIcon = getEnvStatusIcon(
     props.runtime_status,
     props.envStatus,
-    props.envCtrlCallback
+    props.envCtrlCallback,
+    pendingEnvRequest,
+    setPendingEnvRequest,
   );
   const resetReportIcon = getResetReportIcon(
     props.runtime_status,
@@ -108,13 +119,15 @@ const getStatusIcon = (
   envStatus,
   handleClick,
   suiteRelated,
-  action
+  action,
+  pendingEnvRequest,
 ) => {
   if (suiteRelated) {
     return null;
   }
 
-  const disabled = envStatusChanging(envStatus) || action === "prohibit";
+  const disabled = envStatusChanging(envStatus) || action === "prohibit"
+    || envStatusChanging(pendingEnvRequest);
   switch (entryStatus) {
     case "ready":
       return (
@@ -237,10 +250,17 @@ function StartingStoppingIcon(starting) {
  * Returns the environment control component for entries that own an
  * environment. Returns null for entries that do not have an environment.
  */
-const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
-  const disabled = testInProgress(entryStatus);
+const getEnvStatusIcon = (
+    entryStatus,
+    envStatus,
+    envCtrlCallback,
+    pendingEnvRequest,
+    setPendingEnvRequest,
+  ) => {
+  let disabled = testInProgress(entryStatus)
+    || envStatusChanging(pendingEnvRequest);
   switch (envStatus) {
-    case "STOPPED":
+    case ENV_STATUSES.stopped:
       return (
         <FontAwesomeIcon
           className={
@@ -249,17 +269,23 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
             css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOff}
-          title="Start environment"
+          title={disabled ? "Pending action" : "Start environment"}
           onClick={
-            disabled ? ignoreClickEvent : (e) => envCtrlCallback(e, "start")
+            disabled ? ignoreClickEvent : (e) => {
+              setPendingEnvRequest(ENV_STATUSES.starting);
+              envCtrlCallback(e, "start");
+            }
           }
         />
       );
 
-    case "STOPPING":
+    case ENV_STATUSES.stopping:
+      if (pendingEnvRequest === ENV_STATUSES.stopping) {
+        setPendingEnvRequest("");
+      };
       return StartingStoppingIcon(false);
 
-    case "STARTED":
+    case ENV_STATUSES.started:
       return (
         <FontAwesomeIcon
           className={
@@ -268,14 +294,20 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
             css(styles.entryButton, styles.environmentToggle)
           }
           icon={faToggleOn}
-          title="Stop environment"
+          title={disabled ? "Pending action" : "Stop environment"}
           onClick={
-            disabled ? ignoreClickEvent : (e) => envCtrlCallback(e, "stop")
+            disabled ? ignoreClickEvent : (e) => {
+              setPendingEnvRequest(ENV_STATUSES.stopping);
+              envCtrlCallback(e, "stop");
+            }
           }
         />
       );
 
-    case "STARTING":
+    case ENV_STATUSES.starting:
+      if (pendingEnvRequest === ENV_STATUSES.starting) {
+        setPendingEnvRequest("");
+      };
       return StartingStoppingIcon(true);
 
     default:
@@ -330,7 +362,8 @@ const isTestInstance = (entryType) => {
  * Is environment in the process of starting or stopping.
  */
 const envStatusChanging = (envStatus) => {
-  return envStatus === "STARTING" || envStatus === "STOPPING";
+  return envStatus === ENV_STATUSES.starting
+    || envStatus === ENV_STATUSES.stopping;
 };
 
 /**
