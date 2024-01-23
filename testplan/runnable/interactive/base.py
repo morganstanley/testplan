@@ -751,13 +751,13 @@ class TestRunnerIHandler(entity.Entity):
                                     ].entries[param_index] = case[
                                         param_case.uid
                                     ]
-                                except KeyError:
+                                except (KeyError, IndexError):
                                     continue
                         else:
                             new_report[multitest.uid][suite.uid].entries[
                                 case_index
                             ] = suite[case.uid]
-                    except KeyError:
+                    except (KeyError, IndexError):
                         continue
                 multitest.entries[suite_index] = new_suite
 
@@ -810,6 +810,7 @@ class TestRunnerIHandler(entity.Entity):
 
         for test_uid in self.all_tests():
             test = self.test(test_uid)
+            test.reset_context()
             test_report = test.dry_run().report
             report.append(test_report)
 
