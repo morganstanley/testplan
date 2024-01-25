@@ -240,15 +240,17 @@ class ResourceMonitorClient:
 
 
 class ResourceMonitorServer:
-    def __init__(self, file_directory: Union[str, pathlib.Path], debug=False):
+    def __init__(
+        self, file_directory: Union[str, pathlib.Path], detailed=False
+    ):
         """
         Start a ZMQ server for receiving resource data from client.
 
         :param file_directory: Directory path for saving resource data and log.
-        :param debug: Save resource data for per process if debug is True.
+        :param detailed: Save resource data for per process if detailed is True.
         """
         self.file_directory = pathlib.Path(file_directory)
-        self.debug = debug
+        self.detailed = detailed
         self._file_handler: Dict[
             str, Dict[str, Union[csv.writer, TextIO]]
         ] = {}
@@ -301,20 +303,20 @@ class ResourceMonitorServer:
                 ]
             )
             self._file_handler[client_id]["host_file"].flush()
-            if self.debug:
+            if self.detailed:
                 process_data: Dict[int, ProcessResourceData] = message.data[
                     "process_resource"
                 ]
-                if "debug_file" not in self._file_handler[client_id]:
-                    self._file_handler[client_id]["debug_file"] = open(
-                        self.file_directory / f"{slugify(client_id)}.debug",
+                if "detailed_file" not in self._file_handler[client_id]:
+                    self._file_handler[client_id]["detailed_file"] = open(
+                        self.file_directory / f"{slugify(client_id)}.detailed",
                         "w",
                     )
-                    self._file_handler[client_id]["debug_csv"] = csv.writer(
-                        self._file_handler[client_id]["debug_file"]
+                    self._file_handler[client_id]["detailed_csv"] = csv.writer(
+                        self._file_handler[client_id]["detailed_file"]
                     )
                 for pid, process in process_data.items():
-                    self._file_handler[client_id]["debug_csv"].writerow(
+                    self._file_handler[client_id]["detailed_csv"].writerow(
                         [
                             message.data["time"],
                             pid,
@@ -327,7 +329,7 @@ class ResourceMonitorServer:
                             process.cmdline,
                         ]
                     )
-                self._file_handler[client_id]["debug_file"].flush()
+                self._file_handler[client_id]["detailed_file"].flush()
         else:
             self.logger.info(
                 "Received unknown data cmd %s, ignored!", message.cmd

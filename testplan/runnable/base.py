@@ -1022,7 +1022,7 @@ class TestRunner(Runnable):
         if self.cfg.resource_monitor:
             self.resource_monitor_server = ResourceMonitorServer(
                 self.resource_monitor_server_file_path,
-                debug=self.cfg.logger_level == logger.DEBUG,
+                detailed=self.cfg.logger_level == logger.DEBUG,
             )
             self.resource_monitor_server.start()
             self.resource_monitor_client = ResourceMonitorClient(
