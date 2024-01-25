@@ -18,7 +18,7 @@ def test_resource(runpath):
     print(f"Runpath: {runpath}")
     current_pid = os.getpid()
     print(f"Current PID: {current_pid}")
-    server = ResourceMonitorServer(file_directory=runpath, debug=True)
+    server = ResourceMonitorServer(file_directory=runpath, detailed=True)
     assert server.address == ""
     server.start()
     assert server.address != ""
@@ -33,7 +33,7 @@ def test_resource(runpath):
     meta_file_path = server.file_directory / f"{slugify(client.uid)}.meta"
     resource_file_path = server.file_directory / f"{slugify(client.uid)}.csv"
     resource_detail_file_path = (
-        server.file_directory / f"{slugify(client.uid)}.debug"
+        server.file_directory / f"{slugify(client.uid)}.detailed"
     )
     wait(lambda: meta_file_path.exists(), timeout=client.poll_interval * 2)
 
@@ -58,9 +58,9 @@ def test_resource(runpath):
         if resource_file_path.exists() and resource_detail_file_path.exists():
             with open(resource_file_path) as resource_file:
                 csv_reader = csv.reader(resource_file)
-                current_pid_data = get_latest_pid_resource_data(current_pid)
+                _current_pid_data = get_latest_pid_resource_data(current_pid)
                 return (
-                    len(list(csv_reader)) > 0 and current_pid_data is not None
+                    len(list(csv_reader)) > 0 and _current_pid_data is not None
                 )
         return False
 
@@ -77,7 +77,7 @@ def test_resource(runpath):
     current_pid_data = get_latest_pid_resource_data(current_pid)
     print(f"Current PID Data: {current_pid_data}")
 
-    big_memory = ["testplan"] * 1024 * 1024
+    big_memory = ["testplan"] * 1024 * 1024 * 10
 
     def check_pid_memory():
         latest_pid_data = get_latest_pid_resource_data(current_pid)
@@ -89,7 +89,7 @@ def test_resource(runpath):
 
     wait(check_pid_memory, timeout=client.poll_interval * 4)
 
-    big_memory.clear()
+    big_memory.clear()  # avoid freeing memory early
 
     client.stop()
     server.stop()
