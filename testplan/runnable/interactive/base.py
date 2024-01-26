@@ -726,71 +726,6 @@ class TestRunnerIHandler(entity.Entity):
             else:
                 raise ValueError("Unknown operation: {}".format(operation))
 
-    def create_new_environment(self, env_uid, env_type="local_environment"):
-        """Dynamically create an environment maker object."""
-        if env_uid in self._created_environments:
-            raise RuntimeError(
-                "Environment {} already exists.".format(env_uid)
-            )
-
-        if env_type == "local_environment":
-            from testplan.environment import LocalEnvironment
-
-            env_class = LocalEnvironment
-        else:
-            raise ValueError("Unknown environment type: {}".format(env_type))
-
-        self._created_environments[env_uid] = env_class(env_uid)
-
-    def add_environment_resource(
-        self, env_uid, target_class_name, source_file=None, **kwargs
-    ):
-        """
-        Add a resource to existing environment or to environment maker object.
-        """
-        final_kwargs = {}
-        compiled = re.compile(r"_ctx_(.+)_ctx_(.+)")
-        context_params = {}
-        for key, value in kwargs.items():
-            if key.startswith("_ctx_"):
-                matched = compiled.match(key)
-                if not matched or key.count("_ctx_") != 2:
-                    raise ValueError("Invalid key: {}".format(key))
-                target_key, ctx_key = matched.groups()
-                if target_key not in context_params:
-                    context_params[target_key] = {}
-                context_params[target_key][ctx_key] = value
-            else:
-                final_kwargs[key] = value
-        if context_params:
-            from testplan.common.utils.context import context
-
-            for key in context_params:
-                final_kwargs[key] = context(**context_params[key])
-
-        if source_file is None:  # Invoke class loader
-            resource = self._resource_loader.load(
-                target_class_name, final_kwargs
-            )
-            try:
-                self.get_environment(env_uid).add(resource)
-            except:
-                self._created_environments[env_uid].add_resource(resource)
-        else:
-            raise Exception("Add from source file is not yet supported.")
-
-    def reload_environment_resource(
-        self, env_uid, target_class_name, source_file=None, **kwargs
-    ):
-        # Placeholder for function to delele an existing and registering a new
-        # environment resource with probably altered source code.
-        # This should access the already added Environment to plan.
-        pass
-
-    def add_created_environment(self, env_uid):
-        """Add an environment from the created environment maker instance."""
-        self.target.add_environment(self._created_environments[env_uid])
-
     def reload(self, rebuild_dependencies=False):
         """Reload test suites."""
         if self._reloader is None:
@@ -816,13 +751,13 @@ class TestRunnerIHandler(entity.Entity):
                                     ].entries[param_index] = case[
                                         param_case.uid
                                     ]
-                                except KeyError:
+                                except (KeyError, IndexError):
                                     continue
                         else:
                             new_report[multitest.uid][suite.uid].entries[
                                 case_index
                             ] = suite[case.uid]
-                    except KeyError:
+                    except (KeyError, IndexError):
                         continue
                 multitest.entries[suite_index] = new_suite
 
@@ -875,31 +810,11 @@ class TestRunnerIHandler(entity.Entity):
 
         for test_uid in self.all_tests():
             test = self.test(test_uid)
+            test.reset_context()
             test_report = test.dry_run().report
             report.append(test_report)
 
         return report
-
-    def _run_all_test_operations(self, test_run_generator):
-        """Run all test operations."""
-        return [
-            self._run_test_operation(operation, args, kwargs)
-            for operation, args, kwargs in test_run_generator
-        ]
-
-    def _run_test_operation(self, test_operation, args, kwargs):
-        """Run a test operation and update our report tree with the results."""
-        result = test_operation(*args, **kwargs)
-
-        if isinstance(result, TestGroupReport):
-            self.logger.debug("Merge test result: %s", result)
-            with self.report_mutex:
-                self.report[result.uid].merge(result)
-        elif result is not None:
-            self.logger.debug(
-                "Discarding result from test operation: %s", result
-            )
-        return result
 
     def _auto_start_environment(self, test_uid):
         """Start environment if required."""
@@ -936,14 +851,6 @@ class TestRunnerIHandler(entity.Entity):
                 'Setting env status of "%s" to %s', test_uid, new_status
             )
             self.report[test_uid].env_status = new_status
-
-    def _log_env_errors(self, test_uid, error_messages):
-        """Log errors during environment start/stop for a given test."""
-        test_report = self.report[test_uid]
-        with self.report_mutex:
-            for errmsg in error_messages:
-                test_report.logger.error(errmsg)
-            test_report.status_override = Status.ERROR
 
     def _clear_env_errors(self, test_uid):
         """Remove error logs about environment start/stop for a given test."""

@@ -116,39 +116,25 @@ class Test(Runnable):
     customize functionality.
 
     :param name: Test instance name, often used as uid of test entity.
-    :type name: ``str``
     :param description: Description of test instance.
-    :type description: ``str``
     :param environment: List of
-        :py:class:`drivers <testplan.tesitng.multitest.driver.base.Driver>` to
+        :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>` to
         be started and made available on tests execution. Can also take a
         callable that returns the list of drivers.
-    :type environment: ``list`` or ``callable``
     :param dependencies: driver start-up dependencies as a directed graph,
         e.g {server1: (client1, client2)} indicates server1 shall start before
         client1 and client2. Can also take a callable that returns a dict.
-    :type dependencies: ``dict`` or ``callable``
     :param initial_context: key: value pairs that will be made available as
         context for drivers in environment. Can also take a callbale that
         returns a dict.
-    :type initial_context: ``dict`` or ``callable``
     :param test_filter: Class with test filtering logic.
-    :type test_filter: :py:class:`~testplan.testing.filtering.BaseFilter`
     :param test_sorter: Class with tests sorting logic.
-    :type test_sorter: :py:class:`~testplan.testing.ordering.BaseSorter`
     :param before_start: Callable to execute before starting the environment.
-    :type before_start: ``callable`` taking an environment argument.
     :param after_start: Callable to execute after starting the environment.
-    :type after_start: ``callable`` taking an environment argument.
     :param before_stop: Callable to execute before stopping the environment.
-    :type before_stop: ``callable`` taking environment and a result arguments.
     :param after_stop: Callable to execute after stopping the environment.
-    :type after_stop: ``callable`` taking environment and a result arguments.
     :param stdout_style: Console output style.
-    :type stdout_style: :py:class:`~testplan.report.testing.styles.Style`
     :param tags: User defined tag value.
-    :type tags: ``string``, ``iterable`` of ``string``, or a ``dict`` with
-        ``string`` keys and ``string`` or ``iterable`` of ``string`` as values.
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -194,10 +180,10 @@ class Test(Runnable):
         self._init_test_report()
         self._env_built = False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.name)
 
-    def _new_test_report(self):
+    def _new_test_report(self) -> TestGroupReport:
         return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
@@ -206,10 +192,10 @@ class Test(Runnable):
             env_status=ResourceStatus.STOPPED,
         )
 
-    def _init_test_report(self):
+    def _init_test_report(self) -> TestGroupReport:
         self.result.report = self._new_test_report()
 
-    def get_tags_index(self):
+    def get_tags_index(self) -> Union[str, Iterable[str], Dict]:
         """
         Return the tag index that will be used for filtering.
         By default this is equal to the native tags for this object.
@@ -219,7 +205,7 @@ class Test(Runnable):
         """
         return self.cfg.tags or {}
 
-    def get_filter_levels(self):
+    def get_filter_levels(self) -> List[filtering.FilterLevel]:
         if not self.filter_levels:
             raise ValueError(
                 "`filter_levels` is not defined by {}".format(self)
@@ -227,16 +213,16 @@ class Test(Runnable):
         return self.filter_levels
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Instance name."""
         return self.cfg.name
 
     @property
-    def description(self):
+    def description(self) -> str:
         return self.cfg.description
 
     @property
-    def report(self):
+    def report(self) -> TestGroupReport:
         """Shortcut for the test report."""
         return self.result.report
 
@@ -247,16 +233,12 @@ class Test(Runnable):
 
     @property
     def test_context(self):
-        if (
-            getattr(self, "parent", None)
-            and hasattr(self.parent, "cfg")
-            and self.parent.cfg.interactive_port is not None
-        ):
-            return self.get_test_context()
-
         if self._test_context is None:
             self._test_context = self.get_test_context()
         return self._test_context
+
+    def reset_context(self) -> None:
+        self._test_context = None
 
     def get_test_context(self):
         raise NotImplementedError
