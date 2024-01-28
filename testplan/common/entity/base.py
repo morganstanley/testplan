@@ -285,7 +285,9 @@ class Environment:
                 )
 
                 # Resource status should be STOPPED even it failed to stop
+
                 resource.force_stopped()
+                resource.error_handler()
             else:
                 if resource.async_start:
                     resources_to_wait_for.append(resource)
@@ -333,6 +335,7 @@ class Environment:
             else:
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
+                resource.error_handler()
 
     def _log_exception(self, resource, func, exception_record):
         """
@@ -1438,6 +1441,12 @@ class Resource(Entity):
     def post_stop(self):
         """
         Steps to be executed right after resource is stopped.
+        """
+        pass
+
+    def error_handler(self):
+        """
+        Steps to be executed if any of the stop steps fails.
         """
         pass
 
