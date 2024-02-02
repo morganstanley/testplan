@@ -40,9 +40,7 @@ from testplan.testing.multitest.suite import (
     get_suite_metadata,
     get_testcase_metadata,
 )
-from testplan.testing.multitest.test_metadata import (
-    TestMetadata,
-)
+from testplan.testing.multitest.test_metadata import TestMetadata
 
 
 def iterable_suites(obj):
@@ -693,18 +691,14 @@ class MultiTest(testing_base.Test):
                 self.DEFAULT_THREAD_POOL_SIZE,
             )
 
-    def _suite_related_report(self, name, status=None):
+    def _suite_related_report(self, name):
         """
         Return a report for a testsuite-related action, such as setup or
         teardown.
         """
-        testcase_report = TestCaseReport(
-            name=name, uid=name, suite_related=True
+        return TestCaseReport(
+            name=name, uid=name, category=ReportCategories.SYNTHESIZED
         )
-        if status:
-            testcase_report.status_override = status
-
-        return testcase_report
 
     def _testcase_reports(self, testsuite, testcases, status=None):
         """
@@ -1058,9 +1052,7 @@ class MultiTest(testing_base.Test):
         if not self.active:
             return None
 
-        method_report = TestCaseReport(
-            name=method_name, uid=method_name, suite_related=True
-        )
+        method_report = self._suite_related_report(method_name)
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self._scratch
         )
