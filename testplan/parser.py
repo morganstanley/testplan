@@ -218,8 +218,14 @@ A typical input JSON looks like below:
             "--skip-remaining",
             choices=common.SkipStrategy.all_options(),
             dest="skip_strategy",
-            help="Skip the remaining Testcases/Testsuites/Multitests being "
-            "executed when a Testcase has failed or raised exception.",
+            help='Make Testplan skip certain testcases from execution upon exception ("error") '
+            'or assertion failed ("failed"). Here "failed" includes "error" situation.\n'
+            'Use "cases-on-failed"/"cases-on-error" to skip remaining testcases '
+            "in the same testsuite when condition meets.\n"
+            'Use "suites-on-failed"/"suites-on-error" to skip remaining testsuites as well '
+            "in the same Multitest when condition meets.\n"
+            'Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests etc. '
+            "as well (i.e. everything remaining) in the current Testplan when condition meets.\n",
         )
 
         filter_group = parser.add_argument_group("Filtering")

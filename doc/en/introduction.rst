@@ -350,7 +350,14 @@ Command line
                                 ......
                             }
       --skip-remaining {cases-on-failed,cases-on-error,suites-on-failed,suites-on-error,tests-on-failed,tests-on-error}
-                            Skip the remaining Testcases/Testsuites/Multitests being executed when a Testcase has failed or raised exception.
+                            Make Testplan skip certain testcases from execution upon exception ("error") or assertion failed ("failed"). Here "failed" includes "error" situation.
+
+                            Use "cases-on-failed"/"cases-on-error" to skip remaining testcases in the same testsuite when condition meets.
+
+                            Use "suites-on-failed"/"suites-on-error" to skip remaining testsuites as well in the same Multitest when condition meets.
+
+                            Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests etc. as well (basically everything remaining) in the current Testplan when condition meets.
+
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.
 
