@@ -55,7 +55,7 @@ const InteractiveReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
   const pendingEnvRequest = useAtomValue(pendingEnvRequestAtom);
   return (
-    <InteractiveReportComponent {...props} displayTimeInfo={displayTimeInfo} 
+    <InteractiveReportComponent {...props} displayTime={displayTimeInfo}
       pendingEnvRequest={pendingEnvRequest}
     />
   );
@@ -689,7 +689,7 @@ class InteractiveReportComponent extends BaseReport {
       reportFetchMessage,
       null,
       selectedEntries,
-      this.props.displayTimeInfo
+      this.props.displayTime
     );
 
     return (
@@ -749,7 +749,7 @@ class InteractiveReportComponent extends BaseReport {
             selected={selectedEntries}
             filter={null}
             displayTags={false}
-            displayTime={false}
+            displayTime={this.props.displayTime}
             // envCtrlCallback and handleClick are passed down to InteractiveNav
             handleClick={this.handleClick}
             envCtrlCallback={this.envCtrlCallback}

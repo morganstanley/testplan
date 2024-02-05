@@ -12,6 +12,7 @@ import {
   faFastBackward,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAtom } from "jotai";
+import _ from "lodash";
 
 import {
   RED,
@@ -26,7 +27,8 @@ import {
   ENV_STATUSES,
   NAV_ENTRY_ACTIONS,
 } from "../Common/defaults";
-import { 
+import { formatMilliseconds } from "./../Common/utils";
+import {
   pendingEnvRequestAtom,
 } from "../Report/InteractiveReport";
 
@@ -64,6 +66,14 @@ const InteractiveNavEntry = (props) => {
     props.handleClick,
     props.type
   );
+  const executionTime =
+    props.displayTime && _.isNumber(props.executionTime) ? (
+      <span className={css(styles.entryIcon)} title="Execution time">
+        <span className={css(styles[STATUS_CATEGORY[props.status]])}>
+          {formatMilliseconds(props.executionTime)}
+        </span>
+      </span>
+    ) : null;
 
   return (
     <div
@@ -87,6 +97,7 @@ const InteractiveNavEntry = (props) => {
         {props.name}
       </div>
       <div className={css(styles.entryIcons)}>
+        {executionTime}
         <span className={css(styles.entryIcon)} title="passed/failed testcases">
           <span className={css(styles.passed)}>{props.caseCountPassed}</span>/
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
@@ -401,6 +412,10 @@ InteractiveNavEntry.propTypes = {
   caseCountPassed: PropTypes.number,
   /** Number of failing testcases entry has */
   caseCountFailed: PropTypes.number,
+  /** Execution time measured in seconds */
+  executionTime: PropTypes.number,
+  /** If to display execution time */
+  displayTime: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
