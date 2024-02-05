@@ -52,6 +52,7 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
         name="Interactive MTest"
         runtime_status="ready"
         status="unknown"
+        suiteRelated={false}
         type="multitest"
       />
     </ListGroupItem>

@@ -31,7 +31,7 @@ const NavList = (props) => {
           envCtrlCallback={(e, action) =>
             props.envCtrlCallback(e, entry, action)
           }
-          suiteRelated={entry.category == "synthesized" ? true : false}
+          suiteRelated={entry.category === "synthesized" ? true : false}
           action={entry.action}
           executionTime={calcExecutionTime(entry)}
           displayTime={props.displayTime}

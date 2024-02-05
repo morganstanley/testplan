@@ -338,7 +338,7 @@ const createNavEntry = (props, entry) => {
         caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
         handleClick={(e, action) => props.handleClick(e, entry, action)}
         envCtrlCallback={(e, action) => props.envCtrlCallback(e, entry, action)}
-        suiteRelated={entry.category == "synthesized" ? true : false}
+        suiteRelated={entry.category === "synthesized" ? true : false}
         action={entry.action}
         executionTime={calcExecutionTime(entry)}
         displayTime={props.displayTime}
