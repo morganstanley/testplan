@@ -6,6 +6,18 @@ import JSON5 from "json5";
 import _ from "lodash";
 
 /**
+ * Calculate execution time of an entry with timer field
+ */
+function calcExecutionTime(entry) {
+  return (
+    entry.timer && entry.timer.run
+    ? new Date(entry.timer.run.end).getTime() -
+      new Date(entry.timer.run.start).getTime()
+    : null
+    );
+}
+
+/**
  * Get the data to be used when displaying the nav entry.
  *
  * @param {object} entry - nav entry.
@@ -147,6 +159,7 @@ function formatMilliseconds(durationInMilliseconds) {
 }
 
 export {
+  calcExecutionTime,
   getNavEntryDisplayData,
   any,
   sorted,

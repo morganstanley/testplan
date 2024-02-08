@@ -1,0 +1,1 @@
+Added timing info to interactive GUI navigation entries at testcase and parametrization levels.

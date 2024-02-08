@@ -77,7 +77,7 @@ const Nav = (props) => {
         displayEmpty={true}
         displaySkipped={true}
         displayTags={false}
-        displayTime={false}
+        displayTime={props.displayTime}
         selected={props.selected}
         selectedUid={GetSelectedUid(props.selected)}
         handleClick={props.handleClick}
@@ -97,7 +97,7 @@ const Nav = (props) => {
         displayEmpty={true}
         displaySkipped={true}
         displayTags={false}
-        displayTime={false}
+        displayTime={props.displayTime}
         selectedUid={GetSelectedUid(props.selected)}
         handleClick={props.handleClick}
         envCtrlCallback={props.envCtrlCallback}
