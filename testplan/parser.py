@@ -223,14 +223,14 @@ A typical input JSON looks like below:
             'exception raised, and "on-failed" make this skip triggered upon both '
             "exception raised and test failure.\n"
             'Use "cases-on-failed"/"cases-on-error" to skip remaining testcases in the '
-            "same testsuite when condition meets, execution will resume from next from "
-            "next testsuite.\n"
+            "same testsuite when condition is met, execution will resume from the next "
+            "testsuite.\n"
             'Use "suites-on-failed"/"suites-on-error" to skip remaining testsuites as '
-            "well in the same Multitest when condition meets, execution will resume "
-            "from next Multitest/GTest etc.\n"
+            "well in the same Multitest when condition is met, execution will resume "
+            "from the next Multitest/GTest etc.\n"
             'Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests '
             "etc. as well (i.e. everything remaining) in the current Testplan when "
-            "condition meets.\n",
+            "condition is met.\n",
         )
 
         filter_group = parser.add_argument_group("Filtering")

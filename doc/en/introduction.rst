@@ -349,14 +349,15 @@ Command line
                                 },
                                 ......
                             }
-      --skip-remaining {cases-on-failed,cases-on-error,suites-on-failed,suites-on-error,tests-on-failed,tests-on-error}
+      --skip-remaining      {cases-on-failed,cases-on-error,suites-on-failed,suites-on-error,tests-on-failed,tests-on-error}
+
                             Make Testplan break from the current execution flow and skip remaining iterations at certain level. "on-error" make this skip triggered upon exception raised, and "on-failed" make this skip triggered upon both exception raised and test failure.
 
-                            Use "cases-on-failed"/"cases-on-error" to skip remaining testcases in the same testsuite when condition meets, execution will resume from next from next testsuite.
+                            Use "cases-on-failed"/"cases-on-error" to skip remaining testcases in the same testsuite when condition is met, execution will resume from the next testsuite.
 
-                            Use "suites-on-failed"/"suites-on-error" to skip remaining testsuites as well in the same Multitest when condition meets, execution will resume from next Multitest/GTest etc.
+                            Use "suites-on-failed"/"suites-on-error" to skip remaining testsuites as well in the same Multitest when condition is met, execution will resume from the next Multitest/GTest etc.
 
-                            Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests etc. as well (i.e. everything remaining) in the current Testplan when condition meets.
+                            Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests etc. as well (i.e. everything remaining) in the current Testplan when condition is met.
 
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.
@@ -444,7 +445,8 @@ Command line
                             --report-tags-all <tag_name_1> --report-tags-all <tag_name 2>
 
                             --report-tags-all <tag_name_1> <tag_category_1>=<tag_name_2>
-      --file-log-level {USER_INFO,CRITICAL,ERROR,WARNING,INFO,DEBUG,NONE}
+
+      --file-log-level      {USER_INFO,CRITICAL,ERROR,WARNING,INFO,DEBUG,NONE}
 
                             Specify log level for file logs. Set to None to disable file logging.
 
