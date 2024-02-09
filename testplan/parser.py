@@ -219,9 +219,10 @@ A typical input JSON looks like below:
             choices=common.SkipStrategy.all_options(),
             dest="skip_strategy",
             help="Make Testplan break from the current execution flow and skip remaining "
-            'iterations at certain level. "on-error" make this skip triggered upon '
-            'exception raised, and "on-failed" make this skip triggered upon both '
-            "exception raised and test failure.\n"
+            'iterations at certain level (choose one from all the options). "on-error" '
+            'make this skip upon exception raised, and "on-failed" make this skip upon '
+            'both exception raised and test failure. In other words, "on-failed" has higher '
+            "precedence.\n"
             'Use "cases-on-failed"/"cases-on-error" to skip remaining testcases in the '
             "same testsuite when condition is met, execution will resume from the next "
             "testsuite.\n"
@@ -230,7 +231,8 @@ A typical input JSON looks like below:
             "from the next Multitest/GTest etc.\n"
             'Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests '
             "etc. as well (i.e. everything remaining) in the current Testplan when "
-            "condition is met.\n",
+            "condition is met.\n"
+            'To skip everything and stop executing all further tests use "tests-on-failed".\n',
         )
 
         filter_group = parser.add_argument_group("Filtering")
