@@ -90,7 +90,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         )
 
         if "run" in source.timer:
-            run_interval = source.timer["run"]
+            run_interval = source.timer["run"][-1]
             ctx.update(
                 [
                     (
@@ -452,7 +452,7 @@ class MultiTestRowBuilder(TestRowRenderer):
 
         if "run" in source.timer:
             summary += ", total run time: {}.".format(
-                format_duration(source.timer["run"].elapsed)
+                format_duration(source.timer["run"][-1].elapsed)
             )
 
         row_data.append(

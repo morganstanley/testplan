@@ -1,4 +1,4 @@
-from testplan.report.testing.base import Status
+from testplan.common.report import Status
 from testplan.testing.common import (
     TEST_PART_PATTERN_FORMAT_STRING,
     TEST_PART_PATTERN_REGEX,

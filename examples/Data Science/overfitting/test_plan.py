@@ -117,7 +117,7 @@ class ModelExamplesSuite:
             description="Mean Square Error threshold on test data",
         )
         result.less(
-            timer["train_model"].elapsed,
+            timer["train_model"][-1].elapsed,
             1,
             description="How long did the model take to train?",
         )

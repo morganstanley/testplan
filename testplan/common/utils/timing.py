@@ -293,8 +293,8 @@ class TimerCtxManager:
     """
 
     def __init__(self, timer, key):
-        if key in timer:
-            raise ValueError("Cannot overwrite `Interval` for: {}".format(key))
+        # if key in timer:
+        #     raise ValueError("Cannot overwrite `Interval` for: {}".format(key))
 
         self.timer = timer
         self.key = key
@@ -304,7 +304,14 @@ class TimerCtxManager:
         self.start_ts = utcnow()
 
     def __exit__(self, exc_type, exc_value, _):
-        self.timer[self.key] = Interval(start=self.start_ts, end=utcnow())
+        if self.key in self.timer:
+            self.timer[self.key].append(
+                Interval(start=self.start_ts, end=utcnow())
+            )
+        else:
+            self.timer[self.key] = [
+                Interval(start=self.start_ts, end=utcnow())
+            ]
 
 
 class Timer(dict):
@@ -320,7 +327,7 @@ class Timer(dict):
             >>> with timer.record('my-key'):
             >>>  ... custom code ...
             >>>  ... custom code ...
-            >>> timer['my-key'].elapsed
+            >>> timer['my-key'][-1].elapsed
             21.5
         """
         return TimerCtxManager(timer=self, key=key)
@@ -328,10 +335,9 @@ class Timer(dict):
     def start(self, key):
         """Record the start timestamp for the given key."""
         if key in self:
-            raise ValueError(
-                "`start` already recorded for key: `{}`".format(key)
-            )
-        self[key] = Interval(utcnow(), None)
+            self[key].append(Interval(utcnow(), None))
+        else:
+            self[key] = [Interval(utcnow(), None)]
 
     def end(self, key):
         """
@@ -339,11 +345,17 @@ class Timer(dict):
         Can be called multiple times with the same key, which will keep
         overwriting the previous `end` timestamp.
         """
-        if key not in self:
-            raise KeyError(
-                "`start` missing for {}, cannot record end.".format(key)
-            )
-        self[key] = Interval(self[key].start, utcnow())
+        if key not in self or self[key][-1].end is not None:
+            raise KeyError(f"`start` missing for {key}, cannot record end.")
+
+        self[key][-1] = Interval(self[key][-1].start, utcnow())
+
+    def merge(self, timer):
+        for key in timer:
+            if key in self:
+                self[key].extend(timer[key])
+            else:
+                self[key] = timer[key]
 
 
 DURATION_REGEX = re.compile(
@@ -509,3 +521,18 @@ def get_sleeper(
             interval = min(interval * 2, max_interval)
 
     yield False
+
+
+def with_timer(func: Callable) -> Callable:
+    """
+    Decorator to add function execution as event to timer
+    """
+
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        with self.timer.record(func.__name__):
+            # import pdb
+            # pdb.set_trace()
+            return func(self, *args, **kwargs)
+
+    return wrapper

@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from typing_extensions import Self
 
-from testplan.report.testing import Status
+from testplan.common.report import Status
 
 TEST_PART_PATTERN_FORMAT_STRING = "{} - part({}/{})"
 
