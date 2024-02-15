@@ -241,6 +241,9 @@ class MultiTestConfig(testing_base.TestConfig):
                 None, And(str, os.path.exists)
             ),
             config.ConfigOption("testcase_report_target", default=True): bool,
+            config.ConfigOption("error_handler", default=None): Or(
+                None, lambda x: callable(x)
+            ),
         }
 
 
@@ -314,6 +317,7 @@ class MultiTest(testing_base.Test):
         after_start=None,
         before_stop=None,
         after_stop=None,
+        error_handler=None,
         stdout_style=None,
         tags=None,
         result=result.Result,
@@ -804,9 +808,25 @@ class MultiTest(testing_base.Test):
         with self.report.logged_exceptions():
             try:
                 res = step(*args, **kwargs)
+                if (
+                    self.resources.start_exceptions
+                    or self.resources.stop_exceptions
+                ):
+                    self.logger.critical(
+                        'Found exceptions during "%s" step', step.__name__
+                    )
+                    if self.cfg.error_handler:
+                        self.logger.critical("Running error handler!")
+                        self._run_error_handler(self.cfg.error_handler, step)
                 self.result.step_results[step.__name__] = res
                 self.status.update_metadata(**{str(step): res})
             except Exception as exc:
+                self.logger.critical(
+                    'Found exceptions during "%s" step', step.__name__
+                )
+                if self.cfg.error_handler:
+                    self.logger.critical("Running error handler!")
+                    self._run_error_handler(self.cfg.error_handler, step)
                 self.result.step_results[step.__name__] = exc
                 self.status.update_metadata(**{str(step): exc})
                 raise
