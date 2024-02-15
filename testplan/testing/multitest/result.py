@@ -20,7 +20,7 @@ from testplan.common.utils.package import MOD_LOCK
 from testplan.common.utils import comparison
 from testplan.common.utils import strings
 from testplan.defaults import STDOUT_STYLE
-from testplan.common.report.base import SkipTestcaseException
+from testplan.common.report import SkipTestcaseException
 
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry

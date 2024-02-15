@@ -18,7 +18,7 @@ class TestTaskResultInitialization:
             serialized = task_result.dumps()
             new_task_result = TaskResult().loads(serialized)
 
-            for attr in ("_result", "status", "_reason", "_uid"):
+            for attr in ("result", "status", "_reason", "_uid"):
                 task_result_attr = getattr(task_result, attr)
                 new_task_result_attr = getattr(new_task_result, attr)
                 assert task_result_attr == new_task_result_attr

@@ -1,22 +1,21 @@
 import functools
 import logging
 import re
-import uuid
 from unittest import mock
 
 import pytest
 
-from testplan.common import report
+from testplan.common.report import Report, BaseReportGroup, MergeError
 from testplan.common.report.log import LOGGER
 from testplan.common.utils.testing import disable_log_propagation
 
-DummyReport = functools.partial(report.Report, name="dummy")
-DummyReportGroup = functools.partial(report.ReportGroup, name="dummy")
+DummyReport = functools.partial(Report, name="dummy")
+DummyReportGroup = functools.partial(BaseReportGroup, name="dummy")
 
 
 @disable_log_propagation(LOGGER)
 def test_exception_logger_suppression():
-    """ExceptionLogger should suppress and log given exceptions."""
+    """ExceptionLoggerBase should suppress and log given exceptions."""
     rep = DummyReport()
     exc_str = None
 
@@ -33,7 +32,7 @@ def test_exception_logger_suppression():
 @disable_log_propagation(LOGGER)
 def test_exception_logger_reraise():
     """
-    ExceptionLogger should raise the exception without logging
+    ExceptionLoggerBase should raise the exception without logging
     if it doesn't match `exception_classes`.
     """
     rep = DummyReport()
@@ -54,8 +53,8 @@ class TestReport:
             name="foo", description="bar", uid="uid", entries=[1, 2, 3]
         )
 
-        rep_1 = report.Report(**kwargs)
-        rep_2 = report.Report(**kwargs)
+        rep_1 = Report(**kwargs)
+        rep_2 = Report(**kwargs)
 
         # need to set this explicitly
         rep_2.logs = rep_1.logs
@@ -77,8 +76,8 @@ class TestReport:
             name="foo", description="bar", uid="uid", entries=[1, 2, 3]
         )
 
-        rep_1 = report.Report(**kwargs)
-        rep_2 = report.Report(dict(kwargs, **override))
+        rep_1 = Report(**kwargs)
+        rep_2 = Report(dict(kwargs, **override))
 
         # need to set this explicitly
         rep_2.logs = rep_1.logs
@@ -98,7 +97,7 @@ class TestReport:
     def test_check_report_type_mismatch(self):
         """Should raise ValueError on failure"""
 
-        class OtherReport(report.Report):
+        class OtherReport(Report):
             pass
 
         rep_1 = DummyReport(name="foo")
@@ -106,30 +105,6 @@ class TestReport:
 
         with pytest.raises(TypeError):
             rep_1._check_report(rep_2)
-
-    def test_merge_logs(self):
-        """
-        Log merge should update `_logs` dict with
-        report's `local_uid` and should be idempotent.
-        """
-        rep_1 = DummyReport(uid=5)
-        rep_2 = DummyReport(uid=5)
-
-        rep_1.logger.info("foo")
-        rep_1.logger.debug("bar")
-
-        rep_2.logger.info("baz")
-        rep_2.logger.critical("bat")
-
-        expected = rep_1.logs + rep_2.logs
-
-        rep_1.merge(rep_2)
-
-        assert rep_1.logs == expected
-
-        # Log merge should be idempotent
-        rep_1.merge(rep_2)
-        assert rep_1.logs == expected
 
     def test_filter(self):
         """
@@ -209,7 +184,31 @@ class TestReportGroup:
         with pytest.raises(ValueError):
             parent.build_index()
 
-    def test_merge_children(self):
+    def test_merge_logs(self):
+        """
+        Log merge should update `_logs` dict with
+        report's `local_uid` and should be idempotent.
+        """
+        rep_1 = DummyReportGroup(uid=5)
+        rep_2 = DummyReportGroup(uid=5)
+
+        rep_1.logger.info("foo")
+        rep_1.logger.debug("bar")
+
+        rep_2.logger.info("baz")
+        rep_2.logger.critical("bat")
+
+        expected = rep_1.logs + rep_2.logs
+
+        rep_1.merge(rep_2)
+
+        assert rep_1.logs == expected
+
+        # Log merge should be idempotent
+        rep_1.merge(rep_2)
+        assert rep_1.logs == expected
+
+    def test_merge_entries(self):
         """Should merge each children separately."""
         child_clone_1 = DummyReport(uid=10)
         child_clone_2 = DummyReport(uid=20)
@@ -234,7 +233,7 @@ class TestReportGroup:
                     child_clone_2, strict=True
                 )
 
-    def test_merge_children_fail(self):
+    def test_merge_entries_fail(self):
         """Should raise `MergeError` if child `uid`s do not match."""
         child_clone_1 = DummyReport(uid=10)
         child_clone_2 = DummyReport(uid=20)
@@ -245,7 +244,7 @@ class TestReportGroup:
         child_orig_1 = DummyReport(uid=1)
         parent_orig = DummyReportGroup(uid=10, entries=[child_orig_1])
 
-        with pytest.raises(report.MergeError):
+        with pytest.raises(MergeError):
             parent_orig.merge(parent_clone)
 
     def test_append(self):
@@ -262,7 +261,7 @@ class TestReportGroup:
         assert group._index == {child.uid: 0}
 
     def test_append_type_error(self):
-        """`ReportGroup.append` should raise `TypeError` if `report` is not of type `report.Report`."""
+        """`ReportGroup.append` should raise `TypeError` if `report` is not of type `Report`."""
         with pytest.raises(TypeError):
             DummyReportGroup().append(object())
 
@@ -287,7 +286,7 @@ class TestReportGroup:
             return True
 
         def node_filter(obj):
-            if isinstance(obj, (report.Report, report.ReportGroup)):
+            if isinstance(obj, (Report, BaseReportGroup)):
                 return obj.name in ["foo", "bar", "alpha", "beta", "root"]
             return True
 

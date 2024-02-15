@@ -118,7 +118,7 @@ def api_env(example_report):
         MockReloader.return_value = None
 
         ihandler = TestRunnerIHandler(target=mock_target)
-        ihandler.report = example_report
+        ihandler._report = example_report
         ihandler.reset_all_tests = mock.MagicMock()
         ihandler.reset_test = mock.MagicMock()
         ihandler.run_all_tests = mock.MagicMock()

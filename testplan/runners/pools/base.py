@@ -13,12 +13,11 @@ from schema import And, Or
 
 from testplan.common import entity
 from testplan.common.config import ConfigOption
-from testplan.common.report.base import EventRecorder
 from testplan.common.utils import selector, strings
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
-from testplan.report import ReportCategories
-from testplan.report.testing.base import Status, TestGroupReport
+from testplan.common.report import Status, ReportCategories
+from testplan.report.testing.base import TestGroupReport
 from testplan.runners.base import Executor, ExecutorConfig
 from testplan.testing.base import Test, TestResult
 
@@ -93,9 +92,6 @@ class WorkerBase(entity.Resource):
         self.assigned = set()
         self.requesting = 0
         self.restart_count = self.cfg.restart_count
-        self.event_recorder = EventRecorder(
-            name=str(self), event_type="Worker"
-        )
         self._discard_running = threading.Event()
 
     @property
@@ -103,12 +99,10 @@ class WorkerBase(entity.Resource):
         return "localhost"
 
     def start(self):
-        self.event_recorder.start_time = time.time()
         super(WorkerBase, self).start()
 
     def stop(self):
         super(WorkerBase, self).stop()
-        self.event_recorder.end_time = time.time()
 
     @property
     def transport(self) -> QueueClient:
@@ -1011,8 +1005,6 @@ class Pool(Executor):
 
     def _stop_workers(self):
         self._workers.stop()
-        for worker in self._workers:
-            self.event_recorder.add_child(worker.event_recorder)
 
     def stopping(self) -> None:
         """Stop connections and workers."""
