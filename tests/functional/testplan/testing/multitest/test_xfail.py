@@ -51,11 +51,18 @@ class DynamicXfailSuite:
 @testsuite
 class SetupFailSuite:
     def setup(self, env, result):
-        raise RuntimeError("raise in testsuite setup on purpose")
+        result.equal(2, 3)
 
     @testcase
     def dummy_case(self, env, result):
-        pass
+        result.log("dummy case")
+
+    def teardown(self, env, result):
+        raise RuntimeError("raise in testsuite teardown on purpose")
+
+
+def error_hook(env, result):
+    raise RuntimeError("hook raise on purpose")
 
 
 def test_dynamic_xfail():
@@ -74,7 +81,15 @@ def test_dynamic_xfail():
                 "reason": "known flaky",
                 "strict": False,
             },
-            "Testsuite Setup Error:SetupFailSuite:*": {
+            "Testsuite Setup Error:After Start:error_hook": {
+                "reason": "known flaky",
+                "strict": False,
+            },
+            "Testsuite Setup Error:SetupFailSuite:setup": {
+                "reason": "known flaky",
+                "strict": False,
+            },
+            "Testsuite Setup Error:SetupFailSuite:teardown": {
                 "reason": "known flaky",
                 "strict": False,
             },
@@ -84,7 +99,7 @@ def test_dynamic_xfail():
     plan.add(
         MultiTest(
             name="Startup Error",
-            suites=SetupFailSuite(),
+            suites=SetupFailSuite(),  # this is not executed anyway
             environment=[
                 VulnerableDriver1(
                     name="vulnerable_driver_1", report_errors_from_logs=True
@@ -96,6 +111,7 @@ def test_dynamic_xfail():
         MultiTest(
             name="Testsuite Setup Error",
             suites=SetupFailSuite(),
+            after_start=error_hook,
         )
     )
 
@@ -106,7 +122,12 @@ def test_dynamic_xfail():
     assert dynamic_xfail_suite_report.entries[0].unstable is True
 
     assert result.report.entries[1].unstable is True
-    assert result.report.entries[2].entries[0].unstable is True
+    # after start
+    assert result.report.entries[2].entries[0].entries[0].unstable is True
+    # setup
+    assert result.report.entries[2].entries[1].entries[0].unstable is True
+    # teardown
+    assert result.report.entries[2].entries[1].entries[2].unstable is True
 
 
 def test_xfail(mockplan):

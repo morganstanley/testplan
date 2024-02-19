@@ -701,6 +701,13 @@ class Test(Runnable):
 
         self._discover_path = path
 
+    def _xfail(self, pattern, report):
+        """Utility xfail a report entry if found in xfail_tests"""
+        if getattr(self.cfg, "xfail_tests", None):
+            found = self.cfg.xfail_tests.get(pattern)
+            if found:
+                report.xfail(strict=found["strict"])
+
 
 class ProcessRunnerTestConfig(TestConfig):
     """
@@ -1143,34 +1150,32 @@ class ProcessRunnerTest(Test):
         Apply xfail tests specified via --xfail-tests or @test_plan(xfail_tests=...).
         """
 
-        def _xfail(pattern, report):
-            if getattr(self.cfg, "xfail_tests", None):
-                found = self.cfg.xfail_tests.get(pattern)
-                if found:
-                    report.xfail(strict=found["strict"])
-
         test_report = self.result.report
         pattern = f"{test_report.name}:*:*"
-        _xfail(pattern, test_report)
+        self._xfail(pattern, test_report)
 
         for suite_report in test_report.entries:
             pattern = f"{test_report.name}:{suite_report.name}:*"
-            _xfail(pattern, suite_report)
+            self._xfail(pattern, suite_report)
 
             for case_report in suite_report.entries:
                 pattern = f"{test_report.name}:{suite_report.name}:{case_report.name}"
-                _xfail(pattern, case_report)
+                self._xfail(pattern, case_report)
 
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
         super(ProcessRunnerTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
 
+    def add_post_resource_steps(self):
+        """Runnable steps to run after environment stopped."""
+        self._add_step(self.apply_xfail_tests)
+        super(ProcessRunnerTest, self).add_post_resource_steps()
+
     def add_main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
-        self._add_step(self.apply_xfail_tests)
         self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results, top_down=False)
 

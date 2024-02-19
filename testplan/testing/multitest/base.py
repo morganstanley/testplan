@@ -632,10 +632,14 @@ class MultiTest(testing_base.Test):
         super(MultiTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
 
+    def add_post_resource_steps(self):
+        """Runnable steps to run after environment stopped."""
+        self._add_step(self.apply_xfail_tests)
+        super(MultiTest, self).add_post_resource_steps()
+
     def add_main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
-        self._add_step(self.apply_xfail_tests)
         self._add_step(self.propagate_tag_indices)
 
     def should_run(self):
@@ -670,19 +674,13 @@ class MultiTest(testing_base.Test):
         Testcase level xfail already applied during test execution.
         """
 
-        def _xfail(pattern, report):
-            if getattr(self.cfg, "xfail_tests", None):
-                found = self.cfg.xfail_tests.get(pattern)
-                if found:
-                    report.xfail(strict=found["strict"])
-
         test_report = self.result.report
         pattern = f"{test_report.name}:*:*"
-        _xfail(pattern, test_report)
+        self._xfail(pattern, test_report)
 
         for suite_report in test_report.entries:
             pattern = f"{test_report.name}:{suite_report.name}:*"
-            _xfail(pattern, suite_report)
+            self._xfail(pattern, suite_report)
 
     @property
     def _thread_pool_size(self):
@@ -1116,6 +1114,14 @@ class MultiTest(testing_base.Test):
         method_report.extend(case_result.serialized_entries)
         method_report.attachments.extend(case_result.attachments)
         method_report.pass_if_empty()
+        pattern = ":".join(
+            [
+                self.name,
+                testsuite.name,
+                method_name,
+            ]
+        )
+        self._xfail(pattern, method_report)
         method_report.runtime_status = RuntimeStatus.FINISHED
 
         return method_report
