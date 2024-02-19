@@ -357,7 +357,7 @@ class Test(Runnable):
             self.report.propagate_tag_indices()
 
     def _prepare_suite_report(
-        self, label: str, func_name: str
+        self, label: str, hook: Callable
     ) -> Tuple[TestGroupReport, TestCaseReport, Result]:
         suite_report = TestGroupReport(
             name=label,
@@ -367,7 +367,8 @@ class Test(Runnable):
             # category=ReportCategories.SYNTHESIZED,
         )
         case_report = TestCaseReport(
-            name=func_name,
+            name=hook.__name__,
+            description=strings.get_docstring(hook),
             suite_related=True,
             # TODO: use synthesized instead of suite_related
             # category=ReportCategories.SYNTHESIZED,
@@ -416,7 +417,7 @@ class Test(Runnable):
             return
 
         suite_report, case_report, case_result = self._prepare_suite_report(
-            "Error handler", hook.__name__
+            "Error handler", hook
         )
         runtime_env = self._get_runtime_environment(
             testcase_name=hook.__name__,
@@ -612,7 +613,7 @@ class Test(Runnable):
             return
 
         suite_report, case_report, case_result = self._prepare_suite_report(
-            label, hook.__name__
+            label, hook
         )
         runtime_env = self._get_runtime_environment(
             testcase_name=hook.__name__,
@@ -623,7 +624,7 @@ class Test(Runnable):
             hook_args = (runtime_env, case_result)
         except interface.MethodSignatureMismatch:
             interface.check_signature(hook, ["env"])
-            hook_args = runtime_env
+            hook_args = (runtime_env,)
 
         with compose_contexts(*self._get_hook_context(case_report)):
             hook(*hook_args)
