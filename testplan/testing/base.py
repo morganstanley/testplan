@@ -3,7 +3,16 @@ import os
 import subprocess
 import sys
 import warnings
-from typing import Dict, Generator, List, Optional, Union, Callable, Iterable, Tuple
+from typing import (
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Union,
+    Callable,
+    Iterable,
+    Tuple,
+)
 from schema import And, Or, Use
 
 from testplan import defaults
@@ -393,10 +402,13 @@ class Test(Runnable):
             self.log_testcase_status(case_report)
 
         case_report.pass_if_empty()
+        label = suite_report.name
+        hook_name = case_report.name
+        pattern = ":".join([self.name, label, hook_name])
+        self._xfail(pattern, case_report)
         case_report.runtime_status = RuntimeStatus.FINISHED
         suite_report.runtime_status = RuntimeStatus.FINISHED
 
-        label = suite_report.name
         if self.result.report.has_uid(label):
             self.result.report[label] = suite_report
         else:
@@ -637,7 +649,7 @@ class Test(Runnable):
             return
 
         suite_report, case_report, case_result = self._prepare_suite_report(
-            label, hook.__name__
+            label, hook
         )
         self.result.report.append(suite_report)
 
