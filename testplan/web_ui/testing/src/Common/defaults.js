@@ -69,6 +69,7 @@ const CATEGORIES = {
   "hobbestest-suite": "testsuite",
   parametrization: "parametrization",
   testcase: "testcase",
+  synthesized: "synthesized",
 };
 
 const CATEGORY_ICONS = {
@@ -91,6 +92,7 @@ const CATEGORY_ICONS = {
   "hobbestest-suite": "HS",
   parametrization: "P",
   testcase: "C",
+  synthesized: "H",
 };
 
 const ENTRY_TYPES = [

@@ -248,7 +248,7 @@ const Node = (props) => {
       <TagList entryName={props.entry.name} tags={props.entry.tags} />
     ) : null;
   const treeViewClasses = getTreeViewStyles();
-  const isTestcase = props.entry.category === CATEGORIES["testcase"];
+  const isTestcase = props.entry.category === CATEGORIES.testcase;
   const nodeId = props.entry.uids
     ? props.entry.uids.join("/")
     : props.entry.uid;
@@ -338,7 +338,7 @@ const createNavEntry = (props, entry) => {
         caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
         handleClick={(e, action) => props.handleClick(e, entry, action)}
         envCtrlCallback={(e, action) => props.envCtrlCallback(e, entry, action)}
-        suiteRelated={entry.category === "synthesized" ? true : false}
+        suiteRelated={entry.category === CATEGORIES.synthesized}
         action={entry.action}
         executionTime={calcExecutionTime(entry)}
         displayTime={props.displayTime}

@@ -37,7 +37,7 @@ import { GetNavBreadcrumbs } from "../Nav/navUtils";
 
 import { encodeURIComponent2, parseToJson } from "../Common/utils";
 
-import { POLL_MS } from "../Common/defaults.js";
+import { POLL_MS, CATEGORIES } from "../Common/defaults";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
 import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
@@ -229,10 +229,11 @@ class InteractiveReportComponent extends BaseReport {
         return Promise.all(
           response.data.map((newTestCase) => {
             switch (newTestCase.category) {
-              case "testcase":
+              case CATEGORIES.testcase:
+              case CATEGORIES.synthesized:
                 return newTestCase;
 
-              case "parametrization":
+              case CATEGORIES.parametrization:
                 const existingParametrization =
                   existingSuite &&
                   existingSuite.entries.find(
