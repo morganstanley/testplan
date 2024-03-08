@@ -596,6 +596,11 @@ def test_runtime_status_basic_op():
     assert RuntimeStatus.NOT_RUN < RuntimeStatus.NONE
     assert not RuntimeStatus.NONE
 
+    assert RuntimeStatus.NOT_RUN.to_json_compatible() == "not_run"
+    assert (
+        RuntimeStatus.from_json_compatible("not_run") == RuntimeStatus.NOT_RUN
+    )
+
 
 def test_runtime_status_setting(dummy_test_plan_report):
     for status in list(RuntimeStatus)[:-1]:
