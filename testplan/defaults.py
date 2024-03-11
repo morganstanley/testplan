@@ -20,7 +20,10 @@ XML_DIR = os.path.join(REPORT_DIR, "xml")
 PDF_PATH = os.path.join(REPORT_DIR, "report.pdf")
 JSON_PATH = os.path.join(REPORT_DIR, "report.json")
 ATTACHMENTS = "_attachments"
+RESOURCE_DATA = "_resource"
+RESOURCE_META_FILE_NAME = "metadata.json"
 ATTACHMENTS_DIR = os.path.join(REPORT_DIR, ATTACHMENTS)
+RESOURCE_DATA_DIR = os.path.join(REPORT_DIR, RESOURCE_DATA)
 
 WEB_SERVER_HOSTNAME = "0.0.0.0"
 WEB_SERVER_PORT = 0

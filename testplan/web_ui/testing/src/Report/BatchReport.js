@@ -5,7 +5,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import _ from "lodash";
 
-import { parseToJson } from "../Common/utils";
+import { parseToJson, globalViewPanel, generateURLWithParameters } from "../Common/utils";
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar";
 import NavBreadcrumbs from "../Nav/NavBreadcrumbs";
@@ -50,6 +50,7 @@ class BatchReportComponent extends BaseReport {
     this.getReport = this.getReport.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
+    this.updatePanelView = this.updatePanelView.bind(this);
 
     this.state = {
       ...this.state,
@@ -57,6 +58,7 @@ class BatchReportComponent extends BaseReport {
       testcaseUid: null,
       filter: null,
       displayTags: false,
+      currentPanelView: globalViewPanel(),
     };
   }
 
@@ -192,6 +194,23 @@ class BatchReportComponent extends BaseReport {
     this.setState({ displayTags: displayTags });
   }
 
+  /**
+   * Update view type of the right panel.
+   *
+   * @param {VIEW_TYPE} view_type.
+   * @public
+   */
+  updatePanelView(view_type) {
+    this.setState({currentPanelView: view_type});
+    const newUrl = generateURLWithParameters(
+      window.location,
+      window.location.pathname,
+      { view: view_type }
+    );
+    this.props.history.push(newUrl);
+  }
+
+
   getSelectedUIDsFromPath() {
     const { uid, selection } = this.props.match.params;
     return [uid, ...(selection ? selection.split("/") : [])];
@@ -249,6 +268,8 @@ class BatchReportComponent extends BaseReport {
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
           updateTagsDisplayFunc={this.updateTagsDisplay}
+          current_pannel={this.state.currentPanelView}
+          switchPanelViewFunc={this.updatePanelView}
         />
         <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
         <div
