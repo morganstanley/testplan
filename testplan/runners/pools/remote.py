@@ -74,6 +74,10 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             options["pool_type"] = "thread"
         super().__init__(**options)
 
+    @property
+    def host(self) -> str:
+        return self.cfg.remote_host
+
     def _set_child_script(self) -> None:
         """Specify the remote worker executable file."""
         self._child_paths.local = self._child_path()

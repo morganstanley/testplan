@@ -5,8 +5,10 @@ import React from "react";
 import format from "date-fns/format";
 import _ from "lodash";
 import AssertionPane from "../AssertionPane/AssertionPane";
+import ResourcePanel from "../AssertionPane/ResourcePanel";
 import Message from "../Common/Message";
 import { formatMilliseconds } from "./../Common/utils";
+import { VIEW_TYPE } from "../Common/defaults";
 
 import { filterEntries } from "./reportFilter";
 
@@ -198,11 +200,27 @@ const GetCenterPane = (
     .filter((element) => {
       return element; // filter empty description
     });
-  const assertions = getAssertions(selectedEntries, displayTime);
 
   if (state.error) {
     return <Message message={`Error: ${state.error.message}`} />;
-  } else if (
+  }
+
+  if (reportFetchMessage !== null) {
+    return <Message message={reportFetchMessage} />;
+  }
+
+  if (state.currentPanelView === VIEW_TYPE.RESOURCE) {
+    let selectedHostUid = null;
+    if (selectedEntries.length >= 2) {
+      selectedHostUid = selectedEntries[1].host;
+    }
+    return (
+      <ResourcePanel key="resourcePanel" report={state.report} selectedHostUid={selectedHostUid}/>
+    );
+  }
+
+  const assertions = getAssertions(selectedEntries, displayTime);
+  if (
     assertions.length > 0 ||
     logs.length > 0 ||
     selectedDescription.length > 0
@@ -220,9 +238,8 @@ const GetCenterPane = (
         reportUid={reportUid}
       />
     );
-  } else if (reportFetchMessage !== null) {
-    return <Message message={reportFetchMessage} />;
-  } else if (selectedEntry && selectedEntry.entries.length > 0 ) {
+  }
+  if (selectedEntry && selectedEntry.entries.length > 0 ) {
     return <Message message="Please select an entry." />;
   } else {
     return <Message message="No entries to be displayed." />;

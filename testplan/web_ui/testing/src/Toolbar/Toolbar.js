@@ -22,7 +22,7 @@ import {
 import Linkify from "linkify-react";
 
 import FilterBox from "../Toolbar/FilterBox";
-import { STATUS, STATUS_CATEGORY, EXPAND_STATUS } from "../Common/defaults";
+import { STATUS, STATUS_CATEGORY, EXPAND_STATUS, VIEW_TYPE } from "../Common/defaults";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -39,6 +39,8 @@ import {
   faAngleDoubleDown,
   faAngleDoubleUp,
   faAngleDown,
+  faChartLine,
+  faChartBar,
 } from "@fortawesome/free-solid-svg-icons";
 
 import styles from "./navStyles";
@@ -62,7 +64,9 @@ library.add(
   faQuestionCircle,
   faAngleDoubleDown,
   faAngleDoubleUp,
-  faAngleDown
+  faAngleDown,
+  faChartLine,
+  faChartBar,
 );
 
 const ToolbarExpandButtons = ({
@@ -115,6 +119,36 @@ const ToolbarExpandButtons = ({
             icon="angle-double-up"
             onClick={toggleCollapse}
             title="Collapse all assertions"
+          />
+        </div>
+      </NavItem>
+    </>
+  );
+};
+
+const PanelSwitchIconMap = {
+  [VIEW_TYPE.ASSERTION]: "chart-bar",
+  [VIEW_TYPE.RESOURCE]: "chart-line"
+};
+
+const PanelViewSwitch = ({panel_types, switchPanelViewFunc}) => {
+
+  const onClickFunc = () => {
+    const nextType = panel_types === VIEW_TYPE.ASSERTION?
+      VIEW_TYPE.RESOURCE: VIEW_TYPE.ASSERTION;
+    switchPanelViewFunc(nextType);
+  };
+
+  return (
+    <>
+      <NavItem key="panel-swicth-icon-item">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key="panel-switch-icon"
+            className={css(styles.toolbarButton)}
+            icon={PanelSwitchIconMap[panel_types]}
+            onClick={onClickFunc}
+            title="Switch Panel View"
           />
         </div>
       </NavItem>
@@ -333,6 +367,13 @@ const ToolbarFilterBox = ({ filterBoxWidth, filterText, handleNavFilter }) => {
 const Toolbar = function (props) {
   const toolbarStyle = getToolbarStyle(props.status);
 
+  const panelViewSwitch = props.switchPanelViewFunc? (
+    <PanelViewSwitch
+      panel_types={props.current_pannel}
+      switchPanelViewFunc={props.switchPanelViewFunc}
+    />
+  ): null;
+
   return (
     <Navbar light expand="md" className={css(styles.toolbar)}>
       <ToolbarFilterBox
@@ -342,6 +383,7 @@ const Toolbar = function (props) {
       />
       <Collapse isOpen={false} navbar className={toolbarStyle}>
         <Nav navbar className="ml-auto">
+          {panelViewSwitch}
           <ToolbarExpandButtons
             expandStatus={props.expandStatus}
             updateExpandStatusFunc={props.updateExpandStatusFunc}
@@ -504,6 +546,10 @@ Toolbar.propTypes = {
   expandStatus: PropTypes.string,
   /** Function to handle global expand changing in the toobar */
   updateExpandStatusFunc: PropTypes.func,
+  /** Current panel view type */
+  current_pannel: PropTypes.string,
+  /** Function to hanndle panel view switching */
+  switchPanelViewFunc: PropTypes.func,
 };
 
 export default Toolbar;

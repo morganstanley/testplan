@@ -50,6 +50,8 @@ from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
 
+from testplan.testing.multitest import result
+
 TEST_INST_INDENT = 2
 SUITE_INDENT = 4
 TESTCASE_INDENT = 6

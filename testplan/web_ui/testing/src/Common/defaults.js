@@ -1,6 +1,15 @@
 /**
  * Constants used across the entire application.
  */
+
+const BLUE = "#e1f0f766";
+const DARK_BLUE = "#43aade";
+const YELLOW = "#fff17666";
+const DARK_YELLOW =  '#ffc107';
+const TEAL = '#a7f0dd66';
+const DARK_TEAL = "#acebda";
+const ROSE = "#fe064466";
+const DARK_ROSE = "#be0433";
 const GREEN = "#228F1D";
 const DARK_GREEN = "#1A721D";
 const RED = "#A2000C";
@@ -221,6 +230,13 @@ const EXPAND_STATUS = Object.freeze({
   DEFAULT: "default",
 });
 
+// Right panel view types
+const VIEW_TYPE = Object.freeze({
+  ASSERTION: "assertion",
+  RESOURCE: "resource",
+  DEFAULT: "assertion",
+});
+
 // Interval to poll for report updates over. We may want to reduce this to make
 // the UI update more quickly.
 //
@@ -239,6 +255,14 @@ const LOG_TYPE = {
 };
 
 export {
+  BLUE,
+  DARK_BLUE,
+  YELLOW,
+  DARK_YELLOW,
+  TEAL,
+  DARK_TEAL,
+  ROSE,
+  DARK_ROSE,
   GREEN,
   DARK_GREEN,
   RED,
@@ -270,6 +294,7 @@ export {
   FILTER_OPTIONS,
   DICT_GRID_STYLE,
   EXPAND_STATUS,
+  VIEW_TYPE,
   POLL_MS,
   defaultFixSpec,
   LOG_TYPE,
