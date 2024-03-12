@@ -4,10 +4,16 @@ import os
 import sys
 import subprocess
 import tempfile
+from pathlib import Path
+from unittest import mock
+import importlib
 
 import pytest
 
 from testplan.runnable.interactive.reloader import _GraphModuleFinder
+from testplan import runnable
+from testplan.runnable.interactive import base
+from testplan.runners.local import LocalRunner
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -523,7 +529,7 @@ THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
         ),
     ),
 )
-def atest_find_module(script_content, module_deps):
+def test_find_module(script_content, module_deps):
     """
     Check that `_GraphModuleFinder` utility can correctly build dependency
     graph between imported modules.
@@ -614,3 +620,60 @@ def test_reload():
         [sys.executable, "interactive_executable.py"],
         cwd=os.path.dirname(os.path.abspath(__file__)),
     )
+
+
+def split_case_file(case_num):
+    r = [""] * 2
+    o = 0
+    with open(
+        Path(__file__).parent / "reload_cases" / f"case_{case_num}", "r"
+    ) as f:
+        for l in f.readlines():
+            if l.strip() == "#" * 80:
+                o += 1
+                continue
+            r[o] += l
+    return r
+
+
+def import_case_assertions(case_num):
+    mod = importlib.import_module(
+        f"tests.functional.testplan.runnable.interactive.reload_cases.case_{case_num}_assertions"
+    )
+    return getattr(mod, "prev_assertions"), getattr(mod, "curr_assertions")
+
+
+@pytest.mark.parametrize("case_num", tuple(range(3)))
+def test_reload_testcase_change(case_num):
+
+    prev_lines, curr_lines = split_case_file(case_num)
+    prev_assertions, curr_assertions = import_case_assertions(case_num)
+
+    with mock.patch("cheroot.wsgi.Server"):
+        f = tempfile.NamedTemporaryFile("r+", delete=False, suffix=".py")
+        f.seek(0)
+        f.writelines(prev_lines)
+        f.close()
+
+        try:
+            runner = runnable.TestRunner(name="TestRunner", interactive_port=0)
+            runner.add_resource(LocalRunner())
+            runner.schedule_all(
+                path=Path(f.name).parent, name_pattern=Path(f.name).name
+            )
+            irunner = base.TestRunnerIHandler(runner)
+            irunner.run_all_tests()
+
+            prev_assertions(irunner.report)
+
+            f = open(f.name, "w+")
+            f.seek(0)
+            f.writelines(curr_lines)
+            f.close()
+
+            irunner.reload(rebuild_dependencies=True)
+            irunner.reload_report()
+
+            curr_assertions(irunner.report)
+        finally:
+            os.unlink(f.name)
