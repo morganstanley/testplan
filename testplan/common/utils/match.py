@@ -3,18 +3,35 @@ Module of utility types and functions that perform matching.
 """
 import os
 import re
-import sys
 import time
 import warnings
-from contextlib import closing
-from typing import Dict, List, Match, Optional, Pattern, Tuple, Union, AnyStr
+from contextlib import closing, contextmanager
+from itertools import repeat
+from typing import (
+    TYPE_CHECKING,
+    AnyStr,
+    Dict,
+    List,
+    Match,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
+
+from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    from testplan.testing.multitest.result import Result
 
 from . import logger, timing
 from .logfile import (
     LogPosition,
+    LogStream,
     FileLogStream,
     BinaryFileLogStream,
     TextFileLogStream,
+    RotatedFileLogStream,
     RotatedBinaryFileLogStream,
     RotatedTextFileLogStream,
     MTimeBasedLogRotationStrategy,
@@ -22,6 +39,9 @@ from .logfile import (
 
 LOG_MATCHER_INTERVAL = 0.25
 LOG_MATCHER_DEFAULT_TIMEOUT = 5.0
+
+
+Regex: TypeAlias = Union[str, bytes, Pattern]
 
 
 def match_regexps_in_file(
@@ -91,13 +111,15 @@ class LogMatcher(logger.Loggable):
         self.marks = {}
         self.position: Optional[LogPosition] = None
         self.log_stream: FileLogStream = self._create_log_stream()
+        # live until next ``expect`` call
+        self.expect_results: List[Match] = []
 
         # deprecation helpers
         self.had_transformed = False
 
         super(LogMatcher, self).__init__()
 
-    def _create_log_stream(self):
+    def _create_log_stream(self) -> LogStream:
 
         # as rotated logstream should be able to handle non-rotated streams
         # without overhead we use that by default, but give an envvar to be
@@ -115,14 +137,14 @@ class LogMatcher(logger.Loggable):
 
         return self._create_rotated_log_stream()
 
-    def _create_non_rotated_log_stream(self):
+    def _create_non_rotated_log_stream(self) -> FileLogStream:
         return (
             BinaryFileLogStream(self.log_path)
             if self.binary
             else TextFileLogStream(self.log_path)
         )
 
-    def _create_rotated_log_stream(self):
+    def _create_rotated_log_stream(self) -> RotatedFileLogStream:
         return (
             RotatedBinaryFileLogStream(
                 self.log_path, MTimeBasedLogRotationStrategy()
@@ -133,9 +155,7 @@ class LogMatcher(logger.Loggable):
             )
         )
 
-    def _prepare_regexp(
-        self, regexp: Union[Pattern[AnyStr], str, bytes]
-    ) -> Pattern[AnyStr]:
+    def _prepare_regexp(self, regexp: Regex) -> Pattern[AnyStr]:
 
         if isinstance(regexp, (str, bytes)):
             regexp = re.compile(regexp)
@@ -195,15 +215,15 @@ class LogMatcher(logger.Loggable):
 
     def match(
         self,
-        regex: Union[str, bytes, Pattern],
+        regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
         raise_on_timeout: bool = True,
     ) -> Optional[Match]:
         """
         Matches each line in the log file from the current line number to the
         end of the file. If a match is found the line number is stored and the
-        match is returned. Can be configured to raise an exception if no match
-        is found.
+        match is returned. By default an exception is raised if no match is
+        found.
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
@@ -217,7 +237,6 @@ class LogMatcher(logger.Loggable):
         match = None
         start_time = time.time()
         end_time = start_time + timeout
-        read_mode = "rb"
 
         regex = self._prepare_regexp(regex)
 
@@ -254,7 +273,7 @@ class LogMatcher(logger.Loggable):
 
     def not_match(
         self,
-        regex: Union[str, bytes, Pattern],
+        regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
     ):
         """
@@ -278,13 +297,13 @@ class LogMatcher(logger.Loggable):
 
     def match_all(
         self,
-        regex: Union[str, bytes, Pattern],
+        regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
         raise_on_timeout: bool = True,
     ) -> List[Match]:
         """
-        Similar to match, but returns all occurrences of regex. Can be
-        configured to raise an exception if no match is found.
+        Similar to match, but returns all occurrences of regex. By default an
+        an exception is raised if no match is found.
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
@@ -308,7 +327,7 @@ class LogMatcher(logger.Loggable):
 
         return matches
 
-    def match_between(self, regex, mark1, mark2):
+    def match_between(self, regex: Regex, mark1: str, mark2: str):
         """
         Matches file against passed in regex. Matching is performed from
         file position denoted by mark1 and ends before file position denoted
@@ -316,14 +335,11 @@ class LogMatcher(logger.Loggable):
 
         :param regex: regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern, bytes]``
         :param mark1: mark name of start position (None for beginning of file)
-        :type mark1: ``str``
         :param mark2: mark name of end position
-        :type mark2: ``str``
+        :return: The regex match or None if no match is found
         """
         match = None
-        read_mode = "rb"
 
         regex = self._prepare_regexp(regex)
 
@@ -340,7 +356,7 @@ class LogMatcher(logger.Loggable):
 
         return match
 
-    def not_match_between(self, regex, mark1, mark2):
+    def not_match_between(self, regex: Regex, mark1: str, mark2: str):
         """
         Opposite of :py:meth:`~testplan.common.utils.match.LogMatcher.match_between`
         which returns None if a match is not found. Matching is performed
@@ -349,11 +365,8 @@ class LogMatcher(logger.Loggable):
 
         :param regex: regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern, bytes]``
         :param mark1: mark name of start position (None for beginning of file)
-        :type mark1: ``str``
         :param mark2: mark name of end position
-        :type mark2: ``str``
         """
 
         return not self.match_between(regex, mark1, mark2)
@@ -400,3 +413,63 @@ class LogMatcher(logger.Loggable):
                 lines_between.append(line)
             separator = b"" if self.binary else ""
             return separator.join(lines_between)
+
+    @contextmanager
+    def expect(
+        self,
+        result: "Result",
+        regex: Union[List[Regex], Regex],
+        timeout: Union[List[float], float] = LOG_MATCHER_DEFAULT_TIMEOUT,
+        strict_order: bool = True,
+    ):
+        """
+        User-friendly context manager composed of ``seek_eof``, ``match`` and
+        Testplan assertions. On entering jumping to log stream EOF, on exiting
+        doing log matching as expected patterns should be (indirectly) produced
+        by lines of Python code in context manager body.
+
+        :param result: Testplan Result object used in assertions
+        :param regex: Regex string or compiled regular expression or a list of
+            such regex strings or expressions
+        :param timeout: Timeout in seconds for regex matching, can be a list
+            indicating different individual timeout, or be a float applied to
+            all input regexes.
+        :param strict_order: Of value True by default, indicating sequential
+            matching of input regexes. Set to False for supporting out of order
+            matching.
+        """
+        self.seek_eof()
+        s_pos = self.position
+        self.expect_results = []
+
+        if not isinstance(regex, list):
+            regex = [regex]
+        if not isinstance(timeout, list):
+            timeout = repeat(timeout, len(regex))
+        elif len(timeout) != len(regex):
+            raise ValueError(
+                "``timeout`` length doesn't match ``regex`` length."
+            )
+        pairs = zip(regex, timeout)
+
+        yield
+
+        for r, t in pairs:
+            m = self.match(r, t, raise_on_timeout=False)
+            e_pos = self.position
+            if m:
+                self.expect_results.append(m)
+                result.true(
+                    m, f"Match for {r} found between {s_pos} and {e_pos}."
+                )
+                s_pos = self.position
+            else:
+                result.fail(
+                    f"No match for {r} from {s_pos} found in {t} seconds, search ended at {e_pos}."
+                )
+                break
+
+            if strict_order:
+                s_pos = self.position
+            else:
+                self.position = s_pos
