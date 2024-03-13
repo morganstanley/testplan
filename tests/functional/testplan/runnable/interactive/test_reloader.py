@@ -1,18 +1,19 @@
 """Interactive reload tests."""
 
+import importlib
 import os
-import sys
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from unittest import mock
-import importlib
 
 import pytest
+from pytest_test_filters import skip_on_windows
 
-from testplan.runnable.interactive.reloader import _GraphModuleFinder
 from testplan import runnable
 from testplan.runnable.interactive import base
+from testplan.runnable.interactive.reloader import _GraphModuleFinder
 from testplan.runners.local import LocalRunner
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -643,6 +644,7 @@ def import_case_assertions(case_num):
     return getattr(mod, "prev_assertions"), getattr(mod, "curr_assertions")
 
 
+@skip_on_windows(reason="Reloader won't work with pytest on Windows.")
 @pytest.mark.parametrize("case_num", tuple(range(3)))
 def test_reload_testcase_change(case_num):
 
