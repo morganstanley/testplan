@@ -743,15 +743,7 @@ class TestRunnerIHandler(entity.Entity):
         new_report = self._initial_report()
 
         def _preserve_partial_prev(prev, curr):
-            if isinstance(prev, TestReport) and isinstance(curr, TestReport):
-                curr.timer = prev.timer
-                curr.status_override = prev.status_override
-                curr.attachments = prev.attachments
-
-                for uid in set(prev.entry_uids) & set(curr.entry_uids):
-                    _preserve_partial_prev(prev[uid], curr[uid])
-
-            elif isinstance(prev, TestGroupReport) and isinstance(
+            if isinstance(prev, TestGroupReport) and isinstance(
                 curr, TestGroupReport
             ):
                 curr.timer = prev.timer
@@ -773,7 +765,12 @@ class TestRunnerIHandler(entity.Entity):
                 curr.logs = prev.logs
                 curr.entries = prev.entries
 
-        _preserve_partial_prev(self.report, new_report)
+        new_report.timer = self.report.timer
+        new_report.status_override = self.report.status_override
+        new_report.attachments = self.report.attachments
+        for uid in set(self.report.entry_uids) & set(new_report.entry_uids):
+            _preserve_partial_prev(self.report[uid], new_report[uid])
+
         self.report = new_report
 
     def _setup_http_handler(self):
