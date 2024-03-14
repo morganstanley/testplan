@@ -1,7 +1,9 @@
-from testplan.report.testing import Status, RuntimeStatus
+from testplan.common.entity import ResourceStatus
+from testplan.report.testing import RuntimeStatus, Status
 
 
 def prev_assertions(report):
+    assert report.entries[0].env_status == ResourceStatus.STARTED
     case_report = report.entries[0].entries[0].entries[0]
     assert case_report.name == "case_1"
     assert case_report.status == Status.FAILED
@@ -15,6 +17,7 @@ def prev_assertions(report):
 
 
 def curr_assertions(report):
+    assert report.entries[0].env_status == ResourceStatus.STARTED
     case_report = report.entries[0].entries[0].entries[0]
     assert case_report.name == "case_1"
     assert case_report.status == Status.FAILED
