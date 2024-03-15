@@ -2,6 +2,7 @@
 
 import importlib
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -623,18 +624,9 @@ def test_reload():
     )
 
 
-def split_case_file(case_num):
-    r = [""] * 2
-    o = 0
-    with open(
-        Path(__file__).parent / "reload_cases" / f"case_{case_num}", "r"
-    ) as f:
-        for l in f.readlines():
-            if l.strip() == "#" * 80:
-                o += 1
-                continue
-            r[o] += l
-    return r
+def load_case_paths(case_num):
+    dir = Path(__file__).parent / "reload_cases"
+    return dir / f"case_{case_num}_prev.py", dir / f"case_{case_num}_curr.py"
 
 
 def import_case_assertions(case_num):
@@ -648,16 +640,13 @@ def import_case_assertions(case_num):
 @pytest.mark.parametrize("case_num", tuple(range(3)))
 def test_reload_testcase_change(case_num):
 
-    prev_lines, curr_lines = split_case_file(case_num)
+    prev_path, curr_path = load_case_paths(case_num)
     prev_assertions, curr_assertions = import_case_assertions(case_num)
 
     with mock.patch("cheroot.wsgi.Server"):
         f = tempfile.NamedTemporaryFile("r+", delete=False, suffix=".py")
-        f.seek(0)
-        f.writelines(prev_lines)
-        f.close()
-
         try:
+            shutil.copy(prev_path, f.name)
             runner = runnable.TestRunner(name="TestRunner", interactive_port=0)
             runner.add_resource(LocalRunner())
             runner.schedule_all(
@@ -668,11 +657,7 @@ def test_reload_testcase_change(case_num):
 
             prev_assertions(irunner.report)
 
-            f = open(f.name, "w+")
-            f.seek(0)
-            f.writelines(curr_lines)
-            f.close()
-
+            shutil.copy(curr_path, f.name)
             irunner.reload(rebuild_dependencies=True)
             irunner.reload_report()
 

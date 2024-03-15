@@ -625,7 +625,6 @@ class BaseReportGroup(Report):
 
     def remove_by_uid(self, uid):
         self.entries.pop(self._index[uid])
-        del self._index[uid]
         self._index = {child.uid: i for i, child in enumerate(self)}
 
     __delitem__ = remove_by_uid
