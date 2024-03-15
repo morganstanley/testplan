@@ -190,7 +190,7 @@ class Status(Enum):
         return cls[s.replace("-", "_").upper()]
 
 
-class ReportCategories:
+class ReportCategories(str, Enum):
     """
     Enumeration of possible categories of report nodes.
 
@@ -350,8 +350,7 @@ class BaseReportGroup(ReportGroup):
     def runtime_status(self, new_status):
         """Set the runtime_status of all child entries."""
         for entry in self:
-            # TODO: use suite_related flag for now, use synthesized instead
-            if not getattr(entry, "suite_related", False):
+            if entry.category != ReportCategories.SYNTHESIZED:
                 entry.runtime_status = new_status
         self._runtime_status = new_status
 
@@ -707,7 +706,6 @@ class TestGroupReport(BaseReportGroup):
         fix_spec_path=None,
         env_status=None,
         strict_order=False,
-        suite_related=False,
         **kwargs,
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -740,7 +738,6 @@ class TestGroupReport(BaseReportGroup):
 
         # TODO: replace with synthesized flag
         # this is for special handling in interactive mode, e.g no run button
-        self.suite_related = suite_related
 
     def __str__(self):
         return (
@@ -886,7 +883,6 @@ class TestCaseReport(Report):
         self,
         name,
         tags=None,
-        suite_related=False,
         status_override=None,
         status_reason=None,
         category=ReportCategories.TESTCASE,
@@ -896,7 +892,6 @@ class TestCaseReport(Report):
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
         self.tags_index = copy.deepcopy(self.tags)
-        self.suite_related = suite_related
 
         self.status_override = status_override or Status.NONE
         self.timer = timing.Timer()
@@ -1018,7 +1013,10 @@ class TestCaseReport(Report):
         test cases, choose the one whose status is of higher precedence.
         """
         self._check_report(report)
-        if self.suite_related and self.status.precede(report.status):
+        if (
+            self.category == ReportCategories.SYNTHESIZED
+            and self.status.precede(report.status)
+        ):
             return
 
         self.status_override = Status.precedent(

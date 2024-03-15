@@ -362,7 +362,6 @@ var fakeReportAssertionsError = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 1,
                 failed: 0,
@@ -531,7 +530,6 @@ var fakeReportAssertionsError = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 1,
                 failed: 0,
@@ -802,7 +800,6 @@ var fakeReportAssertions = {
               ],
               status: "passed",
               type: "TestCaseReport",
-              suite_related: false,
               category: "testcase",
               counter: { passed: 1, failed: 0, total: 1 },
               status_reason: null,
@@ -812,7 +809,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: "Description test\nSecond description",
-              suite_related: false,
               counter: {
                 passed: 0,
                 failed: 1,
@@ -1338,7 +1334,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 1,
                 failed: 0,
@@ -1491,7 +1486,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 0,
                 failed: 1,
@@ -1615,7 +1609,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 0,
                 failed: 1,
@@ -1831,7 +1824,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 0,
                 failed: 1,
@@ -2871,7 +2863,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 0,
                 failed: 1,
@@ -3114,7 +3105,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 0,
                 failed: 1,
@@ -3236,7 +3226,6 @@ var fakeReportAssertions = {
               category: "testcase",
               logs: [],
               description: null,
-              suite_related: false,
               counter: {
                 passed: 1,
                 failed: 0,
@@ -3384,7 +3373,6 @@ const taggedReport = {
           name: "Alpha",
           entries: [
             {
-              suite_related: false,
               hash: -360398798333668410,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",
@@ -3412,7 +3400,6 @@ const taggedReport = {
               status_override: null,
             },
             {
-              suite_related: false,
               hash: 2879499515688307282,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",
@@ -3468,7 +3455,6 @@ const taggedReport = {
           name: "Beta",
           entries: [
             {
-              suite_related: false,
               hash: -3272901787197531342,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",
@@ -3496,7 +3482,6 @@ const taggedReport = {
               status_override: null,
             },
             {
-              suite_related: false,
               hash: 3686869030648441200,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",
@@ -3524,7 +3509,6 @@ const taggedReport = {
               status_override: null,
             },
             {
-              suite_related: false,
               hash: 5735591787756764475,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",
@@ -3608,7 +3592,6 @@ const taggedReport = {
           name: "Gamma",
           entries: [
             {
-              suite_related: false,
               hash: -4558038827978282586,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",
@@ -3636,7 +3619,6 @@ const taggedReport = {
               status_override: null,
             },
             {
-              suite_related: false,
               hash: 1452126978772489752,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",
@@ -3664,7 +3646,6 @@ const taggedReport = {
               status_override: null,
             },
             {
-              suite_related: false,
               hash: 8615470789101300681,
               counter: { passed: 1, failed: 0, total: 1 },
               type: "TestCaseReport",

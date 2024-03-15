@@ -6,6 +6,7 @@ import copy
 import functools
 import os
 from typing import Dict, Optional
+from urllib.parse import unquote_plus
 
 import flask
 import flask_restx
@@ -14,19 +15,18 @@ import marshmallow.exceptions
 import werkzeug.exceptions
 from cheroot import wsgi
 from flask import request
-from urllib.parse import unquote_plus
 
 import testplan
 from testplan import defaults
 from testplan.common import entity
-from testplan.common.exporters import ExportContext, run_exporter
 from testplan.common.config import ConfigOption
+from testplan.common.exporters import ExportContext, run_exporter
 from testplan.report import (
-    TestReport,
-    TestGroupReport,
-    TestCaseReport,
-    RuntimeStatus,
     ReportCategories,
+    RuntimeStatus,
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
 )
 
 
@@ -874,7 +874,10 @@ def _check_execution_order(
         are not included in this check.
         """
         if isinstance(report, TestCaseReport):
-            return report.suite_related or report.runtime_status == status
+            return (
+                report.category == ReportCategories.SYNTHESIZED
+                or report.runtime_status == status
+            )
         elif isinstance(report, TestGroupReport):
             return all(
                 report_runtime_status(report_entry, status)
