@@ -241,8 +241,8 @@ class ReportGroup(Report):
     ):
         super(ReportGroup, self).__init__(name=name, **kwargs)
 
-        # Mapping of UID to index in the list of entries.
         self.host: Optional[str] = host
+        # Mapping of UID to index in the list of entries.
         self._index: Dict = {}
         self._events: Dict[str, EventRecorder] = events or {}
         self.build_index()
@@ -305,6 +305,14 @@ class ReportGroup(Report):
             report = report.get_by_uid(uid)
         return report
 
+    def has_uid(self, uid):
+        """
+        Has a child report of `uid`
+        """
+        return uid in self._index
+
+    __contains__ = has_uid
+
     def get_by_uid(self, uid):
         """
         Get child report via `uid` lookup.
@@ -314,15 +322,7 @@ class ReportGroup(Report):
         """
         return self.entries[self._index[uid]]
 
-    def has_uid(self, uid):
-        """
-        Has a child report of `uid`
-        """
-        return uid in self._index
-
-    def __getitem__(self, uid):
-        """Shortcut to `get_by_uid()` method via [] operator."""
-        return self.get_by_uid(uid)
+    __getitem__ = get_by_uid
 
     def set_by_uid(self, uid, item):
         """
@@ -348,9 +348,13 @@ class ReportGroup(Report):
         else:
             self.append(item)
 
-    def __setitem__(self, uid, item):
-        """Shortcut to `set_by_uid()` method via [] operator."""
-        self.set_by_uid(uid, item)
+    __setitem__ = set_by_uid
+
+    def remove_by_uid(self, uid):
+        self.entries.pop(self._index[uid])
+        self._index = {child.uid: i for i, child in enumerate(self)}
+
+    __delitem__ = remove_by_uid
 
     @property
     def entry_uids(self):

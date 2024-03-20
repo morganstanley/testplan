@@ -17,6 +17,7 @@ from testplan.report import (
     RuntimeStatus,
     Status,
     TestGroupReport,
+    TestCaseReport,
     TestReport,
 )
 from testplan.runnable.interactive import http, reloader, resource_loader
@@ -736,30 +737,37 @@ class TestRunnerIHandler(entity.Entity):
     def reload_report(self):
         """Update report with added/removed testcases"""
         new_report = self._initial_report()
-        for multitest in self.report.entries:  # multitest level
-            for suite_index, suite in enumerate(multitest.entries):
-                new_suite = new_report[multitest.uid][suite.uid]
-                for case_index, case in enumerate(suite.entries):
-                    try:
-                        if isinstance(case, TestGroupReport):
-                            for param_index, param_case in enumerate(
-                                case.entries
-                            ):
-                                try:
-                                    new_report[multitest.uid][suite.uid][
-                                        case.uid
-                                    ].entries[param_index] = case[
-                                        param_case.uid
-                                    ]
-                                except (KeyError, IndexError):
-                                    continue
-                        else:
-                            new_report[multitest.uid][suite.uid].entries[
-                                case_index
-                            ] = suite[case.uid]
-                    except (KeyError, IndexError):
-                        continue
-                multitest.entries[suite_index] = new_suite
+
+        def _preserve_partial_prev(prev, curr):
+            if isinstance(prev, TestGroupReport) and isinstance(
+                curr, TestGroupReport
+            ):
+                curr.timer = prev.timer
+                curr.status_override = prev.status_override
+                curr.env_status = prev.env_status
+                curr.logs = prev.logs
+
+                for uid in set(prev.entry_uids) & set(curr.entry_uids):
+                    _preserve_partial_prev(prev[uid], curr[uid])
+
+            elif isinstance(prev, TestCaseReport) and isinstance(
+                curr, TestCaseReport
+            ):
+                curr.timer = prev.timer
+                curr.runtime_status = prev.runtime_status
+                curr.status = prev.status
+                curr.attachments = prev.attachments
+                curr.status_override = prev.status_override
+                curr.logs = prev.logs
+                curr.entries = prev.entries
+
+        new_report.timer = self.report.timer
+        new_report.status_override = self.report.status_override
+        new_report.attachments = self.report.attachments
+        for uid in set(self.report.entry_uids) & set(new_report.entry_uids):
+            _preserve_partial_prev(self.report[uid], new_report[uid])
+
+        self.report = new_report
 
     def _setup_http_handler(self):
         """
