@@ -48,7 +48,7 @@
         "terminaltables",
         "requests>=2.4.3",
         "Flask>2.0.0,<2.3.0",
-        "Werkzeug>2.0.0,<2.3.0",
+        "Werkzeug>2.0.0,<3.1.0",
         "flask_restx<=1.1.0",  # for python3.7
         "cheroot",
         "boltons",
