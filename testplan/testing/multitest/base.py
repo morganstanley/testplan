@@ -11,13 +11,7 @@ from typing import Callable, Dict, Generator, List, Optional, Tuple
 from schema import And, Or, Use
 
 from testplan.common import config, entity
-from testplan.common.utils import (
-    interface,
-    strings,
-    timing,
-    validation,
-    watcher,
-)
+from testplan.common.utils import interface, strings, timing, watcher
 from testplan.common.utils.composer import compose_contexts
 from testplan.report import (
     ReportCategories,
@@ -40,9 +34,7 @@ from testplan.testing.multitest.suite import (
     get_suite_metadata,
     get_testcase_metadata,
 )
-from testplan.testing.multitest.test_metadata import (
-    TestMetadata,
-)
+from testplan.testing.multitest.test_metadata import TestMetadata
 
 
 def iterable_suites(obj):
@@ -234,9 +226,6 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption("multi_part_uid", default=None): Or(
                 None, lambda x: callable(x)
             ),
-            config.ConfigOption(
-                "result", default=result.Result
-            ): validation.is_subclass(result.Result),
             config.ConfigOption("fix_spec_path", default=None): Or(
                 None, And(str, os.path.exists)
             ),
@@ -252,7 +241,6 @@ class MultiTest(testing_base.Test):
     against it.
 
     :param name: Test instance name, often used as uid of test entity.
-    :type name: ``str``
     :param suites: List of
         :py:func:`@testsuite <testplan.testing.multitest.suite.testsuite>`
         decorated class instances containing
@@ -275,8 +263,6 @@ class MultiTest(testing_base.Test):
     :param multi_part_uid: Custom function to overwrite the uid of test entity
         if `part` attribute is defined, otherwise use default implementation.
     :type multi_part_uid: ``callable``
-    :param result: Result class definition for result object made available
-        from within the testcases.
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
     :param fix_spec_path: Path of fix specification file.
     :type fix_spec_path: ``NoneType`` or ``str``.
@@ -300,7 +286,7 @@ class MultiTest(testing_base.Test):
 
     def __init__(
         self,
-        name,
+        name: str,
         suites,
         description=None,
         initial_context={},
@@ -338,9 +324,6 @@ class MultiTest(testing_base.Test):
         # if they are marked with an execution group.
         self._thread_pool = None
 
-        self.log_testcase_status = functools.partial(
-            self._log_status, indent=testing_base.TESTCASE_INDENT
-        )
         self.log_suite_status = functools.partial(
             self._log_status, indent=testing_base.SUITE_INDENT
         )
@@ -1248,12 +1231,6 @@ class MultiTest(testing_base.Test):
             self.log_testcase_status(testcase_report)
 
         return testcase_report
-
-    def _log_status(self, report, indent):
-        """Log the test status for a report at the given indent level."""
-        self.logger.log_test_status(
-            name=report.name, status=report.status, indent=indent
-        )
 
     def _run_testsuite_iter(self, testsuite, testcases):
         """Runs a testsuite object and returns its report."""

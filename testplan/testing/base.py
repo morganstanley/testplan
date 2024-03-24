@@ -1,10 +1,22 @@
 """Base classes for all Tests"""
+import functools
 import os
 import subprocess
 import sys
 import warnings
-from typing import Dict, Generator, List, Optional, Union, Callable, Iterable
+from enum import Enum
 from schema import And, Or, Use
+from typing import (
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Union,
+    Callable,
+    Iterable,
+    Type,
+    Tuple,
+)
 
 from testplan import defaults
 from testplan.common.config import ConfigOption, validate_func
@@ -16,7 +28,7 @@ from testplan.common.entity import (
     RunnableResult,
 )
 from testplan.common.remote.remote_driver import RemoteDriver
-from testplan.common.utils import strings, interface
+from testplan.common.utils import strings, interface, validation
 from testplan.common.utils.composer import compose_contexts
 from testplan.common.utils.context import render
 from testplan.common.utils.process import (
@@ -34,6 +46,7 @@ from testplan.report import (
 )
 from testplan.testing import common, filtering, ordering, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
+from testplan.testing.multitest import result
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
@@ -44,7 +57,21 @@ TESTCASE_INDENT = 6
 ASSERTION_INDENT = 8
 
 
-def test_name_sanity_check(name):
+class ResourceHooks(Enum):
+    before_start = "Before Start"
+    after_start = "After Start"
+    before_stop = "Before Stop"
+    after_stop = "After Stop"
+
+
+def _test_name_sanity_check(name: str) -> bool:
+    """
+    Checks whether some of the reserved name components are used.
+
+    :param name: name of the entry
+    :return: True if no reserved components are in the name
+    :raises ValueError: if any of the reserved components is in the name
+    """
     for s in [" - part", ":"]:
         if s in name:
             raise ValueError(
@@ -67,7 +94,7 @@ class TestConfig(RunnableConfig):
             "name": And(
                 str,
                 lambda s: len(s) <= defaults.MAX_TEST_NAME_LENGTH,
-                test_name_sanity_check,
+                _test_name_sanity_check,
             ),
             ConfigOption("description", default=None): Or(str, None),
             ConfigOption("environment", default=[]): Or(
@@ -92,6 +119,9 @@ class TestConfig(RunnableConfig):
             ConfigOption("tags", default=None): Or(
                 None, Use(tagging.validate_tag_value)
             ),
+            ConfigOption(
+                "result", default=result.Result
+            ): validation.is_subclass(result.Result),
         }
 
 
@@ -104,7 +134,7 @@ class TestResult(RunnableResult):
     Contains a test ``report`` object.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(TestResult, self).__init__()
         self.report = None
 
@@ -135,6 +165,8 @@ class Test(Runnable):
     :param after_stop: Callable to execute after stopping the environment.
     :param stdout_style: Console output style.
     :param tags: User defined tag value.
+    :param result: Result class definition for result object made available
+        from within the testcases.
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -162,6 +194,7 @@ class Test(Runnable):
         test_sorter: ordering.BaseSorter = None,
         stdout_style: test_styles.Style = None,
         tags: Union[str, Iterable[str]] = None,
+        result: Type[result.Result] = result.Result,
         **options,
     ):
         options.update(self.filter_locals(locals()))
@@ -169,9 +202,7 @@ class Test(Runnable):
 
         if ":" in self.cfg.name:
             warnings.warn(
-                "Multitest object contains colon in name: {}".format(
-                    self.cfg.name
-                )
+                "Multitest object contains colon in name: {self.cfg.name}"
             )
 
         self._test_context = None
@@ -180,8 +211,18 @@ class Test(Runnable):
         self._init_test_report()
         self._env_built = False
 
+        self.log_testcase_status = functools.partial(
+            self._log_status, indent=TESTCASE_INDENT
+        )
+
     def __str__(self) -> str:
-        return "{}[{}]".format(self.__class__.__name__, self.name)
+        return f"{self.__class__.__name__}[{self.name}]"
+
+    def _log_status(self, report: TestGroupReport, indent: int) -> None:
+        """Log the test status for a report at the given indent level."""
+        self.logger.log_test_status(
+            name=report.name, status=report.status, indent=indent
+        )
 
     def _new_test_report(self) -> TestGroupReport:
         return TestGroupReport(
@@ -207,9 +248,7 @@ class Test(Runnable):
 
     def get_filter_levels(self) -> List[filtering.FilterLevel]:
         if not self.filter_levels:
-            raise ValueError(
-                "`filter_levels` is not defined by {}".format(self)
-            )
+            raise ValueError(f"`filter_levels` is not defined by {self}")
         return self.filter_levels
 
     @property
@@ -240,21 +279,21 @@ class Test(Runnable):
     def reset_context(self) -> None:
         self._test_context = None
 
-    def get_test_context(self):
+    def get_test_context(self) -> None:
         raise NotImplementedError
 
-    def get_stdout_style(self, passed):
+    def get_stdout_style(self, passed: bool):
         """Stdout style for status."""
         return self.stdout_style.get_style(passing=passed)
 
     def get_metadata(self) -> TestMetadata:
         return TestMetadata(self.name, self.description, [])
 
-    def uid(self):
+    def uid(self) -> str:
         """Instance name uid."""
         return self.cfg.name
 
-    def should_run(self):
+    def should_run(self) -> bool:
         return (
             self.cfg.test_filter.filter(
                 test=self,
@@ -265,14 +304,19 @@ class Test(Runnable):
             and self.test_context
         )
 
-    def should_log_test_result(self, depth, test_obj, style):
+    def should_log_test_result(
+        self, depth: int, test_obj, style
+    ) -> Tuple[bool, int]:
         """
-        Return a tuple in which the first element indicates if need to log
-        test results (Suite report, Testcase report, or result of assertions).
-        The second one is the indent that should be kept at start of lines.
+        Whether to log test result and if yes, then with what indent.
+
+        :return: whether to log test results (Suite report, Testcase report, or
+            result of assertions) and the indent that should be kept at start of lines
+        :raises ValueError: if met with an unexpected test group category
+        :raises TypeError: if meth with an unsupported test object
         """
         if isinstance(test_obj, TestGroupReport):
-            if depth == 0:
+            if not depth:
                 return style.display_test, TEST_INST_INDENT
             elif test_obj.category == ReportCategories.TESTSUITE:
                 return style.display_testsuite, SUITE_INDENT
@@ -280,23 +324,20 @@ class Test(Runnable):
                 return False, 0  # DO NOT display
             else:
                 raise ValueError(
-                    "Unexpected test group category: {}".format(
-                        test_obj.category
-                    )
+                    f"Unexpected test group category: {test_obj.category}"
                 )
         elif isinstance(test_obj, TestCaseReport):
             return style.display_testcase, TESTCASE_INDENT
         elif isinstance(test_obj, dict):
             return style.display_assertion, ASSERTION_INDENT
-        raise TypeError("Unsupported test object: {}".format(test_obj))
+        raise TypeError(f"Unsupported test object: {test_obj}")
 
-    def log_test_results(self, top_down=True):
+    def log_test_results(self, top_down: bool = True):
         """
-        Log test results. i.e. ProcessRunnerTest or PyTest
+        Log test results. i.e. ProcessRunnerTest or PyTest.
 
         :param top_down: Flag logging test results using a top-down approach
             or a bottom-up approach.
-        :type top_down: ``bool``
         """
         report = self.result.report
         items = report.flatten(depths=True)
@@ -346,7 +387,7 @@ class Test(Runnable):
         while entries:
             log_entry(*(entries.pop()))
 
-    def propagate_tag_indices(self):
+    def propagate_tag_indices(self) -> None:
         """
         Basic step for propagating tag indices of the test report tree.
         This step may be necessary if the report tree is created
@@ -355,31 +396,31 @@ class Test(Runnable):
         if len(self.report):
             self.report.propagate_tag_indices()
 
-    def _record_start(self):
+    def _record_start(self) -> None:
         self.report.timer.start("run")
 
-    def _record_end(self):
+    def _record_end(self) -> None:
         self.report.timer.end("run")
 
-    def _record_setup_start(self):
+    def _record_setup_start(self) -> None:
         self.report.timer.start("setup")
 
-    def _record_setup_end(self):
+    def _record_setup_end(self) -> None:
         self.report.timer.end("setup")
 
-    def _record_teardown_start(self):
+    def _record_teardown_start(self) -> None:
         self.report.timer.start("teardown")
 
-    def _record_teardown_end(self):
+    def _record_teardown_end(self) -> None:
         self.report.timer.end("teardown")
 
-    def _init_context(self):
+    def _init_context(self) -> None:
         if callable(self.cfg.initial_context):
             self.resources._initial_context = self.cfg.initial_context()
         else:
             self.resources._initial_context = self.cfg.initial_context
 
-    def _build_environment(self):
+    def _build_environment(self) -> None:
         # build environment only once in interactive mode
         if self._env_built:
             return
@@ -395,7 +436,7 @@ class Test(Runnable):
             self.resources.add(driver)
         self._env_built = True
 
-    def _set_dependencies(self):
+    def _set_dependencies(self) -> None:
         if callable(self.cfg.dependencies):
             deps = parse_dependency(self.cfg.dependencies())
         else:
@@ -403,7 +444,7 @@ class Test(Runnable):
         if deps:
             self.resources.set_dependency(deps)
 
-    def add_pre_resource_steps(self):
+    def add_pre_resource_steps(self) -> None:
         """Runnable steps to be executed before environment starts."""
         self._add_step(self._record_setup_start)
 
@@ -411,11 +452,11 @@ class Test(Runnable):
         self._add_step(self._build_environment)
         self._add_step(self._set_dependencies)
 
-    def add_start_resource_steps(self):
+    def add_start_resource_steps(self) -> None:
         self._add_step(
             self._run_resource_hook,
             hook=self.cfg.before_start,
-            label="Before Start",
+            label=ResourceHooks.before_start.value,
         )
 
         self._add_step(self.resources.start)
@@ -423,14 +464,14 @@ class Test(Runnable):
         self._add_step(
             self._run_resource_hook,
             hook=self.cfg.after_start,
-            label="After Start",
+            label=ResourceHooks.after_start.value,
         )
 
-    def add_stop_resource_steps(self):
+    def add_stop_resource_steps(self) -> None:
         self._add_step(
             self._run_resource_hook,
             hook=self.cfg.before_stop,
-            label="Before Stop",
+            label=ResourceHooks.before_stop.value,
         )
 
         self._add_step(self.resources.stop, is_reversed=True)
@@ -438,22 +479,24 @@ class Test(Runnable):
         self._add_step(
             self._run_resource_hook,
             hook=self.cfg.after_stop,
-            label="After Stop",
+            label=ResourceHooks.after_stop.value,
         )
 
-    def add_pre_main_steps(self):
+    def add_pre_main_steps(self) -> None:
         """Runnable steps to run after environment started."""
         self._add_step(self._record_setup_end)
 
-    def add_post_main_steps(self):
+    def add_post_main_steps(self) -> None:
         """Runnable steps to run before environment stopped."""
         self._add_step(self._record_teardown_start)
 
-    def add_post_resource_steps(self):
+    def add_post_resource_steps(self) -> None:
         """Runnable steps to run after environment stopped."""
         self._add_step(self._record_teardown_end)
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(
+        self, testsuite_pattern: str = "*", testcase_pattern: str = "*"
+    ) -> None:
         """
         For a Test to be run interactively, it must implement this method.
 
@@ -467,16 +510,14 @@ class Test(Runnable):
         parent UIDs.
 
         :param testsuite_pattern: Filter pattern for testsuite level.
-        :type testsuite_pattern: ``str``
         :param testcase_pattern: Filter pattern for testcase level.
-        :type testsuite_pattern: ``str``
         :yield: generate tuples containing testcase reports and a list of the
             UIDs required to merge this into the main report tree, starting
             with the UID of this test.
         """
         raise NotImplementedError
 
-    def start_test_resources(self):
+    def start_test_resources(self) -> None:
         """
         Start all test resources but do not run any tests. Used in the
         interactive mode when environments may be started/stopped on demand.
@@ -493,7 +534,7 @@ class Test(Runnable):
 
         self._run()
 
-    def stop_test_resources(self):
+    def stop_test_resources(self) -> None:
         """
         Stop all test resources. As above, this method is used for the
         interactive mode and is very simple in this base Test class, but may
@@ -507,9 +548,9 @@ class Test(Runnable):
 
         self._run()
 
+    # TODO: this just for API compatibility
+    # move RuntimeEnv to Test, or get rid of it?
     def _get_runtime_environment(self, testcase_name, testcase_report):
-        # TODO: this just for API compatibility
-        # move RuntimeEnv to Test, or get rid of it?
         return self.resources
 
     def _get_hook_context(self, case_report):
@@ -518,7 +559,8 @@ class Test(Runnable):
             case_report.logged_exceptions(),
         )
 
-    def _run_resource_hook(self, hook, label):
+    def _run_resource_hook(self, hook: Callable, label: str) -> None:
+        # TODO: env or env, result signature is mandatory not an "if"
         """
         This method runs post/pre_start/stop hooks. User can optionally make
         use of assertions if the function accepts both ``env`` and ``result``
@@ -582,7 +624,7 @@ class Test(Runnable):
         else:
             self.result.report.append(suite_report)
 
-    def _dry_run_resource_hook(self, hook, label):
+    def _dry_run_resource_hook(self, hook: Callable, label: str) -> None:
 
         if not hook:
             return
@@ -603,7 +645,7 @@ class Test(Runnable):
         suite_report.append(case_report)
         self.result.report.append(suite_report)
 
-    def _dry_run_testsuites(self):
+    def _dry_run_testsuites(self) -> None:
         suites_to_run = self.test_context
 
         for testsuite, testcases in suites_to_run:
@@ -618,7 +660,7 @@ class Test(Runnable):
 
             self.result.report.append(testsuite_report)
 
-    def dry_run(self):
+    def dry_run(self) -> None:
         """
         Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
@@ -627,16 +669,16 @@ class Test(Runnable):
         self.result.report = self._new_test_report()
 
         for hook, label in (
-            (self.cfg.before_start, "Before Start"),
-            (self.cfg.after_start, "After Start"),
+            (self.cfg.before_start, ResourceHooks.before_start),
+            (self.cfg.after_start, ResourceHooks.after_start),
         ):
             self._dry_run_resource_hook(hook, label)
 
         self._dry_run_testsuites()
 
         for hook, label in (
-            (self.cfg.before_stop, "Before Stop"),
-            (self.cfg.after_stop, "After Stop"),
+            (self.cfg.before_stop, ResourceHooks.before_stop),
+            (self.cfg.after_stop, ResourceHooks.after_stop),
         ):
             self._dry_run_resource_hook(hook, label)
 
@@ -651,7 +693,7 @@ class Test(Runnable):
 
         self._discover_path = path
 
-    def _xfail(self, pattern, report):
+    def _xfail(self, pattern: str, report) -> None:
         """Utility xfail a report entry if found in xfail_tests"""
         if getattr(self.cfg, "xfail_tests", None):
             found = self.cfg.xfail_tests.get(pattern)
@@ -683,43 +725,32 @@ class ProcessRunnerTestConfig(TestConfig):
 class ProcessRunnerTest(Test):
     """
     A test runner that runs the tests in a separate subprocess.
-    This is useful for running 3rd party testing
-    frameworks (e.g. JUnit, GTest)
+    This is useful for running 3rd party testing frameworks (e.g. JUnit, GTest)
 
     Test report will be populated by parsing the generated report output file
     (report.xml file by default.)
 
     :param name: Test instance name, often used as uid of test entity.
-    :type name: ``str``
     :param binary: Path to the application binary or script.
-    :type binary: ``str``
     :param description: Description of test instance.
-    :type description: ``str``
     :param proc_env: Environment overrides for ``subprocess.Popen``;
         context value (when referring to other driver) and jinja2 template (when
         referring to self) will be resolved.
-    :type proc_env: ``dict``
     :param proc_cwd: Directory override for ``subprocess.Popen``.
-    :type proc_cwd: ``str``
     :param timeout: Optional timeout for the subprocess. If a process
                     runs longer than this limit, it will be killed
                     and test will be marked as ``ERROR``.
 
                     String representations can be used as well as
                     duration in seconds. (e.g. 10, 2.3, '1m 30s', '1h 15m')
-
-    :type timeout: ``str`` or ``number``
     :param ignore_exit_codes: When the test process exits with nonzero status
                     code, the test will be marked as ``ERROR``.
                     This can be disabled by providing a list of
                     numbers to ignore.
-    :type ignore_exit_codes: ``list`` of ``int``
     :param pre_args: List of arguments to be prepended before the
         arguments of the test runnable.
-    :type pre_args: ``list`` of ``str``
     :param post_args: List of arguments to be appended before the
         arguments of the test runnable.
-    :type post_args: ``list`` of ``str``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -736,7 +767,7 @@ class ProcessRunnerTest(Test):
     _VERIFICATION_TESTCASE_NAME = "ExitCodeCheck"
     _MAX_RETAINED_LOG_SIZE = 4096
 
-    def __init__(self, **options):
+    def __init__(self, **options) -> None:
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
@@ -773,7 +804,7 @@ class ProcessRunnerTest(Test):
 
         return self._resolved_bin
 
-    def prepare_binary(self):
+    def prepare_binary(self) -> str:
         """
         Resolve the real binary path to run
         """
@@ -788,8 +819,8 @@ class ProcessRunnerTest(Test):
     def test_command(self) -> List[str]:
         """
         Add custom arguments before and after the executable if they are defined.
-        :return: List of commands to run before and after the test process, as well as the test executable itself.
-        :rtype:  ``list`` of ``str``
+        :return: List of commands to run before and after the test process,
+            as well as the test executable itself.
         """
         cmd = self._test_command()
 
@@ -804,15 +835,14 @@ class ProcessRunnerTest(Test):
         Override this to add extra options to the test command.
 
         :return: Command to run test process
-        :rtype: ``list`` of ``str``
         """
         return [self.resolved_bin]
 
     def list_command(self) -> Optional[List[str]]:
         """
         List custom arguments before and after the executable if they are defined.
-        :return: List of commands to run before and after the test process, as well as the test executable itself.
-        :rtype:  ``list`` of ``str`` or ``NoneType``
+        :return: List of commands to run before and after the test process,
+            as well as the test executable itself.
         """
         cmd = self._list_command()
         if cmd:
@@ -828,7 +858,6 @@ class ProcessRunnerTest(Test):
         testing framework to list the tests available on stdout.
 
         :return: Command to list tests
-        :rtype: ``list`` of ``str`` or ``NoneType``
         """
         return []
 
@@ -845,6 +874,7 @@ class ProcessRunnerTest(Test):
 
         cmd = list_cmd or self.list_command()
         if not cmd:
+            # TODO: this is not a list of lists, it is a list of a tuple of str and tuple
             return [(self._DEFAULT_SUITE_NAME, ())]
 
         proc = subprocess_popen(
@@ -861,7 +891,7 @@ class ProcessRunnerTest(Test):
 
         return self.parse_test_context(test_list_output)
 
-    def parse_test_context(self, test_list_output):
+    def parse_test_context(self, test_list_output: bytes) -> List[List]:
         """
         Override this to generate a nested list of test suite and test case
         context. Only required if `list_command` is overridden to return a
@@ -880,18 +910,17 @@ class ProcessRunnerTest(Test):
           ]
 
         :param test_list_output: stdout from the list command
-        :type test_list_output: ``bytes``
         :return: Parsed test context from command line
                  output of the 3rd party testing library.
-        :rtype: ``list`` of ``list``
         """
         raise NotImplementedError
 
     def timeout_callback(self):
         """
-        Callback function that will be called by the daemon thread if
-        a timeout occurs (e.g. process runs longer
-        than specified timeout value).
+        Callback function that will be called by the daemon thread if a timeout
+        occurs (e.g. process runs longer than specified timeout value).
+
+        :raises RuntimeError:
         """
 
         self._test_process_killed = True
@@ -902,11 +931,10 @@ class ProcessRunnerTest(Test):
                 )
             )
 
-    def get_proc_env(self):
+    def get_proc_env(self) -> Dict:
         """
         Fabricate the env var for subprocess.
         Precedence: user-specified > hardcoded > system env
-
         """
 
         # start with system env
@@ -943,11 +971,13 @@ class ProcessRunnerTest(Test):
 
         return env
 
-    def run_tests(self):
+    def run_tests(self) -> None:
         """
         Run the tests in a subprocess, record stdout & stderr on runpath.
         Optionally enforce a timeout and log timeout related messages in
         the given timeout log path.
+
+        :raises ValueError: upon invalid test command
         """
         with self.report.timer.record("run"):
             with self.report.logged_exceptions(), open(
@@ -957,7 +987,7 @@ class ProcessRunnerTest(Test):
                 test_cmd = self.test_command()
                 if not test_cmd:
                     raise ValueError(
-                        "Invalid test command generated for: {}".format(self)
+                        f"Invalid test command generated for: {self}"
                     )
 
                 self.report.logger.info(
@@ -1009,7 +1039,9 @@ class ProcessRunnerTest(Test):
         """
         raise NotImplementedError
 
-    def get_process_check_report(self, retcode, stdout, stderr):
+    def get_process_check_report(
+        self, retcode: int, stdout: str, stderr: str
+    ) -> TestGroupReport:
         """
         When running a process fails (e.g. binary crash, timeout etc)
         we can still generate dummy testsuite / testcase reports with
@@ -1017,10 +1049,7 @@ class ProcessRunnerTest(Test):
         And logs of stdout & stderr can be saved as attachment.
         """
         assertion_content = "\n".join(
-            [
-                "Process: {}".format(self.resolved_bin),
-                "Exit code: {}".format(retcode),
-            ]
+            [f"Process: {self.resolved_bin}", f"Exit code: {retcode}"]
         )
 
         passed = retcode == 0 or retcode in self.cfg.ignore_exit_codes
@@ -1061,10 +1090,12 @@ class ProcessRunnerTest(Test):
 
         return suite_report
 
-    def update_test_report(self):
+    def update_test_report(self) -> None:
         """
         Update current instance's test report with generated sub reports from
         raw test data. Skip report updates if the process was killed.
+
+        :raises ValueError: in case the test report already has children
         """
         if self._test_process_killed or not self._test_has_run:
             # Return code is `None` if process was killed or test has not run
@@ -1076,10 +1107,13 @@ class ProcessRunnerTest(Test):
             return
 
         if len(self.result.report):
-            raise ValueError(
-                "Cannot update test report,"
-                " it already has children: {}".format(self.result.report)
-            )
+            for suite in self.result.report:
+                if suite.name not in [
+                    member.value for member in ResourceHooks
+                ]:
+                    raise ValueError(
+                        f"Cannot update test report, it already has a children: {self.result.report}"
+                    )
 
         with self.result.report.logged_exceptions():
             self.result.report.extend(
@@ -1095,7 +1129,7 @@ class ProcessRunnerTest(Test):
             )
         )
 
-    def apply_xfail_tests(self):
+    def apply_xfail_tests(self) -> None:
         """
         Apply xfail tests specified via --xfail-tests or @test_plan(xfail_tests=...).
         """
@@ -1112,29 +1146,29 @@ class ProcessRunnerTest(Test):
                 pattern = f"{test_report.name}:{suite_report.name}:{case_report.name}"
                 self._xfail(pattern, case_report)
 
-    def add_pre_resource_steps(self):
+    def add_pre_resource_steps(self) -> None:
         """Runnable steps to be executed before environment starts."""
         super(ProcessRunnerTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
 
-    def add_post_resource_steps(self):
+    def add_post_resource_steps(self) -> None:
         """Runnable steps to run after environment stopped."""
         self._add_step(self.apply_xfail_tests)
         super(ProcessRunnerTest, self).add_post_resource_steps()
 
-    def add_main_batch_steps(self):
+    def add_main_batch_steps(self) -> None:
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
         self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results, top_down=False)
 
-    def aborting(self):
+    def aborting(self) -> None:
         if self._test_process is not None:
             kill_process(self._test_process)
             self._test_process_killed = True
 
-    def _dry_run_testsuites(self):
+    def _dry_run_testsuites(self) -> None:
 
         super(ProcessRunnerTest, self)._dry_run_testsuites()
 
@@ -1241,14 +1275,18 @@ class ProcessRunnerTest(Test):
 
         yield exit_code_report, [self.uid(), process_report.uid]
 
-    def test_command_filter(self, testsuite_pattern, testcase_pattern):
+    def test_command_filter(
+        self, testsuite_pattern: str, testcase_pattern: str
+    ):
         """
         Return the base test command with additional filtering to run a
         specific set of testcases. To be implemented by concrete subclasses.
         """
         raise NotImplementedError
 
-    def list_command_filter(self, testsuite_pattern, testcase_pattern):
+    def list_command_filter(
+        self, testsuite_pattern: str, testcase_pattern: str
+    ):
         """
         Return the base list command with additional filtering to list a
         specific set of testcases. To be implemented by concrete subclasses.
