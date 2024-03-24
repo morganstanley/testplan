@@ -669,16 +669,16 @@ class Test(Runnable):
         self.result.report = self._new_test_report()
 
         for hook, label in (
-            (self.cfg.before_start, ResourceHooks.before_start),
-            (self.cfg.after_start, ResourceHooks.after_start),
+            (self.cfg.before_start, ResourceHooks.before_start.value),
+            (self.cfg.after_start, ResourceHooks.after_start.value),
         ):
             self._dry_run_resource_hook(hook, label)
 
         self._dry_run_testsuites()
 
         for hook, label in (
-            (self.cfg.before_stop, ResourceHooks.before_stop),
-            (self.cfg.after_stop, ResourceHooks.after_stop),
+            (self.cfg.before_stop, ResourceHooks.before_stop.value),
+            (self.cfg.after_stop, ResourceHooks.after_stop.value),
         ):
             self._dry_run_resource_hook(hook, label)
 
