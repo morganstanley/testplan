@@ -206,13 +206,13 @@ class Status(Enum):
     def to_json_compatible(self) -> Optional[str]:
         if self.name == "NONE":
             return None
-        return self.name.lower().replace("_", "-")
+        return self.name.lower()
 
     @classmethod
     def from_json_compatible(cls, s: Optional[str]) -> Self:
         if s is None:
             return cls.NONE
-        return cls[s.replace("-", "_").upper()]
+        return cls[s.upper()]
 
 
 class ReportCategories:

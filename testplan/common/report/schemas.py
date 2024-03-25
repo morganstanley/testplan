@@ -47,15 +47,15 @@ class TimerField(fields.Field):
         )
 
 
-class ChildSchema(Schema):
+class ReportLinkSchema(Schema):
     """
-    Field for serializing ``timer.Timer`` objects, which is a ``dict``
-    of ``timer.Interval``.
+    Field for serializing ``ReportLink`` objects, which is a recursive
+    structure for report linkage.
     """
 
     name = fields.String()
     timer = TimerField()
-    children = fields.List(fields.Nested(lambda: ChildSchema()))
+    children = fields.List(fields.Nested(lambda: ReportLinkSchema()))
 
 
 class ReportLogSchema(Schema):
@@ -136,7 +136,7 @@ class BaseReportGroupSchema(ReportSchema):
         RuntimeStatus.from_json_compatible,
     )
     counter = fields.Dict(dump_only=True)
-    children = fields.List(fields.Nested(ChildSchema))
+    children = fields.List(fields.Nested(ReportLinkSchema))
 
     @post_load
     def make_report(self, data, **kwargs):

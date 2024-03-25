@@ -26,8 +26,8 @@ class TestTimer:
 
         timer.start("my_key")
 
-        assert prev_now < timer["my_key"][-1].start
-        assert timer["my_key"][-1].end is None
+        assert prev_now < timer.last(key="my_key").start
+        assert timer.last(key="my_key").end is None
 
     def test_start_twice(self):
         """`Timer.start` should add another entry it was already called before for the given key."""
@@ -53,7 +53,7 @@ class TestTimer:
 
         timer.end("my_key")
 
-        assert prev_now < timer["my_key"][-1].end
+        assert prev_now < timer.last(key="my_key").end
 
     def test_end_overwrite(self):
         """`timer.end` cannot overwrite previous `end` value for the given key."""

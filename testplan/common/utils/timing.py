@@ -327,7 +327,7 @@ class Timer(dict):
             >>> with timer.record('my-key'):
             >>>  ... custom code ...
             >>>  ... custom code ...
-            >>> timer['my-key'][-1].elapsed
+            >>> timer.last(key='my-key').elapsed
             21.5
         """
         return TimerCtxManager(timer=self, key=key)
@@ -342,10 +342,8 @@ class Timer(dict):
     def end(self, key):
         """
         Record the end timestamp for the given key.
-        Can be called multiple times with the same key, which will keep
-        overwriting the previous `end` timestamp.
         """
-        if key not in self or self[key][-1].end is not None:
+        if key not in self or self.last(key).end is not None:
             raise KeyError(f"`start` missing for {key}, cannot record end.")
 
         self[key][-1] = Interval(self[key][-1].start, utcnow())
@@ -356,6 +354,12 @@ class Timer(dict):
                 self[key].extend(timer[key])
             else:
                 self[key] = timer[key]
+
+    def first(self, key):
+        return self[key][1]
+
+    def last(self, key):
+        return self[key][-1]
 
 
 DURATION_REGEX = re.compile(

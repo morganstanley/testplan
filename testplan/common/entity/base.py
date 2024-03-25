@@ -35,15 +35,15 @@ from testplan.common.utils.timing import wait, Timer
 from testplan.common.utils.validation import is_subclass
 
 
-class Child:
+class ReportLink:
     """
-    A recursive container that will be available to all Entity object.
+    A recursive linkage that will be available to all Entity object.
     """
 
     def __init__(self, name: str):
         self.name = name
         self.timer = Timer()
-        self.children: List["Child"] = []
+        self.children: List["ReportLink"] = []
 
 
 class Environment:
@@ -600,7 +600,7 @@ class Entity(logger.Loggable):
         A handle to access the report via recursive parent
         """
         if not self._report:
-            self._report = Child(name=str(self))
+            self._report = ReportLink(name=str(self))
             if self.parent and hasattr(self.parent, "report"):
                 # don't always have parent in test
                 # ChildLoop doesn't have report
