@@ -83,13 +83,13 @@ def test_time_information():
 
     test_report = res.report["Dummy"]
     assert test_report.name == "Dummy" and test_report.category == "dummytest"
-    assert test_report.timer["setup"][-1].elapsed > 0.4  # 2 drivers startup
+    assert test_report.timer.last(key="setup").elapsed > 0.4  # 2 drivers startup
     assert (
-        test_report.timer["teardown"][-1].elapsed > 0.2
+        test_report.timer.last(key="teardown").elapsed > 0.2
     )  # 2 drivers teardown
     assert (
-        test_report.timer["flag1"][-1].elapsed
-        > test_report.timer["flag2"][-1].elapsed
-        > test_report.timer["run"][-1].elapsed
+        test_report.timer.last(key="flag1").elapsed
+        > test_report.timer.last(key="flag2").elapsed
+        > test_report.timer.last(key="run").elapsed
         > 0.5
     )

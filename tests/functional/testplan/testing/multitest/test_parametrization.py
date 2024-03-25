@@ -715,5 +715,5 @@ def test_timing_info_of_parametrized_group_report(mockplan):
     assert "run" in serial_group_report_timer.keys()
     assert "run" in parallel_group_report_timer.keys()
 
-    assert isinstance(serial_group_report_timer["run"][-1], Interval)
-    assert isinstance(parallel_group_report_timer["run"][-1], Interval)
+    assert isinstance(serial_group_report_timer.last(key="run"), Interval)
+    assert isinstance(parallel_group_report_timer.last(key="run"), Interval)
