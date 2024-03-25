@@ -6,13 +6,16 @@ from unittest import mock
 import pytest
 from boltons.iterutils import get_path
 
-from testplan.common import entity, report
+from testplan.common import entity
+from testplan.common.report.log import LOGGER as report_logger
 from testplan.common.utils.testing import check_report, disable_log_propagation
-from testplan.report.testing.base import (
-    BaseReportGroup,
-    ReportCategories,
-    RuntimeStatus,
+from testplan.common.report import (
     Status,
+    RuntimeStatus,
+    ReportCategories,
+    BaseReportGroup,
+)
+from testplan.report.testing.base import (
     TestCaseReport,
     TestGroupReport,
     TestReport,
@@ -66,7 +69,7 @@ def test_report_status_precedent():
     assert Status.UNSTABLE == Status.precedent([Status.UNSTABLE, Status.NONE])
 
 
-@disable_log_propagation(report.log.LOGGER)
+@disable_log_propagation(report_logger)
 def test_report_exception_logger():
     """
     `TestReportExceptionLogger` should set `status_override` to
@@ -155,9 +158,9 @@ class TestBaseReportGroup:
 
         report_clone.status_override = Status.PASSED
 
-        with mock.patch.object(report_orig, "merge_children"):
+        with mock.patch.object(report_orig, "merge_entries"):
             report_orig.merge(report_clone)
-            report_orig.merge_children.assert_called_once_with(
+            report_orig.merge_entries.assert_called_once_with(
                 report_clone, strict=True
             )
             assert report_orig.status_override == report_clone.status_override
@@ -340,7 +343,7 @@ def generate_dummy_testgroup():
     )
 
 
-@disable_log_propagation(report.log.LOGGER)
+@disable_log_propagation(report_logger)
 @pytest.fixture
 def dummy_test_plan_report():
 
@@ -354,7 +357,7 @@ def dummy_test_plan_report():
     return rep
 
 
-@disable_log_propagation(report.log.LOGGER)
+@disable_log_propagation(report_logger)
 @pytest.fixture
 def dummy_test_plan_report_with_binary_asserts():
 

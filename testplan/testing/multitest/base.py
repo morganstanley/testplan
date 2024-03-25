@@ -19,10 +19,12 @@ from testplan.common.utils import (
     watcher,
 )
 from testplan.common.utils.composer import compose_contexts
-from testplan.report import (
+from testplan.common.report import (
     ReportCategories,
     RuntimeStatus,
     Status,
+)
+from testplan.report import (
     TestCaseReport,
     TestGroupReport,
 )
@@ -1420,8 +1422,8 @@ def _add_runtime_info(param_report):
     group_end_time = None
     for testcase in param_report.entries:
         timer = testcase.timer
-        start_time = timer["run"].start
-        end_time = timer["run"].end
+        start_time = timer["run"][0].start
+        end_time = timer["run"][0].end
         group_start_time = (
             start_time
             if group_start_time is None
@@ -1432,6 +1434,6 @@ def _add_runtime_info(param_report):
             if group_end_time is None
             else max(group_end_time, end_time)
         )
-    param_report.timer["run"] = timing.Interval(
-        group_start_time, group_end_time
-    )
+    param_report.timer["run"] = [
+        timing.Interval(group_start_time, group_end_time)
+    ]

@@ -1,6 +1,9 @@
 from .base import (
+    Status,
+    RuntimeStatus,
+    ReportCategories,
     Report,
-    ReportGroup,
+    BaseReportGroup,
     ExceptionLogger,
     MergeError,
     SkipTestcaseException,

@@ -15,8 +15,8 @@ from testplan.common.exporters import (
     verify_export_context,
 )
 from testplan.exporters.testing.base import Exporter
+from testplan.common.report import ReportCategories
 from testplan.report.testing.base import (
-    ReportCategories,
     TestGroupReport,
     TestReport,
 )

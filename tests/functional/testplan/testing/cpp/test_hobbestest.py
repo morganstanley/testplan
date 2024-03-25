@@ -91,7 +91,7 @@ def test_hobbestest_listing(binary_dir, expected_output):
             result = plan.run()
             print(log_capture.output)
             assert log_capture.output == expected_output
-            assert len(result.test_report) == 0, "No tests should be run."
+            assert len(result.report) == 0, "No tests should be run."
 
 
 def test_hobbestest_custom_args():

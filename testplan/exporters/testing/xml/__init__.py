@@ -145,7 +145,7 @@ class BaseRenderer:
             classname="{}:{}:{}".format(
                 test_report.name, testsuite_report.name, testcase_report.name
             ),
-            time=str(testcase_report.timer["run"].elapsed)
+            time=str(testcase_report.timer.last(key="run").elapsed)
             if "run" in testcase_report.timer
             else "0"
         )

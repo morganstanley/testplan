@@ -3,7 +3,7 @@
 from typing import Any
 from dataclasses import dataclass
 
-from testplan.report.testing import Status
+from testplan.common.report import Status
 
 
 @dataclass

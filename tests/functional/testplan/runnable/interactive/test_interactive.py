@@ -118,6 +118,19 @@ def test_top_level_tests():
         # RESET REPORTS
         plan.interactive.reset_all_tests()
 
+        # to re-generate the baseline:
+        # import json
+        # with open(
+        #     "basic_top_level_reset.data",
+        #     "w"
+        # ) as f:
+        #     json.dump(
+        #         plan.interactive.report.serialize(),
+        #         f,
+        #         indent=4,
+        #         sort_keys=True,
+        #     )
+
         BTLReset = load_from_json(
             Path(__file__).parent / "reports" / "basic_top_level_reset.data"
         )
@@ -133,6 +146,19 @@ def test_top_level_tests():
 
         # RUN ALL TESTS
         plan.interactive.run_all_tests()
+
+        # to re-generate the baseline:
+        # import json
+        # with open(
+        #         "basic_top_level.data",
+        #         "w"
+        # ) as f:
+        #     json.dump(
+        #         plan.interactive.report.serialize(),
+        #         f,
+        #         indent=4,
+        #         sort_keys=True,
+        #     )
 
         BTLevel = load_from_json(
             Path(__file__).parent / "reports" / "basic_top_level.data"
@@ -169,6 +195,19 @@ def test_top_level_tests():
         # RUN SINGLE TESTSUITE (CUSTOM NAME)
         plan.interactive.run_test_suite("Test2", "TCPSuite - Custom_1")
 
+        # to re-generate the baseline:
+        # import json
+        # with open(
+        #     "basic_run_suite_test2.data",
+        #     "w"
+        # ) as f:
+        #     json.dump(
+        #         plan.interactive.test_report("Test2"),
+        #         f,
+        #         indent=4,
+        #         sort_keys=True,
+        #     )
+
         BRSTest2 = load_from_json(
             Path(__file__).parent / "reports" / "basic_run_suite_test2.data"
         )
@@ -185,6 +224,19 @@ def test_top_level_tests():
         # RUN SINGLE TESTCASE
         plan.interactive.run_test_case("Test1", "*", "basic_case__arg_1")
 
+        # to re-generate the baseline:
+        # import json
+        # with open(
+        #     "basic_run_case_test1.data",
+        #     "w"
+        # ) as f:
+        #     json.dump(
+        #         plan.interactive.test_report("Test1"),
+        #         f,
+        #         indent=4,
+        #         sort_keys=True,
+        #     )
+
         BRCTest1 = load_from_json(
             Path(__file__).parent / "reports" / "basic_run_case_test1.data"
         )
@@ -200,7 +252,6 @@ def test_top_level_tests():
                     "utc_time",
                     "file_path",
                     "line_no",
-                    "timer",
                 ],
             )[0]
             is True

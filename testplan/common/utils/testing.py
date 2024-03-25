@@ -9,13 +9,10 @@ import pprint
 import sys
 import warnings
 from contextlib import contextmanager
-from typing import Collection
 
 from lxml import objectify
 
-from testplan.runners.pools.tasks.base import Task
-
-from ..report.base import Report, ReportGroup
+from ..report.base import Report, BaseReportGroup
 from ..utils.comparison import is_regex
 
 null_handler = logging.NullHandler()
@@ -256,7 +253,7 @@ def check_report(expected, actual, skip=None):
             )
             assert exp_value == act_value, msg
 
-    if isinstance(expected, ReportGroup):
+    if isinstance(expected, BaseReportGroup):
         msg = "{} {} {}".format(
             pprint.pformat(expected, indent=2),
             os.linesep,

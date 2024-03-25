@@ -5,10 +5,9 @@ from collections import OrderedDict
 from typing import Generator, List
 
 from testplan.common.entity import Resource, ResourceConfig
-from testplan.common.report.base import EventRecorder
 from testplan.common.utils.selector import Expr as SExpr
 from testplan.common.utils.thread import interruptible_join
-from testplan.report.testing.base import Status
+from testplan.common.report import Status
 
 
 class ExecutorConfig(ResourceConfig):
