@@ -25,6 +25,10 @@ from testplan.common.serialization.base import serialize, deserialize
 
 @dataclasses.dataclass
 class ResourceData:
+    """
+    Attributes of collecting resource data
+    """
+
     cpu_usage: float
     memory_used: int
     iops: float
@@ -34,17 +38,29 @@ class ResourceData:
 
 @dataclasses.dataclass
 class HostResourceData(ResourceData):
+    """
+    Host level resource data
+    """
+
     disk_used: int
 
 
 @dataclasses.dataclass
 class ProcessResourceData(ResourceData):
+    """
+    Process level resource data
+    """
+
     name: str
     cmdline: str
     pid: int
 
 
 class HostResourceRow(NamedTuple):
+    """
+    CSV file row structure of host level resource
+    """
+
     timestamp: float
     cpu_usage: float
     memory_used: int
@@ -55,6 +71,10 @@ class HostResourceRow(NamedTuple):
 
 
 class ProcessResourceRow(NamedTuple):
+    """
+    CSV file row structure of process level resource
+    """
+
     timestamp: float
     pid: int
     name: str
@@ -137,7 +157,7 @@ class ResourceMonitorClient:
     @staticmethod
     def _ensure_positive(num):
         # Fix IO counter issue
-        return 0 if num < 0 else num
+        return max(num, 0)
 
     def collect_host_data(self):
         _disk_io = psutil.disk_io_counters()
