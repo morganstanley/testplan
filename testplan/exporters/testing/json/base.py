@@ -18,7 +18,7 @@ from testplan.common.exporters import (
     verify_export_context,
 )
 from testplan.common.utils.path import makedirs
-from testplan.defaults import ATTACHMENTS
+from testplan.defaults import ATTACHMENTS, RESOURCE_DATA
 from testplan.report import ReportCategories
 from testplan.report.testing.base import TestReport
 from testplan.report.testing.schemas import TestReportSchema
@@ -54,6 +54,25 @@ def save_attachments(report: TestReport, directory: str) -> Dict[str, str]:
             moved_attachments[dst] = str(dst_path)
 
     return moved_attachments
+
+
+def save_resource_data(
+    report: TestReport, directory: pathlib.Path
+) -> pathlib.Path:
+    directory.mkdir(parents=True, exist_ok=True)
+    with open(report.resource_meta_path) as meta_file:
+        meta_info = json.load(meta_file)
+    for host_meta in meta_info["entries"]:
+        if "resource_file" in host_meta:
+            dist_path = (
+                directory / pathlib.Path(host_meta["resource_file"]).name
+            )
+            copyfile(src=host_meta["resource_file"], dst=dist_path)
+            host_meta["resource_file"] = dist_path.name
+    meta_path = directory / pathlib.Path(report.resource_meta_path).name
+    with open(meta_path, "w") as meta_file:
+        json.dump(meta_info, meta_file)
+    return meta_path
 
 
 def gen_attached_report_names(json_path):
@@ -133,6 +152,14 @@ class JSONExporter(Exporter):
             data = test_plan_schema.dump(source)
             attachments_dir = json_path.parent / ATTACHMENTS
 
+            # Save resource monitor data
+            if source.resource_meta_path:
+                resource_dir = json_path.parent / RESOURCE_DATA
+                save_resource_data(source, resource_dir)
+                self.logger.user_info(
+                    "Resource monitor data has been saved in %s", resource_dir
+                )
+                data["resource_meta_path"] = "local"
             # Save the Testplan report.
             if self.cfg.split_json_report:
                 (

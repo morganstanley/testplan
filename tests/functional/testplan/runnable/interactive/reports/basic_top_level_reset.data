@@ -809,5 +809,6 @@
     "uid": "InteractivePlan",
     "runtime_status": "ready",
     "meta": {},
-    "logs": []
+    "logs": [],
+    "resource_meta_path": null
 }

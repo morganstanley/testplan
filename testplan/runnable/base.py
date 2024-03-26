@@ -1017,7 +1017,7 @@ class TestRunner(Runnable):
             )
             makedirs(self.resource_monitor_server_file_path)
 
-    def start_resource_monitor(self):
+    def _start_resource_monitor(self):
         """Start resource monitor server and client"""
         if self.cfg.resource_monitor:
             self.resource_monitor_server = ResourceMonitorServer(
@@ -1026,11 +1026,11 @@ class TestRunner(Runnable):
             )
             self.resource_monitor_server.start()
             self.resource_monitor_client = ResourceMonitorClient(
-                self.resource_monitor_server.address
+                self.resource_monitor_server.address, is_local=True
             )
             self.resource_monitor_client.start()
 
-    def stop_resource_monitor(self):
+    def _stop_resource_monitor(self):
         """Stop resource monitor server and client"""
         if self.resource_monitor_client:
             self.resource_monitor_client.stop()
@@ -1046,7 +1046,7 @@ class TestRunner(Runnable):
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
         self._add_step(self.calculate_pool_size)
-        self._add_step(self.start_resource_monitor)
+        self._add_step(self._start_resource_monitor)
 
     def add_main_batch_steps(self):
         """Runnable steps to be executed while resources are running."""
@@ -1063,7 +1063,7 @@ class TestRunner(Runnable):
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
         super(TestRunner, self).add_post_resource_steps()
-        self._add_step(self.stop_resource_monitor)
+        self._add_step(self._stop_resource_monitor)
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
@@ -1291,6 +1291,12 @@ class TestRunner(Runnable):
                 self._result.test_report
             )
 
+        # Attach resource monitor data
+        if self.resource_monitor_server:
+            self.report.resource_meta_path = (
+                self.resource_monitor_server.dump()
+            )
+
     def _invoke_exporters(self) -> None:
         if self._result.test_report.is_empty():  # skip empty report
             return
@@ -1374,7 +1380,7 @@ class TestRunner(Runnable):
         """Stop the web server if it is running."""
         if self._web_server_thread is not None:
             self._web_server_thread.stop()
-        self.stop_resource_monitor()
+        self._stop_resource_monitor()
         self._close_file_logger()
 
     def _configure_stdout_logger(self):

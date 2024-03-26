@@ -2,12 +2,15 @@ import csv
 import json
 import os
 import socket
+import typing
+
 import psutil
 
 from pytest_test_filters import skip_on_windows
 from testplan.monitor.resource import (
     ResourceMonitorServer,
     ResourceMonitorClient,
+    ProcessResourceRow,
 )
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.timing import wait
@@ -45,13 +48,16 @@ def test_resource(runpath):
     assert meta_info["disk_path"] == client.disk_path
     assert meta_info["disk_size"] == psutil.disk_usage(client.disk_path).total
 
-    def get_latest_pid_resource_data(pid: int):
+    def get_latest_pid_resource_data(
+        pid: int,
+    ) -> typing.Optional[ProcessResourceRow]:
         detail = None
         with open(resource_detail_file_path) as resource_detail_file:
             csv_reader = csv.reader(resource_detail_file)
             for line in csv_reader:
-                if int(line[1]) == pid:
-                    detail = line
+                _line = ProcessResourceRow(*line)
+                if int(_line.pid) == pid:
+                    detail = _line
         return detail
 
     def received_resource_data() -> bool:
@@ -81,9 +87,11 @@ def test_resource(runpath):
 
     def check_pid_memory():
         latest_pid_data = get_latest_pid_resource_data(current_pid)
-        if float(latest_pid_data[0]) > float(current_pid_data[0]) and int(
-            latest_pid_data[4]
-        ) > int(current_pid_data[4]):
+        if float(latest_pid_data.timestamp) > float(
+            current_pid_data.timestamp
+        ) and int(latest_pid_data.memory_used) > int(
+            current_pid_data.memory_used
+        ):
             return True
         return False
 

@@ -113,6 +113,49 @@ class TestplanAttachment(Resource):
         )
 
 
+@_api.route("/api/v1/testplan_monitor/<string:resource_id>")
+class TestplanResource(Resource):
+    def get(self, resource_id):
+        """Get a Testplan resource (JSON) given it's uid."""
+        # resource_id will be used when looking up the report from a database.
+        base_path = (
+            pathlib.Path(app.config["DATA_PATH"]) / defaults.RESOURCE_DATA
+        ).resolve()
+        if (base_path / defaults.RESOURCE_META_FILE_NAME).exists():
+            return send_from_directory(
+                directory=base_path, path=defaults.RESOURCE_META_FILE_NAME
+            )
+        else:
+            raise werkzeug.exceptions.NotFound()
+
+
+@_api.route(
+    "/api/v1/testplan_monitor/<string:resource_id>/attachments/<path:attachment_path>"
+)
+class TestplanResourceAttachment(Resource):
+    """Get an attachment for a specific Testplan resource given their uids."""
+
+    def get(self, resource_id, attachment_path):
+        base_path = (
+            pathlib.Path(app.config["DATA_PATH"]) / defaults.RESOURCE_DATA
+        ).resolve()
+
+        # security check for argument from url
+        full_attachment_path = base_path / attachment_path
+        try:
+            full_attachment_path.relative_to(base_path)
+        except ValueError:
+            raise werkzeug.exceptions.NotAcceptable()
+
+        if not full_attachment_path.is_file():
+            raise werkzeug.exceptions.NotFound()
+
+        return send_from_directory(
+            directory=full_attachment_path.parent,
+            path=full_attachment_path.name,
+        )
+
+
 @_api.route("/api/v1/metadata/fix-spec/tags")
 class FixTags(Resource):
     def get(self):

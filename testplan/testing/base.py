@@ -16,7 +16,7 @@ from testplan.common.entity import (
     RunnableResult,
 )
 from testplan.common.remote.remote_driver import RemoteDriver
-from testplan.common.utils import strings, interface
+from testplan.common.utils import strings, interface, validation
 from testplan.common.utils.composer import compose_contexts
 from testplan.common.utils.context import render
 from testplan.common.utils.process import (
@@ -37,6 +37,8 @@ from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
+
+from testplan.testing.multitest import result
 
 TEST_INST_INDENT = 2
 SUITE_INDENT = 4

@@ -1102,5 +1102,6 @@
     "description": null,
     "name": "InteractivePlan",
     "status": "passed",
-    "meta": {}
+    "meta": {},
+    "resource_meta_path": null
 }
