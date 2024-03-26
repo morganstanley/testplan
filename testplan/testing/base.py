@@ -44,9 +44,8 @@ from testplan.report import (
     TestGroupReport,
     test_styles,
 )
-from testplan.testing import common, filtering, ordering, tagging
+from testplan.testing import common, filtering, ordering, tagging, result
 from testplan.testing.environment import TestEnvironment, parse_dependency
-from testplan.testing.multitest import result
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata

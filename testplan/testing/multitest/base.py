@@ -20,16 +20,15 @@ from testplan.report import (
     TestCaseReport,
     TestGroupReport,
 )
-from testplan.testing import base as testing_base
+from testplan.testing import base as testing_base, result
 from testplan.testing import filtering, tagging
 from testplan.testing.common import (
     TEST_PART_PATTERN_FORMAT_STRING,
     SkipStrategy,
 )
-from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
-from testplan.testing.multitest.result import report_target
+from testplan.testing.result import report_target
 from testplan.testing.multitest.suite import (
     get_suite_metadata,
     get_testcase_metadata,
