@@ -18,7 +18,7 @@ from testplan.report.testing.base import (
     TestReport,
 )
 from testplan.report.testing.schemas import TestReportSchema
-from testplan.testing.multitest.result import Result
+from testplan.testing.result import Result
 
 DummyReport = functools.partial(TestCaseReport, name="dummy")
 DummyReportGroup = functools.partial(BaseReportGroup, name="dummy")

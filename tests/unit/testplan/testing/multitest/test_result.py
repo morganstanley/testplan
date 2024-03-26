@@ -19,7 +19,7 @@ from testplan.common.utils import testing
 from testplan.common.utils import callable
 from testplan.common.utils import path as path_utils
 
-from testplan.testing.multitest import result as result_mod
+from testplan.testing import result as result_mod
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import testcase, testsuite
 from testplan.report.testing import base as report_base

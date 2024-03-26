@@ -13,6 +13,22 @@ GRADLE_BIN = os.path.join(CURRENT_PATH, "gradle_mock.py")
 REPORT_PATH = os.path.join(CURRENT_PATH, "build", "test-results", "test")
 
 
+def before_start(env, result):
+    result.log("Executing before start hook.")
+
+
+def after_start(env, result):
+    result.log("Executing after start hook.")
+
+
+def before_stop(env, result):
+    result.log("Executing before stop hook.")
+
+
+def after_stop(env, result):
+    result.log("Executing after stop hook.")
+
+
 @test_plan(name="JUnit Example", description="JUnit test example")
 def main(plan):
     # Now we are inside a function that will be passed a plan object, we
@@ -26,6 +42,10 @@ def main(plan):
             results_dir=REPORT_PATH,
             binary=GRADLE_BIN,
             proc_cwd=CURRENT_PATH,
+            before_start=before_start,
+            after_start=after_start,
+            before_stop=before_stop,
+            after_stop=after_stop,
         )
     )
 

@@ -1,14 +1,30 @@
 #!/usr/bin/env python
 # This plan contains tests that demonstrate failures as well.
 """Example to demonstrate PyTest integration with Testplan."""
-import sys
 import os
+import sys
 
 from testplan import test_plan
-from testplan.testing import py_test
-
-from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 from testplan.common.utils.context import context
+from testplan.testing import py_test
+from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
+
+
+def before_start(env, result):
+    result.log("Executing before start hook.")
+
+
+def after_start(env, result):
+    result.log("Executing after start hook.")
+    env.server.accept_connection()
+
+
+def before_stop(env, result):
+    result.log("Executing before stop hook.")
+
+
+def after_stop(env, result):
+    result.log("Executing after stop hook.")
 
 
 # Specify the name and description of the testplan via the decorator.
@@ -33,6 +49,10 @@ def main(plan):
                     port=context("server", "{{port}}"),
                 ),
             ],
+            before_start=before_start,
+            after_start=after_start,
+            before_stop=before_stop,
+            after_stop=after_stop,
         )
     )
 

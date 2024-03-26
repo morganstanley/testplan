@@ -7,7 +7,7 @@ import sys
 
 from testplan import test_plan
 from testplan.testing.multitest import testcase, testsuite, MultiTest
-from testplan.testing.multitest.result import report_target
+from testplan.testing.result import report_target
 
 
 def helper(result):
