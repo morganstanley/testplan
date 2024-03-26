@@ -1,1 +1,0 @@
-Resource hooks ``before_start``, ``after_start``, ``before_stop``, and ``after_stop`` are now supported in ``ProcessRunnerTest`` classes, like ``GTest``, ``Cppunit``, ``HobbesTest``, and ``JUnit``.

@@ -278,7 +278,7 @@ class Test(Runnable):
     def reset_context(self) -> None:
         self._test_context = None
 
-    def get_test_context(self) -> None:
+    def get_test_context(self):
         raise NotImplementedError
 
     def get_stdout_style(self, passed: bool):
