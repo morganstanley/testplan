@@ -427,7 +427,7 @@ const TopUsageBanner = ({
     fontWeight: "500",
     cursor: "pointer",
   };
-  const cpuDiv = _.isEmpty(maxCPU, true) ? null : (
+  const cpuDiv = _.isEmpty(maxCPU?.value, true) ? null : (
     <div
       style={itemStyle}
       title={maxCPU.uid}
@@ -437,7 +437,7 @@ const TopUsageBanner = ({
     </div>
   );
 
-  const memDiv = _.isEmpty(maxMemory, true) ? null : (
+  const memDiv = _.isEmpty(maxMemory?.value, true) ? null : (
     <div
       style={itemStyle}
       title={maxMemory.uid}
@@ -447,7 +447,7 @@ const TopUsageBanner = ({
     </div>
   );
 
-  const diskDiv = _.isEmpty(maxDisk, true) ? null : (
+  const diskDiv = _.isEmpty(maxDisk?.value, true) ? null : (
     <div
       style={itemStyle}
       title={maxDisk.uid}
@@ -457,7 +457,7 @@ const TopUsageBanner = ({
     </div>
   );
 
-  const iopsDiv = _.isEmpty(maxIOPS, true) ? null : (
+  const iopsDiv = _.isEmpty(maxIOPS?.value, true) ? null : (
     <div
       style={itemStyle}
       title={maxIOPS.uid}
