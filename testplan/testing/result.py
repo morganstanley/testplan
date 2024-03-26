@@ -23,8 +23,12 @@ from testplan.defaults import STDOUT_STYLE
 from testplan.common.report.base import SkipTestcaseException
 
 from testplan.testing.multitest.entries import assertions, base
-from testplan.testing.multitest.entries.schemas.base import registry as schema_registry
-from testplan.testing.multitest.entries.stdout.base import registry as stdout_registry
+from testplan.testing.multitest.entries.schemas.base import (
+    registry as schema_registry,
+)
+from testplan.testing.multitest.entries.stdout.base import (
+    registry as stdout_registry,
+)
 
 IS_WIN = platform.system() == "Windows"
 
