@@ -47,6 +47,10 @@ def main(plan):
             GTest(
                 name="My GTest",
                 binary=BINARY_PATH,
+                # You can apply GTest specific filtering via `gtest_filter` arg
+                # gtest_filter='SquareRootTest.*',
+                # You can also shuffle test order via `gtest_shuffle` arg
+                # gtest_shuffle=True
                 before_start=before_start,
                 after_start=after_start,
                 before_stop=before_stop,
