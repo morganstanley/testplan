@@ -10,14 +10,29 @@ under `test` directory first to a binary target named `runTests`
 import os
 import sys
 
-from testplan.testing.cpp import Cppunit
-from testplan.report.testing.styles import Style
-
 from testplan import test_plan
+from testplan.report.testing.styles import Style
+from testplan.testing.cpp import Cppunit
 
 BINARY_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "test", "runTests"
 )
+
+
+def before_start(env, result):
+    result.log("Executing before start hook.")
+
+
+def after_start(env, result):
+    result.log("Executing after start hook.")
+
+
+def before_stop(env, result):
+    result.log("Executing before stop hook.")
+
+
+def after_stop(env, result):
+    result.log("Executing after stop hook.")
 
 
 @test_plan(
@@ -32,7 +47,13 @@ def main(plan):
     else:
         plan.add(
             Cppunit(
-                name="My Cppunit", binary=BINARY_PATH, file_output_flag="-y"
+                name="My Cppunit",
+                binary=BINARY_PATH,
+                file_output_flag="-y",
+                before_start=before_start,
+                after_start=after_start,
+                before_stop=before_stop,
+                after_stop=after_stop,
             )
         )
         # You can apply Cppunit specific filtering via `filtering_flag` arg

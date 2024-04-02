@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from testplan.testing.multitest.result import Result
+from testplan.testing.result import Result
 
 
 class TestPytestBasics:
