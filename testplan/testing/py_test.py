@@ -27,7 +27,7 @@ from testplan.testing.multitest.entries.schemas.base import (
 from testplan.testing.multitest.entries.stdout.base import (
     registry as stdout_registry,
 )
-from testplan.testing.multitest.result import Result as MultiTestResult
+from testplan.testing.result import Result as MultiTestResult
 
 # Regex for parsing suite and case name and case parameters
 _CASE_REGEX = re.compile(

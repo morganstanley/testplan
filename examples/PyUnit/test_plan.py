@@ -4,8 +4,25 @@
 
 import sys
 import unittest
+
 from testplan import test_plan
 from testplan.testing import pyunit
+
+
+def before_start(env, result):
+    result.log("Executing before start hook.")
+
+
+def after_start(env, result):
+    result.log("Executing after start hook.")
+
+
+def before_stop(env, result):
+    result.log("Executing before stop hook.")
+
+
+def after_stop(env, result):
+    result.log("Executing after stop hook.")
 
 
 class TestAlpha(unittest.TestCase):
@@ -47,6 +64,10 @@ def main(plan):
             name="My PyUnit",
             description="PyUnit example testcase",
             testcases=[TestAlpha, TestBeta],
+            before_start=before_start,
+            after_start=after_start,
+            before_stop=before_stop,
+            after_stop=after_stop,
         )
     )
 
