@@ -1,9 +1,10 @@
 import os
+from fnmatch import fnmatch
 
 import pytest
 
 import platform
-
+from pytest_test_filters import is_311
 from example_runner import run_example_in_process
 
 _FILE_DIR = os.path.dirname(__file__)
@@ -42,7 +43,11 @@ SKIP = [
         "Multitest", "Listing", "Custom Listers", "test_plan_command_line.py"
     ),
     os.path.join("Transports", "FIX", "test_plan_tls.py"),
+    os.path.join("BDD", "known_to_fail", "test_plan.py"),
 ]
+
+if is_311:
+    SKIP.extend((os.path.join("BDD", "*"),))
 
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
 if not REMOTE_HOST:
@@ -91,7 +96,12 @@ def test_example(root, filename, runpath):
         [file_path.endswith(skip_name) for skip_name in SKIP_ON_WINDOWS]
     ):
         pytest.skip()
-    elif any([file_path.endswith(skip_name) for skip_name in SKIP]):
+    elif any(
+        [
+            fnmatch(file_path, os.path.join("*", skip_name))
+            for skip_name in SKIP
+        ]
+    ):
         pytest.skip()
 
     run_example_in_process(

@@ -9,6 +9,7 @@ Subpackages
 
     testplan.testing.multitest
     testplan.testing.cpp
+    testplan.testing.bdd
 
 
 Submodules
