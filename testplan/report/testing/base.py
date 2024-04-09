@@ -568,6 +568,7 @@ class TestReport(BaseReportGroup):
         self.meta = meta or {}
         self.label = label
         self.information = information or []
+        self.resource_meta_path: Optional[str] = None
         try:
             user = getpass.getuser()
         except (ImportError, OSError):

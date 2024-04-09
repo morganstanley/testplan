@@ -13,7 +13,8 @@ import zmq.asyncio
 import psutil
 import multiprocessing
 
-from typing import Dict, Optional, Union, TextIO
+from typing import Dict, Optional, Union, TextIO, NamedTuple
+from testplan.defaults import RESOURCE_META_FILE_NAME
 from testplan.common.utils.path import pwd
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.logger import LOGFILE_FORMAT
@@ -24,6 +25,10 @@ from testplan.common.serialization.base import serialize, deserialize
 
 @dataclasses.dataclass
 class ResourceData:
+    """
+    Attributes of collecting resource data
+    """
+
     cpu_usage: float
     memory_used: int
     iops: float
@@ -33,14 +38,52 @@ class ResourceData:
 
 @dataclasses.dataclass
 class HostResourceData(ResourceData):
+    """
+    Host level resource data
+    """
+
     disk_used: int
 
 
 @dataclasses.dataclass
 class ProcessResourceData(ResourceData):
+    """
+    Process level resource data
+    """
+
     name: str
     cmdline: str
     pid: int
+
+
+class HostResourceRow(NamedTuple):
+    """
+    CSV file row structure of host level resource
+    """
+
+    timestamp: float
+    cpu_usage: float
+    memory_used: int
+    disk_used: int
+    iops: float
+    io_read: float
+    io_write: float
+
+
+class ProcessResourceRow(NamedTuple):
+    """
+    CSV file row structure of process level resource
+    """
+
+    timestamp: float
+    pid: int
+    name: str
+    cpu_usage: float
+    memory_used: int
+    iops: float
+    io_read: float
+    io_write: float
+    cmdline: str
 
 
 class ResourceMonitorClient:
@@ -48,6 +91,7 @@ class ResourceMonitorClient:
         self,
         server_address: str,
         disk_path: Optional[str] = None,
+        is_local: bool = False,
     ) -> None:
         """
         Client for collecting resource data and sending them to Resource Monitor Server.
@@ -60,8 +104,10 @@ class ResourceMonitorClient:
         self.uid: Optional[str] = None
         self.cpu_count: int = 0
         self.memory_size: int = 0
+        self.hostname: str = socket.gethostname()
         self.disk_path: str = disk_path or pwd()
         self.disk_size: int = 0
+        self.is_local: bool = is_local
         self.enrich_metadata()
 
         self.last_host_resource: Optional[HostResourceData] = None
@@ -71,7 +117,7 @@ class ResourceMonitorClient:
         self.last_process_io_info: Dict[int, Dict[str, int]] = {}
 
         self.last_poll_time: float = 0
-        self.poll_interval: int = 60
+        self.poll_interval: int = 5
         self.parent_process: Optional[psutil.Process] = None
         self._monitor_worker: Optional[multiprocessing.Process] = None
         self._zmq_context: Optional[zmq.Context] = None
@@ -87,15 +133,17 @@ class ResourceMonitorClient:
         self.disk_size = psutil.disk_usage(self.disk_path).total
 
     def send_metadata(self):
-        msg = communication.Message()
+        msg = communication.Message(uid=self.uid)
         msg.make(
             cmd=communication.Message.Metadata,
             data={
                 "uid": self.uid,
+                "hostname": self.hostname,
                 "cpu_count": self.cpu_count,
                 "memory_size": self.memory_size,
                 "disk_path": self.disk_path,
                 "disk_size": self.disk_size,
+                "is_local": self.is_local,
             },
         )
         self.zmq_socket.send(serialize(msg))
@@ -106,15 +154,28 @@ class ResourceMonitorClient:
     def collect_memory_usage(self) -> int:
         return self.memory_size - psutil.virtual_memory().available
 
+    @staticmethod
+    def _ensure_positive(num):
+        # Fix IO counter issue
+        return max(num, 0)
+
     def collect_host_data(self):
         _disk_io = psutil.disk_io_counters()
         iops = _disk_io.read_count + _disk_io.write_count
         io_read = _disk_io.read_bytes
         io_write = _disk_io.write_bytes
         if self.last_host_io_info:
-            iops -= self.last_host_io_info["iops"] / self.poll_interval
-            io_read -= self.last_host_io_info["io_read"] / self.poll_interval
-            io_write -= self.last_host_io_info["io_write"] / self.poll_interval
+            iops = self._ensure_positive(
+                (iops - self.last_host_io_info["iops"]) / self.poll_interval
+            )
+            io_read = self._ensure_positive(
+                (io_read - self.last_host_io_info["io_read"])
+                / self.poll_interval
+            )
+            io_write = self._ensure_positive(
+                (io_write - self.last_host_io_info["io_write"])
+                / self.poll_interval
+            )
             host_resource = HostResourceData(
                 cpu_usage=self.collect_cpu_usage(),
                 memory_used=self.collect_memory_usage(),
@@ -165,15 +226,18 @@ class ResourceMonitorClient:
                 }
                 if proc.pid in self.last_process_io_info:
                     _pid_last_io = self.last_process_io_info[raw_data["pid"]]
-                    iops = (
-                        counters["iops"] - _pid_last_io["io_counter"]
-                    ) / self.poll_interval
-                    io_read = (
-                        counters["io_read"] - _pid_last_io["read_counter"]
-                    ) / self.poll_interval
-                    io_write = (
-                        counters["io_write"] - _pid_last_io["write_counter"]
-                    ) / self.poll_interval
+                    iops = self._ensure_positive(
+                        (counters["iops"] - _pid_last_io["io_counter"])
+                        / self.poll_interval
+                    )
+                    io_read = self._ensure_positive(
+                        (counters["io_read"] - _pid_last_io["read_counter"])
+                        / self.poll_interval
+                    )
+                    io_write = self._ensure_positive(
+                        (counters["io_write"] - _pid_last_io["write_counter"])
+                        / self.poll_interval
+                    )
                 else:
                     iops = counters["iops"] / self.poll_interval
                     io_read = counters["io_read"] / self.poll_interval
@@ -216,12 +280,15 @@ class ResourceMonitorClient:
         self.zmq_socket = self._zmq_context.socket(zmq.PUSH)
         self.zmq_socket.connect(self.server_address)
         self.send_metadata()
+        start_time = time.time()
+        poll_index = 0
         while True:
+            poll_index += 1
             self.last_poll_time = time.time()
             self.collect_data()
             self.send_data()
-            rest_time = self.poll_interval - (
-                time.time() - self.last_poll_time
+            rest_time = (
+                start_time + self.poll_interval * poll_index - time.time()
             )
             if rest_time > 0:
                 time.sleep(rest_time)
@@ -272,15 +339,14 @@ class ResourceMonitorServer:
 
     async def handle_request(self, msg: bytes):
         message: communication.Message = deserialize(msg)
+        client_id: str = message.sender_metadata["uid"]
         if message.cmd == communication.Message.Metadata:
-            client_id = message.data["uid"]
             self.logger.info("Received meta data from %s.", client_id)
             with open(
                 self.file_directory / f"{slugify(client_id)}.meta", "w"
             ) as f:
                 json.dump(message.data, f)
         elif message.cmd == communication.Message.Message:
-            client_id: str = message.sender_metadata["uid"]
             self.logger.info("Received resource data from %s.", client_id)
             if client_id not in self._file_handler:
                 self._file_handler[client_id] = {}
@@ -291,17 +357,16 @@ class ResourceMonitorServer:
                     self._file_handler[client_id]["host_file"]
                 )
             client_host_data: HostResourceData = message.data["host_resource"]
-            self._file_handler[client_id]["host_csv"].writerow(
-                [
-                    message.data["time"],
-                    client_host_data.cpu_usage,
-                    client_host_data.memory_used,
-                    client_host_data.disk_used,
-                    client_host_data.iops,
-                    client_host_data.io_read,
-                    client_host_data.io_write,
-                ]
+            row = HostResourceRow(
+                message.data["time"],
+                client_host_data.cpu_usage,
+                client_host_data.memory_used,
+                client_host_data.disk_used,
+                client_host_data.iops,
+                client_host_data.io_read,
+                client_host_data.io_write,
             )
+            self._file_handler[client_id]["host_csv"].writerow(row)
             self._file_handler[client_id]["host_file"].flush()
             if self.detailed:
                 process_data: Dict[int, ProcessResourceData] = message.data[
@@ -316,19 +381,18 @@ class ResourceMonitorServer:
                         self._file_handler[client_id]["detailed_file"]
                     )
                 for pid, process in process_data.items():
-                    self._file_handler[client_id]["detailed_csv"].writerow(
-                        [
-                            message.data["time"],
-                            pid,
-                            process.name,
-                            process.cpu_usage,
-                            process.memory_used,
-                            process.iops,
-                            process.io_read,
-                            process.io_write,
-                            process.cmdline,
-                        ]
+                    row = ProcessResourceRow(
+                        message.data["time"],
+                        pid,
+                        process.name,
+                        process.cpu_usage,
+                        process.memory_used,
+                        process.iops,
+                        process.io_read,
+                        process.io_write,
+                        process.cmdline,
                     )
+                    self._file_handler[client_id]["detailed_csv"].writerow(row)
                 self._file_handler[client_id]["detailed_file"].flush()
         else:
             self.logger.info(
@@ -363,6 +427,69 @@ class ResourceMonitorServer:
             "Listening port %d, PID: %d!", self.collector_port, os.getpid()
         )
         asyncio.run(self.collector_service())
+
+    def normalize_data(self, client_id: str) -> Optional[dict]:
+        try:
+            client_host_path = (
+                self.file_directory / f"{slugify(client_id)}.csv"
+            )
+            resource_data = {
+                "time": [],
+                "cpu": [],
+                "memory": [],
+                "disk": [],
+                "iops": [],
+                "io_read": [],
+                "io_write": [],
+            }
+            with open(client_host_path) as client_file:
+                reader = csv.reader(client_file)
+                for row in reader:
+                    host_resource = HostResourceRow(*row)
+                    resource_data["time"].append(
+                        float(host_resource.timestamp)
+                    )
+                    resource_data["cpu"].append(float(host_resource.cpu_usage))
+                    resource_data["memory"].append(
+                        float(host_resource.memory_used)
+                    )
+                    resource_data["disk"].append(int(host_resource.disk_used))
+                    resource_data["iops"].append(float(host_resource.iops))
+                    resource_data["io_read"].append(
+                        float(host_resource.io_read)
+                    )
+                    resource_data["io_write"].append(
+                        float(host_resource.io_write)
+                    )
+            json_file_path = self.file_directory / f"{slugify(client_id)}.json"
+            with open(json_file_path, "w") as json_file:
+                json.dump(resource_data, json_file)
+            return {
+                "resource_file": str(json_file_path.resolve()),
+                "max_cpu": max(resource_data["cpu"]),
+                "max_memory": max(resource_data["memory"]),
+                "max_disk": max(resource_data["disk"]),
+                "max_iops": max(resource_data["iops"]),
+            }
+        except FileNotFoundError:
+            return
+
+    def dump(self) -> str:
+        resource_info = []
+        for host_meta_path in self.file_directory.glob("*.meta"):
+            with open(host_meta_path) as meta_file:
+                meta = json.load(meta_file)
+            summary_data = self.normalize_data(meta["uid"])
+            if summary_data:
+                meta.update(summary_data)
+            if meta["is_local"]:
+                resource_info.insert(0, meta)
+            else:
+                resource_info.append(meta)
+        meta_file_path = self.file_directory / RESOURCE_META_FILE_NAME
+        with open(meta_file_path, "w") as meta_file:
+            json.dump({"entries": resource_info}, meta_file)
+        return str(meta_file_path.resolve())
 
     def start(self, timeout=5):
         shared_dict = multiprocessing.Manager().dict()
