@@ -1,7 +1,7 @@
 -e .
 pylint
 scikit-learn
-black~=22.0
+black~=24.3
 kazoo
 confluent-kafka
 plotly
