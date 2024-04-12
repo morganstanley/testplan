@@ -299,11 +299,11 @@ const getAssertions = (selectedEntries, displayTime) => {
         let duration = "Unknown";
         if (
           selectedEntry.timer &&
-          selectedEntry.timer.run?.start &&
+          selectedEntry.timer.run?.at(-1).start &&
           links[0].utc_time
         ) {
           const previousEntryTime = new Date(
-            selectedEntry.timer.run.start
+            selectedEntry.timer.run.at(-1).start
           ).getTime();
           const currentEntryTime = new Date(links[0].utc_time).getTime();
           const durationInMilliseconds = currentEntryTime - previousEntryTime;

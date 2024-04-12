@@ -503,19 +503,19 @@ const getInfoTable = (report) => {
     );
   });
   if (report.timer && report.timer.run) {
-    if (report.timer.run.start) {
+    if (report.timer.run.at(-1).start) {
       infoList.push(
         <tr key="start">
           <td>start</td>
-          <td>{report.timer.run.start}</td>
+          <td>{report.timer.run.at(-1).start}</td>
         </tr>
       );
     }
-    if (report.timer.run.end) {
+    if (report.timer.run.at(-1).end) {
       infoList.push(
         <tr key="end">
           <td>end</td>
-          <td>{report.timer.run.end}</td>
+          <td>{report.timer.run.at(-1).end}</td>
         </tr>
       );
     }

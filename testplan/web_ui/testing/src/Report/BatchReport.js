@@ -130,40 +130,36 @@ class BatchReportComponent extends BaseReport {
           .get(`/api/v1/reports/${uid}`)
           .then((response) => {
             const rawReport = response.data;
-            if (rawReport.version === 2) {
-              const assertionsReq = axios.get(
-                `/api/v1/reports/${uid}/attachments/` +
-                  `${rawReport.assertions_file}`,
-                { transformResponse: parseToJson }
-              );
-              const structureReq = axios.get(
-                `/api/v1/reports/${uid}/attachments/` +
-                  `${rawReport.structure_file}`,
-                { transformResponse: parseToJson }
-              );
-              axios
-                .all([assertionsReq, structureReq])
-                .then(
-                  axios.spread((assertionsRes, structureRes) => {
-                    if (!assertionsRes.data) {
-                      console.error(assertionsRes);
-                      alert(
-                        "Failed to parse assertion datails!\n" +
-                          "Please report this issue to the Testplan team."
-                      );
-                    }
-                    const mergedReport = MergeSplittedReport(
-                      rawReport,
-                      assertionsRes.data,
-                      structureRes.data
+            const assertionsReq = axios.get(
+              `/api/v1/reports/${uid}/attachments/` +
+                `${rawReport.assertions_file}`,
+              { transformResponse: parseToJson }
+            );
+            const structureReq = axios.get(
+              `/api/v1/reports/${uid}/attachments/` +
+                `${rawReport.structure_file}`,
+              { transformResponse: parseToJson }
+            );
+            axios
+              .all([assertionsReq, structureReq])
+              .then(
+                axios.spread((assertionsRes, structureRes) => {
+                  if (!assertionsRes.data) {
+                    console.error(assertionsRes);
+                    alert(
+                      "Failed to parse assertion datails!\n" +
+                        "Please report this issue to the Testplan team."
                     );
-                    this.setReport(this.updateReportUID(mergedReport, uid));
-                  })
-                )
-                .catch(this.setError);
-            } else {
-              this.setReport(this.updateReportUID(rawReport, uid));
-            }
+                  }
+                  const mergedReport = MergeSplittedReport(
+                    rawReport,
+                    assertionsRes.data,
+                    structureRes.data
+                  );
+                  this.setReport(this.updateReportUID(mergedReport, uid));
+                })
+              )
+              .catch(this.setError);
           })
           .catch(this.setError);
         break;

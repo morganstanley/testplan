@@ -83,7 +83,9 @@ def test_time_information():
 
     test_report = res.report["Dummy"]
     assert test_report.name == "Dummy" and test_report.category == "dummytest"
-    assert test_report.timer.last(key="setup").elapsed > 0.4  # 2 drivers startup
+    assert (
+        test_report.timer.last(key="setup").elapsed > 0.4
+    )  # 2 drivers startup
     assert (
         test_report.timer.last(key="teardown").elapsed > 0.2
     )  # 2 drivers teardown

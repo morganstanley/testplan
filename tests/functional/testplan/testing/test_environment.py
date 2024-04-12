@@ -94,6 +94,8 @@ def test_testing_environment(mockplan, driver_dependencies, named_temp_file):
         resource="I'm not local.",
     )
     assert mockplan.run().success is True
+    assert "lifespan" in mockplan.result.report.entries[0].children[0].timer
+    assert "lifespan" in mockplan.result.report.entries[0].children[1].timer
 
     with open(named_temp_file, "r") as f:
         lines = f.read().splitlines()

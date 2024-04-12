@@ -293,8 +293,6 @@ class TimerCtxManager:
     """
 
     def __init__(self, timer, key):
-        # if key in timer:
-        #     raise ValueError("Cannot overwrite `Interval` for: {}".format(key))
 
         self.timer = timer
         self.key = key
@@ -535,8 +533,6 @@ def with_timer(func: Callable) -> Callable:
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         with self.timer.record(func.__name__):
-            # import pdb
-            # pdb.set_trace()
             return func(self, *args, **kwargs)
 
     return wrapper

@@ -9,12 +9,21 @@ import _ from "lodash";
  * Calculate execution time of an entry with timer field
  */
 function calcExecutionTime(entry) {
-  return (
-    entry.timer && entry.timer.run
-    ? new Date(entry.timer.run.end).getTime() -
-      new Date(entry.timer.run.start).getTime()
-    : null
-    );
+  let elapsed = null;
+  if (entry.timer && entry.timer.run) {
+    if (Array.isArray(entry.timer.run) && !_.isEmpty(entry.timer.run)) {
+      elapsed = 0;
+      entry.timer.run.forEach((interval) => {
+        elapsed +=
+          new Date(interval.end).getTime() - new Date(interval.start).getTime();
+      });
+    } else {
+      elapsed =
+        new Date(entry.timer.run.end).getTime() -
+        new Date(entry.timer.run.start).getTime();
+    }
+  }
+  return elapsed;
 }
 
 /**
