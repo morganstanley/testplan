@@ -82,7 +82,7 @@ jobs:
       - name: Restore pip cache
         uses: ./.github/actions/pip-cache
       - name: Set up PNPM
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v3
         with:
           version: 8.10.4
       - name: Setup
