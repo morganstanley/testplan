@@ -7,6 +7,7 @@ jobs:
 
   cut-new-version:
     runs-on: ubuntu-latest
+    permissions: write-all
 
     steps:
       - uses: actions/checkout@v4
