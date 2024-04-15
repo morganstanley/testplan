@@ -8,13 +8,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: "3.11"
     - uses: actions/setup-node@v4
       with:
         node-version: "16"
-    - uses: pnpm/action-setup@v2.4.0
+    - uses: pnpm/action-setup@v3
       with:
         version: 8.10.4
     - run: |        
