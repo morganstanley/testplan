@@ -5,14 +5,14 @@ from glob import glob
 from io import TextIOWrapper
 from itertools import dropwhile
 from os import PathLike, SEEK_END
-from typing import Union, Optional, Generic, List, AnyStr
+from typing import Union, Optional, Generic, List, AnyStr, TypeVar
 
 
 class LogPosition:
     pass
 
 
-T = AnyStr
+T = TypeVar("T", str, bytes)
 
 
 class LogStream(ABC, Generic[T]):
@@ -56,6 +56,9 @@ class FileLogStream(LogStream[T]):
     @dataclass
     class FileLogPosition(LogPosition):
         position: int = 0
+
+        def __str__(self) -> str:
+            return f"<position {self.position}>"
 
     def __init__(self, path: Union[PathLike, str]) -> None:
         self._path = path
@@ -151,6 +154,9 @@ class RotatedFileLogStream(LogStream[T]):
     class FileLogPosition(LogPosition):
         inode: int
         position: int
+
+        def __str__(self) -> str:
+            return f"<inode {self.inode}, position {self.position}>"
 
     def __init__(
         self,

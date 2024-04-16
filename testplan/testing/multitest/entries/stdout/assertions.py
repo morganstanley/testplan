@@ -606,3 +606,10 @@ class LineDiffRenderer(AssertionRenderer):
                 yield "[truncated after displaying first %d lines ...]" % n
                 break
             yield line
+
+
+@registry.bind(assertions.LogfileMatch)
+class LogfileMatchRender(AssertionRenderer):
+    def get_assertion_details(self, entry):
+        # TODO
+        pass

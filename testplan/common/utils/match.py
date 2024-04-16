@@ -3,18 +3,32 @@ Module of utility types and functions that perform matching.
 """
 import os
 import re
-import sys
 import time
 import warnings
 from contextlib import closing
-from typing import Dict, List, Match, Optional, Pattern, Tuple, Union, AnyStr
+from itertools import repeat
+from typing import (
+    AnyStr,
+    Dict,
+    Iterator,
+    List,
+    Match,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
+
+from typing_extensions import TypeAlias
 
 from . import logger, timing
 from .logfile import (
     LogPosition,
+    LogStream,
     FileLogStream,
     BinaryFileLogStream,
     TextFileLogStream,
+    RotatedFileLogStream,
     RotatedBinaryFileLogStream,
     RotatedTextFileLogStream,
     MTimeBasedLogRotationStrategy,
@@ -22,6 +36,9 @@ from .logfile import (
 
 LOG_MATCHER_INTERVAL = 0.25
 LOG_MATCHER_DEFAULT_TIMEOUT = 5.0
+
+
+Regex: TypeAlias = Union[str, bytes, Pattern]
 
 
 def match_regexps_in_file(
@@ -70,6 +87,58 @@ def match_regexps_in_file(
     return all(extracts_status), extracted_values, unmatched
 
 
+def gen_regex_timeout_zip(
+    regex: Union[Regex, List[Regex]], timeout: Union[float, List[float]]
+) -> Iterator[Tuple[Regex, float]]:
+    if not isinstance(regex, list):
+        regex = [regex]
+    if not isinstance(timeout, list):
+        timeout = repeat(timeout, len(regex))
+    elif len(timeout) != len(regex):
+        raise ValueError("``timeout`` length doesn't match ``regex`` length.")
+    return zip(regex, timeout)
+
+
+class ScopedLogfileMatch:
+    def __init__(
+        self,
+        log_matcher: "LogMatcher",
+        regex: Union[Regex, List[Regex]],
+        timeout: Union[float, List[float]] = LOG_MATCHER_DEFAULT_TIMEOUT,
+        strict_order: bool = True,
+    ):
+        self.match_pairs = gen_regex_timeout_zip(regex, timeout)
+        self.match_results = []
+        self.match_failure = None
+
+        self.log_matcher = log_matcher
+        self.strict_order = strict_order
+
+    def __enter__(self):
+        self.log_matcher.seek_eof()
+        self.match_results = []
+        self.match_failure = None
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None:
+            return False
+        s_pos = self.log_matcher.position
+        for r, t in self.match_pairs:
+            m = self.log_matcher.match(r, t, raise_on_timeout=False)
+            e_pos = self.log_matcher.position
+            if m is not None:
+                self.match_results.append((m, r, t, s_pos, e_pos))
+            else:
+                self.match_failure = (None, r, t, s_pos, e_pos)
+                break
+
+            if self.strict_order:
+                s_pos = e_pos
+            else:
+                self.log_matcher.position = s_pos
+
+
 class LogMatcher(logger.Loggable):
     """
     Single line matcher for text files (usually log files). Once matched, it
@@ -91,13 +160,15 @@ class LogMatcher(logger.Loggable):
         self.marks = {}
         self.position: Optional[LogPosition] = None
         self.log_stream: FileLogStream = self._create_log_stream()
+        # live until next ``expect`` call
+        self.expect_results: List[Match] = []
 
         # deprecation helpers
         self.had_transformed = False
 
         super(LogMatcher, self).__init__()
 
-    def _create_log_stream(self):
+    def _create_log_stream(self) -> LogStream:
 
         # as rotated logstream should be able to handle non-rotated streams
         # without overhead we use that by default, but give an envvar to be
@@ -115,14 +186,14 @@ class LogMatcher(logger.Loggable):
 
         return self._create_rotated_log_stream()
 
-    def _create_non_rotated_log_stream(self):
+    def _create_non_rotated_log_stream(self) -> FileLogStream:
         return (
             BinaryFileLogStream(self.log_path)
             if self.binary
             else TextFileLogStream(self.log_path)
         )
 
-    def _create_rotated_log_stream(self):
+    def _create_rotated_log_stream(self) -> RotatedFileLogStream:
         return (
             RotatedBinaryFileLogStream(
                 self.log_path, MTimeBasedLogRotationStrategy()
@@ -133,9 +204,7 @@ class LogMatcher(logger.Loggable):
             )
         )
 
-    def _prepare_regexp(
-        self, regexp: Union[Pattern[AnyStr], str, bytes]
-    ) -> Pattern[AnyStr]:
+    def _prepare_regexp(self, regexp: Regex) -> Pattern[AnyStr]:
 
         if isinstance(regexp, (str, bytes)):
             regexp = re.compile(regexp)
@@ -195,15 +264,15 @@ class LogMatcher(logger.Loggable):
 
     def match(
         self,
-        regex: Union[str, bytes, Pattern],
+        regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
         raise_on_timeout: bool = True,
     ) -> Optional[Match]:
         """
         Matches each line in the log file from the current line number to the
         end of the file. If a match is found the line number is stored and the
-        match is returned. Can be configured to raise an exception if no match
-        is found.
+        match is returned. By default an exception is raised if no match is
+        found.
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
@@ -217,7 +286,6 @@ class LogMatcher(logger.Loggable):
         match = None
         start_time = time.time()
         end_time = start_time + timeout
-        read_mode = "rb"
 
         regex = self._prepare_regexp(regex)
 
@@ -254,7 +322,7 @@ class LogMatcher(logger.Loggable):
 
     def not_match(
         self,
-        regex: Union[str, bytes, Pattern],
+        regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
     ):
         """
@@ -278,13 +346,13 @@ class LogMatcher(logger.Loggable):
 
     def match_all(
         self,
-        regex: Union[str, bytes, Pattern],
+        regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
         raise_on_timeout: bool = True,
     ) -> List[Match]:
         """
-        Similar to match, but returns all occurrences of regex. Can be
-        configured to raise an exception if no match is found.
+        Similar to match, but returns all occurrences of regex. By default an
+        an exception is raised if no match is found.
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)
@@ -308,7 +376,7 @@ class LogMatcher(logger.Loggable):
 
         return matches
 
-    def match_between(self, regex, mark1, mark2):
+    def match_between(self, regex: Regex, mark1: str, mark2: str):
         """
         Matches file against passed in regex. Matching is performed from
         file position denoted by mark1 and ends before file position denoted
@@ -316,14 +384,11 @@ class LogMatcher(logger.Loggable):
 
         :param regex: regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern, bytes]``
         :param mark1: mark name of start position (None for beginning of file)
-        :type mark1: ``str``
         :param mark2: mark name of end position
-        :type mark2: ``str``
+        :return: The regex match or None if no match is found
         """
         match = None
-        read_mode = "rb"
 
         regex = self._prepare_regexp(regex)
 
@@ -340,7 +405,7 @@ class LogMatcher(logger.Loggable):
 
         return match
 
-    def not_match_between(self, regex, mark1, mark2):
+    def not_match_between(self, regex: Regex, mark1: str, mark2: str):
         """
         Opposite of :py:meth:`~testplan.common.utils.match.LogMatcher.match_between`
         which returns None if a match is not found. Matching is performed
@@ -349,11 +414,8 @@ class LogMatcher(logger.Loggable):
 
         :param regex: regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern, bytes]``
         :param mark1: mark name of start position (None for beginning of file)
-        :type mark1: ``str``
         :param mark2: mark name of end position
-        :type mark2: ``str``
         """
 
         return not self.match_between(regex, mark1, mark2)
@@ -400,3 +462,34 @@ class LogMatcher(logger.Loggable):
                 lines_between.append(line)
             separator = b"" if self.binary else ""
             return separator.join(lines_between)
+
+    def expect(
+        self,
+        regex: Union[List[Regex], Regex],
+        timeout: Union[List[float], float] = LOG_MATCHER_DEFAULT_TIMEOUT,
+        strict_order: bool = True,
+    ):
+        """
+        User-friendly context manager composed of ``seek_eof`` and ``match``.
+        On entering seeking to log stream EOF, on exiting doing log matching,
+        as expected patterns should be (possibly indirectly) produced by lines
+        in context manager body.
+
+        :param regex: Regex string or compiled regular expression or a list of
+            such regex strings or expressions
+        :param timeout: Timeout in seconds for regex matching, can be a list
+            indicating different individual timeout, or be a float applied to
+            all input regexes.
+        :param strict_order: Of value True by default, indicating sequential
+            matching of input regexes. Set to False for supporting out of order
+            matching.
+        """
+        return ScopedLogfileMatch(
+            log_matcher=self,
+            regex=regex,
+            timeout=timeout,
+            strict_order=strict_order,
+        )
+
+    def __str__(self) -> str:
+        return f"LogMatcher[{self.log_path}]"

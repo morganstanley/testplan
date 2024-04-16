@@ -6,7 +6,7 @@ data directly.
 The reason being some assertion classes may have attributes that
 cannot be deserialized (processes, exception objects etc).
 """
-from marshmallow import fields
+from marshmallow import fields, Schema
 from testplan.common.serialization import fields as custom_fields
 
 from .base import BaseSchema, registry
@@ -210,3 +210,17 @@ class DictMatchAllSchema(AssertionSchema):
 
     key_weightings = fields.Raw()
     matches = fields.Function(lambda obj: {"matches": obj.matches})
+
+
+class LogfileMatchResultSchema(Schema):
+    matched = fields.String(allow_none=True)
+    pattern = fields.String()
+    timeout = fields.Float()
+    start_pos = fields.String()
+    end_pos = fields.String()
+
+
+@registry.bind(asr.LogfileMatch)
+class LogfileMatchSchema(AssertionSchema):
+    results = fields.List(fields.Nested(LogfileMatchResultSchema()))
+    failure = fields.Nested(LogfileMatchResultSchema(), allow_none=True)
