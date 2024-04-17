@@ -4,7 +4,7 @@ import { css, StyleSheet } from "aphrodite";
 
 const LogfileMatchEntry = ({ pattern, timeout, startPos, endPos, matched }) => {
   const info = matched
-    ? `Match between ${startPos} and ${endPos} found in ${timeout} seconds.`
+    ? `Match between ${startPos} and ${endPos} found within ${timeout} seconds.`
     : `No match from ${startPos} found in ${timeout} seconds, search ended at ${endPos}`;
 
   return (
@@ -13,7 +13,7 @@ const LogfileMatchEntry = ({ pattern, timeout, startPos, endPos, matched }) => {
         <span className={css(styles.infoText)}>{info}</span>
       </div>
       <div>
-        <strong className={css(styles.title)}>Regex:</strong>
+        <strong className={css(styles.title)}>Pattern:</strong>
         <SyntaxHighlighter
           language="regex"
           PreTag="span"
@@ -35,14 +35,7 @@ const LogfileMatchEntry = ({ pattern, timeout, startPos, endPos, matched }) => {
 export const LogfileMatchAssertion = ({ assertion }) => {
   const { results, failure } = assertion;
 
-  let entries;
-  if (failure) {
-    entries = results.concat([failure]);
-  } else {
-    entries = results;
-  }
-
-  return entries.map((entry) => {
+  return [...results, ...failure].map((entry) => {
     const {
       pattern,
       timeout,

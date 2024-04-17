@@ -352,7 +352,7 @@ class LogMatcher(logger.Loggable):
     ) -> List[Match]:
         """
         Similar to match, but returns all occurrences of regex. By default an
-        an exception is raised if no match is found.
+        exception is raised if no match is found.
 
         :param regex: Regex string or compiled regular expression
             (``re.compile``)

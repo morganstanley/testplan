@@ -1,7 +1,10 @@
 """ TODO """
 import functools
+import operator
 import re
+from copy import copy
 from html import escape
+from itertools import chain
 
 html_escape = functools.partial(escape, quote=False)
 
@@ -1111,5 +1114,57 @@ class RawAssertionRenderer(AssertionRenderer):
 @registry.bind(assertions.LogfileMatch)
 class LogfileMatchRender(AssertionRenderer):
     def get_detail(self, source, depth, row_idx):
-        # TODO
-        pass
+        left_padding = const.INDENT * (depth + 1)
+        grps = []
+        idx = row_idx
+        for e in chain(source["results"], source["failure"]):
+            style = RowStyle(
+                font=(const.FONT, const.FONT_SIZE_SMALL),
+                left_padding=left_padding,
+                text_color=colors.black,
+                span=tuple(),
+                background=None if e["matched"] else colors.whitesmoke,
+            )
+            if e["matched"]:
+                rows = RowData(
+                    content=[
+                        f"Match between {e['start_pos']} and {e['end_pos']} "
+                        f"found within {e['timeout']} seconds.",
+                        "",
+                        "",
+                        "",
+                    ],
+                    style=copy(style),
+                    start=idx,
+                )
+                rows += RowData(
+                    content=[f"Pattern: `{e['pattern']}`", "", "", ""],
+                    style=copy(style),
+                    start=rows.end,
+                )
+                rows += RowData(
+                    content=[f"Log Line: {e['matched']}", "", "", ""],
+                    style=copy(style),
+                    start=rows.end,
+                )
+            else:
+                rows = RowData(
+                    content=[
+                        f"No match from {e['start_pos']} found in {e['timeout']} "
+                        f"seconds, search ended at {e['end_pos']}",
+                        "",
+                        "",
+                        "",
+                    ],
+                    style=copy(style),
+                    start=idx,
+                )
+                rows += RowData(
+                    content=[f"Pattern: `{e['pattern']}`", "", "", ""],
+                    style=copy(style),
+                    start=rows.end,
+                )
+            grps.append(rows)
+            idx = rows.end
+
+        return functools.reduce(operator.add, grps)

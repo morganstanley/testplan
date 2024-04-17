@@ -220,7 +220,25 @@ class LogfileMatchResultSchema(Schema):
     end_pos = fields.String()
 
 
+class AtMostOneList(fields.List):
+    def _serialize(self, value, attr, obj, **kwargs):
+        if not isinstance(value, list) or len(value) > 1:
+            raise TypeError(
+                f"Unexpected value {value} passed to AtMostOneList field."
+            )
+        return super()._serialize(value, attr, obj, **kwargs)
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if not isinstance(value, list) or len(value) > 1:
+            raise TypeError(
+                f"Unexpected value {value} passed to AtMostOneList field."
+            )
+        return super()._deserialize(value, attr, data, **kwargs)
+
+
 @registry.bind(asr.LogfileMatch)
 class LogfileMatchSchema(AssertionSchema):
     results = fields.List(fields.Nested(LogfileMatchResultSchema()))
-    failure = fields.Nested(LogfileMatchResultSchema(), allow_none=True)
+    failure = AtMostOneList(fields.Nested(LogfileMatchResultSchema()))
+
+    # TODO: check if chained list having at least one elem

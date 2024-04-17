@@ -1497,9 +1497,9 @@ class LogfileMatch(Assertion):
     ):
         self.results = [LogfileMatch._handle_quintuple(r) for r in results]
         self.failure = (
-            LogfileMatch._handle_quintuple(failure)
+            [LogfileMatch._handle_quintuple(failure)]
             if failure is not None
-            else None
+            else []
         )
 
         super().__init__(description=description, category=category)
@@ -1516,10 +1516,8 @@ class LogfileMatch(Assertion):
         if s is None:
             s = "<BOF>"
         r = re.compile(r).pattern
-        if m is not None:
-            m = m.group()
         return cls.Result(
-            cls._truncate_str(m),
+            cls._truncate_str(m.group()) if m is not None else None,
             cls._truncate_str(r),
             t,
             str(s),
@@ -1527,4 +1525,4 @@ class LogfileMatch(Assertion):
         )
 
     def evaluate(self):
-        return self.failure is None
+        return not self.failure

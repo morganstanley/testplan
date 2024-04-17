@@ -2,6 +2,7 @@
 import os
 import pprint
 import re
+from itertools import chain
 
 from terminaltables import AsciiTable
 
@@ -610,6 +611,10 @@ class LineDiffRenderer(AssertionRenderer):
 
 @registry.bind(assertions.LogfileMatch)
 class LogfileMatchRender(AssertionRenderer):
-    def get_assertion_details(self, entry):
-        # TODO
-        pass
+    def get_assertion_details(self, entry: assertions.LogfileMatch):
+        return os.linesep.join(
+            f"Pattern: `{e.pattern}`"
+            if e.matched
+            else Color.red(f"Pattern: `{e.pattern}`")
+            for e in chain(entry.results, entry.failure)
+        )
