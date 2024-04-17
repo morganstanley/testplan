@@ -22,7 +22,12 @@ import {
 import Linkify from "linkify-react";
 
 import FilterBox from "../Toolbar/FilterBox";
-import { STATUS, STATUS_CATEGORY, EXPAND_STATUS, VIEW_TYPE } from "../Common/defaults";
+import {
+  STATUS,
+  STATUS_CATEGORY,
+  EXPAND_STATUS,
+  VIEW_TYPE,
+} from "../Common/defaults";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -52,6 +57,7 @@ import {
   useTreeViewPreference,
 } from "../UserSettings/UserSettings";
 import { useAtom } from "jotai";
+import _ from "lodash";
 
 library.add(
   faInfo,
@@ -66,7 +72,7 @@ library.add(
   faAngleDoubleUp,
   faAngleDown,
   faChartLine,
-  faChartBar,
+  faChartBar
 );
 
 const ToolbarExpandButtons = ({
@@ -128,14 +134,15 @@ const ToolbarExpandButtons = ({
 
 const PanelSwitchIconMap = {
   [VIEW_TYPE.ASSERTION]: "chart-bar",
-  [VIEW_TYPE.RESOURCE]: "chart-line"
+  [VIEW_TYPE.RESOURCE]: "chart-line",
 };
 
-const PanelViewSwitch = ({panel_types, switchPanelViewFunc}) => {
-
+const PanelViewSwitch = ({ panel_types, switchPanelViewFunc }) => {
   const onClickFunc = () => {
-    const nextType = panel_types === VIEW_TYPE.ASSERTION?
-      VIEW_TYPE.RESOURCE: VIEW_TYPE.ASSERTION;
+    const nextType =
+      panel_types === VIEW_TYPE.ASSERTION
+        ? VIEW_TYPE.RESOURCE
+        : VIEW_TYPE.ASSERTION;
     switchPanelViewFunc(nextType);
   };
 
@@ -367,12 +374,12 @@ const ToolbarFilterBox = ({ filterBoxWidth, filterText, handleNavFilter }) => {
 const Toolbar = function (props) {
   const toolbarStyle = getToolbarStyle(props.status);
 
-  const panelViewSwitch = props.switchPanelViewFunc? (
+  const panelViewSwitch = props.switchPanelViewFunc ? (
     <PanelViewSwitch
       panel_types={props.current_pannel}
       switchPanelViewFunc={props.switchPanelViewFunc}
     />
-  ): null;
+  ) : null;
 
   return (
     <Navbar light expand="md" className={css(styles.toolbar)}>
@@ -502,20 +509,33 @@ const getInfoTable = (report) => {
       </tr>
     );
   });
-  if (report.timer && report.timer.run) {
-    if (report.timer.run.start) {
+
+  if (!_.isEmpty(report.timer?.run)) {
+    let start;
+    let end;
+
+    if (Array.isArray(report.timer.run)) {
+      start = report.timer.run.at(-1).start;
+      end = report.timer.run.at(-1).end;
+    } else {
+      start = report.timer.run.start;
+      end = report.timer.run.end;
+    }
+
+    if (start) {
       infoList.push(
         <tr key="start">
           <td>start</td>
-          <td>{report.timer.run.start}</td>
+          <td>{start}</td>
         </tr>
       );
     }
-    if (report.timer.run.end) {
+
+    if (end) {
       infoList.push(
         <tr key="end">
           <td>end</td>
-          <td>{report.timer.run.end}</td>
+          <td>{end}</td>
         </tr>
       );
     }

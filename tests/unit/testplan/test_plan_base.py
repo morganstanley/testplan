@@ -9,7 +9,9 @@ from testplan.common.entity import Resource, ResourceStatus
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import argv_overridden
-from testplan.report import ReportCategories, TestGroupReport
+from testplan.common.report import ReportCategories
+from testplan.report import TestGroupReport
+
 from testplan.runnable import TestRunner, TestRunnerStatus
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.tasks import Task
@@ -47,7 +49,7 @@ class DummyTest(Test):
         self.resources.add(DummyDriver())
 
     def run_tests(self):
-        self._result.custom = "{}Result[{}]".format(
+        self.result.custom = "{}Result[{}]".format(
             self.__class__.__name__, self.name
         )
 

@@ -101,8 +101,6 @@ def test_top_level_tests():
         assert isinstance(plan.interactive.test("Test1"), MultiTest)
         assert isinstance(plan.interactive.test("Test2"), MultiTest)
 
-        # print_report(plan.interactive.report(serialized=True))
-
         # TESTS AND ASSIGNED RUNNERS
         assert list(plan.interactive.all_tests()) == ["Test1", "Test2"]
 
@@ -200,7 +198,6 @@ def test_top_level_tests():
                     "utc_time",
                     "file_path",
                     "line_no",
-                    "timer",
                 ],
             )[0]
             is True

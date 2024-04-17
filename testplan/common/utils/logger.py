@@ -14,8 +14,8 @@ import logging
 import os
 import sys
 
-from testplan.common.utils.strings import Color, uuid4
-from testplan.report import Status
+from testplan.common.report import Status
+from testplan.common.utils.strings import Color
 
 # Define our log-level constants. We add some extra levels between INFO and
 # WARNING.

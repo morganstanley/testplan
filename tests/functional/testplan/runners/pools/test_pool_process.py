@@ -80,17 +80,17 @@ def test_kill_one_worker(mockplan, tmp_path: Path):
     assert res.success is True
     assert mockplan.report.status == Status.PASSED
 
-    # two executors, local runner and process pool
-    assert len(mockplan.report.events) == 2
+    # local_runner, ProcessPool, and environments
+    assert len(mockplan.report.children) == 3
 
-    process_pool_event = None
-    for event in mockplan.report.events.values():
-        if event["name"] == pool_uid:
-            process_pool_event = event
-    assert process_pool_event is not None
-    assert len(process_pool_event["children"]) == pool_size
-    for child in process_pool_event["children"]:
-        assert child["event_type"] == "Worker"
+    process_pool_entry = mockplan.report.children[2]
+    assert process_pool_entry.name == "ProcessPool[ProcessPool]"
+    assert "lifespan" in process_pool_entry.timer
+
+    # ZMQServer + 4 workers
+    assert len(process_pool_entry.children) == pool_size + 1
+    assert process_pool_entry.children[1].name == "ProcessWorker[0]"
+    assert "lifespan" in process_pool_entry.children[1].timer
 
     for entry in mockplan.report.entries:
         assert entry.host == "localhost"

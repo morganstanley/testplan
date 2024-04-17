@@ -230,7 +230,7 @@ def test_programmatic_listing(
         assert log_capture.output == expected_output
 
         result = plan.run()
-        assert len(result.test_report) == 0, "No tests should be run."
+        assert len(result.report) == 0, "No tests should be run."
 
 
 @pytest.mark.parametrize(
@@ -269,7 +269,7 @@ def test_command_line_listing(
             assert log_capture.output == expected_output
 
             result = plan.run()
-            assert len(result.test_report) == 0, "No tests should be run."
+            assert len(result.report) == 0, "No tests should be run."
 
 
 NUM_TESTS = 100
@@ -342,7 +342,7 @@ def test_testcase_trimming(runpath, listing_obj, expected_output):
         assert log_capture.output == expected_output
 
         result = plan.run()
-        assert len(result.test_report) == 0, "No tests should be run."
+        assert len(result.report) == 0, "No tests should be run."
 
 
 def validate_json_result(result_json):

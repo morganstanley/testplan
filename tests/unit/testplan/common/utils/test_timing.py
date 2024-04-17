@@ -26,18 +26,18 @@ class TestTimer:
 
         timer.start("my_key")
 
-        assert prev_now < timer["my_key"].start
-        assert timer["my_key"].end is None
+        assert prev_now < timer.last(key="my_key").start
+        assert timer.last(key="my_key").end is None
 
-    def test_start_fail(self):
-        """`Timer.start` should fail if it was already called before for the given key."""
+    def test_start_twice(self):
+        """`Timer.start` should add another entry it was already called before for the given key."""
         timer = Timer()
 
         with timer.record("my_key"):
             pass
 
-        with pytest.raises(ValueError):
-            timer.start("my_key")
+        timer.start("my_key")
+        assert len(timer["my_key"]) == 2
 
     def test_end(self):
         """`timer.end` should update the matching `Interval.end` for the given key."""
@@ -45,7 +45,7 @@ class TestTimer:
 
         # Explicitly set value for testing
         # don't care about start
-        timer["my_key"] = Interval("foo", None)
+        timer["my_key"] = [Interval("foo", None)]
 
         prev_now = utcnow()
 
@@ -53,24 +53,18 @@ class TestTimer:
 
         timer.end("my_key")
 
-        assert prev_now < timer["my_key"].end
+        assert prev_now < timer.last(key="my_key").end
 
     def test_end_overwrite(self):
-        """`timer.end` should overwrite previous `end` value for the given key."""
+        """`timer.end` cannot overwrite previous `end` value for the given key."""
         timer = Timer()
 
         with timer.record("my_key"):
             pass
 
-        prev_end = timer["my_key"].end
-
         time.sleep(0.001)
-
-        timer.end("my_key")
-
-        new_end = timer["my_key"].end
-
-        assert new_end > prev_end
+        with pytest.raises(KeyError):
+            timer.end("my_key")
 
     def test_end_fail(self):
         """`record_end` must fail when no entry if found for a given key."""
@@ -92,4 +86,4 @@ class TestTimer:
             sleeper()
 
         # TODO check why 1 (sleep_durtion) <= 0.9999 (elapsed)
-        # assert sleep_duration <= timer['my_key'].elapsed <= sleep_duration + sleeper_delta
+        # assert sleep_duration <= timer['my_key'][-1].elapsed <= sleep_duration + sleeper_delta
