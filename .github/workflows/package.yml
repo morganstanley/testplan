@@ -15,7 +15,7 @@ jobs:
       security-events: write
       pull-requests: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: pip install --upgrade bumpver
       - run: bumpver update --no-commit
       - uses: ./.github/actions/build-package
