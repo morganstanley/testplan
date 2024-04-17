@@ -3,16 +3,7 @@ import os
 import subprocess
 import sys
 import warnings
-from typing import (
-    Dict,
-    Generator,
-    List,
-    Optional,
-    Union,
-    Callable,
-    Iterable,
-    Tuple,
-)
+from typing import Dict, Generator, List, Optional, Union, Callable, Iterable
 from schema import And, Or, Use
 
 from testplan import defaults
@@ -45,7 +36,6 @@ from testplan.testing import common, filtering, ordering, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
-from testplan.testing.multitest.result import Result
 from testplan.testing.multitest.test_metadata import TestMetadata
 
 TEST_INST_INDENT = 2
@@ -93,6 +83,9 @@ class TestConfig(RunnableConfig):
             ConfigOption("after_start", default=None): start_stop_signature,
             ConfigOption("before_stop", default=None): start_stop_signature,
             ConfigOption("after_stop", default=None): start_stop_signature,
+            ConfigOption("error_handler", default=None): Or(
+                None, lambda x: callable(x)
+            ),
             ConfigOption("test_filter"): filtering.BaseFilter,
             ConfigOption("test_sorter"): ordering.BaseSorter,
             ConfigOption("stdout_style"): test_styles.Style,
@@ -168,6 +161,7 @@ class Test(Runnable):
         after_start: callable = None,
         before_stop: callable = None,
         after_stop: callable = None,
+        error_handler=None,
         test_filter: filtering.BaseFilter = None,
         test_sorter: ordering.BaseSorter = None,
         stdout_style: test_styles.Style = None,
@@ -365,88 +359,6 @@ class Test(Runnable):
         if len(self.report):
             self.report.propagate_tag_indices()
 
-    def _prepare_suite_report(
-        self, label: str, hook: Callable
-    ) -> Tuple[TestGroupReport, TestCaseReport, Result]:
-        suite_report = TestGroupReport(
-            name=label,
-            category=ReportCategories.TESTSUITE,
-            suite_related=True,
-            # TODO: use synthesized instead of suite_related
-            # category=ReportCategories.SYNTHESIZED,
-        )
-        case_report = TestCaseReport(
-            name=hook.__name__,
-            description=strings.get_docstring(hook),
-            suite_related=True,
-            # TODO: use synthesized instead of suite_related
-            # category=ReportCategories.SYNTHESIZED,
-        )
-        suite_report.append(case_report)
-        case_result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self.scratch
-        )
-        return suite_report, case_report, case_result
-
-    def _append_suite_report(
-        self,
-        suite_report: TestGroupReport,
-        case_report: TestCaseReport,
-        case_result: Result,
-    ) -> None:
-
-        case_report.extend(case_result.serialized_entries)
-        case_report.attachments.extend(case_result.attachments)
-
-        if self.get_stdout_style(case_report.passed).display_testcase:
-            self.log_testcase_status(case_report)
-
-        case_report.pass_if_empty()
-        label = suite_report.name
-        hook_name = case_report.name
-        pattern = ":".join([self.name, label, hook_name])
-        self._xfail(pattern, case_report)
-        case_report.runtime_status = RuntimeStatus.FINISHED
-        suite_report.runtime_status = RuntimeStatus.FINISHED
-
-        if self.result.report.has_uid(label):
-            self.result.report[label] = suite_report
-        else:
-            self.result.report.append(suite_report)
-
-    def _run_error_handler(self, hook: Callable, step: Callable):
-        """
-        This method runs error_handler hook. User can optionally make
-        use of assertions if the function accepts ``env``, ``result`` and ``step`` or only
-        ``env`` and ``step`` arguments.
-
-        These functions are also run within report error logging context,
-        meaning that if something goes wrong we will have the stack trace
-        in the final report.
-        """
-
-        if not hook:
-            return
-
-        suite_report, case_report, case_result = self._prepare_suite_report(
-            "Error handler", hook
-        )
-        runtime_env = self._get_runtime_environment(
-            testcase_name=hook.__name__,
-            testcase_report=case_report,
-        )
-        try:
-            interface.check_signature(hook, ["env", "result", "step"])
-            hook_args = (runtime_env, case_result, step)
-        except interface.MethodSignatureMismatch:
-            interface.check_signature(hook, ["env", "step"])
-            hook_args = (runtime_env, step)
-
-        with compose_contexts(*self._get_hook_context(case_report)):
-            hook(*hook_args)
-
-        self._append_suite_report(suite_report, case_report, case_result)
-
     def _record_start(self):
         self.report.timer.start("run")
 
@@ -543,6 +455,7 @@ class Test(Runnable):
 
     def add_post_resource_steps(self):
         """Runnable steps to run after environment stopped."""
+        self._add_step(self._run_error_handler)
         self._add_step(self._record_teardown_end)
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
@@ -610,7 +523,15 @@ class Test(Runnable):
             case_report.logged_exceptions(),
         )
 
-    def _run_resource_hook(self, hook: Callable, label: str) -> None:
+    def _run_error_handler(self):
+        """
+        This method runs error_handler hook.
+        """
+
+        if self.cfg.error_handler:
+            self._run_resource_hook(self.cfg.error_handler, "Error handler")
+
+    def _run_resource_hook(self, hook, label):
         """
         This method runs post/pre_start/stop hooks. User can optionally make
         use of assertions if the function accepts both ``env`` and ``result``
@@ -624,8 +545,24 @@ class Test(Runnable):
         if not hook:
             return
 
-        suite_report, case_report, case_result = self._prepare_suite_report(
-            label, hook
+        suite_report = TestGroupReport(
+            name=label,
+            category=ReportCategories.TESTSUITE,
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
+        )
+
+        case_report = TestCaseReport(
+            name=hook.__name__,
+            description=strings.get_docstring(hook),
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
+        )
+        suite_report.append(case_report)
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self.scratch
         )
         runtime_env = self._get_runtime_environment(
             testcase_name=hook.__name__,
@@ -641,16 +578,42 @@ class Test(Runnable):
         with compose_contexts(*self._get_hook_context(case_report)):
             hook(*hook_args)
 
-        self._append_suite_report(suite_report, case_report, case_result)
+        case_report.extend(case_result.serialized_entries)
+        case_report.attachments.extend(case_result.attachments)
 
-    def _dry_run_resource_hook(self, hook: Callable, label: str):
+        if self.get_stdout_style(case_report.passed).display_testcase:
+            self.log_testcase_status(case_report)
+
+        case_report.pass_if_empty()
+        pattern = ":".join([self.name, label, hook.__name__])
+        self._xfail(pattern, case_report)
+        case_report.runtime_status = RuntimeStatus.FINISHED
+        suite_report.runtime_status = RuntimeStatus.FINISHED
+
+        if self.result.report.has_uid(label):
+            self.result.report[label] = suite_report
+        else:
+            self.result.report.append(suite_report)
+
+    def _dry_run_resource_hook(self, hook, label):
 
         if not hook:
             return
 
-        suite_report, case_report, case_result = self._prepare_suite_report(
-            label, hook
+        suite_report = TestGroupReport(
+            name=label,
+            category=ReportCategories.TESTSUITE,
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
         )
+        case_report = TestCaseReport(
+            name=hook.__name__,
+            suite_related=True,
+            # TODO: use synthesized instead of suite_related
+            # category=ReportCategories.SYNTHESIZED,
+        )
+        suite_report.append(case_report)
         self.result.report.append(suite_report)
 
     def _dry_run_testsuites(self):

@@ -241,9 +241,9 @@ class MultiTestConfig(testing_base.TestConfig):
                 None, And(str, os.path.exists)
             ),
             config.ConfigOption("testcase_report_target", default=True): bool,
-            config.ConfigOption("error_handler", default=None): Or(
-                None, lambda x: callable(x)
-            ),
+            # config.ConfigOption("error_handler", default=None): Or(
+            #     None, lambda x: callable(x)
+            # ),
         }
 
 
@@ -317,7 +317,7 @@ class MultiTest(testing_base.Test):
         after_start=None,
         before_stop=None,
         after_stop=None,
-        error_handler=None,
+        # error_handler=None,
         stdout_style=None,
         tags=None,
         result=result.Result,
@@ -594,7 +594,13 @@ class MultiTest(testing_base.Test):
 
     def skip_step(self, step):
         """Check if a step should be skipped."""
-        if step in (
+        if step == self._run_error_handler:
+            if self.resources.start_exceptions or self.resources.stop_exceptions or self._get_error_logs():
+                return False
+            else:
+                self.logger.critical('Skipping error handler')
+                return True
+        elif step in (
             self.resources.start,
             self.resources.stop,
             self.apply_xfail_tests,
@@ -806,25 +812,9 @@ class MultiTest(testing_base.Test):
         with self.report.logged_exceptions():
             try:
                 res = step(*args, **kwargs)
-                if (
-                    self.resources.start_exceptions
-                    or self.resources.stop_exceptions
-                ):
-                    self.logger.critical(
-                        'Found exceptions during "%s" step', step.__name__
-                    )
-                    if self.cfg.error_handler:
-                        self.logger.critical("Running error handler!")
-                        self._run_error_handler(self.cfg.error_handler, step)
                 self.result.step_results[step.__name__] = res
                 self.status.update_metadata(**{str(step): res})
             except Exception as exc:
-                self.logger.critical(
-                    'Found exceptions during "%s" step', step.__name__
-                )
-                if self.cfg.error_handler:
-                    self.logger.critical("Running error handler!")
-                    self._run_error_handler(self.cfg.error_handler, step)
                 self.result.step_results[step.__name__] = exc
                 self.status.update_metadata(**{str(step): exc})
                 raise
@@ -1322,6 +1312,10 @@ class MultiTest(testing_base.Test):
         else:
             parent_uids = [self.uid(), testsuite.uid()]
         return parent_uids
+
+    def _get_error_logs(self) -> Dict:
+        if 'run_tests' in self.result.step_results:
+            return [log for log in self.result.step_results['run_tests'].flattened_logs if log['levelname']=='ERROR']
 
     def _skip_testcases(self, testsuite, testcases):
         """
