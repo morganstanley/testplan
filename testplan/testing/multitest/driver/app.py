@@ -1,30 +1,34 @@
 """Generic application driver."""
 
-import os
-import uuid
-import shutil
-import warnings
-import subprocess
 import datetime
+import os
 import platform
+import shutil
 import socket
-from typing import List, Union, Dict, Optional
+import subprocess
+import uuid
+import warnings
+from typing import Dict, List, Optional, Union
 
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
 
-
 from schema import Or
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.match import LogMatcher
-from testplan.common.utils.path import StdFiles, makedirs, archive
-from testplan.common.utils.context import is_context, expand, ContextValue
-from testplan.common.utils.process import subprocess_popen, kill_process
-from testplan.common.utils.timing import wait
+from testplan.common.entity import ActionResult
+from testplan.common.utils.context import (
+    ContextValue,
+    expand,
+    is_context,
+    render,
+)
 from testplan.common.utils.documentation_helper import emphasized
+from testplan.common.utils.match import LogMatcher
+from testplan.common.utils.path import StdFiles, archive, makedirs
+from testplan.common.utils.process import kill_process, subprocess_popen
 
 from .base import Driver, DriverConfig, DriverMetadata
 
@@ -66,6 +70,7 @@ class AppConfig(DriverConfig):
             ConfigOption("working_dir", default=None): Or(None, str),
             ConfigOption("expected_retcode", default=None): int,
             ConfigOption("sigint_timeout", default=5): int,
+            ConfigOption("binary_log", default=False): bool,
         }
 
 
@@ -87,7 +92,9 @@ class App(Driver):
         can be a :py:class:`~testplan.common.utils.context.ContextValue`
         and will be expanded on runtime.
     :param shell: Invoke shell for command execution.
-    :param env: Environmental variables to be made available to child process.
+    :param env: Environmental variables to be made available to child process;
+        context value (when referring to other driver) and jinja2 template (when
+        referring to self) will be resolved.
     :param binary_strategy: Whether to copy / link binary to runpath.
     :param logname: Base name of driver logfile under `app_path`, in which
         Testplan will look for `log_regexps` as driver start-up condition.
@@ -98,6 +105,8 @@ class App(Driver):
         Default value is None meaning it won't be checked. Set it to 0 to
         ennsure the driver is always gracefully shut down.
     :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
+    :param binary_log: if `True` the log_matcher will handle the logfile as binary,
+        and need to use binary regexps. Default value is `False`
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -119,17 +128,20 @@ class App(Driver):
         working_dir: str = None,
         expected_retcode: int = None,
         sigint_timeout: int = 5,
+        binary_log: bool = False,
         **options,
     ) -> None:
         options.update(self.filter_locals(locals()))
         super(App, self).__init__(**options)
         self.proc = None
         self.std = None
-        self.binary = None
+        self._binary = None
         self._binpath: str = None
         self._etcpath: str = None
         self._retcode = None
         self._log_matcher = None
+        self._resolved_bin = None
+        self._env = None
 
     @emphasized
     @property
@@ -160,7 +172,7 @@ class App(Driver):
         pre_args = self.cfg.pre_args or []
         cmd = []
         cmd.extend(pre_args)
-        cmd.append(self.binary or self.cfg.binary)
+        cmd.append(self.binary)
         cmd.extend(args)
         cmd = [
             expand(arg, self.context, str) if is_context(arg) else arg
@@ -170,15 +182,22 @@ class App(Driver):
 
     @emphasized
     @property
-    def env(self) -> Dict[str, str]:
+    def env(self) -> Optional[Dict[str, str]]:
         """Environment variables."""
+
+        if self._env:
+            return self._env
+
         if isinstance(self.cfg.env, dict):
-            return {
-                key: expand(val, self.context, str) if is_context(val) else val
+            ctx = self.context_input(exclude=["env"])
+            self._env = {
+                key: expand(val, self.context, str) if is_context(val)
+                # allowing None val for child class use case
+                else (render(val, ctx) if val is not None else None)
                 for key, val in self.cfg.env.items()
             }
-        else:
-            return None
+
+        return self._env
 
     @emphasized
     @property
@@ -224,6 +243,38 @@ class App(Driver):
 
     @emphasized
     @property
+    def binary(self) -> str:
+        """The actual binary to execute, might be copied/linked to runpath"""
+
+        if self._binary:
+            return self._binary
+
+        if os.path.isfile(self.resolved_bin):
+
+            if self.cfg.path_cleanup is True:
+                name = os.path.basename(self.cfg.binary)
+            else:
+                name = "{}-{}".format(
+                    os.path.basename(self.cfg.binary), uuid.uuid4()
+                )
+            target = os.path.join(self.binpath, name)
+
+            if self.cfg.binary_strategy == "copy":
+                shutil.copyfile(self.resolved_bin, target)
+                self._binary = target
+            elif self.cfg.binary_strategy == "link" and not IS_WIN:
+                os.symlink(os.path.abspath(self.resolved_bin), target)
+                self._binary = target
+            # else binary_strategy is noop then we don't do anything
+            else:
+                self._binary = self.resolved_bin
+        else:
+            self._binary = self.resolved_bin
+
+        return self._binary
+
+    @emphasized
+    @property
     def etcpath(self) -> str:
         """'etc' directory under runpath."""
         return self._etcpath
@@ -237,12 +288,20 @@ class App(Driver):
         :return: LogMatcher instance
         """
         if not self._log_matcher:
-            self._log_matcher = LogMatcher(self.logpath)
+            self._log_matcher = LogMatcher(self.logpath, self.cfg.binary_log)
         return self._log_matcher
 
-    def _prepare_binary(self, path: str) -> str:
-        """prepare binary path"""
-        return path
+    @property
+    def resolved_bin(self) -> str:
+        """Resolved binary path from self.cfg.binary"""
+        if not self._resolved_bin:
+            self._resolved_bin = self._prepare_binary()
+
+        return self._resolved_bin
+
+    def _prepare_binary(self) -> str:
+        """prepare binary path, override for more sophisticated binary discover"""
+        return self.cfg.binary
 
     @property
     def hostname(self) -> str:
@@ -259,30 +318,11 @@ class App(Driver):
         super(App, self).pre_start()
 
         self._make_dirs()
-
-        if self.cfg.path_cleanup is True:
-            name = os.path.basename(self.cfg.binary)
-        else:
-            name = "{}-{}".format(
-                os.path.basename(self.cfg.binary), uuid.uuid4()
-            )
-
-        self.binary = self._prepare_binary(self.cfg.binary)
-        if os.path.isfile(self.binary):
-            target = os.path.join(self._binpath, name)
-            if self.cfg.binary_strategy == "copy":
-                shutil.copyfile(self.binary, target)
-                self.binary = target
-            elif self.cfg.binary_strategy == "link" and not IS_WIN:
-                os.symlink(os.path.abspath(self.binary), target)
-                self.binary = target
-            # else binary_strategy is noop then we don't do anything
-
         makedirs(self.app_path)
         self.std = StdFiles(self.app_path)
 
         if self.cfg.install_files:
-            self._install_files()
+            self.install_files()
 
     def starting(self) -> None:
         """Starts the application binary."""
@@ -326,28 +366,20 @@ class App(Driver):
                 self._proc = None
             raise
 
-    def started_check(self, timeout: Union[int, None] = None) -> Optional[int]:
+    def started_check(self) -> ActionResult:
         """
-        Checks if app has started. Extracts logs and captured stdout/stderr.
-
-        :param timeout: timeout in seconds
+        Predicate indicating whether a binary in a subprocess has started.
+        Tests whether the return code is zero if the underlying binary has
+        finished execution, otherwise tests if user-specified pattern exists in
+        driver logs.
         """
-        timeout = timeout if timeout is not None else self.cfg.timeout
-
-        def ensure_app_running_while_extracting_values():
-            proc_result = self.proc.poll()
-            extract_values_result = self.extract_values()
-            if proc_result is not None and not extract_values_result:
-                raise RuntimeError(
-                    f"{self} has unexpectedly stopped with: {proc_result}"
-                )
-            return extract_values_result
-
-        wait(
-            ensure_app_running_while_extracting_values,
-            timeout,
-            raise_on_timeout=True,
-        )
+        proc_result = self.proc.poll()
+        extract_values_result = self.extract_values()
+        if proc_result is not None and not extract_values_result:
+            raise RuntimeError(
+                f"{self} has unexpectedly stopped with: {proc_result}"
+            )
+        return extract_values_result
 
     def stopping(self) -> None:
         """Stops the application binary process."""
@@ -363,6 +395,10 @@ class App(Driver):
         self.proc = None
         if self.std:
             self.std.close()
+
+        # reset env, binary etc. as they need re-eval in case of restart
+        self._env = None
+        self._binary = None
         self._log_matcher = None
 
         if (self.cfg.expected_retcode is not None) and (

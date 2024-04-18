@@ -1,6 +1,7 @@
 """Tests FIX communication between a server and a client."""
 
 import os
+from pathlib import Path
 import sys
 
 try:
@@ -28,6 +29,7 @@ from pyfixmsg.reference import FixSpec
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.fix import FixServer, FixClient
+from testplan.common.utils.sockets.tls import SimpleTLSConfig
 
 CODEC = Codec(spec=FixSpec(SPEC_FILE))
 
@@ -160,6 +162,7 @@ def get_multitest():
                 target="ISLD",
                 msgclass=FixMessage,
                 codec=CODEC,
+                logoff_at_stop=False,
             ),
         ],
     )

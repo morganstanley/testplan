@@ -6,7 +6,10 @@ import argparse
 import copy
 import json
 import sys
+import warnings
 from typing import Dict, List
+
+import schema
 
 from testplan import defaults
 from testplan.common.utils import logger
@@ -15,7 +18,7 @@ from testplan.report.testing import (
     ReportTagsAction,
     styles,
 )
-from testplan.testing import filtering, listing, ordering
+from testplan.testing import common, filtering, listing, ordering
 
 
 class HelpParser(argparse.ArgumentParser):
@@ -122,6 +125,16 @@ class TestplanParser:
         )
 
         general_group.add_argument(
+            "--pre-start-environments",
+            dest="pre_start_environments",
+            type=str,
+            default=None,
+            nargs="*",
+            help="Enables pre-start of environments corresponding to the "
+            "MultiTest names passed. Defaults to no environment pre-started.",
+        )
+
+        general_group.add_argument(
             "--trace-tests",
             metavar="PATH",
             type=_read_json_file,
@@ -146,10 +159,80 @@ class TestplanParser:
             "--xfail-tests",
             metavar="PATH",
             type=_read_json_file,
-            help="Read a list of known to fail testcases from a JSON file "
-            "with each entry looks like: "
-            '{"<Multitest>:<TestSuite>:<testcase>": '
-            '{"reason": <value>, "strict": <value>} }',
+            help="""
+Read a list of testcase name patterns from a JSON files, and mark matching testcases as xfail.
+This feature works for MultiTest, GTest and CPPUnit.
+A typical input JSON looks like below:
+{
+    "Fatal GTest:*:*": {
+        "reason": "test known to crash",
+        "strict": true
+    },
+    "Flaky GTest:SuiteName:CaseName": {
+        "reason": "test not stable",
+        "strict": false
+    },
+    "Fatal MultiTest:*:*": {
+        "reason": "env does not start",
+        "strict": true
+    },
+    "Flaky MultiTest:Suite Name:*": {
+        "reason": "everything under that suite flaky",
+        "strict": true
+    }
+}
+
+"with each entry looks like: "
+'{"<Multitest>:<TestSuite>:<testcase>": '
+'{"reason": <value>, "strict": <value>} }',
+""",
+        )
+
+        general_group.add_argument(
+            "--runtime-data",
+            metavar="PATH",
+            type=_runtime_json_file,
+            help="Historical runtime data which will be used for Multitest "
+            "auto-part and weight-based Task smart-scheduling with "
+            "entries looks like: "
+            """
+{
+    "<Multitest>": {
+        "execution_time": 199.99,
+        "setup_time": 39.99,
+    },
+    ......
+}""",
+        )
+
+        general_group.add_argument(
+            "-r",
+            "--resource-monitor",
+            dest="resource_monitor",
+            default=self._default_options["resource_monitor"],
+            action="store_true",
+            help="Enables resource monitor",
+        )
+
+        general_group.add_argument(
+            "--skip-remaining",
+            choices=common.SkipStrategy.all_options(),
+            dest="skip_strategy",
+            help="Make Testplan break from the current execution flow and skip remaining "
+            'iterations at certain level (choose one from all the options). "on-error" '
+            'make this skip upon exception raised, and "on-failed" make this skip upon '
+            'both exception raised and test failure. In other words, "on-failed" has higher '
+            "precedence.\n"
+            'Use "cases-on-failed"/"cases-on-error" to skip remaining testcases in the '
+            "same testsuite when condition is met, execution will resume from the next "
+            "testsuite.\n"
+            'Use "suites-on-failed"/"suites-on-error" to skip remaining testsuites as '
+            "well in the same Multitest when condition is met, execution will resume "
+            "from the next Multitest/GTest etc.\n"
+            'Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests '
+            "etc. as well (i.e. everything remaining) in the current Testplan when "
+            "condition is met.\n"
+            'To skip everything and stop executing all further tests use "tests-on-failed".\n',
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -168,7 +251,7 @@ Test filter, supports glob notation & multiple arguments.
 
 --patterns <Multitest Name>
 --patterns <Multitest Name 1> <Multitest Name 2>
---patterns <Multitest Name 1> --pattern <Multitest Name 2>
+--patterns <Multitest Name 1> --patterns <Multitest Name 2>
 --patterns <Multitest Name>:<Suite Name>
 --patterns <Multitest Name>:<Suite Name>:<Testcase name>
 --patterns <Multitest Name>:*:<Testcase name>
@@ -403,7 +486,7 @@ that match ALL of the given tags.
 
         report_group.add_argument(
             "--label",
-            default=None,
+            default=self._default_options["label"],
             help="Labels the test report with the given name, "
             'useful to categorize or classify similar reports (aka "run-id").',
         )
@@ -460,6 +543,15 @@ that match ALL of the given tags.
         if args["list"] and not args["test_lister"]:
             args["test_lister"] = listing.NameLister()
 
+        if (
+            args["interactive_port"] is not None
+            and args["tracing_tests"] is not None
+        ):
+            warnings.warn(
+                "Tracing tests feature not available in interactive mode."
+            )
+            args["tracing_tests"] = None
+
         return args
 
 
@@ -488,3 +580,21 @@ def _read_json_file(file: str) -> dict:
 def _read_text_file(file: str) -> List[str]:
     with open(file, "r") as fp:
         return fp.read().splitlines()
+
+
+runtime_schema = schema.Schema(
+    {
+        str: {
+            "execution_time": schema.Or(int, float),
+            "setup_time": schema.Or(int, float),
+        }
+    }
+)
+
+
+def _runtime_json_file(file: str) -> dict:
+    with open(file) as fp:
+        runtime_info = json.load(fp)
+        if runtime_schema.is_valid(runtime_info):
+            return runtime_info
+        raise RuntimeError("Unexpected runtime file format!")

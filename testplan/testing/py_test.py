@@ -1,11 +1,10 @@
 """PyTest test runner."""
 import collections
-import copy
 import inspect
 import os
 import re
-import sys
 import traceback
+from typing import Dict, Generator
 
 import pytest
 from schema import Or
@@ -28,7 +27,7 @@ from testplan.testing.multitest.entries.schemas.base import (
 from testplan.testing.multitest.entries.stdout.base import (
     registry as stdout_registry,
 )
-from testplan.testing.multitest.result import Result as MultiTestResult
+from testplan.testing.result import Result as MultiTestResult
 
 # Regex for parsing suite and case name and case parameters
 _CASE_REGEX = re.compile(
@@ -104,7 +103,7 @@ class PyTest(testing.Test):
         # tests are collected via dry_run().
         self._nodeids = None
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
         self._add_step(self.run_tests)
         self._add_step(self.log_test_results, top_down=False)
@@ -174,12 +173,8 @@ class PyTest(testing.Test):
             (suite, list(testcases)) for suite, testcases in suites.items()
         ]
 
-    def dry_run(self):
-        """
-        Collect tests and build a report tree skeleton, but do not run any
-        tests.
-        """
-        self.result.report = self._new_test_report()
+    def _dry_run_testsuites(self):
+
         self._nodeids = {
             "testsuites": {},
             "testcases": collections.defaultdict(dict),
@@ -188,19 +183,19 @@ class PyTest(testing.Test):
         for item in self._collect_tests():
             _add_empty_testcase_report(item, self.result.report, self._nodeids)
 
-        return self.result
-
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+    def run_testcases_iter(
+        self,
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        shallow_report: Dict = None,
+    ) -> Generator:
         """
-        Run testcases matching the given patterns and yield testcase reports.
+        Run all testcases and yield testcase reports.
 
-        :param testsuite_pattern: Filter pattern for testsuite level.
-        :type testsuite_pattern: ``str``
-        :param testcase_pattern: Filter pattern for testcase level.
-        :type testsuite_pattern: ``str``
-        :yield: generate tuples containing testcase reports and a list of the
-            UIDs required to merge this into the main report tree, starting
-            with the UID of this test.
+        :param testsuite_pattern: pattern to match for testsuite names
+        :param testcase_pattern: pattern to match for testcase names
+        :param shallow_report: shallow report entry
+        :return: generator yielding testcase reports and UIDs for merge step
         """
         if not self._nodeids:
             # Need to collect the tests so we know the nodeids for each

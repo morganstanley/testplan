@@ -1,9 +1,9 @@
-import React, {Component, Fragment} from 'react';
-import PropTypes from 'prop-types';
-import {css, StyleSheet} from 'aphrodite';
-import {Col, Row} from 'reactstrap';
+import React, { Fragment } from "react";
+import PropTypes from "prop-types";
+import { css, StyleSheet } from "aphrodite";
+import { Col, Row } from "reactstrap";
 
-import {prepareBasicContent} from './basicAssertionUtils';
+import { prepareBasicContent } from "./basicAssertionUtils";
 
 /**
  * Component used to render basic, text based assertions (e.g.: basic
@@ -27,64 +27,58 @@ import {prepareBasicContent} from './basicAssertionUtils';
  * the data to be displayed. It returns an object that fills the aforementioned
  * grid with data.
  */
-class BasicAssertion extends Component {
-  render() {
-    const {
-      preTitle,
-      preContent,
-      leftTitle,
-      rightTitle,
-      leftContent,
-      rightContent,
-      postTitle,
-      postContent,
-    } = prepareBasicContent(this.props.assertion);
+function BasicAssertion({ assertion }) {
+  const {
+    preTitle,
+    preContent,
+    leftTitle,
+    rightTitle,
+    leftContent,
+    rightContent,
+    postTitle,
+    postContent,
+  } = prepareBasicContent(assertion);
 
-    return (
-      <Fragment>
-        <Row>
-          <Col lg='12'>
-            <strong>{preTitle}</strong>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='12' className={css(styles.contentSpan)}>
-            {preContent}
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='6'>
-            <strong>{leftTitle}</strong>
-          </Col>
-          <Col lg='6'>
-            <strong>{rightTitle}</strong>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='6' className={css(styles.contentSpan)}>
-            <span>
-              {leftContent}
-            </span>
-          </Col>
-          <Col lg='6' className={css(styles.contentSpan)}>
-            <span>
-              {rightContent}
-            </span>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='12'>
-            <strong>{postTitle}</strong>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='12' className={css(styles.contentSpan)}>
-            {postContent}
-          </Col>
-        </Row>
-      </Fragment>
-    );
-  }
+  return (
+    <Fragment>
+      <Row>
+        <Col lg="12">
+          <strong>{preTitle}</strong>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg="12" className={css(styles.contentSpan)}>
+          {preContent}
+        </Col>
+      </Row>
+      <Row>
+        <Col lg="6">
+          <strong>{leftTitle}</strong>
+        </Col>
+        <Col lg="6">
+          <strong>{rightTitle}</strong>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg="6" className={css(styles.contentSpan)}>
+          <span>{leftContent}</span>
+        </Col>
+        <Col lg="6" className={css(styles.contentSpan)}>
+          <span>{rightContent}</span>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg="12">
+          <strong>{postTitle}</strong>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg="12" className={css(styles.contentSpan)}>
+          {postContent}
+        </Col>
+      </Row>
+    </Fragment>
+  );
 }
 
 BasicAssertion.propTypes = {
@@ -94,8 +88,8 @@ BasicAssertion.propTypes = {
 
 const styles = StyleSheet.create({
   contentSpan: {
-    lineHeight: '110%',
-    'overflow-x': 'auto',
+    lineHeight: "110%",
+    "overflow-x": "auto",
   },
 });
 

@@ -5,9 +5,7 @@
     "node": true,
     "commonjs": true
   },
-  "extends": [
-    "react-app"
-  ],
+  "extends": ["react-app"],
   "parserOptions": {
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true,
@@ -17,18 +15,25 @@
       "modules": true,
       "defaultParams": true
     },
-    "sourceType": "module"
+    "requireConfigFile": false,
+    "sourceType": "module",
+    "babelOptions": {
+      "presets": ["@babel/preset-react"]
+    }
   },
-  "parser": "babel-eslint",
-  "plugins": [
-    "react"
-  ],
+  "parser": "@babel/eslint-parser",
+  "plugins": ["react"],
   "rules": {
-    "max-len": ["error", { "code": 80, "comments": 120 }],
-    "linebreak-style": [
+    "max-len": [
       "error",
-      "unix"
+      {
+        "code": 80,
+        "comments": 120,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
     ],
+    "linebreak-style": ["error", "unix"],
     "semi": ["error", "always"],
     "no-const-assign": 2,
     "no-dupe-class-members": 2,
@@ -36,15 +41,21 @@
     "no-extra-parens": [2, "functions"],
     "no-self-compare": 2,
     "accessor-pairs": 2,
-    "comma-spacing": [2, {
-      "before": false,
-      "after": true
-    }],
+    "comma-spacing": [
+      2,
+      {
+        "before": false,
+        "after": true
+      }
+    ],
     "constructor-super": 2,
-    "new-cap": [2, {
-      "newIsCap": true,
-      "capIsNew": false
-    }],
+    "new-cap": [
+      2,
+      {
+        "newIsCap": true,
+        "capIsNew": false
+      }
+    ],
     "new-parens": 2,
     "no-array-constructor": 2,
     "no-class-assign": 2,

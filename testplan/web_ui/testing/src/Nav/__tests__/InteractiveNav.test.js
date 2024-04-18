@@ -1,12 +1,17 @@
 /* Unit tests for the InteractiveNav component. */
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow, render } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import Nav from '../Nav.js';
-import {FakeInteractiveReport} from '../../Common/sampleReports.js';
+import Nav from "../Nav.js";
+import { FakeInteractiveReport } from "../../Common/sampleReports.js";
+import { useTreeViewPreference } from "../../UserSettings/UserSettings.js";
+import { getDefaultStore } from "jotai";
 
-describe('Nav', () => {
+describe.each([
+  { title: "List", useTreeView: false },
+  { title: "TreeView", useTreeView: true },
+])("Nav with $title", ({ useTreeView }) => {
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
@@ -17,7 +22,8 @@ describe('Nav', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders and matches snapshot', () => {
+  it("shallow renders and matches snapshot", () => {
+    getDefaultStore().set(useTreeViewPreference, useTreeView);
     const renderedNav = shallow(
       <Nav
         interactive={true}
@@ -35,4 +41,3 @@ describe('Nav', () => {
     expect(renderedNav).toMatchSnapshot();
   });
 });
-

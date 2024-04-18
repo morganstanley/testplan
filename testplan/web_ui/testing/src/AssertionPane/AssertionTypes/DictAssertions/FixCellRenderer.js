@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import {StyleSheet, css} from "aphrodite";
-import axios from 'axios';
-import _ from 'lodash';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInfoCircle} from '@fortawesome/free-solid-svg-icons';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { StyleSheet, css } from "aphrodite";
+import axios from "axios";
+import _ from "lodash";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
-import DictCellRenderer from './DictCellRenderer';
-import {defaultFixSpec} from './../../../Common/defaults';
+import DictCellRenderer from "./DictCellRenderer";
+import { defaultFixSpec } from "./../../../Common/defaults";
 import { RED, BLACK, MEDIUM_GREY, DARK_GREY } from "../../../Common/defaults";
 
 library.add(faInfoCircle);
-
 
 /**
  * Custom cell renderer component used by FixLog and FixMatch assertions.
@@ -74,7 +73,6 @@ export default function FixCellRenderer(props) {
   );
 }
 
-
 FixCellRenderer.propTypes = {
   /** The meta info of current cell */
   data: PropTypes.object,
@@ -83,7 +81,6 @@ FixCellRenderer.propTypes = {
   /** The Column definition of the current cell */
   colDef: PropTypes.object,
 };
-
 
 /**
  * Render a tooltip of a fix tag number.
@@ -97,17 +94,15 @@ export const FixTagTooltip = (props) => {
     <>
       {props.names ? (
         <span className={css(styles.tooltipTitle)}>
-          {props.names.join(' ')}
+          {props.names.join(" ")}
         </span>
       ) : null}
       {props.descr ? (
         <>
           <br />
-          <span className={css(styles.tooltipDescription)}>
-            {props.descr}
-          </span>
+          <span className={css(styles.tooltipDescription)}>{props.descr}</span>
         </>
-      ): null}
+      ) : null}
     </>
   );
 };
@@ -127,33 +122,25 @@ export const FixTagValueTooltip = (props) => {
           if (enum_vals[i].value === props.value.toString()) {
             setContent({
               text: enum_vals[i].descr || enum_vals[i].short_descr,
-              style: css(styles.tooltipDescription)
+              style: css(styles.tooltipDescription),
             });
             return;
           }
         }
         setContent({
-          text: '(No description)',
-          style: css(styles.tooltipNoConent)
+          text: "(No description)",
+          style: css(styles.tooltipNoConent),
         });
       })
       .catch((err) => {
         setContent({
-          text: 'Failed to load description',
-          style: css(styles.tooltipFailToLoad)
+          text: "Failed to load description",
+          style: css(styles.tooltipFailToLoad),
         });
       });
-    return (
-      <span className={css(styles.tooltipLoading)}>
-        {"Loading..."}
-      </span>
-    );
+    return <span className={css(styles.tooltipLoading)}>{"Loading..."}</span>;
   } else {
-    return (
-      <span className={content.style}>
-        {content.text}
-      </span>
-    );
+    return <span className={content.style}>{content.text}</span>;
   }
 };
 

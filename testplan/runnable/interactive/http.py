@@ -2,31 +2,31 @@
 Http handler for interactive mode.
 """
 
-import os
-import time
 import copy
 import functools
-import traceback
+import os
+from typing import Dict, Optional
 
 import flask
 import flask_restx
 import flask_restx.fields
-from flask import request
-from cheroot import wsgi
-import werkzeug.exceptions
 import marshmallow.exceptions
+import werkzeug.exceptions
+from cheroot import wsgi
+from flask import request
 from urllib.parse import unquote_plus
 
 import testplan
-from testplan.common.config import ConfigOption
-from testplan.common.utils import strings
-from testplan.common import entity
 from testplan import defaults
+from testplan.common import entity
+from testplan.common.exporters import ExportContext, run_exporter
+from testplan.common.config import ConfigOption
 from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
     RuntimeStatus,
+    ReportCategories,
 )
 
 
@@ -126,21 +126,21 @@ def generate_interactive_api(ihandler):
 
         def put(self):
             """Update the state of the root interactive report."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
 
             with ihandler.report_mutex:
                 try:
                     new_report = _deserialize_report_entry(
-                        flask.request.json, ihandler.report
+                        shallow_report, ihandler.report
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(ihandler.report.uid, new_report.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus.from_json_compatible(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_reset(
                     ihandler.report.uid,
@@ -155,8 +155,19 @@ def generate_interactive_api(ihandler):
                     new_runtime_status,
                 ):
                     _check_execution_order(ihandler.report)
-                    ihandler.report.runtime_status = RuntimeStatus.WAITING
-                    ihandler.run_all_tests(await_results=False)
+                    filtered = "entries" in shallow_report
+                    if filtered:
+                        entries = _extract_entries(shallow_report)
+                        ihandler.report.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                    else:
+                        ihandler.report.runtime_status = RuntimeStatus.WAITING
+                    ihandler.run_all_tests(
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
+                    )
 
                 return _serialize_report_entry(ihandler.report)
 
@@ -204,10 +215,8 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid):
             """Update the state of a specific test."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
 
             with ihandler.report_mutex:
                 try:
@@ -217,13 +226,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_test = _deserialize_report_entry(
-                        flask.request.json, current_test
+                        shallow_report, current_test
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_test.uid, new_test.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus.from_json_compatible(
+                    shallow_report.get("runtime_status")
+                )
 
                 # Trigger a side-effect if either the report or environment
                 # statuses have been updated.
@@ -243,8 +254,20 @@ def generate_interactive_api(ihandler):
                         current_test.env_status, new_test.env_status
                     )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
-                    current_test.runtime_status = RuntimeStatus.WAITING
-                    ihandler.run_test(test_uid, await_results=False)
+                    filtered = "entries" in shallow_report
+                    if filtered:
+                        entries = _extract_entries(shallow_report)
+                        current_test.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                    else:
+                        current_test.runtime_status = RuntimeStatus.WAITING
+                    ihandler.run_test(
+                        test_uid,
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
+                    )
                 else:
                     next_env_status, env_action = self._check_env_transition(
                         current_test.env_status, new_test.env_status
@@ -327,10 +350,8 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid):
             """Update the state of a specific test suite."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
 
             with ihandler.report_mutex:
                 try:
@@ -341,13 +362,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_suite = _deserialize_report_entry(
-                        flask.request.json, current_suite
+                        shallow_report, current_suite
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_suite.uid, new_suite.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus.from_json_compatible(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_run(
                     current_suite.uid,
@@ -357,9 +380,20 @@ def generate_interactive_api(ihandler):
                     _check_execution_order(
                         ihandler.report, test_uid=test_uid, suite_uid=suite_uid
                     )
-                    current_suite.runtime_status = RuntimeStatus.WAITING
+                    filtered = "entries" in shallow_report
+                    if filtered:
+                        entries = _extract_entries(shallow_report)
+                        current_suite.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                    else:
+                        current_suite.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test_suite(
-                        test_uid, suite_uid, await_results=False
+                        test_uid,
+                        suite_uid,
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
                     )
 
                 return _serialize_report_entry(current_suite)
@@ -412,10 +446,8 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid, case_uid):
             """Update the state of a specific testcase."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
 
             with ihandler.report_mutex:
                 suite = ihandler.report[test_uid][suite_uid]
@@ -426,13 +458,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_testcase = _deserialize_report_entry(
-                        flask.request.json, current_case
+                        shallow_report, current_case
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_case.uid, new_testcase.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus.from_json_compatible(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_run(
                     current_case.uid,
@@ -445,9 +479,21 @@ def generate_interactive_api(ihandler):
                         suite_uid=suite_uid,
                         case_uid=case_uid,
                     )
-                    current_case.runtime_status = RuntimeStatus.WAITING
+                    filtered = "entries" in shallow_report
+                    if filtered:
+                        entries = _extract_entries(shallow_report)
+                        current_case.set_runtime_status_filtered(
+                            RuntimeStatus.WAITING,
+                            entries,
+                        )
+                    else:
+                        current_case.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test_case(
-                        test_uid, suite_uid, case_uid, await_results=False
+                        test_uid,
+                        suite_uid,
+                        case_uid,
+                        shallow_report=shallow_report if filtered else None,
+                        await_results=False,
                     )
 
                 return _serialize_report_entry(current_case)
@@ -502,10 +548,8 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def put(self, test_uid, suite_uid, case_uid, param_uid):
             """Update the state of a specific parametrized testcase."""
-            if flask.request.json is None:
-                raise werkzeug.exceptions.BadRequest(
-                    "JSON body is required for PUT"
-                )
+            shallow_report = flask.request.json
+            _validate_json_body(shallow_report)
 
             with ihandler.report_mutex:
                 try:
@@ -518,13 +562,15 @@ def generate_interactive_api(ihandler):
 
                 try:
                     new_testcase = _deserialize_report_entry(
-                        flask.request.json, current_case
+                        shallow_report, current_case
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_case.uid, new_testcase.uid)
-                new_runtime_status = flask.request.json.get("runtime_status")
+                new_runtime_status = RuntimeStatus.from_json_compatible(
+                    shallow_report.get("runtime_status")
+                )
 
                 if _should_run(
                     current_case.uid,
@@ -567,26 +613,43 @@ def generate_interactive_api(ihandler):
             }
 
         @api.expect(post_export_model)
-        def post(self):
-            save_exports = request.json
+        def post(self) -> Optional[Dict]:
+            request_data = request.json
             with ihandler.report_mutex:
+                export_context = ExportContext()
                 for exporter in ihandler.exporters:
-                    if exporter.name in save_exports.get("exporters", []):
-                        export_result = {
-                            "time": time.time(),
-                            "name": exporter.name,
-                            "uid": strings.uuid4(),
+                    if exporter.name in request_data.get("exporters", []):
+                        report = copy.deepcopy(ihandler.report)
+                        report.reset_uid()
+                        exporter_run_result = run_exporter(
+                            exporter=exporter,
+                            source=report,
+                            export_context=export_context,
+                        )
+                        export_information = {
+                            "time": exporter_run_result.start_time.timestamp(),
+                            "name": exporter_run_result.exporter.name,
+                            "uid": exporter_run_result.uid,
+                            "success": exporter_run_result.success,
                         }
-                        try:
-                            report = copy.deepcopy(ihandler.report)
-                            report.reset_uid()
-                            export_path = exporter.export(report)
-                            export_result["success"] = True
-                            export_result["message"] = export_path
-                        except Exception:
-                            export_result["success"] = False
-                            export_result["message"] = traceback.format_exc()
-                        export_history.append(export_result)
+                        request_result = exporter_run_result.result
+                        if request_result:
+                            if len(request_result) > 1:
+                                export_information["message"] = "\n".join(
+                                    [
+                                        f"{k}: {v}"
+                                        for k, v in request_result.items()
+                                    ]
+                                )
+                            else:
+                                export_information["message"] = list(
+                                    request_result.values()
+                                )[0]
+                        else:
+                            export_information["message"] = (
+                                exporter_run_result.traceback or "No output."
+                            )
+                        export_history.append(export_information)
             return {"history": export_history}
 
     @api.route("/report/export/<string:uid>")
@@ -671,6 +734,17 @@ def generate_interactive_api(ihandler):
             return True
 
     return app, api
+
+
+def _validate_json_body(json_body: Dict) -> None:
+    """
+    Validates the JSON body for PUT requests.
+
+    :param json_body: decoded JSON
+    :raises BadRequest: raised if JSON body is None
+    """
+    if json_body is None:
+        raise werkzeug.exceptions.BadRequest("JSON body is required for PUT")
 
 
 def _serialize_report_entry(report_entry):
@@ -763,14 +837,23 @@ def _should_run(uid, curr_status, new_status):
     """
     if new_status == curr_status:
         return False
+
+    # test entry already triggered
+    elif (
+        new_status == RuntimeStatus.RUNNING
+        and curr_status == RuntimeStatus.WAITING
+    ):
+        return False
+
     elif new_status == RuntimeStatus.RUNNING:
-        if curr_status not in (RuntimeStatus.RESETTING, RuntimeStatus.WAITING):
-            return True
-        else:
+
+        if curr_status == RuntimeStatus.RESETTING:
             raise werkzeug.exceptions.BadRequest(
                 "Cannot update runtime status of entry"
                 f' "{uid}" from "{curr_status}" to "{new_status}"'
             )
+        return True
+
     return False
 
 
@@ -853,6 +936,26 @@ def _check_execution_order(
                     "Should run all testcases"
                     f' in test suite "{suite_report.uid}" sequentially.'
                 )
+
+
+# NOTE: to drive behavior of runtime status setting between cases of
+#            a filter being present or not, the entries field needs processing
+def _extract_entries(entry: Dict) -> Dict:
+    """
+    Given a report entry, extracts all entry names into a tree structure.
+
+    :param entry: report entry
+    :return: dictionary representing the tree structure of entry names
+    """
+    entries = {}
+
+    if entry["category"] == ReportCategories.TESTCASE:
+        return entries
+
+    for child in entry.get("entries", []):
+        entries[child["name"]] = _extract_entries(child)
+
+    return entries
 
 
 class TestRunnerHTTPHandlerConfig(entity.EntityConfig):

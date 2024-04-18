@@ -128,6 +128,15 @@ A MultiTest instance can be constructed from the following parameters:
   would typically be defined, as well as drivers for the interfaces that are
   required for interacting with it, such as network connections.
 
+* **Dependencies**: The dependencies is a dict with both keys and values of
+  :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>` or
+  iterable collection of
+  :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`.
+  Drivers on the value side should only start after drivers on the key side are
+  fully started. When specified, Testplan will try to schedule more drivers
+  starting parallelly based on the dependencies. Click
+  :ref:`here <multitest_drivers>` for more information.
+
 * **Runtime Information**: The environment always contains a member called
   ``runtime_info`` which contains information about the current state of the
   run. See: :py:class:`MultiTestRuntimeInfo <testplan.testing.multitest.base.MultiTestRuntimeInfo>`
@@ -285,6 +294,10 @@ the list of multitests and the number of testsuites & testcases:
   Primary: (2 suites, 6 testcases)
   Secondary: (1 suite, 3 testcases)
 
+``--info json`` dumps many metadata about the testplan with testsuite and testcase locations.
+It is useful for tools that want to gain info about tests without running them. It has a
+form: ``--info json:/path/to/file.json`` in which case the json is saved to ``/path/to/file.json``
+instead of dumping to the stdout.
 
 More examples on command line test listing can be seen
 :ref:`here <example_multitest_listing_basic>`.
@@ -326,12 +339,21 @@ More examples on programmatic test listing can be seen
 Custom Test Listers
 +++++++++++++++++++
 
+
 A custom test lister can be implemented by subclassing
-:py:class:`testplan.testing.listing.BaseLister <testplan.testing.listing.BaseLister>`
-and overriding ``get_output`` method.
+:py:class:`~testplan.testing.listing.BaseLister` or
+:py:class:`~testplan.testing.listing.MetadataBasedLister`
+
+and overriding ``get_output`` method. The difference is that in Old BaseLister style the
+``get_output`` is called with all :py:class:`~testplan.testing.base.Test` instance added to the plan
+one by one while the MetadataBasedLister case is called with
+:py:class:`~testplan.testing.multitest.test_metadata.TestPlanMetadata`, which contains all info
+about the testplan.
 
 An example implementation of custom test lister can be seen
 :ref:`here <example_multitest_listing_custom>`.
+
+
 
 Listers can be registered to be used with the ``--info`` commandline parameter the same way as the built in listers.
 
@@ -366,6 +388,10 @@ and it need to be registered with :py:data:`testplan.testing.listing.listing_reg
     ....
 
 the full example can be found :ref:`here <example_multitest_listing_custom_cmd>`.
+
+The MetadataBasedLister types can take not just a name in the ``--info`` but even an uri where the
+path will be used as the listing location, and the result is written to a file instead of the stdout.
+Currently, the only such lister is ``json``. Example call ``--info josn:/path/to/file.json``
 
 .. warning::
 

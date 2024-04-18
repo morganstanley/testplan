@@ -374,3 +374,65 @@ The code above specifies a collections of parameters in `@task_target`, and each
 entry will be used create one task - thus 3 tasks will be created from the target.
 
 For a complete and downloadable example, see :ref:`here <example_discover>`.
+
+
+.. _auto_part:
+
+Auto-Part and Smart Scheduling
+------------------------------
+
+This feature allows ``schedule_all()`` to optimize testplan overall execution time based on historical runtime data. It is
+enabled by providing runtime data like following via ``--runtime-data`` command line argument:
+
+.. code-block:: text
+
+    {
+        "<Multitest>": {
+            "execution_time": 199.99,
+            "setup_time": 39.99,
+        },
+        ......
+    }
+
+The optimization goal is to create just enough number of pool size and allow all tests to finish as soon as possible.
+This is achieved by 3 technics:
+
+1. Auto-part: automatically slice multitests discovered from @task_target with ``multitest_parts="auto"`` argument into
+optimal number of parts subject to ``auto_part_runtime_limit`` - default to 30 minutes.
+
+.. code-block:: python
+
+    @task_target(multitest_parts="auto")
+    def make_multitest():
+        # A test target shall only return 1 runnable object
+        test = MultiTest(name="MTest", suites=[Suite()])
+        return test
+
+
+2. Weight-based scheduling: each multitest (part) will be associated with a weight value that represents historical
+runtime. Multitest (part) with larger weight will be scheduled with higher priority.
+
+3. Auto-size: if the target pool is specified to have ``"auto"`` size, ``schedule_all()`` will calculate a right number
+of pool size so that all tests finishes within ``plan_runtime_target`` - default to 30 minutes.
+
+.. code-block:: python
+
+    # Enable smart-schedule pool size
+    pool = ProcessPool(name="MyPool", size="auto")
+
+    # Add a process pool test execution resource to the plan of given size.
+    plan.add_resource(pool)
+
+    # Discover tasks and calculate the right size of the pool based on the weight (runtime) of the
+    # tasks so that runtime of all tasks meets the plan_runtime_target.
+    plan.schedule_all(
+        path=".",
+        name_pattern=r".*task\.py$",
+        resource="MyPool",
+    )
+
+
+To tune the smart scheduling behavior, override ``auto_part_runtime_limit`` and ``plan_runtime_target`` default
+in ``@test_plan`` decorator.
+
+For a complete and downloadable example, see :ref:`here <example_auto_part>`.

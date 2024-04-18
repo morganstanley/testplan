@@ -1,0 +1,1 @@
+Fixed a defect whereas a failing setup would cause the interactive GUI to hang on testcase runtime status.

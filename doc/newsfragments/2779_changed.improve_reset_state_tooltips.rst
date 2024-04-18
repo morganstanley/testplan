@@ -1,0 +1,1 @@
+Made reset state button tooltips more explicit on both the UI navigation bar and the toolbar.

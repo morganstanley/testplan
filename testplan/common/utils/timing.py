@@ -23,6 +23,10 @@ from typing import (
 
 import pytz
 
+PollInterval = Union[float, Tuple[float, float]]
+
+DEFAULT_INTERVAL = 0.2
+
 
 class TimeoutException(Exception):
     """Timeout exception error."""
@@ -452,7 +456,7 @@ def exponential_interval(
 
 
 def get_sleeper(
-    interval: Union[float, Tuple[float, float]],
+    interval: PollInterval,
     timeout: float = 10,
     raise_timeout_with_msg: Optional[Union[str, Callable[[], str]]] = None,
     timeout_info: bool = False,

@@ -2,21 +2,113 @@
 
 import os
 
+import pytest
+from schema import SchemaError
+
+from testplan import defaults, report
 from testplan.common import entity
-from testplan.common.utils import path
-from testplan.common.utils import testing
+from testplan.common.utils import path, testing
 from testplan.common.utils.thread import Barrier
-from testplan.testing import multitest
-from testplan.testing import filtering
-from testplan.testing import ordering
-from testplan import defaults
-from testplan import report
+from testplan.testing import common, filtering, multitest, ordering
+from testplan.testing.multitest import base
 
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
     "stdout_style": defaults.STDOUT_STYLE,
 }
+
+
+@pytest.fixture
+def dummy_mtest():
+    mtest = multitest.MultiTest(
+        name="MTest",
+        suites=[Suite()],
+        thread_pool_size=3,
+        **MTEST_DEFAULT_PARAMS,
+    )
+    mtest.dry_run()
+    return mtest
+
+
+def test_iterable_suites():
+    @multitest.testsuite
+    class TestSuite:
+        pass
+
+    testsuite = TestSuite()
+    output = base.iterable_suites(testsuite)
+    expected = [testsuite]
+    assert output == expected
+
+    with pytest.raises(ValueError):
+        base.iterable_suites([testsuite, testsuite])
+
+
+def test_extract_parametrized_testcase_targets():
+    entry = {
+        "name": "foo",
+        "entries": [
+            {
+                "name": "bar",
+            },
+            {
+                "name": "baz",
+            },
+        ],
+    }
+    output = base._extract_parametrized_testcase_targets(entry)
+    expected = ["bar", "baz"]
+    assert output == expected
+
+
+def test_extract_testsuite_targets():
+    entry = {
+        "name": "foo",
+        "entries": [
+            {
+                "name": "bar",
+                "category": report.ReportCategories.TESTCASE,
+            },
+            {
+                "name": "baz",
+                "category": report.ReportCategories.PARAMETRIZATION,
+                "entries": [
+                    {
+                        "name": "foo_bar",
+                    },
+                    {
+                        "name": "foo_baz",
+                    },
+                ],
+            },
+        ],
+    }
+    output = base._extract_testsuite_targets(entry)
+    expected = ["bar", "foo_bar", "foo_baz"]
+    assert output == expected
+
+
+def test_extract_test_targets():
+    entry = {
+        "name": "foo",
+        "category": "multitest",
+        "entries": [
+            {
+                "name": "bar",
+                "category": "testsuite",
+                "entries": [
+                    {
+                        "name": "baz",
+                        "category": "testcase",
+                    },
+                ],
+            },
+        ],
+    }
+    output = base._extract_test_targets(entry)
+    expected = {"bar": ["baz"]}
+    assert output == expected
 
 
 def test_multitest_runpath():
@@ -226,6 +318,7 @@ def test_run_all_tests():
     mtest = multitest.MultiTest(
         name="MTest", suites=[Suite()], **MTEST_DEFAULT_PARAMS
     )
+    mtest.cfg.set_local("skip_strategy", common.SkipStrategy.noop())
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -261,6 +354,7 @@ def test_run_tests_parallel():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS,
     )
+    mtest.cfg.set_local("skip_strategy", common.SkipStrategy.noop())
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -280,17 +374,9 @@ def test_run_tests_parallel():
     _check_parallel_param(suite_report["parametrized"])
 
 
-def test_run_testcases_iter():
+def test_run_testcases_iter(dummy_mtest):
     """Test running tests iteratively."""
-    mtest = multitest.MultiTest(
-        name="MTest",
-        suites=[Suite()],
-        thread_pool_size=3,
-        **MTEST_DEFAULT_PARAMS,
-    )
-    mtest.dry_run()
-
-    results = list(mtest.run_testcases_iter())
+    results = list(dummy_mtest.run_testcases_iter())
     assert len(results) == 8
 
     attributes, parent_uids = results[0]
@@ -315,6 +401,48 @@ def test_run_testcases_iter():
         assert parent_uids == ["MTest", "Suite", "parametrized"]
         assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
         _check_param_testcase_report(testcase_report, i)
+
+
+def test_run_testcases_iter_filtered(dummy_mtest):
+    """Test running tests iteratively."""
+    """Test running tests iteratively."""
+    shallow_report = dummy_mtest.report.shallow_serialize()
+    shallow_report["entries"] = [
+        {
+            "name": "Suite",
+            "category": "testsuite",
+            "entries": [
+                {
+                    "name": "parametrized",
+                    "category": "parametrization",
+                    "entries": [
+                        {
+                            "name": "parametrized <val=1>",
+                            "category": "testcase",
+                        }
+                    ],
+                }
+            ],
+        }
+    ]
+    results = list(
+        dummy_mtest.run_testcases_iter(shallow_report=shallow_report)
+    )
+    assert len(results) == 2
+
+    attributes, parent_uids = results[0]
+    assert parent_uids == [
+        "MTest",
+        "Suite",
+        "parametrized",
+        "parametrized__val_1",
+    ]
+    assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    testcase_report, parent_uids = results[1]
+    assert parent_uids == ["MTest", "Suite", "parametrized"]
+    assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
+    _check_param_testcase_report(testcase_report, 0)
 
 
 def _check_parallel_testcase(testcase_report, i):
@@ -385,3 +513,87 @@ def _check_param_testcase_report(testcase_report, i):
     assert greater_assertion["type"] == "Greater"
     assert greater_assertion["first"] == i + 1
     assert greater_assertion["second"] == 0
+
+
+@multitest.testsuite
+class RaisingSuite:
+    def __init__(self, where_to_raise, mock_cb=None):
+        self.where = where_to_raise
+        self.cb = mock_cb or (lambda: None)
+
+    def pre_testcase(self, name, env, result):
+        self.cb()
+        result.true(True)
+        if self.where == "pre_testcase":
+            raise RuntimeError(self.where)
+        self.cb()
+
+    @multitest.testcase
+    def in_the_middle(self, env, result):
+        self.cb()
+        result.true(True)
+        if self.where == "in_the_middle":
+            raise RuntimeError(self.where)
+        self.cb()
+
+    @multitest.testcase
+    def in_the_middle_2(self, env, result):
+        self.cb()
+        result.true(True)
+        self.cb()
+
+    def post_testcase(self, name, env, result):
+        self.cb()
+        result.true(True)
+        if self.where == "post_testcase":
+            raise RuntimeError(self.where)
+        self.cb()
+
+
+@pytest.mark.parametrize(
+    "where,call_count",
+    (
+        ("pre_testcase", 6),
+        ("post_testcase", 10),
+        ("in_the_middle", 11),
+    ),
+)
+def test_case_level_exception_handling(where, call_count, mocker):
+    # as a guard to a possible wrong refactor, i.e., post_testcase should
+    # always be invoked
+    cb = mocker.Mock()
+    mt = multitest.MultiTest(
+        name="Mtest", suites=[RaisingSuite(where, cb)], **MTEST_DEFAULT_PARAMS
+    )
+    mt.run()
+    assert cb.call_count == call_count
+
+
+@pytest.mark.parametrize(
+    "skip_strategy,case_count",
+    (
+        (None, 2),
+        ("cases-on-error", 1),
+        ("tests-on-error", -1),
+    ),
+)
+def test_skip_strategy(skip_strategy, case_count):
+    if case_count < 0:
+        with pytest.raises(
+            SchemaError, match=r".*Invalid option for test-level.*"
+        ):
+            mt = multitest.MultiTest(
+                name="Mtest",
+                suites=[RaisingSuite("in_the_middle")],
+                skip_strategy=skip_strategy,
+                **MTEST_DEFAULT_PARAMS,
+            )
+        return
+    mt = multitest.MultiTest(
+        name="Mtest",
+        suites=[RaisingSuite("in_the_middle")],
+        skip_strategy=skip_strategy,
+        **MTEST_DEFAULT_PARAMS,
+    )
+    ret = mt.run()
+    assert len(ret.report.entries[0]) == case_count

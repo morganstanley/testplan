@@ -1,25 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/testplan-logo.png">
-    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
-          rel="stylesheet"
-          integrity="sha384-X7L1bhgb36bF1iFvaqvhgpaGpayKM+vXNNYRlF89BFA5s3vi1qZ8EX9086RlZjy1"
-          crossorigin="anonymous">
-    <% if(process.env.NODE_ENV !== 'production') { %>
-      <% if(process.env.REACT_APP_DEVTOOLS) { %>
-        <script src="http://localhost:8097/"></script>
-      <% } %>
-    <% } %>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="theme-color" content="#000000" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/testplan-logo.png" />
+    <link
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      integrity="sha384-X7L1bhgb36bF1iFvaqvhgpaGpayKM+vXNNYRlF89BFA5s3vi1qZ8EX9086RlZjy1"
+      crossorigin="anonymous"
+    />
+    <% if(process.env.NODE_ENV !== 'production') { %> <%
+    if(process.env.REACT_APP_DEVTOOLS) { %>
+    <script src="http://localhost:8097/"></script>
+    <% } %> <% } %>
     <title>Testplan</title>
   </head>
-  <body style="overflow: hidden">
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <div id="root"></div>
+  <body style="overflow: auto; height: 100%">
+    <noscript> You need to enable JavaScript to run this app. </noscript>
+    <div id="root" style="height: 100%"></div>
   </body>
 </html>

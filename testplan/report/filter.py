@@ -10,6 +10,8 @@ from testplan.common.entity import Entity
 from testplan.common.entity.base import EntityConfig
 from testplan.report.testing.base import Status, TestReport
 
+# FIXME: too complicated, need to break inheritence chain
+
 
 class ReportingFilterConfig(EntityConfig):
     @classmethod
@@ -20,7 +22,7 @@ class ReportingFilterConfig(EntityConfig):
             ConfigOption("sign"): bool,
             ConfigOption("flags"): And(
                 set,
-                lambda l: all(isinstance(x, str) for x in l),
+                lambda l: all(isinstance(x, Status) for x in l),
             ),
         }
 

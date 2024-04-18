@@ -12,20 +12,20 @@ exports[`EmptyReport renders a custom error message 1`] = `
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    report={null}
-    saveAssertions={[Function]}
-    treeView={true}
-  />
-  <Message
-    left="22em"
-    message="418 I'm a teapot"
-  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
+      }
+    }
+  >
+    <Message
+      message="418 I'm a teapot"
+    />
+  </div>
 </div>
 `;
 
@@ -41,19 +41,19 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
     updateTimeDisplayFunc={[Function]}
-    updateTreeViewFunc={[Function]}
   />
-  <Nav
-    displayEmpty={true}
-    displayTags={false}
-    displayTime={false}
-    report={null}
-    saveAssertions={[Function]}
-    treeView={true}
-  />
-  <Message
-    left="22em"
-    message="404: Page Not Found"
-  />
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flex": "1",
+        "overflowY": "auto",
+      }
+    }
+  >
+    <Message
+      message="404: Page Not Found"
+    />
+  </div>
 </div>
 `;

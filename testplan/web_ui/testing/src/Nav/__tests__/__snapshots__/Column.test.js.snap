@@ -1,21 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Column shallow renders the correct HTML structure 1`] = `
-<Fragment>
+<div
+  style={
+    Object {
+      "display": "flex",
+    }
+  }
+>
   <div
-    className="column_1e6n0oe-o_O-leftColumn_1c7wfp"
+    className="column_8bpvrn-o_O-leftColumn_1c7wfp"
   >
     <p
       className="unique"
     />
   </div>
   <div
-    className="column_1e6n0oe-o_O-rightColumn_1bksxyz"
+    className="column_8bpvrn-o_O-rightColumn_kjdh6t"
     onMouseDown={[Function]}
   >
     <div
       className="splitter_11em7wq"
     />
   </div>
-</Fragment>
+</div>
 `;

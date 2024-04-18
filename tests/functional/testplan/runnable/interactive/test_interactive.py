@@ -1,8 +1,8 @@
 """Interactive mode tests."""
 
+import json
 import os
-import sys
-import threading
+from pathlib import Path
 
 import requests
 from pytest_test_filters import skip_on_windows
@@ -14,29 +14,18 @@ from testplan.common.utils.context import context
 from testplan.common.utils.logger import USER_INFO
 from testplan.common.utils.timing import wait
 from testplan.environment import LocalEnvironment
-from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.driver.app import App
-from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
+from testplan.testing.multitest import MultiTest, testcase, testsuite
+from testplan.testing.multitest.driver.tcp import TCPClient, TCPServer
+from tests.functional.testplan.runnable.interactive.interactive_helper import (
+    wait_for_interactive_start,
+)
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 
-def _assert_http_response(
-    response,
-    operation,
-    mode,
-    result=None,
-    error=False,
-    metadata=None,
-    trace=None,
-):
-    assert response == {
-        "result": result,
-        "error": error,
-        "metadata": metadata or {},
-        "trace": trace,
-        "message": "{} operation performed: {}".format(mode, operation),
-    }
+def load_from_json(path: Path) -> dict:
+    with open(path, "r") as f:
+        return json.load(f)
 
 
 class InteractivePlan:
@@ -108,48 +97,50 @@ def test_top_level_tests():
         plan.add(make_multitest("1"))
         plan.add(make_multitest("2"))
         plan.run()
-        wait(lambda: bool(plan.i.http_handler_info), 5, raise_on_timeout=True)
-        assert isinstance(plan.i.test("Test1"), MultiTest)
-        assert isinstance(plan.i.test("Test2"), MultiTest)
+        wait_for_interactive_start(plan)
+        assert isinstance(plan.interactive.test("Test1"), MultiTest)
+        assert isinstance(plan.interactive.test("Test2"), MultiTest)
 
-        # print_report(plan.i.report(serialized=True))
+        # print_report(plan.interactive.report(serialized=True))
 
         # TESTS AND ASSIGNED RUNNERS
-        assert list(plan.i.all_tests()) == ["Test1", "Test2"]
+        assert list(plan.interactive.all_tests()) == ["Test1", "Test2"]
 
-        # OPERATE TEST DRIVERS (start/stop)
-        resources = [res.uid() for res in plan.i.test("Test2").resources]
-        assert resources == ["server", "client"]
-        for resource in plan.i.test("Test2").resources:
-            assert resource.status == resource.STATUS.NONE
-        plan.i.start_test_resources("Test2")  # START
-        for resource in plan.i.test("Test2").resources:
+        plan.interactive.start_test_resources("Test2")  # START
+
+        for resource in plan.interactive.test("Test2").resources:
             assert resource.status == resource.STATUS.STARTED
-        plan.i.stop_test_resources("Test2")  # STOP
-        for resource in plan.i.test("Test2").resources:
+
+        plan.interactive.stop_test_resources("Test2")  # STOP
+        for resource in plan.interactive.test("Test2").resources:
             assert resource.status == resource.STATUS.STOPPED
 
         # RESET REPORTS
-        plan.i.reset_all_tests()
-        from .reports.basic_top_level_reset import REPORT as BTLReset
+        plan.interactive.reset_all_tests()
+
+        BTLReset = load_from_json(
+            Path(__file__).parent / "reports" / "basic_top_level_reset.data"
+        )
 
         assert (
             compare(
                 BTLReset,
-                plan.i.report.serialize(),
+                plan.interactive.report.serialize(),
                 ignore=["hash", "information", "line_no"],
             )[0]
             is True
         )
 
         # RUN ALL TESTS
-        plan.i.run_all_tests()
-        from .reports.basic_top_level import REPORT as BTLevel
+        plan.interactive.run_all_tests()
 
+        BTLevel = load_from_json(
+            Path(__file__).parent / "reports" / "basic_top_level.data"
+        )
         assert (
             compare(
                 BTLevel,
-                plan.i.report.serialize(),
+                plan.interactive.report.serialize(),
                 ignore=[
                     "hash",
                     "information",
@@ -164,35 +155,43 @@ def test_top_level_tests():
         )
 
         # RESET REPORTS
-        plan.i.reset_all_tests()
-        from .reports.basic_top_level_reset import REPORT as BTLReset
+        plan.interactive.reset_all_tests()
 
         assert (
             compare(
                 BTLReset,
-                plan.i.report.serialize(),
+                plan.interactive.report.serialize(),
                 ignore=["hash", "information"],
             )[0]
             is True
         )
 
         # RUN SINGLE TESTSUITE (CUSTOM NAME)
-        plan.i.run_test_suite("Test2", "TCPSuite - Custom_1")
-        from .reports.basic_run_suite_test2 import REPORT as BRSTest2
+        plan.interactive.run_test_suite("Test2", "TCPSuite - Custom_1")
+
+        BRSTest2 = load_from_json(
+            Path(__file__).parent / "reports" / "basic_run_suite_test2.data"
+        )
 
         assert (
-            compare(BRSTest2, plan.i.test_report("Test2"), ignore=["hash"])[0]
+            compare(
+                BRSTest2,
+                plan.interactive.test_report("Test2"),
+                ignore=["hash", "information", "timer"],
+            )[0]
             is True
         )
 
         # RUN SINGLE TESTCASE
-        plan.i.run_test_case("Test1", "*", "basic_case__arg_1")
-        from .reports.basic_run_case_test1 import REPORT as BRCTest1
+        plan.interactive.run_test_case("Test1", "*", "basic_case__arg_1")
 
+        BRCTest1 = load_from_json(
+            Path(__file__).parent / "reports" / "basic_run_case_test1.data"
+        )
         assert (
             compare(
                 BRCTest1,
-                plan.i.test_report("Test1"),
+                plan.interactive.test_report("Test1"),
                 ignore=[
                     "hash",
                     "information",
@@ -201,6 +200,7 @@ def test_top_level_tests():
                     "utc_time",
                     "file_path",
                     "line_no",
+                    "timer",
                 ],
             )[0]
             is True
@@ -229,71 +229,54 @@ def test_top_level_environment():
             )
         )
         plan.run()
-        wait(lambda: bool(plan.i.http_handler_info), 5, raise_on_timeout=True)
+        wait_for_interactive_start(plan)
 
         assert len(plan.resources.environments.envs) == 1
+        env_uid = "env1"
 
-        # Create an environment using serializable arguments.
-        # That is mandatory for HTTP usage.
-        plan.i.create_new_environment("env2")
-        plan.i.add_environment_resource("env2", "TCPServer", name="server")
-        plan.i.add_environment_resource(
-            "env2",
-            "TCPClient",
-            name="client",
-            _ctx_host_ctx_driver="server",
-            _ctx_host_ctx_value="{{host}}",
-            _ctx_port_ctx_driver="server",
-            _ctx_port_ctx_value="{{port}}",
+        env = plan.interactive.get_environment(env_uid)
+        assert isinstance(env, entity.Environment)
+        resources = [res.uid() for res in env]
+        assert resources == ["server", "client"]
+        for resource in env:
+            assert resource.status == resource.STATUS.NONE
+        plan.interactive.start_environment(env_uid)  # START
+
+        # INSPECT THE CONTEXT WHEN STARTED
+        env_context = plan.interactive.get_environment_context(env_uid)
+        for resource in [res.uid() for res in env]:
+            res_context = plan.interactive.environment_resource_context(
+                env_uid, resource_uid=resource
+            )
+            assert env_context[resource] == res_context
+            assert isinstance(res_context["host"], str)
+            assert isinstance(res_context["port"], int)
+            assert res_context["port"] > 0
+
+        # CUSTOM RESOURCE OPERATIONS
+        plan.interactive.environment_resource_operation(
+            env_uid, "server", "accept_connection"
         )
-        plan.i.add_created_environment("env2")
+        plan.interactive.environment_resource_operation(
+            env_uid, "client", "send_text", msg="hello"
+        )
+        received = plan.interactive.environment_resource_operation(
+            env_uid, "server", "receive_text"
+        )
+        assert received == "hello"
+        plan.interactive.environment_resource_operation(
+            env_uid, "server", "send_text", msg="worlds"
+        )
+        received = plan.interactive.environment_resource_operation(
+            env_uid, "client", "receive_text"
+        )
+        assert received == "worlds"
 
-        assert len(plan.resources.environments.envs) == 2
-
-        for env_uid in ("env1", "env2"):
-            env = plan.i.get_environment(env_uid)
-            assert isinstance(env, entity.Environment)
-            resources = [res.uid() for res in env]
-            assert resources == ["server", "client"]
-            for resource in env:
-                assert resource.status == resource.STATUS.NONE
-            plan.i.start_environment(env_uid)  # START
-
-            # INSPECT THE CONTEXT WHEN STARTED
-            env_context = plan.i.get_environment_context(env_uid)
-            for resource in [res.uid() for res in env]:
-                res_context = plan.i.environment_resource_context(
-                    env_uid, resource_uid=resource
-                )
-                assert env_context[resource] == res_context
-                assert isinstance(res_context["host"], str)
-                assert isinstance(res_context["port"], int)
-                assert res_context["port"] > 0
-
-            # CUSTOM RESOURCE OPERATIONS
-            plan.i.environment_resource_operation(
-                env_uid, "server", "accept_connection"
-            )
-            plan.i.environment_resource_operation(
-                env_uid, "client", "send_text", msg="hello"
-            )
-            received = plan.i.environment_resource_operation(
-                env_uid, "server", "receive_text"
-            )
-            assert received == "hello"
-            plan.i.environment_resource_operation(
-                env_uid, "server", "send_text", msg="worlds"
-            )
-            received = plan.i.environment_resource_operation(
-                env_uid, "client", "receive_text"
-            )
-            assert received == "worlds"
-
-            for resource in env:
-                assert resource.status == resource.STATUS.STARTED
-            plan.i.stop_environment(env_uid)  # STOP
-            for resource in env:
-                assert resource.status == resource.STATUS.STOPPED
+        for resource in env:
+            assert resource.status == resource.STATUS.STARTED
+        plan.interactive.stop_environment(env_uid)  # STOP
+        for resource in env:
+            assert resource.status == resource.STATUS.STOPPED
 
 
 def put_request(url, data):
@@ -315,12 +298,8 @@ def test_env_operate():
         plan.add(make_multitest("2"))
 
         plan.run()
-        wait(
-            lambda: plan.i.http_handler_info[0] is not None,
-            5,
-            raise_on_timeout=True,
-        )
-        addr = "http://{}:{}".format(*plan.i.http_handler_info)
+        wait_for_interactive_start(plan)
+        addr = "http://{}:{}".format(*plan.interactive.http_handler_info)
 
         response = requests.get(f"{addr}/api/v1/interactive/report/tests")
         assert response.ok
@@ -328,7 +307,7 @@ def test_env_operate():
         current_report = response.json()
         assert len(current_report) == 2
 
-        for resource in plan.i.test("Test2").resources:
+        for resource in plan.interactive.test("Test2").resources:
             assert resource.status == resource.STATUS.NONE
 
         test2_report = current_report[1].copy()
@@ -342,14 +321,14 @@ def test_env_operate():
         )
         assert response.ok
 
-        current_test2_report = plan.i.report["Test2"]
+        current_test2_report = plan.interactive.report["Test2"]
         assert current_test2_report.env_status in (
             entity.ResourceStatus.STARTING,
             entity.ResourceStatus.STARTED,
         )
 
         wait(
-            lambda: plan.i.report["Test2"].env_status
+            lambda: plan.interactive.report["Test2"].env_status
             == entity.ResourceStatus.STARTED,
             5,
             raise_on_timeout=True,
@@ -370,13 +349,13 @@ def test_env_operate():
         )
         assert response.ok
 
-        current_test2_report = plan.i.report["Test2"]
+        current_test2_report = plan.interactive.report["Test2"]
         assert current_test2_report.env_status in (
             entity.ResourceStatus.STOPPING,
             entity.ResourceStatus.STOPPED,
         )
         wait(
-            lambda: plan.i.report["Test2"].env_status
+            lambda: plan.interactive.report["Test2"].env_status
             == entity.ResourceStatus.STOPPED,
             5,
             raise_on_timeout=True,
@@ -402,9 +381,9 @@ def test_abort_handler():
         plan.add(multitest)
         plan.run()
         # NOTE: wait until the HTTP handler is available
-        wait(lambda: bool(plan.i.http_handler_info), 5, raise_on_timeout=True)
+        wait_for_interactive_start(plan)
 
-        plan.i.start_test_resources("Test1")
+        plan.interactive.start_test_resources("Test1")
         for resource in multitest.resources:
             wait(
                 lambda: resource.status == resource.STATUS.STARTED,
@@ -412,7 +391,7 @@ def test_abort_handler():
                 raise_on_timeout=True,
             )
         # NOTE: triggering abortion for the interactive handler mocking API
-        plan.i.abort()
+        plan.interactive.abort()
         for resource in multitest.resources:
             wait(
                 lambda: resource.status == resource.STATUS.STOPPED,

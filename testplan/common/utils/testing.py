@@ -1,20 +1,22 @@
 """This module contains utilites for testing Testplan itself."""
 
-import sys
+import collections
 import functools
-import logging
-import pprint
-import os
 import io
+import logging
+import os
+import pprint
+import sys
 import warnings
+from contextlib import contextmanager
+from typing import Collection
 
 from lxml import objectify
 
-from contextlib import contextmanager
+from testplan.runners.pools.tasks.base import Task
 
 from ..report.base import Report, ReportGroup
 from ..utils.comparison import is_regex
-import collections
 
 null_handler = logging.NullHandler()
 
@@ -285,6 +287,7 @@ def check_report_context(report, ctx):
     interested in report contents, just the existence of reports
     with matching names, with the correct order.
     """
+    assert len(report) == len(ctx)
     for mt_report, (multitest_name, suite_ctx) in zip(report, ctx):
         assert mt_report.name == multitest_name
         assert len(mt_report) == len(suite_ctx)

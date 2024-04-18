@@ -1,0 +1,1 @@
+Fix PDFExporter cannot render result.matplot with RemotePool.

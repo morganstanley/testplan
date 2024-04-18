@@ -4,12 +4,9 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
 <div
   style={
     Object {
-      "height": "calc(100% - 5.5em)",
-      "left": "19.5em",
+      "flex": "1",
+      "overflowY": "auto",
       "paddingLeft": "20px",
-      "position": "absolute",
-      "top": "5.5em",
-      "width": "calc(100% - 19.5em)",
     }
   }
 >
@@ -19,6 +16,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
     <DescriptionPane />
     <AssertionGroup
       assertionGroupUid="22758cc5-8a89-472b-bf67-b64dbc2c0b40"
+      displayPath={false}
       entries={
         Array [
           Object {

@@ -20,7 +20,10 @@ XML_DIR = os.path.join(REPORT_DIR, "xml")
 PDF_PATH = os.path.join(REPORT_DIR, "report.pdf")
 JSON_PATH = os.path.join(REPORT_DIR, "report.json")
 ATTACHMENTS = "_attachments"
+RESOURCE_DATA = "_resource"
+RESOURCE_META_FILE_NAME = "metadata.json"
 ATTACHMENTS_DIR = os.path.join(REPORT_DIR, ATTACHMENTS)
+RESOURCE_DATA_DIR = os.path.join(REPORT_DIR, RESOURCE_DATA)
 
 WEB_SERVER_HOSTNAME = "0.0.0.0"
 WEB_SERVER_PORT = 0
@@ -32,3 +35,9 @@ INTERACTIVE_POOL_SIZE = 4
 # Name of multitest/testsuite/testcase (usually used for display) cannot be
 # too long, or the UI will not be pleasant when they end up with long names
 MAX_TEST_NAME_LENGTH = 255
+
+# Default to using 30min for auto-parts task.
+AUTO_PART_RUNTIME_LIMIT = 1800  # 30min
+
+# Default to using 30min for calculating pool size
+PLAN_RUNTIME_TARGET = 1800  # 30 min

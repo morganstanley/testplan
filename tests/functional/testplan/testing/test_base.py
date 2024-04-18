@@ -59,7 +59,11 @@ fixture_root = os.path.join(os.path.dirname(__file__), "fixtures", "base")
             os.path.join(fixture_root, "passing", "test_env.sh"),
             base.passing.report.expected_report,
             dict(
-                proc_env={"proc_env1": "abc", "proc_env2": "123"},
+                proc_env={
+                    "proc_env1": "abc",
+                    "proc_env2": "123",
+                    "test_name": "{{name}}",
+                },
                 environment=[MyDriver(name="My executable", my_val="hello")],
             ),
         ),

@@ -1,6 +1,15 @@
 /**
  * Constants used across the entire application.
  */
+
+const BLUE = "#e1f0f766";
+const DARK_BLUE = "#43aade";
+const YELLOW = "#fff17666";
+const DARK_YELLOW =  '#ffc107';
+const TEAL = '#a7f0dd66';
+const DARK_TEAL = "#acebda";
+const ROSE = "#fe064466";
+const DARK_ROSE = "#be0433";
 const GREEN = "#228F1D";
 const DARK_GREEN = "#1A721D";
 const RED = "#A2000C";
@@ -63,41 +72,41 @@ const CATEGORIES = {
 };
 
 const CATEGORY_ICONS = {
-  'testplan': 'TP',
-  'test': 'T',
-  'multitest': 'MT',
-  'cppunit': 'CP',
-  'gtest': 'GT',
-  'boost-test': 'BT',
-  'hobbestest': 'HT',
-  'pytest': 'PT',
-  'pyunit': 'PU',
-  'unittest': 'UT',
-  'junit': 'JU',
-  'qunit': 'QU',
-  'testsuite': 'S',
-  'cppunit-suite': 'CS',
-  'gtest-suite': 'GS',
-  'boost-test-suite': 'BS',
-  'hobbestest-suite': 'HS',
-  'parametrization': 'P',
-  'testcase': 'C'
+  testplan: "TP",
+  test: "T",
+  multitest: "MT",
+  cppunit: "CP",
+  gtest: "GT",
+  "boost-test": "BT",
+  hobbestest: "HT",
+  pytest: "PT",
+  pyunit: "PU",
+  unittest: "UT",
+  junit: "JU",
+  qunit: "QU",
+  testsuite: "S",
+  "cppunit-suite": "CS",
+  "gtest-suite": "GS",
+  "boost-test-suite": "BS",
+  "hobbestest-suite": "HS",
+  parametrization: "P",
+  testcase: "C",
 };
 
 const ENTRY_TYPES = [
-  'testplan',
-  'multitest',
-  'cppunit',
-  'gtest',
-  'boost_test',
-  'unittest',
-  'qunit',
-  'junit',
-  'testsuite',
-  'parametrization',
-  'testcase',
-  'pytest',
-  'pyunit',
+  "testplan",
+  "multitest",
+  "cppunit",
+  "gtest",
+  "boost_test",
+  "unittest",
+  "qunit",
+  "junit",
+  "testsuite",
+  "parametrization",
+  "testcase",
+  "pytest",
+  "pyunit",
 ];
 
 const STATUS = [
@@ -136,6 +145,13 @@ const RUNTIME_STATUS = [
   "finished",
   "not_run",
 ];
+
+const ENV_STATUSES = {
+  stopped: "STOPPED",
+  starting: "STARTING",
+  started: "STARTED",
+  stopping: "STOPPING"
+};
 
 const NAV_ENTRY_ACTIONS = ["play", "open", "prohibit"];
 
@@ -214,6 +230,13 @@ const EXPAND_STATUS = Object.freeze({
   DEFAULT: "default",
 });
 
+// Right panel view types
+const VIEW_TYPE = Object.freeze({
+  ASSERTION: "assertion",
+  RESOURCE: "resource",
+  DEFAULT: "assertion",
+});
+
 // Interval to poll for report updates over. We may want to reduce this to make
 // the UI update more quickly.
 //
@@ -223,8 +246,7 @@ const EXPAND_STATUS = Object.freeze({
 const POLL_MS = 1000;
 
 // Fix specification
-let defaultFixSpec = {tags: {}};
-
+let defaultFixSpec = { tags: {} };
 
 //log types
 const LOG_TYPE = {
@@ -232,8 +254,15 @@ const LOG_TYPE = {
   warning: "WARNING",
 };
 
-
 export {
+  BLUE,
+  DARK_BLUE,
+  YELLOW,
+  DARK_YELLOW,
+  TEAL,
+  DARK_TEAL,
+  ROSE,
+  DARK_ROSE,
   GREEN,
   DARK_GREEN,
   RED,
@@ -257,6 +286,7 @@ export {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  ENV_STATUSES,
   NAV_ENTRY_ACTIONS,
   NAV_ENTRY_DISPLAY_DATA,
   BASIC_ASSERTION_TYPES,
@@ -264,6 +294,7 @@ export {
   FILTER_OPTIONS,
   DICT_GRID_STYLE,
   EXPAND_STATUS,
+  VIEW_TYPE,
   POLL_MS,
   defaultFixSpec,
   LOG_TYPE,

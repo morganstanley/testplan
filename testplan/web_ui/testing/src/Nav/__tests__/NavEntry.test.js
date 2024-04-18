@@ -1,22 +1,22 @@
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
-import {Badge} from 'reactstrap';
+import React from "react";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
+import { Badge } from "reactstrap";
 
-import NavEntry from '../NavEntry';
+import NavEntry from "../NavEntry";
 
 function defaultProps() {
   return {
-    name: 'entry name',
-    description: 'entry description',
-    status: 'passed',
-    type: 'testplan',
+    name: "entry name",
+    description: "entry description",
+    status: "passed",
+    type: "testplan",
     caseCountPassed: 0,
     caseCountFailed: 0,
   };
 }
 
-describe('NavEntry', () => {
+describe("NavEntry", () => {
   const props = defaultProps();
 
   beforeEach(() => {
@@ -29,28 +29,20 @@ describe('NavEntry', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders the correct HTML structure', () => {
-    const navEntry = shallow(
-        <NavEntry {...props} />
-    );
+  it("shallow renders the correct HTML structure", () => {
+    const navEntry = shallow(<NavEntry {...props} />);
     expect(navEntry).toMatchSnapshot();
   });
 
-  it('when prop status="failed" name div and Badge have correct styles',
-     () => {
-    const failProps = {...props, status: 'failed'}
-    const navEntry = shallow(
-      <NavEntry {...failProps} />
-    );
+  it('when prop status="failed" name div and Badge have correct styles', () => {
+    const failProps = { ...props, status: "failed" };
+    const navEntry = shallow(<NavEntry {...failProps} />);
     expect(navEntry).toMatchSnapshot();
   });
 
-  it('when prop status="xfail" name div and Badge have correct styles',
-     () => {
-    const failProps = {...props, status: 'xfail'}
-    const navEntry = shallow(
-      <NavEntry {...failProps} />
-    );
+  it('when prop status="xfail" name div and Badge have correct styles', () => {
+    const failProps = { ...props, status: "xfail" };
+    const navEntry = shallow(<NavEntry {...failProps} />);
     expect(navEntry).toMatchSnapshot();
   });
 });

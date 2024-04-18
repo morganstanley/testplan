@@ -7,15 +7,20 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Generator, Mapping, TextIO, Tuple, Optional
+from typing import Dict, Generator, Mapping, Optional, TextIO, Tuple
 
-from testplan.common.exporters import ExporterConfig
+from testplan.common.exporters import (
+    ExportContext,
+    ExporterConfig,
+    verify_export_context,
+)
 from testplan.exporters.testing.base import Exporter
 from testplan.report.testing.base import (
-    TestCaseReport,
+    ReportCategories,
     TestGroupReport,
     TestReport,
 )
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 
 
 class CoveredTestsExporter(Exporter):
@@ -28,13 +33,31 @@ class CoveredTestsExporter(Exporter):
     def __init__(self, name: str = "Covered Tests Exporter", **options):
         super(CoveredTestsExporter, self).__init__(name=name, **options)
 
-    def export(self, report: TestReport) -> Optional[str]:
-        if len(report):
+    def export(
+        self,
+        source: TestReport,
+        export_context: Optional[ExportContext] = None,
+    ) -> Optional[Dict]:
+        """
+        Exports report coverage data.
+
+        :param: source: Testplan report to export
+        :param: export_context: information about other exporters
+        :return: dictionary containing the possible output
+        """
+
+        export_context = verify_export_context(
+            exporter=self, export_context=export_context
+        )
+        if len(source):
             # here we use an OrderedDict as an ordered set
             results = OrderedDict()
-            for entry in report.entries:
-                if isinstance(entry, TestGroupReport):
-                    self._append_covered_group_n_case(entry, [], results)
+            for entry in source.entries:
+                if (
+                    isinstance(entry, TestGroupReport)
+                    and entry.category == ReportCategories.MULTITEST
+                ):
+                    self._append_mt_coverage(entry, results)
             if results:
                 with _custom_open(self.cfg.tracing_tests_output) as (
                     f,
@@ -43,32 +66,50 @@ class CoveredTestsExporter(Exporter):
                     self.logger.user_info(f"Impacted tests output to {fn}.")
                     for k in results.keys():
                         f.write(":".join(k) + "\n")
-                return self.cfg.tracing_tests_output
+                result = {"coverage": self.cfg.tracing_tests_output}
+                return result
             self.logger.user_info("No impacted tests found.")
             return None
         return None
 
-    def _append_covered_group_n_case(
+    def _append_mt_coverage(
         self,
         report: TestGroupReport,
-        path: Tuple[str, ...],
         result: Mapping[Tuple[str, ...], None],
     ):
         """
-        Recursively add test group or test case with covered_lines set to
-        the result ordered set.
+        Add test entity with covered_lines set to the result ordered set.
 
         Here we use an OrderedDict as an ordered set.
         """
-        curr_path = (*path, report.name)
+
+        if report.part is not None:
+            mt_pat = TEST_PART_PATTERN_FORMAT_STRING.format(
+                report.definition_name, report.part[0], report.part[1]
+            )
+        else:
+            mt_pat = report.definition_name
+
         if report.covered_lines:
-            result[curr_path] = None
-        for entry in report.entries:
-            if isinstance(entry, TestGroupReport):
-                self._append_covered_group_n_case(entry, curr_path, result)
-            elif isinstance(entry, TestCaseReport):
-                if entry.covered_lines:
-                    result[(*curr_path, entry.name)] = None
+            result[(mt_pat,)] = None
+        for st in report.entries:
+            if st.covered_lines:
+                result[(mt_pat, st.definition_name)] = None
+            for tc in st.entries:
+                if tc.category == ReportCategories.PARAMETRIZATION:
+                    for sub_tc in tc.entries:
+                        if sub_tc.covered_lines:
+                            result[
+                                (
+                                    mt_pat,
+                                    st.definition_name,
+                                    sub_tc.definition_name,
+                                )
+                            ] = None
+                elif tc.covered_lines:
+                    result[
+                        (mt_pat, st.definition_name, tc.definition_name)
+                    ] = None
 
 
 @contextmanager

@@ -6,6 +6,7 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
 >
   <ListGroup
     className="buttonList_mjw45f"
+    horizontal={false}
     tag="ul"
   >
     <ListGroupItem
@@ -17,7 +18,6 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
       tag={
         Object {
           "$$typeof": Symbol(react.forward_ref),
-          "displayName": "NavLink",
           "propTypes": Object {
             "activeClassName": [Function],
             "activeStyle": [Function],
@@ -44,7 +44,9 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
         caseCountFailed={0}
         caseCountPassed={0}
         description="Interactive MTest Desc"
+        displayTime={false}
         envCtrlCallback={[Function]}
+        executionTime={null}
         handleClick={[Function]}
         key="bbb"
         name="Interactive MTest"

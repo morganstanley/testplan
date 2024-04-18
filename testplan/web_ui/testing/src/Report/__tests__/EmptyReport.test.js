@@ -1,10 +1,10 @@
 /* Tests the EmptyReport component. */
-import React from 'react';
-import {shallow} from 'enzyme';
+import React from "react";
+import { shallow } from "enzyme";
 
-import EmptyReport from '../EmptyReport';
+import EmptyReport from "../EmptyReport";
 
-describe('EmptyReport', () => {
+describe("EmptyReport", () => {
   it("shallow renders and matches snapshot", () => {
     const emptyReport = shallow(<EmptyReport />);
     expect(emptyReport).toMatchSnapshot();
@@ -15,4 +15,3 @@ describe('EmptyReport', () => {
     expect(errorReport).toMatchSnapshot();
   });
 });
-

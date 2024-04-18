@@ -31,8 +31,10 @@ class FilterBox extends Component {
       <>
         <p>
           Just start typing in the search bar. The test items are filtered
-          automatically. The current selection if available in the serach are
-          maintained. All the search are <b>case insensitive</b>.
+          automatically. The current selection if available in the search are
+          maintained. All searches are <b>case insensitive</b>, except
+          for the regular expression search where case sensitivity is driven
+          by the expression itself.
         </p>
         <p>
           You can search by <b>free text</b>, then each word will be matched
@@ -59,7 +61,7 @@ class FilterBox extends Component {
 
   toggleHelp() {
     this.setState({ showHelp: !this.state.showHelp });
-  };
+  }
 
   hasError() {
     return Boolean(this.state.parserError);
@@ -123,17 +125,26 @@ class FilterBox extends Component {
     try {
       filters = SearchFieldParser.parse(e.target.value);
       this.setState({ parserError: null });
-      this.props.handleNavFilter({text: e.target.value, filters});
+      this.props.handleNavFilter({ text: e.target.value, filters });
     } catch (error) {
       this.setState({ parserError: error });
       console.log("Could not parse seach string: " + error);
       console.log(e.target.value);
-      this.props.handleNavFilter({text: e.target.values, filters: []});
+      this.props.handleNavFilter({ text: e.target.values, filters: [] });
     }
   }
 
   operatorsTable() {
     const descriptions = [
+      [
+        <>
+          Specify a regular expression
+          <br />
+          <small>(search for any matches)</small>
+        </>,
+        ["regexp", "re"],
+        ["regexp:^addition.*_[0-9]+$", "r:^addition.*_[0-9]+$"],
+      ],
       [
         <>
           Specify a multitest

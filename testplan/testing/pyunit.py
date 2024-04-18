@@ -1,6 +1,7 @@
 """PyUnit test runner."""
 
 import unittest
+from typing import Generator, Dict
 
 from testplan.testing import base as testing
 from testplan.testing.multitest.entries import assertions
@@ -50,7 +51,7 @@ class PyUnit(testing.Test):
             testcase.__name__: testcase for testcase in self.cfg.testcases
         }
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
         self._add_step(self.run_tests)
         self._add_step(self.log_test_results)
@@ -70,9 +71,7 @@ class PyUnit(testing.Test):
             for testcase in self._pyunit_testcases.keys()
         ]
 
-    def dry_run(self):
-        """Return an empty report tree."""
-        self.result.report = self._new_test_report()
+    def _dry_run_testsuites(self):
 
         for pyunit_testcase in self.cfg.testcases:
             testsuite_report = TestGroupReport(
@@ -87,10 +86,20 @@ class PyUnit(testing.Test):
             )
             self.result.report.append(testsuite_report)
 
-        return self.result
+    def run_testcases_iter(
+        self,
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        shallow_report: Dict = None,
+    ) -> Generator:
+        """
+        Run all testcases and yield testcase reports.
 
-    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
-        """Run testcases and yield testcase report and parent UIDs."""
+        :param testsuite_pattern: pattern to match for testsuite names
+        :param testcase_pattern: pattern to match for testcase names
+        :param shallow_report: shallow report entry
+        :return: generator yielding testcase reports and UIDs for merge step
+        """
         if testsuite_pattern == "*":
             yield {"runtime_status": RuntimeStatus.RUNNING}, [self.uid()]
             for testsuite_report in self._run_tests():

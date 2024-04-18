@@ -10,12 +10,24 @@ import threading
 import time
 import traceback
 from collections import OrderedDict, deque
-from typing import Callable, Deque, Dict, List, Optional, Tuple, Union
+from contextlib import suppress
+from typing import (
+    Any,
+    Callable,
+    Deque,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import psutil
 from schema import Or
 
 from testplan.common.config import Config, ConfigOption
+from testplan.common.report.base import EventRecorder
 from testplan.common.utils import logger
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
@@ -32,7 +44,7 @@ class Environment:
     :type parent: :py:class:`Entity <testplan.common.entity.base.Entity>`
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional["Entity"] = None):
         self.__dict__["parent"] = parent
         self.__dict__["_initial_context"] = {}
         self.__dict__["_resources"] = OrderedDict()
@@ -125,7 +137,7 @@ class Environment:
         else:
             return False
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["Resource"]:
         return iter(self._resources.values())
 
     def __repr__(self):
@@ -137,7 +149,10 @@ class Environment:
     def __len__(self):
         return len(self._resources)
 
-    def all_status(self, target):
+    def items(self):
+        return self._resources.items()
+
+    def all_status(self, target) -> bool:
         """
         Checks whether all resources have target status.
 
@@ -153,7 +168,7 @@ class Environment:
         fetch_msg = "\n".join(resource.fetch_error_log())
 
         msg = message.format(
-            resource_name=resource.cfg.name,
+            resource=resource,
             traceback_exc=traceback.format_exc(),
             fetch_msg=fetch_msg,
         )
@@ -174,7 +189,8 @@ class Environment:
                 resource.start()
             except Exception:
                 self._record_resource_exception(
-                    message="While starting resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    message="While starting resource {resource}:\n"
+                    "{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -195,7 +211,8 @@ class Environment:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
                 self._record_resource_exception(
-                    message="While waiting for resource [{resource_name}] to start\n{traceback_exc}\n{fetch_msg}",
+                    message="While waiting for resource {resource} to start:\n"
+                    "{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.start_exceptions,
                 )
@@ -261,7 +278,8 @@ class Environment:
                 resource.stop()
             except Exception:
                 self._record_resource_exception(
-                    message="While stopping resource [{resource_name}]\n{traceback_exc}\n{fetch_msg}",
+                    message="While stopping resource {resource}:"
+                    "\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.stop_exceptions,
                 )
@@ -269,7 +287,11 @@ class Environment:
                 # Resource status should be STOPPED even it failed to stop
                 resource.force_stopped()
             else:
-                if resource.async_start:
+                if (
+                    resource.async_start
+                    and resource.status == resource.STATUS.STOPPING
+                ):
+                    # the 2nd clause to avoid StatusTransitionException: On status change from None to STOPPED
                     resources_to_wait_for.append(resource)
 
         # Wait resources status to be STOPPED.
@@ -461,10 +483,9 @@ class EntityConfig(Config):
         """
         return {
             ConfigOption("runpath"): Or(None, str, callable),
-            ConfigOption("initial_context", default={}): dict,
             ConfigOption("path_cleanup", default=False): bool,
             ConfigOption("status_wait_timeout", default=600): int,
-            ConfigOption("abort_wait_timeout", default=30): int,
+            ConfigOption("abort_wait_timeout", default=300): int,
             ConfigOption("active_loop_sleep", default=0.005): float,
         }
 
@@ -478,8 +499,6 @@ class Entity(logger.Loggable):
 
     :param runpath: Path to be used for temp/output files by entity.
     :type runpath: ``str`` or ``NoneType`` callable that returns ``str``
-    :param initial_context: Initial key: value pair context information.
-    :type initial_context: ``dict``
     :param path_cleanup: Remove previous runpath created dirs/files.
     :type path_cleanup: ``bool``
     :param status_wait_timeout: Timeout for wait status events.
@@ -587,8 +606,7 @@ class Entity(logger.Loggable):
 
         self._should_abort = True
         for dep in self.abort_dependencies():
-            if dep is not None:
-                self._abort_entity(dep)
+            self._abort_entity(dep)
 
         self.logger.info("Aborting %s", self)
         self.aborting()
@@ -622,8 +640,19 @@ class Entity(logger.Loggable):
             self.logger.error(traceback.format_exc())
             self.logger.error("Exception on aborting %s - %s", entity, exc)
         else:
-            if wait(lambda: entity.aborted is True, timeout) is False:
-                self.logger.error("Timeout on waiting to abort %s.", entity)
+            if (
+                wait(
+                    predicate=lambda: entity.aborted is True,
+                    timeout=timeout,
+                    raise_on_timeout=False,  # continue even if some entity timeout
+                )
+                is False
+            ):
+                self.logger.error(
+                    "Timeout on waiting to abort %s after %d seconds.",
+                    entity,
+                    timeout,
+                )
 
     def aborting(self):
         """
@@ -722,6 +751,16 @@ class Entity(logger.Loggable):
             if key not in EXCLUDE and value is not None
         }
 
+    def context_input(self, exclude: list = None) -> Dict[str, Any]:
+        """All attr of self in a dict for context resolution"""
+        ctx = {}
+        exclude = exclude or []
+        for attr in dir(self):
+            if attr in exclude:
+                continue
+            ctx[attr] = getattr(self, attr)
+        return ctx
+
 
 class RunnableStatus(EntityStatus):
     """
@@ -768,6 +807,9 @@ class RunnableConfig(EntityConfig):
         return {
             # IHandler explicitly enables interactive mode of runnable
             ConfigOption("interactive_port", default=None): Or(None, int),
+            ConfigOption("pre_start_environments", default=None): Or(
+                None, list
+            ),
             ConfigOption(
                 "interactive_block",
                 default=hasattr(sys.modules["__main__"], "__file__"),
@@ -931,15 +973,15 @@ class Runnable(Entity):
         start_threads, start_procs = self._get_start_info()
 
         self._add_step(self.setup)
-        self.pre_resource_steps()
-        self._add_step(self.resources.start)
+        self.add_pre_resource_steps()
+        self.add_start_resource_steps()
+        self.add_pre_main_steps()
 
-        self.pre_main_steps()
-        self.main_batch_steps()
-        self.post_main_steps()
+        self.add_main_batch_steps()
 
-        self._add_step(self.resources.stop, is_reversed=True)
-        self.post_resource_steps()
+        self.add_post_main_steps()
+        self.add_stop_resource_steps()
+        self.add_post_resource_steps()
         self._add_step(self.teardown)
 
         self._run()
@@ -970,6 +1012,7 @@ class Runnable(Entity):
         :param start_procs: processes before run
         :type start_procs: ``list`` of ``Process``
         """
+        # XXX: do we want to suppress process/thread check for tests?
         end_threads = threading.enumerate()
         if start_threads != end_threads:
             new_threads = [
@@ -1022,31 +1065,43 @@ class Runnable(Entity):
             self.result.step_results[step.__name__] = res
             self.status.update_metadata(**{str(step): res})
 
-    def pre_resource_steps(self):
+    def add_pre_resource_steps(self):
         """
         Runnable steps to run before environment started.
         """
         pass
 
-    def pre_main_steps(self):
+    def add_start_resource_steps(self):
+        """
+        Runnable steps to start environment
+        """
+        self._add_step(self.resources.start)
+
+    def add_pre_main_steps(self):
         """
         Runnable steps to run after environment started.
         """
         pass
 
-    def main_batch_steps(self):
+    def add_main_batch_steps(self):
         """
         Runnable steps to be executed while environment is running.
         """
         pass
 
-    def post_main_steps(self):
+    def add_post_main_steps(self):
         """
         Runnable steps to run before environment stopped.
         """
         pass
 
-    def post_resource_steps(self):
+    def add_stop_resource_steps(self):
+        """
+        Runnable steps to stop environment
+        """
+        self._add_step(self.resources.stop, is_reversed=True)
+
+    def add_post_resource_steps(self):
         """
         Runnable steps to run after environment stopped.
         """
@@ -1106,7 +1161,9 @@ class Runnable(Entity):
 
                 self.logger.user_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
-                    target=self, http_port=self.cfg.interactive_port
+                    target=self,
+                    http_port=self.cfg.interactive_port,
+                    pre_start_environments=self.cfg.pre_start_environments,
                 )
                 thread = threading.Thread(target=self._ihandler)
                 # Testplan should exit even if interactive handler thread stuck
@@ -1118,9 +1175,16 @@ class Runnable(Entity):
                     while self._ihandler.active:
                         time.sleep(self.cfg.active_loop_sleep)
                     else:
+                        # TODO: need some rework
+                        # if we abort from ui, the ihandler.abort executes in http thread
+                        # if we abort by ^C, ihandler.abort is called in main thread
+                        # anyway this join will not be blocked
                         interruptible_join(
                             thread, timeout=self.cfg.abort_wait_timeout
                         )
+                        # if we abort from ui, we abort ihandler first, then testrunner
+                        # this abort will wait ihandler to be aborted
+                        # if we abort by ^C, testrunner.abort is already called, this will be noop
                         self.abort()
                 return self._ihandler
             else:
@@ -1165,6 +1229,9 @@ class FailedAction:
 
     def __bool__(self):
         return False
+
+
+ActionResult = Union[bool, FailedAction]
 
 
 class ResourceConfig(EntityConfig):
@@ -1252,6 +1319,9 @@ class Resource(Entity):
                 self.STATUS.STOPPED: self._wait_stopped,
             }
         )
+        self.event_recorder: EventRecorder = EventRecorder(
+            name=self.uid(), event_type="Executor"
+        )
 
     @property
     def context(self):
@@ -1303,6 +1373,8 @@ class Resource(Entity):
             )
             return
 
+        self.event_recorder.start_time = time.time()
+
         self.logger.info("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
@@ -1347,6 +1419,7 @@ class Resource(Entity):
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
             self.logger.info("%s stopped", self)
+        self.event_recorder.end_time = time.time()
 
     def pre_start(self):
         """
@@ -1381,24 +1454,34 @@ class Resource(Entity):
         """
         return []
 
-    def _wait_started(self, timeout=None):
+    def _wait_started(self, timeout: Optional[float] = None):
         """
         Changes status to STARTED, if possible.
 
         :param timeout: timeout in seconds
-        :type timeout: ``int`` or ``NoneType``
+        """
+        self._after_started()
+
+    def _after_started(self):
+        """
+        Common logic after a successful Resource start.
         """
         self.status.change(self.STATUS.STARTED)
         self.post_start()
         if self.cfg.post_start:
             self.cfg.post_start(self)
 
-    def _wait_stopped(self, timeout=None):
+    def _wait_stopped(self, timeout: Optional[float] = None):
         """
         Changes status to STOPPED, if possible.
 
         :param timeout: timeout in seconds
-        :type timeout: ``int`` or ``NoneType``
+        """
+        self._after_stopped()
+
+    def _after_stopped(self):
+        """
+        Common logic after a successful Resource stop.
         """
         self.status.change(self.STATUS.STOPPED)
         self.post_stop()
@@ -1628,14 +1711,10 @@ class RunnableManager(Entity):
         :rtype: :py:class:
             `RunnableResult <testplan.common.entity.base.RunnableResult>`
         """
-        try:
+        with suppress(ValueError):
+            # best effort signal handling
             for sig in self._cfg.abort_signals:
                 signal.signal(sig, self._handle_abort)
-        except ValueError:
-            self.logger.warning(
-                "Not able to install signal handler -"
-                " signal only works in main thread"
-            )
 
         execute_as_thread(
             self._runnable.run,
@@ -1644,7 +1723,9 @@ class RunnableManager(Entity):
             break_join=lambda: self.aborted is True,
         )
         if self._runnable.interactive is not None:
-            return self._runnable.interactive
+            # for testing purpose
+            if self.cfg.interactive_block is False:
+                return self._runnable.interactive
         if isinstance(self._runnable.result, Exception):
             raise self._runnable.result
         return self._runnable.result
@@ -1657,6 +1738,7 @@ class RunnableManager(Entity):
             signum,
             threading.current_thread(),
         )
+
         self.abort()
 
     def pausing(self):

@@ -4,25 +4,29 @@ import logging
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Pattern, Union, Tuple, Callable, Dict, Any
+from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
 
-from testplan.common.config import ConfigOption
-from testplan.common.config.base import validate_func
+from testplan.common.config import UNSET, UNSET_T, ConfigOption, validate_func
 from testplan.common.entity import (
+    ActionResult,
+    FailedAction,
     Resource,
     ResourceConfig,
-    FailedAction,
 )
-from testplan.common.utils.context import ContextValue
+from testplan.common.utils.context import ContextValue, render
 from testplan.common.utils.documentation_helper import (
+    emphasized,
     get_metaclass_for_documentation,
 )
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import instantiate
-from testplan.common.utils.timing import wait
-from testplan.common.utils.documentation_helper import emphasized
+from testplan.common.utils.timing import (
+    DEFAULT_INTERVAL,
+    PollInterval,
+    get_sleeper,
+)
 
 
 def format_regexp_matches(
@@ -134,7 +138,7 @@ class DriverConfig(ResourceConfig):
             ConfigOption("stdout_regexps", default=None): Or(None, list),
             ConfigOption("stderr_regexps", default=None): Or(None, list),
             ConfigOption("file_logger", default=None): Or(None, str),
-            ConfigOption("async_start", default=False): bool,
+            ConfigOption("async_start", default=UNSET): Or(UNSET_T, bool),
             ConfigOption("report_errors_from_logs", default=False): bool,
             ConfigOption("error_logs_max_lines", default=10): int,
             ConfigOption("path_cleanup", default=True): bool,
@@ -188,7 +192,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         stdout_regexps: List[Pattern] = None,
         stderr_regexps: List[Pattern] = None,
         file_logger: str = None,
-        async_start: bool = False,
+        async_start: Union[UNSET_T, bool] = UNSET,
         report_errors_from_logs: bool = False,
         error_logs_max_lines: int = 10,
         pre_start: Callable = None,
@@ -206,42 +210,67 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         self.extracts = {}
         self._file_log_handler = None
 
+        # NOTE: We should get rid of `async_start` in the future,
+        # NOTE: we still keep it now for compatibility.
+        self._async_start_override: Optional[bool] = None
+
     @emphasized
     @property
-    def name(self):
+    def name(self) -> str:
         """Driver name."""
         return self.cfg.name
 
     @emphasized
-    def uid(self):
+    def uid(self) -> str:
         """Driver uid."""
         return self.cfg.name
+
+    @property
+    def async_start(self) -> bool:
+        """Overrides the default `async_start` value in config."""
+        return (
+            self._async_start_override
+            if self._async_start_override is not None
+            else self.cfg.async_start
+        )
+
+    @async_start.setter
+    def async_start(self, async_start_override: bool):
+        self._async_start_override = async_start_override
 
     def pre_start(self) -> None:
         """Steps to be executed right before resource starts."""
         self.make_runpath_dirs()
 
-    def started_check(self, timeout: float = None) -> None:
+    @property
+    def started_check_interval(self) -> PollInterval:
         """
-        Checks if the driver has started.
+        Driver started check interval.
+        In practice this value is lower-bounded by 0.1 seconds.
+        """
+        return DEFAULT_INTERVAL
 
-        :param timeout: status check timeout in seconds
-        :raise: TimeoutException
-        """
-        timeout = timeout if timeout is not None else self.cfg.timeout
-        wait(
-            lambda: self.extract_values(),
-            timeout,
-            raise_on_timeout=True,
-        )
+    @property
+    def stopped_check_interval(self) -> PollInterval:
+        """Driver stopped check interval."""
+        return DEFAULT_INTERVAL
 
-    def stopped_check(self, timeout: float = None) -> None:
+    def started_check(self) -> ActionResult:
         """
-        Checks if driver has stopped.
+        Predicate indicating whether driver has fully started.
 
-        param timeout: status check timeout in seconds
+        Default implementation tests whether certain pattern exists in driver
+        loggings, always returns True if no pattern is required.
         """
-        pass
+        return self.extract_values()
+
+    def stopped_check(self) -> ActionResult:
+        """
+        Predicate indicating whether driver has fully stopped.
+
+        Default implementation immediately returns True.
+        """
+        return True
 
     def starting(self) -> None:
         """Triggers driver start."""
@@ -251,21 +280,33 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Triggers driver stop."""
         self._close_file_logger()
 
-    def _wait_started(self, timeout: float = None) -> None:
-        self.started_check(timeout=timeout)
+    def _wait_started(self, timeout: Optional[float] = None) -> None:
+        sleeper = get_sleeper(
+            interval=self.started_check_interval,
+            timeout=timeout if timeout is not None else self.cfg.timeout,
+            raise_timeout_with_msg=lambda: f"Timeout when starting {self}",
+            timeout_info=True,
+        )
+        while next(sleeper):
+            if self.started_check():
+                break
         super(Driver, self)._wait_started(timeout=timeout)
 
-    def _wait_stopped(self, timeout: float = None) -> None:
-        self.stopped_check(timeout=timeout)
+    def _wait_stopped(self, timeout: Optional[float] = None) -> None:
+        sleeper = get_sleeper(
+            interval=self.stopped_check_interval,
+            timeout=timeout if timeout is not None else self.cfg.timeout,
+            raise_timeout_with_msg=lambda: f"Timeout when stopping {self}",
+            timeout_info=True,
+        )
+        while next(sleeper):
+            if self.stopped_check():
+                break
         super(Driver, self)._wait_stopped(timeout=timeout)
 
     def aborting(self) -> None:
         """Triggers driver abort."""
         self._close_file_logger()
-
-    def context_input(self) -> Dict[str, Any]:
-        """Driver context information."""
-        return {attr: getattr(self, attr) for attr in dir(self)}
 
     @property
     def logpath(self):
@@ -282,7 +323,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Path for stderr file regexp matching."""
         return None
 
-    def extract_values(self) -> Union[bool, FailedAction]:
+    def extract_values(self) -> ActionResult:
         """Extract matching values from input regex configuration options."""
         log_unmatched = []
         stdout_unmatched = []
@@ -355,15 +396,18 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def _install_target(self):
         raise NotImplementedError()
 
-    def _install_files(self) -> None:
-
+    def install_files(self) -> None:
+        """
+        Installs the files specified in the install_files parameter at the install target.
+        """
+        context = self.context_input()
         for install_file in self.cfg.install_files:
             if isinstance(install_file, str):
+                # may have jinja2/tempita template in file path
+                install_file = render(install_file, context)
                 if not os.path.isfile(install_file):
                     raise ValueError("{} is not a file".format(install_file))
-                instantiate(
-                    install_file, self.context_input(), self._install_target()
-                )
+                instantiate(install_file, context, self._install_target())
             elif isinstance(install_file, tuple):
                 if len(install_file) != 2:
                     raise ValueError(
@@ -371,6 +415,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                         "destination) pair; got {}".format(install_file)
                     )
                 src, dst = install_file
+                # may have jinja2/tempita template in file path
+                src = render(src, context)
+                dst = render(dst, context)
                 if not os.path.isabs(dst):
                     dst = os.path.join(self._install_target(), dst)
                 instantiate(src, self.context_input(), dst)

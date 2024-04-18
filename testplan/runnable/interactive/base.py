@@ -1,26 +1,28 @@
 """
 Interactive handler for TestRunner runnable class.
 """
-
-import os
-import re
 import numbers
+import re
+import socket
 import threading
+import warnings
 from concurrent import futures
+from typing import Awaitable, Dict, Optional, Union
 
-from testplan.common import entity
-from testplan.common import config
-from testplan.common.utils import networking
+from testplan.common import config, entity
 from testplan.common.report import Report
+from testplan.common.utils.networking import get_hostname_access_url
+from testplan.report import (
+    ReportCategories,
+    RuntimeStatus,
+    Status,
+    TestGroupReport,
+    TestReport,
+)
+from testplan.runnable.interactive import http, reloader, resource_loader
 
-from testplan.runnable.interactive import http
-from testplan.runnable.interactive import reloader
-from testplan.runnable.interactive import resource_loader
 
-from testplan.report import TestReport, TestGroupReport, Status, RuntimeStatus
-
-
-def _exclude_assertions_filter(obj):
+def _exclude_assertions_filter(obj: object) -> bool:
     try:
         return obj["meta_type"] not in ("entry", "assertion")
     except Exception:
@@ -52,7 +54,13 @@ class TestRunnerIHandler(entity.Entity):
     CONFIG = TestRunnerIHandlerConfig
     STATUS = entity.RunnableStatus
 
-    def __init__(self, target, startup_timeout=10, http_port=0):
+    def __init__(
+        self,
+        target,
+        startup_timeout=10,
+        http_port=0,
+        pre_start_environments=None,
+    ):
         super(TestRunnerIHandler, self).__init__(
             target=target, startup_timeout=startup_timeout, http_port=http_port
         )
@@ -63,6 +71,7 @@ class TestRunnerIHandler(entity.Entity):
         self._pool = None
         self._http_handler = None
         self._created_environments = {}
+        self.pre_start_environments = pre_start_environments
 
         try:
             self._reloader = reloader.ModuleReloader(
@@ -113,6 +122,7 @@ class TestRunnerIHandler(entity.Entity):
     def setup(self):
         """Set up the task pool and HTTP handler."""
         self.target.make_runpath_dirs()
+        self.report.information.append(("runpath", self.target.runpath))
         self.target._configure_file_logger()
         self.logger.info(
             "Starting %s for %s",
@@ -131,6 +141,9 @@ class TestRunnerIHandler(entity.Entity):
             raise RuntimeError("setup() not run")
 
         self.status.change(entity.RunnableStatus.RUNNING)
+        if self.pre_start_environments is not None:
+            for env in self.pre_start_environments:
+                self.start_test_resources(env, await_results=False)
         self._display_connection_info()
         with self._pool:
             self._http_handler.run()
@@ -145,7 +158,7 @@ class TestRunnerIHandler(entity.Entity):
 
     def teardown(self):
         """Close the task pool."""
-        self.logger.test_info("Stopping %s for %s", self, self.target)
+        self.logger.user_info("Stopping %s for %s", self, self.target)
 
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")
@@ -215,10 +228,15 @@ class TestRunnerIHandler(entity.Entity):
             # After reset the runtime_status will be 'READY'
             self._update_reports([(self.test(test_uid).dry_run().report, [])])
 
-    def run_all_tests(self, await_results=True):
+    def run_all_tests(
+        self,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
+    ) -> Union[TestReport, Awaitable]:
         """
-        Run all tests.
+        Runs all tests.
 
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until tests are finished,
             defaults to True.
         :return: If await_results is True, returns a testplan report.
@@ -226,18 +244,32 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_all_tests)
+            return self._run_async(
+                self.run_all_tests, shallow_report=shallow_report
+            )
 
-        self.logger.debug("Interactive mode: Run all tests")
+        if shallow_report:
+            self.logger.debug("Interactive mode: Run filtered tests")
+            for multitest in shallow_report["entries"]:
+                self.run_test(
+                    test_uid=multitest["name"], shallow_report=multitest
+                )
+        else:
+            self.logger.debug("Interactive mode: Run all tests")
+            for test_uid in self.all_tests():
+                self.run_test(test_uid=test_uid)
 
-        for test_uid in self.all_tests():
-            self.run_test(test_uid)
-
-    def run_test(self, test_uid, await_results=True):
+    def run_test(
+        self,
+        test_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
+    ) -> Union[TestReport, Awaitable]:
         """
         Run a single Test instance.
 
         :param test_uid: UID of test to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the test is finished,
             defaults to True.
         :return: If await_results is True, returns a test report.
@@ -245,7 +277,9 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_test, test_uid)
+            return self._run_async(
+                self.run_test, test_uid, shallow_report=shallow_report
+            )
 
         try:
             self._auto_start_environment(test_uid)
@@ -258,14 +292,25 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self.logger.debug('Run test ["%s"]', test_uid)
-            self._update_reports(self.test(test_uid).run_testcases_iter())
+            self._update_reports(
+                self.test(test_uid).run_testcases_iter(
+                    shallow_report=shallow_report
+                )
+            )
 
-    def run_test_suite(self, test_uid, suite_uid, await_results=True):
+    def run_test_suite(
+        self,
+        test_uid: str,
+        suite_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
+    ) -> Union[TestReport, Awaitable]:
         """
         Run a single test suite.
 
         :param test_uid: UID of the test that owns the suite.
         :param suite_uid: UID of the suite to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the suite is finished,
             defaults to True.
         :return: If await_results is True, returns a testsuite report.
@@ -273,7 +318,12 @@ class TestRunnerIHandler(entity.Entity):
             when ready.
         """
         if not await_results:
-            return self._run_async(self.run_test_suite, test_uid, suite_uid)
+            return self._run_async(
+                self.run_test_suite,
+                test_uid,
+                suite_uid,
+                shallow_report=shallow_report,
+            )
 
         try:
             self._auto_start_environment(test_uid)
@@ -293,17 +343,25 @@ class TestRunnerIHandler(entity.Entity):
             self.logger.debug('Run suite ["%s" / "%s"]', test_uid, suite_uid)
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid
+                    testsuite_pattern=suite_uid, shallow_report=shallow_report
                 )
             )
 
-    def run_test_case(self, test_uid, suite_uid, case_uid, await_results=True):
+    def run_test_case(
+        self,
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
+    ) -> Union[TestReport, Awaitable]:
         """
         Run a single testcase.
 
         :param test_uid: UID of the test that owns the testcase.
         :param suite_uid: UID of the suite that owns the testcase.
         :param case_uid: UID of the testcase to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a testcase report.
@@ -316,6 +374,7 @@ class TestRunnerIHandler(entity.Entity):
                 test_uid,
                 suite_uid,
                 case_uid,
+                shallow_report=shallow_report,
             )
 
         try:
@@ -341,17 +400,20 @@ class TestRunnerIHandler(entity.Entity):
             )
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid, testcase_pattern=case_uid
+                    testsuite_pattern=suite_uid,
+                    testcase_pattern=case_uid,
+                    shallow_report=shallow_report,
                 )
             )
 
     def run_test_case_param(
         self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        param_uid,
-        await_results=True,
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        param_uid: str,
+        shallow_report: Optional[Dict] = None,
+        await_results: bool = True,
     ):
         """
         Run a single parametrization of a testcase.
@@ -360,6 +422,7 @@ class TestRunnerIHandler(entity.Entity):
         :param suite_uid: UID of the suite that owns the testcase.
         :param case_uid: UID of the testcase to run.
         :param param_uid: UID of the parametrization to run.
+        :param shallow_report: shallow report entry, optional
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a testcase report.
@@ -373,6 +436,7 @@ class TestRunnerIHandler(entity.Entity):
                 suite_uid,
                 case_uid,
                 param_uid,
+                shallow_report=shallow_report,
             )
 
         try:
@@ -399,7 +463,9 @@ class TestRunnerIHandler(entity.Entity):
             )
             self._update_reports(
                 self.test(test_uid).run_testcases_iter(
-                    testsuite_pattern=suite_uid, testcase_pattern=param_uid
+                    testsuite_pattern=suite_uid,
+                    testcase_pattern=param_uid,
+                    shallow_report=shallow_report,
                 )
             )
 
@@ -424,7 +490,7 @@ class TestRunnerIHandler(entity.Entity):
 
         exceptions = self.test(test_uid).resources.start_exceptions
         if exceptions:
-            self._log_env_errors(test_uid, exceptions.values())
+            self.test(test_uid).stop_test_resources()
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
             raise RuntimeError(
                 "Exception raised during starting drivers: {}".format(
@@ -455,7 +521,6 @@ class TestRunnerIHandler(entity.Entity):
 
         exceptions = self.test(test_uid).resources.stop_exceptions
         if exceptions:
-            self._log_env_errors(test_uid, exceptions.values())
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
             raise RuntimeError(
                 "Exception raised during stopping drivers: {}".format(
@@ -503,7 +568,7 @@ class TestRunnerIHandler(entity.Entity):
                 if obj.uid == case_uid:
                     return True
                 return obj.uid == suite_uid or (
-                    obj.category == "parametrization"
+                    obj.category == ReportCategories.PARAMETRIZATION
                     and any(entry.uid == case_uid for entry in obj.entries)
                 )
             except Exception:
@@ -661,71 +726,6 @@ class TestRunnerIHandler(entity.Entity):
             else:
                 raise ValueError("Unknown operation: {}".format(operation))
 
-    def create_new_environment(self, env_uid, env_type="local_environment"):
-        """Dynamically create an environment maker object."""
-        if env_uid in self._created_environments:
-            raise RuntimeError(
-                "Environment {} already exists.".format(env_uid)
-            )
-
-        if env_type == "local_environment":
-            from testplan.environment import LocalEnvironment
-
-            env_class = LocalEnvironment
-        else:
-            raise ValueError("Unknown environment type: {}".format(env_type))
-
-        self._created_environments[env_uid] = env_class(env_uid)
-
-    def add_environment_resource(
-        self, env_uid, target_class_name, source_file=None, **kwargs
-    ):
-        """
-        Add a resource to existing environment or to environment maker object.
-        """
-        final_kwargs = {}
-        compiled = re.compile(r"_ctx_(.+)_ctx_(.+)")
-        context_params = {}
-        for key, value in kwargs.items():
-            if key.startswith("_ctx_"):
-                matched = compiled.match(key)
-                if not matched or key.count("_ctx_") != 2:
-                    raise ValueError("Invalid key: {}".format(key))
-                target_key, ctx_key = matched.groups()
-                if target_key not in context_params:
-                    context_params[target_key] = {}
-                context_params[target_key][ctx_key] = value
-            else:
-                final_kwargs[key] = value
-        if context_params:
-            from testplan.common.utils.context import context
-
-            for key in context_params:
-                final_kwargs[key] = context(**context_params[key])
-
-        if source_file is None:  # Invoke class loader
-            resource = self._resource_loader.load(
-                target_class_name, final_kwargs
-            )
-            try:
-                self.get_environment(env_uid).add(resource)
-            except:
-                self._created_environments[env_uid].add_resource(resource)
-        else:
-            raise Exception("Add from source file is not yet supported.")
-
-    def reload_environment_resource(
-        self, env_uid, target_class_name, source_file=None, **kwargs
-    ):
-        # Placeholder for function to delele an existing and registering a new
-        # environment resource with probably altered source code.
-        # This should access the already added Environment to plan.
-        pass
-
-    def add_created_environment(self, env_uid):
-        """Add an environment from the created environment maker instance."""
-        self.target.add_environment(self._created_environments[env_uid])
-
     def reload(self, rebuild_dependencies=False):
         """Reload test suites."""
         if self._reloader is None:
@@ -736,25 +736,30 @@ class TestRunnerIHandler(entity.Entity):
     def reload_report(self):
         """Update report with added/removed testcases"""
         new_report = self._initial_report()
-        for mt in self.report.entries:  # multitest level
-            for st_index in range(len(mt.entries)):  # testsuite level
-                st = mt.entries[st_index]
-                new_st = new_report[mt.uid][st.uid]
-                for new_case_index in range(
-                    len(new_report[mt.uid][st.uid].entries)
-                ):  # testcase level
+        for multitest in self.report.entries:  # multitest level
+            for suite_index, suite in enumerate(multitest.entries):
+                new_suite = new_report[multitest.uid][suite.uid]
+                for case_index, case in enumerate(suite.entries):
                     try:
-                        # Update new report testcase state
-                        new_report[mt.uid][st.uid].entries[
-                            new_case_index
-                        ] = st[
-                            new_report[mt.uid][st.uid]
-                            .entries[new_case_index]
-                            .uid
-                        ]
-                    except KeyError:  # new testcase
-                        pass
-                mt.entries[st_index] = new_st
+                        if isinstance(case, TestGroupReport):
+                            for param_index, param_case in enumerate(
+                                case.entries
+                            ):
+                                try:
+                                    new_report[multitest.uid][suite.uid][
+                                        case.uid
+                                    ].entries[param_index] = case[
+                                        param_case.uid
+                                    ]
+                                except (KeyError, IndexError):
+                                    continue
+                        else:
+                            new_report[multitest.uid][suite.uid].entries[
+                                case_index
+                            ] = suite[case.uid]
+                    except (KeyError, IndexError):
+                        continue
+                multitest.entries[suite_index] = new_suite
 
     def _setup_http_handler(self):
         """
@@ -770,7 +775,11 @@ class TestRunnerIHandler(entity.Entity):
             ihandler=self, port=self.cfg.http_port
         )
         http_handler.cfg.parent = self.cfg
-        http_handler.setup()
+
+        # Mute flask_restx warning.
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            http_handler.setup()
 
         return http_handler
 
@@ -787,8 +796,8 @@ class TestRunnerIHandler(entity.Entity):
             )
 
         self.logger.user_info(
-            "\nInteractive Testplan web UI is running. Access it at:\n%s",
-            networking.format_access_urls(host, port, "/interactive/"),
+            "\nInteractive Testplan web UI is running. Access it at: %s",
+            get_hostname_access_url(port, "/interactive"),
         )
 
     def _initial_report(self):
@@ -801,31 +810,11 @@ class TestRunnerIHandler(entity.Entity):
 
         for test_uid in self.all_tests():
             test = self.test(test_uid)
+            test.reset_context()
             test_report = test.dry_run().report
             report.append(test_report)
 
         return report
-
-    def _run_all_test_operations(self, test_run_generator):
-        """Run all test operations."""
-        return [
-            self._run_test_operation(operation, args, kwargs)
-            for operation, args, kwargs in test_run_generator
-        ]
-
-    def _run_test_operation(self, test_operation, args, kwargs):
-        """Run a test operation and update our report tree with the results."""
-        result = test_operation(*args, **kwargs)
-
-        if isinstance(result, TestGroupReport):
-            self.logger.debug("Merge test result: %s", result)
-            with self.report_mutex:
-                self.report[result.uid].merge(result)
-        elif result is not None:
-            self.logger.debug(
-                "Discarding result from test operation: %s", result
-            )
-        return result
 
     def _auto_start_environment(self, test_uid):
         """Start environment if required."""
@@ -863,14 +852,6 @@ class TestRunnerIHandler(entity.Entity):
             )
             self.report[test_uid].env_status = new_status
 
-    def _log_env_errors(self, test_uid, error_messages):
-        """Log errors during environment start/stop for a given test."""
-        test_report = self.report[test_uid]
-        with self.report_mutex:
-            for errmsg in error_messages:
-                test_report.logger.error(errmsg)
-            test_report.status_override = Status.ERROR
-
     def _clear_env_errors(self, test_uid):
         """Remove error logs about environment start/stop for a given test."""
         test = self.test(test_uid)
@@ -881,7 +862,7 @@ class TestRunnerIHandler(entity.Entity):
             test_report.logs.clear()
             test_report.status_override = None
 
-    def _run_async(self, func, *args, **kwargs):
+    def _run_async(self, func, *args, **kwargs) -> Awaitable:
         """
         Schedule a function to run asynchronously in our task pool. We add a
         callback to ensure that all async exceptions are logged, for debugging

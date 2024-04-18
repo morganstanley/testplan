@@ -10,7 +10,7 @@ jobs:
       is_source_changed: ${{steps.check_source_change.outputs.changed}}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Check if any source changed
@@ -48,9 +48,9 @@ jobs:
       LINT_PYTHON_VERSION: "3.7"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python ${{ env.LINT_PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.LINT_PYTHON_VERSION }}
       - name: Restore pip cache
@@ -70,21 +70,21 @@ jobs:
       REACT_APP_API_BASE_URL: "/fake/api/endpoint"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "14.x"
+          node-version: "16.x"
       - name: Restore pip cache
         uses: ./.github/actions/pip-cache
       - name: Set up PNPM
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v3
         with:
-          version: 6.30.1
+          version: 8.10.4
       - name: Setup
         run: |
           pip install -r requirements-build.txt -U
@@ -94,7 +94,7 @@ jobs:
             CI=false doit build_ui            
             doit test_ui
       - name: Archive ui artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ui_bundle
           path: testplan/web_ui/testing/build
@@ -115,15 +115,15 @@ jobs:
     steps:
       - run: echo "BUILD ${{ matrix.os }} ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore pip cache
         uses: ./.github/actions/pip-cache
       - name: Download ui bundle
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ui_bundle
           path: testplan/web_ui/testing/build
@@ -133,7 +133,7 @@ jobs:
       - name: Set up Kafka for tests
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          wget https://downloads.apache.org/kafka/2.8.2/kafka_2.12-2.8.2.tgz -O kafka.tgz
+          wget https://downloads.apache.org/kafka/3.5.2/kafka_2.13-3.5.2.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1

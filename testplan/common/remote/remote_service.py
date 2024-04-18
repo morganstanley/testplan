@@ -81,9 +81,9 @@ class RemoteService(Resource, RemoteResource):
 
         self.proc: Optional[subprocess.Popen] = None
         # This mirrors the way default config is assigned, we only change
-        # snyc_request_timeout and pass it for the Connection object implicitly
+        # sync_request_timeout and pass it for the Connection object implicitly
         self.rpyc_config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
-        self.rpyc_config["snyc_request_timeout"] = None
+        self.rpyc_config["sync_request_timeout"] = None
         self.rpyc_connection: Connection = None
         self.rpyc_port: Optional[int] = None
         self.rpyc_pid: Optional[int] = None
@@ -155,7 +155,7 @@ class RemoteService(Resource, RemoteResource):
         Waits for RPyC server start, changes status to STARTED.
 
         :param timeout: timeout in seconds
-        :raises: RuntimeError if server startup fails
+        :raises RuntimeError: if server startup fails
         """
         sleeper = get_sleeper(
             interval=0.2,

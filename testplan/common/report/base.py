@@ -8,10 +8,14 @@ Later on these reports would be merged together to
 build the final report as the testplan result.
 """
 import copy
-import collections
+import uuid
 import itertools
+import collections
+import dataclasses
+from typing import Dict, List, Optional
 
 from testplan.common.utils import strings
+from testplan.monitor.event import EventRecorder
 from .log import create_logging_adapter
 
 
@@ -52,11 +56,17 @@ class Report:
     exception_logger = ExceptionLogger
 
     def __init__(
-        self, name, description=None, uid=None, entries=None, parent_uids=None
+        self,
+        name: str,
+        description: Optional[str] = None,
+        definition_name: Optional[str] = None,
+        uid: Optional[str] = None,
+        entries: Optional[list] = None,
+        parent_uids: Optional[List[str]] = None,
     ):
         self.name = name
         self.description = description
-
+        self.definition_name = definition_name or name
         self.uid = uid or name
         self.entries = entries or []
 
@@ -72,12 +82,12 @@ class Report:
         self.parent_uids = parent_uids or []
 
     def __str__(self):
-        return '{kls}(name="{name}", id="{uid}")'.format(
+        return '{kls}(name="{name}", uid="{uid}")'.format(
             kls=self.__class__.__name__, name=self.name, uid=self.uid
         )
 
     def __repr__(self):
-        return '{kls}(name="{name}", id="{uid}", entries={entries})'.format(
+        return '{kls}(name="{name}", uid="{uid}", entries={entries})'.format(
             kls=self.__class__.__name__,
             name=self.name,
             uid=self.uid,
@@ -126,15 +136,15 @@ class Report:
 
     def _check_report(self, report):
         """
-        Utility method for checking `report` `type` and `uid`.
+        Utility method for checking `report` `type` and `definition_name`.
         """
         msg = "Report check failed for `{}` and `{}`. ".format(self, report)
 
-        if report.uid != self.uid:
+        if report.definition_name != self.definition_name:
             raise AttributeError(
                 msg
-                + "`uid` attributes (`{}`, `{}`) do not match.".format(
-                    self.uid, report.uid
+                + "`definition_name` attributes (`{}`, `{}`) do not match.".format(
+                    self.definition_name, report.definition_name
                 )
             )
 
@@ -204,6 +214,12 @@ class Report:
         """
         return [(depth, entry) for entry in self]
 
+    def is_empty(self) -> bool:
+        """
+        Check report is empty or not.
+        """
+        return len(self.entries) == len(self.logs) == 0
+
     @property
     def hash(self):
         """Return a hash of all entries in this report."""
@@ -216,15 +232,35 @@ class ReportGroup(Report):
     Allows O(1) child report lookup via `get_by_uid` method.
     """
 
-    def __init__(self, name, **kwargs):
+    def __init__(
+        self,
+        name: str,
+        events: Dict = None,
+        host: Optional[str] = None,
+        **kwargs
+    ):
         super(ReportGroup, self).__init__(name=name, **kwargs)
 
         # Mapping of UID to index in the list of entries.
-        self._index = {}
+        self.host: Optional[str] = host
+        self._index: Dict = {}
+        self._events: Dict[str, EventRecorder] = events or {}
         self.build_index()
 
         for child in self.entries:
             self.set_parent_uids(child)
+
+    def add_event(
+        self, event_executor: EventRecorder, event_id: Optional[str] = None
+    ) -> str:
+        if event_id is None:
+            event_id = uuid.uuid4().hex
+        self._events[event_id] = event_executor
+        return event_id
+
+    @property
+    def events(self) -> Dict[str, Dict]:
+        return {k: dataclasses.asdict(v) for k, v in self._events.items()}
 
     def build_index(self, recursive=False):
         """
@@ -277,6 +313,12 @@ class ReportGroup(Report):
         :type uid: ``hashable``
         """
         return self.entries[self._index[uid]]
+
+    def has_uid(self, uid):
+        """
+        Has a child report of `uid`
+        """
+        return uid in self._index
 
     def __getitem__(self, uid):
         """Shortcut to `get_by_uid()` method via [] operator."""

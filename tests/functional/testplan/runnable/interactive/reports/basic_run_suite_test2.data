@@ -1,0 +1,395 @@
+{
+    "entries": [
+        {
+            "entries": [
+                {
+                    "definition_name": "accept_connection",
+                    "status_reason": null,
+                    "entries": [],
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "logs": [],
+                    "name": "accept_connection",
+                    "status_override": null,
+                    "description": null,
+                    "uid": "accept_connection",
+                    "hash": 0,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2",
+                        "After Start"
+                    ],
+                    "suite_related": true,
+                    "timer": {
+                        "run": {
+                            "start": "2023-11-28T01:56:24.998666+00:00",
+                            "end": "2023-11-28T01:56:24.998713+00:00"
+                        }
+                    },
+                    "status": "passed",
+                    "category": "testcase",
+                    "tags": {},
+                    "type": "TestCaseReport",
+                    "runtime_status": "finished"
+                }
+            ],
+            "logs": [],
+            "strict_order": false,
+            "events": {},
+            "fix_spec_path": null,
+            "timer": {},
+            "parent_uids": [
+                "InteractivePlan",
+                "Test2"
+            ],
+            "part": null,
+            "status": "passed",
+            "host": null,
+            "runtime_status": "finished",
+            "status_reason": null,
+            "counter": {
+                "passed": 1,
+                "failed": 0,
+                "total": 1
+            },
+            "suite_related": true,
+            "description": null,
+            "uid": "After Start",
+            "category": "testsuite",
+            "tags": {},
+            "type": "TestGroupReport",
+            "definition_name": "After Start",
+            "name": "After Start",
+            "status_override": null,
+            "hash": 0,
+            "env_status": null
+        },
+        {
+            "entries": [
+                {
+                    "entries": [
+                        {
+                            "definition_name": "basic_case <arg=0>",
+                            "status_reason": null,
+                            "entries": [],
+                            "counter": {
+                                "passed": 0,
+                                "failed": 0,
+                                "total": 1,
+                                "unknown": 1
+                            },
+                            "logs": [],
+                            "name": "basic_case <arg=0>",
+                            "status_override": null,
+                            "description": null,
+                            "uid": "basic_case__arg_0",
+                            "hash": 0,
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "BasicSuite",
+                                "basic_case"
+                            ],
+                            "suite_related": false,
+                            "timer": {},
+                            "status": "unknown",
+                            "category": "testcase",
+                            "tags": {},
+                            "type": "TestCaseReport",
+                            "runtime_status": "ready"
+                        },
+                        {
+                            "definition_name": "basic_case <arg=1>",
+                            "status_reason": null,
+                            "entries": [],
+                            "counter": {
+                                "passed": 0,
+                                "failed": 0,
+                                "total": 1,
+                                "unknown": 1
+                            },
+                            "logs": [],
+                            "name": "basic_case <arg=1>",
+                            "status_override": null,
+                            "description": null,
+                            "uid": "basic_case__arg_1",
+                            "hash": 0,
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "BasicSuite",
+                                "basic_case"
+                            ],
+                            "suite_related": false,
+                            "timer": {},
+                            "status": "unknown",
+                            "category": "testcase",
+                            "tags": {},
+                            "type": "TestCaseReport",
+                            "runtime_status": "ready"
+                        },
+                        {
+                            "definition_name": "basic_case <arg=2>",
+                            "status_reason": null,
+                            "entries": [],
+                            "counter": {
+                                "passed": 0,
+                                "failed": 0,
+                                "total": 1,
+                                "unknown": 1
+                            },
+                            "logs": [],
+                            "name": "basic_case <arg=2>",
+                            "status_override": null,
+                            "description": null,
+                            "uid": "basic_case__arg_2",
+                            "hash": 0,
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "BasicSuite",
+                                "basic_case"
+                            ],
+                            "suite_related": false,
+                            "timer": {},
+                            "status": "unknown",
+                            "category": "testcase",
+                            "tags": {},
+                            "type": "TestCaseReport",
+                            "runtime_status": "ready"
+                        }
+                    ],
+                    "logs": [],
+                    "strict_order": false,
+                    "events": {},
+                    "fix_spec_path": null,
+                    "timer": {},
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2",
+                        "BasicSuite"
+                    ],
+                    "part": null,
+                    "status": "unknown",
+                    "host": null,
+                    "runtime_status": "ready",
+                    "status_reason": null,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 3,
+                        "unknown": 3
+                    },
+                    "suite_related": false,
+                    "description": null,
+                    "uid": "basic_case",
+                    "category": "parametrization",
+                    "tags": {},
+                    "type": "TestGroupReport",
+                    "definition_name": "basic_case",
+                    "name": "basic_case",
+                    "status_override": null,
+                    "hash": 0,
+                    "env_status": null
+                }
+            ],
+            "logs": [],
+            "strict_order": false,
+            "events": {},
+            "fix_spec_path": null,
+            "timer": {},
+            "parent_uids": [
+                "InteractivePlan",
+                "Test2"
+            ],
+            "part": null,
+            "status": "unknown",
+            "host": null,
+            "runtime_status": "ready",
+            "status_reason": null,
+            "counter": {
+                "passed": 0,
+                "failed": 0,
+                "total": 3,
+                "unknown": 3
+            },
+            "suite_related": false,
+            "description": null,
+            "uid": "BasicSuite",
+            "category": "testsuite",
+            "tags": {},
+            "type": "TestGroupReport",
+            "definition_name": "BasicSuite",
+            "name": "BasicSuite",
+            "status_override": null,
+            "hash": 0,
+            "env_status": null
+        },
+        {
+            "entries": [
+                {
+                    "definition_name": "send_and_receive_msg",
+                    "status_reason": null,
+                    "entries": [],
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 1,
+                        "unknown": 1
+                    },
+                    "logs": [],
+                    "name": "send_and_receive_msg",
+                    "status_override": null,
+                    "description": "Client sends a message, server received and responds back.",
+                    "uid": "send_and_receive_msg",
+                    "hash": 0,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2",
+                        "Custom_0"
+                    ],
+                    "suite_related": false,
+                    "timer": {},
+                    "status": "unknown",
+                    "category": "testcase",
+                    "tags": {},
+                    "type": "TestCaseReport",
+                    "runtime_status": "ready"
+                }
+            ],
+            "logs": [],
+            "strict_order": false,
+            "events": {},
+            "fix_spec_path": null,
+            "timer": {},
+            "parent_uids": [
+                "InteractivePlan",
+                "Test2"
+            ],
+            "part": null,
+            "status": "unknown",
+            "host": null,
+            "runtime_status": "ready",
+            "status_reason": null,
+            "counter": {
+                "passed": 0,
+                "failed": 0,
+                "total": 1,
+                "unknown": 1
+            },
+            "suite_related": false,
+            "description": null,
+            "uid": "Custom_0",
+            "category": "testsuite",
+            "tags": {},
+            "type": "TestGroupReport",
+            "definition_name": "Custom_0",
+            "name": "Custom_0",
+            "status_override": null,
+            "hash": 0,
+            "env_status": null
+        },
+        {
+            "entries": [
+                {
+                    "definition_name": "send_and_receive_msg",
+                    "status_reason": null,
+                    "entries": [],
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 1,
+                        "unknown": 1
+                    },
+                    "logs": [],
+                    "name": "send_and_receive_msg",
+                    "status_override": null,
+                    "description": "Client sends a message, server received and responds back.",
+                    "uid": "send_and_receive_msg",
+                    "hash": 0,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2",
+                        "Custom_1"
+                    ],
+                    "suite_related": false,
+                    "timer": {},
+                    "status": "unknown",
+                    "category": "testcase",
+                    "tags": {},
+                    "type": "TestCaseReport",
+                    "runtime_status": "ready"
+                }
+            ],
+            "logs": [],
+            "strict_order": false,
+            "events": {},
+            "fix_spec_path": null,
+            "timer": {},
+            "parent_uids": [
+                "InteractivePlan",
+                "Test2"
+            ],
+            "part": null,
+            "status": "unknown",
+            "host": null,
+            "runtime_status": "ready",
+            "status_reason": null,
+            "counter": {
+                "passed": 0,
+                "failed": 0,
+                "total": 1,
+                "unknown": 1
+            },
+            "suite_related": false,
+            "description": null,
+            "uid": "Custom_1",
+            "category": "testsuite",
+            "tags": {},
+            "type": "TestGroupReport",
+            "definition_name": "Custom_1",
+            "name": "Custom_1",
+            "status_override": null,
+            "hash": 0,
+            "env_status": null
+        }
+    ],
+    "logs": [],
+    "strict_order": false,
+    "events": {},
+    "fix_spec_path": null,
+    "timer": {
+        "setup": {
+            "start": "2023-11-28T01:56:24.908341+00:00",
+            "end": "2023-11-28T01:56:25.004204+00:00"
+        }
+    },
+    "parent_uids": [
+        "InteractivePlan"
+    ],
+    "part": null,
+    "status": "unknown",
+    "host": null,
+    "runtime_status": "ready",
+    "status_reason": null,
+    "counter": {
+        "passed": 1,
+        "failed": 0,
+        "total": 6,
+        "unknown": 5
+    },
+    "suite_related": false,
+    "description": null,
+    "uid": "Test2",
+    "category": "multitest",
+    "tags": {},
+    "type": "TestGroupReport",
+    "definition_name": "Test2",
+    "name": "Test2",
+    "status_override": null,
+    "hash": 0,
+    "env_status": "STARTED"
+}

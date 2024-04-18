@@ -4,10 +4,10 @@
 from marshmallow import Schema, fields, post_load
 from marshmallow.utils import EXCLUDE
 
-from testplan.common.serialization import schemas, fields as custom_fields
+from testplan.common.serialization import fields as custom_fields
+from testplan.common.serialization import schemas
 
-from .base import Report, ReportGroup
-
+from .base import EventRecorder, Report, ReportGroup
 
 __all__ = ["ReportLogSchema", "ReportSchema", "ReportGroupSchema"]
 
@@ -36,6 +36,9 @@ class ReportSchema(schemas.TreeNodeSchema):
 
     name = fields.String()
     description = fields.String(allow_none=True)
+    definition_name = fields.String(
+        allow_none=True
+    )  # otherwise new tpr cannot process old report
     entries = fields.List(custom_fields.NativeOrPretty())
     parent_uids = fields.List(fields.String())
 
@@ -64,3 +67,17 @@ class ReportGroupSchema(ReportSchema):
         },
         many=True,
     )
+
+
+class EventRecorderSchema(Schema):
+    """Schema for ``base.EventRecorder``."""
+
+    name = fields.String()
+    event_type = fields.String()
+    start_time = fields.Float(allow_none=True)
+    end_time = fields.Float(allow_none=True)
+    children = fields.Nested("EventRecorderSchema", many=True)
+
+    @post_load
+    def make_event_recorder(self, data, **kwargs):
+        return EventRecorder.load(data)

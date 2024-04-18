@@ -9,10 +9,14 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
       className="searchBoxIcon_ncmdki"
     >
       <FontAwesomeIcon
+        beat={false}
+        beatFade={false}
         border={false}
+        bounce={false}
         className=""
+        fade={false}
         fixedWidth={false}
-        flip={null}
+        flip={false}
         icon={
           Object {
             "icon": Array [
@@ -30,13 +34,19 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
         key="search"
         listItem={false}
         mask={null}
+        maskId={null}
         pull={null}
         pulse={false}
         rotation={null}
+        shake={false}
         size={null}
         spin={false}
+        spinPulse={false}
+        spinReverse={false}
+        swapOpacity={false}
         symbol={false}
         title="Search"
+        titleId={null}
         transform={null}
       />
     </span>
@@ -45,10 +55,14 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
       onClick={[Function]}
     >
       <FontAwesomeIcon
+        beat={false}
+        beatFade={false}
         border={false}
+        bounce={false}
         className=""
+        fade={false}
         fixedWidth={false}
-        flip={null}
+        flip={false}
         icon={
           Object {
             "icon": Array [
@@ -66,13 +80,19 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
         key="toolbar-info"
         listItem={false}
         mask={null}
+        maskId={null}
         pull={null}
         pulse={false}
         rotation={null}
+        shake={false}
         size={null}
         spin={false}
+        spinPulse={false}
+        spinReverse={false}
+        swapOpacity={false}
         symbol={false}
         title="Click for help"
+        titleId={null}
         transform={null}
       />
     </span>
@@ -100,11 +120,11 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
         tag="div"
       >
         <p>
-          Just start typing in the search bar. The test items are filtered automatically. The current selection if available in the serach are maintained. All the search are 
+          Just start typing in the search bar. The test items are filtered automatically. The current selection if available in the search are maintained. All searches are 
           <b>
             case insensitive
           </b>
-          .
+          , except for the regular expression search where case sensitivity is driven by the expression itself.
         </p>
         <p>
           You can search by 
@@ -139,6 +159,67 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
           <tbody>
             <tr
               key="0"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Specify a regular expression
+                <br />
+                <small>
+                  (search for any matches)
+                </small>
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      regexp
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <code>
+                      re
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      regexp:^addition.*_[0-9]+$
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      r:^addition.*_[0-9]+$
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="1"
             >
               <td
                 style={
@@ -199,7 +280,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
             </tr>
             <tr
-              key="1"
+              key="2"
             >
               <td
                 style={
@@ -260,7 +341,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
             </tr>
             <tr
-              key="2"
+              key="3"
             >
               <td
                 style={
@@ -321,7 +402,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
             </tr>
             <tr
-              key="3"
+              key="4"
             >
               <td
                 style={
@@ -374,7 +455,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
             </tr>
             <tr
-              key="4"
+              key="5"
             >
               <td
                 style={
@@ -423,7 +504,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
             </tr>
             <tr
-              key="5"
+              key="6"
             >
               <td
                 style={
@@ -452,7 +533,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
             </tr>
             <tr
-              key="6"
+              key="7"
             >
               <td
                 style={
@@ -509,7 +590,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
             </tr>
             <tr
-              key="7"
+              key="8"
             >
               <td
                 style={

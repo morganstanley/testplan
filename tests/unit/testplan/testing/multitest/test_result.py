@@ -19,7 +19,7 @@ from testplan.common.utils import testing
 from testplan.common.utils import callable
 from testplan.common.utils import path as path_utils
 
-from testplan.testing.multitest import result as result_mod
+from testplan.testing import result as result_mod
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import testcase, testsuite
 from testplan.report.testing import base as report_base
@@ -231,6 +231,46 @@ def test_assertion_order(mockplan):
 
     for idx, desc in enumerate(expected):
         assert desc == assertions[idx]["description"]
+
+
+@testsuite
+class AssertionFail:
+    @testcase
+    def fail_with_description(self, env, result):
+        result.fail(message="Invalid outcome", description="message not found")
+
+    @testcase
+    def fail_without_description(self, env, result):
+        # Same message will be used for description
+        result.fail(message="userid not found")
+
+
+def test_assertion_fail(mockplan):
+    """Verify ordered assertion entries in test report."""
+    mtest = MultiTest(name="AssertionFail", suites=[AssertionFail()])
+    mtest.cfg.parent = mockplan.cfg
+    mtest.run()
+
+    expected = [
+        {
+            "message": "Invalid outcome",
+            "description": "message not found",
+        },
+        {
+            "message": "userid not found",
+            "description": "userid not found",
+        },
+    ]
+
+    assertions = [
+        entry
+        for entry in mtest.report.flatten()
+        if isinstance(entry, dict) and entry["meta_type"] == "assertion"
+    ]
+
+    for idx, item in enumerate(expected):
+        assert item["description"] == assertions[idx]["description"]
+        assert item["message"] == assertions[idx]["message"]
 
 
 @testsuite
@@ -688,6 +728,139 @@ class TestFIXNamespace:
             _700[0] == 1
             and _700[2][0].lower() == comparison.Match.IGNORED
             and _700[4] == (None, "ABSENT")  # key not found in expected data
+        )
+
+    def test_subset_of_tags_with_include_tags_true(self, fix_ns):
+        """
+        Test the comparison result when the expected FIX message with repeating groups is the subset of the actual
+        while include_tags set to True.
+        """
+
+        expected = {
+            35: "D",
+            55: 2,
+            555: [
+                {
+                    601: "A",
+                    683: [
+                        {689: "a"},
+                        {689: "b"},
+                    ],
+                },
+                {
+                    601: "B",
+                    683: [
+                        {688: "c", 689: "c"},
+                        {688: "d"},
+                    ],
+                },
+            ],
+        }
+
+        actual = {
+            35: "D",
+            22: 5,
+            55: 2,
+            38: 5,
+            555: [
+                {
+                    600: "A",
+                    601: "A",
+                    683: [
+                        {688: "a", 689: "a"},
+                        {688: "b", 689: "b"},
+                    ],
+                },
+                {
+                    600: "B",
+                    601: "B",
+                    55: 4,
+                    683: [
+                        {688: "c", 689: "c"},
+                        {688: "d", 689: "d"},
+                    ],
+                },
+            ],
+        }
+
+        assert fix_ns.match(
+            actual=actual,
+            expected=expected,
+            description="complex fix message comparison",
+            include_only_expected=True,
+        )
+        assert len(fix_ns.result.entries) == 1
+
+        # Comparison result is a list of list items in below format:
+        # [indent, key, result, (act_type, act_value), (exp_type, exp_value)]
+
+        comp_result = fix_ns.result.entries[0].comparison
+
+        _35 = [item for item in comp_result if item[1] == 35][0]
+        assert _35[0] == 0 and _35[2][0].lower() == comparison.Match.PASS
+        _22 = [item for item in comp_result if item[1] == 22][0]
+        assert (
+            _22[0] == 0
+            and _22[2][0].lower() == comparison.Match.IGNORED
+            and _22[3][1] == "5"
+            and _22[4][1] == "ABSENT"
+        )
+        _55_1, _55_2 = [item for item in comp_result if item[1] == 55]
+        assert _55_1[0] == 0 and _55_1[2][0].lower() == comparison.Match.PASS
+        assert (
+            _55_2[0] == 1
+            and _55_2[2][0].lower() == comparison.Match.IGNORED
+            and _55_2[3][1] == "4"
+            and _55_2[4][1] == "ABSENT"
+        )
+        _38 = [item for item in comp_result if item[1] == 38][0]
+        assert (
+            _38[0] == 0
+            and _38[2][0].lower() == comparison.Match.IGNORED
+            and _38[3][1] == "5"
+            and _38[4][1] == "ABSENT"
+        )
+        _555 = [item for item in comp_result if item[1] == 555][0]
+        assert _555[0] == 0 and _555[2][0].lower() == comparison.Match.PASS
+        _600 = [item for item in comp_result if item[1] == 600][0]
+        assert (
+            _600[0] == 1
+            and _600[2][0].lower() == comparison.Match.IGNORED
+            and _600[3][1] == "A"
+            and _600[4][1] == "ABSENT"
+        )
+        _601 = [item for item in comp_result if item[1] == 601][0]
+        assert _601[0] == 1 and _601[2][0].lower() == comparison.Match.PASS
+        _683 = [item for item in comp_result if item[1] == 683][0]
+        assert _683[0] == 1 and _683[2][0].lower() == comparison.Match.PASS
+        _688_1, _688_2, _688_3, _688_4 = [
+            item for item in comp_result if item[1] == 688
+        ]
+        assert (
+            _688_1[0] == 2
+            and _688_1[2][0].lower() == comparison.Match.IGNORED
+            and _688_1[3][1] == "a"
+            and _688_1[4][1] == "ABSENT"
+        )
+        assert (
+            _688_2[0] == 2
+            and _688_2[2][0].lower() == comparison.Match.IGNORED
+            and _688_2[3][1] == "b"
+            and _688_2[4][1] == "ABSENT"
+        )
+        assert _688_3[0] == 2 and _688_3[2][0].lower() == comparison.Match.PASS
+        assert _688_4[0] == 2 and _688_4[2][0].lower() == comparison.Match.PASS
+        _689_1, _689_2, _689_3, _689_4 = [
+            item for item in comp_result if item[1] == 689
+        ]
+        assert _689_1[0] == 2 and _689_1[2][0].lower() == comparison.Match.PASS
+        assert _689_2[0] == 2 and _689_2[2][0].lower() == comparison.Match.PASS
+        assert _689_3[0] == 2 and _689_3[2][0].lower() == comparison.Match.PASS
+        assert (
+            _689_4[0] == 2
+            and _689_4[2][0].lower() == comparison.Match.IGNORED
+            and _689_4[3][1] == "d"
+            and _689_4[4][1] == "ABSENT"
         )
 
 

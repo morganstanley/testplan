@@ -1,16 +1,16 @@
 /**
  * Navigation utility functions.
  */
-import React from 'react';
-import { ListGroup, ListGroupItem } from 'reactstrap';
-import { StyleSheet, css } from 'aphrodite';
+import React from "react";
+import { ListGroup, ListGroupItem } from "reactstrap";
+import { StyleSheet, css } from "aphrodite";
 
-import TagList from './TagList';
-import Column from './Column';
+import TagList from "./TagList";
+import Column from "./Column";
 import { LIGHT_GREY, MEDIUM_GREY } from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
-import { NavLink } from 'react-router-dom';
-import { generatePath } from 'react-router';
+import { NavLink } from "react-router-dom";
+import { generatePath } from "react-router";
 import { generateURLWithParameters } from "../Common/utils";
 
 /**
@@ -19,42 +19,39 @@ import { generateURLWithParameters } from "../Common/utils";
  *
  * @returns {Array|ListGroupItem}
  */
-const CreateNavButtons = (
-  props,
-  createEntryComponent,
-  uidEncoder,
-) => {
-
+const CreateNavButtons = (props, createEntryComponent, uidEncoder) => {
   // Apply all filters to the entries.
-  const filteredEntries =
-    applyAllFilters(props.filter, props.entries, props.displayEmpty);
+  const filteredEntries = applyAllFilters(
+    props.filter,
+    props.entries,
+    props.displayEmpty,
+    props.displaySkipped
+  );
 
   // Create buttons for each of the filtered entries.
   const navButtons = filteredEntries.map((entry, entryIndex) => {
-    const tags = (
-      (props.displayTags && entry.tags)
-        ? <TagList entryName={entry.name} tags={entry.tags} />
-        : null
-    );
+    const tags =
+      props.displayTags && entry.tags ? (
+        <TagList entryName={entry.name} tags={entry.tags} />
+      ) : null;
 
     const tabIndex = entryIndex + 1;
     const cssClass = [
-      styles.navButton, styles.navButtonInteract, CommonStyles.unselectable
+      styles.navButton,
+      styles.navButtonInteract,
+      CommonStyles.unselectable,
     ];
     const cssActiveClass = [...cssClass, styles.navButtonInteractFocus];
 
-    let [reportuid, ...selectionuids] = uidEncoder ?
-      entry.uids.map(uidEncoder) :
-      entry.uids;
+    let [reportuid, ...selectionuids] = uidEncoder
+      ? entry.uids.map(uidEncoder)
+      : entry.uids;
     const linkTo = generateURLWithParameters(
       window.location,
-      generatePath(
-        props.url,
-        {
-          uid: reportuid,
-          selection: selectionuids
-        }
-      )
+      generatePath(props.url, {
+        uid: reportuid,
+        selection: selectionuids,
+      })
     );
 
     return (
@@ -63,7 +60,9 @@ const CreateNavButtons = (
         key={entry.hash || entry.uid}
         className={css(cssClass)}
         activeClassName={css(cssActiveClass)}
-        tag={NavLink} to={linkTo} action
+        tag={NavLink}
+        to={linkTo}
+        action
       >
         {tags}
         {createEntryComponent(entry)}
@@ -71,11 +70,25 @@ const CreateNavButtons = (
     );
   });
 
-  const navButtonsEmpty = <ListGroupItem className={css(styles.navButton)}>
-    No entries to display...
-  </ListGroupItem>;
+  const navButtonsEmpty = (
+    <ListGroupItem className={css(styles.navButton)}>
+      No entries to display...
+    </ListGroupItem>
+  );
 
   return navButtons.length > 0 ? navButtons : navButtonsEmpty;
+};
+
+const nonEmptyEntry = (entry) => {
+  if (entry.category === "testcase") {
+    return entry.entries !== null && entry.entries.length > 0;
+  } else {
+    return entry.counter && entry.counter.total > 0;
+  }
+};
+
+const nonSkippedEntry = (entry) => {
+  return entry.status !== "skipped" || entry.status_override !== "skipped";
 };
 
 /**
@@ -85,18 +98,18 @@ const CreateNavButtons = (
  *    entries).
  *  * Filter out empty testcases if required.
  */
-const applyAllFilters = (filter, entries, displayEmpty) => {
-  if (displayEmpty) {
-    return applyNamedFilter(entries, filter);
-  } else {
-    return applyNamedFilter(entries, filter).filter((entry) => {
-      if (entry.category === 'testcase') {
-        return (entry.entries !== null && entry.entries.length > 0);
-      } else {
-        return (entry.counter && entry.counter.total > 0);
-      }
-    });
+const applyAllFilters = (filter, entries, displayEmpty, displaySkipped) => {
+  const filteredEntries = applyNamedFilter(entries, filter);
+  let composedFilter = (entry) => true;
+  if (!displayEmpty) {
+    composedFilter = nonEmptyEntry;
   }
+  if (!displaySkipped) {
+    const _composedFilter = composedFilter;
+    composedFilter = (entry) =>
+      _composedFilter(entry) && nonSkippedEntry(entry);
+  }
+  return filteredEntries.filter(composedFilter);
 };
 
 /**
@@ -107,17 +120,17 @@ const applyAllFilters = (filter, entries, displayEmpty) => {
  */
 const applyNamedFilter = (entries, filter) => {
   switch (filter) {
-    case 'pass':
+    case "pass":
       return entries.filter(
-        (entry) =>
-          (entry.counter ? (entry.counter.passed | 0) : 0) > 0
+        (entry) => (entry.counter ? entry.counter.passed | 0 : 0) > 0
       );
-    case 'fail':
+    case "fail":
       return entries.filter(
         (entry) =>
           entry.status === "error" ||
-          (entry.counter ? (entry.counter.failed | 0) : 0) +
-          (entry.counter ? (entry.counter.error | 0) : 0) > 0
+          (entry.counter ? entry.counter.failed | 0 : 0) +
+            (entry.counter ? entry.counter.error | 0 : 0) >
+            0
       );
 
     default:
@@ -127,24 +140,24 @@ const applyNamedFilter = (entries, filter) => {
 
 export const styles = StyleSheet.create({
   navButton: {
-    position: 'relative',
-    display: 'block',
-    border: 'none',
+    position: "relative",
+    display: "block",
+    border: "none",
     backgroundColor: LIGHT_GREY,
-    cursor: 'pointer',
+    cursor: "pointer",
   },
   navButtonInteract: {
-    ':hover': {
+    ":hover": {
       backgroundColor: MEDIUM_GREY,
     },
   },
   navButtonInteractFocus: {
     backgroundColor: MEDIUM_GREY,
-    outline: 'none',
+    outline: "none",
   },
   buttonList: {
-    'overflow-y': 'auto',
-    'height': '100%',
+    "overflow-y": "auto",
+    height: "100%",
   },
 });
 
@@ -177,7 +190,7 @@ const GetNavEntries = (selected) => {
 
   if (!selectedEntry) {
     return [];
-  } else if (selectedEntry.category === 'testcase') {
+  } else if (selectedEntry.category === "testcase") {
     const suite = selected[selected.length - 2];
 
     // All testcases should belong to a suite, throw an error if we can't
@@ -210,21 +223,23 @@ const GetInteractiveNavEntries = (selected) => {
   }
 
   if (
-    selectedEntry.category === 'testcase'
-    || selectedEntry.category === 'parametrization'
+    selectedEntry.category === "testcase" ||
+    selectedEntry.category === "parametrization"
   ) {
-    selectedEntry = selected[selected.length - 2];  // move to testsuite entry
+    selectedEntry = selected[selected.length - 2]; // move to testsuite entry
   }
 
   // If testsuite has `strict_order` attribute, UI will set enable/disable
   // status of testcase items to force user to run testcase one by one.
-  if (selectedEntry.category === 'testsuite' && selectedEntry.strict_order) {
-    let testcaseEntries = [];  // contains all testcase entries in testsuite
+  if (selectedEntry.category === "testsuite" && selectedEntry.strict_order) {
+    let testcaseEntries = []; // contains all testcase entries in testsuite
     selectedEntry.entries.forEach((childEntry) => {
-      if (childEntry.category === 'testcase' && !childEntry.suite_related) {
+      if (childEntry.category === "testcase" && !childEntry.suite_related) {
         testcaseEntries.push(childEntry);
-      } else if (childEntry.category === 'parametrization') {
-        childEntry.entries.forEach((entry) => { testcaseEntries.push(entry); });
+      } else if (childEntry.category === "parametrization") {
+        childEntry.entries.forEach((entry) => {
+          testcaseEntries.push(entry);
+        });
       }
     });
 
@@ -232,7 +247,7 @@ const GetInteractiveNavEntries = (selected) => {
     // next to the recently finished testcase have "play" button enabled.
     let idx = 0;
     while (idx < testcaseEntries.length) {
-      if (testcaseEntries[idx].runtime_status !== 'finished') {
+      if (testcaseEntries[idx].runtime_status !== "finished") {
         break;
       }
       ++idx;
@@ -240,33 +255,34 @@ const GetInteractiveNavEntries = (selected) => {
     if (idx > 0) {
       // at least one testcase already finished
       testcaseEntries.slice(0, idx).forEach((entry) => {
-        entry.action = 'prohibit';
+        entry.action = "prohibit";
       });
     }
     if (idx < testcaseEntries.length) {
       // at least one testcase is ready to run
-      testcaseEntries[idx].action = (
-        testcaseEntries[idx].runtime_status === 'running' ||
-          testcaseEntries[idx].runtime_status === 'resetting' ||
-          testcaseEntries[idx].runtime_status === 'waiting'
-          ? 'prohibit' : 'play'
-      );
+      testcaseEntries[idx].action =
+        testcaseEntries[idx].runtime_status === "running" ||
+        testcaseEntries[idx].runtime_status === "resetting" ||
+        testcaseEntries[idx].runtime_status === "waiting"
+          ? "prohibit"
+          : "play";
       testcaseEntries.slice(idx + 1).forEach((entry) => {
-        entry.action = 'prohibit';
+        entry.action = "prohibit";
       });
     }
 
     // Enable/disable status of "play" button of each parametrization group
     // entry depends on its child entries (the 1st child must be ready to run).
     selectedEntry.entries.forEach((childEntry) => {
-      if (childEntry.category === 'parametrization') {
-        if (childEntry.entries.some(
-          (entry) => { return entry.action === 'play'; }
-        )) {
-          childEntry.action = 'play';
-        }
-        else {
-          childEntry.action = 'prohibit';
+      if (childEntry.category === "parametrization") {
+        if (
+          childEntry.entries.some((entry) => {
+            return entry.action === "play";
+          })
+        ) {
+          childEntry.action = "play";
+        } else {
+          childEntry.action = "prohibit";
         }
       }
     });
@@ -287,7 +303,7 @@ const GetNavBreadcrumbs = (selected) => {
   const selectedEntry = selected[selected.length - 1];
   if (!selectedEntry) {
     return [];
-  } else if (selectedEntry.category === 'testcase') {
+  } else if (selectedEntry.category === "testcase") {
     return selected.slice(0, selected.length - 1);
   } else {
     return selected;
@@ -295,10 +311,7 @@ const GetNavBreadcrumbs = (selected) => {
 };
 
 const GetNavColumn = (props, navButtons) => (
-  <Column
-    width={props.width}
-    handleColumnResizing={props.handleColumnResizing}
-  >
+  <Column width={props.width} handleColumnResizing={props.handleColumnResizing}>
     <ListGroup className={css(styles.buttonList)}>{navButtons}</ListGroup>
   </Column>
 );
@@ -311,5 +324,5 @@ export {
   GetNavBreadcrumbs,
   GetNavColumn,
   applyAllFilters,
-  applyNamedFilter
+  applyNamedFilter,
 };

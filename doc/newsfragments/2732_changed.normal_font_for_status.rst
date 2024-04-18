@@ -1,0 +1,1 @@
+Passed and failed count, together with report entry time information is now consistently normal font-style.

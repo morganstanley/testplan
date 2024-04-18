@@ -1,14 +1,13 @@
-import logging
 import functools
+import logging
 import re
-from unittest import mock
 import uuid
+from unittest import mock
 
 import pytest
 
 from testplan.common import report
 from testplan.common.report.log import LOGGER
-
 from testplan.common.utils.testing import disable_log_propagation
 
 DummyReport = functools.partial(report.Report, name="dummy")
@@ -86,12 +85,12 @@ class TestReport:
 
         assert rep_1 != rep_2
 
-    def test_check_report_id_mismatch(self):
+    def test_check_report_definition_name_mismatch(self):
         """Should raise ValueError on failure"""
 
-        # These will have different ids
-        rep_1 = DummyReport(uid=1)
-        rep_2 = DummyReport(uid=2)
+        # These correspond to different tests
+        rep_1 = DummyReport(definition_name=1)
+        rep_2 = DummyReport(definition_name=2)
 
         with pytest.raises(AttributeError):
             rep_1._check_report(rep_2)
@@ -102,8 +101,8 @@ class TestReport:
         class OtherReport(report.Report):
             pass
 
-        rep_1 = DummyReport(uid=5)
-        rep_2 = OtherReport(name="foo", uid=5)
+        rep_1 = DummyReport(name="foo")
+        rep_2 = OtherReport(name="foo")
 
         with pytest.raises(TypeError):
             rep_1._check_report(rep_2)

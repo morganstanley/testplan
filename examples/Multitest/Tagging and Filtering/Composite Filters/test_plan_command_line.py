@@ -4,10 +4,9 @@ This example shows how test filters can be composed via command line arguments.
 """
 import sys
 
-from testplan.testing.multitest import MultiTest, testsuite, testcase
-
 from testplan import test_plan
 from testplan.report.testing.styles import Style
+from testplan.testing.multitest import MultiTest, testcase, testsuite
 
 
 @testsuite
@@ -96,8 +95,8 @@ class Delta:
 
 # Run all tests: tagged with `server`
 # AND (belong to `Gamma` multitest OR has the name `test_3`)
-# command line: `--tags server --pattern Gamma *:*:test_3`
-# command line (alt.): `--tags server --pattern Gamma --pattern *:*:test_3`
+# command line: `--tags server --patterns Gamma *:*:test_3`
+# command line (alt.): `--tags server --patterns Gamma --patterns *:*:test_3`
 
 
 @test_plan(

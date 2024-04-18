@@ -3,11 +3,11 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import _ from "lodash";
-import {css, StyleSheet} from 'aphrodite';
+import { css, StyleSheet } from "aphrodite";
 import {
   domToString,
-  generateURLWithParameters
-} from './../../../Common/utils';
+  generateURLWithParameters,
+} from "./../../../Common/utils";
 
 // Small component for rendering TableLogLinkCell.
 function LinkRender(props) {
@@ -33,7 +33,6 @@ function LinkRender(props) {
   }
 }
 
-
 // The cell of link.
 class TableLogLinkCell {
   constructor(cell) {
@@ -42,7 +41,7 @@ class TableLogLinkCell {
   }
 
   render() {
-    return <LinkRender {...this.cell}/>;
+    return <LinkRender {...this.cell} />;
   }
 
   compare(linkB) {
@@ -117,12 +116,12 @@ function tableLogCellType(cellValue) {
 }
 
 function baseTableCellStyle(params) {
-  const isValueRow = params.data.ev === 'Value';
+  const isValueRow = params.data.ev === "Value";
 
   let cellStyle = {};
 
   if (isValueRow) {
-    cellStyle['borderBottomColor'] = '#827878';
+    cellStyle["borderBottomColor"] = "#827878";
   }
 
   return cellStyle;
@@ -140,8 +139,8 @@ function tableCellStyle(params) {
   const isCellFailed = params.data.passed[params.colDef.field] === false;
 
   if (isCellFailed) {
-    cellStyle['color'] = 'red';
-    cellStyle['fontWeight'] = 'bold';
+    cellStyle["color"] = "red";
+    cellStyle["fontWeight"] = "bold";
   }
 
   return cellStyle;
@@ -149,8 +148,8 @@ function tableCellStyle(params) {
 
 function ignoredTableCellStyle(params) {
   let cellStyle = baseTableCellStyle(params);
-  cellStyle['color'] = 'grey';
-  cellStyle['fontStyle'] ='italic';
+  cellStyle["color"] = "grey";
+  cellStyle["fontStyle"] = "italic";
   return cellStyle;
 }
 
@@ -165,7 +164,6 @@ function tableLogComparator(valueA, valueB, nodeA, nodeB, isInverted) {
   return a.compare(b);
 }
 
-
 export function processCellForClipboard(param) {
   const tableCell = tableLogCellType(param.value);
   return tableCell.getValue();
@@ -175,32 +173,36 @@ export function processCellForClipboard(param) {
  * Function to prepare the column definitions for TableLog assertions.
  *
  * @param {Array} columns
- * @returns {object} 
+ * @returns {object}
  *  {
- *    title: string, 
- *    field: string, 
- *    cellStyle: object, 
- *    headerStyle: object, 
+ *    title: string,
+ *    field: string,
+ *    cellStyle: object,
+ *    headerStyle: object,
  *  }
  * @private
  */
 
 export function prepareTableLogColumnDefs(columns, display_index) {
-  let columnDefs = display_index? [{
-    headerName: 'ID',
-    field: 'id',
-    pinned: 'left',
-    resizable: true,
-    suppressSizeToFit: true,
-    width: 75,
-    filterParams: {excelMode: 'windows'}
-  }] : [];
+  let columnDefs = display_index
+    ? [
+        {
+          headerName: "ID",
+          field: "id",
+          pinned: "left",
+          resizable: true,
+          suppressSizeToFit: true,
+          width: 75,
+          filterParams: { excelMode: "windows" },
+        },
+      ]
+    : [];
 
-  columns.forEach(column => {
+  columns.forEach((column) => {
     columnDefs.push({
       headerName: column,
       field: column,
-      filterParams: {excelMode: 'windows'},
+      filterParams: { excelMode: "windows" },
       cellRendererFramework: tableLogCellRender,
       comparator: tableLogComparator,
     });
@@ -208,7 +210,6 @@ export function prepareTableLogColumnDefs(columns, display_index) {
 
   return columnDefs;
 }
-
 
 /**
  * Prepare the row data of TableLog assertions.
@@ -223,18 +224,14 @@ export function prepareTableLogColumnDefs(columns, display_index) {
 export function prepareTableLogRowData(indexes, table, columns, display_index) {
   let rowData = [];
 
-  indexes.forEach(index => {
+  indexes.forEach((index) => {
     let row = columns.reduce((accumulator, column, idx) => {
-
-      if(Array.isArray(table[index]))
-        accumulator[column] = table[index][idx];
+      if (Array.isArray(table[index])) accumulator[column] = table[index][idx];
       // TODO: remove this branch after 3 months 2021.06.01
-      else
-        accumulator[column] = table[index][column];
+      else accumulator[column] = table[index][column];
       return accumulator;
     }, {});
-    if(display_index)
-      row['id'] = index;
+    if (display_index) row["id"] = index;
 
     rowData.push(row);
   });
@@ -312,19 +309,14 @@ export function prepareTableMatchColumnDefs(
 export function prepareTableRowData(data, columns) {
   let rowData = [];
 
-  data.forEach(line => {
-    const [
-      index,
-      data,
-      diff,
-      errors,
-      extra,
-    ] = line;
+  data.forEach((line) => {
+    const [index, data, diff, errors, extra] = line;
 
     let passed = {};
 
     let expectedRow = columns.reduce((accumulator, column, index) => {
-      if (diff[column]) {
+      // the value of diff[column] might be a boolean type false.
+      if (diff.hasOwnProperty(column)) {
         accumulator[column] = diff[column];
         passed[column] = false;
       } else if (errors[column]) {
@@ -341,9 +333,9 @@ export function prepareTableRowData(data, columns) {
       return accumulator;
     }, {});
 
-    expectedRow['id'] = index;
-    expectedRow['ev'] = 'Expected';
-    expectedRow['passed'] = passed;
+    expectedRow["id"] = index;
+    expectedRow["ev"] = "Expected";
+    expectedRow["passed"] = passed;
 
     rowData.push(expectedRow);
 
@@ -353,9 +345,9 @@ export function prepareTableRowData(data, columns) {
       return accumulator;
     }, {});
 
-    valueRow['id'] = index;
-    valueRow['ev'] = 'Value';
-    valueRow['passed'] = passed;
+    valueRow["id"] = index;
+    valueRow["ev"] = "Value";
+    valueRow["passed"] = passed;
 
     rowData.push(valueRow);
   });
@@ -372,25 +364,28 @@ export function prepareTableRowData(data, columns) {
  */
 export function prepareTableColumnContainColumnDefs(column) {
   const cellStyleFn = (params) => {
-    return !params.data.passed ? {color: 'red', fontWeight: 'bold'} : null;
+    return !params.data.passed ? { color: "red", fontWeight: "bold" } : null;
   };
-  return [{
-    headerName: 'ID',
-    field: 'id',
-    pinned: 'left',
-    resizable: true,
-    suppressSizeToFit: true,
-    width: 75,
-    filterParams: {excelMode: 'windows'},
-    cellStyle: cellStyleFn
-  }, {
-    headerName: column,
-    field: 'value',
-    resizable: true,
-    suppressSizeToFit: true,
-    filterParams: {excelMode: 'windows'},
-    cellStyle: cellStyleFn,
-  }];
+  return [
+    {
+      headerName: "ID",
+      field: "id",
+      pinned: "left",
+      resizable: true,
+      suppressSizeToFit: true,
+      width: 75,
+      filterParams: { excelMode: "windows" },
+      cellStyle: cellStyleFn,
+    },
+    {
+      headerName: column,
+      field: "value",
+      resizable: true,
+      suppressSizeToFit: true,
+      filterParams: { excelMode: "windows" },
+      cellStyle: cellStyleFn,
+    },
+  ];
 }
 
 /**
@@ -402,12 +397,8 @@ export function prepareTableColumnContainColumnDefs(column) {
  * @private
  */
 export function prepareTableColumnContainRowData(data, values) {
-  return data.map(line => {
-    const [
-      index,
-      value,
-      passed,
-    ] = line;
+  return data.map((line) => {
+    const [index, value, passed] = line;
 
     return {
       id: index,
@@ -427,8 +418,9 @@ export function prepareTableColumnContainRowData(data, values) {
  * @private
  */
 export function prepareTableColumnContainPreText(values) {
-  return values.map(value => JSON.stringify(value))
-    .reduce((prev, curr) => [prev, ', ', curr]);
+  return values
+    .map((value) => JSON.stringify(value))
+    .reduce((prev, curr) => [prev, ", ", curr]);
 }
 
 /**
@@ -444,7 +436,7 @@ export function prepareTableColumnContainPreText(values) {
  * @private
  */
 export function calculateTableGridHeight(
-  numberOfRows, 
+  numberOfRows,
   maximumNumberOfRowsVisible = 20
 ) {
   const rowHeight = 28;
@@ -453,10 +445,10 @@ export function calculateTableGridHeight(
 
   return numberOfRows <= maximumNumberOfRowsVisible
     ? numberOfRows * rowHeight + headerHeight + bottomPaddingOnGrid
-    : maximumNumberOfRowsVisible * rowHeight + headerHeight + 
+    : maximumNumberOfRowsVisible * rowHeight +
+        headerHeight +
         bottomPaddingOnGrid;
 }
-
 
 /**
  * Convert Ag-Grid columntDefs and row Data to HTML table DOM object
@@ -467,14 +459,14 @@ export function calculateTableGridHeight(
  */
 export function gridToDOM(columnDefs, rowData) {
   let headerKey = [];
-  let table = document.createElement('table');
+  let table = document.createElement("table");
 
-  let header = document.createElement('tr');
+  let header = document.createElement("tr");
   columnDefs.forEach((el) => {
     if (el.hide) {
       return;
     }
-    let th = document.createElement('th');
+    let th = document.createElement("th");
     th.innerText = el.headerName;
     header.appendChild(th);
     headerKey.push(el.field);
@@ -482,9 +474,9 @@ export function gridToDOM(columnDefs, rowData) {
   table.appendChild(header);
 
   rowData.forEach((el) => {
-    let tr = document.createElement('tr');
+    let tr = document.createElement("tr");
     headerKey.forEach((key) => {
-      let td = document.createElement('td');
+      let td = document.createElement("td");
       td.innerText = el[key];
       tr.appendChild(td);
     });
@@ -495,6 +487,6 @@ export function gridToDOM(columnDefs, rowData) {
 
 const styles = StyleSheet.create({
   ignored_column: {
-    fontStyle: 'italic',
-  }
+    fontStyle: "italic",
+  },
 });

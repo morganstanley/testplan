@@ -7,6 +7,8 @@ import threading
 import time
 import warnings
 from enum import Enum, auto
+from signal import Signals
+from typing import IO, Any, Callable, List, Union
 
 import psutil
 
@@ -14,7 +16,7 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.timing import exponential_interval, get_sleeper
 
 
-def _log_proc(msg, warn=False, output=None):
+def _log_proc(msg: Any, warn=False, output: IO = None):
     if output is not None:
         try:
             output.write("{}{}".format(msg, "\n"))
@@ -24,7 +26,13 @@ def _log_proc(msg, warn=False, output=None):
         warnings.warn(msg)
 
 
-def kill_process(proc, timeout=5, signal_=None, output=None):
+def kill_process(
+    proc: subprocess.Popen,
+    timeout: int = 5,
+    signal_: Signals = None,
+    output: IO = None,
+    on_failed_termination: Callable[[int, int], None] = None,
+) -> Union[int, None]:
     """
     If alive, kills the process.
     First call ``terminate()`` or pass ``signal_`` if specified
@@ -32,13 +40,15 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     If process hangs then call ``kill()``.
 
     :param proc: process to kill
-    :type proc: ``subprocess.Popen``
     :param timeout: timeout in seconds, defaults to 5 seconds
-    :type timeout: ``int``
     :param output: Optional file like object for writing logs.
-    :type output: ``file``
+    :param on_failed_termination : ``callable`` or ``None``
+        A callback function that is executed when process fails
+        to terminate after the `timeout`. When supplied, this callback
+        will be executed after SIGTERM fails and before SIGKILL.
+        It receives two arguments: pid as `int` and timeout as `int` and
+        can be leveraged to collect additional diagnostic info about the process.
     :return: Exit code of process
-    :rtype: ``int`` or ``NoneType``
     """
     _log = functools.partial(_log_proc, output=output)
 
@@ -62,6 +72,9 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
 
     if retcode is None:
         try:
+            if on_failed_termination is not None:
+                on_failed_termination(proc.pid, timeout)
+
             _log(msg="Binary still alive, killing it")
             proc.kill()
             proc.wait()
@@ -83,7 +96,13 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     return proc.returncode
 
 
-def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
+def kill_process_psutil(
+    proc: psutil.Process,
+    timeout: int = 5,
+    signal_: Signals = None,
+    output: IO = None,
+    on_failed_termination: Callable[[int, int], None] = None,
+) -> List[psutil.Process]:
     """
     If alive, kills the process (an instance of ``psutil.Process``).
     Try killing the child process at first and then killing itself.
@@ -92,16 +111,17 @@ def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
     If process hangs then call ``kill()``.
 
     :param proc: process to kill
-    :type proc: ``psutil.Process``
     :param timeout: timeout in seconds, defaults to 5 seconds
-    :type timeout: ``int``
     :param output: Optional file like object for writing logs.
-    :type output: ``file``
+    :param on_failed_termination : ``callable`` or ``None``
+        A callback function that is executed when process fails
+        to terminate after the `timeout`. When supplied, this callback
+        will be executed after SIGTERM fails and before SIGKILL.
+        It receives two arguments: pid as `int` and timeout as `int` and
+        can be leveraged to collect additional diagnostic info about the process.
     :return: List of processes which are still alive
-    :rtype: ``list`` or ``psutil.Process``
     """
     _log = functools.partial(_log_proc, output=output)
-
     try:
         all_procs = proc.children(recursive=True) + [proc]
     except psutil.NoSuchProcess:
@@ -121,6 +141,8 @@ def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
     if len(alive) > 0:
         for p in alive:
             try:
+                if on_failed_termination is not None:
+                    on_failed_termination(proc.pid, timeout)
                 p.kill()
             except psutil.NoSuchProcess:
                 pass  # already dead
@@ -232,6 +254,7 @@ def execute_cmd(
 
     if isinstance(cmd, list):
         cmd = [str(a) for a in cmd]
+        # FIXME: not good enough, need shell escaping
         cmd_string = " ".join(cmd)  # for logging, easy to copy and execute
     else:
         cmd_string = cmd

@@ -8,6 +8,8 @@ import tempfile
 import traceback
 import threading
 
+from typing import Optional, Union, Type, List, Callable
+from types import ModuleType
 from schema import And
 
 from testplan import defaults
@@ -15,6 +17,7 @@ from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.utils import logger, path
 from testplan.common.utils.callable import arity
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser
@@ -22,7 +25,12 @@ from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.local import LocalRunner
 from testplan.runners.base import Executor
+from testplan.report.testing.styles import Style
 from testplan.testing import filtering, ordering
+from testplan.testing.filtering import BaseFilter
+from testplan.testing.listing import MetadataBasedLister
+from testplan.testing.multitest.test_metadata import TestPlanMetadata
+from testplan.testing.ordering import BaseSorter
 
 
 def pdb_drop_handler(sig, frame):
@@ -94,88 +102,48 @@ class Testplan(entity.RunnableManager):
     :py:meth:`~testplan.runnable.TestRunner.schedule`.
 
     :param name: Name of test plan.
-    :type name: ``str``
     :param description: Description of test plan.
-    :type description: ``str``
     :param parse_cmdline: Parse command line arguments.
-    :type parse_cmdline: ``bool``
     :param parser: Command line parser.
-    :type parser: :py:class:`~testplan.parser.TestplanParser`
     :param interactive_port: Enable interactive execution mode on a port.
-    :type interactive_port: ``int`` or ``NoneType``
     :param abort_signals: Signals to catch and trigger abort. By default,
         SIGINT and SIGTERM will trigger Testplan to abort.
-    :type abort_signals: ``list`` of signals
     :param logger_level: Logger level for stdout.
-    :type logger_level: ``int``
     :param: file_log_level: Logger level for file.
-    :type file_log_level: ``int``
     :param runpath: Input runpath.
-    :type runpath: ``str`` or ``callable``
     :param path_cleanup: Clean previous runpath entries.
-    :type path_cleanup: ``bool``
     :param all_tasks_local: Schedule all tasks in local pool.
-    :type all_tasks_local: ``bool``
     :param shuffle: Shuffle strategy.
-    :type shuffle: ``list`` of ``str``
     :param shuffle_seed: Shuffle seed.
-    :type shuffle_seed: ``float``
     :param exporters: Exporters for reports creation.
-    :type exporters: ``list``
     :param stdout_style: Styling output options.
-    :type stdout_style:
-        :py:class:`Style <testplan.report.testing.styles.Style>`
     :param report_dir: Report directory.
-    :type report_dir: ``str``
     :param xml_dir: XML output directory.
-    :type xml_dir: ``str``
     :param json_path: JSON output path <PATH>/\*.json.
-    :type json_path: ``str``
     :param http_url: HTTP url to post JSON report.
-    :type http_url: ``str``
     :param pdf_path: PDF output path <PATH>/\*.pdf.
-    :type pdf_path: ``str``
     :param pdf_style: PDF creation styling options.
-    :type pdf_style:
-        :py:class:`Style <testplan.report.testing.styles.Style>`
     :param report_tags: Matches tests marked with any of the given tags.
-    :type report_tags: ``list``
     :param report_tags_all: Match tests marked with all of the given tags.
-    :type report_tags_all: ``list``
+    :param resource_monitor: Enable resource monitor.
     :param merge_scheduled_parts: Merge reports of scheduled MultiTest
         parts.
-    :type merge_scheduled_parts: ``bool``
     :param browse: Open web browser to display the test report.
-    :type browse: ``bool`` or ``NoneType``
     :param ui_port: Port of web server for displaying test report.
-    :type ui_port: ``int`` or ``NoneType``
     :param web_server_startup_timeout: Timeout for starting web server.
-    :type web_server_startup_timeout: ``int``
     :param test_filter: Tests filtering class.
-    :type test_filter: Subclass of
-        :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
     :param test_sorter: Tests sorting class.
-    :type test_sorter: Subclass of
-        :py:class:`BaseSorter <testplan.testing.ordering.BaseSorter>`
     :param test_lister: Tests listing class.
-    :type test_lister: Subclass of
-        :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+    :param test_lister_output: listing results goes to this file, if None goes to stdout
     :param verbose: Enable or disable verbose mode.
-    :type verbose: ``bool``
     :param debug: Enable or disable debug mode.
-    :type debug: ``bool``
     :param timeout: Timeout value in seconds to kill Testplan and all child
         processes, default to 14400s(4h), set to 0 to disable.
-    :type timeout: ``int``
     :param interactive_handler: Handler for interactive mode execution.
-    :type interactive_handler: Subclass of :py:class:
-        `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
     :param extra_deps: Extra module dependencies for interactive reload, or
         paths of these modules.
-    :type extra_deps: ``list`` of ``module`` or ``str``
     :param label: Label the test report with the given name, useful to
         categorize or classify similar reports .
-    :type label: ``str`` or ``NoneType``
     """
 
     CONFIG = TestplanConfig
@@ -185,42 +153,46 @@ class Testplan(entity.RunnableManager):
     # below with the same change.
     def __init__(
         self,
-        name,
-        description=None,
-        parse_cmdline=True,
-        parser=TestplanParser,
-        interactive_port=None,
-        abort_signals=None,
-        logger_level=logger.USER_INFO,
-        file_log_level=logger.DEBUG,
-        runpath=path.default_runpath,
-        path_cleanup=True,
-        all_tasks_local=False,
-        shuffle=None,
-        shuffle_seed=float(random.randint(1, 9999)),
-        exporters=None,
-        stdout_style=defaults.STDOUT_STYLE,
-        report_dir=defaults.REPORT_DIR,
-        xml_dir=None,
-        json_path=None,
-        http_url=None,
-        pdf_path=None,
-        pdf_style=defaults.PDF_STYLE,
-        report_tags=None,
-        report_tags_all=None,
-        merge_scheduled_parts=False,
-        browse=False,
-        ui_port=None,
-        web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
-        test_filter=filtering.Filter(),
-        test_sorter=ordering.NoopSorter(),
-        test_lister=None,
-        verbose=False,
-        debug=False,
-        timeout=defaults.TESTPLAN_TIMEOUT,
-        interactive_handler=TestRunnerIHandler,
-        extra_deps=None,
-        label=None,
+        name: str,
+        description: Optional[str] = None,
+        parse_cmdline: bool = True,
+        parser: Type[TestplanParser] = TestplanParser,
+        interactive_port: Optional[int] = None,
+        abort_signals: Optional[List[int]] = None,
+        logger_level: int = logger.USER_INFO,
+        file_log_level: int = logger.DEBUG,
+        runpath: Union[str, Callable] = path.default_runpath,
+        path_cleanup: bool = True,
+        all_tasks_local: bool = False,
+        shuffle: Optional[List[str]] = None,
+        shuffle_seed: float = float(random.randint(1, 9999)),
+        exporters: Optional[List] = None,
+        stdout_style: Style = defaults.STDOUT_STYLE,
+        report_dir: str = defaults.REPORT_DIR,
+        xml_dir: Optional[str] = None,
+        json_path: Optional[str] = None,
+        http_url: Optional[str] = None,
+        pdf_path: Optional[str] = None,
+        pdf_style: Style = defaults.PDF_STYLE,
+        report_tags: Optional[List] = None,
+        report_tags_all: Optional[List] = None,
+        resource_monitor: bool = False,
+        merge_scheduled_parts: bool = False,
+        browse: bool = False,
+        ui_port: Optional[int] = None,
+        web_server_startup_timeout: int = defaults.WEB_SERVER_TIMEOUT,
+        test_filter: Type[BaseFilter] = filtering.Filter(),
+        test_sorter: Type[BaseSorter] = ordering.NoopSorter(),
+        test_lister: Optional[MetadataBasedLister] = None,
+        test_lister_output: Optional[os.PathLike] = None,
+        verbose: bool = False,
+        debug: bool = False,
+        timeout: int = defaults.TESTPLAN_TIMEOUT,
+        interactive_handler: Type[TestRunnerIHandler] = TestRunnerIHandler,
+        extra_deps: Optional[List[Union[str, ModuleType]]] = None,
+        label: Optional[str] = None,
+        auto_part_runtime_limit: int = defaults.AUTO_PART_RUNTIME_LIMIT,
+        plan_runtime_target: int = defaults.PLAN_RUNTIME_TARGET,
         **options,
     ):
 
@@ -265,6 +237,7 @@ class Testplan(entity.RunnableManager):
             pdf_style=pdf_style,
             report_tags=report_tags,
             report_tags_all=report_tags_all,
+            resource_monitor=resource_monitor,
             merge_scheduled_parts=merge_scheduled_parts,
             browse=browse,
             ui_port=ui_port,
@@ -272,20 +245,23 @@ class Testplan(entity.RunnableManager):
             test_filter=test_filter,
             test_sorter=test_sorter,
             test_lister=test_lister,
+            test_lister_output=test_lister_output,
             verbose=verbose,
             debug=debug,
             timeout=timeout,
             interactive_handler=interactive_handler,
             extra_deps=extra_deps,
             label=label,
+            auto_part_runtime_limit=auto_part_runtime_limit,
+            plan_runtime_target=plan_runtime_target,
             **options,
         )
 
         # By default, a LocalRunner is added to store and execute the tests.
-        self._runnable.add_resource(LocalRunner(), uid="local_runner")
+        self._runnable.add_resource(LocalRunner())
 
         # Stores independent environments.
-        self._runnable.add_resource(Environments(), uid="environments")
+        self._runnable.add_resource(Environments())
 
     @property
     def parser(self):
@@ -405,6 +381,7 @@ class Testplan(entity.RunnableManager):
         pdf_style=defaults.PDF_STYLE,
         report_tags=None,
         report_tags_all=None,
+        resource_monitor=False,
         merge_scheduled_parts=False,
         browse=False,
         ui_port=None,
@@ -412,12 +389,15 @@ class Testplan(entity.RunnableManager):
         test_filter=filtering.Filter(),
         test_sorter=ordering.NoopSorter(),
         test_lister=None,
+        test_lister_output=None,
         verbose=False,
         debug=False,
         timeout=defaults.TESTPLAN_TIMEOUT,
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
         label=None,
+        auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_LIMIT,
+        plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         **options,
     ):
         """
@@ -461,6 +441,7 @@ class Testplan(entity.RunnableManager):
                     pdf_style=pdf_style,
                     report_tags=report_tags,
                     report_tags_all=report_tags_all,
+                    resource_monitor=resource_monitor,
                     merge_scheduled_parts=merge_scheduled_parts,
                     browse=browse,
                     ui_port=ui_port,
@@ -468,23 +449,25 @@ class Testplan(entity.RunnableManager):
                     test_filter=test_filter,
                     test_sorter=test_sorter,
                     test_lister=test_lister,
+                    test_lister_output=test_lister_output,
                     verbose=verbose,
                     debug=debug,
                     timeout=timeout,
                     interactive_handler=interactive_handler,
                     extra_deps=extra_deps,
                     label=label,
+                    auto_part_runtime_limit=auto_part_runtime_limit,
+                    plan_runtime_target=plan_runtime_target,
                     **options,
                 )
                 try:
-                    if arity(definition) == 2:
-                        returned = definition(plan, plan.parser)
-                    else:
-                        returned = definition(plan)
+                    returned = cls._prepare_plan(definition, plan)
                 except Exception:
                     print("Exception in test_plan definition, aborting plan..")
                     plan.abort()
                     raise
+
+                cls._do_listing(plan)
 
                 plan_result = plan.run()
                 plan_result.decorated_value = returned
@@ -493,6 +476,31 @@ class Testplan(entity.RunnableManager):
             return test_plan_inner_inner
 
         return test_plan_inner
+
+    @classmethod
+    def _prepare_plan(cls, definition, plan):
+        if arity(definition) == 2:
+            returned = definition(plan, plan.parser)
+        else:
+            returned = definition(plan)
+        return returned
+
+    @classmethod
+    def _do_listing(cls, plan):
+        lister: MetadataBasedLister = plan.cfg.test_lister
+        if lister is not None and lister.metadata_based:
+            output = lister.get_output(
+                TestPlanMetadata(
+                    plan.cfg.name,
+                    plan.cfg.description,
+                    plan.get_test_metadata(),
+                )
+            )
+            if plan.cfg.test_lister_output:
+                with open(plan.cfg.test_lister_output, "wt") as file:
+                    file.write(output)
+            else:
+                TESTPLAN_LOGGER.user_info(output)
 
 
 test_plan = Testplan.main_wrapper

@@ -2,21 +2,22 @@
 
 import os
 import re
-import sys
 import signal
 import subprocess
+import sys
 import tempfile
 from typing import List, Type, Union
 
 from schema import Or
 
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.timing import get_sleeper
+
 from . import tasks
-from .base import Pool, PoolConfig, Worker, WorkerConfig
+from .base import Pool, PoolConfig, Worker, WorkerBase, WorkerConfig
 from .connection import ZMQClientProxy, ZMQServer
 
 
@@ -159,6 +160,10 @@ class ProcessWorker(Worker):
         self._transport.disconnect()
         self.stop()
 
+    def discard_running_tasks(self):
+        # discard logic handled by pool in ``_handle_heartbeat``
+        WorkerBase.discard_running_tasks(self)
+
 
 class ProcessPoolConfig(PoolConfig):
     """
@@ -189,7 +194,8 @@ class ProcessPool(Pool):
     tasks.
 
     :param name: Pool name.
-    :param size: Pool workers size. Default: 4
+    :param size: Pool workers size. If you set size="auto",
+        smart-scheduling feature will calculate the size. Default: 4
     :param host: Host that pool binds and listens for requests.
     :param port: Port that pool binds. Default: 0 (random)
     :param abort_signals: Signals to trigger abort logic. Default: INT, TERM.
@@ -205,7 +211,7 @@ class ProcessPool(Pool):
     def __init__(
         self,
         name: str,
-        size: int = 4,
+        size: Union[int, str] = 4,
         host: str = "127.0.0.1",
         port: int = 0,
         abort_signals: List[int] = None,

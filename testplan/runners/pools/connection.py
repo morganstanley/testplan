@@ -4,7 +4,7 @@ import abc
 import queue
 import time
 import warnings
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import zmq
 
@@ -12,6 +12,9 @@ from testplan.common import entity
 from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
 from testplan.runners.pools.communication import Message
+
+if TYPE_CHECKING:
+    from testplan.runners.pools.base import Worker
 
 
 class Client(logger.Loggable, metaclass=abc.ABCMeta):
@@ -82,9 +85,11 @@ class Client(logger.Loggable, metaclass=abc.ABCMeta):
                     f"Received None when {expect} was expected."
                 )
             if isinstance(expect, (tuple, list)):
-                assert received.cmd in expect
+                assert (
+                    received.cmd in expect
+                ), f"{received.cmd} not in {expect}"
             else:
-                assert received.cmd == expect
+                assert received.cmd == expect, f"{received.cmd} != {expect}"
         return received
 
 

@@ -1,23 +1,24 @@
 """FixClient driver classes."""
 
-import os
 import errno
 import socket
-from typing import Union, Tuple
+from typing import Optional, Tuple, Union
 
-from schema import Use, Or
+from schema import Or, Use
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.context import is_context, expand, ContextValue
+from testplan.common.entity import ActionResult
+from testplan.common.utils.context import ContextValue, expand, is_context
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.sockets import Codec
-from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.client import Client
+from testplan.common.utils.sockets.tls import TLSConfig
+from testplan.common.utils.strings import slugify
 from testplan.common.utils.testing import FixMessage
 from testplan.common.utils.timing import (
+    PollInterval,
     TimeoutException,
     TimeoutExceptionInfo,
-    get_sleeper,
 )
 
 from ..base import Driver, DriverConfig
@@ -48,6 +49,7 @@ class FixClientConfig(DriverConfig):
             ConfigOption("receive_timeout", default=30): Or(int, float),
             ConfigOption("logon_timeout", default=10): Or(int, float),
             ConfigOption("logoff_timeout", default=3): Or(int, float),
+            ConfigOption("tls_config", default=None): TLSConfig,
         }
 
 
@@ -101,6 +103,9 @@ class FixClient(Driver):
     :type logon_timeout: ``int`` or ``float``
     :param logoff_timeout: Timeout in seconds to wait for logoff response.
     :type logoff_timeout: ``int`` or ``float``
+    :param tls_config: If provided the connection will be encrypted
+    :type version: ``Optional[TLSConfig]``
+
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -127,6 +132,7 @@ class FixClient(Driver):
         receive_timeout: Union[int, float] = 30,
         logon_timeout: Union[int, float] = 10,
         logoff_timeout: Union[int, float] = 3,
+        tls_config: Optional[TLSConfig] = None,
         **options,
     ):
         options.update(self.filter_locals(locals()))
@@ -164,22 +170,18 @@ class FixClient(Driver):
         """FIX SenderSubID."""
         return self.cfg.sendersub
 
-    def started_check(self, timeout=None):
-        """Driver started status condition check."""
-        sleeper = get_sleeper(
-            interval=(0.5, 2),
-            timeout=timeout,
-            raise_timeout_with_msg=f"FixClient {self} not able to connect in {timeout} seconds",
-        )
-        while next(sleeper):
-            try:
-                self.reconnect()
-            except Exception as exc:
-                self.logger.debug(
-                    "FixClient %s not able to connect - %s", self, exc
-                )
-            else:
-                break
+    def started_check(self) -> ActionResult:
+        try:
+            self.reconnect()
+        except Exception as exc:
+            self.logger.debug("%s not able to connect - %s", self, exc)
+            return False
+        else:
+            return True
+
+    @property
+    def started_check_interval(self) -> PollInterval:
+        return (0.5, 2)
 
     def connect(self):
         """
@@ -214,6 +216,7 @@ class FixClient(Driver):
             sendersub=self.cfg.sendersub,
             interface=self.cfg.interface,
             logger=self.logger,
+            tls_config=self.cfg.tls_config,
         )
 
         if self.cfg.connect_at_start or self.cfg.logon_at_start:

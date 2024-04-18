@@ -198,10 +198,11 @@ class ModuleReloader(logger.Loggable):
         try:
             with io.open(main_module_file, "r") as fp:
                 text = fp.read()
-        except OSError:
+        except OSError as exc:
             raise RuntimeError(
-                "Could not run main module {} as a script.".format(
-                    main_module_file
+                "Could not run main module {} as a script: {}.".format(
+                    main_module_file,
+                    exc,
                 )
             )
         else:

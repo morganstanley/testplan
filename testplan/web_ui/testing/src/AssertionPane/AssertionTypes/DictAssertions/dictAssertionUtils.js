@@ -1,8 +1,7 @@
-import _ from 'lodash';
-import {any, sorted, domToString} from './../../../Common/utils';
+import _ from "lodash";
+import { any, sorted, domToString } from "./../../../Common/utils";
 
 /** @module dictAssertionUtils */
-
 
 /**
  * Function to add styling to cells with conditions based on their values.
@@ -12,24 +11,29 @@ import {any, sorted, domToString} from './../../../Common/utils';
  * @private
  */
 export function dictCellStyle(params) {
-  const isValue = params.colDef.field !== 'key';
-  
-  let styles = new Map([
-    ["Failed", {
-      color: 'red',
-      fontWeight: 'bold'
-    }],
-    ["Ignored", {
-      color: 'grey',
-      fontStyle: 'italic'
-    }], 
+  const isValue = params.colDef.field !== "key";
 
+  let styles = new Map([
+    [
+      "Failed",
+      {
+        color: "red",
+        fontWeight: "bold",
+      },
+    ],
+    [
+      "Ignored",
+      {
+        color: "grey",
+        fontStyle: "italic",
+      },
+    ],
   ]);
 
   let cellStyle = styles.get(params.data.descriptor.status) ?? {};
 
   if (isValue) {
-    cellStyle.backgroundColor = '#BDC3C750';
+    cellStyle.backgroundColor = "#BDC3C750";
   }
 
   return cellStyle;
@@ -41,11 +45,11 @@ export function dictCellStyle(params) {
  */
 const statusIndex = (status) => {
   switch (status.toLowerCase()) {
-    case 'failed':
+    case "failed":
       return 0;
-    case 'passed':
+    case "passed":
       return 1;
-    case 'ignored':
+    case "ignored":
       return 2;
     default:
       return 99;
@@ -71,9 +75,9 @@ const statusIndex = (status) => {
  * @private
  */
 export function sortFlattenedJSON(
-  origFlattenedJSON, 
-  depth = 0, 
-  reverse = false, 
+  origFlattenedJSON,
+  depth = 0,
+  reverse = false,
   orderByStatus = true
 ) {
   // deep copy the original list
@@ -86,13 +90,13 @@ export function sortFlattenedJSON(
   // return early if there is only 1 item
   if (origFlattenedJSON.length === 1) return origFlattenedJSON;
 
-  // when slicing on anything but the 0th level, 
+  // when slicing on anything but the 0th level,
   // the first item of the list is the key of that object (slice),
   // so it is removed and added to the sorted list
   if (depth !== 0) {
     sortedFlattenedJSONList.push(origFlattenedJSON.shift());
 
-    // if only 1 item remains after removing the key, 
+    // if only 1 item remains after removing the key,
     // add it to the sorted list and return it
     if (origFlattenedJSON.length === 1) {
       sortedFlattenedJSONList.push(...origFlattenedJSON);
@@ -100,43 +104,44 @@ export function sortFlattenedJSON(
     }
   }
 
-  const set = _.uniq(origFlattenedJSON.map(line => line[0]));
+  const set = _.uniq(origFlattenedJSON.map((line) => line[0]));
   const allItemsAreSameLevel = set.length === 1;
 
-  // if all remaining items of the list are on the same depth level, 
+  // if all remaining items of the list are on the same depth level,
   // they can be sorted and returned
   if (allItemsAreSameLevel) {
     sortedFlattenedJSONList.push(
       ...sorted(
-        origFlattenedJSON, 
-        (item) => orderByStatus ? statusIndex(item[2]) : item[1],
+        origFlattenedJSON,
+        (item) => (orderByStatus ? statusIndex(item[2]) : item[1]),
         reverse && !orderByStatus
       )
     );
     return sortedFlattenedJSONList;
   } else {
     // create a new object that contains the indexes of the rows
-    startingIndexes = origFlattenedJSON.map(
-      (line, index) => ({ startingKey: index, data: line })
-    );
+    startingIndexes = origFlattenedJSON.map((line, index) => ({
+      startingKey: index,
+      data: line,
+    }));
 
-    // if there is an item that has a depth value less than the current one, 
+    // if there is an item that has a depth value less than the current one,
     // it is because the examined slice is a list
-    const isList = any(origFlattenedJSON.map(line => line[0] < depth));
+    const isList = any(origFlattenedJSON.map((line) => line[0] < depth));
 
     if (isList) {
-      // the lines with less depth value than the current one are list item 
-      // separators, so only their indexes matter depth is not increased so at 
+      // the lines with less depth value than the current one are list item
+      // separators, so only their indexes matter depth is not increased so at
       // the next recursion everything can go back to normal
       startingIndexes = startingIndexes.filter(
-        line => line.data[0] === depth - 1
+        (line) => line.data[0] === depth - 1
       );
       depth += 0;
     } else {
-      // if the current slice is not a list, then we omit the indexes of the 
+      // if the current slice is not a list, then we omit the indexes of the
       // lines that have no key
       startingIndexes = startingIndexes.filter(
-        line => line.data[0] === depth && line.data[1] !== ''
+        (line) => line.data[0] === depth && line.data[1] !== ""
       );
       depth += 1;
     }
@@ -148,40 +153,42 @@ export function sortFlattenedJSON(
         startingAndEndingIndexes.push({
           startingKey: line.startingKey,
           endingKey: startingIndexes[index + 1].startingKey,
-          data: line.data
+          data: line.data,
         });
       } else {
         startingAndEndingIndexes.push({
           startingKey: startingIndexes[index].startingKey,
           endingKey: origFlattenedJSON.length,
-          data: startingIndexes[index].data
+          data: startingIndexes[index].data,
         });
       }
     });
 
     // sort the list
     startingAndEndingIndexes = sorted(
-      startingAndEndingIndexes, 
-      item => orderByStatus ? statusIndex(item.data[2]) : item.data[1],
+      startingAndEndingIndexes,
+      (item) => (orderByStatus ? statusIndex(item.data[2]) : item.data[1]),
       reverse && !orderByStatus
     );
 
     // start recursion on the sorted slices of the list
-    startingAndEndingIndexes.map(key => sortedFlattenedJSONList.push(
-      ...sortFlattenedJSON(
-        origFlattenedJSON.slice(key.startingKey, key.endingKey),
-        depth,
-        reverse,
-        orderByStatus
+    startingAndEndingIndexes.map((key) =>
+      sortedFlattenedJSONList.push(
+        ...sortFlattenedJSON(
+          origFlattenedJSON.slice(key.startingKey, key.endingKey),
+          depth,
+          reverse,
+          orderByStatus
+        )
       )
-    ));
+    );
 
     return sortedFlattenedJSONList;
   }
 }
 
 /**
- * Prepare the column definitions for DictMatch, DictLog, FixMatch, FixLog 
+ * Prepare the column definitions for DictMatch, DictLog, FixMatch, FixLog
  * assertions. DictMatch and FixMatch should include expect column.
  *
  * @param {class} Renender - Custom component used by the grid to render the
@@ -191,32 +198,35 @@ export function sortFlattenedJSON(
  * @private
  */
 export function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
-  const columnDefs = [{
-    headerName: 'Descriptor',
-    field: 'descriptor',
-    hide: true,
-  }, {
-    headerName: 'Key',
-    field: 'key',
-    pinned: 'left',
-    resizable: true,
-    suppressSizeToFit: true,
-    cellStyle: cellStyle,
-    cellRendererFramework: cellRenderer,
-  }];
+  const columnDefs = [
+    {
+      headerName: "Descriptor",
+      field: "descriptor",
+      hide: true,
+    },
+    {
+      headerName: "Key",
+      field: "key",
+      pinned: "left",
+      resizable: true,
+      suppressSizeToFit: true,
+      cellStyle: cellStyle,
+      cellRendererFramework: cellRenderer,
+    },
+  ];
 
   if (hasExpected) {
     columnDefs.push({
-      headerName: 'Expected',
-      field: 'expected',
+      headerName: "Expected",
+      field: "expected",
       cellStyle: cellStyle,
       cellRendererFramework: cellRenderer,
     });
   }
 
   columnDefs.push({
-    headerName: 'Value',
-    field: 'value',
+    headerName: "Value",
+    field: "value",
     cellStyle: cellStyle,
     cellRendererFramework: cellRenderer,
   });
@@ -245,9 +255,8 @@ export function prepareDictRowData(data, lineNo) {
       [level, key, status, actualValue, expectedValue] = line;
     }
     actualValue = actualValue || [];
-    const isEmptyLine = (
-        key !== null && key.length === 0 && actualValue.length === 0
-    );
+    const isEmptyLine =
+      key !== null && key.length === 0 && actualValue.length === 0;
     const hasAcutalValue = Array.isArray(actualValue);
     const hasExpectedValue = Array.isArray(expectedValue);
 
@@ -257,11 +266,11 @@ export function prepareDictRowData(data, lineNo) {
         indent: level,
         isListKey:
           originalArray[index + 1] &&
-          originalArray[index + 1][1] === '' &&
+          originalArray[index + 1][1] === "" &&
           originalArray[index + 1][0] === originalArray[index][0],
         isEmptyLine: isEmptyLine,
-        status: status
-      }
+        status: status,
+      },
     };
 
     if (isEmptyLine) {
@@ -269,17 +278,17 @@ export function prepareDictRowData(data, lineNo) {
       // clearly.
       lineObject.key = { value: null, type: null };
     } else {
-      lineObject.key = { value: key, type: 'key' };
+      lineObject.key = { value: key, type: "key" };
       if (hasAcutalValue) {
         lineObject.value = {
           value: actualValue[1],
-          type: actualValue[0]
+          type: actualValue[0],
         };
       }
       if (hasExpectedValue) {
         lineObject.expected = {
           value: expectedValue[1],
-          type: expectedValue[0]
+          type: expectedValue[0],
         };
       }
     }
@@ -295,7 +304,7 @@ export function prepareDictRowData(data, lineNo) {
  * @returns {string} - HTML table
  */
 export function flattenedDictToDOM(flattenedDict) {
-  let table = document.createElement('table');
+  let table = document.createElement("table");
 
   /**
    * Convert DictLog/FixLog assertion data to HTML Table
@@ -322,9 +331,9 @@ export function flattenedDictToDOM(flattenedDict) {
    *
    */
   function logToDOM(flattenedDict, table) {
-    let header = document.createElement('tr');
-    ['Key', 'Value'].forEach((el) => {
-      let th = document.createElement('th');
+    let header = document.createElement("tr");
+    ["Key", "Value"].forEach((el) => {
+      let th = document.createElement("th");
       th.innerHTML = el;
       header.appendChild(th);
     });
@@ -337,13 +346,13 @@ export function flattenedDictToDOM(flattenedDict) {
       if (key.length === 0 && value.length === 0) {
         return;
       }
-      let tr = document.createElement('tr');
-      let keyTd = document.createElement('td');
-      let valueTd = document.createElement('td');
-      keyTd.innerText = '\u00A0\u00A0'.repeat(level) + key;
+      let tr = document.createElement("tr");
+      let keyTd = document.createElement("td");
+      let valueTd = document.createElement("td");
+      keyTd.innerText = "\u00A0\u00A0".repeat(level) + key;
       if (Array.isArray(value)) {
         valueTd.innerText = value[1];
-        let valueType = document.createElement('small');
+        let valueType = document.createElement("small");
         valueType.innerText = value[0];
         valueTd.appendChild(valueType);
       } else {
@@ -381,9 +390,9 @@ export function flattenedDictToDOM(flattenedDict) {
    *
    */
   function matchToDOM(flattenedDict, table) {
-    let header = document.createElement('tr');
-    ['Key', 'Expected', 'Value'].forEach((el) => {
-      let th = document.createElement('th');
+    let header = document.createElement("tr");
+    ["Key", "Expected", "Value"].forEach((el) => {
+      let th = document.createElement("th");
       th.innerHTML = el;
       header.appendChild(th);
     });
@@ -397,15 +406,15 @@ export function flattenedDictToDOM(flattenedDict) {
       if (key !== null && key.length === 0 && actualValue.length === 0) {
         return;
       }
-      let tr = document.createElement('tr');
-      let keyTd = document.createElement('td');
-      let valueTd = document.createElement('td');
-      let expectedTd = document.createElement('td');
-      keyTd.innerText = '\u00A0\u00A0'.repeat(level) + key;
+      let tr = document.createElement("tr");
+      let keyTd = document.createElement("td");
+      let valueTd = document.createElement("td");
+      let expectedTd = document.createElement("td");
+      keyTd.innerText = "\u00A0\u00A0".repeat(level) + key;
 
       if (Array.isArray(actualValue)) {
         valueTd.innerText = actualValue[1];
-        let valueType = document.createElement('small');
+        let valueType = document.createElement("small");
         valueType.innerText = actualValue[0];
         valueTd.appendChild(valueType);
       } else {
@@ -414,7 +423,7 @@ export function flattenedDictToDOM(flattenedDict) {
 
       if (Array.isArray(expectedValue)) {
         expectedTd.innerText = expectedValue[1];
-        let valueType = document.createElement('small');
+        let valueType = document.createElement("small");
         valueType.innerText = expectedValue[0];
         expectedTd.appendChild(valueType);
       } else {
@@ -424,8 +433,8 @@ export function flattenedDictToDOM(flattenedDict) {
       tr.appendChild(keyTd);
       tr.appendChild(expectedTd);
       tr.appendChild(valueTd);
-      if (status === 'Failed') {
-        tr.style.color = 'red';
+      if (status === "Failed") {
+        tr.style.color = "red";
       }
       table.appendChild(tr);
     });

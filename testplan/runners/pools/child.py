@@ -26,7 +26,7 @@ def parse_cmdline():
     parser.add_argument("--remote-pool-type", action="store", default="thread")
     parser.add_argument("--remote-pool-size", action="store", default=1)
     parser.add_argument("--sys-path-file", action="store")
-
+    parser.add_argument("--resource-monitor-server", action="store")
     return parser.parse_args()
 
 
@@ -63,7 +63,7 @@ class ChildLoop:
 
     def _child_pool(self):
         # Local thread pool will not cleanup the previous layer runpath.
-        self._pool = self._pool_type(
+        self._pool: Pool = self._pool_type(
             name=f"Pool_{self._metadata['pid']}",
             worker_type=self._worker_type,
             size=self._pool_size,
@@ -92,27 +92,27 @@ class ChildLoop:
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
+        stdout_file = os.path.join(
+            self.runpath, f"{self._metadata['index']}_stdout"
+        )
         stderr_file = os.path.join(
             self.runpath, f"{self._metadata['index']}_stderr"
         )
-        log_file = os.path.join(
-            self.runpath, f"{self._metadata['index']}_stdout"
-        )
-        self.logger.info(
-            "stdout file = %(file)s (log level = %(lvl)s)",
-            {"file": log_file, "lvl": self.logger.level},
-        )
+        log_file = os.path.join(self.runpath, f"{self._metadata['index']}_log")
+        self.logger.info("stdout file = %s", stdout_file)
         self.logger.info("stderr file = %s", stderr_file)
         self.logger.info(
-            "Closing stdin, stdout and stderr file descriptors..."
+            "log file = %(file)s (log level = %(lvl)s)",
+            {"file": log_file, "lvl": self.logger.level},
         )
+        # redirect stdout/stderr
+        stderr_fd = open(stderr_file, "w")
+        stdout_fd = open(stdout_file, "w")
+        os.close(2)
+        os.close(1)
+        os.dup2(stderr_fd.fileno(), 2)
+        os.dup2(stdout_fd.fileno(), 1)
 
-        # This closes stdin, stdout and stderr for this process.
-        for fdesc in range(3):
-            os.close(fdesc)
-        mode = "w" if platform.python_version().startswith("3") else "wb"
-
-        sys.stderr = open(stderr_file, mode)
         fhandler = logging.FileHandler(log_file, encoding="utf-8")
 
         formatter = logging.Formatter(LOGFILE_FORMAT)
@@ -206,6 +206,10 @@ class ChildLoop:
                             hb_resp.data,
                             time.time() - hb_resp.data,
                         )
+                    if hb_resp.cmd == Message.DiscardPending:
+                        self._pool.discard_pending_tasks(
+                            report_reason="DiscardPending received"
+                        )
                     next_heartbeat = now + self._pool_cfg.worker_heartbeat
 
                 # Send back results
@@ -255,7 +259,6 @@ class ChildLoop:
                             self._pool_cfg.max_active_loop_sleep,
                         )
                         next_possible_request = time.time() + request_delay
-                        pass
                 time.sleep(self._pool_cfg.active_loop_sleep)
         self.logger.info("Local pool %s stopped.", self._pool)
 
@@ -301,10 +304,10 @@ class RemoteChildLoop(ChildLoop):
     def exit_loop(self):
         if self._setup_metadata.delete_pushed:
             for item in self._setup_metadata.push_dirs:
-                self.logger.test_info("Removing directory: %s", item)
+                self.logger.user_info("Removing directory: %s", item)
                 shutil.rmtree(item, ignore_errors=True)
             for item in self._setup_metadata.push_files:
-                self.logger.test_info("Removing file: %s", item)
+                self.logger.user_info("Removing file: %s", item)
                 os.remove(item)
 
         super(RemoteChildLoop, self).exit_loop()
@@ -347,6 +350,7 @@ def child_logic(args):
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
+    # FIXME: dedup
     class NoRunpathThreadPool(Pool):
         """
         Pool that creates no runpath directory.
@@ -443,6 +447,17 @@ if __name__ == "__main__":
         STDOUT_HANDLER,
     )
 
+    resource_monitor_client = None
+    if ARGS.resource_monitor_server:
+        from testplan.monitor.resource import ResourceMonitorClient
+
+        resource_monitor_client = ResourceMonitorClient(
+            ARGS.resource_monitor_server
+        )
+        resource_monitor_client.start()
+
     child_logic(ARGS)
     print("child.py exiting")
+    if resource_monitor_client:
+        resource_monitor_client.stop()
     os._exit(0)

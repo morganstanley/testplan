@@ -1,0 +1,1 @@
+Regex and XMLCheck related assertions rendering the input in full width, using the screen better.

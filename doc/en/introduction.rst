@@ -335,10 +335,31 @@ Command line
       --runpath             Path under which all temp files and logs will be created.
       --timeout             Expiry timeout on test execution.
       -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
+      --pre-start-environments     Enable pre-start of environments in interactive mode. MultiTest names are to be passed as whitespace separated list of strings. Defaults to no pre-start.
       --trace-tests         Enable the tracing tests feature. A JSON file containing file names and line numbers to be watched by the tracer must be specified.
       --trace-tests-output
                             Specify output file for tests impacted by change in Testplan pattern format (see --trace-tests). Will be ignored if --trace-tests is not specified. Default to standard output.
       --xfail-tests         Read a list of known to fail testcases from a JSON file with each entry looks like: {"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>} }
+      --runtime-data PATH   Historical runtime data which will be used for Multitest auto-part and weight-based Task smart-scheduling with entries looks like:
+
+                            {
+                                "<Multitest>": {
+                                    "execution_time": 199.99,
+                                    "setup_time": 39.99,
+                                },
+                                ......
+                            }
+      --skip-remaining      {cases-on-failed,cases-on-error,suites-on-failed,suites-on-error,tests-on-failed,tests-on-error}
+
+                            Make Testplan break from the current execution flow and skip remaining iterations at certain level (choose one from all the options). "on-error" make this skip upon exception raised, and "on-failed" make this skip upon both exception raised and test failure. In other words, "on-failed" has higher precedence.
+
+                            Use "cases-on-failed"/"cases-on-error" to skip remaining testcases in the same testsuite when condition is met, execution will resume from the next testsuite.
+
+                            Use "suites-on-failed"/"suites-on-error" to skip remaining testsuites as well in the same Multitest when condition is met, execution will resume from the next Multitest/GTest etc.
+
+                            Use "tests-on-failed"/"tests-on-error" to skip remaining Multitests/GTests etc. as well (i.e. everything remaining) in the current Testplan when condition is met.
+
+                            To skip everything and stop executing all further tests use "tests-on-failed".
 
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.
@@ -426,7 +447,8 @@ Command line
                             --report-tags-all <tag_name_1> --report-tags-all <tag_name 2>
 
                             --report-tags-all <tag_name_1> <tag_category_1>=<tag_name_2>
-      --file-log-level      {exporter_info,test_info,driver_info,critical,error,warning,info,debug,none}
+
+      --file-log-level      {USER_INFO,CRITICAL,ERROR,WARNING,INFO,DEBUG,NONE}
 
                             Specify log level for file logs. Set to None to disable file logging.
 

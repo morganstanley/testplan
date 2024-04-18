@@ -6,6 +6,7 @@ from testplan.testing.multitest.entries import base
 from testplan.testing.multitest.entries.schemas.base import registry
 
 from testplan import TestplanMock, defaults
+from testplan.common.exporters import ExportContext
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing.pdf import PDFExporter, TagFilteredPDFExporter
 from testplan.report import (
@@ -74,7 +75,8 @@ def test_create_pdf(tmpdir):
             passing="assertion-detail", failing="assertion-detail"
         ),
     )
-    exporter.export(report)
+    export_context = ExportContext()
+    exporter.export(source=report, export_context=export_context)
 
     assert os.path.exists(pdf_path)
     assert os.stat(pdf_path).st_size > 0
@@ -122,7 +124,8 @@ def test_tag_filtered_pdf(tmpdir):
             {"simple": ("foo", "bar"), "color": "green"},
         ],
     )
-    exporter.export(report)
+    export_context = ExportContext()
+    exporter.export(source=report, export_context=export_context)
 
     should_exist = [
         "report-tags-all-bar__foo.pdf",

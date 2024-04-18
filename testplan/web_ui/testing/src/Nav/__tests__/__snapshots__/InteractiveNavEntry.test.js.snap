@@ -11,7 +11,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-failedBadge_1i8mqax"
+    className="entryIcon_lzttp4-o_O-failedBadge_1i8mqax"
     color="secondary"
     pill={true}
     tag="span"
@@ -28,8 +28,8 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -43,12 +43,16 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
       >
         1
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -65,14 +69,20 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -90,7 +100,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -107,8 +117,8 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -122,12 +132,16 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -144,14 +158,20 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -169,7 +189,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2"
+    className="entryIcon_lzttp4-o_O-passedBadge_1isorc2"
     color="secondary"
     pill={true}
     tag="span"
@@ -186,8 +206,8 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -201,12 +221,16 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -223,14 +247,20 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -248,7 +278,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -265,8 +295,8 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -280,12 +310,16 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -302,14 +336,20 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -327,7 +367,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -344,8 +384,8 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -359,12 +399,16 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -381,14 +425,20 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={true}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Resetting..."
+      titleId={null}
       transform={null}
     />
   </div>
@@ -406,7 +456,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -423,8 +473,8 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -438,12 +488,16 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -460,14 +514,20 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={true}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Running..."
+      titleId={null}
       transform={null}
     />
   </div>
@@ -485,7 +545,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -502,8 +562,8 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -517,12 +577,16 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -539,14 +603,20 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={true}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Waiting..."
+      titleId={null}
       transform={null}
     />
   </div>
@@ -564,7 +634,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -581,8 +651,8 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -596,12 +666,16 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -618,21 +692,31 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
+      titleId={null}
       transform={null}
     />
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v-o_O-environmentToggle_q5b348"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -649,21 +733,31 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Stop environment"
+      titleId={null}
       transform={null}
     />
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -680,14 +774,20 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -705,7 +805,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -722,8 +822,8 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -737,12 +837,16 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -759,52 +863,75 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
+      titleId={null}
       transform={null}
     />
     <FontAwesomeIcon
+      animation="none"
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c-o_O-environmentToggle_q5b348-o_O-busyEnvironmentToggle_2mo5qs"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
             576,
             512,
             Array [],
-            "f204",
-            "M384 64H192C85.961 64 0 149.961 0 256s85.961 192 192 192h192c106.039 0 192-85.961 192-192S490.039 64 384 64zM64 256c0-70.741 57.249-128 128-128 70.741 0 128 57.249 128 128 0 70.741-57.249 128-128 128-70.741 0-128-57.249-128-128zm320 128h-48.905c65.217-72.858 65.236-183.12 0-256H384c70.741 0 128 57.249 128 128 0 70.74-57.249 128-128 128z",
+            "f205",
+            "M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128",
           ],
-          "iconName": "toggle-off",
+          "iconName": "toggle-on",
           "prefix": "fas",
         }
       }
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
+      opacity={1}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Environment starting..."
+      titleId={null}
       transform={null}
+      transition="opacity 0.175s ease-in-out"
     />
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -821,14 +948,20 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -846,7 +979,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -863,8 +996,8 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -878,12 +1011,16 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -900,21 +1037,31 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
+      titleId={null}
       transform={null}
     />
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v-o_O-environmentToggle_q5b348"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -931,21 +1078,31 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Start environment"
+      titleId={null}
       transform={null}
     />
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="entryButton_yr2g96"
+      bounce={false}
+      className="entryButton_1wwl2v"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -962,14 +1119,20 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>
@@ -987,7 +1150,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
   }
 >
   <Badge
-    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -1004,8 +1167,8 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
   <div
     className="entryIcons_195essn"
   >
-    <i
-      className="entryIcon_9gb3m5"
+    <span
+      className="entryIcon_lzttp4"
       title="passed/failed testcases"
     >
       <span
@@ -1019,12 +1182,16 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       >
         0
       </span>
-    </i>
+    </span>
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -1041,52 +1208,75 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
-      title="Reset report"
+      title="Reset MultiTest environment and report"
+      titleId={null}
       transform={null}
     />
     <FontAwesomeIcon
+      animation="pulsate 0.35s infinite"
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c-o_O-environmentToggle_q5b348-o_O-busyEnvironmentToggle_2mo5qs"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
             576,
             512,
             Array [],
-            "f205",
-            "M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128",
+            "f204",
+            "M384 64H192C85.961 64 0 149.961 0 256s85.961 192 192 192h192c106.039 0 192-85.961 192-192S490.039 64 384 64zM64 256c0-70.741 57.249-128 128-128 70.741 0 128 57.249 128 128 0 70.741-57.249 128-128 128-70.741 0-128-57.249-128-128zm320 128h-48.905c65.217-72.858 65.236-183.12 0-256H384c70.741 0 128 57.249 128 128 0 70.74-57.249 128-128 128z",
           ],
-          "iconName": "toggle-on",
+          "iconName": "toggle-off",
           "prefix": "fas",
         }
       }
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
+      opacity={0.5}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Environment stopping..."
+      titleId={null}
       transform={null}
+      transition="opacity 0.175s ease-in-out"
     />
     <FontAwesomeIcon
+      beat={false}
+      beatFade={false}
       border={false}
-      className="inactiveEntryButton_klwly8"
+      bounce={false}
+      className="inactiveEntryButton_104ny1c"
+      fade={false}
       fixedWidth={false}
-      flip={null}
+      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -1103,14 +1293,20 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       inverse={false}
       listItem={false}
       mask={null}
+      maskId={null}
       onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
+      shake={false}
       size={null}
       spin={false}
+      spinPulse={false}
+      spinReverse={false}
+      swapOpacity={false}
       symbol={false}
       title="Run tests"
+      titleId={null}
       transform={null}
     />
   </div>

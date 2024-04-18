@@ -1,9 +1,21 @@
 /**
  * Common utility functions.
  */
-import { NAV_ENTRY_DISPLAY_DATA, EXPAND_STATUS } from "./defaults";
+import { NAV_ENTRY_DISPLAY_DATA, EXPAND_STATUS, VIEW_TYPE } from "./defaults";
 import JSON5 from "json5";
 import _ from "lodash";
+
+/**
+ * Calculate execution time of an entry with timer field
+ */
+function calcExecutionTime(entry) {
+  return (
+    entry.timer && entry.timer.run
+    ? new Date(entry.timer.run.end).getTime() -
+      new Date(entry.timer.run.start).getTime()
+    : null
+    );
+}
 
 /**
  * Get the data to be used when displaying the nav entry.
@@ -139,12 +151,15 @@ function formatMilliseconds(durationInMilliseconds) {
   let secondsDisplay = isDisplayedSeconds ? seconds + "s" : "";
   let millisecondsDisplay = isDisplayedMilliseconds ? milliseconds + "ms" : "";
 
-  return [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
-    .filter(Boolean)
-    .join(" ") || "0ms";
+  return (
+    [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
+      .filter(Boolean)
+      .join(" ") || "0ms"
+  );
 }
 
 export {
+  calcExecutionTime,
   getNavEntryDisplayData,
   any,
   sorted,
@@ -251,15 +266,28 @@ export const parseToJson = (data) => {
  */
 export const getAttachmentUrl = (filePath, reportUid, prefix) => {
   if (_.isEmpty(prefix)) {
-    prefix = '';
+    prefix = "";
   } else {
-    prefix += '/';
+    prefix += "/";
   }
   if (reportUid) {
     return `/api/v1/reports/${reportUid}/attachments/${prefix}${filePath}`;
   } else {
     return `/api/v1/interactive/attachments/${prefix}${filePath}`;
   }
+};
+
+/**
+ * Get the URL to retrieve the resource data from API.
+ * @param {string} resourceUid
+ * @param {string} attachment
+ * @returns {string}
+ */
+export const getResourceUrl = (resourceUid, attachment) => {
+  if (_.isEmpty(attachment)) {
+    return `/api/v1/testplan_monitor/${resourceUid}`;
+  }
+  return `/api/v1/testplan_monitor/${resourceUid}/attachments/${attachment}`;
 };
 
 /**
@@ -274,6 +302,21 @@ export const globalExpandStatus = () => {
       return EXPAND_STATUS.COLLAPSE;
     default:
       return EXPAND_STATUS.DEFAULT;
+  }
+};
+
+/**
+ *  Get global View panel type.
+ */
+export const globalViewPanel = () => {
+  const view = new URLSearchParams(window.location.search).get("view");
+  switch (view) {
+    case VIEW_TYPE.ASSERTION:
+      return VIEW_TYPE.ASSERTION;
+    case VIEW_TYPE.RESOURCE:
+      return VIEW_TYPE.RESOURCE;
+    default:
+      return VIEW_TYPE.DEFAULT;
   }
 };
 

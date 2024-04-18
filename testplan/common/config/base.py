@@ -5,14 +5,29 @@ Module containing configuration objects and utilities.
 import copy
 import inspect
 
-from schema import Schema, Optional
+from schema import Optional, Schema
 
-from testplan.common.utils.interface import check_signature
 from testplan.common.utils import logger
+from testplan.common.utils.interface import check_signature
 
 # A sentinel object meaning not defined, it is useful when you need to
 # handle arbitrary objects (including None).
 ABSENT = Optional._MARKER  # pylint: disable=protected-access
+
+# Another sentinel object indicating a default but falsy value.
+class UNSET_T:
+    def __eq__(self, other):
+        # This is for configuration check of RemoteDriver. Netref from RPyC
+        # overrides "__instancecheck__".
+        if isinstance(other, self.__class__):
+            return True
+        return False
+
+    def __bool__(self):
+        return False
+
+
+UNSET = UNSET_T()
 
 
 def validate_func(*arg_names):
@@ -152,9 +167,7 @@ class Config:
             )
 
     def __repr__(self):
-        return "{}{}".format(
-            self.__class__.__name__, self._cfg_input or self._options
-        )
+        return "{}{}".format(self.__class__.__name__, self._options)
 
     def get_local(self, name, default=None):
         """Returns a local config setting (not from container)"""
@@ -168,6 +181,11 @@ class Config:
 
         else:
             return default
+
+    def set_local(self, name, value):
+        """set without any check"""
+        options = self.__getattribute__("_options")
+        options[name] = value
 
     @property
     def parent(self):
@@ -191,12 +209,6 @@ class Config:
         new_options = {}
         for key in self._options:
             value = getattr(self, key)
-            if inspect.isclass(value) or inspect.isroutine(value):
-                # Skipping non-serializable classes and routines.
-                logger.TESTPLAN_LOGGER.debug(
-                    "Skip denormalizing option: %s", key
-                )
-                continue
             try:
                 new_options[copy.deepcopy(key)] = copy.deepcopy(value)
             except Exception as exc:
@@ -204,7 +216,12 @@ class Config:
                     "Failed to denormalize option: {} - {}".format(key, exc)
                 )
 
-        new = self.__class__(**new_options)
+        # XXX: we have transformed options, which should not be validated
+        # XXX: against schema again
+        new = object.__new__(self.__class__)
+        setattr(new, "_parent", None)
+        setattr(new, "_cfg_input", new_options)
+        setattr(new, "_options", new_options)
         return new
 
     @classmethod

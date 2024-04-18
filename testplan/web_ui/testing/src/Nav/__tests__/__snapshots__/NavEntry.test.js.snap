@@ -28,7 +28,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
   <div
     className="entryIcons_jqmit5"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -43,7 +43,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
       >
         0
       </span>
-    </i>
+    </span>
   </div>
 </div>
 `;
@@ -76,7 +76,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
   <div
     className="entryIcons_jqmit5"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -91,7 +91,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
       >
         0
       </span>
-    </i>
+    </span>
   </div>
 </div>
 `;
@@ -124,7 +124,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
   <div
     className="entryIcons_jqmit5"
   >
-    <i
+    <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
@@ -139,7 +139,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
       >
         0
       </span>
-    </i>
+    </span>
   </div>
 </div>
 `;

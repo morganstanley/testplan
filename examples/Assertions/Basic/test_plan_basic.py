@@ -147,6 +147,39 @@ It provides:
     generation of multiple reports (for each tag combination).
   * Integration with other unit testing frameworks (like GTest).
   * Rich, unified reports (json/PDF/XML) and soon (HTML/UI).
+  
+# Basic Example
+
+```python
+import sys
+
+from testplan import test_plan
+from testplan.testing.multitest import MultiTest, testsuite, testcase
+
+
+def multiply(numA, numB):
+    return numA * numB
+
+
+@testsuite
+class BasicSuite(object):
+
+    @testcase
+    def basic_multiply(self, env, result):
+        result.equal(multiply(2, 3), 6, description='Passing assertion')
+        result.equal(multiply(2, 2), 5, description='Failing assertion')
+
+
+@test_plan(name='Multiply')
+def main(plan):
+    test = MultiTest(name='MultiplyTest',
+                     suites=[BasicSuite()])
+    plan.add(test)
+
+
+if __name__ == '__main__':
+  sys.exit(not main())
+```
         """,
             description="Markdown example",
             escape=False,

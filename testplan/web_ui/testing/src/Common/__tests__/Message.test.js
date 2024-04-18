@@ -1,24 +1,22 @@
-import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import React from "react";
+import { shallow } from "enzyme";
+import { StyleSheetTestUtils } from "aphrodite";
 
-import Message from '../Message';
+import Message from "../Message";
 
 function defaultProps() {
   return {
-    left: '1.5em',
-    message: 'test',
+    left: "1.5em",
+    message: "test",
   };
 }
 
-describe('Message', () => {
+describe("Message", () => {
   let props;
   let mountedMessage;
   const renderMessage = () => {
     if (!mountedMessage) {
-      mountedMessage = shallow(
-        <Message {...props} />
-      );
+      mountedMessage = shallow(<Message {...props} />);
     }
     return mountedMessage;
   };
@@ -35,13 +33,12 @@ describe('Message', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders without crashing', () => {
+  it("shallow renders without crashing", () => {
     renderMessage();
   });
 
-  it('shallow renders the correct HTML structure', () => {
+  it("shallow renders the correct HTML structure", () => {
     const message = renderMessage();
     expect(message).toMatchSnapshot();
   });
-
 });

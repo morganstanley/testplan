@@ -1,4 +1,5 @@
 """FixServer driver classes."""
+from typing import Optional
 
 import select
 import platform
@@ -9,6 +10,7 @@ from schema import Use
 from testplan.common.config import ConfigOption
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.sockets import Codec
+from testplan.common.utils.sockets.tls import TLSConfig
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.server import Server
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
@@ -33,6 +35,7 @@ class FixServerConfig(DriverConfig):
             ConfigOption("host", default="localhost"): str,
             ConfigOption("port", default=0): Use(int),
             ConfigOption("version", default="FIX.4.2"): str,
+            ConfigOption("tls_config", default=None): TLSConfig,
         }
 
 
@@ -67,6 +70,8 @@ class FixServer(Driver):
     :param version: FIX version, defaults to "FIX.4.2". This string is used
       as the contents of tag 8 (BeginString).
     :type version: ``str``
+    :param tls_config: If provided the connection will be encrypted
+    :type version: ``Optional[TLSConfig]``
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -82,6 +87,7 @@ class FixServer(Driver):
         host: str = "localhost",
         port: int = 0,
         version: str = "FIX.4.2",
+        tls_config: Optional[TLSConfig] = None,
         **options
     ):
         options.update(self.filter_locals(locals()))
@@ -120,6 +126,7 @@ class FixServer(Driver):
             port=self.cfg.port,
             version=self.cfg.version,
             logger=self.logger,
+            tls_config=self.cfg.tls_config,
         )
         self._server.start()
         self._host = self.cfg.host

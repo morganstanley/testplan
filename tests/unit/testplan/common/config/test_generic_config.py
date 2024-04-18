@@ -3,7 +3,7 @@
 import os
 import re
 
-from schema import Optional, Or, SchemaError
+from schema import And, Optional, Or, SchemaError, Use
 
 from testplan.common.config import Config, ConfigOption
 from testplan.common.entity import Entity
@@ -51,18 +51,33 @@ class Third(Second):
         }
 
 
+class Complex(Second):
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption("e", default=complex("-j")): And(str, Use(complex)),
+            "f": And(callable, Use(lambda x: lambda y: complex(x(y)))),
+        }
+
+
 def test_basic_config():
     """Basic config operations."""
     item = First()
     assert (1, 2, 3) == (item.a, item.b, item.c)
 
-    item = First(a=5, b=4)
-    assert (5, 4, 3) == (item.a, item.b, item.c)
+    item = Complex(a=0.5, b=4, e="10-10j", f=lambda x: x.replace(" ", ""))
+    assert (0.5, 4, 9.0, complex("10-10j")) == (item.a, item.b, item.c, item.e)
 
     clone = item.denormalize()
     assert id(clone) != id(item)
     assert clone.parent is None
-    assert (clone.a, clone.b, clone.c) == (item.a, item.b, item.c)
+    assert (clone.a, clone.b, clone.c, clone.e) == (
+        item.a,
+        item.b,
+        item.c,
+        item.e,
+    )
+    assert clone.f("- 10j ") == complex(real=0, imag=-10)
 
 
 def test_basic_schema_fail():

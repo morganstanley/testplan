@@ -7,12 +7,16 @@ if [ "$PROC_ENV2" != "123" ]; then
   echo "Unexpected value of variable PROC_ENV2"
   exit 7
 fi
+if [ "$TEST_NAME" != "MyTest" ]; then
+  echo "Unexpected value of variable TEST_NAME"
+  exit 8
+fi
 if [ "$DRIVER_MY_EXECUTABLE_ATTR_FOOBAR" != "foo bar" ]; then
   echo "Unexpected value of variable $DRIVER_MY_EXECUTABLE_ATTR_FOOBAR"
-  exit 8
+  exit 9
 fi
 if [ "$DRIVER_MY_EXECUTABLE_ATTR_MYVALUE" != "hello" ]; then
   echo "Unexpected value of variable $DRIVER_MY_EXECUTABLE_ATTR_VALUE"
-  exit 9
+  exit 10
 fi
 exit 0

@@ -61,21 +61,21 @@ def test_pre_post_steps(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
-                        name="Before/After Step Checks",
+                        name="Before Start",
                         category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
-                                name="before_start - check_func_1",
+                                name="check_func_1",
                                 entries=[{"type": "Equal", "passed": True}],
                             ),
-                            TestCaseReport(name="after_start - check_func_2"),
-                            TestCaseReport(name="before_stop - check_func_3"),
+                        ],
+                    ),
+                    TestGroupReport(
+                        name="After Start",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
                             TestCaseReport(
-                                name="after_stop - check_func_4",
-                                entries=[
-                                    {"type": "Equal", "passed": False},
-                                    {"type": "Attachment"},
-                                ],
+                                name="check_func_2",
                             ),
                         ],
                     ),
@@ -87,6 +87,26 @@ def test_pre_post_steps(mockplan):
                             TestCaseReport(
                                 name="teardown",
                                 entries=[{"type": "Attachment"}],
+                            ),
+                        ],
+                    ),
+                    TestGroupReport(
+                        name="Before Stop",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
+                            TestCaseReport(name="check_func_3"),
+                        ],
+                    ),
+                    TestGroupReport(
+                        name="After Stop",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
+                            TestCaseReport(
+                                name="check_func_4",
+                                entries=[
+                                    {"type": "Equal", "passed": False},
+                                    {"type": "Attachment"},
+                                ],
                             ),
                         ],
                     ),
@@ -119,10 +139,10 @@ def test_empty_pre_post_steps(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
-                        name="Before/After Step Checks",
+                        name="After Start",
                         category=ReportCategories.TESTSUITE,
                         entries=[
-                            TestCaseReport(name="after_start - check_func_2"),
+                            TestCaseReport(name="check_func_2"),
                         ],
                     ),
                     TestGroupReport(

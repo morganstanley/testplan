@@ -1,12 +1,10 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Badge } from 'reactstrap';
-import { StyleSheet, css } from 'aphrodite';
-import { NAV_DEFAULT_COLOR } from '../Common/defaults';
-
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { Badge } from "reactstrap";
+import { StyleSheet, css } from "aphrodite";
+import { NAV_DEFAULT_COLOR } from "../Common/defaults";
 
 class TagList extends Component {
-
   render() {
     let tags = Object.assign({}, this.props.tags);
 
@@ -17,7 +15,8 @@ class TagList extends Component {
           <Badge
             key={this.props.entryName + tag}
             className={css(styles.tags)}
-            color='primary'>
+            color="primary"
+          >
             {tag}
           </Badge>
         );
@@ -31,18 +30,15 @@ class TagList extends Component {
           <Badge
             key={this.props.entryName + tagKey + tagValue}
             className={css(styles.tags)}
-            color='primary'>
+            color="primary"
+          >
             {tagKey}={tagValue}
           </Badge>
         );
       }
     }
 
-    return (
-      <div className='tagList'>
-        {labels}
-      </div>
-    );
+    return <div className="tagList">{labels}</div>;
   }
 }
 
@@ -53,8 +49,8 @@ TagList.propTypes = {
 
 const styles = StyleSheet.create({
   tags: {
-    'margin-right': '.4em',
-    'background-color': NAV_DEFAULT_COLOR
+    "margin-right": ".4em",
+    "background-color": NAV_DEFAULT_COLOR,
   },
 });
 

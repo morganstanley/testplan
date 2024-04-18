@@ -1,20 +1,43 @@
 """
     This module contains logic for listing representing test context of a plan.
 """
+import dataclasses
+import json
 import os
+from argparse import Action, ArgumentParser, Namespace
 from enum import Enum
+from os import PathLike
+from typing import TYPE_CHECKING, List, Tuple, Union
+from urllib.parse import urlparse
 
-from testplan.common.utils.parser import ArgMixin
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-
+from testplan.common.utils.parser import ArgMixin
 from testplan.testing import tagging
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.test_metadata import TestPlanMetadata
+
+if TYPE_CHECKING:
+    from testplan.testing.base import Test
 
 INDENT = " "
 MAX_TESTCASES = 25
 
 
-class BaseLister:
+class Listertype:
+    NAME = None
+    DESCRIPTION = None
+
+    metadata_based = False
+
+    def name(self):
+        return self.NAME
+
+    def description(self):
+        return self.DESCRIPTION
+
+
+class BaseLister(Listertype):
     """
     Base of all listers, implement the :py:meth:`get_output` give it a name in
     :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or alternatively
@@ -22,22 +45,13 @@ class BaseLister:
     added to :py:data:`listing_registry`.
     """
 
-    NAME = None
-    DESCRIPTION = None
-
     def log_test_info(self, instance):
         output = self.get_output(instance)
         if output:
-            TESTPLAN_LOGGER.test_info(output)
+            TESTPLAN_LOGGER.user_info(output)
 
     def get_output(self, instance):
         raise NotImplementedError
-
-    def name(self):
-        return self.NAME
-
-    def description(self):
-        return self.DESCRIPTION
 
 
 class ExpandedNameLister(BaseLister):
@@ -60,7 +74,7 @@ class ExpandedNameLister(BaseLister):
     DESCRIPTION = "List tests in readable format."
 
     def format_instance(self, instance):
-        return instance.name
+        return instance.uid()
 
     def format_suite(self, instance, suite):
         return suite if isinstance(suite, str) else suite.name
@@ -100,6 +114,18 @@ class ExpandedNameLister(BaseLister):
         return result
 
 
+def test_pattern(test_instance: "Test") -> str:
+    if hasattr(test_instance.cfg, "part") and isinstance(
+        test_instance.cfg.part, tuple
+    ):
+        return TEST_PART_PATTERN_FORMAT_STRING.format(
+            test_instance.name,
+            test_instance.cfg.part[0],
+            test_instance.cfg.part[1],
+        )
+    return test_instance.name
+
+
 class ExpandedPatternLister(ExpandedNameLister):
     """
     Lists the items in test context in a copy-pasta friendly format
@@ -121,7 +147,7 @@ class ExpandedPatternLister(ExpandedNameLister):
     DESCRIPTION = "List tests in `--patterns` / `--tags` compatible format."
 
     def format_instance(self, instance):
-        return instance.name
+        return test_pattern(instance)
 
     def apply_tag_label(self, pattern, obj):
         if obj.__tags__:
@@ -132,17 +158,18 @@ class ExpandedPatternLister(ExpandedNameLister):
 
     def format_suite(self, instance, suite):
         if not isinstance(instance, MultiTest):
-            return "{}::{}".format(instance.name, suite)
+            return "{}:{}".format(test_pattern(instance), suite)
 
-        pattern = "{}::{}".format(instance.name, suite.name)
+        pattern = "{}:{}".format(test_pattern(instance), suite.name)
         return self.apply_tag_label(pattern, suite)
 
     def format_testcase(self, instance, suite, testcase):
-
         if not isinstance(instance, MultiTest):
-            return "{}::{}::{}".format(instance.name, suite, testcase)
+            return "{}:{}:{}".format(test_pattern(instance), suite, testcase)
 
-        pattern = "{}::{}::{}".format(instance.name, suite.name, testcase.name)
+        pattern = "{}:{}:{}".format(
+            test_pattern(instance), suite.name, testcase.name
+        )
         return self.apply_tag_label(pattern, testcase)
 
 
@@ -212,7 +239,7 @@ class CountLister(BaseLister):
                 " suite{num_suites_plural},"
                 " {num_testcases}"
                 " testcase{num_testcases_plural})".format(
-                    instance_name=instance.name,
+                    instance_name=instance.uid(),
                     num_suites=len(suites),
                     num_suites_plural="s" if len(suites) > 1 else "",
                     num_testcases=total_testcases,
@@ -222,10 +249,65 @@ class CountLister(BaseLister):
         return ""
 
 
+class store_lister_and_path(Action):
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: Tuple[Listertype, PathLike],
+        option_string: Union[str, None] = None,
+    ) -> None:
+        setattr(namespace, self.dest, values[0])
+        setattr(namespace, f"{self.dest}_output", values[1])
+
+
 class ListingArgMixin(ArgMixin):
+    @classmethod
+    def parse(cls, arg):
+        uri = urlparse(arg)
+        lister, path = (uri.scheme, uri.path) if uri.scheme else (arg, None)
+        return super().parse(lister), path
+
     @classmethod
     def get_descriptions(cls):
         return dict([(lister, lister.value.description()) for lister in cls])
+
+    @classmethod
+    def get_parser_context(cls, default=None, **kwargs):
+        return dict(
+            **super().get_parser_context(default, **kwargs),
+            action=store_lister_and_path,
+        )
+
+
+class MetadataBasedLister(Listertype):
+    """
+    Base of all metadata based listers, implement the :py:meth:`get_output` give it a name in
+    :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or alternatively
+    override :py:meth:`name` and/or :py:meth:`description` and it is good to be
+    added to :py:data:`listing_registry`.
+    """
+
+    metadata_based = True
+
+    def log_test_info(self, metadata: TestPlanMetadata):
+        output = self.get_output(metadata)
+        if output:
+            TESTPLAN_LOGGER.user_info(output)
+
+    def get_output(self, metadata: TestPlanMetadata):
+        raise NotImplementedError
+
+
+class SimpleJsonLister(MetadataBasedLister):
+    NAME = "JSON"
+    DESCRIPTION = (
+        "Dump test information in json. "
+        "Can take json:/path/to/output.json as well, then the result is dumped to the file"
+    )
+
+    def get_output(self, metadata: TestPlanMetadata):
+        return json.dumps(dataclasses.asdict(metadata), indent=2)
 
 
 class ListingRegistry:
@@ -235,7 +317,7 @@ class ListingRegistry:
     """
 
     def __init__(self):
-        self.listers = []
+        self.listers: List[Listertype] = []
 
     def add_lister(self, lister):
         self.listers.append(lister)
@@ -261,3 +343,7 @@ listing_registry.add_lister(NameLister())
 listing_registry.add_lister(ExpandedPatternLister())
 listing_registry.add_lister(ExpandedNameLister())
 listing_registry.add_lister(CountLister())
+listing_registry.add_lister(SimpleJsonLister())
+
+
+Lister = Union[BaseLister, MetadataBasedLister]

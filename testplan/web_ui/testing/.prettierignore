@@ -1,0 +1,6 @@
+build
+node_modules
+.vscode
+pnpm-lock.yaml
+__snapshots__
+src/Parser/SearchFieldParser.js
