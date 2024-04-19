@@ -67,4 +67,5 @@ class SelectiveSerializable(ABC):
         data: Dict[str, Any] = deserialize(obj)
         for attr, value in data.items():
             setattr(self, attr, value)
+
         return self

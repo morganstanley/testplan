@@ -38,8 +38,8 @@ from testplan.common.utils.process import (
 )
 from testplan.common.utils.timing import format_duration, parse_duration
 from testplan.report import (
-    ReportCategories,
     RuntimeStatus,
+    ReportCategories,
     TestCaseReport,
     TestGroupReport,
     test_styles,
@@ -156,7 +156,7 @@ class Test(Runnable):
         e.g {server1: (client1, client2)} indicates server1 shall start before
         client1 and client2. Can also take a callable that returns a dict.
     :param initial_context: key: value pairs that will be made available as
-        context for drivers in environment. Can also take a callbale that
+        context for drivers in environment. Can also take a callable that
         returns a dict.
     :param test_filter: Class with test filtering logic.
     :param test_sorter: Class with tests sorting logic.
@@ -397,24 +397,6 @@ class Test(Runnable):
         if len(self.report):
             self.report.propagate_tag_indices()
 
-    def _record_start(self) -> None:
-        self.report.timer.start("run")
-
-    def _record_end(self) -> None:
-        self.report.timer.end("run")
-
-    def _record_setup_start(self) -> None:
-        self.report.timer.start("setup")
-
-    def _record_setup_end(self) -> None:
-        self.report.timer.end("setup")
-
-    def _record_teardown_start(self) -> None:
-        self.report.timer.start("teardown")
-
-    def _record_teardown_end(self) -> None:
-        self.report.timer.end("teardown")
-
     def _init_context(self) -> None:
         if callable(self.cfg.initial_context):
             self.resources._initial_context = self.cfg.initial_context()
@@ -447,8 +429,7 @@ class Test(Runnable):
 
     def add_pre_resource_steps(self) -> None:
         """Runnable steps to be executed before environment starts."""
-        self._add_step(self._record_setup_start)
-
+        self._add_step(self.timer.start, "setup")
         self._add_step(self._init_context)
         self._add_step(self._build_environment)
         self._add_step(self._set_dependencies)
@@ -485,15 +466,15 @@ class Test(Runnable):
 
     def add_pre_main_steps(self) -> None:
         """Runnable steps to run after environment started."""
-        self._add_step(self._record_setup_end)
+        self._add_step(self.timer.end, "setup")
 
     def add_post_main_steps(self) -> None:
         """Runnable steps to run before environment stopped."""
-        self._add_step(self._record_teardown_start)
+        self._add_step(self.timer.start, "teardown")
 
     def add_post_resource_steps(self) -> None:
         """Runnable steps to run after environment stopped."""
-        self._add_step(self._record_teardown_end)
+        self._add_step(self.timer.end, "teardown")
 
     def run_testcases_iter(
         self, testsuite_pattern: str = "*", testcase_pattern: str = "*"

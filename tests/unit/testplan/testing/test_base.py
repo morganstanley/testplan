@@ -29,9 +29,9 @@ class DummyTest(Test):
         )
 
     def run_tests(self):
-        with self._result.report.timer.record("run"):
+        with self.result.report.timer.record("run"):
             time.sleep(0.5)  # 500ms for execution
-            self._result.report.status_override = Status.PASSED
+            self.result.report.status_override = Status.PASSED
 
     def add_pre_resource_steps(self):
         self._add_step(lambda: self.result.report.timer.start("flag1"))
@@ -83,11 +83,15 @@ def test_time_information():
 
     test_report = res.report["Dummy"]
     assert test_report.name == "Dummy" and test_report.category == "dummytest"
-    assert test_report.timer["setup"].elapsed > 0.4  # 2 drivers startup
-    assert test_report.timer["teardown"].elapsed > 0.2  # 2 drivers teardown
     assert (
-        test_report.timer["flag1"].elapsed
-        > test_report.timer["flag2"].elapsed
-        > test_report.timer["run"].elapsed
+        test_report.timer.last(key="setup").elapsed > 0.4
+    )  # 2 drivers startup
+    assert (
+        test_report.timer.last(key="teardown").elapsed > 0.2
+    )  # 2 drivers teardown
+    assert (
+        test_report.timer.last(key="flag1").elapsed
+        > test_report.timer.last(key="flag2").elapsed
+        > test_report.timer.last(key="run").elapsed
         > 0.5
     )
