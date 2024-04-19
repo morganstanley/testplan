@@ -215,7 +215,11 @@ const GetCenterPane = (
       selectedHostUid = selectedEntries[1].host;
     }
     return (
-      <ResourcePanel key="resourcePanel" report={state.report} selectedHostUid={selectedHostUid}/>
+      <ResourcePanel
+        key="resourcePanel"
+        report={state.report}
+        selectedHostUid={selectedHostUid}
+      />
     );
   }
 
@@ -239,7 +243,7 @@ const GetCenterPane = (
       />
     );
   }
-  if (selectedEntry && selectedEntry.entries.length > 0 ) {
+  if (selectedEntry && selectedEntry.entries.length > 0) {
     return <Message message="Please select an entry." />;
   } else {
     return <Message message="No entries to be displayed." />;
@@ -299,12 +303,24 @@ const getAssertions = (selectedEntries, displayTime) => {
         let duration = "Unknown";
         if (
           selectedEntry.timer &&
-          selectedEntry.timer.run?.start &&
+          selectedEntry.timer.run &&
           links[0].utc_time
         ) {
-          const previousEntryTime = new Date(
-            selectedEntry.timer.run.start
-          ).getTime();
+          let previousEntryTime = null;
+          // TODO: remove the else branch after Aug. 1 2024
+          if (
+            Array.isArray(selectedEntry.timer.run) &&
+            !_.isEmpty(selectedEntry.timer.run)
+          ) {
+            previousEntryTime = new Date(
+              selectedEntry.timer.run.at(-1).start
+            ).getTime();
+          } else {
+            previousEntryTime = new Date(
+              selectedEntry.timer.run.start
+            ).getTime();
+          }
+
           const currentEntryTime = new Date(links[0].utc_time).getTime();
           const durationInMilliseconds = currentEntryTime - previousEntryTime;
           duration = formatMilliseconds(durationInMilliseconds);

@@ -66,7 +66,7 @@ class TestRunnerIHandler(entity.Entity):
         )
         self.cfg.parent = self.target.cfg
         self.parent = self.target
-        self.report = self._initial_report()
+        self._report = self._initial_report()
         self.report_mutex = threading.Lock()
         self._pool = None
         self._http_handler = None
@@ -95,6 +95,10 @@ class TestRunnerIHandler(entity.Entity):
             self.run()
         finally:
             self.teardown()
+
+    @property
+    def report(self):
+        return self._report
 
     @property
     def target(self):

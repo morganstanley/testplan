@@ -69,12 +69,16 @@ def get_testcase_execution_time(
                 if isinstance(entry, TestGroupReport):
                     testcase_execution_time.update(
                         {
-                            testcase_report.name: testcase_report.timer["run"]
+                            testcase_report.name: testcase_report.timer["run"][
+                                -1
+                            ]
                             for testcase_report in entry
                         }
                     )
                 else:
-                    testcase_execution_time[entry.name] = entry.timer["run"]
+                    testcase_execution_time[entry.name] = entry.timer["run"][
+                        -1
+                    ]
 
         return testcase_execution_time
 
