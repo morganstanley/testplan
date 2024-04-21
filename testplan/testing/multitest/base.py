@@ -575,10 +575,14 @@ class MultiTest(testing_base.Test):
     def skip_step(self, step):
         """Check if a step should be skipped."""
         if step == self._run_error_handler:
-            if self.resources.start_exceptions or self.resources.stop_exceptions or self._get_error_logs():
+            if (
+                self.resources.start_exceptions
+                or self.resources.stop_exceptions
+                or self._get_error_logs()
+            ):
                 return False
             else:
-                self.logger.critical('Skipping error handler')
+                self.logger.critical("Skipping error handler")
                 return True
         elif step in (
             self.resources.start,
@@ -1288,8 +1292,12 @@ class MultiTest(testing_base.Test):
         return parent_uids
 
     def _get_error_logs(self) -> Dict:
-        if 'run_tests' in self.result.step_results:
-            return [log for log in self.result.step_results['run_tests'].flattened_logs if log['levelname']=='ERROR']
+        if "run_tests" in self.result.step_results:
+            return [
+                log
+                for log in self.result.step_results["run_tests"].flattened_logs
+                if log["levelname"] == "ERROR"
+            ]
 
     def _skip_testcases(self, testsuite, testcases):
         """

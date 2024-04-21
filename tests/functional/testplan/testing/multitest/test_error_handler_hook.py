@@ -11,8 +11,6 @@ from testplan.report import (
     Status,
 )
 
-CURRENT_FILE = os.path.abspath(__file__)
-
 
 @testsuite
 class MySuite:
