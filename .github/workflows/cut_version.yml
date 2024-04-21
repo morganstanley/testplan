@@ -7,12 +7,13 @@ jobs:
 
   cut-new-version:
     runs-on: ubuntu-latest
+    permissions: write-all
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -26,7 +27,7 @@ jobs:
       - run: bumpver update
       - run: bumpver show --env > new-version.txt
       - run: releaseherald generate --latest --no-update -t news.rst
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: new-version
           path: |
@@ -38,7 +39,7 @@ jobs:
     needs: cut-new-version
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: git pull origin
       - uses: actions/download-artifact@v3
         with:

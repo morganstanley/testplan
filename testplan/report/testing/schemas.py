@@ -12,36 +12,22 @@ from testplan.common.serialization.schemas import load_tree_data
 from testplan.common.serialization import fields as custom_fields
 from testplan.common.report.schemas import (
     ReportSchema,
+    BaseReportGroupSchema,
     ReportLogSchema,
-    EventRecorderSchema,
+    TimerField,
 )
 
-from testplan.common.utils import timing
-
+from testplan.common.report import Status, RuntimeStatus
 from testplan.report.testing.base import (
     TestCaseReport,
     TestGroupReport,
     TestReport,
-    Status,
-    RuntimeStatus,
 )
 
 
 __all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
 
 # pylint: disable=unused-argument
-
-
-class IntervalSchema(Schema):
-    """Schema for ``timer.Interval``"""
-
-    start = custom_fields.UTCDateTime()
-    end = custom_fields.UTCDateTime(allow_none=True)
-
-    @post_load
-    def make_interval(self, data, **kwargs):
-        """Create an Interal object."""
-        return timing.Interval(**data)
 
 
 class TagField(fields.Field):
@@ -57,21 +43,6 @@ class TagField(fields.Field):
         return {
             tag_name: set(tag_values) for tag_name, tag_values in value.items()
         }
-
-
-class TimerField(fields.Field):
-    """
-    Field for serializing ``timer.Timer`` objects, which is a ``dict``
-    of ``timer.Interval``.
-    """
-
-    def _serialize(self, value, attr, obj, **kwargs):
-        return {k: IntervalSchema().dump(v) for k, v in value.items()}
-
-    def _deserialize(self, value, attr, data, **kwargs):
-        return timing.Timer(
-            {k: IntervalSchema().load(v) for k, v in value.items()}
-        )
 
 
 class EntriesField(fields.Field):
@@ -110,18 +81,11 @@ class TestCaseReportSchema(ReportSchema):
 
     source_class = TestCaseReport
 
-    status_override = fields.Function(
-        lambda x: x.status_override.to_json_compatible(),
-        Status.from_json_compatible,
-        allow_none=True,
-    )
-    status_reason = fields.String(allow_none=True)
-
     entries = fields.List(EntriesField())
-
     category = fields.String(dump_only=True)
     status = fields.Function(
-        lambda x: x.status.to_json_compatible(), Status.from_json_compatible
+        lambda x: x.status.to_json_compatible(),
+        Status.from_json_compatible,
     )
     runtime_status = fields.Function(
         lambda x: x.runtime_status.to_json_compatible(),
@@ -129,7 +93,6 @@ class TestCaseReportSchema(ReportSchema):
     )
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
-    timer = TimerField(required=True)
     tags = TagField()
 
     @post_load
@@ -138,45 +101,36 @@ class TestCaseReportSchema(ReportSchema):
         Create the report object, assign ``timer`` &
         ``status_override`` attributes explicitly
         """
-        timer = data.pop("timer")
         status = data.pop("status")
-        status_override = data.pop("status_override")
         runtime_status = data.pop("runtime_status")
 
-        # We can discard the type field since we know what kind of report we
-        # are making.
-        if "type" in data:
-            data.pop("type")
-
         rep = super(TestCaseReportSchema, self).make_report(data)
-        rep.timer = timer
+
         rep.status = status
-        rep.status_override = status_override or Status.NONE
         rep.runtime_status = runtime_status
         return rep
 
 
-class TestGroupReportSchema(TestCaseReportSchema):
+class TestGroupReportSchema(BaseReportGroupSchema):
     """
     Schema for ``testing.TestGroupReportSchema``, supports tree serialization.
     """
 
     source_class = TestGroupReport
+
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
     category = fields.String()
-
+    tags = TagField()
+    suite_related = fields.Bool()
     entries = custom_fields.GenericNested(
         schema_context={
             TestCaseReport: TestCaseReportSchema,
             TestGroupReport: lambda: TestGroupReportSchema(),
         },
         many=True,
-    )
-    events = fields.Dict(
-        keys=fields.String(), values=fields.Nested(EventRecorderSchema)
     )
     host = fields.String(allow_none=True)
 
@@ -190,50 +144,31 @@ class TestGroupReportSchema(TestCaseReportSchema):
         return rep
 
 
-class TestReportSchema(Schema):
+class TestReportSchema(BaseReportGroupSchema):
     """Schema for test report root, ``testing.TestReport``."""
 
     class Meta:
         unknown = EXCLUDE
 
-    name = fields.String(required=True)
-    description = fields.String(allow_none=True)
-    uid = fields.String(required=True)
+    source_class = TestReport
+
     category = fields.String(dump_only=True)
-    timer = TimerField(required=True)
     meta = fields.Dict()
     label = fields.String(allow_none=True)
-
-    status_override = fields.Function(
-        lambda x: x.status_override.to_json_compatible(),
-        Status.from_json_compatible,
-        allow_none=True,
-    )
-    status = fields.Function(
-        lambda x: x.status.to_json_compatible(), Status.from_json_compatible
-    )
-    runtime_status = fields.Function(
-        lambda x: x.runtime_status.to_json_compatible(),
-        RuntimeStatus.from_json_compatible,
-    )
     tags_index = TagField(dump_only=True)
     information = fields.List(fields.List(fields.String()))
+    resource_meta_path = fields.String(dump_only=True, allow_none=True)
     counter = fields.Dict(dump_only=True)
 
     attachments = fields.Dict()
-    logs = fields.Nested(ReportLogSchema, many=True)
     timeout = fields.Integer(allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={TestGroupReport: TestGroupReportSchema}, many=True
     )
 
-    events = fields.Dict(
-        keys=fields.String(), values=fields.Nested(EventRecorderSchema)
-    )
-
     @post_load
-    def make_test_report(self, data, **kwargs):
+    def make_report(self, data, **kwargs):
         """Create report object & deserialize sub trees."""
         load_tree = functools.partial(
             load_tree_data,
@@ -242,22 +177,12 @@ class TestReportSchema(Schema):
         )
 
         entry_data = data.pop("entries")
-        status = data.pop("status")
-        status_override = data.pop("status_override")
-        runtime_status = data.pop("runtime_status")
-        timer = data.pop("timer")
-        logs = data.pop("logs", [])
 
-        test_plan_report = TestReport(**data)
-        test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
-        test_plan_report.propagate_tag_indices()
-        test_plan_report.status = status
-        test_plan_report.status_override = status_override or Status.NONE
-        test_plan_report.runtime_status = runtime_status
-        test_plan_report.timer = timer
-        test_plan_report.logs = logs
+        rep = super(TestReportSchema, self).make_report(data)
+        rep.entries = [load_tree(c_data) for c_data in entry_data]
+        rep.propagate_tag_indices()
 
-        return test_plan_report
+        return rep
 
 
 class ShallowTestGroupReportSchema(Schema):

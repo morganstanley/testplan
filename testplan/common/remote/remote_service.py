@@ -155,7 +155,7 @@ class RemoteService(Resource, RemoteResource):
         Waits for RPyC server start, changes status to STARTED.
 
         :param timeout: timeout in seconds
-        :raises: RuntimeError if server startup fails
+        :raises RuntimeError: if server startup fails
         """
         sleeper = get_sleeper(
             interval=0.2,

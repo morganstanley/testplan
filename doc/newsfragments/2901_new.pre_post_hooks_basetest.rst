@@ -1,0 +1,1 @@
+Resource hooks ``before_start``, ``after_start``, ``before_stop``, and ``after_stop`` are now supported in ``Test`` base class, and can be used in all of ``GTest``, ``Cppunit``, ``HobbesTest``,  ``JUnit``, ``PyTest``, and ``PyUnit``.

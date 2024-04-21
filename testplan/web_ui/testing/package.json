@@ -28,6 +28,9 @@
     "base64url": "^3.0.1",
     "bootstrap": "^4.6.2",
     "buffer": "^6.0.3",
+    "chart.js": "^4.4.2",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-plugin-annotation": "^3.0.1",
     "date-fns": "^2.30.0",
     "eslint-plugin-react": "^7.32.2",
     "history": "~4.10.1",
@@ -38,9 +41,11 @@
     "lodash": "~4.17.21",
     "pegjs": "^0.11.0-master.b7b87ea",
     "plotly.js": "^1.58.5",
+    "pretty-bytes": "^6.1.1",
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-app-polyfill": "1.0.6",
+    "react-chartjs-2": "^5.2.0",
     "react-copy-html-to-clipboard": "6.0.4",
     "react-debounce-input": "^3.3.0",
     "react-dom": "^17.0.2",
@@ -93,8 +98,7 @@
       "enzyme-to-json/serializer"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!\\.pnpm|rehype-raw|hast-util-raw|unist-util-position|unist-util-visit|unist-util-is|hast-util-from-parse5|hastscript|property-information|hast-util-parse-selector|space-separated-tokens|comma-separated-tokens|vfile-location|web-namespaces|hast-util-to-parse5|zwitch|html-void-elements|axios).*\\.js"
+      "node_modules/(?!\\.pnpm|rehype-raw|hast-util-raw|unist-util-position|unist-util-visit|unist-util-is|hast-util-from-parse5|hastscript|property-information|hast-util-parse-selector|space-separated-tokens|comma-separated-tokens|vfile-location|web-namespaces|hast-util-to-parse5|zwitch|html-void-elements|axios|chartjs-adapter-date-fns|pretty-bytes).*\\.js"
     ]
-  },
-  "proxy": "http://localhost:59568"
+  }
 }

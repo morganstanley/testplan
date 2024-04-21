@@ -35,7 +35,7 @@ from testplan.common.entity import Environment
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import pwd
 from testplan.testing.multitest import testsuite, testcase
-from testplan.testing.multitest.result import Result
+from testplan.testing.result import Result
 
 
 class DriverLogCollector:

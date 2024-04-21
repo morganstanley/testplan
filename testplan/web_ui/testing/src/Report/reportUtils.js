@@ -5,8 +5,10 @@ import React from "react";
 import format from "date-fns/format";
 import _ from "lodash";
 import AssertionPane from "../AssertionPane/AssertionPane";
+import ResourcePanel from "../AssertionPane/ResourcePanel";
 import Message from "../Common/Message";
 import { formatMilliseconds } from "./../Common/utils";
+import { VIEW_TYPE } from "../Common/defaults";
 
 import { filterEntries } from "./reportFilter";
 
@@ -198,11 +200,31 @@ const GetCenterPane = (
     .filter((element) => {
       return element; // filter empty description
     });
-  const assertions = getAssertions(selectedEntries, displayTime);
 
   if (state.error) {
     return <Message message={`Error: ${state.error.message}`} />;
-  } else if (
+  }
+
+  if (reportFetchMessage !== null) {
+    return <Message message={reportFetchMessage} />;
+  }
+
+  if (state.currentPanelView === VIEW_TYPE.RESOURCE) {
+    let selectedHostUid = null;
+    if (selectedEntries.length >= 2) {
+      selectedHostUid = selectedEntries[1].host;
+    }
+    return (
+      <ResourcePanel
+        key="resourcePanel"
+        report={state.report}
+        selectedHostUid={selectedHostUid}
+      />
+    );
+  }
+
+  const assertions = getAssertions(selectedEntries, displayTime);
+  if (
     assertions.length > 0 ||
     logs.length > 0 ||
     selectedDescription.length > 0
@@ -220,9 +242,8 @@ const GetCenterPane = (
         reportUid={reportUid}
       />
     );
-  } else if (reportFetchMessage !== null) {
-    return <Message message={reportFetchMessage} />;
-  } else if (selectedEntry && selectedEntry.entries.length > 0 ) {
+  }
+  if (selectedEntry && selectedEntry.entries.length > 0) {
     return <Message message="Please select an entry." />;
   } else {
     return <Message message="No entries to be displayed." />;
@@ -282,12 +303,24 @@ const getAssertions = (selectedEntries, displayTime) => {
         let duration = "Unknown";
         if (
           selectedEntry.timer &&
-          selectedEntry.timer.run?.start &&
+          selectedEntry.timer.run &&
           links[0].utc_time
         ) {
-          const previousEntryTime = new Date(
-            selectedEntry.timer.run.start
-          ).getTime();
+          let previousEntryTime = null;
+          // TODO: remove the else branch after Aug. 1 2024
+          if (
+            Array.isArray(selectedEntry.timer.run) &&
+            !_.isEmpty(selectedEntry.timer.run)
+          ) {
+            previousEntryTime = new Date(
+              selectedEntry.timer.run.at(-1).start
+            ).getTime();
+          } else {
+            previousEntryTime = new Date(
+              selectedEntry.timer.run.start
+            ).getTime();
+          }
+
           const currentEntryTime = new Date(links[0].utc_time).getTime();
           const durationInMilliseconds = currentEntryTime - previousEntryTime;
           duration = formatMilliseconds(durationInMilliseconds);

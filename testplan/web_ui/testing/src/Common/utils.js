@@ -1,7 +1,7 @@
 /**
  * Common utility functions.
  */
-import { NAV_ENTRY_DISPLAY_DATA, EXPAND_STATUS } from "./defaults";
+import { NAV_ENTRY_DISPLAY_DATA, EXPAND_STATUS, VIEW_TYPE } from "./defaults";
 import JSON5 from "json5";
 import _ from "lodash";
 
@@ -9,12 +9,22 @@ import _ from "lodash";
  * Calculate execution time of an entry with timer field
  */
 function calcExecutionTime(entry) {
-  return (
-    entry.timer && entry.timer.run
-    ? new Date(entry.timer.run.end).getTime() -
-      new Date(entry.timer.run.start).getTime()
-    : null
-    );
+  let elapsed = null;
+  if (entry.timer && entry.timer.run) {
+    // TODO: remove the else branch after Aug. 1 2024
+    if (Array.isArray(entry.timer.run) && !_.isEmpty(entry.timer.run)) {
+      elapsed = 0;
+      entry.timer.run.forEach((interval) => {
+        elapsed +=
+          new Date(interval.end).getTime() - new Date(interval.start).getTime();
+      });
+    } else {
+      elapsed =
+        new Date(entry.timer.run.end).getTime() -
+        new Date(entry.timer.run.start).getTime();
+    }
+  }
+  return elapsed;
 }
 
 /**
@@ -278,6 +288,19 @@ export const getAttachmentUrl = (filePath, reportUid, prefix) => {
 };
 
 /**
+ * Get the URL to retrieve the resource data from API.
+ * @param {string} resourceUid
+ * @param {string} attachment
+ * @returns {string}
+ */
+export const getResourceUrl = (resourceUid, attachment) => {
+  if (_.isEmpty(attachment)) {
+    return `/api/v1/testplan_monitor/${resourceUid}`;
+  }
+  return `/api/v1/testplan_monitor/${resourceUid}/attachments/${attachment}`;
+};
+
+/**
  * Get global expand status.
  */
 export const globalExpandStatus = () => {
@@ -289,6 +312,21 @@ export const globalExpandStatus = () => {
       return EXPAND_STATUS.COLLAPSE;
     default:
       return EXPAND_STATUS.DEFAULT;
+  }
+};
+
+/**
+ *  Get global View panel type.
+ */
+export const globalViewPanel = () => {
+  const view = new URLSearchParams(window.location.search).get("view");
+  switch (view) {
+    case VIEW_TYPE.ASSERTION:
+      return VIEW_TYPE.ASSERTION;
+    case VIEW_TYPE.RESOURCE:
+      return VIEW_TYPE.RESOURCE;
+    default:
+      return VIEW_TYPE.DEFAULT;
   }
 };
 
