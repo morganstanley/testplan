@@ -241,9 +241,6 @@ class MultiTestConfig(testing_base.TestConfig):
                 None, And(str, os.path.exists)
             ),
             config.ConfigOption("testcase_report_target", default=True): bool,
-            # config.ConfigOption("error_handler", default=None): Or(
-            #     None, lambda x: callable(x)
-            # ),
         }
 
 
@@ -317,7 +314,6 @@ class MultiTest(testing_base.Test):
         after_start=None,
         before_stop=None,
         after_stop=None,
-        # error_handler=None,
         stdout_style=None,
         tags=None,
         result=result.Result,
