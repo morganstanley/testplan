@@ -32,7 +32,7 @@ const LogfileMatchEntry = ({ pattern, timeout, startPos, endPos, matched }) => {
   );
 };
 
-export const LogfileMatchAssertion = ({ assertion }) => {
+const LogfileMatchAssertion = ({ assertion }) => {
   const { results, failure } = assertion;
 
   return [...results, ...failure].map((entry) => {
@@ -69,3 +69,5 @@ const styles = StyleSheet.create({
     paddingRight: "0.5em",
   },
 });
+
+export default LogfileMatchAssertion;

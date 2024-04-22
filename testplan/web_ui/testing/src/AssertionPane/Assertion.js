@@ -27,7 +27,7 @@ import {
   RegexAssertion,
   RegexMatchLineAssertion,
 } from "./AssertionTypes/RegexAssertions";
-import { LogfileMatchAssertion } from "./AssertionTypes/LogfileMatchAssertion";
+import LogfileMatchAssertion from "./AssertionTypes/LogfileMatchAssertion";
 import { EXPAND_STATUS } from "../Common/defaults";
 import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 

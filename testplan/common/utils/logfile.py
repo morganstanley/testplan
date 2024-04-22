@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from glob import glob
 from io import TextIOWrapper
 from itertools import dropwhile
-from os import PathLike, SEEK_END
-from typing import Union, Optional, Generic, List, AnyStr, TypeVar
+from os import SEEK_END, PathLike
+from typing import Generic, List, Optional, TypeVar, Union
 
 
 class LogPosition:

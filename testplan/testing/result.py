@@ -1349,6 +1349,10 @@ class FixNamespace(AssertionNamespace):
 
 
 class LogfileExpect(ScopedLogfileMatch):
+    """
+    ScopedLogfileMatch with assertion operation.
+    """
+
     def __init__(
         self,
         result,
@@ -1377,8 +1381,8 @@ class LogfileExpect(ScopedLogfileMatch):
         assertion = assertions.LogfileMatch(
             self.match_results,
             self.match_failure,
-            self.category,
             self.description,
+            self.category,
         )
         assertion.file_path = os.path.abspath(caller_frame[1])
         assertion.line_no = caller_frame[2]
@@ -1391,11 +1395,25 @@ class LogfileExpect(ScopedLogfileMatch):
 
 class LogfileNamespace(AssertionNamespace):
     @assertion
-    def seek_eof(self, log_matcher: LogMatcher):
+    def seek_eof(
+        self, log_matcher: LogMatcher, description: Optional[str] = None
+    ):
+        """
+        Set the position of LogMatcher to end of logfile, with operation logged
+        to the report.
+
+        .. code-block:: python
+
+            result.logfile.seek_eof(log_matcher)
+
+        :param log_matcher: LogMatcher on target logfile.
+        :param description: Custom text description for the entry.
+        """
         log_matcher.seek_eof()
         pos = log_matcher.position
         return base.Log(
-            f"{log_matcher} now at {pos}", "LogMatcher position set to EOF"
+            f"{log_matcher} now at {pos}",
+            description or "LogMatcher position set to EOF",
         )
 
     @assertion
@@ -1404,13 +1422,39 @@ class LogfileNamespace(AssertionNamespace):
         log_matcher: LogMatcher,
         regex: Union[Regex, List[Regex]],
         timeout: Union[float, List[float]] = LOG_MATCHER_DEFAULT_TIMEOUT,
+        strict_order: bool = True,
         description: Optional[str] = None,
         category: Optional[str] = None,
     ):
+        """
+        Match patterns in logfile using LogMatcher, with matching results
+        logged to the report.
+
+        .. code-block:: python
+
+            result.logfile.match(
+                log_matcher,
+                [r".*passed.*", r".*failed.*"],
+                timeout=2.0,
+                strict_order=False,
+                description="my logfile match assertion",
+            )
+
+        :param log_matcher: LogMatcher on target logfile.
+        :param regex: Regular expression(s) as expected patterns in target
+                      logfile.
+        :param timeout: Match timeout value(s) in seconds corresponding to
+                        regular expression(s).
+        :param strict_order: To match regular expressions following order in
+                             input list or not, default value ``True``
+                             indicating match following order.
+        :param description: Text description for the assertion.
+        :param category: Custom category that will be used for summarization.
+        """
         results = []
         failure = None
+        s_pos = log_matcher.position
         for r, t in gen_regex_timeout_zip(regex, timeout):
-            s_pos = log_matcher.position
             m = log_matcher.match(r, t, raise_on_timeout=False)
             e_pos = log_matcher.position
             if m is not None:
@@ -1418,6 +1462,10 @@ class LogfileNamespace(AssertionNamespace):
             else:
                 failure = (None, r, t, s_pos, e_pos)
                 break
+            if strict_order:
+                s_pos = log_matcher.position
+            else:
+                log_matcher.position = s_pos
         return assertions.LogfileMatch(
             results=results,
             failure=failure,
@@ -1434,6 +1482,33 @@ class LogfileNamespace(AssertionNamespace):
         description: Optional[str] = None,
         category: Optional[str] = None,
     ):
+        """
+        Context manager as a shorthand for ``seek_eof`` followed by ``match``,
+        on enter set LogMatcher position to end of logfile, on exit do
+        instructed matches, with all results logged to the report.
+
+        .. code-block:: python
+
+            with result.logfile.expect(
+                log_matcher,
+                [r".*passed.*", r".*failed.*"],
+                timeout=2.0,
+                strict_order=False,
+                description="my logfile match assertion",
+            ):
+                ...
+
+        :param log_matcher: LogMatcher on target logfile.
+        :param regex: Regular expression(s) as expected patterns in target
+                      logfile.
+        :param timeout: Match timeout value(s) in seconds corresponding to
+                        regular expression(s).
+        :param strict_order: To match regular expressions following order in
+                             input list or not, default value ``True``
+                             indicating match following order.
+        :param description: Text description for the assertion.
+        :param category: Custom category that will be used for summarization.
+        """
         return LogfileExpect(
             result=self.result,
             log_matcher=log_matcher,

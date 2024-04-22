@@ -1444,6 +1444,59 @@ expected_report = TestReport(
                                 }
                             ],
                         ),
+                        TestCaseReport(
+                            name="test_logfile",
+                            uid="test_logfile",
+                            entries=[
+                                {
+                                    "type": "LogfileMatch",
+                                    "description": None,
+                                    "passed": False,
+                                    "results": [
+                                        {
+                                            "matched": "gin",
+                                            "pattern": "gin",
+                                            "timeout": 0.1,
+                                        },
+                                    ],
+                                    "failure": [
+                                        {
+                                            "matched": None,
+                                            "pattern": "vodka",
+                                            "timeout": 0.1,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "type": "Log",
+                                    "description": "LogMatcher position set to EOF",
+                                },
+                                {
+                                    "type": "LogfileMatch",
+                                    "description": None,
+                                    "passed": False,
+                                    "results": [
+                                        {
+                                            "matched": "rum",
+                                            "pattern": "rum",
+                                            "timeout": 0.1,
+                                        },
+                                        {
+                                            "matched": "triple sec",
+                                            "pattern": "triple sec",
+                                            "timeout": 0.1,
+                                        },
+                                    ],
+                                    "failure": [
+                                        {
+                                            "matched": None,
+                                            "pattern": "sour-mix",
+                                            "timeout": 0.1,
+                                        },
+                                    ],
+                                },
+                            ],
+                        ),
                     ],
                 )
             ],

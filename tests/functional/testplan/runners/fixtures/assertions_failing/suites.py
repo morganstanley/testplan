@@ -1,5 +1,6 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
 import re
+import tempfile
 from collections import OrderedDict
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -671,6 +672,28 @@ class MySuite:
             ],
             description="typed / unordered fix match all",
         )
+
+    @testcase
+    def test_logfile(self, env, result):
+
+        from testplan.common.utils.match import LogMatcher
+
+        with tempfile.NamedTemporaryFile("r+") as f:
+            lm = LogMatcher(f.name)
+            f.write("vodka\n")
+            f.write("gin\n")
+            f.flush()
+            result.logfile.match(lm, [r"gin", r"vodka"], timeout=0.1)
+            f.write("tequila\n")
+            f.flush()
+            result.logfile.seek_eof(lm)
+            with result.logfile.expect(
+                lm, [r"rum", r"triple sec", r"sour-mix"], timeout=0.1
+            ):
+                f.write("rum\n")
+                f.write("triple sec\n")
+                f.write("sour mix\n")
+                f.flush()
 
 
 def make_multitest():

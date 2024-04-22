@@ -8,22 +8,20 @@ import hashlib
 import inspect
 import os
 import re
+import tempfile
 from unittest import mock
 
 import matplotlib
-import pytest
 import matplotlib.pyplot as plot
+import pytest
 
-from testplan.common.utils import comparison
-from testplan.common.utils import testing
-from testplan.common.utils import callable
+from testplan.common.report import Status
+from testplan.common.utils import callable, comparison, match
 from testplan.common.utils import path as path_utils
-
+from testplan.common.utils import testing
 from testplan.testing import result as result_mod
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import testcase, testsuite
-from testplan.common.report import Status
-
 
 matplotlib.use("agg")
 
@@ -366,6 +364,19 @@ def fix_ns():
     mock_result = mock.MagicMock()
     mock_result.entries = collections.deque()
     return result_mod.FixNamespace(mock_result)
+
+
+@pytest.fixture
+def logfile_ns():
+    mock_result = mock.MagicMock()
+    mock_result.entries = collections.deque()
+    return result_mod.LogfileNamespace(mock_result)
+
+
+@pytest.fixture(scope="module")
+def mock_f_w_lm():
+    with tempfile.NamedTemporaryFile("r+") as f:
+        yield f, match.LogMatcher(f.name)
 
 
 class TestDictNamespace:
@@ -862,6 +873,73 @@ class TestFIXNamespace:
             and _689_4[3][1] == "d"
             and _689_4[4][1] == "ABSENT"
         )
+
+
+class TestLogfileNamespace:
+    """Unit testcases for the result.LogfileNamespace class."""
+
+    def test_in_order(self, logfile_ns, mock_f_w_lm):
+        f, lm = mock_f_w_lm
+        f.write("coffee\n")
+        f.flush()
+        logfile_ns.seek_eof(lm)
+        f.write("black tea\n")
+        f.write("green tea\n")
+        f.write("oolong tea\n")
+        f.flush()
+        logfile_ns.match(lm, [r".*tea"] * 3, timeout=[0.1, 0.2, 0.3])
+
+        assert len(logfile_ns.result.entries) == 2
+        assert logfile_ns.result.entries[-1]
+        m_res = logfile_ns.result.entries[-1].results
+        assert len(m_res) == 3
+        assert m_res[0].pattern == ".*tea"
+        assert m_res[0].timeout == 0.1
+        assert m_res[0].matched == "black tea"
+        assert m_res[1].pattern == ".*tea"
+        assert m_res[1].timeout == 0.2
+        assert m_res[1].matched == "green tea"
+        assert m_res[2].pattern == ".*tea"
+        assert m_res[2].timeout == 0.3
+        assert m_res[2].matched == "oolong tea"
+
+    def test_out_of_order(self, logfile_ns, mock_f_w_lm):
+        f, lm = mock_f_w_lm
+        f.write("whisky regions\n")
+        with logfile_ns.expect(
+            lm,
+            [r"speyside", r"highland", r"lowland", r"campbeltown", r"islay"],
+            strict_order=False,
+        ):
+            f.write("islay\n")
+            f.write("highland\n")
+            f.write("campbeltown\n")
+            f.write("lowland\n")
+            f.write("speyside\n")
+            f.flush()
+
+        assert len(logfile_ns.result.entries) == 1
+        assert logfile_ns.result.entries[-1]
+        m_res = logfile_ns.result.entries[-1].results
+        assert len(m_res) == 5
+        assert m_res[0].matched == "speyside"
+        assert m_res[1].matched == "highland"
+        assert m_res[2].matched == "lowland"
+        assert m_res[3].matched == "campbeltown"
+        assert m_res[4].matched == "islay"
+
+        with logfile_ns.expect(lm, [r"bourbon", r"irish"], timeout=0.1):
+            f.write("sorry, no stock for non-scotch\n")
+            f.flush()
+
+        assert len(logfile_ns.result.entries) == 2
+        assert not logfile_ns.result.entries[-1]
+        m_res, m_fai = (
+            logfile_ns.result.entries[-1].results,
+            logfile_ns.result.entries[-1].failure,
+        )
+        assert len(m_res) == 0 and len(m_fai) == 1
+        assert m_fai[0].pattern == "bourbon"
 
 
 class TestResultBaseNamespace:
