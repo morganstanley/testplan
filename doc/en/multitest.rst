@@ -90,7 +90,7 @@ A MultiTest instance can be constructed from the following parameters:
   - after_start: Callable to execute after starting the environment.
   - before_stop: Callable to execute before stopping the environment.
   - after_stop: Callable to execute after stopping the environment.
-  - error_handler: Callable to execute when a non-testcase step hits an exception.
+  - error_handler: Callable to execute when a step hits an exception.
 
 
 Example
