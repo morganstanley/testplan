@@ -1,1 +1,1 @@
-Introduced a new error_handler hook to :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>` class for handling unexpected non-testcase related errors. Eg.: Resource startup step.
+Introduced a new error_handler hook used in `Multitest` for handling unexpected non-testcase related errors. Eg.: failing Resource steps, Multitest or Suite hooks.

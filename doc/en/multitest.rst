@@ -48,73 +48,6 @@ A MultiTest instance can be constructed from the following parameters:
       def a_testcase_method(self, env, result):
         ...
 
-  In addition suites can have ``setup`` and ``teardown`` methods. The ``setup``
-  method will be executed on suite entry, prior to any testcase if present.
-  The ``teardown`` method will be executed on suite exit, after setup and all
-  ``@testcase``-decorated testcases have executed.
-
-  Again, the signature of those methods is checked at import time, and must be
-  as follows:
-
-  .. code-block:: python
-
-    def setup(self, env):
-        ...
-
-    def teardown(self, env):
-        ...
-
-  The result object can be optionally used to perform logging and basic
-  assertions:
-
-  .. code-block:: python
-
-    def setup(self, env, result):
-        ...
-
-    def teardown(self, env, result):
-        ...
-
-  To signal that either ``setup`` or ``teardown`` hasn't completed correctly,
-  you must raise an exception. Raising an exception in ``setup`` will abort
-  the execution of the testsuite, raising one in ``teardown`` will be logged
-  in the report but will not prevent the execution of the next testsuite.
-
-  Similarly suites can have ``pre_testcase`` and ``post_testcase`` methods.
-  The ``pre_testcase`` method is executed before each testcase runs, and the
-  ``post_testcase`` method is executed after each testcase finishes. Exceptions
-  raised in these methods will be logged in the report. Note that argument
-  ``name`` is populated with name of testcase.
-
-  .. code-block:: python
-
-    def pre_testcase(self, name, env, result):
-        pass
-
-    def post_testcase(self, name, env, result):
-        pass
-
-  :py:func:`@skip_if <testplan.testing.multitest.suite.skip_if>` decorator can
-  be used to annotate a testcase. It take one or more predicates, and if any of
-  them evaluated to True, then the testcase will be skipped by MultiTest instead
-  of being normally executed. The predicate's signature must name the argument
-  ``testsuite`` or a ``MethodSignatureMismatch`` exception will be raised.
-
-  .. code-block:: python
-
-    def skip_func(testsuite):
-        # It must accept an argument named "testsuite"
-        return True
-
-    @testsuite
-    class MySuite(object):
-
-        @skip_if(skip_func, lambda testsuite: False)
-        @suite.testcase
-        def case(self, env, result):
-            pass
-
-
   The :py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated
   methods will execute in the order in which they are defined. If more than
   one suite is passed, the suites will be executed in the order in which they
@@ -149,6 +82,15 @@ A MultiTest instance can be constructed from the following parameters:
   initial context to pass global values that will be available to all drivers
   during startup and testcases during execution. Example of initial context
   can be found :ref:`here <example_basic_initial_context>`
+
+* **Hooks**: Hooks are used to implement measures that complement the testing
+  process with necessary preparations and subsequent actions. See :ref:`example <example_best_practice>`.
+
+  - before_start: Callable to execute before starting the environment.
+  - after_start: Callable to execute after starting the environment.
+  - before_stop: Callable to execute before stopping the environment.
+  - after_stop: Callable to execute after stopping the environment.
+  - error_handler: Callable to execute when a non-testcase step hits an exception.
 
 
 Example
@@ -1397,6 +1339,55 @@ Similarly, ``setup`` and ``teardown`` methods in a test suite can be limited to 
 
 It's useful when ``setup`` has much initialization work that takes long, e.g. connects to a server but has no response and makes program hanging. Note that this ``@timeout`` decorator can also be used for ``pre_testcase`` and ``post_testcase``, but that is not suggested because pre/post testcase methods are called everytime before/after each testcase runs, they should be written as simple as possible.
 
+Hooks
+-----
+
+  In addition suites can have ``setup`` and ``teardown`` methods. The ``setup``
+  method will be executed on suite entry, prior to any testcase if present.
+  The ``teardown`` method will be executed on suite exit, after setup and all
+  ``@testcase``-decorated testcases have executed.
+
+  Again, the signature of those methods is checked at import time, and must be
+  as follows:
+
+  .. code-block:: python
+
+    def setup(self, env):
+        ...
+
+    def teardown(self, env):
+        ...
+
+  The result object can be optionally used to perform logging and basic
+  assertions:
+
+  .. code-block:: python
+
+    def setup(self, env, result):
+        ...
+
+    def teardown(self, env, result):
+        ...
+
+  To signal that either ``setup`` or ``teardown`` hasn't completed correctly,
+  you must raise an exception. Raising an exception in ``setup`` will abort
+  the execution of the testsuite, raising one in ``teardown`` will be logged
+  in the report but will not prevent the execution of the next testsuite.
+
+  Similarly suites can have ``pre_testcase`` and ``post_testcase`` methods.
+  The ``pre_testcase`` method is executed before each testcase runs, and the
+  ``post_testcase`` method is executed after each testcase finishes. Exceptions
+  raised in these methods will be logged in the report. Note that argument
+  ``name`` is populated with name of testcase.
+
+  .. code-block:: python
+
+    def pre_testcase(self, name, env, result):
+        pass
+
+    def post_testcase(self, name, env, result):
+        pass
+
 Xfail
 -----
 
@@ -1421,6 +1412,29 @@ If a test is expect to fail all the time, you can also use the `strict=True` the
     @xfail(reason='api changes', strict=True)
     def fail_testcase(self, env, result):
         ...
+
+Skip if
+-------
+
+  :py:func:`@skip_if <testplan.testing.multitest.suite.skip_if>` decorator can
+  be used to annotate a testcase. It take one or more predicates, and if any of
+  them evaluated to True, then the testcase will be skipped by MultiTest instead
+  of being normally executed. The predicate's signature must name the argument
+  ``testsuite`` or a ``MethodSignatureMismatch`` exception will be raised.
+
+  .. code-block:: python
+
+    def skip_func(testsuite):
+        # It must accept an argument named "testsuite"
+        return True
+
+    @testsuite
+    class MySuite(object):
+
+        @skip_if(skip_func, lambda testsuite: False)
+        @suite.testcase
+        def case(self, env, result):
+            pass
 
 Logging
 -------

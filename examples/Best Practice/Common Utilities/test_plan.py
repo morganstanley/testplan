@@ -62,9 +62,19 @@ def after_stop_fn(env, result):
     stderr_logger(env, result)
 
     # Delete Multitest level runpath if the multitest passed.
-    # This function cleans the the runpath before the exporters
+    # This function cleans the runpath before the exporters
     # have chance collecting the files, hence commented out.
     # helper.clean_runpath_if_passed(env, result)
+
+def error_handler_fn(env, result):
+    # This will be executed only when a non-testcase step fails with an exception.
+    # Raise an exception in an Environment step or Multitest/Suite/Test hooks to try.
+    step_results = env._environment.parent.result.step_results
+    if "run_tests" in step_results:
+        [result.log(log, description="Error log") for log in step_results['run_tests'].flattened_logs if log['levelname']=='ERROR']
+    [result.log(log, description="Error log") for (key, log) in env._environment.parent.resources.start_exceptions.items()]
+    [result.log(log, description="Error log") for (key, log) in env._environment.parent.resources.stop_exceptions.items()]
+    result.log("Error handler ran!")
 
 
 @test_plan(name="Example using helper")
@@ -83,6 +93,7 @@ def main(plan):
             environment=[App("echo", binary="/bin/echo", args=["testplan"])],
             before_start=before_start_fn,
             after_stop=after_stop_fn,
+            error_handler=error_handler_fn,
         )
     )
 

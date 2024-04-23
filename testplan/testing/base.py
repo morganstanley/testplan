@@ -167,6 +167,7 @@ class Test(Runnable):
     :param after_start: Callable to execute after starting the environment.
     :param before_stop: Callable to execute before stopping the environment.
     :param after_stop: Callable to execute after stopping the environment.
+    :param error_handler: Callable to execute when a non-testcase step hits an exception.
     :param stdout_style: Console output style.
     :param tags: User defined tag value.
     :param result: Result class definition for result object made available
@@ -194,7 +195,7 @@ class Test(Runnable):
         after_start: callable = None,
         before_stop: callable = None,
         after_stop: callable = None,
-        error_handler=None,
+        error_handler: callable =None,
         test_filter: filtering.BaseFilter = None,
         test_sorter: ordering.BaseSorter = None,
         stdout_style: test_styles.Style = None,
@@ -546,7 +547,7 @@ class Test(Runnable):
             case_report.logged_exceptions(),
         )
 
-    def _run_error_handler(self):
+    def _run_error_handler(self) -> None:
         """
         This method runs error_handler hook.
         """

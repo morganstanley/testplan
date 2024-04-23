@@ -572,7 +572,7 @@ class MultiTest(testing_base.Test):
             )
         return self._tags_index
 
-    def skip_step(self, step):
+    def skip_step(self, step) -> bool:
         """Check if a step should be skipped."""
         if step == self._run_error_handler:
             if (
