@@ -3,26 +3,26 @@
     "children": [],
     "counter": {
         "failed": 0,
-        "passed": 1,
-        "total": 6,
+        "passed": 0,
+        "total": 5,
         "unknown": 5
     },
     "definition_name": "Test2",
     "description": null,
     "entries": [
         {
-            "category": "testsuite",
+            "category": "synthesized",
             "children": [],
             "counter": {
                 "failed": 0,
-                "passed": 1,
-                "total": 1
+                "passed": 0,
+                "total": 0
             },
             "definition_name": "After Start",
             "description": null,
             "entries": [
                 {
-                    "category": "testcase",
+                    "category": "synthesized",
                     "counter": {
                         "failed": 0,
                         "passed": 1,
@@ -31,7 +31,7 @@
                     "definition_name": "accept_connection",
                     "description": null,
                     "entries": [],
-                    "hash": 4290764876753776326,
+                    "hash": 0,
                     "logs": [],
                     "name": "accept_connection",
                     "parent_uids": [
@@ -43,23 +43,15 @@
                     "status": "passed",
                     "status_override": null,
                     "status_reason": null,
-                    "suite_related": true,
                     "tags": {},
-                    "timer": {
-                        "run": [
-                            {
-                                "end": "2024-02-22T02:58:45.675618+00:00",
-                                "start": "2024-02-22T02:58:45.675572+00:00"
-                            }
-                        ]
-                    },
+                    "timer": {},
                     "type": "TestCaseReport",
                     "uid": "accept_connection"
                 }
             ],
             "env_status": null,
             "fix_spec_path": null,
-            "hash": -3498197175664056710,
+            "hash": 0,
             "host": null,
             "logs": [],
             "name": "After Start",
@@ -73,7 +65,6 @@
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
-            "suite_related": true,
             "tags": {},
             "timer": {},
             "type": "TestGroupReport",
@@ -114,7 +105,7 @@
                             "definition_name": "basic_case <arg=0>",
                             "description": null,
                             "entries": [],
-                            "hash": 6072992703529328028,
+                            "hash": 0,
                             "logs": [],
                             "name": "basic_case <arg=0>",
                             "parent_uids": [
@@ -127,7 +118,6 @@
                             "status": "unknown",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": false,
                             "tags": {},
                             "timer": {},
                             "type": "TestCaseReport",
@@ -144,7 +134,7 @@
                             "definition_name": "basic_case <arg=1>",
                             "description": null,
                             "entries": [],
-                            "hash": 8385933877493345115,
+                            "hash": 0,
                             "logs": [],
                             "name": "basic_case <arg=1>",
                             "parent_uids": [
@@ -157,7 +147,6 @@
                             "status": "unknown",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": false,
                             "tags": {},
                             "timer": {},
                             "type": "TestCaseReport",
@@ -174,7 +163,7 @@
                             "definition_name": "basic_case <arg=2>",
                             "description": null,
                             "entries": [],
-                            "hash": -3866340285627112748,
+                            "hash": 0,
                             "logs": [],
                             "name": "basic_case <arg=2>",
                             "parent_uids": [
@@ -187,7 +176,6 @@
                             "status": "unknown",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": false,
                             "tags": {},
                             "timer": {},
                             "type": "TestCaseReport",
@@ -196,7 +184,7 @@
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": 5229372141603269383,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "basic_case",
@@ -211,7 +199,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -220,7 +207,7 @@
             ],
             "env_status": null,
             "fix_spec_path": null,
-            "hash": 2532245843599472540,
+            "hash": 0,
             "host": null,
             "logs": [],
             "name": "BasicSuite",
@@ -234,7 +221,6 @@
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
-            "suite_related": false,
             "tags": {},
             "timer": {},
             "type": "TestGroupReport",
@@ -263,7 +249,7 @@
                     "definition_name": "send_and_receive_msg",
                     "description": "Client sends a message, server received and responds back.",
                     "entries": [],
-                    "hash": 6849604210400249405,
+                    "hash": 0,
                     "logs": [],
                     "name": "send_and_receive_msg",
                     "parent_uids": [
@@ -275,7 +261,6 @@
                     "status": "unknown",
                     "status_override": null,
                     "status_reason": null,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestCaseReport",
@@ -284,7 +269,7 @@
             ],
             "env_status": null,
             "fix_spec_path": null,
-            "hash": -191791114326562720,
+            "hash": 0,
             "host": null,
             "logs": [],
             "name": "Custom_0",
@@ -298,7 +283,6 @@
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
-            "suite_related": false,
             "tags": {},
             "timer": {},
             "type": "TestGroupReport",
@@ -327,7 +311,7 @@
                     "definition_name": "send_and_receive_msg",
                     "description": "Client sends a message, server received and responds back.",
                     "entries": [],
-                    "hash": 6849604210400249405,
+                    "hash": 0,
                     "logs": [],
                     "name": "send_and_receive_msg",
                     "parent_uids": [
@@ -339,7 +323,6 @@
                     "status": "unknown",
                     "status_override": null,
                     "status_reason": null,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestCaseReport",
@@ -348,7 +331,7 @@
             ],
             "env_status": null,
             "fix_spec_path": null,
-            "hash": 5453856010240402830,
+            "hash": 0,
             "host": null,
             "logs": [],
             "name": "Custom_1",
@@ -362,7 +345,6 @@
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
-            "suite_related": false,
             "tags": {},
             "timer": {},
             "type": "TestGroupReport",
@@ -371,7 +353,7 @@
     ],
     "env_status": "STARTED",
     "fix_spec_path": null,
-    "hash": 4818630066793195687,
+    "hash": 0,
     "host": null,
     "logs": [],
     "name": "Test2",
@@ -384,16 +366,8 @@
     "status_override": null,
     "status_reason": null,
     "strict_order": false,
-    "suite_related": false,
     "tags": {},
-    "timer": {
-        "setup": [
-            {
-                "end": "2024-02-22T02:58:45.681298+00:00",
-                "start": "2024-02-22T02:58:45.584917+00:00"
-            }
-        ]
-    },
+    "timer": {},
     "type": "TestGroupReport",
     "uid": "Test2"
 }

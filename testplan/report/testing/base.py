@@ -236,7 +236,6 @@ class TestGroupReport(BaseReportGroup):
         fix_spec_path=None,
         env_status=None,
         strict_order=False,
-        suite_related=False,
         **kwargs,
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -266,10 +265,6 @@ class TestGroupReport(BaseReportGroup):
         self.strict_order = strict_order
 
         self.covered_lines: Optional[dict] = None
-
-        # TODO: replace with synthesized flag
-        # this is for special handling in interactive mode, e.g no run button
-        self.suite_related = suite_related
 
     def __str__(self):
         return (
@@ -431,7 +426,6 @@ class TestCaseReport(Report):
         self,
         name,
         tags=None,
-        suite_related=False,
         category=ReportCategories.TESTCASE,
         **kwargs,
     ):
@@ -439,7 +433,6 @@ class TestCaseReport(Report):
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
         self.tags_index = copy.deepcopy(self.tags)
-        self.suite_related = suite_related
         self.attachments = []
         self.category = category
         self.covered_lines: Optional[dict] = None
@@ -552,7 +545,10 @@ class TestCaseReport(Report):
         test cases, choose the one whose status is of higher precedence.
         """
         self._check_report(report)
-        if self.suite_related and self.status.precede(report.status):
+        if (
+            self.category == ReportCategories.SYNTHESIZED
+            and self.status.precede(report.status)
+        ):
             return
 
         self.status_override = Status.precedent(

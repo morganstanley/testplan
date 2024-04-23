@@ -118,7 +118,6 @@ class HobbesTest(ProcessRunnerTest):
                     testcase_report = TestCaseReport(
                         name=testcase["name"],
                         uid=testcase["name"],
-                        suite_related=True,
                     )
                     assertion_obj = RawAssertion(
                         passed=testcase["status"] == "pass",

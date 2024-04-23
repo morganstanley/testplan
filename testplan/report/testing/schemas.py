@@ -3,27 +3,25 @@
 import functools
 import json
 
-from boltons.iterutils import remap, is_scalar
-
+from boltons.iterutils import is_scalar, remap
 from marshmallow import Schema, fields, post_load
 from marshmallow.utils import EXCLUDE
 
-from testplan.common.serialization.schemas import load_tree_data
-from testplan.common.serialization import fields as custom_fields
 from testplan.common.report.schemas import (
     ReportSchema,
     BaseReportGroupSchema,
     ReportLogSchema,
     TimerField,
 )
-
 from testplan.common.report import Status, RuntimeStatus
+from testplan.common.serialization import fields as custom_fields
+from testplan.common.serialization.schemas import load_tree_data
 from testplan.report.testing.base import (
+    ReportCategories,
     TestCaseReport,
     TestGroupReport,
     TestReport,
 )
-
 
 __all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
 
@@ -82,7 +80,8 @@ class TestCaseReportSchema(ReportSchema):
     source_class = TestCaseReport
 
     entries = fields.List(EntriesField())
-    category = fields.String(dump_only=True)
+
+    category = fields.Enum(ReportCategories, by_value=True, dump_only=True)
     status = fields.Function(
         lambda x: x.status.to_json_compatible(),
         Status.from_json_compatible,
@@ -92,7 +91,6 @@ class TestCaseReportSchema(ReportSchema):
         RuntimeStatus.from_json_compatible,
     )
     counter = fields.Dict(dump_only=True)
-    suite_related = fields.Bool()
     tags = TagField()
 
     @post_load
@@ -122,9 +120,9 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
-    category = fields.String()
     tags = TagField()
-    suite_related = fields.Bool()
+    category = fields.Enum(ReportCategories, by_value=True)
+
     entries = custom_fields.GenericNested(
         schema_context={
             TestCaseReport: TestCaseReportSchema,
@@ -152,7 +150,7 @@ class TestReportSchema(BaseReportGroupSchema):
 
     source_class = TestReport
 
-    category = fields.String(dump_only=True)
+    category = fields.Enum(ReportCategories, by_value=True, dump_only=True)
     meta = fields.Dict()
     label = fields.String(allow_none=True)
     tags_index = TagField(dump_only=True)
@@ -194,7 +192,7 @@ class ShallowTestGroupReportSchema(Schema):
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
     uid = fields.String(required=True)
-    category = fields.String()
+    category = fields.Enum(ReportCategories, by_value=True)
     timer = TimerField(required=True)
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
@@ -207,7 +205,7 @@ class ShallowTestGroupReportSchema(Schema):
         lambda x: x.runtime_status.to_json_compatible()
     )
     counter = fields.Dict(dump_only=True)
-    suite_related = fields.Bool()
+    suite_related = fields.Bool(load_only=True, allow_none=True)
     tags = TagField()
 
     entry_uids = fields.List(fields.String(), dump_only=True)
@@ -240,7 +238,7 @@ class ShallowTestReportSchema(Schema):
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
     uid = fields.String(required=True)
-    category = fields.String(dump_only=True)
+    category = fields.Enum(ReportCategories, by_value=True, dump_only=True)
     timer = TimerField(required=True)
     meta = fields.Dict()
     status = fields.Function(lambda x: x.status.to_json_compatible())

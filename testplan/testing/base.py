@@ -558,18 +558,13 @@ class Test(Runnable):
 
         suite_report = TestGroupReport(
             name=label,
-            category=ReportCategories.TESTSUITE,
-            suite_related=True,
-            # TODO: use synthesized instead of suite_related
-            # category=ReportCategories.SYNTHESIZED,
+            category=ReportCategories.SYNTHESIZED,
         )
 
         case_report = TestCaseReport(
             name=hook.__name__,
             description=strings.get_docstring(hook),
-            suite_related=True,
-            # TODO: use synthesized instead of suite_related
-            # category=ReportCategories.SYNTHESIZED,
+            category=ReportCategories.SYNTHESIZED,
         )
         suite_report.append(case_report)
         case_result = self.cfg.result(
@@ -613,16 +608,11 @@ class Test(Runnable):
 
         suite_report = TestGroupReport(
             name=label,
-            category=ReportCategories.TESTSUITE,
-            suite_related=True,
-            # TODO: use synthesized instead of suite_related
-            # category=ReportCategories.SYNTHESIZED,
+            category=ReportCategories.SYNTHESIZED,
         )
         case_report = TestCaseReport(
             name=hook.__name__,
-            suite_related=True,
-            # TODO: use synthesized instead of suite_related
-            # category=ReportCategories.SYNTHESIZED,
+            category=ReportCategories.SYNTHESIZED,
         )
         suite_report.append(case_report)
         self.result.report.append(suite_report)
@@ -1038,7 +1028,7 @@ class ProcessRunnerTest(Test):
 
         testcase_report = TestCaseReport(
             name=self._VERIFICATION_TESTCASE_NAME,
-            suite_related=True,
+            category=ReportCategories.SYNTHESIZED,
             entries=[
                 RawAssertion(
                     description="Process exit code check",
@@ -1156,11 +1146,11 @@ class ProcessRunnerTest(Test):
 
         testcase_report = TestCaseReport(
             name=self._VERIFICATION_TESTCASE_NAME,
-            suite_related=True,
+            category=ReportCategories.SYNTHESIZED,
         )
         testsuite_report = TestGroupReport(
             name=self._VERIFICATION_SUITE_NAME,
-            category=ReportCategories.TESTSUITE,
+            category=ReportCategories.SYNTHESIZED,
             entries=[testcase_report],
         )
         self.result.report.append(testsuite_report)
