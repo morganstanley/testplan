@@ -111,9 +111,7 @@ class TestConfig(RunnableConfig):
             ConfigOption("after_start", default=None): start_stop_signature,
             ConfigOption("before_stop", default=None): start_stop_signature,
             ConfigOption("after_stop", default=None): start_stop_signature,
-            ConfigOption("error_handler", default=None): Or(
-                None, lambda x: callable(x)
-            ),
+            ConfigOption("error_handler", default=None): start_stop_signature,
             ConfigOption("test_filter"): filtering.BaseFilter,
             ConfigOption("test_sorter"): ordering.BaseSorter,
             ConfigOption("stdout_style"): test_styles.Style,
