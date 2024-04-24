@@ -238,10 +238,10 @@ def test_multitest_driver_startup_failure(mockplan):
     assert res.run is True
     report = res.report
 
-    assert "Exception: Startup error" in report.entries[0].logs[0]["message"]
-    text = report.entries[0].logs[1]["message"].split(os.linesep)
-    assert re.match(r".*Information from log file:.+stderr.*", text[0])
-    assert re.match(r".*Error found.*", text[1])
+    error_msg = report.entries[0].entries[0].entries[0].logs[0]["message"]
+    assert "Exception: Startup error" in error_msg
+    assert re.search(r".*Information from log file:.+stderr.*", error_msg)
+    assert re.search(r".*Error found.*", error_msg)
 
 
 def test_multitest_driver_fetch_error_log(mockplan):
@@ -269,12 +269,16 @@ def test_multitest_driver_fetch_error_log(mockplan):
     assert res.run is True
 
     report = res.report
-    assert "Exception: Shutdown error" in report.entries[0].logs[0]["message"]
 
-    text = report.entries[0].logs[1]["message"].split(os.linesep)
-    assert re.match(r".*Information from log file:.+stdout.*", text[0])
-    for idx, line in enumerate(text[1:]):
-        assert re.match(r".*This is line 99{}.*".format(idx), line)
+    assert (
+        "Exception: Shutdown error"
+        in report.entries[0].entries[2].entries[0].logs[0]["message"]
+    )
+
+    text = report.entries[0].entries[2].entries[0].logs[0]["message"]
+    assert re.search(r".*Information from log file:.+stdout.*", text)
+    for idx in range(10):
+        assert re.search(r".*This is line 99{}.*".format(idx), text)
 
 
 def test_multitest_driver_start_timeout():

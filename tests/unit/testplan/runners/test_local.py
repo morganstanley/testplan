@@ -51,8 +51,8 @@ def test_local_discard_pending(pre_sleep, post_sleep, out_sleep, has_result):
         # processed in time before runner dies
         assert MT_NAME in r.results
         repo = r.results[MT_NAME].report
-        assert len(repo) == 1
-        assert len(repo.entries[0]) == 1
+        assert len(repo) == 3
+        assert len(repo.entries[1]) == 1
     else:
         assert r._discard_pending is True
         assert len(r.results) == 0

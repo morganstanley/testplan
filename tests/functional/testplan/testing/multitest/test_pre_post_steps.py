@@ -61,25 +61,24 @@ def test_pre_post_steps(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
-                        name="Before Start",
-                        category=ReportCategories.SYNTHESIZED,
+                        name="Environment Start",
+                        category="synthesized",
                         entries=[
                             TestCaseReport(
                                 name="check_func_1",
-                                category=ReportCategories.SYNTHESIZED,
+                                uid="check_func_1",
                                 entries=[{"type": "Equal", "passed": True}],
                             ),
-                        ],
-                    ),
-                    TestGroupReport(
-                        name="After Start",
-                        category=ReportCategories.SYNTHESIZED,
-                        entries=[
+                            TestCaseReport(
+                                name="starting", uid="starting", entries=[]
+                            ),
                             TestCaseReport(
                                 name="check_func_2",
-                                category=ReportCategories.SYNTHESIZED,
+                                uid="check_func_2",
+                                entries=[],
                             ),
                         ],
+                        tags=None,
                     ),
                     TestGroupReport(
                         name="MySuite",
@@ -93,28 +92,27 @@ def test_pre_post_steps(mockplan):
                         ],
                     ),
                     TestGroupReport(
-                        name="Before Stop",
-                        category=ReportCategories.SYNTHESIZED,
+                        name="Environment Stop",
+                        category="synthesized",
                         entries=[
                             TestCaseReport(
                                 name="check_func_3",
-                                category=ReportCategories.SYNTHESIZED,
+                                uid="check_func_3",
+                                entries=[],
                             ),
-                        ],
-                    ),
-                    TestGroupReport(
-                        name="After Stop",
-                        category=ReportCategories.SYNTHESIZED,
-                        entries=[
+                            TestCaseReport(
+                                name="stopping", uid="stopping", entries=[]
+                            ),
                             TestCaseReport(
                                 name="check_func_4",
-                                category=ReportCategories.SYNTHESIZED,
+                                uid="check_func_4",
                                 entries=[
                                     {"type": "Equal", "passed": False},
                                     {"type": "Attachment"},
                                 ],
                             ),
                         ],
+                        tags=None,
                     ),
                 ],
             )
@@ -145,14 +143,19 @@ def test_empty_pre_post_steps(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
-                        name="After Start",
-                        category=ReportCategories.SYNTHESIZED,
+                        name="Environment Start",
+                        category="synthesized",
                         entries=[
                             TestCaseReport(
+                                name="starting", uid="starting", entries=[]
+                            ),
+                            TestCaseReport(
                                 name="check_func_2",
-                                category=ReportCategories.SYNTHESIZED,
+                                uid="check_func_2",
+                                entries=[],
                             ),
                         ],
+                        tags=None,
                     ),
                     TestGroupReport(
                         name="MySuite",
@@ -165,6 +168,16 @@ def test_empty_pre_post_steps(mockplan):
                                 entries=[{"type": "Attachment"}],
                             ),
                         ],
+                    ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(
+                                name="stopping", uid="stopping", entries=[]
+                            )
+                        ],
+                        tags=None,
                     ),
                 ],
             ),
@@ -195,6 +208,16 @@ def test_no_pre_post_steps(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
+                        name="Environment Start",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(
+                                name="starting", uid="starting", entries=[]
+                            )
+                        ],
+                        tags=None,
+                    ),
+                    TestGroupReport(
                         name="MySuite",
                         category=ReportCategories.TESTSUITE,
                         entries=[
@@ -205,6 +228,16 @@ def test_no_pre_post_steps(mockplan):
                                 entries=[{"type": "Attachment"}],
                             ),
                         ],
+                    ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(
+                                name="stopping", uid="stopping", entries=[]
+                            )
+                        ],
+                        tags=None,
                     ),
                 ],
             ),

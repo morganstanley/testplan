@@ -66,35 +66,26 @@ def test_driver_failure(mockplan):
     mockplan.add(multitest)
     mockplan.run()
 
-    expected_report = TestReport(
-        name="plan",
+    error_handler_report = TestGroupReport(
+        name="Error handler",
+        category=ReportCategories.SYNTHESIZED,
         entries=[
-            TestGroupReport(
-                name="MyMultitest",
-                category=ReportCategories.MULTITEST,
+            TestCaseReport(
+                name="error_handler_fn",
                 entries=[
-                    TestGroupReport(
-                        name="Error handler",
-                        category=ReportCategories.SYNTHESIZED,
-                        entries=[
-                            TestCaseReport(
-                                name="error_handler_fn",
-                                entries=[
-                                    {
-                                        "description": "Error handler ran!",
-                                        "type": "Log",
-                                    }
-                                ],
-                            ),
-                        ],
-                    ),
+                    {
+                        "description": "Error handler ran!",
+                        "type": "Log",
+                    }
                 ],
-                status_override=Status.ERROR,
-            )
+            ),
         ],
     )
 
-    check_report(expected_report, mockplan.report)
+    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.entries[0].status == Status.ERROR
+
+    check_report(error_handler_report, mockplan.report.entries[0].entries[1])
 
 
 def test_suite_hook_failure(mockplan):
@@ -106,46 +97,41 @@ def test_suite_hook_failure(mockplan):
     mockplan.add(multitest)
     mockplan.run()
 
-    expected_report = TestReport(
-        name="plan",
+    error_handler_report = TestGroupReport(
+        name="Error handler",
+        category=ReportCategories.SYNTHESIZED,
         entries=[
-            TestGroupReport(
-                name="MyMultitest",
-                category=ReportCategories.MULTITEST,
+            TestCaseReport(
+                name="error_handler_fn",
                 entries=[
-                    TestGroupReport(
-                        name="RaisingSuite",
-                        category=ReportCategories.TESTSUITE,
-                        entries=[
-                            TestCaseReport(
-                                name="passed_test",
-                                entries=[],
-                                status_override=Status.ERROR,
-                            )
-                        ],
-                        tags=None,
-                    ),
-                    TestGroupReport(
-                        name="Error handler",
-                        category=ReportCategories.SYNTHESIZED,
-                        entries=[
-                            TestCaseReport(
-                                name="error_handler_fn",
-                                entries=[
-                                    {
-                                        "description": "Error handler ran!",
-                                        "type": "Log",
-                                    }
-                                ],
-                            ),
-                        ],
-                    ),
+                    {
+                        "description": "Error handler ran!",
+                        "type": "Log",
+                    }
                 ],
-            )
+            ),
         ],
     )
 
-    check_report(expected_report, mockplan.report)
+    raising_suite_report = TestGroupReport(
+        name="RaisingSuite",
+        category=ReportCategories.TESTSUITE,
+        entries=[
+            TestCaseReport(
+                name="passed_test",
+                entries=[],
+                status_override=Status.ERROR,
+            )
+        ],
+        tags=None,
+    )
+
+    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.entries[0].status == Status.ERROR
+
+    assert mockplan.report.entries[0].entries[1].status == Status.ERROR
+    check_report(raising_suite_report, mockplan.report.entries[0].entries[1])
+    check_report(error_handler_report, mockplan.report.entries[0].entries[3])
 
 
 def test_multitest_hook_failure(mockplan):
@@ -208,7 +194,38 @@ def test_multitest_hook_failure(mockplan):
         ],
     )
 
-    check_report(expected_report, mockplan.report)
+    after_start_report = TestCaseReport(
+        name="raising_hook",
+        entries=[],
+        status_override=Status.ERROR,
+    )
+    error_handler_fn_report = TestGroupReport(
+        name="Error handler",
+        category=ReportCategories.SYNTHESIZED,
+        entries=[
+            TestCaseReport(
+                name="error_handler_fn",
+                entries=[
+                    {
+                        "description": "Error handler ran!",
+                        "type": "Log",
+                    }
+                ],
+            ),
+        ],
+    )
+
+    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.entries[0].status == Status.ERROR
+    assert mockplan.report.entries[0].entries[0].status == Status.ERROR
+    assert len(mockplan.report.entries[0]) == 4
+
+    check_report(
+        after_start_report, mockplan.report.entries[0].entries[0].entries[1]
+    )
+    check_report(
+        error_handler_fn_report, mockplan.report.entries[0].entries[3]
+    )
 
 
 def test_failure_with_no_error_handler(mockplan):
@@ -220,33 +237,25 @@ def test_failure_with_no_error_handler(mockplan):
     mockplan.add(multitest)
     mockplan.run()
 
-    expected_report = TestReport(
-        name="plan",
+    expected_suite_report = TestGroupReport(
+        name="FailingSuite",
+        category=ReportCategories.TESTSUITE,
         entries=[
-            TestGroupReport(
-                name="MyMultitest",
-                category=ReportCategories.MULTITEST,
+            TestCaseReport(
+                name="failed_test",
                 entries=[
-                    TestGroupReport(
-                        name="FailingSuite",
-                        category=ReportCategories.TESTSUITE,
-                        entries=[
-                            TestCaseReport(
-                                name="failed_test",
-                                entries=[
-                                    {
-                                        "description": "Failed test",
-                                        "passed": False,
-                                        "type": "Fail",
-                                    }
-                                ],
-                            )
-                        ],
-                        tags=None,
-                    ),
+                    {
+                        "description": "Failed test",
+                        "passed": False,
+                        "type": "Fail",
+                    }
                 ],
             )
         ],
+        tags=None,
     )
 
-    check_report(expected_report, mockplan.report)
+    assert mockplan.report.status == Status.FAILED
+    assert len(mockplan.report.entries[0]) == 3
+
+    check_report(expected_suite_report, mockplan.report.entries[0].entries[1])

@@ -67,9 +67,13 @@ def descent_assert(abs_struct, group_report):
         # ignore length check of case report
         return
     if isinstance(abs_struct, int):
-        assert len(group_report) == abs_struct, f"error at {group_report}"
+        assert (
+            len(group_report) == abs_struct
+        ), f"error at {group_report}, expect {abs_struct}"
         return
-    assert len(group_report) == len(abs_struct), f"error at {group_report}"
+    assert len(group_report) == len(
+        abs_struct
+    ), f"error at {group_report}, expect {abs_struct}"
     for s, r in zip(abs_struct, group_report):
         descent_assert(s, r)
 
@@ -89,17 +93,33 @@ def ppool(name, size=2):
 @pytest.mark.parametrize(
     "exec_gen, option, abs_report_struct",
     (
-        (lrunner, None, ((3, 1), (1, 3), ((None, 3), 1))),
-        (lrunner, "cases-on-error", ((2, 1), (1, 2), ((None, 3), 1))),
-        (lrunner, "cases-on-failed", ((1, 1), (1, 1), ((None, 2), 1))),
-        (lrunner, "suites-on-error", ((2,), (1,), ((None, 3), 1))),
-        (lrunner, "suites-on-failed", ((1,), (1,), ((None, 2),))),
-        (lrunner, "tests-on-error", ((2,),)),
-        (lrunner, "tests-on-failed", ((1,),)),
-        (tpool, "tests-on-error", ((2,),)),
-        (tpool, "tests-on-failed", ((1,),)),
-        (ppool, "tests-on-error", ((2,),)),
-        (ppool, "tests-on-failed", ((1,),)),
+        (lrunner, None, ((1, 3, 1, 1), (1, 1, 3, 1), (1, (None, 3), 1, 1))),
+        (
+            lrunner,
+            "cases-on-error",
+            ((1, 2, 1, 1), (1, 1, 2, 1), (1, (None, 3), 1, 1)),
+        ),
+        (
+            lrunner,
+            "cases-on-failed",
+            ((1, 1, 1, 1), (1, 1, 1, 1), (1, (None, 2), 1, 1)),
+        ),
+        (
+            lrunner,
+            "suites-on-error",
+            ((1, 2, 1), (1, 1, 1), (1, (None, 3), 1, 1)),
+        ),
+        (
+            lrunner,
+            "suites-on-failed",
+            ((1, 1, 1), (1, 1, 1), (1, (None, 2), 1)),
+        ),
+        (lrunner, "tests-on-error", ((1, 2, 1),)),
+        (lrunner, "tests-on-failed", ((1, 1, 1),)),
+        (tpool, "tests-on-error", ((1, 2, 1),)),
+        (tpool, "tests-on-failed", ((1, 1, 1),)),
+        (ppool, "tests-on-error", ((1, 2, 1),)),
+        (ppool, "tests-on-failed", ((1, 1, 1),)),
     ),
 )
 def test_intra_executor(exec_gen, option, abs_report_struct):

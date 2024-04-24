@@ -591,26 +591,35 @@ class MultiTest(testing_base.Test):
             return True
         return False
 
-    def post_step_call(self, step):
-        """Callable to be executed after each step."""
-        exceptions = None
-        if step == self.resources.start:
-            exceptions = self.resources.start_exceptions
-        elif step == self.resources.stop:
-            exceptions = self.resources.stop_exceptions
-        if exceptions:
-            for msg in exceptions.values():
-                self.result.report.logger.error(msg)
-            self.result.report.status_override = Status.ERROR
+    def _start_resource(self) -> TestCaseReport:
+        case_report = super()._start_resource()
 
-        if step == self.resources.stop:
-            drivers = set(self.resources.start_exceptions.keys())
-            drivers.update(self.resources.stop_exceptions.keys())
-            for driver in drivers:
-                if driver.cfg.report_errors_from_logs:
-                    error_log = os.linesep.join(driver.fetch_error_log())
-                    if error_log:
-                        self.result.report.logger.error(error_log)
+        if self.resources.start_exceptions:
+            for msg in self.resources.start_exceptions.values():
+                case_report.logger.error(msg)
+            case_report.status_override = Status.ERROR
+        pattern = f"{self.name}:{testing_base.ResourceHooks.environment_start}:{testing_base.ResourceHooks.starting}"
+        self._xfail(pattern, case_report)
+        return case_report
+
+    def _stop_resource(self, is_reversed=False) -> TestCaseReport:
+        case_report = super()._stop_resource(is_reversed)
+
+        if self.resources.stop_exceptions:
+            for msg in self.resources.stop_exceptions.values():
+                case_report.logger.error(msg)
+            case_report.status_override = Status.ERROR
+
+        drivers = set(self.resources.start_exceptions.keys())
+        drivers.update(self.resources.stop_exceptions.keys())
+        for driver in drivers:
+            if driver.cfg.report_errors_from_logs:
+                error_log = os.linesep.join(driver.fetch_error_log())
+                if error_log:
+                    case_report.logger.error(error_log)
+        pattern = f"{self.name}:{testing_base.ResourceHooks.environment_stop}:{testing_base.ResourceHooks.stopping}"
+        self._xfail(pattern, case_report)
+        return case_report
 
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""

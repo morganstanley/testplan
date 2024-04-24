@@ -338,7 +338,7 @@ def test_assertion_skip(mockplan):
     mtest.run()
 
     skip_multitest = mtest.report.flatten()[0]
-    skip_suite = skip_multitest.entries[0]
+    skip_suite = skip_multitest.entries[1]
     skip_me_case = skip_suite.entries[0]
     assert skip_me_case.status == Status.SKIPPED
     assert skip_me_case.failed is False

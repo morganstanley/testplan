@@ -79,7 +79,7 @@ def test_attach(attachment_plan):
 
     report = plan_result.report
     attachments = report.attachments
-    testcase_report = report.entries[0].entries[0].entries[0]
+    testcase_report = report.entries[0].entries[1].entries[0]
     assert testcase_report.name == "attach"
     assert len(testcase_report.entries) == 1
 
@@ -106,8 +106,7 @@ def test_multi_attachments(multi_attachments_plan):
     attachments = report.attachments
     assert len(attachments) == 2  # Two unique file attachments
 
-    testcase_report = report.entries[0].entries[0].entries[0]
-
+    testcase_report = report.entries[0].entries[1].entries[0]
     assert len(testcase_report.entries) == 2
 
     for i in range(2):
@@ -138,7 +137,7 @@ def test_same_attachments(same_attachments_plan):
     attachments = report.attachments
     assert len(attachments) == 1  # Only one unique file is attached.
 
-    attachment_entries = report.entries[0].entries[0].entries[0].entries
+    attachment_entries = report.entries[0].entries[1].entries[0].entries
     assert len(attachment_entries) == 2
 
     dst_path = list(attachments.keys())[0]

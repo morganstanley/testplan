@@ -63,7 +63,7 @@ def test_multitest_report_filter_passed():
     plan.add(MultiTest(name="TestMT", suites=[OneSuite(), AnotherSuite()]))
     mt_report = plan.run().report["TestMT"]
 
-    assert len(mt_report) == 2
+    assert len(mt_report) == 4
     assert len(mt_report["OneSuite"]) == 1
     assert mt_report["OneSuite"]["passing"]
     assert len(mt_report["AnotherSuite"]["with_param"]) == 1
@@ -82,7 +82,7 @@ def test_multitest_report_filter_passed_or_xfail():
     )
     mt_report = plan.run().report["TestMT"]
 
-    assert len(mt_report) == 2
+    assert len(mt_report) == 4
     assert len(mt_report["OneSuite"]) == 2
     assert mt_report["OneSuite"]["expect_to_fail"]
     assert len(mt_report["AnotherSuite"]) == 2

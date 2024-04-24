@@ -6,6 +6,7 @@ import collections
 from testplan import TestplanMock
 from testplan.testing.multitest import MultiTest
 from testplan.common.utils.comparison import compare
+from testplan.common.report.base import Status as ReportStatus
 from interactive_helper import wait_for_interactive_start
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -494,7 +495,7 @@ def main():
         ignore=["file_path", "line_no", "machine_time", "utc_time"],
     )
 
-    assert plan.interactive.report.passed is True
+    assert plan.interactive.report.status == ReportStatus.UNKNOWN
 
 
 if __name__ == "__main__":

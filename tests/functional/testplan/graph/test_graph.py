@@ -36,7 +36,7 @@ def test_graph():
         assert report["status"] == "passed"
 
         # Check that the JSON outputted contains the correct components.
-        testcase1 = report["entries"][0]["entries"][0]["entries"][0][
+        testcase1 = report["entries"][0]["entries"][1]["entries"][0][
             "entries"
         ][0]
         assert testcase1["type"] == "Graph"
@@ -46,35 +46,35 @@ def test_graph():
         assert type(testcase1["series_options"]) is dict
         assert type(testcase1["graph_options"]) is dict
 
-        testcase2 = report["entries"][0]["entries"][0]["entries"][0][
+        testcase2 = report["entries"][0]["entries"][1]["entries"][0][
             "entries"
         ][1]
         assert testcase2["graph_type"] == "Scatter"
         assert type(testcase2["series_options"]) is dict
         assert testcase2["graph_options"] is None
 
-        testcase3 = report["entries"][0]["entries"][0]["entries"][0][
+        testcase3 = report["entries"][0]["entries"][1]["entries"][0][
             "entries"
         ][2]
         assert testcase3["graph_type"] == "Bar"
         assert testcase3["series_options"] is None
         assert testcase3["graph_options"] is None
 
-        testcase4 = report["entries"][0]["entries"][0]["entries"][0][
+        testcase4 = report["entries"][0]["entries"][1]["entries"][0][
             "entries"
         ][3]
         assert testcase4["type"] == "Graph"
         assert testcase4["series_options"] is None
         assert testcase4["graph_options"] is None
 
-        testcase5 = report["entries"][0]["entries"][0]["entries"][0][
+        testcase5 = report["entries"][0]["entries"][1]["entries"][0][
             "entries"
         ][4]
         assert testcase5["type"] == "Graph"
         assert testcase5["graph_type"] == "Whisker"
         assert testcase5["graph_options"] is None
 
-        testcase6 = report["entries"][0]["entries"][0]["entries"][0][
+        testcase6 = report["entries"][0]["entries"][1]["entries"][0][
             "entries"
         ][5]
         assert type(testcase6["graph_data"]) is dict

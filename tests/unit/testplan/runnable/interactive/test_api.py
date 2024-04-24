@@ -843,7 +843,7 @@ def compare_json(actual, expected, ignored_keys=None):
         for key in expected:
             # Skip checking the "hash" key.
             if key != "hash" and key not in ignored_keys:
-                assert actual[key] == expected[key]
+                assert actual[key] == expected[key], f"{key} not match"
 
 
 def serialize_testcase(testcase):

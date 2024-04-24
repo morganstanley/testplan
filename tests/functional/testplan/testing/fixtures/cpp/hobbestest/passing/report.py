@@ -8,6 +8,16 @@ expected_report = TestReport(
             category="hobbestest",
             entries=[
                 TestGroupReport(
+                    name="Environment Start",
+                    category="synthesized",
+                    entries=[
+                        TestCaseReport(
+                            name="starting", uid="starting", entries=[]
+                        )
+                    ],
+                    tags=None,
+                ),
+                TestGroupReport(
                     name="Hog",
                     category="testsuite",
                     entries=[
@@ -145,6 +155,16 @@ expected_report = TestReport(
                             ],
                         ),
                     ],
+                ),
+                TestGroupReport(
+                    name="Environment Stop",
+                    category="synthesized",
+                    entries=[
+                        TestCaseReport(
+                            name="stopping", uid="stopping", entries=[]
+                        )
+                    ],
+                    tags=None,
                 ),
             ],
             tags=None,

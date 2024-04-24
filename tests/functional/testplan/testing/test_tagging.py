@@ -60,6 +60,12 @@ report_for_multitest_without_tags = TestGroupReport(
     category="multitest",
     entries=[
         TestGroupReport(
+            name="Environment Start",
+            category="synthesized",
+            entries=[TestCaseReport(name="starting", uid="starting")],
+            tags=None,
+        ),
+        TestGroupReport(
             name="AlphaSuite",
             category="testsuite",
             tags={"color": {"red", "blue"}},
@@ -113,6 +119,12 @@ report_for_multitest_without_tags = TestGroupReport(
                     ],
                 ),
             ],
+        ),
+        TestGroupReport(
+            name="Environment Stop",
+            category="synthesized",
+            entries=[TestCaseReport(name="stopping", uid="stopping")],
+            tags=None,
         ),
     ],
 )
@@ -124,6 +136,12 @@ report_for_multitest_with_tags = TestGroupReport(
     tags={"color": {"orange"}, "environment": {"server"}},
     entries=[
         TestGroupReport(
+            name="Environment Start",
+            category="synthesized",
+            entries=[TestCaseReport(name="starting", uid="starting")],
+            tags=None,
+        ),
+        TestGroupReport(
             name="AlphaSuite",
             category="testsuite",
             tags={"color": {"red", "blue"}},
@@ -176,6 +194,13 @@ report_for_multitest_with_tags = TestGroupReport(
                         TestCaseReport(name="test_param_2 <value='YYY'>"),
                     ],
                 ),
+            ],
+        ),
+        TestGroupReport(
+            name="Environment Stop",
+            category="synthesized",
+            entries=[
+                TestCaseReport(name="stopping", uid="stopping", entries=[])
             ],
         ),
     ],

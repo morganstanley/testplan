@@ -58,11 +58,15 @@ TESTCASE_INDENT = 6
 ASSERTION_INDENT = 8
 
 
-class ResourceHooks(Enum):
-    before_start = "Before Start"
-    after_start = "After Start"
-    before_stop = "Before Stop"
-    after_stop = "After Stop"
+class ResourceHooks(str, Enum):
+    environment_start = "Environment Start"
+    environment_stop = "Environment Stop"
+    error_handler = "Error handler"
+    starting = "starting"
+    stopping = "stopping"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 def _test_name_sanity_check(name: str) -> bool:
@@ -238,7 +242,7 @@ class Test(Runnable):
             env_status=ResourceStatus.STOPPED,
         )
 
-    def _init_test_report(self) -> TestGroupReport:
+    def _init_test_report(self) -> None:
         self.result.report = self._new_test_report()
 
     def get_tags_index(self) -> Union[str, Iterable[str], Dict]:
@@ -441,34 +445,110 @@ class Test(Runnable):
         self._add_step(self._build_environment)
         self._add_step(self._set_dependencies)
 
+    def _dry_run_start_resource(self) -> TestCaseReport:
+        suite_report = self.result.report[ResourceHooks.environment_start]
+        case_report = TestCaseReport(
+            name=ResourceHooks.starting,
+            category=ReportCategories.SYNTHESIZED,
+        )
+        suite_report.append(case_report)
+        return case_report
+
+    def _start_resource(self) -> TestCaseReport:
+        case_report = self._dry_run_start_resource()
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self.scratch
+        )
+        self.resources.start()
+
+        for uid, driver in self.resources.items():
+            case_result.log(
+                f"{driver.__class__.__name__}[{uid}] Status: {driver.status.tag}"
+            )
+        case_report.extend(case_result.serialized_entries)
+        case_report.attachments.extend(case_result.attachments)
+        case_report.pass_if_empty()
+        return case_report
+
+    def _dry_run_stop_resource(self) -> TestCaseReport:
+        suite_report = self.result.report[ResourceHooks.environment_stop]
+        case_report = TestCaseReport(
+            name=ResourceHooks.stopping,
+            category=ReportCategories.SYNTHESIZED,
+        )
+        suite_report.append(case_report)
+        return case_report
+
+    def _stop_resource(self, is_reversed=False) -> TestCaseReport:
+        case_report = self._dry_run_stop_resource()
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self.scratch
+        )
+        self.resources.stop(is_reversed)
+
+        for uid, driver in self.resources.items():
+            case_result.log(
+                f"{driver.__class__.__name__}[{uid}] Status: {driver.status.tag}"
+            )
+
+        case_report.extend(case_result.serialized_entries)
+        case_report.attachments.extend(case_result.attachments)
+        case_report.pass_if_empty()
+        return case_report
+
+    def _add_resource_report(self, name):
+        suite_report = TestGroupReport(
+            name=name, category=ReportCategories.SYNTHESIZED
+        )
+
+        if self.result.report.has_uid(name):
+            self.result.report[name] = suite_report
+        else:
+            self.result.report.append(suite_report)
+
+    def _finish_resource_report(self, name):
+        self.result.report[name].runtime_status = RuntimeStatus.FINISHED
+
     def add_start_resource_steps(self) -> None:
+        self._add_step(
+            self._add_resource_report, name=ResourceHooks.environment_start
+        )
         self._add_step(
             self._run_resource_hook,
             hook=self.cfg.before_start,
-            label=ResourceHooks.before_start.value,
+            report_name=ResourceHooks.environment_start,
         )
 
-        self._add_step(self.resources.start)
+        self._add_step(self._start_resource)
 
         self._add_step(
             self._run_resource_hook,
             hook=self.cfg.after_start,
-            label=ResourceHooks.after_start.value,
+            report_name=ResourceHooks.environment_start,
+        )
+        self._add_step(
+            self._finish_resource_report, name=ResourceHooks.environment_start
         )
 
     def add_stop_resource_steps(self) -> None:
         self._add_step(
+            self._add_resource_report, name=ResourceHooks.environment_stop
+        )
+        self._add_step(
             self._run_resource_hook,
             hook=self.cfg.before_stop,
-            label=ResourceHooks.before_stop.value,
+            report_name=ResourceHooks.environment_stop,
         )
 
-        self._add_step(self.resources.stop, is_reversed=True)
+        self._add_step(self._stop_resource, is_reversed=True)
 
         self._add_step(
             self._run_resource_hook,
             hook=self.cfg.after_stop,
-            label=ResourceHooks.after_stop.value,
+            report_name=ResourceHooks.environment_stop,
+        )
+        self._add_step(
+            self._finish_resource_report, name=ResourceHooks.environment_stop
         )
 
     def add_pre_main_steps(self) -> None:
@@ -555,9 +635,20 @@ class Test(Runnable):
         """
 
         if self.cfg.error_handler:
-            self._run_resource_hook(self.cfg.error_handler, "Error handler")
+            suite_report = TestGroupReport(
+                name=ResourceHooks.error_handler,
+                category=ReportCategories.SYNTHESIZED,
+            )
 
-    def _run_resource_hook(self, hook: Callable, label: str) -> None:
+            if self.result.report.has_uid(ResourceHooks.error_handler):
+                self.result.report[ResourceHooks.error_handler] = suite_report
+            else:
+                self.result.report.append(suite_report)
+            self._run_resource_hook(
+                self.cfg.error_handler, ResourceHooks.error_handler
+            )
+
+    def _run_resource_hook(self, hook: Callable, report_name: str) -> None:
         # TODO: env or env, result signature is mandatory not an "if"
         """
         This method runs post/pre_start/stop hooks. User can optionally make
@@ -572,17 +663,12 @@ class Test(Runnable):
         if not hook:
             return
 
-        suite_report = TestGroupReport(
-            name=label,
-            category=ReportCategories.SYNTHESIZED,
-        )
-
         case_report = TestCaseReport(
             name=hook.__name__,
             description=strings.get_docstring(hook),
             category=ReportCategories.SYNTHESIZED,
         )
-        suite_report.append(case_report)
+        self.result.report[report_name].append(case_report)
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
@@ -607,31 +693,21 @@ class Test(Runnable):
             self.log_testcase_status(case_report)
 
         case_report.pass_if_empty()
-        pattern = ":".join([self.name, label, hook.__name__])
+        pattern = ":".join([self.name, report_name, hook.__name__])
         self._xfail(pattern, case_report)
         case_report.runtime_status = RuntimeStatus.FINISHED
-        suite_report.runtime_status = RuntimeStatus.FINISHED
 
-        if self.result.report.has_uid(label):
-            self.result.report[label] = suite_report
-        else:
-            self.result.report.append(suite_report)
-
-    def _dry_run_resource_hook(self, hook: Callable, label: str) -> None:
+    def _dry_run_resource_hook(self, hook: Callable, report_name: str) -> None:
 
         if not hook:
             return
 
-        suite_report = TestGroupReport(
-            name=label,
-            category=ReportCategories.SYNTHESIZED,
-        )
+        suite_report = self.result.report[report_name]
         case_report = TestCaseReport(
             name=hook.__name__,
             category=ReportCategories.SYNTHESIZED,
         )
         suite_report.append(case_report)
-        self.result.report.append(suite_report)
 
     def _dry_run_testsuites(self) -> None:
         suites_to_run = self.test_context
@@ -656,19 +732,25 @@ class Test(Runnable):
 
         self.result.report = self._new_test_report()
 
-        for hook, label in (
-            (self.cfg.before_start, ResourceHooks.before_start.value),
-            (self.cfg.after_start, ResourceHooks.after_start.value),
-        ):
-            self._dry_run_resource_hook(hook, label)
+        self._add_resource_report(name=ResourceHooks.environment_start)
+        self._dry_run_resource_hook(
+            self.cfg.before_start, ResourceHooks.environment_start
+        )
+        self._dry_run_start_resource()
+        self._dry_run_resource_hook(
+            self.cfg.after_start, ResourceHooks.environment_start
+        )
 
         self._dry_run_testsuites()
 
-        for hook, label in (
-            (self.cfg.before_stop, ResourceHooks.before_stop.value),
-            (self.cfg.after_stop, ResourceHooks.after_stop.value),
-        ):
-            self._dry_run_resource_hook(hook, label)
+        self._add_resource_report(name=ResourceHooks.environment_stop)
+        self._dry_run_resource_hook(
+            self.cfg.before_stop, ResourceHooks.environment_stop
+        )
+        self._dry_run_stop_resource()
+        self._dry_run_resource_hook(
+            self.cfg.after_stop, ResourceHooks.environment_stop
+        )
 
         return self.result
 
@@ -1096,9 +1178,7 @@ class ProcessRunnerTest(Test):
 
         if len(self.result.report):
             for suite in self.result.report:
-                if suite.name not in [
-                    member.value for member in ResourceHooks
-                ]:
+                if suite.name not in [member for member in ResourceHooks]:
                     raise ValueError(
                         f"Cannot update test report, it already has a children: {self.result.report}"
                     )

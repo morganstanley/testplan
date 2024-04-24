@@ -65,7 +65,7 @@ fixture_root = os.path.join(os.path.dirname(__file__), "fixtures", "base")
         ),
         (
             os.path.join(fixture_root, "passing", "test_env.sh"),
-            base.passing.report.expected_report,
+            base.passing.report.expected_report_with_driver,
             dict(
                 proc_env={
                     "proc_env1": "abc",

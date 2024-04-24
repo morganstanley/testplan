@@ -18,6 +18,12 @@ expected_report = TestReport(
             category=ReportCategories.MULTITEST,
             entries=[
                 TestGroupReport(
+                    name="Environment Start",
+                    category="synthesized",
+                    entries=[TestCaseReport(name="starting", uid="starting")],
+                    tags=None,
+                ),
+                TestGroupReport(
                     name="MySuite",
                     category=ReportCategories.TESTSUITE,
                     entries=[
@@ -32,7 +38,13 @@ expected_report = TestReport(
                             ],
                         )
                     ],
-                )
+                ),
+                TestGroupReport(
+                    name="Environment Stop",
+                    category="synthesized",
+                    entries=[TestCaseReport(name="stopping", uid="stopping")],
+                    tags=None,
+                ),
             ],
         )
     ],

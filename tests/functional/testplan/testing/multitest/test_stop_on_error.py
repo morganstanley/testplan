@@ -118,6 +118,16 @@ def test_execution_order(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
+                        name="Environment Start",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(
+                                name="starting", uid="starting", entries=[]
+                            )
+                        ],
+                        tags=None,
+                    ),
+                    TestGroupReport(
                         name="Suite1",
                         category=ReportCategories.TESTSUITE,
                         entries=[
@@ -222,12 +232,32 @@ def test_execution_order(mockplan):
                             TestCaseReport(name="teardown"),
                         ],
                     ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(
+                                name="stopping", uid="stopping", entries=[]
+                            )
+                        ],
+                        tags=None,
+                    ),
                 ],
             ),
             TestGroupReport(
                 name="Multitest_2",
                 category=ReportCategories.MULTITEST,
                 entries=[
+                    TestGroupReport(
+                        name="Environment Start",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(
+                                name="starting", uid="starting", entries=[]
+                            )
+                        ],
+                        tags=None,
+                    ),
                     TestGroupReport(
                         name="Suite1",
                         category=ReportCategories.TESTSUITE,
@@ -282,6 +312,16 @@ def test_execution_order(mockplan):
                             TestCaseReport(name="test_case_first_group_3"),
                             TestCaseReport(name="teardown"),
                         ],
+                    ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(
+                                name="stopping", uid="stopping", entries=[]
+                            )
+                        ],
+                        tags=None,
                     ),
                 ],
             ),

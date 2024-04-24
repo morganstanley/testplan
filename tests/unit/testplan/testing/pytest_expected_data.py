@@ -10,6 +10,14 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
     category="pytest",
     entries=[
         testplan.report.TestGroupReport(
+            name="Environment Start",
+            category="synthesized",
+            entries=[
+                testplan.report.TestCaseReport(name="starting", uid="starting")
+            ],
+            tags=None,
+        ),
+        testplan.report.TestGroupReport(
             name="pytest_tests.py::TestPytestBasics",
             uid="pytest_tests.py::TestPytestBasics",
             category="testsuite",
@@ -85,6 +93,14 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
                     name="test_xpass_strict", uid="test_xpass_strict"
                 ),
             ],
+        ),
+        testplan.report.TestGroupReport(
+            name="Environment Stop",
+            category="synthesized",
+            entries=[
+                testplan.report.TestCaseReport(name="stopping", uid="stopping")
+            ],
+            tags=None,
         ),
     ],
 )

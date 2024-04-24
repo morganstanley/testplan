@@ -312,13 +312,13 @@ def test_json_exporter_generating_split_report(runpath):
 
     assert len(structure) == 2  # 2 multitests
     assert structure[0]["name"] == "Primary"  # 1st multitest name
-    assert len(structure[0]["entries"]) == 1  # one suite in 1st multitest
-    assert structure[0]["entries"][0]["name"] == "Alpha"  # 1st suite name
-    assert len(structure[0]["entries"][0]["entries"]) == 3  # 3 testcases
+    assert len(structure[0]["entries"]) == 3  # 3 suite in 1st multitest
+    assert structure[0]["entries"][1]["name"] == "Alpha"  # 2nd suite name
+    assert len(structure[0]["entries"][1]["entries"]) == 3  # 3 testcases
     assert structure[1]["name"] == "Secondary"  # 2nd multitest name
-    assert len(structure[1]["entries"]) == 1  # one suite in 2nd multitest
-    assert structure[1]["entries"][0]["name"] == "Beta"  # 1st suite name
-    assert len(structure[1]["entries"][0]["entries"]) == 2  # 2 testcases
+    assert len(structure[1]["entries"]) == 3  # 3 suite in 2nd multitest
+    assert structure[1]["entries"][1]["name"] == "Beta"  # 2nd suite name
+    assert len(structure[1]["entries"][1]["entries"]) == 2  # 2 testcases
 
     assert len(assertions) == 5  # 5 assertions in total
     # only one assertion in each testcase in suite `Alpha`

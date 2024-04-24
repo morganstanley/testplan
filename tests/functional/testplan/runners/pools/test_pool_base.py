@@ -124,7 +124,7 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
 
     # Check attachment exists in local
     assert os.path.exists(
-        plan.report.entries[7].entries[0].entries[1].entries[0]["source_path"]
+        plan.report.entries[7].entries[1].entries[1].entries[0]["source_path"]
     )
 
 

@@ -80,15 +80,15 @@ def test_multi_parts_not_merged():
     assert plan.report.entries[0].name == "MTest - part(0/3)"
     assert plan.report.entries[1].name == "MTest - part(1/3)"
     assert plan.report.entries[2].name == "MTest - part(2/3)"
-    assert len(plan.report.entries[0].entries) == 2  # 2 suites
-    assert plan.report.entries[0].entries[0].name == "Suite1"
-    assert plan.report.entries[0].entries[1].name == "Suite2"
-    assert len(plan.report.entries[0].entries[0].entries) == 1  # param group
-    assert plan.report.entries[0].entries[0].entries[0].name == "test_true"
+    assert len(plan.report.entries[0].entries) == 4  # 2 suites
+    assert plan.report.entries[0].entries[1].name == "Suite1"
+    assert plan.report.entries[0].entries[2].name == "Suite2"
     assert len(plan.report.entries[0].entries[1].entries) == 1  # param group
-    assert plan.report.entries[0].entries[1].entries[0].name == "test_false"
-    assert len(plan.report.entries[0].entries[0].entries[0].entries) == 4
-    assert len(plan.report.entries[0].entries[1].entries[0].entries) == 1
+    assert plan.report.entries[0].entries[1].entries[0].name == "test_true"
+    assert len(plan.report.entries[0].entries[2].entries) == 1  # param group
+    assert plan.report.entries[0].entries[2].entries[0].name == "test_false"
+    assert len(plan.report.entries[0].entries[1].entries[0].entries) == 4
+    assert len(plan.report.entries[0].entries[2].entries[0].entries) == 1
 
 
 def test_multi_parts_merged():
@@ -114,15 +114,15 @@ def test_multi_parts_merged():
 
     assert len(plan.report.entries) == 1
     assert plan.report.entries[0].name == "MTest"
-    assert len(plan.report.entries[0].entries) == 2  # 2 suites
-    assert plan.report.entries[0].entries[0].name == "Suite1"
-    assert plan.report.entries[0].entries[1].name == "Suite2"
-    assert len(plan.report.entries[0].entries[0].entries) == 1  # param group
-    assert plan.report.entries[0].entries[0].entries[0].name == "test_true"
+    assert len(plan.report.entries[0].entries) == 4  # 2 suites
+    assert plan.report.entries[0].entries[1].name == "Suite1"
+    assert plan.report.entries[0].entries[2].name == "Suite2"
     assert len(plan.report.entries[0].entries[1].entries) == 1  # param group
-    assert plan.report.entries[0].entries[1].entries[0].name == "test_false"
-    assert len(plan.report.entries[0].entries[0].entries[0].entries) == 10
-    assert len(plan.report.entries[0].entries[1].entries[0].entries) == 3
+    assert plan.report.entries[0].entries[1].entries[0].name == "test_true"
+    assert len(plan.report.entries[0].entries[2].entries) == 1  # param group
+    assert plan.report.entries[0].entries[2].entries[0].name == "test_false"
+    assert len(plan.report.entries[0].entries[1].entries[0].entries) == 10
+    assert len(plan.report.entries[0].entries[2].entries[0].entries) == 3
 
 
 def test_multi_parts_incorrect_schedule():

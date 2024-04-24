@@ -81,7 +81,7 @@ def test_dynamic_xfail():
                 "reason": "known flaky",
                 "strict": False,
             },
-            "Testsuite Setup Error:After Start:error_hook": {
+            "Testsuite Setup Error:Environment Start:error_hook": {
                 "reason": "known flaky",
                 "strict": False,
             },
@@ -117,16 +117,18 @@ def test_dynamic_xfail():
 
     result = plan.run()
 
-    dynamic_xfail_suite_report = result.report.entries[0].entries[0]
+    dynamic_xfail_suite_report = result.report.entries[0].entries[1]
     assert dynamic_xfail_suite_report.unstable is True
     assert dynamic_xfail_suite_report.entries[0].unstable is True
 
+    # MT: Startup Error
     assert result.report.entries[1].unstable is True
-    # after start
-    assert result.report.entries[2].entries[0].entries[0].unstable is True
-    # setup
+
+    # Testsuite Setup Error:Environment Start:error_hook
+    assert result.report.entries[2].entries[0].entries[1].unstable is True
+    # Testsuite Setup Error:SetupFailSuite:setup
     assert result.report.entries[2].entries[1].entries[0].unstable is True
-    # teardown
+    # Testsuite Setup Error:SetupFailSuite:teardown
     assert result.report.entries[2].entries[1].entries[2].unstable is True
 
 
@@ -141,7 +143,7 @@ def test_xfail(mockplan):
 
     assert result.report.failed
 
-    strict_xfail_suite_report = result.report.entries[0].entries[0]
+    strict_xfail_suite_report = result.report.entries[0].entries[1]
     assert strict_xfail_suite_report.counter == {
         "passed": 0,
         "failed": 0,
@@ -153,7 +155,7 @@ def test_xfail(mockplan):
     assert strict_xfail_suite_report.entries[0].unstable is True
     assert strict_xfail_suite_report.entries[1].failed is True
 
-    no_strict_xfail_suite_report = result.report.entries[0].entries[1]
+    no_strict_xfail_suite_report = result.report.entries[0].entries[2]
     assert no_strict_xfail_suite_report.counter == {
         "passed": 0,
         "failed": 0,

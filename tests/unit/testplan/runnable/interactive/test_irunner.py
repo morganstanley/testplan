@@ -14,6 +14,7 @@ from testplan.testing import multitest
 from testplan.testing import ordering
 from testplan.testing.multitest import driver
 from testplan.runnable.interactive import base
+from testplan.common.report.base import Status as ReportStatus
 from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import check_report
 from testplan.runners.local import LocalRunner
@@ -150,11 +151,14 @@ def test_run_all_tests(irunner, sync):
     if not sync:
         assert ret.result() is None
 
-    # The report tree should have been updated as a side-effect.
-    assert irunner.report.passed
+    # The report tree should have been updated as a side effect.
+    # Env stop should not be triggered
+    assert irunner.report.status == ReportStatus.UNKNOWN
     assert len(irunner.report.entries) == 3
     for test_report in irunner.report:
-        assert test_report.passed
+        assert test_report.entries[0].passed
+        assert test_report.entries[1].passed
+        assert test_report.entries[2].status == ReportStatus.UNKNOWN
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -166,7 +170,9 @@ def test_run_test(irunner, sync):
         assert ret.result() is None
 
     # The test report should have been updated as a side effect.
-    assert irunner.report["test_1"].passed
+    assert irunner.report["test_1"].entries[0].passed
+    assert irunner.report["test_1"].entries[1].passed
+    assert irunner.report["test_1"].entries[2].status == ReportStatus.UNKNOWN
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -205,7 +211,7 @@ def test_run_suite_with_failed_setup():
 
         irunner.run_test_suite("MT", "FailedSetupSuite", await_results=True)
         assert irunner.report.failed
-        for testcase_report in irunner.report.entries[0].entries[0].entries:
+        for testcase_report in irunner.report.entries[0].entries[1].entries:
             if testcase_report.name in ["setup", "teardown"]:
                 assert testcase_report.runtime_status == RuntimeStatus.FINISHED
             else:
@@ -326,13 +332,16 @@ def test_run_all_tagged_tests(tags, num_of_suite_entries):
         irunner.setup()
 
         irunner.run_all_tests(await_results=True)
-        assert irunner.report.passed
+
+        assert irunner.report.status == ReportStatus.UNKNOWN
+        assert irunner.report.entries[0].entries[1].passed
         assert len(irunner.report.entries) == 3
         for test_report in irunner.report:
-            assert test_report.passed
-            assert len(test_report.entries) == 1
-            assert len(test_report.entries[0].entries) == num_of_suite_entries
-            assert len(test_report.entries[0].entries[-1].entries) == 3
+            assert test_report.status == ReportStatus.UNKNOWN
+            assert test_report.entries[1].passed
+            assert len(test_report.entries) == 3
+            assert len(test_report.entries[1].entries) == num_of_suite_entries
+            assert len(test_report.entries[1].entries[-1].entries) == 3
 
         irunner.teardown()
 
@@ -346,25 +355,26 @@ def test_initial_report(irunner):
     assert initial_report.runtime_status == report.RuntimeStatus.READY
     assert len(initial_report.entries) == 3
     for test_report in initial_report:
-        # Each Test contains one suite.
+        # Each Test contains three suite.
         assert test_report.status == report.Status.UNKNOWN
         assert test_report.runtime_status == report.RuntimeStatus.READY
-        assert len(test_report.entries) == 1
-        for suite_report in test_report:
-            # Each suite contains two testcase.
-            assert suite_report.status == report.Status.UNKNOWN
-            assert suite_report.runtime_status == report.RuntimeStatus.READY
-            assert len(suite_report.entries) == 2
+        assert len(test_report.entries) == 3
+        suite_report = test_report.entries[1]
 
-            # The first entry in the suite report is a regular testcase.
-            testcase_report = suite_report.entries[0]
-            assert isinstance(testcase_report, report.TestCaseReport)
-            assert len(testcase_report.entries) == 0
+        # Each suite contains two testcase.
+        assert suite_report.status == report.Status.UNKNOWN
+        assert suite_report.runtime_status == report.RuntimeStatus.READY
+        assert len(suite_report.entries) == 2
 
-            # The second entry in the suite report is a parametrized testcase.
-            param_report = suite_report.entries[1]
-            assert isinstance(param_report, report.TestGroupReport)
-            assert len(param_report.entries) == 3
+        # The first entry in the suite report is a regular testcase.
+        testcase_report = suite_report.entries[0]
+        assert isinstance(testcase_report, report.TestCaseReport)
+        assert len(testcase_report.entries) == 0
+
+        # The second entry in the suite report is a parametrized testcase.
+        param_report = suite_report.entries[1]
+        assert isinstance(param_report, report.TestGroupReport)
+        assert len(param_report.entries) == 3
 
 
 def test_reload_report(irunner):
@@ -409,14 +419,17 @@ def test_reload_report(irunner):
     # We reload and assert
     irunner.reload_report()
 
+    assert len(irunner.report) == 3
+
     for test in irunner.report:
         # A MultiTest should reset to ready upon changes underneath
-        assert test.runtime_status == (
-            RuntimeStatus.FINISHED
-            if test.uid == "test_1"
-            else RuntimeStatus.READY
-        )
+        assert test.runtime_status == RuntimeStatus.READY
+        if test.uid == "test_1":
+            assert test.entries[1].runtime_status == RuntimeStatus.FINISHED
+
         for suite in irunner.report[test.uid]:
+            if suite.uid in ("Environment Start", "Environment Stop"):
+                continue
             # A testsuite should reset to ready upon changes underneath
             assert suite.runtime_status == (
                 RuntimeStatus.FINISHED

@@ -18,6 +18,14 @@ expect_report = TestGroupReport(
     description="Junit example test",
     entries=[
         TestGroupReport(
+            name="Environment Start",
+            category="synthesized",
+            entries=[
+                TestCaseReport(name="starting", uid="starting", entries=[])
+            ],
+            tags=None,
+        ),
+        TestGroupReport(
             name="com.gradle.example.application.ApplicationTests",
             category="testsuite",
             entries=[
@@ -105,6 +113,14 @@ expect_report = TestGroupReport(
             ],
             tags=None,
         ),
+        TestGroupReport(
+            name="Environment Stop",
+            category="synthesized",
+            entries=[
+                TestCaseReport(name="stopping", uid="stopping", entries=[])
+            ],
+            tags=None,
+        ),
     ],
     tags=None,
 )
@@ -129,7 +145,7 @@ def test_run_test(mockplan):
     assert report.status == testplan.report.Status.FAILED
 
     mt_report = report.entries[0]
-    assert len(mt_report.entries) == 3
+    assert len(mt_report.entries) == 5
 
     check_report(expect_report, mt_report)
 

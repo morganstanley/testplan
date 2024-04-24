@@ -55,7 +55,7 @@ def check_parametrization(
     mockplan.run()
 
     if testcase_uids:
-        suite_report = mockplan.report.entries[0].entries[0]
+        suite_report = mockplan.report.entries[0].entries[1]
         assert isinstance(suite_report, TestGroupReport)
         for testcase_report, uid in zip(
             gen_testcase_report(suite_report), testcase_uids
@@ -70,11 +70,27 @@ def check_parametrization(
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
+                        name="Environment Start",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="starting", uid="starting")
+                        ],
+                        tags=None,
+                    ),
+                    TestGroupReport(
                         name="MySuite",
                         tags=tag_dict,
                         category=ReportCategories.TESTSUITE,
                         entries=report_entries,
-                    )
+                    ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="stopping", uid="stopping")
+                        ],
+                        tags=None,
+                    ),
                 ],
             )
         ],
@@ -706,10 +722,10 @@ def test_timing_info_of_parametrized_group_report(mockplan):
     mockplan.run()
 
     serial_group_report_timer = (
-        mockplan.report.entries[0].entries[0].entries[0].timer
+        mockplan.report.entries[0].entries[1].entries[0].timer
     )
     parallel_group_report_timer = (
-        mockplan.report.entries[0].entries[0].entries[1].timer
+        mockplan.report.entries[0].entries[1].entries[1].timer
     )
 
     assert "run" in serial_group_report_timer.keys()

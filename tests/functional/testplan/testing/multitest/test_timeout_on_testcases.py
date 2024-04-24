@@ -145,6 +145,13 @@ def test_timeout_on_testcases(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
+                        name="Environment Start",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="starting", uid="starting")
+                        ],
+                    ),
+                    TestGroupReport(
                         name="Suite1",
                         description="A test suite with basic testcases.",
                         category=ReportCategories.TESTSUITE,
@@ -244,6 +251,13 @@ def test_timeout_on_testcases(mockplan):
                             ),
                         ],
                     ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="stopping", uid="stopping")
+                        ],
+                    ),
                 ],
             )
         ],
@@ -269,6 +283,13 @@ def test_timeout_on_suite_related_methods(mockplan):
                 name="MTest2",
                 category=ReportCategories.MULTITEST,
                 entries=[
+                    TestGroupReport(
+                        name="Environment Start",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="starting", uid="starting")
+                        ],
+                    ),
                     TestGroupReport(
                         name="Suite3",
                         description="A test suite with teardown method and it will timeout.",
@@ -325,6 +346,13 @@ def test_timeout_on_suite_related_methods(mockplan):
                             ),
                         ],
                     ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="stopping", uid="stopping")
+                        ],
+                    ),
                 ],
             )
         ],
@@ -350,6 +378,13 @@ def test_timeout_on_case_related_methods(mockplan):
                 name="MTest3",
                 category=ReportCategories.MULTITEST,
                 entries=[
+                    TestGroupReport(
+                        name="Environment Start",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="starting", uid="starting")
+                        ],
+                    ),
                     TestGroupReport(
                         name="Suite5",
                         description="A test suite with pre/post testcase methods which may not run.",
@@ -400,6 +435,13 @@ def test_timeout_on_case_related_methods(mockplan):
                                     ),
                                 ],
                             ),
+                        ],
+                    ),
+                    TestGroupReport(
+                        name="Environment Stop",
+                        category="synthesized",
+                        entries=[
+                            TestCaseReport(name="stopping", uid="stopping")
                         ],
                     ),
                 ],

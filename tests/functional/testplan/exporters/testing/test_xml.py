@@ -64,13 +64,31 @@ def test_xml_exporter(tmpdir):
         children=[
             XC(
                 tag="testsuite",
+                tests="0",
+                errors="0",
+                name="Environment Start",
+                package="Primary:Environment Start",
+                hostname=re.compile(".+"),
+                failures="0",
+                id="0",
+                children=[
+                    XC(
+                        tag="testcase",
+                        classname="Primary:Environment Start:starting",
+                        name="starting",
+                        time=re.compile(r"\d+\.?\d*"),
+                    ),
+                ],
+            ),
+            XC(
+                tag="testsuite",
                 tests="2",
                 errors="0",
                 name="Alpha",
                 package="Primary:Alpha",
                 hostname=re.compile(".+"),
                 failures="0",
-                id="0",
+                id="1",
                 children=[
                     XC(
                         tag="testcase",
@@ -85,7 +103,25 @@ def test_xml_exporter(tmpdir):
                         time=re.compile(r"\d+\.?\d*"),
                     ),
                 ],
-            )
+            ),
+            XC(
+                tag="testsuite",
+                tests="0",
+                errors="0",
+                name="Environment Stop",
+                package="Primary:Environment Stop",
+                hostname=re.compile(".+"),
+                failures="0",
+                id="2",
+                children=[
+                    XC(
+                        tag="testcase",
+                        classname="Primary:Environment Stop:stopping",
+                        name="stopping",
+                        time=re.compile(r"\d+\.?\d*"),
+                    ),
+                ],
+            ),
         ],
     )
 
@@ -94,13 +130,31 @@ def test_xml_exporter(tmpdir):
         children=[
             XC(
                 tag="testsuite",
+                tests="0",
+                errors="0",
+                name="Environment Start",
+                package="Secondary:Environment Start",
+                hostname=re.compile(".+"),
+                failures="0",
+                id="0",
+                children=[
+                    XC(
+                        tag="testcase",
+                        classname="Secondary:Environment Start:starting",
+                        name="starting",
+                        time=re.compile(r"\d+\.?\d*"),
+                    ),
+                ],
+            ),
+            XC(
+                tag="testsuite",
                 tests="2",
                 errors="1",
                 name="Beta",
                 package="Secondary:Beta",
                 hostname=re.compile(".+"),
                 failures="1",
-                id="0",
+                id="1",
                 children=[
                     XC(
                         tag="testcase",
@@ -135,7 +189,25 @@ def test_xml_exporter(tmpdir):
                         ],
                     ),
                 ],
-            )
+            ),
+            XC(
+                tag="testsuite",
+                tests="0",
+                errors="0",
+                name="Environment Stop",
+                package="Secondary:Environment Stop",
+                hostname=re.compile(".+"),
+                failures="0",
+                id="2",
+                children=[
+                    XC(
+                        tag="testcase",
+                        classname="Secondary:Environment Stop:stopping",
+                        name="stopping",
+                        time=re.compile(r"\d+\.?\d*"),
+                    ),
+                ],
+            ),
         ],
     )
 

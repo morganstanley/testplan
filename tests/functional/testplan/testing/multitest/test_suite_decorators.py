@@ -121,23 +121,23 @@ def test_basic_multitest(mockplan):
 
     assert res.run is True
     assert isinstance(res.test_results["MTest"].report, TestGroupReport)
-    assert len(res.test_results["MTest"].report.entries) == 4
+    assert len(res.test_results["MTest"].report.entries) == 6
     assert isinstance(mockplan.report, TestReport)
     assert len(mockplan.report.entries) == 1  # 1 Multitest
 
     mt_entry = mockplan.report.entries[0]
     assert isinstance(mt_entry, TestGroupReport)
-    assert len(mt_entry.entries) == 4  # 4 Suites
-    assert mt_entry.entries[0].name == "Test Suite"
-    assert mt_entry.entries[0].uid == "Test Suite"
-    assert mt_entry.entries[1].name == "Suite2__0"
-    assert mt_entry.entries[1].uid == "Suite2__0"
-    assert mt_entry.entries[2].name == "Suite2__1"
-    assert mt_entry.entries[2].uid == "Suite2__1"
-    assert mt_entry.entries[3].uid == "Skipped Suite"
-    assert mt_entry.entries[3].uid == "Skipped Suite"
+    assert len(mt_entry.entries) == 6  # 4 Suites
+    assert mt_entry.entries[1].name == "Test Suite"
+    assert mt_entry.entries[1].uid == "Test Suite"
+    assert mt_entry.entries[2].name == "Suite2__0"
+    assert mt_entry.entries[2].uid == "Suite2__0"
+    assert mt_entry.entries[3].name == "Suite2__1"
+    assert mt_entry.entries[3].uid == "Suite2__1"
+    assert mt_entry.entries[4].uid == "Skipped Suite"
+    assert mt_entry.entries[4].uid == "Skipped Suite"
 
-    for st_entry in mt_entry.entries:
+    for st_entry in mt_entry.entries[1:-1]:  # ignore env start/stop
         assert isinstance(st_entry, TestGroupReport)
         assert len(st_entry.entries) == 4  # 4 entries in each suites
 

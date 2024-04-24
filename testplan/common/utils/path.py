@@ -8,7 +8,7 @@ import getpass
 import contextlib
 import tempfile
 import hashlib
-from io import TextIOWrapper
+from typing import TextIO
 
 from testplan.common.utils.context import render
 from memoization import cached
@@ -161,11 +161,11 @@ class StdFiles:
         self.err = open(self.err_path, "w")
         self.out = open(self.out_path, "w")
 
-    def open_out(self, mode: str = "r") -> TextIOWrapper:
+    def open_out(self, mode: str = "r") -> TextIO:
         """Open the stdout file with the defined access"""
         return open(self.out_path, mode)
 
-    def open_err(self, mode: str = "r") -> TextIOWrapper:
+    def open_err(self, mode: str = "r") -> TextIO:
         """Open the stderr file with the defined access"""
         return open(self.err_path, mode)
 

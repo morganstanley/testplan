@@ -251,6 +251,12 @@ EXPECTED_REPORT_SKELETON = report.TestGroupReport(
     env_status=entity.ResourceStatus.STOPPED,
     entries=[
         report.TestGroupReport(
+            name="Environment Start",
+            category="synthesized",
+            entries=[report.TestCaseReport(name="starting", uid="starting")],
+            tags=None,
+        ),
+        report.TestGroupReport(
             name="Suite",
             description="Basic testsuite.",
             category=report.ReportCategories.TESTSUITE,
@@ -291,7 +297,13 @@ EXPECTED_REPORT_SKELETON = report.TestGroupReport(
                     ],
                 ),
             ],
-        )
+        ),
+        report.TestGroupReport(
+            name="Environment Stop",
+            category="synthesized",
+            entries=[report.TestCaseReport(name="stopping", uid="stopping")],
+            tags=None,
+        ),
     ],
 )
 
@@ -596,4 +608,4 @@ def test_skip_strategy(skip_strategy, case_count):
         **MTEST_DEFAULT_PARAMS,
     )
     ret = mt.run()
-    assert len(ret.report.entries[0]) == case_count
+    assert len(ret.report.entries[1]) == case_count

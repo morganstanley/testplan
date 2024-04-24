@@ -2,7 +2,9 @@
 
 import os
 import sys
+import shutil
 import tempfile
+
 from logging import Logger
 from logging.handlers import RotatingFileHandler
 
@@ -33,8 +35,12 @@ def _generate_runpath():
             VAR_TMP if os.name == "posix" and os.path.exists(VAR_TMP) else None
         )
         # The path will be automatically removed after the test
-        with tempfile.TemporaryDirectory(dir=parent_runpath) as runpath:
-            yield runpath
+        # TODO: set ignore_cleanup_errors if python >= 3.10
+        temp_dir = tempfile.TemporaryDirectory(dir=parent_runpath)
+        yield temp_dir.name
+        shutil.rmtree(
+            temp_dir.name, ignore_errors=True
+        )  # Avoid PermissionError on windows
 
 
 # For `runpath` series fixtures, We were originally using a pytest builtin

@@ -232,7 +232,11 @@ EXPECTED_INITIAL_GET = [
             {
                 "category": "multitest",
                 "description": None,
-                "entry_uids": ["ExampleSuite"],
+                "entry_uids": [
+                    "Environment Start",
+                    "ExampleSuite",
+                    "Environment Stop",
+                ],
                 "env_status": "STOPPED",
                 "fix_spec_path": None,
                 "name": "ExampleMTest",
@@ -258,7 +262,11 @@ EXPECTED_INITIAL_GET = [
         {
             "category": "multitest",
             "description": None,
-            "entry_uids": ["ExampleSuite"],
+            "entry_uids": [
+                "Environment Start",
+                "ExampleSuite",
+                "Environment Stop",
+            ],
             "env_status": "STOPPED",
             "fix_spec_path": None,
             "name": "ExampleMTest",
@@ -276,6 +284,24 @@ EXPECTED_INITIAL_GET = [
     (
         "/report/tests/ExampleMTest/suites",
         [
+            {
+                "category": "synthesized",
+                "status_override": None,
+                "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
+                "description": None,
+                "entry_uids": ["starting"],
+                "uid": "Environment Start",
+                "part": None,
+                "timer": {},
+                "env_status": None,
+                "status": "unknown",
+                "tags": {},
+                "fix_spec_path": None,
+                "name": "Environment Start",
+                "counter": {"passed": 0, "failed": 0, "total": 0},
+                "runtime_status": "ready",
+                "logs": [],
+            },
             {
                 "category": "testsuite",
                 "description": "Example test suite.",
@@ -303,7 +329,25 @@ EXPECTED_INITIAL_GET = [
                 "tags": {},
                 "timer": {},
                 "uid": "ExampleSuite",
-            }
+            },
+            {
+                "category": "synthesized",
+                "status_override": None,
+                "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
+                "description": None,
+                "entry_uids": ["stopping"],
+                "uid": "Environment Stop",
+                "part": None,
+                "timer": {},
+                "env_status": None,
+                "status": "unknown",
+                "tags": {},
+                "fix_spec_path": None,
+                "name": "Environment Stop",
+                "counter": {"passed": 0, "failed": 0, "total": 0},
+                "runtime_status": "ready",
+                "logs": [],
+            },
         ],
     ),
     (
@@ -751,7 +795,7 @@ def test_run_all_tests(plan):
             _check_test_status,
             report_url,
             Status.FAILED.to_json_compatible(),
-            RuntimeStatus.FINISHED.to_json_compatible(),
+            RuntimeStatus.READY.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -796,7 +840,7 @@ def test_run_and_reset_mtest(plan):
             _check_test_status,
             mtest_url,
             Status.FAILED.to_json_compatible(),
-            RuntimeStatus.FINISHED.to_json_compatible(),
+            RuntimeStatus.READY.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -1051,11 +1095,12 @@ def test_cannot_start_environment(plan2):
     )
 
     # Check the error message
-    rsp = requests.get(mtest_url)
+    case_url = f"{mtest_url}/suites/Environment%20Start/testcases/starting"
+    rsp = requests.get(case_url)
     assert rsp.status_code == 200
-    mtest_json = rsp.json()
-    assert len(mtest_json["logs"]) == 1
-    assert "Failed to start with no reason" in mtest_json["logs"][0]["message"]
+    case_json = rsp.json()
+    assert len(case_json["logs"]) == 1
+    assert "Failed to start with no reason" in case_json["logs"][0]["message"]
 
 
 def test_cannot_run_mtest(plan2):
@@ -1091,7 +1136,7 @@ def test_cannot_run_mtest(plan2):
             _check_test_status,
             mtest_url,
             Status.ERROR.to_json_compatible(),
-            RuntimeStatus.NOT_RUN.to_json_compatible(),
+            RuntimeStatus.READY.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -1100,7 +1145,8 @@ def test_cannot_run_mtest(plan2):
     )
 
     # Check the error message
-    rsp = requests.get(mtest_url)
+    case_url = f"{mtest_url}/suites/Environment%20Start/testcases/starting"
+    rsp = requests.get(case_url)
     assert rsp.status_code == 200
     mtest_json = rsp.json()
     assert len(mtest_json["logs"]) == 1

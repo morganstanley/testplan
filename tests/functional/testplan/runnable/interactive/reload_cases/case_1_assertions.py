@@ -4,7 +4,7 @@ from testplan.common.report import RuntimeStatus, Status
 
 def prev_assertions(report):
     assert report.entries[0].env_status == ResourceStatus.STARTED
-    case_report = report.entries[0].entries[0].entries[0]
+    case_report = report.entries[0].entries[1].entries[0]
     assert case_report.name == "case_1"
     assert case_report.status == Status.FAILED
     assert case_report.runtime_status == RuntimeStatus.FINISHED
@@ -18,7 +18,7 @@ def prev_assertions(report):
 
 def curr_assertions(report):
     assert report.entries[0].env_status == ResourceStatus.STARTED
-    case_report = report.entries[0].entries[0].entries[0]
+    case_report = report.entries[0].entries[1].entries[0]
     assert case_report.name == "case_1"
     assert case_report.status == Status.FAILED
     assert case_report.runtime_status == RuntimeStatus.READY

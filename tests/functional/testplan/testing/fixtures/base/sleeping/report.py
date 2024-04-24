@@ -28,10 +28,22 @@ my_test_report = TestGroupReport(
     category="unittest",
     entries=[
         TestGroupReport(
+            name="Environment Start",
+            category="synthesized",
+            entries=[TestCaseReport(name="starting", uid="starting")],
+            tags=None,
+        ),
+        TestGroupReport(
             name="ProcessChecks",
             category="testsuite",
             entries=[testcase_report],
-        )
+        ),
+        TestGroupReport(
+            name="Environment Stop",
+            category="synthesized",
+            entries=[TestCaseReport(name="stopping", uid="stopping")],
+            tags=None,
+        ),
     ],
 )
 
@@ -46,4 +58,9 @@ my_test_report.logs = [
 
 my_test_report.status_override = Status.ERROR
 
-expected_report = TestReport(name="plan", entries=[my_test_report])
+expected_report = TestReport(
+    name="plan",
+    entries=[
+        my_test_report,
+    ],
+)

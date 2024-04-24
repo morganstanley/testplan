@@ -1,7 +1,7 @@
 import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-
+from testplan.testing.base import ResourceHooks
 from testplan import TestplanMock
 from testplan.common.utils.testing import (
     argv_overridden,
@@ -59,6 +59,10 @@ class Beta:
                     "Multitest",
                     [
                         (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
+                        (
                             "Beta",
                             [
                                 "test_ccc",
@@ -79,6 +83,10 @@ class Beta:
                             ],
                         ),
                         ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -90,6 +98,10 @@ class Beta:
                 (
                     "Multitest",
                     [
+                        (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
                         ("Alpha", ["test_aaa", "test_bbb", "test_ccc"]),
                         (
                             "Beta",
@@ -116,6 +128,10 @@ class Beta:
                                 ),
                             ],
                         ),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -127,6 +143,10 @@ class Beta:
                 (
                     "Multitest",
                     [
+                        (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
                         (
                             "Beta",
                             [
@@ -148,6 +168,10 @@ class Beta:
                             ],
                         ),
                         ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -159,6 +183,10 @@ class Beta:
                 (
                     "Multitest",
                     [
+                        (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
                         (
                             "Beta",
                             [
@@ -180,6 +208,10 @@ class Beta:
                             ],
                         ),
                         ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -191,6 +223,10 @@ class Beta:
                 (
                     "Multitest",
                     [
+                        (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
                         (
                             "Beta",
                             [
@@ -212,6 +248,10 @@ class Beta:
                             ],
                         ),
                         ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -239,6 +279,10 @@ def test_programmatic_ordering(sorter, report_ctx):
                     "Multitest",
                     [
                         (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
+                        (
                             "Beta",
                             [
                                 "test_ccc",
@@ -259,6 +303,10 @@ def test_programmatic_ordering(sorter, report_ctx):
                             ],
                         ),
                         ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -271,37 +319,9 @@ def test_programmatic_ordering(sorter, report_ctx):
                     "Multitest",
                     [
                         (
-                            "Beta",
-                            [
-                                (
-                                    "test_yyy",
-                                    [
-                                        "test_yyy <val=1>",
-                                        "test_yyy <val=3>",
-                                        "test_yyy <val=2>",
-                                    ],
-                                ),
-                                "test_ccc",
-                                "test_aaa",
-                                "test_xxx",
-                                (
-                                    "test_bbb",
-                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
-                                ),
-                            ],
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
                         ),
-                        ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
-                    ],
-                )
-            ],
-        ),
-        # Case 3 shuffle suites & testcases
-        (
-            ("--shuffle", "suites", "testcases", "--shuffle-seed", "7"),
-            [
-                (
-                    "Multitest",
-                    [
                         (
                             "Beta",
                             [
@@ -323,6 +343,50 @@ def test_programmatic_ordering(sorter, report_ctx):
                             ],
                         ),
                         ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
+                    ],
+                )
+            ],
+        ),
+        # Case 3 shuffle suites & testcases
+        (
+            ("--shuffle", "suites", "testcases", "--shuffle-seed", "7"),
+            [
+                (
+                    "Multitest",
+                    [
+                        (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
+                        (
+                            "Beta",
+                            [
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=1>",
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                    ],
+                                ),
+                                "test_ccc",
+                                "test_aaa",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -334,6 +398,10 @@ def test_programmatic_ordering(sorter, report_ctx):
                 (
                     "Multitest",
                     [
+                        (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
                         (
                             "Beta",
                             [
@@ -355,6 +423,10 @@ def test_programmatic_ordering(sorter, report_ctx):
                             ],
                         ),
                         ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],
@@ -366,6 +438,10 @@ def test_programmatic_ordering(sorter, report_ctx):
                 (
                     "Multitest",
                     [
+                        (
+                            ResourceHooks.environment_start,
+                            [ResourceHooks.starting],
+                        ),
                         (
                             "Beta",
                             [
@@ -387,6 +463,10 @@ def test_programmatic_ordering(sorter, report_ctx):
                             ],
                         ),
                         ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                        (
+                            ResourceHooks.environment_stop,
+                            [ResourceHooks.stopping],
+                        ),
                     ],
                 )
             ],

@@ -367,6 +367,9 @@ class TestGroupReport(BaseReportGroup):
         tags_index = tagging.merge_tag_dicts(self.tags, parent_tags or {})
 
         for child in self:
+            # ignore synthesized report
+            if child.category == ReportCategories.SYNTHESIZED:
+                continue
             if isinstance(child, TestGroupReport):
                 child.propagate_tag_indices(parent_tags=tags_index)
 

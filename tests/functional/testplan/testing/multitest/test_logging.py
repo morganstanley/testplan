@@ -134,7 +134,7 @@ def root_logger_spy():
 
 
 def get_case_result(plan_result):
-    return plan_result.report.entries[0].entries[0].entries[0]
+    return plan_result.report.entries[0].entries[1].entries[0]
 
 
 def test_logging(get_filtered_plan, suite_logger_spy):

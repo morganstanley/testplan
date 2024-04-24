@@ -58,7 +58,7 @@ def test_run_tests(pyunit_runner_inst):
     """Test running all PyUnit Testcases as a batch."""
     result = pyunit_runner_inst.run()
     assert result.report.status == report.Status.FAILED
-    assert len(result.report.entries) == 2
+    assert len(result.report.entries) == 4
 
     passing_testsuite_report = result.report["Passing"]
     assert passing_testsuite_report.status == report.Status.PASSED

@@ -76,25 +76,108 @@ def filter_file():
                 (
                     "XXX",
                     [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
                         ("Alpha", ["test_one", "test_two", "test_three"]),
                         ("Beta", ["test_one", "test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
                     ],
                 ),
-                ("YYY", (("Gamma", ["test_one", "test_two", "test_three"]),)),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_one", "test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
         # Case 2
         (
             filtering.Pattern("*:*:test_two"),
             [
-                ("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])]),
-                ("YYY", [("Gamma", ["test_two"])]),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
         # Case 3
         (
             filtering.Pattern("XXX:Beta:test_two"),
-            [("XXX", [("Beta", ["test_two"])])],
+            [
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                )
+            ],
         ),
         # Case 4 - testcase name match AND tag match
         (
@@ -103,8 +186,42 @@ def filter_file():
                 filtering.Tags({"color": "blue"}),
             ),
             [
-                ("XXX", [("Alpha", ["test_two"])]),
-                ("YYY", [("Gamma", ["test_two"])]),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
         # Case 5 - testcase name match AND tag match, different syntax
@@ -114,8 +231,42 @@ def filter_file():
                 and filtering.Tags({"color": "blue"})
             ),
             [
-                ("XXX", [("Alpha", ["test_two"])]),
-                ("YYY", [("Gamma", ["test_two"])]),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
         #  Case 6 - Run tests that are:
@@ -133,8 +284,43 @@ def filter_file():
                 ),
             ),
             [
-                ("XXX", [("Alpha", ["test_three"]), ("Beta", ["test_two"])]),
-                ("YYY", [("Gamma", ["test_one"])]),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_three"]),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_one"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
         #  Case 7, same as case 6, different syntax
@@ -147,8 +333,43 @@ def filter_file():
                 )
             ),
             [
-                ("XXX", [("Alpha", ["test_three"]), ("Beta", ["test_two"])]),
-                ("YYY", [("Gamma", ["test_one"])]),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_three"]),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_one"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
         # Case 8, inverse filter via Not
@@ -158,11 +379,40 @@ def filter_file():
                 (
                     "XXX",
                     [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
                         ("Alpha", ["test_two", "test_three"]),
                         ("Beta", ["test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
                     ],
                 ),
-                ("YYY", (("Gamma", ["test_two", "test_three"]),)),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
         # Case 9, Same as case 8, different syntax
@@ -172,11 +422,40 @@ def filter_file():
                 (
                     "XXX",
                     [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
                         ("Alpha", ["test_two", "test_three"]),
                         ("Beta", ["test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
                     ],
                 ),
-                ("YYY", (("Gamma", ["test_two", "test_three"]),)),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
     ),
@@ -202,8 +481,42 @@ def test_programmatic_filtering(filter_obj, report_ctx):
             filtering.Pattern("XXX:Alpha:test_one")
             | filtering.Pattern("XXX:Alpha:test_two"),
             [
-                ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
-                ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
+                (
+                    "XXX - part(0/3)",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_one"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "XXX - part(1/3)",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
         # Case 2, part specified
@@ -211,7 +524,24 @@ def test_programmatic_filtering(filter_obj, report_ctx):
             filtering.Pattern("XXX - part(0/3):Alpha:test_one")
             | filtering.Pattern("XXX - part(0/3):Beta:test_three"),
             [
-                ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
+                (
+                    "XXX - part(0/3)",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_one"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
         # Case 3, unix filename pattern in part
@@ -219,11 +549,60 @@ def test_programmatic_filtering(filter_obj, report_ctx):
             filtering.Pattern("XXX - part([012]/*):Alpha")
             | filtering.Pattern("XXX:Beta:test_three"),
             [
-                ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
-                ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
+                (
+                    "XXX - part(0/3)",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_one"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "XXX - part(1/3)",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
                 (
                     "XXX - part(2/3)",
-                    [("Alpha", ["test_three"]), ("Beta", ["test_three"])],
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_three"]),
+                        ("Beta", ["test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
                 ),
             ],
         ),
@@ -254,24 +633,108 @@ def test_programmatic_filtering_with_parts(filter_obj, report_ctx):
                 (
                     "XXX",
                     [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
                         ("Alpha", ["test_one", "test_two", "test_three"]),
                         ("Beta", ["test_one", "test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
                     ],
                 ),
-                ("YYY", (("Gamma", ["test_one", "test_two", "test_three"]),)),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_one", "test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
         # Case 2, pattern filtering
         (
             ("--patterns", "XXX:*:test_two"),
-            [("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])])],
+            [
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                )
+            ],
         ),
         # Case 3, pattern filtering (multiple params)
         (
             ("--patterns", "XXX:*:test_two", "--patterns", "YYY:*:test_three"),
             [
-                ("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])]),
-                ("YYY", (("Gamma", ["test_three"]),)),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
         # Case 4, tag filtering
@@ -281,11 +744,40 @@ def test_programmatic_filtering_with_parts(filter_obj, report_ctx):
                 (
                     "XXX",
                     [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
                         ("Alpha", ["test_three"]),
                         ("Beta", ["test_one", "test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
                     ],
                 ),
-                ("YYY", (("Gamma", ["test_three"]),)),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
         # Case 5, tag filtering (multiple params)
@@ -304,11 +796,40 @@ def test_programmatic_filtering_with_parts(filter_obj, report_ctx):
                 (
                     "XXX",
                     [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
                         ("Alpha", ["test_two"]),
                         ("Beta", ["test_one", "test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
                     ],
                 ),
-                ("YYY", (("Gamma", ["test_two", "test_three"]),)),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_two", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
         # Case 6, pattern & tag composite filtering
@@ -327,8 +848,42 @@ def test_programmatic_filtering_with_parts(filter_obj, report_ctx):
                 "color=red",  # baz AND color=red
             ),
             [
-                ("XXX", [("Beta", ["test_one", "test_three"])]),
-                ("YYY", (("Gamma", ["test_three"]),)),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Beta", ["test_one", "test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
         # Case 7, pattern filtering for empty run
@@ -362,14 +917,69 @@ def test_command_line_filtering(cmdline_args, report_ctx):
         # Case 1, single line of pattern
         (
             ["XXX:*:test_two"],
-            [("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])])],
+            [
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                )
+            ],
         ),
         # Case 2, multiple lines of pattern
         (
             ["XXX:*:test_two", "YYY:*:test_three"],
             [
-                ("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])]),
-                ("YYY", (("Gamma", ["test_three"]),)),
+                (
+                    "XXX",
+                    [
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Alpha", ["test_two"]),
+                        ("Beta", ["test_two"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ],
+                ),
+                (
+                    "YYY",
+                    (
+                        (
+                            "Environment Start",
+                            [
+                                "starting",
+                            ],
+                        ),
+                        ("Gamma", ["test_three"]),
+                        (
+                            "Environment Stop",
+                            [
+                                "stopping",
+                            ],
+                        ),
+                    ),
+                ),
             ],
         ),
     ),

@@ -33,64 +33,123 @@
             "description": null,
             "entries": [
                 {
-                    "category": "synthesized",
-                    "children": [],
-                    "counter": {
-                        "failed": 0,
-                        "passed": 0,
-                        "total": 0
-                    },
-                    "definition_name": "After Start",
-                    "description": null,
-                    "entries": [
-                        {
-                            "category": "synthesized",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 1,
-                                "total": 1
-                            },
-                            "definition_name": "accept_connection",
-                            "description": null,
-                            "entries": [],
-                            "hash": 0,
-                            "logs": [],
-                            "name": "accept_connection",
-                            "parent_uids": [
-                                "InteractivePlan",
-                                "Test1",
-                                "After Start"
-                            ],
-                            "runtime_status": "finished",
-                            "status": "passed",
-                            "status_override": null,
-                            "status_reason": null,
-                            "tags": {},
-                            "timer": {},
-                            "type": "TestCaseReport",
-                            "uid": "accept_connection"
-                        }
-                    ],
-                    "env_status": null,
-                    "fix_spec_path": null,
-                    "hash": 0,
                     "host": null,
+                    "runtime_status": "ready",
+                    "category": "synthesized",
+                    "strict_order": false,
+                    "status_override": null,
                     "logs": [],
-                    "name": "After Start",
+                    "status": "passed",
+                    "uid": "Environment Start",
+                    "fix_spec_path": null,
                     "parent_uids": [
                         "InteractivePlan",
                         "Test1"
                     ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
-                    "status_reason": null,
-                    "strict_order": false,
-                    "tags": {},
                     "timer": {},
+                    "entries": [
+                        {
+                            "uid": "starting",
+                            "hash": 0,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "definition_name": "starting",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test1",
+                                "Environment Start"
+                            ],
+                            "tags": {},
+                            "status_override": null,
+                            "timer": {},
+                            "description": null,
+                            "entries": [
+                                {
+                                    "machine_time": "",
+                                    "flag": "DEFAULT",
+                                    "utc_time": "",
+                                    "meta_type": "entry",
+                                    "file_path": "testplan.py",
+                                    "description": "TCPServer[server] Status: STARTED",
+                                    "category": "DEFAULT",
+                                    "message": "TCPServer[server] Status: STARTED",
+                                    "type": "Log",
+                                    "line_no": 0
+                                },
+                                {
+                                    "machine_time": "",
+                                    "flag": "DEFAULT",
+                                    "utc_time": "",
+                                    "meta_type": "entry",
+                                    "file_path": "testplan.py",
+                                    "description": "TCPClient[client] Status: STARTED",
+                                    "category": "DEFAULT",
+                                    "message": "TCPClient[client] Status: STARTED",
+                                    "type": "Log",
+                                    "line_no": 0
+                                }
+                            ],
+                            "category": "synthesized",
+                            "runtime_status": "ready",
+                            "type": "TestCaseReport",
+                            "status_reason": null,
+                            "name": "starting",
+                            "logs": [],
+                            "status": "passed"
+                        },
+                        {
+                            "uid": "accept_connection",
+                            "hash": 0,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "definition_name": "accept_connection",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test1",
+                                "Environment Start"
+                            ],
+                            "tags": {},
+                            "status_override": null,
+                            "timer": {
+                                "run": [
+                                    {
+                                        "end": "2024-05-03T02:49:35.515421+00:00",
+                                        "start": "2024-05-03T02:49:35.515357+00:00"
+                                    }
+                                ]
+                            },
+                            "description": null,
+                            "entries": [],
+                            "category": "synthesized",
+                            "runtime_status": "finished",
+                            "type": "TestCaseReport",
+                            "status_reason": null,
+                            "name": "accept_connection",
+                            "logs": [],
+                            "status": "passed"
+                        }
+                    ],
+                    "hash": 0,
+                    "env_status": null,
+                    "tags": {},
+                    "part": null,
+                    "description": null,
+                    "status_reason": null,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 0
+                    },
+                    "definition_name": "Environment Start",
+                    "children": [],
                     "type": "TestGroupReport",
-                    "uid": "After Start"
+                    "name": "Environment Start"
                 },
                 {
                     "category": "testsuite",
@@ -486,6 +545,67 @@
                     "timer": {},
                     "type": "TestGroupReport",
                     "uid": "Custom_1"
+                },
+                {
+                    "host": null,
+                    "runtime_status": "ready",
+                    "category": "synthesized",
+                    "strict_order": false,
+                    "status_override": null,
+                    "logs": [],
+                    "status": "unknown",
+                    "uid": "Environment Stop",
+                    "fix_spec_path": null,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test1"
+                    ],
+                    "timer": {},
+                    "entries": [
+                        {
+                            "uid": "stopping",
+                            "hash": -3119417174735446000,
+                            "counter": {
+                                "passed": 0,
+                                "failed": 0,
+                                "total": 1,
+                                "unknown": 1
+                            },
+                            "definition_name": "stopping",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test1",
+                                "Environment Stop"
+                            ],
+                            "tags": {},
+                            "status_override": null,
+                            "timer": {},
+                            "description": null,
+                            "entries": [],
+                            "category": "synthesized",
+                            "runtime_status": "ready",
+                            "type": "TestCaseReport",
+                            "status_reason": null,
+                            "name": "stopping",
+                            "logs": [],
+                            "status": "unknown"
+                        }
+                    ],
+                    "hash": -6165828736494947000,
+                    "env_status": null,
+                    "tags": {},
+                    "part": null,
+                    "description": null,
+                    "status_reason": null,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 0
+                    },
+                    "definition_name": "Environment Stop",
+                    "children": [],
+                    "type": "TestGroupReport",
+                    "name": "Environment Stop"
                 }
             ],
             "env_status": "STARTED",
@@ -498,8 +618,8 @@
                 "InteractivePlan"
             ],
             "part": null,
-            "runtime_status": "finished",
-            "status": "passed",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
@@ -520,64 +640,123 @@
             "description": null,
             "entries": [
                 {
-                    "category": "synthesized",
-                    "children": [],
-                    "counter": {
-                        "failed": 0,
-                        "passed": 0,
-                        "total": 0
-                    },
-                    "definition_name": "After Start",
-                    "description": null,
-                    "entries": [
-                        {
-                            "category": "synthesized",
-                            "counter": {
-                                "failed": 0,
-                                "passed": 1,
-                                "total": 1
-                            },
-                            "definition_name": "accept_connection",
-                            "description": null,
-                            "entries": [],
-                            "hash": 0,
-                            "logs": [],
-                            "name": "accept_connection",
-                            "parent_uids": [
-                                "InteractivePlan",
-                                "Test2",
-                                "After Start"
-                            ],
-                            "runtime_status": "finished",
-                            "status": "passed",
-                            "status_override": null,
-                            "status_reason": null,
-                            "tags": {},
-                            "timer": {},
-                            "type": "TestCaseReport",
-                            "uid": "accept_connection"
-                        }
-                    ],
-                    "env_status": null,
-                    "fix_spec_path": null,
-                    "hash": 0,
                     "host": null,
+                    "runtime_status": "ready",
+                    "category": "synthesized",
+                    "strict_order": false,
+                    "status_override": null,
                     "logs": [],
-                    "name": "After Start",
+                    "status": "passed",
+                    "uid": "Environment Start",
+                    "fix_spec_path": null,
                     "parent_uids": [
                         "InteractivePlan",
                         "Test2"
                     ],
-                    "part": null,
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "status_override": null,
-                    "status_reason": null,
-                    "strict_order": false,
-                    "tags": {},
                     "timer": {},
+                    "entries": [
+                        {
+                            "uid": "starting",
+                            "hash": 0,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "definition_name": "starting",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "Environment Start"
+                            ],
+                            "tags": {},
+                            "status_override": null,
+                            "timer": {},
+                            "description": null,
+                            "entries": [
+                                {
+                                    "machine_time": "",
+                                    "flag": "DEFAULT",
+                                    "utc_time": "",
+                                    "meta_type": "entry",
+                                    "file_path": "testplan.py",
+                                    "description": "TCPServer[server] Status: STARTED",
+                                    "category": "DEFAULT",
+                                    "message": "TCPServer[server] Status: STARTED",
+                                    "type": "Log",
+                                    "line_no": 0
+                                },
+                                {
+                                    "machine_time": "",
+                                    "flag": "DEFAULT",
+                                    "utc_time": "",
+                                    "meta_type": "entry",
+                                    "file_path": "testplan.py",
+                                    "description": "TCPClient[client] Status: STARTED",
+                                    "category": "DEFAULT",
+                                    "message": "TCPClient[client] Status: STARTED",
+                                    "type": "Log",
+                                    "line_no": 0
+                                }
+                            ],
+                            "category": "synthesized",
+                            "runtime_status": "ready",
+                            "type": "TestCaseReport",
+                            "status_reason": null,
+                            "name": "starting",
+                            "logs": [],
+                            "status": "passed"
+                        },
+                        {
+                            "uid": "accept_connection",
+                            "hash": 0,
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "definition_name": "accept_connection",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "Environment Start"
+                            ],
+                            "tags": {},
+                            "status_override": null,
+                            "timer": {
+                                "run": [
+                                    {
+                                        "end": "2024-05-03T02:49:35.737402+00:00",
+                                        "start": "2024-05-03T02:49:35.737363+00:00"
+                                    }
+                                ]
+                            },
+                            "description": null,
+                            "entries": [],
+                            "category": "synthesized",
+                            "runtime_status": "finished",
+                            "type": "TestCaseReport",
+                            "status_reason": null,
+                            "name": "accept_connection",
+                            "logs": [],
+                            "status": "passed"
+                        }
+                    ],
+                    "hash": 0,
+                    "env_status": null,
+                    "tags": {},
+                    "part": null,
+                    "description": null,
+                    "status_reason": null,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 0
+                    },
+                    "definition_name": "Environment Start",
+                    "children": [],
                     "type": "TestGroupReport",
-                    "uid": "After Start"
+                    "name": "Environment Start"
                 },
                 {
                     "category": "testsuite",
@@ -973,6 +1152,67 @@
                     "timer": {},
                     "type": "TestGroupReport",
                     "uid": "Custom_1"
+                },
+                {
+                    "host": null,
+                    "runtime_status": "ready",
+                    "category": "synthesized",
+                    "strict_order": false,
+                    "status_override": null,
+                    "logs": [],
+                    "status": "unknown",
+                    "uid": "Environment Stop",
+                    "fix_spec_path": null,
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2"
+                    ],
+                    "timer": {},
+                    "entries": [
+                        {
+                            "uid": "stopping",
+                            "hash": 0,
+                            "counter": {
+                                "passed": 0,
+                                "failed": 0,
+                                "total": 1,
+                                "unknown": 1
+                            },
+                            "definition_name": "stopping",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "Environment Stop"
+                            ],
+                            "tags": {},
+                            "status_override": null,
+                            "timer": {},
+                            "description": null,
+                            "entries": [],
+                            "category": "synthesized",
+                            "runtime_status": "ready",
+                            "type": "TestCaseReport",
+                            "status_reason": null,
+                            "name": "stopping",
+                            "logs": [],
+                            "status": "unknown"
+                        }
+                    ],
+                    "hash": 0,
+                    "env_status": null,
+                    "tags": {},
+                    "part": null,
+                    "description": null,
+                    "status_reason": null,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 0
+                    },
+                    "definition_name": "Environment Stop",
+                    "children": [],
+                    "type": "TestGroupReport",
+                    "name": "Environment Stop"
                 }
             ],
             "env_status": "STARTED",
@@ -985,8 +1225,8 @@
                 "InteractivePlan"
             ],
             "part": null,
-            "runtime_status": "finished",
-            "status": "passed",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
@@ -1004,8 +1244,8 @@
     "name": "InteractivePlan",
     "parent_uids": [],
     "resource_meta_path": null,
-    "runtime_status": "finished",
-    "status": "passed",
+    "runtime_status": "ready",
+    "status": "unknown",
     "status_override": null,
     "status_reason": null,
     "tags_index": {},
