@@ -1,1 +1,1 @@
-Introduced a new error_handler hook used in `Multitest` for handling unexpected non-testcase related errors. Eg.: failing Resource steps, Multitest or Suite hooks.
+Introducing error_handler hook for `MultiTest`, which allows users to define custom error handlers and add additional information to the report for better exception management.
