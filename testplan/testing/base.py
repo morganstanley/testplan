@@ -321,6 +321,9 @@ class Test(Runnable):
                 return style.display_test, TEST_INST_INDENT
             elif test_obj.category == ReportCategories.TESTSUITE:
                 return style.display_testsuite, SUITE_INDENT
+            elif test_obj.category == ReportCategories.SYNTHESIZED:
+                # NOTE: keep logging style for sythesized suites for hooks
+                return style.display_testsuite, SUITE_INDENT
             elif test_obj.category == ReportCategories.PARAMETRIZATION:
                 return False, 0  # DO NOT display
             else:

@@ -22,10 +22,8 @@ import { generatePath } from "react-router";
 import { NavLink } from "react-router-dom";
 import TagList from "./TagList";
 import { makeStyles } from "@material-ui/core/styles";
-import {
-  generateURLWithParameters,
-  calcExecutionTime,
-} from "../Common/utils";
+import { generateURLWithParameters, calcExecutionTime } from "../Common/utils";
+import { isReportLeaf } from "../Report/reportUtils";
 
 const SelectionContext = React.createContext(null);
 
@@ -248,7 +246,7 @@ const Node = (props) => {
       <TagList entryName={props.entry.name} tags={props.entry.tags} />
     ) : null;
   const treeViewClasses = getTreeViewStyles();
-  const isTestcase = props.entry.category === CATEGORIES.testcase;
+  const isLeaf = isReportLeaf(props.entry);
   const nodeId = props.entry.uids
     ? props.entry.uids.join("/")
     : props.entry.uid;
@@ -277,7 +275,7 @@ const Node = (props) => {
       }}
       onDoubleClick={(event) => {
         event.stopPropagation();
-        if (!isTestcase) {
+        if (!isLeaf) {
           props.doubleClickCallback(nodeId);
         }
       }}
@@ -297,7 +295,7 @@ const Node = (props) => {
         onEntered: transitionFinishedCallback,
       }}
     >
-      {isTestcase ? null : continueTreeBranch(props, props.entry)}
+      {isLeaf ? null : continueTreeBranch(props, props.entry)}
     </TreeItem>
   );
 };

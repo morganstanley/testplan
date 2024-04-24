@@ -32,6 +32,7 @@ import {
   GetSelectedEntries,
   filterReport,
   getSelectedUIDsFromPath,
+  isReportLeaf,
 } from "./reportUtils.js";
 import { GetNavBreadcrumbs } from "../Nav/navUtils";
 
@@ -55,7 +56,9 @@ const InteractiveReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
   const pendingEnvRequest = useAtomValue(pendingEnvRequestAtom);
   return (
-    <InteractiveReportComponent {...props} displayTime={displayTimeInfo}
+    <InteractiveReportComponent
+      {...props}
+      displayTime={displayTimeInfo}
       pendingEnvRequest={pendingEnvRequest}
     />
   );
@@ -80,7 +83,7 @@ class InteractiveReportComponent extends BaseReport {
       reloading: false,
       running: false,
       aborting: false,
-      assertionStatus: defaultAssertionStatus
+      assertionStatus: defaultAssertionStatus,
     };
   }
 
@@ -485,11 +488,11 @@ class InteractiveReportComponent extends BaseReport {
     };
 
     if (entries) {
-        if (entries.length && category !== "testcase") {
-            pruneEntry.entries = entries.map(
-                (entry) => this.pruneReportEntry(entry)
-            );
-        }
+      if (entries.length && category !== "testcase") {
+        pruneEntry.entries = entries.map((entry) =>
+          this.pruneReportEntry(entry)
+        );
+      }
     }
 
     return pruneEntry;
@@ -519,8 +522,11 @@ class InteractiveReportComponent extends BaseReport {
    */
   runAll() {
     if (
-      this.state.resetting || this.state.reloading ||
-      this.state.aborting || this.state.running || this.props.pendingEnvRequest
+      this.state.resetting ||
+      this.state.reloading ||
+      this.state.aborting ||
+      this.state.running ||
+      this.props.pendingEnvRequest
     ) {
       alert("There is a pending request, please wait!");
     } else {
@@ -538,8 +544,10 @@ class InteractiveReportComponent extends BaseReport {
    */
   resetReport() {
     if (
-      this.state.resetting || this.state.reloading ||
-      this.state.aborting || this.state.running
+      this.state.resetting ||
+      this.state.reloading ||
+      this.state.aborting ||
+      this.state.running
     ) {
       return;
     } else {
@@ -557,8 +565,10 @@ class InteractiveReportComponent extends BaseReport {
    */
   reloadCode() {
     if (
-      this.state.resetting || this.state.reloading ||
-      this.state.aborting || this.state.running
+      this.state.resetting ||
+      this.state.reloading ||
+      this.state.aborting ||
+      this.state.running
     ) {
       return;
     }
@@ -627,7 +637,7 @@ class InteractiveReportComponent extends BaseReport {
    * so their state updates will be provided to us by the backend.
    */
   resetTestcasesRecur(reportEntry) {
-    if (reportEntry.category === "testcase") {
+    if (isReportLeaf(reportEntry)) {
       if (reportEntry.entries.length === 0) {
         return null;
       } else {

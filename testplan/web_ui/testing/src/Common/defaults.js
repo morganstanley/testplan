@@ -5,8 +5,8 @@
 const BLUE = "#e1f0f766";
 const DARK_BLUE = "#43aade";
 const YELLOW = "#fff17666";
-const DARK_YELLOW =  '#ffc107';
-const TEAL = '#a7f0dd66';
+const DARK_YELLOW = "#ffc107";
+const TEAL = "#a7f0dd66";
 const DARK_TEAL = "#acebda";
 const ROSE = "#fe064466";
 const DARK_ROSE = "#be0433";
@@ -109,6 +109,7 @@ const ENTRY_TYPES = [
   "testcase",
   "pytest",
   "pyunit",
+  "synthesized",
 ];
 
 const STATUS = [
@@ -152,7 +153,7 @@ const ENV_STATUSES = {
   stopped: "STOPPED",
   starting: "STARTING",
   started: "STARTED",
-  stopping: "STOPPING"
+  stopping: "STOPPING",
 };
 
 const NAV_ENTRY_ACTIONS = ["play", "open", "prohibit"];

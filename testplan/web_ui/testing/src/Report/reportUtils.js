@@ -12,6 +12,8 @@ import { VIEW_TYPE } from "../Common/defaults";
 
 import { filterEntries } from "./reportFilter";
 
+const isReportLeaf = (entry) => entry.type === "TestCaseReport";
+
 /**
  * Merge two tag objects into a single tag object.
  *
@@ -57,7 +59,7 @@ function _mergeTags(tagsA, tagsB) {
 const MergeSplittedReport = (mainReport, assertions, structure) => {
   const _mergeStructure = (_structure, _assertions) => {
     _structure.forEach((element) => {
-      if (element.category === "testcase") {
+      if (isReportLeaf(element)) {
         element.entries = _assertions[element.uid] || [];
       } else {
         _mergeStructure(element.entries, _assertions);
@@ -114,7 +116,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
     }
 
     const uids = [...parentIndices.uids, entry.uid];
-    if (entryType !== "testcase") {
+    if (!isReportLeaf(entry)) {
       // Propagate indices to children.
       let descendantsIndices = propagateIndicesRecur(entry.entries, {
         tags_index: tags,
@@ -264,7 +266,7 @@ const getAssertions = (selectedEntries, displayTime) => {
   };
 
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
-  if (selectedEntry && selectedEntry.category === "testcase") {
+  if (selectedEntry && isReportLeaf(selectedEntry)) {
     let links = [];
     getAssertionsRecursively(links, selectedEntry.entries);
 
@@ -375,7 +377,7 @@ const GetSelectedEntries = (selectedUIDs, report) => {
  * @return {Array[string]} List of UIDs of the currently selected entries.
  */
 const findFirstFailure = (reportEntry) => {
-  if (reportEntry.category === "testcase" || reportEntry.entries.length === 0) {
+  if (isReportLeaf(reportEntry) || reportEntry.entries.length === 0) {
     return [reportEntry.uid];
   } else {
     for (let entry in reportEntry.entries) {
@@ -423,6 +425,7 @@ const getSelectedUIDsFromPath = ({ uid, selection }, uidDecoder) => {
 };
 
 export {
+  isReportLeaf,
   PropagateIndices,
   GetReportState,
   GetCenterPane,

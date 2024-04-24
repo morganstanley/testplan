@@ -86,7 +86,6 @@ const initialReport = () => ({
               timer: {},
               description: null,
               tags: {},
-              type: "TestCaseReport",
               status: "unknown",
               runtime_status: "ready",
               env_status: null,

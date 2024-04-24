@@ -383,7 +383,10 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         :param source: Source object for the renderer.
         """
         style = self.get_style(source)
-        if source.category == ReportCategories.TESTSUITE:
+        if source.category in (
+            ReportCategories.TESTSUITE,
+            ReportCategories.SYNTHESIZED,
+        ):
             return style.display_testsuite
         elif source.category == ReportCategories.PARAMETRIZATION:
             return style.display_testcase

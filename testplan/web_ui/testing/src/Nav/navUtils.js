@@ -12,6 +12,7 @@ import CommonStyles from "../Common/Styles.js";
 import { NavLink } from "react-router-dom";
 import { generatePath } from "react-router";
 import { generateURLWithParameters } from "../Common/utils";
+import { isReportLeaf } from "../Report/reportUtils";
 
 /**
  * Create the list entry buttons or a single button stating nothing can be
@@ -80,7 +81,7 @@ const CreateNavButtons = (props, createEntryComponent, uidEncoder) => {
 };
 
 const nonEmptyEntry = (entry) => {
-  if (entry.category === "testcase") {
+  if (isReportLeaf(entry)) {
     return entry.entries !== null && entry.entries.length > 0;
   } else {
     return entry.counter && entry.counter.total > 0;
@@ -190,7 +191,7 @@ const GetNavEntries = (selected) => {
 
   if (!selectedEntry) {
     return [];
-  } else if (selectedEntry.category === "testcase") {
+  } else if (isReportLeaf(selectedEntry)) {
     const suite = selected[selected.length - 2];
 
     // All testcases should belong to a suite, throw an error if we can't
@@ -223,7 +224,7 @@ const GetInteractiveNavEntries = (selected) => {
   }
 
   if (
-    selectedEntry.category === "testcase" ||
+    selectedEntry.type === "TestCaseReport" ||
     selectedEntry.category === "parametrization"
   ) {
     selectedEntry = selected[selected.length - 2]; // move to testsuite entry
@@ -234,7 +235,7 @@ const GetInteractiveNavEntries = (selected) => {
   if (selectedEntry.category === "testsuite" && selectedEntry.strict_order) {
     let testcaseEntries = []; // contains all testcase entries in testsuite
     selectedEntry.entries.forEach((childEntry) => {
-      if (childEntry.category === "testcase") {
+      if (isReportLeaf(childEntry)) {
         testcaseEntries.push(childEntry);
       } else if (childEntry.category === "parametrization") {
         childEntry.entries.forEach((entry) => {
@@ -303,7 +304,7 @@ const GetNavBreadcrumbs = (selected) => {
   const selectedEntry = selected[selected.length - 1];
   if (!selectedEntry) {
     return [];
-  } else if (selectedEntry.category === "testcase") {
+  } else if (isReportLeaf(selectedEntry)) {
     return selected.slice(0, selected.length - 1);
   } else {
     return selected;
