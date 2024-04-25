@@ -470,10 +470,12 @@ class LogMatcher(logger.Loggable):
         strict_order: bool = True,
     ):
         """
-        User-friendly context manager composed of ``seek_eof`` and ``match``.
+        Context manager as a composite of
+        :py:meth:`~testplan.common.utils.match.LogMatcher.seek_eof` and
+        :py:meth:`~testplan.common.utils.match.LogMatcher.match`.
         On entering seeking to log stream EOF, on exiting doing log matching,
-        as expected patterns should be (possibly indirectly) produced by lines
-        in context manager body.
+        as expected patterns should be (indirectly) produced by context manager
+        body.
 
         :param regex: Regex string or compiled regular expression or a list of
             such regex strings or expressions
@@ -481,8 +483,7 @@ class LogMatcher(logger.Loggable):
             indicating different individual timeout, or be a float applied to
             all input regexes.
         :param strict_order: Of value True by default, indicating sequential
-            matching of input regexes. Set to False for supporting out of order
-            matching.
+            matching of input regexes. Set to False for out of order matching.
         """
         return ScopedLogfileMatch(
             log_matcher=self,

@@ -1,4 +1,5 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
+import os
 import re
 import tempfile
 from collections import OrderedDict
@@ -678,8 +679,11 @@ class MySuite:
 
         from testplan.common.utils.match import LogMatcher
 
-        with tempfile.NamedTemporaryFile("r+") as f:
+        f = tempfile.NamedTemporaryFile(delete=False)
+        f.close()
+        try:
             lm = LogMatcher(f.name)
+            f = open(f.name, "r+")
             f.write("vodka\n")
             f.write("gin\n")
             f.flush()
@@ -694,6 +698,9 @@ class MySuite:
                 f.write("triple sec\n")
                 f.write("sour mix\n")
                 f.flush()
+        finally:
+            f.close()
+            os.unlink(f.name)
 
 
 def make_multitest():

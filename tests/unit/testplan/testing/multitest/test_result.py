@@ -375,8 +375,14 @@ def logfile_ns():
 
 @pytest.fixture(scope="module")
 def mock_f_w_lm():
-    with tempfile.NamedTemporaryFile("r+") as f:
-        yield f, match.LogMatcher(f.name)
+    f = tempfile.NamedTemporaryFile(delete=False)
+    f.close()
+    try:
+        fp = open(f.name, "r+")
+        yield fp, match.LogMatcher(f.name)
+    finally:
+        fp.close()
+        os.unlink(f.name)
 
 
 class TestDictNamespace:

@@ -1394,6 +1394,11 @@ class LogfileExpect(ScopedLogfileMatch):
 
 
 class LogfileNamespace(AssertionNamespace):
+    """
+    Contains assertion methods that operates on log files equipped with
+    :py:class:`~testplan.common.utils.match.LogMatcher`.
+    """
+
     @assertion
     def seek_eof(
         self, log_matcher: LogMatcher, description: Optional[str] = None
@@ -1483,9 +1488,13 @@ class LogfileNamespace(AssertionNamespace):
         category: Optional[str] = None,
     ):
         """
-        Context manager as a shorthand for ``seek_eof`` followed by ``match``,
-        on enter set LogMatcher position to end of logfile, on exit do
-        instructed matches, with all results logged to the report.
+        Call as context manager for pattern matching in logfile, given expected
+        lines (indirectly) produced by context manager body, with matching
+        results logged to the report. On enter doing position seeking operation as
+        :py:meth:`result.logfile.seek_eof <testplan.testing.result.LogfileNamespace.seek_eof>`,
+        on exit doing matching operation as
+        :py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`.
+
 
         .. code-block:: python
 
@@ -1503,9 +1512,10 @@ class LogfileNamespace(AssertionNamespace):
                       logfile.
         :param timeout: Match timeout value(s) in seconds corresponding to
                         regular expression(s).
-        :param strict_order: To match regular expressions following order in
-                             input list or not, default value ``True``
-                             indicating match following order.
+        :param strict_order: To match regular expressions following in-list
+                             order in or not, default value ``True`` indicating
+                             in-order matching, set to ``False`` for out-of-
+                             order matching.
         :param description: Text description for the assertion.
         :param category: Custom category that will be used for summarization.
         """
