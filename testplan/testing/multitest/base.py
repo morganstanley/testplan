@@ -575,15 +575,11 @@ class MultiTest(testing_base.Test):
     def skip_step(self, step) -> bool:
         """Check if a step should be skipped."""
         if step == self._run_error_handler:
-            if (
+            return not (
                 self.resources.start_exceptions
                 or self.resources.stop_exceptions
                 or self._get_error_logs()
-            ):
-                return False
-            else:
-                self.logger.critical("Skipping error handler")
-                return True
+            )
         elif step in (
             self.resources.start,
             self.resources.stop,
