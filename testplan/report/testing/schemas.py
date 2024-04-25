@@ -80,7 +80,6 @@ class TestCaseReportSchema(ReportSchema):
     source_class = TestCaseReport
 
     entries = fields.List(EntriesField())
-
     category = fields.Enum(ReportCategories, by_value=True, dump_only=True)
     status = fields.Function(
         lambda x: x.status.to_json_compatible(),
@@ -91,6 +90,7 @@ class TestCaseReportSchema(ReportSchema):
         RuntimeStatus.from_json_compatible,
     )
     counter = fields.Dict(dump_only=True)
+    suite_related = fields.Bool(load_only=True, allow_none=True)
     tags = TagField()
 
     @post_load
@@ -120,8 +120,9 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
-    tags = TagField()
     category = fields.Enum(ReportCategories, by_value=True)
+    tags = TagField()
+    suite_related = fields.Bool(load_only=True, allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={

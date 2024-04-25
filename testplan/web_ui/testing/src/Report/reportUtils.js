@@ -12,6 +12,16 @@ import { VIEW_TYPE } from "../Common/defaults";
 
 import { filterEntries } from "./reportFilter";
 
+/**
+ * Test if a given report entry is a leaf node, i.e. there is no report entry
+ * among its children.
+ *
+ * While there is no type attribute on TestGroupReport shallow objects,
+ * undefined !== "TestCaseReport" will still make it work here.
+ *
+ * @param {Object} entry - Report entry to be tested.
+ * @returns {Boolean} - true if it is such leaf node.
+ */
 const isReportLeaf = (entry) => entry.type === "TestCaseReport";
 
 /**
