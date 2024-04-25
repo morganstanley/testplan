@@ -387,18 +387,20 @@ def test_reload_report(irunner):
     # In test_1, we take no action
     # In test_2, we remove "parametrized" it needs to be added back, and we
     # add "new_case" that should be removed
-    irunner.report["test_2"]["Suite"].entries.pop(1)
-    new_case = TestCaseReport(name="new_case", uid="new_case")
-    irunner.report["test_2"]["Suite"].entries.append(new_case)
+    del irunner.report["test_2"]["Suite"]["parametrized"]
+    irunner.report["test_2"]["Suite"]["new_case"] = TestCaseReport(
+        name="new_case", uid="new_case"
+    )
     # In test_3, we update "parametrized" by removing "3" and adding
     # "4", the former will be added back the latter will be removed
-    irunner.report["test_3"]["Suite"]["parametrized"].entries.pop()
-    new_parametrized = TestCaseReport(
+    del irunner.report["test_3"]["Suite"]["parametrized"][
+        "parametrized__val_3"
+    ]
+    irunner.report["test_3"]["Suite"]["parametrized"][
+        "parametrized__val_4"
+    ] = TestCaseReport(
         name="parametrized <val=4>",
         uid="parametrized__val_4",
-    )
-    irunner.report["test_3"]["Suite"]["parametrized"].entries.append(
-        new_parametrized
     )
 
     # We preserve the current report
