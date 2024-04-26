@@ -624,7 +624,7 @@ def test_reload():
     )
 
 
-def load_case_paths(case_num):
+def get_case_paths(case_num):
     dir = Path(__file__).parent / "reload_cases"
     return dir / f"case_{case_num}_prev.py", dir / f"case_{case_num}_curr.py"
 
@@ -640,7 +640,7 @@ def import_case_assertions(case_num):
 @pytest.mark.parametrize("case_num", tuple(range(3)))
 def test_reload_testcase_change(case_num):
 
-    prev_path, curr_path = load_case_paths(case_num)
+    prev_path, curr_path = get_case_paths(case_num)
     prev_assertions, curr_assertions = import_case_assertions(case_num)
 
     with mock.patch("cheroot.wsgi.Server"):

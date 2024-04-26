@@ -1,5 +1,5 @@
 from testplan.common.entity import ResourceStatus
-from testplan.report.testing import RuntimeStatus, Status
+from testplan.common.report import RuntimeStatus, Status
 
 
 def prev_assertions(report):

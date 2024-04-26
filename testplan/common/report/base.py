@@ -439,6 +439,14 @@ class Report:
         """Return a hash of all entries in this report."""
         return hash((self.uid, tuple(id(entry) for entry in self.entries)))
 
+    def inherit(self, deceased: Self) -> Self:
+        """
+        Inherit certain information from the old report, mainly for information
+        preservation across interactive mode reloads.
+        """
+
+        raise NotImplementedError
+
 
 class BaseReportGroup(Report):
     """
