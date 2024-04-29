@@ -224,7 +224,7 @@ const GetInteractiveNavEntries = (selected) => {
   }
 
   if (
-    selectedEntry.type === "TestCaseReport" ||
+    isReportLeaf(selectedEntry) ||
     selectedEntry.category === "parametrization"
   ) {
     selectedEntry = selected[selected.length - 2]; // move to testsuite entry
@@ -235,7 +235,7 @@ const GetInteractiveNavEntries = (selected) => {
   if (selectedEntry.category === "testsuite" && selectedEntry.strict_order) {
     let testcaseEntries = []; // contains all testcase entries in testsuite
     selectedEntry.entries.forEach((childEntry) => {
-      if (isReportLeaf(childEntry)) {
+      if (childEntry.category === "testcase") {
         testcaseEntries.push(childEntry);
       } else if (childEntry.category === "parametrization") {
         childEntry.entries.forEach((entry) => {

@@ -24,6 +24,7 @@ import {
 } from "../Common/defaults";
 import { statusStyles } from "../Common/Styles";
 import { generateURLWithParameters } from "../Common/utils";
+import { isReportLeaf } from "../Report/reportUtils";
 
 library.add(faHome);
 
@@ -298,7 +299,7 @@ const BreadcrumbMenu = (props) => {
 
   let menuPopper = null;
 
-  if (props.current.category !== "testcase" && props.current.entries) {
+  if (!isReportLeaf(props.current) && props.current.entries) {
     menuPopper = (
       <Popper
         open={open}

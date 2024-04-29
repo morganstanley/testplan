@@ -22,7 +22,6 @@ const DARK_GREY = "#ADADAD";
 const BLACK = "#404040";
 const NAV_DEFAULT_COLOR = "#6a95c3";
 
-export const BOTTOMMOST_ENTRY_CATEGORY = "testcase";
 const COLUMN_WIDTH = 22; // unit: em
 const MIN_COLUMN_WIDTH = 180; // unit: px
 const INTERACTIVE_COL_WIDTH = 28; // wider to fit interactive buttons
@@ -92,7 +91,7 @@ const CATEGORY_ICONS = {
   "hobbestest-suite": "HS",
   parametrization: "P",
   testcase: "C",
-  synthesized: "sn",
+  synthesized: "SN",
 };
 
 const ENTRY_TYPES = [

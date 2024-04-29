@@ -488,7 +488,7 @@ class InteractiveReportComponent extends BaseReport {
     };
 
     if (entries) {
-      if (entries.length && category !== "testcase") {
+      if (entries.length && !isReportLeaf(reportEntry)) {
         pruneEntry.entries = entries.map((entry) =>
           this.pruneReportEntry(entry)
         );
