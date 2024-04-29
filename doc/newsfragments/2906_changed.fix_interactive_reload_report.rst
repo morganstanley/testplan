@@ -1,0 +1,1 @@
+Fix a bug that causing interactive mode to render broken report after reloading source code.

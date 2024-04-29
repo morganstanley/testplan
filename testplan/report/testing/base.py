@@ -220,6 +220,23 @@ class TestReport(BaseReportGroup):
             result.propagate_tag_indices()
         return result
 
+    def inherit(self, deceased: Self) -> Self:
+        self.timer = deceased.timer
+        self.status_override = deceased.status_override
+        self.status_reason = deceased.status_reason
+        self.attachments = deceased.attachments
+        self.logs = deceased.logs
+
+        for uid in set(self.entry_uids) & set(deceased.entry_uids):
+            self_ = self[uid]
+            deceased_ = deceased[uid]
+            if isinstance(self_, TestGroupReport) and isinstance(
+                deceased_, TestGroupReport
+            ):
+                self_.inherit(deceased_)
+
+        return self
+
 
 class TestGroupReport(BaseReportGroup):
     """
@@ -418,6 +435,27 @@ class TestGroupReport(BaseReportGroup):
         if kwargs.get("__copy", True):
             result.propagate_tag_indices()
         return result
+
+    def inherit(self, deceased: Self) -> Self:
+        self.timer = deceased.timer
+        self.status_override = deceased.status_override
+        self.status_reason = deceased.status_reason
+        self.env_status = deceased.env_status
+        self.logs = deceased.logs
+
+        for uid in set(self.entry_uids) & set(deceased.entry_uids):
+            self_ = self[uid]
+            deceased_ = deceased[uid]
+            if isinstance(self_, TestGroupReport) and isinstance(
+                deceased_, TestGroupReport
+            ):
+                self_.inherit(deceased_)
+            elif isinstance(self_, TestCaseReport) and isinstance(
+                deceased_, TestCaseReport
+            ):
+                self_.inherit(deceased_)
+
+        return self
 
 
 class TestCaseReport(Report):
@@ -652,3 +690,14 @@ class TestCaseReport(Report):
         """Mark as PASSED if this testcase contains no entries."""
         if not self.entries:
             self._status = Status.PASSED
+
+    def inherit(self, deceased: Self) -> Self:
+        self.timer = deceased.timer
+        self.runtime_status = deceased.runtime_status
+        self.status = deceased.status
+        self.status_override = deceased.status_override
+        self.status_reason = deceased.status_reason
+        self.attachments = deceased.attachments
+        self.logs = deceased.logs
+        self.entries = deceased.entries
+        return self
