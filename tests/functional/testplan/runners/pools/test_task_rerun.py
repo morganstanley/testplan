@@ -202,7 +202,7 @@ def test_task_rerun_in_thread_pool(mockplan):
 
     assert mockplan.run().run is True
     assert mockplan.report.passed is True
-    assert mockplan.report.counter == {"passed": 3, "total": 3, "failed": 0}
+    assert mockplan.report.counter == {"passed": 2, "total": 2, "failed": 0}
 
     assert isinstance(mockplan.report.serialize(), dict)
     assert mockplan.result.test_results[uid].report.name == "Unstable MTest1"
@@ -242,7 +242,7 @@ def test_task_rerun_in_process_pool(mockplan):
 
     assert mockplan.run().run is True
     assert mockplan.report.passed is True
-    assert mockplan.report.counter == {"passed": 5, "total": 5, "failed": 0}
+    assert mockplan.report.counter == {"passed": 3, "total": 3, "failed": 0}
 
     assert isinstance(mockplan.report.serialize(), dict)
     assert mockplan.result.test_results[uid1].report.name == "Unstable MTest1"
@@ -278,7 +278,7 @@ def test_task_rerun_with_more_times(mockplan):
 
     assert mockplan.run().run is True
     assert mockplan.report.passed is False
-    assert mockplan.report.counter == {"passed": 1, "total": 2, "failed": 1}
+    assert mockplan.report.counter == {"passed": 0, "total": 1, "failed": 1}
     assert mockplan.result.test_results[uid].report.name == "Unstable MTest3"
 
     assert task.reassign_cnt == 2
@@ -307,7 +307,7 @@ def test_task_rerun_with_more_times_2(mockplan):
 
     assert mockplan.run().run is True
     assert mockplan.report.passed is True
-    assert mockplan.report.counter == {"passed": 2, "total": 2, "failed": 0}
+    assert mockplan.report.counter == {"passed": 1, "total": 1, "failed": 0}
     assert mockplan.result.test_results[uid].report.name == "Unstable MTest3"
 
     assert task.reassign_cnt == 3

@@ -220,6 +220,23 @@ class TestReport(BaseReportGroup):
             result.propagate_tag_indices()
         return result
 
+    def inherit(self, deceased: Self) -> Self:
+        self.timer = deceased.timer
+        self.status_override = deceased.status_override
+        self.status_reason = deceased.status_reason
+        self.attachments = deceased.attachments
+        self.logs = deceased.logs
+
+        for uid in set(self.entry_uids) & set(deceased.entry_uids):
+            self_ = self[uid]
+            deceased_ = deceased[uid]
+            if isinstance(self_, TestGroupReport) and isinstance(
+                deceased_, TestGroupReport
+            ):
+                self_.inherit(deceased_)
+
+        return self
+
 
 class TestGroupReport(BaseReportGroup):
     """
@@ -236,7 +253,6 @@ class TestGroupReport(BaseReportGroup):
         fix_spec_path=None,
         env_status=None,
         strict_order=False,
-        suite_related=False,
         **kwargs,
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -266,10 +282,6 @@ class TestGroupReport(BaseReportGroup):
         self.strict_order = strict_order
 
         self.covered_lines: Optional[dict] = None
-
-        # TODO: replace with synthesized flag
-        # this is for special handling in interactive mode, e.g no run button
-        self.suite_related = suite_related
 
     def __str__(self):
         return (
@@ -419,6 +431,27 @@ class TestGroupReport(BaseReportGroup):
             result.propagate_tag_indices()
         return result
 
+    def inherit(self, deceased: Self) -> Self:
+        self.timer = deceased.timer
+        self.status_override = deceased.status_override
+        self.status_reason = deceased.status_reason
+        self.env_status = deceased.env_status
+        self.logs = deceased.logs
+
+        for uid in set(self.entry_uids) & set(deceased.entry_uids):
+            self_ = self[uid]
+            deceased_ = deceased[uid]
+            if isinstance(self_, TestGroupReport) and isinstance(
+                deceased_, TestGroupReport
+            ):
+                self_.inherit(deceased_)
+            elif isinstance(self_, TestCaseReport) and isinstance(
+                deceased_, TestCaseReport
+            ):
+                self_.inherit(deceased_)
+
+        return self
+
 
 class TestCaseReport(Report):
     """
@@ -431,7 +464,6 @@ class TestCaseReport(Report):
         self,
         name,
         tags=None,
-        suite_related=False,
         category=ReportCategories.TESTCASE,
         **kwargs,
     ):
@@ -439,7 +471,6 @@ class TestCaseReport(Report):
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
         self.tags_index = copy.deepcopy(self.tags)
-        self.suite_related = suite_related
         self.attachments = []
         self.category = category
         self.covered_lines: Optional[dict] = None
@@ -552,7 +583,10 @@ class TestCaseReport(Report):
         test cases, choose the one whose status is of higher precedence.
         """
         self._check_report(report)
-        if self.suite_related and self.status.precede(report.status):
+        if (
+            self.category == ReportCategories.SYNTHESIZED
+            and self.status.precede(report.status)
+        ):
             return
 
         self.status_override = Status.precedent(
@@ -652,3 +686,14 @@ class TestCaseReport(Report):
         """Mark as PASSED if this testcase contains no entries."""
         if not self.entries:
             self._status = Status.PASSED
+
+    def inherit(self, deceased: Self) -> Self:
+        self.timer = deceased.timer
+        self.runtime_status = deceased.runtime_status
+        self.status = deceased.status
+        self.status_override = deceased.status_override
+        self.status_reason = deceased.status_reason
+        self.attachments = deceased.attachments
+        self.logs = deceased.logs
+        self.entries = deceased.entries
+        return self

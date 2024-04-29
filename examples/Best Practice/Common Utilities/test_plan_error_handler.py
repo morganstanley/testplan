@@ -1,14 +1,15 @@
 #!/usr/bin/env python
+# This plan contains tests that demonstrate failures as well.
 """
-Example demonstrating usage of testplan.common.utils.helper module.
-By using the helper functions and/or the prefedined Testsuite, the user can
-readily add additional information of Testplan execution to the report.
+Example demonstrating usage of Multitest's error_handler hook.
+By using the error_handler hook users can clean-up resources and
+add additional information to the report upon unexpected Exceptions.
 """
 
 import sys
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.driver.app import App
+from testplan.testing.multitest.driver.base import Driver
 from testplan.common.utils import helper
 
 
@@ -49,26 +50,8 @@ def before_start_fn(env, result):
     helper.log_pwd(result)
 
 
-def after_stop_fn(env, result):
-    # Attach drivers' log files if the multitest failed.
-    stdout_logger = helper.DriverLogCollector(
-        file_pattern=["stdout*"], description="stdout"
-    )
-    stderr_logger = helper.DriverLogCollector(
-        file_pattern=["stderr*"], description="stderr"
-    )
-
-    stdout_logger(env, result)
-    stderr_logger(env, result)
-
-    # Delete Multitest level runpath if the multitest passed.
-    # This function cleans the runpath before the exporters
-    # have chance collecting the files, hence commented out.
-    # helper.clean_runpath_if_passed(env, result)
-
-
 def error_handler_fn(env, result):
-    # This will be executed when a step runs into an error.
+    # This will be executed when a step hits an exception.
     step_results = env._environment.parent.result.step_results
     if "run_tests" in step_results:
         for log in step_results["run_tests"].flattened_logs:
@@ -77,22 +60,26 @@ def error_handler_fn(env, result):
     result.log("Error handler ran!")
 
 
-@test_plan(name="Example using helper")
+class FailingStopDriver(Driver):
+    def pre_stop(self):
+        raise Exception("Exception raised to trigger error handler hook!")
+
+
+@test_plan(name="Example running error_handler")
 def main(plan):
     """
-    Add a MultiTest that uses helper utilities in before_start/after_stop hooks.
+    Add a MultiTest that triggers error_handler hook.
     """
     plan.add(
         MultiTest(
-            name="HelperTest",
+            name="ErrorHandlerTest",
             suites=[
                 # This is a pre-defined testsuite that logs info to report
                 helper.TestplanExecutionInfo(),
                 MyTestsuite(),
             ],  # shortcut: suites=[helper.TestplanExecutionInfo()]
-            environment=[App("echo", binary="/bin/echo", args=["testplan"])],
+            environment=[FailingStopDriver("Dummy")],
             before_start=before_start_fn,
-            after_stop=after_stop_fn,
             error_handler=error_handler_fn,
         )
     )

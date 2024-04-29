@@ -4,8 +4,8 @@
     "children": [],
     "counter": {
         "failed": 0,
-        "passed": 12,
-        "total": 12
+        "passed": 10,
+        "total": 10
     },
     "definition_name": "InteractivePlan",
     "description": null,
@@ -16,49 +16,35 @@
                 {
                     "children": [],
                     "name": "TCPServer[server]",
-                    "timer": {
-                        "lifespan": [
-                            {
-                                "end": null,
-                                "start": "2024-02-22T02:58:44.776461+00:00"
-                            }
-                        ]
-                    }
+                    "timer": {}
                 },
                 {
                     "children": [],
                     "name": "TCPClient[client]",
-                    "timer": {
-                        "lifespan": [
-                            {
-                                "end": null,
-                                "start": "2024-02-22T02:58:44.827557+00:00"
-                            }
-                        ]
-                    }
+                    "timer": {}
                 }
             ],
             "counter": {
                 "failed": 0,
-                "passed": 6,
-                "total": 6
+                "passed": 5,
+                "total": 5
             },
             "definition_name": "Test1",
             "description": null,
             "entries": [
                 {
-                    "category": "testsuite",
+                    "category": "synthesized",
                     "children": [],
                     "counter": {
                         "failed": 0,
-                        "passed": 1,
-                        "total": 1
+                        "passed": 0,
+                        "total": 0
                     },
                     "definition_name": "After Start",
                     "description": null,
                     "entries": [
                         {
-                            "category": "testcase",
+                            "category": "synthesized",
                             "counter": {
                                 "failed": 0,
                                 "passed": 1,
@@ -67,7 +53,7 @@
                             "definition_name": "accept_connection",
                             "description": null,
                             "entries": [],
-                            "hash": 4290764876753776326,
+                            "hash": 0,
                             "logs": [],
                             "name": "accept_connection",
                             "parent_uids": [
@@ -79,23 +65,15 @@
                             "status": "passed",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": true,
                             "tags": {},
-                            "timer": {
-                                "run": [
-                                    {
-                                        "end": "2024-02-22T02:58:44.834231+00:00",
-                                        "start": "2024-02-22T02:58:44.834191+00:00"
-                                    }
-                                ]
-                            },
+                            "timer": {},
                             "type": "TestCaseReport",
                             "uid": "accept_connection"
                         }
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": -3498197175664056710,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "After Start",
@@ -109,7 +87,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": true,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -154,18 +131,18 @@
                                             "first": 1,
                                             "flag": "DEFAULT",
                                             "label": "==",
-                                            "line_no": 47,
-                                            "machine_time": "2024-02-22T10:58:44.846190+08:00",
+                                            "line_no": 0,
+                                            "machine_time": "",
                                             "meta_type": "assertion",
                                             "passed": true,
                                             "second": 1,
                                             "type": "Equal",
                                             "type_actual": "int",
                                             "type_expected": "int",
-                                            "utc_time": "2024-02-22T02:58:44.846182+00:00"
+                                            "utc_time": ""
                                         }
                                     ],
-                                    "hash": -6567975491340682553,
+                                    "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=0>",
                                     "parent_uids": [
@@ -178,16 +155,8 @@
                                     "status": "passed",
                                     "status_override": null,
                                     "status_reason": null,
-                                    "suite_related": false,
                                     "tags": {},
-                                    "timer": {
-                                        "run": [
-                                            {
-                                                "end": "2024-02-22T02:58:45.114394+00:00",
-                                                "start": "2024-02-22T02:58:44.846109+00:00"
-                                            }
-                                        ]
-                                    },
+                                    "timer": {},
                                     "type": "TestCaseReport",
                                     "uid": "basic_case__arg_0"
                                 },
@@ -208,18 +177,18 @@
                                             "first": 1,
                                             "flag": "DEFAULT",
                                             "label": "==",
-                                            "line_no": 47,
-                                            "machine_time": "2024-02-22T10:58:45.115807+08:00",
+                                            "line_no": 0,
+                                            "machine_time": "",
                                             "meta_type": "assertion",
                                             "passed": true,
                                             "second": 1,
                                             "type": "Equal",
                                             "type_actual": "int",
                                             "type_expected": "int",
-                                            "utc_time": "2024-02-22T02:58:45.115803+00:00"
+                                            "utc_time": ""
                                         }
                                     ],
-                                    "hash": 7530351345807265360,
+                                    "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=1>",
                                     "parent_uids": [
@@ -232,16 +201,8 @@
                                     "status": "passed",
                                     "status_override": null,
                                     "status_reason": null,
-                                    "suite_related": false,
                                     "tags": {},
-                                    "timer": {
-                                        "run": [
-                                            {
-                                                "end": "2024-02-22T02:58:45.118485+00:00",
-                                                "start": "2024-02-22T02:58:45.115752+00:00"
-                                            }
-                                        ]
-                                    },
+                                    "timer": {},
                                     "type": "TestCaseReport",
                                     "uid": "basic_case__arg_1"
                                 },
@@ -262,18 +223,18 @@
                                             "first": 1,
                                             "flag": "DEFAULT",
                                             "label": "==",
-                                            "line_no": 47,
-                                            "machine_time": "2024-02-22T10:58:45.119766+08:00",
+                                            "line_no": 0,
+                                            "machine_time": "",
                                             "meta_type": "assertion",
                                             "passed": true,
                                             "second": 1,
                                             "type": "Equal",
                                             "type_actual": "int",
                                             "type_expected": "int",
-                                            "utc_time": "2024-02-22T02:58:45.119761+00:00"
+                                            "utc_time": ""
                                         }
                                     ],
-                                    "hash": -7498185875675116209,
+                                    "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=2>",
                                     "parent_uids": [
@@ -286,23 +247,15 @@
                                     "status": "passed",
                                     "status_override": null,
                                     "status_reason": null,
-                                    "suite_related": false,
                                     "tags": {},
-                                    "timer": {
-                                        "run": [
-                                            {
-                                                "end": "2024-02-22T02:58:45.122306+00:00",
-                                                "start": "2024-02-22T02:58:45.119713+00:00"
-                                            }
-                                        ]
-                                    },
+                                    "timer": {},
                                     "type": "TestCaseReport",
                                     "uid": "basic_case__arg_2"
                                 }
                             ],
                             "env_status": null,
                             "fix_spec_path": null,
-                            "hash": 9191800487452953441,
+                            "hash": 0,
                             "host": null,
                             "logs": [],
                             "name": "basic_case",
@@ -317,7 +270,6 @@
                             "status_override": null,
                             "status_reason": null,
                             "strict_order": false,
-                            "suite_related": false,
                             "tags": {},
                             "timer": {},
                             "type": "TestGroupReport",
@@ -326,7 +278,7 @@
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": -589973984953542614,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "BasicSuite",
@@ -340,7 +292,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -374,15 +325,15 @@
                                     "first": "hello",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 62,
-                                    "machine_time": "2024-02-22T10:58:45.124033+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "hello",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.124027+00:00"
+                                    "utc_time": ""
                                 },
                                 {
                                     "category": "DEFAULT",
@@ -391,18 +342,18 @@
                                     "first": "world",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 66,
-                                    "machine_time": "2024-02-22T10:58:45.126524+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "world",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.126518+00:00"
+                                    "utc_time": ""
                                 }
                             ],
-                            "hash": -1292288410684247510,
+                            "hash": 0,
                             "logs": [],
                             "name": "send_and_receive_msg",
                             "parent_uids": [
@@ -414,23 +365,15 @@
                             "status": "passed",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": false,
                             "tags": {},
-                            "timer": {
-                                "run": [
-                                    {
-                                        "end": "2024-02-22T02:58:45.129051+00:00",
-                                        "start": "2024-02-22T02:58:45.123895+00:00"
-                                    }
-                                ]
-                            },
+                            "timer": {},
                             "type": "TestCaseReport",
                             "uid": "send_and_receive_msg"
                         }
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": 2575476955273872586,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "Custom_0",
@@ -444,7 +387,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -478,15 +420,15 @@
                                     "first": "hello",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 62,
-                                    "machine_time": "2024-02-22T10:58:45.131243+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "hello",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.131237+00:00"
+                                    "utc_time": ""
                                 },
                                 {
                                     "category": "DEFAULT",
@@ -495,18 +437,18 @@
                                     "first": "world",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 66,
-                                    "machine_time": "2024-02-22T10:58:45.133750+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "world",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.133744+00:00"
+                                    "utc_time": ""
                                 }
                             ],
-                            "hash": -7814653885745384390,
+                            "hash": 0,
                             "logs": [],
                             "name": "send_and_receive_msg",
                             "parent_uids": [
@@ -518,23 +460,15 @@
                             "status": "passed",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": false,
                             "tags": {},
-                            "timer": {
-                                "run": [
-                                    {
-                                        "end": "2024-02-22T02:58:45.136202+00:00",
-                                        "start": "2024-02-22T02:58:45.131136+00:00"
-                                    }
-                                ]
-                            },
+                            "timer": {},
                             "type": "TestCaseReport",
                             "uid": "send_and_receive_msg"
                         }
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": 4181495647595143745,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "Custom_1",
@@ -548,7 +482,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -557,7 +490,7 @@
             ],
             "env_status": "STARTED",
             "fix_spec_path": null,
-            "hash": 6158833837249381438,
+            "hash": 0,
             "host": null,
             "logs": [],
             "name": "Test1",
@@ -570,16 +503,8 @@
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
-            "suite_related": false,
             "tags": {},
-            "timer": {
-                "setup": [
-                    {
-                        "end": "2024-02-22T02:58:44.839903+00:00",
-                        "start": "2024-02-22T02:58:44.743745+00:00"
-                    }
-                ]
-            },
+            "timer": {},
             "type": "TestGroupReport",
             "uid": "Test1"
         },
@@ -588,25 +513,25 @@
             "children": [],
             "counter": {
                 "failed": 0,
-                "passed": 6,
-                "total": 6
+                "passed": 5,
+                "total": 5
             },
             "definition_name": "Test2",
             "description": null,
             "entries": [
                 {
-                    "category": "testsuite",
+                    "category": "synthesized",
                     "children": [],
                     "counter": {
                         "failed": 0,
-                        "passed": 1,
-                        "total": 1
+                        "passed": 0,
+                        "total": 0
                     },
                     "definition_name": "After Start",
                     "description": null,
                     "entries": [
                         {
-                            "category": "testcase",
+                            "category": "synthesized",
                             "counter": {
                                 "failed": 0,
                                 "passed": 1,
@@ -615,7 +540,7 @@
                             "definition_name": "accept_connection",
                             "description": null,
                             "entries": [],
-                            "hash": 4290764876753776326,
+                            "hash": 0,
                             "logs": [],
                             "name": "accept_connection",
                             "parent_uids": [
@@ -627,23 +552,15 @@
                             "status": "passed",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": true,
                             "tags": {},
-                            "timer": {
-                                "run": [
-                                    {
-                                        "end": "2024-02-22T02:58:45.233552+00:00",
-                                        "start": "2024-02-22T02:58:45.233515+00:00"
-                                    }
-                                ]
-                            },
+                            "timer": {},
                             "type": "TestCaseReport",
                             "uid": "accept_connection"
                         }
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": -3498197175664056710,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "After Start",
@@ -657,7 +574,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": true,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -702,18 +618,18 @@
                                             "first": 1,
                                             "flag": "DEFAULT",
                                             "label": "==",
-                                            "line_no": 47,
-                                            "machine_time": "2024-02-22T10:58:45.245601+08:00",
+                                            "line_no": 0,
+                                            "machine_time": "",
                                             "meta_type": "assertion",
                                             "passed": true,
                                             "second": 1,
                                             "type": "Equal",
                                             "type_actual": "int",
                                             "type_expected": "int",
-                                            "utc_time": "2024-02-22T02:58:45.245596+00:00"
+                                            "utc_time": ""
                                         }
                                     ],
-                                    "hash": 8291507602343149287,
+                                    "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=0>",
                                     "parent_uids": [
@@ -726,16 +642,8 @@
                                     "status": "passed",
                                     "status_override": null,
                                     "status_reason": null,
-                                    "suite_related": false,
                                     "tags": {},
-                                    "timer": {
-                                        "run": [
-                                            {
-                                                "end": "2024-02-22T02:58:45.248205+00:00",
-                                                "start": "2024-02-22T02:58:45.245542+00:00"
-                                            }
-                                        ]
-                                    },
+                                    "timer": {},
                                     "type": "TestCaseReport",
                                     "uid": "basic_case__arg_0"
                                 },
@@ -756,18 +664,18 @@
                                             "first": 1,
                                             "flag": "DEFAULT",
                                             "label": "==",
-                                            "line_no": 47,
-                                            "machine_time": "2024-02-22T10:58:45.249562+08:00",
+                                            "line_no": 0,
+                                            "machine_time": "",
                                             "meta_type": "assertion",
                                             "passed": true,
                                             "second": 1,
                                             "type": "Equal",
                                             "type_actual": "int",
                                             "type_expected": "int",
-                                            "utc_time": "2024-02-22T02:58:45.249557+00:00"
+                                            "utc_time": ""
                                         }
                                     ],
-                                    "hash": -141781545044807072,
+                                    "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=1>",
                                     "parent_uids": [
@@ -780,16 +688,8 @@
                                     "status": "passed",
                                     "status_override": null,
                                     "status_reason": null,
-                                    "suite_related": false,
                                     "tags": {},
-                                    "timer": {
-                                        "run": [
-                                            {
-                                                "end": "2024-02-22T02:58:45.252159+00:00",
-                                                "start": "2024-02-22T02:58:45.249504+00:00"
-                                            }
-                                        ]
-                                    },
+                                    "timer": {},
                                     "type": "TestCaseReport",
                                     "uid": "basic_case__arg_1"
                                 },
@@ -810,18 +710,18 @@
                                             "first": 1,
                                             "flag": "DEFAULT",
                                             "label": "==",
-                                            "line_no": 47,
-                                            "machine_time": "2024-02-22T10:58:45.253508+08:00",
+                                            "line_no": 0,
+                                            "machine_time": "",
                                             "meta_type": "assertion",
                                             "passed": true,
                                             "second": 1,
                                             "type": "Equal",
                                             "type_actual": "int",
                                             "type_expected": "int",
-                                            "utc_time": "2024-02-22T02:58:45.253503+00:00"
+                                            "utc_time": ""
                                         }
                                     ],
-                                    "hash": -14180245735522369,
+                                    "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=2>",
                                     "parent_uids": [
@@ -834,23 +734,15 @@
                                     "status": "passed",
                                     "status_override": null,
                                     "status_reason": null,
-                                    "suite_related": false,
                                     "tags": {},
-                                    "timer": {
-                                        "run": [
-                                            {
-                                                "end": "2024-02-22T02:58:45.256099+00:00",
-                                                "start": "2024-02-22T02:58:45.253451+00:00"
-                                            }
-                                        ]
-                                    },
+                                    "timer": {},
                                     "type": "TestCaseReport",
                                     "uid": "basic_case__arg_2"
                                 }
                             ],
                             "env_status": null,
                             "fix_spec_path": null,
-                            "hash": 2313680365725174462,
+                            "hash": 0,
                             "host": null,
                             "logs": [],
                             "name": "basic_case",
@@ -865,7 +757,6 @@
                             "status_override": null,
                             "status_reason": null,
                             "strict_order": false,
-                            "suite_related": false,
                             "tags": {},
                             "timer": {},
                             "type": "TestGroupReport",
@@ -874,7 +765,7 @@
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": -5266989757915606423,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "BasicSuite",
@@ -888,7 +779,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -922,15 +812,15 @@
                                     "first": "hello",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 62,
-                                    "machine_time": "2024-02-22T10:58:45.257901+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "hello",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.257895+00:00"
+                                    "utc_time": ""
                                 },
                                 {
                                     "category": "DEFAULT",
@@ -939,18 +829,18 @@
                                     "first": "world",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 66,
-                                    "machine_time": "2024-02-22T10:58:45.260426+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "world",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.260420+00:00"
+                                    "utc_time": ""
                                 }
                             ],
-                            "hash": -6190221400081928614,
+                            "hash": 0,
                             "logs": [],
                             "name": "send_and_receive_msg",
                             "parent_uids": [
@@ -962,23 +852,15 @@
                             "status": "passed",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": false,
                             "tags": {},
-                            "timer": {
-                                "run": [
-                                    {
-                                        "end": "2024-02-22T02:58:45.262901+00:00",
-                                        "start": "2024-02-22T02:58:45.257759+00:00"
-                                    }
-                                ]
-                            },
+                            "timer": {},
                             "type": "TestCaseReport",
                             "uid": "send_and_receive_msg"
                         }
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": -2843788575606914468,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "Custom_0",
@@ -992,7 +874,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -1026,15 +907,15 @@
                                     "first": "hello",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 62,
-                                    "machine_time": "2024-02-22T10:58:45.265346+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "hello",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.265341+00:00"
+                                    "utc_time": ""
                                 },
                                 {
                                     "category": "DEFAULT",
@@ -1043,18 +924,18 @@
                                     "first": "world",
                                     "flag": "DEFAULT",
                                     "label": "==",
-                                    "line_no": 66,
-                                    "machine_time": "2024-02-22T10:58:45.267873+08:00",
+                                    "line_no": 0,
+                                    "machine_time": "",
                                     "meta_type": "assertion",
                                     "passed": true,
                                     "second": "world",
                                     "type": "Equal",
                                     "type_actual": "str",
                                     "type_expected": "str",
-                                    "utc_time": "2024-02-22T02:58:45.267867+00:00"
+                                    "utc_time": ""
                                 }
                             ],
-                            "hash": 1979465683515084826,
+                            "hash": 0,
                             "logs": [],
                             "name": "send_and_receive_msg",
                             "parent_uids": [
@@ -1066,23 +947,15 @@
                             "status": "passed",
                             "status_override": null,
                             "status_reason": null,
-                            "suite_related": false,
                             "tags": {},
-                            "timer": {
-                                "run": [
-                                    {
-                                        "end": "2024-02-22T02:58:45.270377+00:00",
-                                        "start": "2024-02-22T02:58:45.265225+00:00"
-                                    }
-                                ]
-                            },
+                            "timer": {},
                             "type": "TestCaseReport",
                             "uid": "send_and_receive_msg"
                         }
                     ],
                     "env_status": null,
                     "fix_spec_path": null,
-                    "hash": -1882165506897030992,
+                    "hash": 0,
                     "host": null,
                     "logs": [],
                     "name": "Custom_1",
@@ -1096,7 +969,6 @@
                     "status_override": null,
                     "status_reason": null,
                     "strict_order": false,
-                    "suite_related": false,
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
@@ -1105,7 +977,7 @@
             ],
             "env_status": "STARTED",
             "fix_spec_path": null,
-            "hash": -5514215719593224083,
+            "hash": 0,
             "host": null,
             "logs": [],
             "name": "Test2",
@@ -1118,47 +990,22 @@
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
-            "suite_related": false,
             "tags": {},
-            "timer": {
-                "setup": [
-                    {
-                        "end": "2024-02-22T02:58:45.239194+00:00",
-                        "start": "2024-02-22T02:58:45.142995+00:00"
-                    }
-                ]
-            },
+            "timer": {},
             "type": "TestGroupReport",
             "uid": "Test2"
         }
     ],
-    "hash": 9022722732007323416,
-    "information": [
-        [
-            "user",
-            ""
-        ],
-        [
-            "command_line_string",
-            "script/run_pytest.py --tests oss/tests/functional/testplan/runnable/interactive/test_interactive.py::test_top_level_tests"
-        ],
-        [
-            "python_version",
-            "3.7.5"
-        ],
-        [
-            "runpath",
-            "/tmp/interactiveplan_lxax4_a3"
-        ]
-    ],
+    "hash": 0,
+    "information": [],
     "label": null,
     "logs": [],
     "meta": {},
     "name": "InteractivePlan",
     "parent_uids": [],
+    "resource_meta_path": null,
     "runtime_status": "finished",
     "status": "passed",
-    "resource_meta_path": null,
     "status_override": null,
     "status_reason": null,
     "tags_index": {},

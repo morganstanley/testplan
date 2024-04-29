@@ -572,9 +572,15 @@ class MultiTest(testing_base.Test):
             )
         return self._tags_index
 
-    def skip_step(self, step):
+    def skip_step(self, step) -> bool:
         """Check if a step should be skipped."""
-        if step in (
+        if step == self._run_error_handler:
+            return not (
+                self.resources.start_exceptions
+                or self.resources.stop_exceptions
+                or self._get_error_logs()
+            )
+        elif step in (
             self.resources.start,
             self.resources.stop,
             self.apply_xfail_tests,
@@ -677,18 +683,14 @@ class MultiTest(testing_base.Test):
                 self.DEFAULT_THREAD_POOL_SIZE,
             )
 
-    def _suite_related_report(self, name, status=None):
+    def _suite_related_report(self, name):
         """
         Return a report for a testsuite-related action, such as setup or
         teardown.
         """
-        testcase_report = TestCaseReport(
-            name=name, uid=name, suite_related=True
+        return TestCaseReport(
+            name=name, uid=name, category=ReportCategories.SYNTHESIZED
         )
-        if status:
-            testcase_report.status_override = status
-
-        return testcase_report
 
     def _testcase_reports(self, testsuite, testcases, status=None):
         """
@@ -1042,9 +1044,7 @@ class MultiTest(testing_base.Test):
         if not self.active:
             return None
 
-        method_report = TestCaseReport(
-            name=method_name, uid=method_name, suite_related=True
-        )
+        method_report = self._suite_related_report(method_name)
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self._scratch
         )
@@ -1280,6 +1280,14 @@ class MultiTest(testing_base.Test):
         else:
             parent_uids = [self.uid(), testsuite.uid()]
         return parent_uids
+
+    def _get_error_logs(self) -> Dict:
+        if "run_tests" in self.result.step_results:
+            return [
+                log
+                for log in self.result.step_results["run_tests"].flattened_logs
+                if log["levelname"] == "ERROR"
+            ]
 
     def _skip_testcases(self, testsuite, testcases):
         """

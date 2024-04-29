@@ -1,14 +1,14 @@
 from testplan.report import (
-    TestReport,
-    TestGroupReport,
-    TestCaseReport,
+    ReportCategories,
     RuntimeStatus,
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
 )
-from testplan.testing.multitest.entries.assertions import RawAssertion
 
 testcase_report = TestCaseReport(
     name="ExitCodeCheck",
-    suite_related=True,
+    category=ReportCategories.SYNTHESIZED,
     entries=[
         {
             "type": "RawAssertion",

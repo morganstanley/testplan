@@ -63,17 +63,33 @@ const initialReport = () => ({
           hash: 12345,
           entries: [
             {
+              type: "TestCaseReport",
+              parent_uids: ["TestplanUID", "MultiTestUID", "SuiteUID"],
+              logs: [],
+              entries: [],
+              status_reason: null,
+              runtime_status: "ready",
+              tags: {},
+              uid: "setup",
+              category: "synthesized",
+              status: "unknown",
+              status_override: null,
+              timer: {},
+              name: "setup",
+              description: null,
+              hash: 12345,
+              definition_name: "setup"
+            },
+            {
               category: "testcase",
               uid: "testcaseUID",
               timer: {},
               description: null,
               tags: {},
-              type: "TestCaseReport",
               status: "unknown",
               runtime_status: "ready",
               env_status: null,
               logs: [],
-              suite_related: false,
               entries: [],
               status_override: null,
               name: "testcaseName",
@@ -111,7 +127,6 @@ const initialReport = () => ({
                   status: "unknown",
                   runtime_status: "ready",
                   status_override: null,
-                  suite_related: false,
                   tags: {},
                   timer: {},
                   type: "TestCaseReport",
@@ -258,7 +273,6 @@ describe("InteractiveReport", () => {
                                 status: "unknown",
                                 runtime_status: "ready",
                                 logs: [],
-                                suite_related: false,
                                 entries: [],
                                 status_override: null,
                                 name: "testcaseName",
@@ -318,7 +332,6 @@ describe("InteractiveReport", () => {
                                       status: "unknown",
                                       runtime_status: "ready",
                                       status_override: null,
-                                      suite_related: false,
                                       tags: {},
                                       timer: {},
                                       type: "TestCaseReport",
@@ -395,7 +408,7 @@ describe("InteractiveReport", () => {
   it("handles individual testcases being run", (done) =>
     testRunEntry(
       done,
-      initialReport().entries[0].entries[0].entries[0],
+      initialReport().entries[0].entries[0].entries[1],
       "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID" +
         "/testcases/testcaseUID"
     ));
@@ -403,7 +416,7 @@ describe("InteractiveReport", () => {
   it("handles individual parametrizations being run", (done) =>
     testRunEntry(
       done,
-      initialReport().entries[0].entries[0].entries[1].entries[0],
+      initialReport().entries[0].entries[0].entries[2].entries[0],
       "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID" +
         "/testcases/ParametrizationUID/parametrizations" +
         "/ParametrizationUID__val_1"
@@ -563,7 +576,6 @@ describe("InteractiveReport", () => {
                                 status: "ready",
                                 runtime_status: "running",
                                 logs: [],
-                                suite_related: false,
                                 entries: [],
                                 status_override: null,
                                 name: "testcaseName",
@@ -635,7 +647,7 @@ describe("InteractiveReport", () => {
     expect(multitest.category).toBe("multitest");
     multitest.env_status = "STARTED";
 
-    const testcase = report.entries[0].entries[0].entries[0];
+    const testcase = report.entries[0].entries[0].entries[1];
     expect(testcase.category).toBe("testcase");
 
     // Add an assertion entry.
@@ -692,7 +704,9 @@ describe("InteractiveReport", () => {
     expect(multitest.category).toBe("multitest");
     multitest.env_status = "STARTED";
 
-    const testcase = report.entries[0].entries[0].entries[0];
+    const suite_setup = report.entries[0].entries[0].entries[0];
+    expect(suite_setup.category).toBe("synthesized");
+    const testcase = report.entries[0].entries[0].entries[1];
     expect(testcase.category).toBe("testcase");
 
     interactiveReport.setState({
@@ -736,7 +750,7 @@ describe("InteractiveReport", () => {
     expect(multitest.category).toBe("multitest");
     multitest.env_status = "STARTED";
 
-    const testcase = report.entries[0].entries[0].entries[0];
+    const testcase = report.entries[0].entries[0].entries[1];
     expect(testcase.category).toBe("testcase");
 
     interactiveReport.setState({
