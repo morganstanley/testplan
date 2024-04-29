@@ -75,7 +75,7 @@ def test_driver_failure(mockplan):
                 entries=[
                     TestGroupReport(
                         name="Error handler",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
                                 name="error_handler_fn",
@@ -115,7 +115,7 @@ def test_suite_hook_failure(mockplan):
                 entries=[
                     TestGroupReport(
                         name="RaisingSuite",
-                        category="testsuite",
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name="passed_test",
@@ -127,7 +127,7 @@ def test_suite_hook_failure(mockplan):
                     ),
                     TestGroupReport(
                         name="Error handler",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
                                 name="error_handler_fn",
@@ -167,7 +167,7 @@ def test_multitest_hook_failure(mockplan):
                 entries=[
                     TestGroupReport(
                         name="After Start",
-                        category="testsuite",
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
                                 name="raising_hook",
@@ -179,7 +179,7 @@ def test_multitest_hook_failure(mockplan):
                     ),
                     TestGroupReport(
                         name="MySuite",
-                        category="testsuite",
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name="passed_test",
@@ -190,7 +190,7 @@ def test_multitest_hook_failure(mockplan):
                     ),
                     TestGroupReport(
                         name="Error handler",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
                                 name="error_handler_fn",
@@ -229,7 +229,7 @@ def test_failure_with_no_error_handler(mockplan):
                 entries=[
                     TestGroupReport(
                         name="FailingSuite",
-                        category="testsuite",
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name="failed_test",

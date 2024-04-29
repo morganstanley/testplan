@@ -5,8 +5,8 @@
 const BLUE = "#e1f0f766";
 const DARK_BLUE = "#43aade";
 const YELLOW = "#fff17666";
-const DARK_YELLOW =  '#ffc107';
-const TEAL = '#a7f0dd66';
+const DARK_YELLOW = "#ffc107";
+const TEAL = "#a7f0dd66";
 const DARK_TEAL = "#acebda";
 const ROSE = "#fe064466";
 const DARK_ROSE = "#be0433";
@@ -22,7 +22,6 @@ const DARK_GREY = "#ADADAD";
 const BLACK = "#404040";
 const NAV_DEFAULT_COLOR = "#6a95c3";
 
-export const BOTTOMMOST_ENTRY_CATEGORY = "testcase";
 const COLUMN_WIDTH = 22; // unit: em
 const MIN_COLUMN_WIDTH = 180; // unit: px
 const INTERACTIVE_COL_WIDTH = 28; // wider to fit interactive buttons
@@ -69,6 +68,7 @@ const CATEGORIES = {
   "hobbestest-suite": "testsuite",
   parametrization: "parametrization",
   testcase: "testcase",
+  synthesized: "synthesized",
 };
 
 const CATEGORY_ICONS = {
@@ -91,6 +91,7 @@ const CATEGORY_ICONS = {
   "hobbestest-suite": "HS",
   parametrization: "P",
   testcase: "C",
+  synthesized: "SN",
 };
 
 const ENTRY_TYPES = [
@@ -107,6 +108,7 @@ const ENTRY_TYPES = [
   "testcase",
   "pytest",
   "pyunit",
+  "synthesized",
 ];
 
 const STATUS = [
@@ -150,7 +152,7 @@ const ENV_STATUSES = {
   stopped: "STOPPED",
   starting: "STARTING",
   started: "STARTED",
-  stopping: "STOPPING"
+  stopping: "STOPPING",
 };
 
 const NAV_ENTRY_ACTIONS = ["play", "open", "prohibit"];

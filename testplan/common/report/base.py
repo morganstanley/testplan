@@ -215,7 +215,7 @@ class Status(Enum):
         return cls[s.replace("-", "_").upper()]
 
 
-class ReportCategories:
+class ReportCategories(str, Enum):
     """
     Enumeration of possible categories of report nodes.
 
@@ -538,8 +538,7 @@ class BaseReportGroup(Report):
     def runtime_status(self, new_status):
         """Set the runtime_status of all child entries."""
         for entry in self:
-            # TODO: use suite_related flag for now, use synthesized instead
-            if not getattr(entry, "suite_related", False):
+            if entry.category != ReportCategories.SYNTHESIZED:
                 entry.runtime_status = new_status
         self._runtime_status = new_status
 

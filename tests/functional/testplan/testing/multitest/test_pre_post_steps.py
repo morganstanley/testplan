@@ -62,20 +62,22 @@ def test_pre_post_steps(mockplan):
                 entries=[
                     TestGroupReport(
                         name="Before Start",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
                                 name="check_func_1",
+                                category=ReportCategories.SYNTHESIZED,
                                 entries=[{"type": "Equal", "passed": True}],
                             ),
                         ],
                     ),
                     TestGroupReport(
                         name="After Start",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
                                 name="check_func_2",
+                                category=ReportCategories.SYNTHESIZED,
                             ),
                         ],
                     ),
@@ -92,17 +94,21 @@ def test_pre_post_steps(mockplan):
                     ),
                     TestGroupReport(
                         name="Before Stop",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
-                            TestCaseReport(name="check_func_3"),
+                            TestCaseReport(
+                                name="check_func_3",
+                                category=ReportCategories.SYNTHESIZED,
+                            ),
                         ],
                     ),
                     TestGroupReport(
                         name="After Stop",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
                                 name="check_func_4",
+                                category=ReportCategories.SYNTHESIZED,
                                 entries=[
                                     {"type": "Equal", "passed": False},
                                     {"type": "Attachment"},
@@ -140,9 +146,12 @@ def test_empty_pre_post_steps(mockplan):
                 entries=[
                     TestGroupReport(
                         name="After Start",
-                        category=ReportCategories.TESTSUITE,
+                        category=ReportCategories.SYNTHESIZED,
                         entries=[
-                            TestCaseReport(name="check_func_2"),
+                            TestCaseReport(
+                                name="check_func_2",
+                                category=ReportCategories.SYNTHESIZED,
+                            ),
                         ],
                     ),
                     TestGroupReport(
@@ -152,6 +161,7 @@ def test_empty_pre_post_steps(mockplan):
                             TestCaseReport(name="test_one"),
                             TestCaseReport(
                                 name="teardown",
+                                category=ReportCategories.SYNTHESIZED,
                                 entries=[{"type": "Attachment"}],
                             ),
                         ],
@@ -191,6 +201,7 @@ def test_no_pre_post_steps(mockplan):
                             TestCaseReport(name="test_one"),
                             TestCaseReport(
                                 name="teardown",
+                                category=ReportCategories.SYNTHESIZED,
                                 entries=[{"type": "Attachment"}],
                             ),
                         ],

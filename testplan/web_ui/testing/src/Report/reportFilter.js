@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { isReportLeaf } from "./reportUtils";
 
 const name_filter = (level, entry, filter) => {
   // TODO: use a more structured form for name_type_index
@@ -30,8 +31,9 @@ const regexp_filter = (entry, filter) => {
 
   const regexp = new RegExp(filter);
 
-  const names = (entry.name_type_index)
-    .map((name_type) => name_type.split("|")[0]);
+  const names = entry.name_type_index.map(
+    (name_type) => name_type.split("|")[0]
+  );
 
   return names.some((name) => name.match(regexp));
 };
@@ -90,8 +92,6 @@ const filter_processors = {
   OR: or_filter,
 };
 
-const stop_at = ["testcase"];
-
 const processFilter = (entry, filter) => {
   if (filter_processors[filter.type]) {
     return filter_processors[filter.type](entry, filter.search);
@@ -106,13 +106,11 @@ const filterEntries = (entries, filters) => {
     )
     .map((entry) => ({
       ...entry,
-      entries: stop_at.includes(entry.category)
+      entries: isReportLeaf(entry)
         ? entry.entries
         : filterEntries(entry.entries, filters),
     }))
-    .filter(
-      (entry) => stop_at.includes(entry.category) || entry.entries.length > 0
-    )
+    .filter((entry) => isReportLeaf(entry) || entry.entries.length > 0)
     .value();
 };
 

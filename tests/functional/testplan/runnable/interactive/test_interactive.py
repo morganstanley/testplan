@@ -28,6 +28,35 @@ def load_from_json(path: Path) -> dict:
         return json.load(f)
 
 
+def dump_to_file(data, path, ignore):
+    """
+    utility for dumping data from updated schema,
+    we'd better leave it here
+    """
+
+    def _(d):
+        for k, v in d.items():
+            if isinstance(v, dict):
+                if k in ignore:
+                    d[k] = {}
+                else:
+                    d[k] = _(v)
+            elif isinstance(v, list):
+                if k in ignore:
+                    d[k] = []
+                else:
+                    d[k] = list(
+                        map(lambda x: _(x) if isinstance(x, dict) else x, v)
+                    )
+            elif k in ignore:
+                d[k] = type(v)()
+        return d
+
+    data = _(data)
+    with open(path, "w") as f:
+        json.dump(data, f, sort_keys=True, indent=4)
+
+
 class InteractivePlan:
     def __init__(self, **kwargs):
         self._kwargs = kwargs
@@ -119,7 +148,6 @@ def test_top_level_tests():
         BTLReset = load_from_json(
             Path(__file__).parent / "reports" / "basic_top_level_reset.data"
         )
-
         assert (
             compare(
                 BTLReset,
@@ -170,7 +198,6 @@ def test_top_level_tests():
         BRSTest2 = load_from_json(
             Path(__file__).parent / "reports" / "basic_run_suite_test2.data"
         )
-
         assert (
             compare(
                 BRSTest2,

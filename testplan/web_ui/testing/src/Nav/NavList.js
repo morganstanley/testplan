@@ -5,7 +5,7 @@ import base64url from "base64url";
 import InteractiveNavEntry from "./InteractiveNavEntry";
 import NavEntry from "./NavEntry";
 import { CreateNavButtons, GetNavColumn } from "./navUtils.js";
-import { STATUS, RUNTIME_STATUS, NAV_ENTRY_ACTIONS } from "../Common/defaults";
+import { STATUS, RUNTIME_STATUS, NAV_ENTRY_ACTIONS, CATEGORIES } from "../Common/defaults";
 import { calcExecutionTime } from "./../Common/utils";
 
 /**
@@ -31,7 +31,7 @@ const NavList = (props) => {
           envCtrlCallback={(e, action) =>
             props.envCtrlCallback(e, entry, action)
           }
-          suiteRelated={entry.suite_related}
+          suiteRelated={entry.category === CATEGORIES.synthesized}
           action={entry.action}
           executionTime={calcExecutionTime(entry)}
           displayTime={props.displayTime}

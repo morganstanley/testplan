@@ -777,7 +777,6 @@ const FakeInteractiveReport = {
               status: "unknown",
               runtime_status: "ready",
               status_override: null,
-              suite_related: false,
               tags: {},
               tags_index: {},
               timer: {},
