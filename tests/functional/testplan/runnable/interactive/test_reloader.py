@@ -1,13 +1,21 @@
 """Interactive reload tests."""
 
+import importlib
 import os
-import sys
+import shutil
 import subprocess
+import sys
 import tempfile
+from pathlib import Path
+from unittest import mock
 
 import pytest
+from pytest_test_filters import skip_on_windows
 
+from testplan import runnable
+from testplan.runnable.interactive import base
 from testplan.runnable.interactive.reloader import _GraphModuleFinder
+from testplan.runners.local import LocalRunner
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -523,7 +531,7 @@ THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
         ),
     ),
 )
-def atest_find_module(script_content, module_deps):
+def test_find_module(script_content, module_deps):
     """
     Check that `_GraphModuleFinder` utility can correctly build dependency
     graph between imported modules.
@@ -614,3 +622,45 @@ def test_reload():
         [sys.executable, "interactive_executable.py"],
         cwd=os.path.dirname(os.path.abspath(__file__)),
     )
+
+
+def get_case_paths(case_num):
+    dir = Path(__file__).parent / "reload_cases"
+    return dir / f"case_{case_num}_prev.py", dir / f"case_{case_num}_curr.py"
+
+
+def import_case_assertions(case_num):
+    mod = importlib.import_module(
+        f"tests.functional.testplan.runnable.interactive.reload_cases.case_{case_num}_assertions"
+    )
+    return getattr(mod, "prev_assertions"), getattr(mod, "curr_assertions")
+
+
+@skip_on_windows(reason="Reloader won't work with pytest on Windows.")
+@pytest.mark.parametrize("case_num", tuple(range(3)))
+def test_reload_testcase_change(case_num):
+
+    prev_path, curr_path = get_case_paths(case_num)
+    prev_assertions, curr_assertions = import_case_assertions(case_num)
+
+    with mock.patch("cheroot.wsgi.Server"):
+        f = tempfile.NamedTemporaryFile("r+", delete=False, suffix=".py")
+        try:
+            shutil.copy(prev_path, f.name)
+            runner = runnable.TestRunner(name="TestRunner", interactive_port=0)
+            runner.add_resource(LocalRunner())
+            runner.schedule_all(
+                path=Path(f.name).parent, name_pattern=Path(f.name).name
+            )
+            irunner = base.TestRunnerIHandler(runner)
+            irunner.run_all_tests()
+
+            prev_assertions(irunner.report)
+
+            shutil.copy(curr_path, f.name)
+            irunner.reload(rebuild_dependencies=True)
+            irunner.reload_report()
+
+            curr_assertions(irunner.report)
+        finally:
+            os.unlink(f.name)

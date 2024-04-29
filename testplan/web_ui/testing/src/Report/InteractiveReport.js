@@ -291,7 +291,7 @@ class InteractiveReportComponent extends BaseReport {
   putUpdatedReportEntry(updatedReportEntry) {
     const apiUrl = this.getApiUrl(updatedReportEntry);
     return axios
-      .put(apiUrl, updatedReportEntry)
+      .put(apiUrl, updatedReportEntry, { transformResponse: parseToJson })
       .then((response) => {
         if (response.data.errmsg) {
           console.error(response.data);

@@ -111,6 +111,7 @@ class TestConfig(RunnableConfig):
             ConfigOption("after_start", default=None): start_stop_signature,
             ConfigOption("before_stop", default=None): start_stop_signature,
             ConfigOption("after_stop", default=None): start_stop_signature,
+            ConfigOption("error_handler", default=None): start_stop_signature,
             ConfigOption("test_filter"): filtering.BaseFilter,
             ConfigOption("test_sorter"): ordering.BaseSorter,
             ConfigOption("stdout_style"): test_styles.Style,
@@ -164,6 +165,7 @@ class Test(Runnable):
     :param after_start: Callable to execute after starting the environment.
     :param before_stop: Callable to execute before stopping the environment.
     :param after_stop: Callable to execute after stopping the environment.
+    :param error_handler: Callable to execute when a step hits an exception.
     :param stdout_style: Console output style.
     :param tags: User defined tag value.
     :param result: Result class definition for result object made available
@@ -191,6 +193,7 @@ class Test(Runnable):
         after_start: callable = None,
         before_stop: callable = None,
         after_stop: callable = None,
+        error_handler: callable = None,
         test_filter: filtering.BaseFilter = None,
         test_sorter: ordering.BaseSorter = None,
         stdout_style: test_styles.Style = None,
@@ -477,6 +480,7 @@ class Test(Runnable):
 
     def add_post_resource_steps(self) -> None:
         """Runnable steps to run after environment stopped."""
+        self._add_step(self._run_error_handler)
         self._add_step(self.timer.end, "teardown")
 
     def run_testcases_iter(
@@ -543,6 +547,14 @@ class Test(Runnable):
             case_report.timer.record("run"),
             case_report.logged_exceptions(),
         )
+
+    def _run_error_handler(self) -> None:
+        """
+        This method runs error_handler hook.
+        """
+
+        if self.cfg.error_handler:
+            self._run_resource_hook(self.cfg.error_handler, "Error handler")
 
     def _run_resource_hook(self, hook: Callable, label: str) -> None:
         # TODO: env or env, result signature is mandatory not an "if"

@@ -1,0 +1,1 @@
+Introducing error_handler hook for `MultiTest`, which allows users to define custom error handlers and add additional information to the report for better exception management.
