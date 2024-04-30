@@ -1,1 +1,1 @@
-Introduces new Testplan assertions for pattern matching in log files. See :ref:`this section<assertion_logfile>` for more details.
+Introduce new Testplan assertions for pattern matching in log files. See :ref:`this section<assertion_logfile>` for more details.

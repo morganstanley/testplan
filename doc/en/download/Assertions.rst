@@ -23,7 +23,7 @@ test_plan_group.py
 .. literalinclude:: ../../../examples/Assertions/Basic/test_plan_group.py
 
 Required files:
-  - :download:`test_plan_exception.py <../../../examples/Assertions/Basic/test_plan_skip.py>`
+  - :download:`test_plan_skip.py <../../../examples/Assertions/Basic/test_plan_skip.py>`
 
 test_plan_skip.py
 ++++++++++++++++++
