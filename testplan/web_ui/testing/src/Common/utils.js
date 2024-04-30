@@ -16,15 +16,25 @@ function calcExecutionTime(entry) {
       elapsed = 0;
       entry.timer.run.forEach((interval) => {
         elapsed +=
-          new Date(interval.end).getTime() - new Date(interval.start).getTime();
+        timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
       });
     } else {
       elapsed =
-        new Date(entry.timer.run.end).getTime() -
-        new Date(entry.timer.run.start).getTime();
+      timeToTimestamp(entry.timer.run.end) -
+      timeToTimestamp(entry.timer.run.start);
     }
   }
   return elapsed;
+}
+
+/**
+ * Convert string to timestamp.
+ *
+ * @param {object|string} time
+ * @returns {number}
+ */
+function timeToTimestamp(time) {
+  return typeof time === "string" ? new Date(time).getTime() : time;
 }
 
 /**
@@ -166,6 +176,7 @@ function formatMilliseconds(durationInMilliseconds) {
 
 export {
   calcExecutionTime,
+  timeToTimestamp,
   getNavEntryDisplayData,
   any,
   sorted,
