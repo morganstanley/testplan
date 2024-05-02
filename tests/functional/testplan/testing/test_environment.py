@@ -6,8 +6,9 @@ import pytest
 from pytest_test_filters import skip_on_windows
 
 from testplan.runners.pools.process import ProcessPool
-from testplan.testing.base import ProcessRunnerTest
 from testplan.testing.multitest.driver.base import Driver
+
+from .test_base import DummyTest
 
 
 @pytest.fixture
@@ -37,14 +38,6 @@ class MyDriver(Driver):
         with open(self.temp_file, "a") as f:
             f.write(f"{self.name}_POST\n")
         super().post_start()
-
-
-class DummyTest(ProcessRunnerTest):
-    def process_test_data(self, _):
-        return []
-
-    def read_test_data(self):
-        pass
 
 
 binary_path = os.path.join(
