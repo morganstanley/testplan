@@ -6,6 +6,7 @@ import pytest
 
 from testplan import defaults, report
 from testplan.report import TestCaseReport
+from testplan.report.testing.schemas import TestGroupReportSchema
 from testplan.testing import py_test as pytest_runner
 from tests.unit.testplan.testing import pytest_expected_data
 
@@ -54,6 +55,8 @@ def test_run_tests(pytest_test_inst):
         ]
     )
     _check_all_testcounts(pytest_test_inst.report.counter)
+    # NOTE: check if valid JSON5?
+    _ = TestGroupReportSchema().dump(pytest_test_inst.report)
 
 
 def test_run_testcases_iter_all(pytest_test_inst):
