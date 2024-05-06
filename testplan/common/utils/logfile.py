@@ -156,7 +156,7 @@ class RotatedFileLogStream(LogStream[T]):
         position: int
 
         def __str__(self) -> str:
-            return f"<inode {self.inode}, position {self.position}>"
+            return f"<position {self.position}>"
 
     def __init__(
         self,

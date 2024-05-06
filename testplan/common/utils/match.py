@@ -137,6 +137,9 @@ class ScopedLogfileMatch:
                 s_pos = e_pos
             else:
                 self.log_matcher.position = s_pos
+        else:
+            if not self.strict_order:
+                self.log_matcher.position = e_pos
 
 
 class LogMatcher(logger.Loggable):
@@ -160,8 +163,6 @@ class LogMatcher(logger.Loggable):
         self.marks = {}
         self.position: Optional[LogPosition] = None
         self.log_stream: FileLogStream = self._create_log_stream()
-        # live until next ``expect`` call
-        self.expect_results: List[Match] = []
 
         # deprecation helpers
         self.had_transformed = False

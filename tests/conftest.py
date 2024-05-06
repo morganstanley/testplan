@@ -1,6 +1,7 @@
 """Shared PyTest fixtures."""
 
 import os
+import shutil
 import sys
 import tempfile
 from logging import Logger
@@ -27,14 +28,17 @@ def _generate_runpath():
     Generate a temporary directory unless specified by environment variable.
     """
     if os.environ.get("TEST_ROOT_RUNPATH"):
-        yield tempfile.mkdtemp(dir=os.environ["TEST_ROOT_RUNPATH"])
+        dir = tempfile.TemporaryDirectory(dir=os.environ["TEST_ROOT_RUNPATH"])
+        yield dir.name
+        shutil.rmtree(dir.name, ignore_errors=True)
     else:
         parent_runpath = (
             VAR_TMP if os.name == "posix" and os.path.exists(VAR_TMP) else None
         )
         # The path will be automatically removed after the test
-        with tempfile.TemporaryDirectory(dir=parent_runpath) as runpath:
-            yield runpath
+        dir = tempfile.TemporaryDirectory(dir=parent_runpath)
+        yield dir.name
+        shutil.rmtree(dir.name, ignore_errors=True)
 
 
 # For `runpath` series fixtures, We were originally using a pytest builtin

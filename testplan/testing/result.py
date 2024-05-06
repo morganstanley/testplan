@@ -1432,8 +1432,19 @@ class LogfileNamespace(AssertionNamespace):
         category: Optional[str] = None,
     ):
         """
-        Match patterns in logfile using LogMatcher, with matching results
-        logged to the report.
+        Match patterns in logfile using LogMatcher, with matching results logged
+        to the report. This assertion can accept multiple patterns with the same
+        match timeout or each of them paired with its own timeout value. Matching
+        will stop either after all the patterns being successfully found or after
+        the first failure given timeout occuring. Given the order of patterns in
+        the input list, user can set keyword argument ``strict_order`` to ``True``
+        (which is the default value) if the scenario requires a line containing a
+        latter pattern always appear below such line of a former pattern. User can
+        set ``strict_order`` to ``False`` if such line of a latter pattern can
+        appear above such line of a former pattern. In either case, LogMatcher
+        will only consume the logfile up to the position after last match, whether
+        match succeeded or failed. User might perform a manual LogMatcher seeking
+        (possibly to EOF) after a non-strict-order match.
 
         .. code-block:: python
 
@@ -1450,9 +1461,9 @@ class LogfileNamespace(AssertionNamespace):
                       logfile.
         :param timeout: Match timeout value(s) in seconds corresponding to
                         regular expression(s).
-        :param strict_order: To match regular expressions following order in
-                             input list or not, default value ``True``
-                             indicating match following order.
+        :param strict_order: Lines matching regular expressions will following
+                             order of regular expressions in input list or not,
+                             default value ``True`` indicating order followed.
         :param description: Text description for the assertion.
         :param category: Custom category that will be used for summarization.
         """
@@ -1471,6 +1482,9 @@ class LogfileNamespace(AssertionNamespace):
                 s_pos = log_matcher.position
             else:
                 log_matcher.position = s_pos
+        else:
+            if not strict_order:
+                log_matcher.position = e_pos
         return assertions.LogfileMatch(
             results=results,
             failure=failure,
@@ -1494,7 +1508,8 @@ class LogfileNamespace(AssertionNamespace):
         :py:meth:`result.logfile.seek_eof <testplan.testing.result.LogfileNamespace.seek_eof>`,
         on exit doing matching operation as
         :py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`.
-
+        For detailed match behavior description, please check out description of
+        :py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`.
 
         .. code-block:: python
 
@@ -1512,10 +1527,9 @@ class LogfileNamespace(AssertionNamespace):
                       logfile.
         :param timeout: Match timeout value(s) in seconds corresponding to
                         regular expression(s).
-        :param strict_order: To match regular expressions following in-list
-                             order in or not, default value ``True`` indicating
-                             in-order matching, set to ``False`` for out-of-
-                             order matching.
+        :param strict_order: Lines matching regular expressions will following
+                             order of regular expressions in input list or not,
+                             default value ``True`` indicating order followed.
         :param description: Text description for the assertion.
         :param category: Custom category that will be used for summarization.
         """
