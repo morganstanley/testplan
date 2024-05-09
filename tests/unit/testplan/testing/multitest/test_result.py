@@ -889,32 +889,19 @@ class TestFIXNamespace:
 class TestLogfileNamespace:
     """Unit testcases for the result.LogfileNamespace class."""
 
-    @pytest.mark.parametrize(
-        "is_in_order", (True, False), ids=("in order", "out of order")
-    )
-    def test_seek_eof_match(self, logfile_ns, logfile_w_matcher, is_in_order):
+    def test_seek_eof_match(self, logfile_ns, logfile_w_matcher):
         f, lm = logfile_w_matcher
         f.logline("coffee")
         f.flush()
 
-        if is_in_order:
-            drinks = [
-                "green tea",
-                "black tea",
-                "oolong tea",
-                "whisky",
-                "rum",
-                "vodka",
-            ]
-        else:
-            drinks = [
-                "green tea",
-                "whisky",
-                "vodka",
-                "oolong tea",
-                "black tea",
-                "rum",
-            ]
+        drinks = [
+            "green tea",
+            "black tea",
+            "oolong tea",
+            "whisky",
+            "rum",
+            "vodka",
+        ]
 
         logfile_ns.seek_eof(lm)
         for d in drinks:
@@ -922,65 +909,35 @@ class TestLogfileNamespace:
         f.flush()
         logfile_ns.match(
             lm,
-            [r"green tea", r"rum", r"vodka"],
-            timeout=[0.1, 0.2, 0.3],
-            strict_order=is_in_order,
+            r"vodka",
+            timeout=0.1,
         )
 
         assert len(logfile_ns.result.entries) == 2
         assert logfile_ns.result.entries[1]
-        m_res = logfile_ns.result.entries[1].results
-        assert len(m_res) == 3
-        pattern_s = set(map(lambda x: x.pattern, m_res))
-        matched_s = set(map(lambda x: x.matched, m_res))
-        assert pattern_s == {"green tea", "rum", "vodka"} == matched_s
-        assert list(map(lambda x: x.timeout, m_res)) == [0.1, 0.2, 0.3]
+        e = logfile_ns.result.entries[1]
+        assert len(e.results) == 1
+        pattern_s = set(map(lambda x: x.pattern, e.results))
+        matched_s = set(map(lambda x: x.matched, e.results))
+        assert pattern_s == {"vodka"} == matched_s
+        assert e.timeout == 0.1
 
-        if os.name == "posix":
-            e_pos = lm.position
-            lm.seek_eof()
-            if is_in_order:
-                # pos right after "vodka", i.e. EOF
-                assert e_pos == lm.position
-            else:
-                # pos right after "vodka", not EOF
-                assert e_pos != lm.position
-
-    @pytest.mark.parametrize(
-        "is_in_order", (True, False), ids=("in order", "out of order")
-    )
-    def test_expect(self, logfile_ns, logfile_w_matcher, is_in_order):
+    def test_expect(self, logfile_ns, logfile_w_matcher):
         f, lm = logfile_w_matcher
         f.logline("whisky regions:")
         f.flush()
 
-        if is_in_order:
-            regions = [
-                "speyside",
-                "highland",
-                "lowland",
-                "campbeltown",
-                "islay",
-            ]
-        else:
-            regions = [
-                "islay",
-                "highland",
-                "lowland",
-                "speyside",
-                "campbeltown",
-            ]
+        regions = [
+            "speyside",
+            "highland",
+            "lowland",
+            "campbeltown",
+            "islay",
+        ]
 
         with logfile_ns.expect(
             lm,
-            [
-                r"speyside",
-                r"highland",
-                r"lowland",
-                r"campbeltown",
-                r"islay",
-            ],
-            strict_order=is_in_order,
+            r"lowland",
         ):
             for r in regions:
                 f.logline(r)
@@ -989,40 +946,16 @@ class TestLogfileNamespace:
 
         assert logfile_ns.result.entries[0]
         m_res = logfile_ns.result.entries[0].results
-        assert len(m_res) == 5
+        assert len(m_res) == 1
 
-        if os.name == "posix":
-            e_pos = lm.position
-            lm.seek_eof()
-            if is_in_order:
-                # pos right after "islay", i.e. EOF
-                assert e_pos == lm.position
-            else:
-                # pos right after "islay", not EOF
-                assert e_pos != lm.position
-
-        bad_str = "sorry, no stock for non-scotch"
-        with logfile_ns.expect(
-            lm, [r"bourbon", r"irish"], timeout=0.1, strict_order=is_in_order
-        ):
+        with logfile_ns.expect(lm, r"irish", timeout=0.1):
+            f.logline("some other whiskeys:")
             f.logline("bourbon")
-            f.logline(bad_str)
             f.flush()
 
-        if os.name == "posix":
-            e_pos = lm.position
-            lm.seek_eof()
-            # match till EOF
-            assert e_pos == lm.position
-
         assert not logfile_ns.result.entries[1]
-        m_res, m_fai = (
-            logfile_ns.result.entries[1].results,
-            logfile_ns.result.entries[1].failure,
-        )
-        assert len(m_res) == 1 and len(m_fai) == 1
-        assert m_res[0].pattern == "bourbon"
-        assert m_fai[0].pattern == "irish"
+        m_fai = logfile_ns.result.entries[1].failure
+        assert len(m_fai) == 1 and m_fai[0].pattern == "irish"
 
 
 class TestResultBaseNamespace:

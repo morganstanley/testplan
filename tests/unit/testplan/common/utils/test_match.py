@@ -303,42 +303,26 @@ class TestLogMatcher:
 
         assert match is None
 
-    @pytest.mark.skipif(
-        os.name != "posix",
-        reason="rotating handler not really supports windows",
-    )
-    @pytest.mark.parametrize(
-        "is_in_order", (True, False), ids=("in order", "out of order")
-    )
-    def test_scoped_match(self, rotating_logger, test_rotation, is_in_order):
+    def test_scoped_match(self, rotating_logger, test_rotation):
         """unit test for expect api"""
+
+        if test_rotation and os.name != "posix":
+            pytest.skip("rotating log handler doesn't really support windows")
+
         matcher = LogMatcher(
             log_path=rotating_logger.pattern
             if test_rotation
             else rotating_logger.path
         )
-        if is_in_order:
-            drinks = [
-                "green tea",
-                "black tea",
-                "oolong tea",
-                "whisky",
-                "rum",
-                "vodka",
-            ]
-        else:
-            drinks = [
-                "green tea",
-                "whisky",
-                "vodka",
-                "oolong tea",
-                "black tea",
-                "rum",
-            ]
-
-        with matcher.expect(
-            [r"green tea", r"oolong tea", r"vodka"], strict_order=is_in_order
-        ) as scope:
+        drinks = [
+            "black tea",
+            "oolong tea",
+            "whisky",
+            "rum",
+            "vodka",
+            "green tea",
+        ]
+        with matcher.expect(r"green tea") as scoped:
             s_pos = matcher.position
             for i, d in enumerate(drinks):
                 rotating_logger.info(d)
@@ -347,19 +331,69 @@ class TestLogMatcher:
                     # NOTE: time for fs sync,
                     # NOTE: otherwise we can have logfiles with same mtime
                     time.sleep(0.1)
-
-        assert len(scope.match_results) == 3
-        assert scope.match_failure is None
+        assert len(scoped.match_results) == 1
+        assert scoped.match_failure is None
 
         e_pos = matcher.position
-        if is_in_order:
-            matcher.seek_eof()
-            assert e_pos == matcher.position
-        elif test_rotation:
+        matcher.seek_eof()
+        assert e_pos == matcher.position
+        if test_rotation:
             assert e_pos.inode != s_pos.inode
-            matcher.seek_eof()
-            assert e_pos.inode != matcher.position.inode
-        else:
-            assert e_pos.position > s_pos.position
-            matcher.seek_eof()
-            assert e_pos.position < matcher.position.position
+
+    # NOTE: following code could be useful for a future pr
+    # @pytest.mark.parametrize(
+    #     "is_in_order", (True, False), ids=("in order", "out of order")
+    # )
+    # def test_scoped_match(self, rotating_logger, test_rotation, is_in_order):
+    #     """unit test for expect api"""
+    #     matcher = LogMatcher(
+    #         log_path=rotating_logger.pattern
+    #         if test_rotation
+    #         else rotating_logger.path
+    #     )
+    #     if is_in_order:
+    #         drinks = [
+    #             "green tea",
+    #             "black tea",
+    #             "oolong tea",
+    #             "whisky",
+    #             "rum",
+    #             "vodka",
+    #         ]
+    #     else:
+    #         drinks = [
+    #             "green tea",
+    #             "whisky",
+    #             "vodka",
+    #             "oolong tea",
+    #             "black tea",
+    #             "rum",
+    #         ]
+    #
+    #     with matcher.expect(
+    #         [r"green tea", r"oolong tea", r"vodka"], strict_order=is_in_order
+    #     ) as scope:
+    #         s_pos = matcher.position
+    #         for i, d in enumerate(drinks):
+    #             rotating_logger.info(d)
+    #             if test_rotation and i % 3 == 1:
+    #                 rotating_logger.doRollover()
+    #                 # NOTE: time for fs sync,
+    #                 # NOTE: otherwise we can have logfiles with same mtime
+    #                 time.sleep(0.1)
+    #
+    #     assert len(scope.match_results) == 3
+    #     assert scope.match_failure is None
+    #
+    #     e_pos = matcher.position
+    #     if is_in_order:
+    #         matcher.seek_eof()
+    #         assert e_pos == matcher.position
+    #     elif test_rotation:
+    #         assert e_pos.inode != s_pos.inode
+    #         matcher.seek_eof()
+    #         assert e_pos.inode != matcher.position.inode
+    #     else:
+    #         assert e_pos.position > s_pos.position
+    #         matcher.seek_eof()
+    #         assert e_pos.position < matcher.position.position

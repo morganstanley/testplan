@@ -990,16 +990,11 @@ expected_report = TestReport(
                                     "type": "LogfileMatch",
                                     "description": None,
                                     "passed": True,
+                                    "timeout": 0.1,
                                     "results": [
                                         {
                                             "matched": "lime juice",
                                             "pattern": "lime juice",
-                                            "timeout": 0.1,
-                                        },
-                                        {
-                                            "matched": "vodka",
-                                            "pattern": "vodka",
-                                            "timeout": 0.1,
                                         },
                                     ],
                                     "failure": [],
@@ -1012,11 +1007,11 @@ expected_report = TestReport(
                                     "type": "LogfileMatch",
                                     "description": None,
                                     "passed": True,
+                                    "timeout": 0.1,
                                     "results": [
                                         {
                                             "matched": "ginger beer",
                                             "pattern": "ginger beer",
-                                            "timeout": 0.1,
                                         },
                                     ],
                                     "failure": [],

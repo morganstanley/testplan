@@ -172,7 +172,7 @@ const NavBreadcrumbs = (props) => {
     props.entries.forEach((entry, index, selected) => {
       breadcrumbMenus.push(
         <li
-          key={`breadcrumbMenu${entry.category}`}
+          key={`breadcrumbMenu${entry.category}${index}`}
           className={classes.breadcrumbList}
         >
           <BreadcrumbMenu

@@ -215,7 +215,6 @@ class DictMatchAllSchema(AssertionSchema):
 class LogfileMatchResultSchema(Schema):
     matched = fields.String(allow_none=True)
     pattern = fields.String()
-    timeout = fields.Float()
     start_pos = fields.String()
     end_pos = fields.String()
 
@@ -238,6 +237,7 @@ class AtMostOneList(fields.List):
 
 @registry.bind(asr.LogfileMatch)
 class LogfileMatchSchema(AssertionSchema):
+    timeout = fields.Float()
     results = fields.List(fields.Nested(LogfileMatchResultSchema()))
     failure = AtMostOneList(fields.Nested(LogfileMatchResultSchema()))
 

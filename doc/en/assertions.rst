@@ -1843,16 +1843,6 @@ Sample output:
 --------------------------------------------------------------------------------
 
 Match patterns in logfile using LogMatcher, with matching results logged to the report.
-This assertion can accept multiple patterns with the same match timeout or each of them
-paired with its own timeout value. Matching will stop either after all the patterns being
-successfully found or after the first failure given timeout occuring. Given the order of
-patterns in the input list, user can set keyword argument ``strict_order`` to ``True``
-(which is the default value) if the scenario requires a line containing a latter pattern
-always appear below such line of a former pattern. User can set ``strict_order`` to
-``False`` if such line of a latter pattern can appear above such line of a former pattern.
-In either case, LogMatcher will only consume the logfile up to the position after last
-match, whether match succeeded or failed. User might perform a manual LogMatcher seeking
-(possibly to EOF) after a non-strict-order match.
 
     .. code-block:: python
 
@@ -1864,9 +1854,8 @@ match, whether match succeeded or failed. User might perform a manual LogMatcher
         def sample_testcase(self, env, result):
             result.logfile.match(
                 log_matcher,
-                [r".*passed.*", r".*failed.*"],
+                r".*passed.*",
                 timeout=2.0,
-                strict_order=False,
                 description="my logfile match assertion",
             )
 
@@ -1878,7 +1867,6 @@ Sample output:
         ...
         my logfile match assertion - Pass
           Pattern: `.*passed.*`
-          Pattern: `.*failed.*`
         ...
 
 :py:meth:`result.logfile.expect <testplan.testing.result.LogfileNamespace.expect>`
@@ -1889,8 +1877,6 @@ Call as context manager for pattern matching in logfile, given expected lines
 report. On enter doing position seeking operation as
 :py:meth:`result.logfile.seek_eof <testplan.testing.result.LogfileNamespace.seek_eof>`,
 on exit doing matching operation as
-:py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`.
-For detailed match behavior description, please check out description of
 :py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`.
 
     .. code-block:: python
@@ -1903,9 +1889,8 @@ For detailed match behavior description, please check out description of
         def sample_testcase(self, env, result):
             with result.logfile.expect(
                 log_matcher,
-                [r".*passed.*", r".*failed.*"],
+                r".*passed.*",
                 timeout=2.0,
-                strict_order=False,
                 description="my logfile match assertion",
             ):
                 with open("my_log_file", "r+") as f:
@@ -1920,7 +1905,6 @@ Sample output:
         ...
         my logfile match assertion - Pass
           Pattern: `.*passed.*`
-          Pattern: `.*failed.*`
         ...
 
 Graph Visualisation

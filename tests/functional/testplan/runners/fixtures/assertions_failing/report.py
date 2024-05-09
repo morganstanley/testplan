@@ -1449,25 +1449,6 @@ expected_report = TestReport(
                             uid="test_logfile",
                             entries=[
                                 {
-                                    "type": "LogfileMatch",
-                                    "description": None,
-                                    "passed": False,
-                                    "results": [
-                                        {
-                                            "matched": "gin",
-                                            "pattern": "gin",
-                                            "timeout": 0.1,
-                                        },
-                                    ],
-                                    "failure": [
-                                        {
-                                            "matched": None,
-                                            "pattern": "vodka",
-                                            "timeout": 0.1,
-                                        },
-                                    ],
-                                },
-                                {
                                     "type": "Log",
                                     "description": "LogMatcher position set to EOF",
                                 },
@@ -1475,23 +1456,25 @@ expected_report = TestReport(
                                     "type": "LogfileMatch",
                                     "description": None,
                                     "passed": False,
-                                    "results": [
-                                        {
-                                            "matched": "rum",
-                                            "pattern": "rum",
-                                            "timeout": 0.1,
-                                        },
-                                        {
-                                            "matched": "triple sec",
-                                            "pattern": "triple sec",
-                                            "timeout": 0.1,
-                                        },
-                                    ],
+                                    "timeout": 0.1,
+                                    "results": [],
                                     "failure": [
                                         {
                                             "matched": None,
-                                            "pattern": "sour-mix",
-                                            "timeout": 0.1,
+                                            "pattern": "tequila",
+                                        },
+                                    ],
+                                },
+                                {
+                                    "type": "LogfileMatch",
+                                    "description": None,
+                                    "passed": False,
+                                    "timeout": 0.1,
+                                    "results": [],
+                                    "failure": [
+                                        {
+                                            "matched": None,
+                                            "pattern": "gin",
                                         },
                                     ],
                                 },

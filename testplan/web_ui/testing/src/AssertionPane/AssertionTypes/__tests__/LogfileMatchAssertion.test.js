@@ -12,19 +12,19 @@ function defaultProps() {
       type: "LogfileMatch",
       meta_type: "assertion",
       category: "DEFAULT",
+      status: "passed",
       description: null,
+      timeout: 2.0,
       results: [
         {
           matched: "okok",
           pattern: ".*ok.*",
-          timeout: 1.0,
           start_pos: "<BOF>",
           end_pos: "<inode 110000, position 5>"
         },
         {
           matched: "okok",
           pattern: ".*ok.*",
-          timeout: 1.0,
           start_pos: "<inode 110000, position 5>",
           end_pos: "<inode 110000, position 10>"
         }
@@ -33,7 +33,6 @@ function defaultProps() {
         {
           matched: null,
           pattern: ".*ok.*",
-          timeout: 2.0,
           start_pos: "<inode 110000, position 10>",
           end_pos: "<inode 110000, position 15>"
         }

@@ -87,32 +87,18 @@ def match_regexps_in_file(
     return all(extracts_status), extracted_values, unmatched
 
 
-def gen_regex_timeout_zip(
-    regex: Union[Regex, List[Regex]], timeout: Union[float, List[float]]
-) -> Iterator[Tuple[Regex, float]]:
-    if not isinstance(regex, list):
-        regex = [regex]
-    if not isinstance(timeout, list):
-        timeout = repeat(timeout, len(regex))
-    elif len(timeout) != len(regex):
-        raise ValueError("``timeout`` length doesn't match ``regex`` length.")
-    return zip(regex, timeout)
-
-
 class ScopedLogfileMatch:
     def __init__(
         self,
         log_matcher: "LogMatcher",
-        regex: Union[Regex, List[Regex]],
-        timeout: Union[float, List[float]] = LOG_MATCHER_DEFAULT_TIMEOUT,
-        strict_order: bool = True,
+        regex: Regex,  # to be extended to accept list[Regex]
+        timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
     ):
-        self.match_pairs = gen_regex_timeout_zip(regex, timeout)
+        self.regex, self.timeout = regex, timeout
         self.match_results = []
         self.match_failure = None
 
         self.log_matcher = log_matcher
-        self.strict_order = strict_order
 
     def __enter__(self):
         self.log_matcher.seek_eof()
@@ -124,22 +110,14 @@ class ScopedLogfileMatch:
         if exc_type is not None:
             return False
         s_pos = self.log_matcher.position
-        for r, t in self.match_pairs:
-            m = self.log_matcher.match(r, t, raise_on_timeout=False)
-            e_pos = self.log_matcher.position
-            if m is not None:
-                self.match_results.append((m, r, t, s_pos, e_pos))
-            else:
-                self.match_failure = (None, r, t, s_pos, e_pos)
-                break
-
-            if self.strict_order:
-                s_pos = e_pos
-            else:
-                self.log_matcher.position = s_pos
+        m = self.log_matcher.match(
+            self.regex, self.timeout, raise_on_timeout=False
+        )
+        e_pos = self.log_matcher.position
+        if m is not None:
+            self.match_results.append((m, self.regex, s_pos, e_pos))
         else:
-            if not self.strict_order:
-                self.log_matcher.position = e_pos
+            self.match_failure = (None, self.regex, s_pos, e_pos)
 
 
 class LogMatcher(logger.Loggable):
@@ -466,31 +444,24 @@ class LogMatcher(logger.Loggable):
 
     def expect(
         self,
-        regex: Union[List[Regex], Regex],
-        timeout: Union[List[float], float] = LOG_MATCHER_DEFAULT_TIMEOUT,
-        strict_order: bool = True,
+        regex: Regex,
+        timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
     ):
         """
         Context manager as a composite of
         :py:meth:`~testplan.common.utils.match.LogMatcher.seek_eof` and
         :py:meth:`~testplan.common.utils.match.LogMatcher.match`.
         On entering seeking to log stream EOF, on exiting doing log matching,
-        as expected patterns should be (indirectly) produced by context manager
+        as expected pattern should be (indirectly) produced by context manager
         body.
 
-        :param regex: Regex string or compiled regular expression or a list of
-            such regex strings or expressions
-        :param timeout: Timeout in seconds for regex matching, can be a list
-            indicating different individual timeout, or be a float applied to
-            all input regexes.
-        :param strict_order: Of value True by default, indicating sequential
-            matching of input regexes. Set to False for out of order matching.
+        :param regex: Regex string or compiled regular expression.
+        :param timeout: Timeout in seconds as a float for regex matching.
         """
         return ScopedLogfileMatch(
             log_matcher=self,
             regex=regex,
             timeout=timeout,
-            strict_order=strict_order,
         )
 
     def __str__(self) -> str:

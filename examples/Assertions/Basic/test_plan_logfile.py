@@ -13,7 +13,7 @@ from testplan import test_plan
 from testplan.common.utils.context import context
 from testplan.common.utils.match import LogMatcher
 from testplan.report.testing.styles import Style, StyleEnum
-from testplan.testing.multitest import MultiTest, testcase, testsuite
+from testplan.testing.multitest import MultiTest, testcase, testsuite, xfail
 from testplan.testing.multitest.driver import Driver
 from testplan.testing.multitest.driver.zmq import ZMQClient
 
@@ -87,6 +87,15 @@ class LogfileSuite:
         # take quite little time to find our newly generated message.
         with result.logfile.expect(lm, r"ping", description="third assertion"):
             env.client.send(b"ping\n")
+
+    @xfail("failed assertion demo")
+    @testcase
+    def match_logfile_xfail(self, env, result):
+        lm = LogMatcher(env.server.logpath, binary=True)
+        with result.logfile.expect(
+            lm, r"pong", description="first assertion", timeout=0.2
+        ):
+            env.client.send(b"ping")
 
 
 @test_plan(

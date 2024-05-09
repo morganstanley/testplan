@@ -687,17 +687,12 @@ class MySuite:
             f.write("vodka\n")
             f.write("gin\n")
             f.flush()
-            result.logfile.match(lm, [r"gin", r"vodka"], timeout=0.1)
+            result.logfile.seek_eof(lm)
+            result.logfile.match(lm, r"tequila", timeout=0.1)
             f.write("tequila\n")
             f.flush()
-            result.logfile.seek_eof(lm)
-            with result.logfile.expect(
-                lm, [r"rum", r"triple sec", r"sour-mix"], timeout=0.1
-            ):
-                f.write("rum\n")
-                f.write("triple sec\n")
-                f.write("sour mix\n")
-                f.flush()
+            with result.logfile.expect(lm, r"gin", timeout=0.1):
+                pass
         finally:
             f.close()
             os.unlink(f.name)

@@ -1115,21 +1115,41 @@ class RawAssertionRenderer(AssertionRenderer):
 class LogfileMatchRender(AssertionRenderer):
     def get_detail(self, source, depth, row_idx):
         left_padding = const.INDENT * (depth + 1)
-        grps = []
-        idx = row_idx
-        for e in chain(source["results"], source["failure"]):
-            style = RowStyle(
-                font=(const.FONT, const.FONT_SIZE_SMALL),
-                left_padding=left_padding,
-                text_color=colors.black,
-                span=tuple(),
-                background=None if e["matched"] else colors.whitesmoke,
+        grps = [
+            RowData(
+                content=[
+                    ("Passed" if source["passed"] else "Failed")
+                    + f" in {source['timeout']} seconds.",
+                    "",
+                    "",
+                    "",
+                ],
+                style=RowStyle(
+                    font=(const.FONT, const.FONT_SIZE_SMALL),
+                    left_padding=left_padding,
+                    text_color=colors.black
+                    if source["passed"]
+                    else colors.red,
+                    span=tuple(),
+                    background=None if source["passed"] else colors.whitesmoke,
+                ),
+                start=row_idx,
             )
+        ]
+        idx = row_idx + 1
+        style = RowStyle(
+            font=(const.FONT, const.FONT_SIZE_SMALL),
+            left_padding=left_padding,
+            text_color=colors.black,
+            span=tuple(),
+            background=None if source["passed"] else colors.whitesmoke,
+        )
+        for e in chain(source["results"], source["failure"]):
             if e["matched"]:
                 rows = RowData(
                     content=[
                         f"Match between {e['start_pos']} and {e['end_pos']} "
-                        f"found within {e['timeout']} seconds.",
+                        f"found.",
                         "",
                         "",
                         "",
@@ -1150,8 +1170,8 @@ class LogfileMatchRender(AssertionRenderer):
             else:
                 rows = RowData(
                     content=[
-                        f"No match from {e['start_pos']} found in {e['timeout']} "
-                        f"seconds, search ended at {e['end_pos']}",
+                        f"No match from {e['start_pos']} found, search "
+                        f"ended at {e['end_pos']}",
                         "",
                         "",
                         "",

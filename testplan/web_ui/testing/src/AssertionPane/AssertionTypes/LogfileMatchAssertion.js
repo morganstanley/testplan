@@ -2,10 +2,10 @@ import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { css, StyleSheet } from "aphrodite";
 
-const LogfileMatchEntry = ({ pattern, timeout, startPos, endPos, matched }) => {
+const LogfileMatchEntry = ({ pattern, startPos, endPos, matched }) => {
   const info = matched
-    ? `Match between ${startPos} and ${endPos} found within ${timeout} seconds.`
-    : `No match from ${startPos} found in ${timeout} seconds, search ended at ${endPos}`;
+    ? `Match between ${startPos} and ${endPos} found.`
+    : `No match from ${startPos} found, search ended at ${endPos}`;
 
   return (
     <>
@@ -33,26 +33,32 @@ const LogfileMatchEntry = ({ pattern, timeout, startPos, endPos, matched }) => {
 };
 
 const LogfileMatchAssertion = ({ assertion }) => {
-  const { results, failure } = assertion;
+  const { timeout, results, failure } = assertion;
 
-  return [...results, ...failure].map((entry) => {
-    const {
-      pattern,
-      timeout,
-      start_pos: startPos,
-      end_pos: endPos,
-      matched,
-    } = entry;
+  const timeoutMsg =
+    (assertion.passed ? "Passed" : "Failed") + ` in ${timeout} seconds.`;
+  const entries = [...results, ...failure].map((entry) => {
+    const { matched, pattern, start_pos: startPos, end_pos: endPos } = entry;
     return (
       <LogfileMatchEntry
+        matched={matched}
         pattern={pattern}
-        timeout={timeout}
         startPos={startPos}
         endPos={endPos}
-        matched={matched}
       />
     );
   });
+
+  return (
+    <>
+      <div>
+        <span>
+          <b>{timeoutMsg}</b>
+        </span>
+      </div>
+      {entries}
+    </>
+  );
 };
 
 const styles = StyleSheet.create({
