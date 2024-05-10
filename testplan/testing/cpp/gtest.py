@@ -185,7 +185,7 @@ class GTest(ProcessRunnerTest):
         # ]
         result = []
         for line in test_list_output.splitlines():
-            line = line.rstrip()
+            line = line.split("#")[0].rstrip()
             if line.endswith(".") and len(line.lstrip()) > 1:
                 result.append([line.lstrip()[:-1], []])
             elif result and (line.startswith(" ") or line.startswith("\t")):
