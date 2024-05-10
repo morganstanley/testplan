@@ -23,7 +23,6 @@ from typing import (
     Union,
 )
 
-import pytz
 from schema import And, Or, Use
 
 from testplan import defaults
@@ -1043,13 +1042,13 @@ class TestRunner(Runnable):
 
     def add_post_resource_steps(self):
         """Runnable steps to be executed after resources stopped."""
-        self._add_step(self._stop_remote_services)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self.timer.end, "run")  # needs to happen before export
         self._add_step(self._pre_exporters)
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
+        self._add_step(self._stop_remote_services)
         self._add_step(self._close_file_logger)
         super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._stop_resource_monitor)
