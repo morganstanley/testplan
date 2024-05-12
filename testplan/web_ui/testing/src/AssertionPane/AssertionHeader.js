@@ -53,7 +53,7 @@ function AssertionHeader({
 
   const timeInfoArray = assertion.timeInfoArray || [];
   let component =
-    assertion.utc_time === undefined ? (
+    assertion.machine_time === undefined ? (
       <span className={css(styles.cardHeaderAlignRight)}>
         <FontAwesomeIcon // Should be a nested assertion group
           size="sm"
@@ -69,20 +69,20 @@ function AssertionHeader({
         <span
           className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
           id={`tooltip_duration_${timeInfoArray[0]}`}
-          style={{ order: 4, display: "inline-flex", alignItems: "center" }}
+          style={{ order: 3, display: "inline-flex", alignItems: "center" }}
         >
           {timeInfoArray[2]}
         </span>
         <span
           className={css(styles.cardHeaderAlignRight)}
-          style={{ order: 3 }}
+          style={{ order: 2 }}
         >
           &nbsp;&nbsp;
         </span>
         <span
           className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
           id={`tooltip_utc_${timeInfoArray[0]}`}
-          style={{ order: 6, display: "inline-flex", alignItems: "center" }}
+          style={{ order: 1, display: "inline-flex", alignItems: "center" }}
         >
           {timeInfoArray[1]}
         </span>
@@ -119,7 +119,7 @@ function AssertionHeader({
         onClick={() => {
           navigator.clipboard.writeText(getPath(assertion));
         }}
-        style={{ order: 2, marginLeft: "10px" }}
+        style={{ order: 6, marginLeft: "10px" }}
       >
         <span
           id={`tooltip_path_${uid}`}
@@ -166,7 +166,7 @@ function AssertionHeader({
           className={css(styles.button)}
           onClick={toggleExpand}
           style={{
-            order: 1,
+            order: 4,
             flexGrow: 4,
             padding: ".125rem 0.75rem",
             ...assertion.custom_style,

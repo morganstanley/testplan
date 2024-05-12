@@ -6,6 +6,7 @@ export const displayTimeInfoPreference = atomWithStorage(
   false
 );
 export const displayPathPreference = atomWithStorage("displayPath", false);
+export const timeInfoUTCPreference = atomWithStorage("UTCTime", false);
 export const hideEmptyTestcasesPreference = atomWithStorage(
   "hideEmptyTestcases",
   false

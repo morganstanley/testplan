@@ -700,7 +700,8 @@ class InteractiveReportComponent extends BaseReport {
       reportFetchMessage,
       null,
       selectedEntries,
-      this.props.displayTime
+      this.props.displayTime,
+      this.props.UTCTime
     );
 
     return (

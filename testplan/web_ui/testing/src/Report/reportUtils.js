@@ -200,7 +200,8 @@ const GetCenterPane = (
   reportFetchMessage,
   reportUid,
   selectedEntries,
-  displayTime
+  displayTime,
+  UTCTime
 ) => {
   const selectedEntry = _.last(selectedEntries);
   const logs = selectedEntry?.logs || [];
@@ -235,7 +236,7 @@ const GetCenterPane = (
     );
   }
 
-  const assertions = getAssertions(selectedEntries, displayTime);
+  const assertions = getAssertions(selectedEntries, displayTime, UTCTime);
   if (
     assertions.length > 0 ||
     logs.length > 0 ||
@@ -263,7 +264,7 @@ const GetCenterPane = (
 };
 
 /** TODO */
-const getAssertions = (selectedEntries, displayTime) => {
+const getAssertions = (selectedEntries, displayTime, UTCTime) => {
   // get all assertions from groups and list them sequentially in an array
   const getAssertionsRecursively = (links, entries) => {
     for (let i = 0; i < entries.length; ++i) {
@@ -287,6 +288,7 @@ const getAssertions = (selectedEntries, displayTime) => {
         links[i].timeInfoArray = [i]; // [index, start_time, duration]
         const idx = links[i].utc_time.lastIndexOf("+");
         links[i].timeInfoArray.push(
+          UTCTime ?
           links[i].utc_time
             ? format(
                 new Date(
@@ -295,7 +297,17 @@ const getAssertions = (selectedEntries, displayTime) => {
                     : links[i].utc_time.substring(0, idx)
                 ),
                 "HH:mm:ss.SSS"
-              ) + " UTC"
+              ) + " (UTC)"
+            : ""
+          : links[i].machine_time
+            ? format(
+                new Date(
+                  idx === -1
+                    ? links[i].machine_time
+                    : links[i].machine_time.substring(0, idx)
+                ),
+                "HH:mm:ss.SSS"
+              ) + " (UTC" + links[i].machine_time.substring(idx) + ")"
             : ""
         );
       }

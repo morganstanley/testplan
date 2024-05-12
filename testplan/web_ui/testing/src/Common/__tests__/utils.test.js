@@ -38,8 +38,8 @@ describe("Common/utils", () => {
       const ms = 999;
       var millisecondsFormatted = formatMilliseconds(ms);
       var secondsFormatted = formatSeconds(ms / 1000);
-      expect(millisecondsFormatted).toEqual("999ms");
-      expect(secondsFormatted).toEqual("999ms");
+      expect(millisecondsFormatted).toEqual("0.999s");
+      expect(secondsFormatted).toEqual("0.999s");
     });
 
     it("returns seconds and milliseconds if the input is less than a minute", () => {
@@ -48,8 +48,8 @@ describe("Common/utils", () => {
       const millisecondsInput = s + ms;
       var millisecondsFormatted = formatMilliseconds(millisecondsInput);
       var secondsFormatted = formatSeconds(millisecondsInput / 1000);
-      expect(millisecondsFormatted).toEqual("59s 999ms");
-      expect(secondsFormatted).toEqual("59s 999ms");
+      expect(millisecondsFormatted).toEqual("59.999s");
+      expect(secondsFormatted).toEqual("59.999s");
     });
 
     it("returns minutes and seconds if the input is less than an hour", () => {
@@ -59,8 +59,8 @@ describe("Common/utils", () => {
       const millisecondsInput = m + s + ms;
       var millisecondsFormatted = formatMilliseconds(millisecondsInput);
       var secondsFormatted = formatSeconds(millisecondsInput / 1000);
-      expect(millisecondsFormatted).toEqual("59m 59s");
-      expect(secondsFormatted).toEqual("59m 59s");
+      expect(millisecondsFormatted).toEqual("59m 59.999s");
+      expect(secondsFormatted).toEqual("59m 59.999s");
     });
 
     it("returns hours and minutes if the input is at least an hour", () => {
@@ -71,8 +71,8 @@ describe("Common/utils", () => {
       const millisecondsInput = h + m + s + ms;
       var millisecondsFormatted = formatMilliseconds(millisecondsInput);
       var secondsFormatted = formatSeconds(millisecondsInput / 1000);
-      expect(millisecondsFormatted).toEqual("59h 59m");
-      expect(secondsFormatted).toEqual("59h 59m");
+      expect(millisecondsFormatted).toEqual("59h 59m 59.999s");
+      expect(secondsFormatted).toEqual("59h 59m 59.999s");
     });
 
     it("returns hours only if the input is at least an hour and zero minutes", () => {
@@ -83,8 +83,8 @@ describe("Common/utils", () => {
       const millisecondsInput = h + m + s + ms;
       var millisecondsFormatted = formatMilliseconds(millisecondsInput);
       var secondsFormatted = formatSeconds(millisecondsInput / 1000);
-      expect(millisecondsFormatted).toEqual("59h");
-      expect(secondsFormatted).toEqual("59h");
+      expect(millisecondsFormatted).toEqual("59h 0m 59.999s");
+      expect(secondsFormatted).toEqual("59h 0m 59.999s");
     });
 
     it("returns minutes only if the input is less than an hour and zero seconds", () => {
@@ -94,8 +94,8 @@ describe("Common/utils", () => {
       const millisecondsInput = m + s + ms;
       var millisecondsFormatted = formatMilliseconds(millisecondsInput);
       var secondsFormatted = formatSeconds(millisecondsInput / 1000);
-      expect(millisecondsFormatted).toEqual("59m");
-      expect(secondsFormatted).toEqual("59m");
+      expect(millisecondsFormatted).toEqual("59m 0.999s");
+      expect(secondsFormatted).toEqual("59m 0.999s");
     });
 
     it("returns seconds only if the input is less than a minute and zero milliseconds", () => {
@@ -104,8 +104,8 @@ describe("Common/utils", () => {
       const millisecondsInput = s + ms;
       var millisecondsFormatted = formatMilliseconds(millisecondsInput);
       var secondsFormatted = formatSeconds(millisecondsInput / 1000);
-      expect(millisecondsFormatted).toEqual("59s");
-      expect(secondsFormatted).toEqual("59s");
+      expect(millisecondsFormatted).toEqual("59.000s");
+      expect(secondsFormatted).toEqual("59.000s");
     });
   });
 });

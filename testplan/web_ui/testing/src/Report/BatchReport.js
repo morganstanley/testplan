@@ -30,7 +30,7 @@ import {
 } from "../Common/fakeReport";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
 import { useAtomValue } from "jotai";
-import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
+import { displayTimeInfoPreference, timeInfoUTCPreference } from "../UserSettings/UserSettings";
 
 /**
  * BatchReport component:
@@ -41,7 +41,9 @@ import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
 
 const BatchReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
-  return <BatchReportComponent {...props} displayTime={displayTimeInfo} />;
+  const UTCTimeInfo = useAtomValue(timeInfoUTCPreference);
+  return <BatchReportComponent {...props} displayTime={displayTimeInfo}
+          UTCTime={UTCTimeInfo}/>;
 };
 class BatchReportComponent extends BaseReport {
   constructor(props) {
@@ -253,7 +255,8 @@ class BatchReportComponent extends BaseReport {
       reportFetchMessage,
       this.props.match.params.uid,
       selectedEntries,
-      this.props.displayTime
+      this.props.displayTime,
+      this.props.UTCTime
     );
 
     return (
