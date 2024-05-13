@@ -12,10 +12,16 @@ import platform
 import re
 import threading
 from functools import wraps
-from typing import Callable, Optional, Dict, Hashable, List, Any
+from typing import Callable, Optional, Dict, Hashable, List, Any, Union
 import functools
 
 from testplan import defaults
+from testplan.common.utils.match import (
+    LOG_MATCHER_DEFAULT_TIMEOUT,
+    LogMatcher,
+    Regex,
+    ScopedLogfileMatch,
+)
 from testplan.common.utils.package import MOD_LOCK
 from testplan.common.utils import comparison
 from testplan.common.utils import strings
@@ -1341,6 +1347,167 @@ class FixNamespace(AssertionNamespace):
         return entry
 
 
+class LogfileExpect(ScopedLogfileMatch):
+    """
+    ScopedLogfileMatch with assertion operation.
+    """
+
+    def __init__(
+        self,
+        result,
+        log_matcher,
+        regex,
+        timeout,
+        description,
+        category,
+    ):
+        self.result = result
+        self.description = description
+        self.category = category
+        super().__init__(log_matcher, regex, timeout)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None:
+            return False
+        super().__exit__(exc_type, exc_value, traceback)
+
+        with MOD_LOCK:
+            # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
+            # XXX: do we have concrete ideas about thread-safety here?
+            caller_frame = inspect.stack()[1]
+
+        assertion = assertions.LogfileMatch(
+            self.timeout,
+            self.match_results,
+            self.match_failure,
+            self.description,
+            self.category,
+        )
+        assertion.file_path = os.path.abspath(caller_frame[1])
+        assertion.line_no = caller_frame[2]
+
+        stdout_registry.log_entry(
+            entry=assertion, stdout_style=self.result.stdout_style
+        )
+        self.result.entries.append(assertion)
+
+
+class LogfileNamespace(AssertionNamespace):
+    """
+    Contains assertion methods that operates on log files equipped with
+    :py:class:`~testplan.common.utils.match.LogMatcher`.
+    """
+
+    @assertion
+    def seek_eof(
+        self, log_matcher: LogMatcher, description: Optional[str] = None
+    ):
+        """
+        Set the position of LogMatcher to end of logfile, with operation logged
+        to the report.
+
+        .. code-block:: python
+
+            result.logfile.seek_eof(log_matcher)
+
+        :param log_matcher: LogMatcher on target logfile.
+        :param description: Custom text description for the entry.
+        """
+        log_matcher.seek_eof()
+        pos = log_matcher.position
+        return base.Log(
+            f"{log_matcher} now at {pos}",
+            description or "LogMatcher position set to EOF",
+        )
+
+    @assertion
+    def match(
+        self,
+        log_matcher: LogMatcher,
+        regex: Regex,
+        timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ):
+        """
+        Match patterns in logfile using LogMatcher, with matching results logged
+        to the report.
+
+        .. code-block:: python
+
+            result.logfile.match(
+                log_matcher,
+                r".*passed.*",
+                timeout=2.0,
+                description="my logfile match assertion",
+            )
+
+        :param log_matcher: LogMatcher on target logfile.
+        :param regex: Regular expression as expected pattern in target logfile.
+        :param timeout: Match timeout value in seconds.
+        :param description: Text description for the assertion.
+        :param category: Custom category that will be used for summarization.
+        """
+        results = []
+        failure = None
+        s_pos = log_matcher.position
+        m = log_matcher.match(regex, timeout, raise_on_timeout=False)
+        e_pos = log_matcher.position
+        if m is not None:
+            results.append((m, regex, s_pos, e_pos))
+        else:
+            failure = (None, regex, s_pos, e_pos)
+        return assertions.LogfileMatch(
+            timeout=timeout,
+            results=results,
+            failure=failure,
+            description=description,
+            category=category,
+        )
+
+    def expect(
+        self,
+        log_matcher: LogMatcher,
+        regex: Regex,
+        timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ):
+        """
+        Call as context manager for pattern matching in logfile, given expected
+        lines (indirectly) produced by context manager body, with matching
+        results logged to the report. On enter doing position setting to EOF
+        operation as
+        :py:meth:`result.logfile.seek_eof <testplan.testing.result.LogfileNamespace.seek_eof>`,
+        on exit doing matching operation as
+        :py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`.
+
+        .. code-block:: python
+
+            with result.logfile.expect(
+                log_matcher,
+                r".*passed.*",
+                timeout=2.0,
+                description="my logfile match assertion",
+            ):
+                ...
+
+        :param log_matcher: LogMatcher on target logfile.
+        :param regex: Regular expression as expected pattern in target logfile.
+        :param timeout: Match timeout value in seconds.
+        :param description: Text description for the assertion.
+        :param category: Custom category that will be used for summarization.
+        """
+        return LogfileExpect(
+            result=self.result,
+            log_matcher=log_matcher,
+            regex=regex,
+            timeout=timeout,
+            description=description,
+            category=category,
+        )
+
+
 class Result:
     """
     Contains assertion methods and namespaces for generating test data.
@@ -1354,6 +1521,7 @@ class Result:
         "xml": XMLNamespace,
         "dict": DictNamespace,
         "fix": FixNamespace,
+        "logfile": LogfileNamespace,
     }
 
     def __init__(

@@ -6,7 +6,7 @@ data directly.
 The reason being some assertion classes may have attributes that
 cannot be deserialized (processes, exception objects etc).
 """
-from marshmallow import fields
+from marshmallow import fields, Schema
 from testplan.common.serialization import fields as custom_fields
 
 from .base import BaseSchema, registry
@@ -210,3 +210,35 @@ class DictMatchAllSchema(AssertionSchema):
 
     key_weightings = fields.Raw()
     matches = fields.Function(lambda obj: {"matches": obj.matches})
+
+
+class LogfileMatchResultSchema(Schema):
+    matched = fields.String(allow_none=True)
+    pattern = fields.String()
+    start_pos = fields.String()
+    end_pos = fields.String()
+
+
+class AtMostOneList(fields.List):
+    def _serialize(self, value, attr, obj, **kwargs):
+        if not isinstance(value, list) or len(value) > 1:
+            raise TypeError(
+                f"Unexpected value {value} passed to AtMostOneList field."
+            )
+        return super()._serialize(value, attr, obj, **kwargs)
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if not isinstance(value, list) or len(value) > 1:
+            raise TypeError(
+                f"Unexpected value {value} passed to AtMostOneList field."
+            )
+        return super()._deserialize(value, attr, data, **kwargs)
+
+
+@registry.bind(asr.LogfileMatch)
+class LogfileMatchSchema(AssertionSchema):
+    timeout = fields.Float()
+    results = fields.List(fields.Nested(LogfileMatchResultSchema()))
+    failure = AtMostOneList(fields.Nested(LogfileMatchResultSchema()))
+
+    # TODO: check if chained list having at least one elem

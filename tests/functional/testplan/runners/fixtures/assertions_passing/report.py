@@ -983,6 +983,41 @@ expected_report = TestReport(
                                 }
                             ],
                         ),
+                        TestCaseReport(
+                            name="test_logfile",
+                            entries=[
+                                {
+                                    "type": "LogfileMatch",
+                                    "description": None,
+                                    "passed": True,
+                                    "timeout": 0.1,
+                                    "results": [
+                                        {
+                                            "matched": "lime juice",
+                                            "pattern": "lime juice",
+                                        },
+                                    ],
+                                    "failure": [],
+                                },
+                                {
+                                    "type": "Log",
+                                    "description": "LogMatcher position set to EOF",
+                                },
+                                {
+                                    "type": "LogfileMatch",
+                                    "description": None,
+                                    "passed": True,
+                                    "timeout": 0.1,
+                                    "results": [
+                                        {
+                                            "matched": "ginger beer",
+                                            "pattern": "ginger beer",
+                                        },
+                                    ],
+                                    "failure": [],
+                                },
+                            ],
+                        ),
                     ],
                 )
             ],

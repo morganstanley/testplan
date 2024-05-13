@@ -18,16 +18,16 @@ test_plan_basic.py
 Required files:
   - :download:`test_plan_group.py <../../../examples/Assertions/Basic/test_plan_group.py>`
 
-test_plan_skip.py
-++++++++++++++++++
-.. literalinclude:: ../../../examples/Assertions/Basic/test_plan_skip.py
-
-Required files:
-  - :download:`test_plan_exception.py <../../../examples/Assertions/Basic/test_plan_skip.py>`
-
 test_plan_group.py
 ++++++++++++++++++
 .. literalinclude:: ../../../examples/Assertions/Basic/test_plan_group.py
+
+Required files:
+  - :download:`test_plan_skip.py <../../../examples/Assertions/Basic/test_plan_skip.py>`
+
+test_plan_skip.py
+++++++++++++++++++
+.. literalinclude:: ../../../examples/Assertions/Basic/test_plan_skip.py
 
 Required files:
   - :download:`test_plan_exception.py <../../../examples/Assertions/Basic/test_plan_exception.py>`
@@ -70,6 +70,13 @@ Required files:
 test_plan_xml.py
 ++++++++++++++++
 .. literalinclude:: ../../../examples/Assertions/Basic/test_plan_xml.py
+
+Required files:
+  - :download:`test_plan_logfile.py <../../../examples/Assertions/Basic/test_plan_logfile.py>`
+
+test_plan_logfile.py
+++++++++++++++++++++
+.. literalinclude:: ../../../examples/Assertions/Basic/test_plan_logfile.py
 
 .. _example_assertions_custom_style:
 

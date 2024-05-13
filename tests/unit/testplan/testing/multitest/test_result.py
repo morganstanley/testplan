@@ -8,22 +8,20 @@ import hashlib
 import inspect
 import os
 import re
+import tempfile
 from unittest import mock
 
 import matplotlib
-import pytest
 import matplotlib.pyplot as plot
+import pytest
 
-from testplan.common.utils import comparison
-from testplan.common.utils import testing
-from testplan.common.utils import callable
+from testplan.common.report import Status
+from testplan.common.utils import callable, comparison, match
 from testplan.common.utils import path as path_utils
-
+from testplan.common.utils import testing
 from testplan.testing import result as result_mod
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import testcase, testsuite
-from testplan.common.report import Status
-
 
 matplotlib.use("agg")
 
@@ -366,6 +364,30 @@ def fix_ns():
     mock_result = mock.MagicMock()
     mock_result.entries = collections.deque()
     return result_mod.FixNamespace(mock_result)
+
+
+@pytest.fixture
+def logfile_ns():
+    mock_result = mock.MagicMock()
+    mock_result.entries = collections.deque()
+    return result_mod.LogfileNamespace(mock_result)
+
+
+@pytest.fixture
+def logfile_w_matcher():
+    f = tempfile.NamedTemporaryFile(delete=False)
+    f.close()
+
+    def logline(self, s):
+        self.write(s + os.linesep)
+
+    try:
+        fp = open(f.name, "r+")
+        fp.logline = lambda x: logline(fp, x)
+        yield fp, match.LogMatcher(f.name)
+    finally:
+        fp.close()
+        os.unlink(f.name)
 
 
 class TestDictNamespace:
@@ -862,6 +884,78 @@ class TestFIXNamespace:
             and _689_4[3][1] == "d"
             and _689_4[4][1] == "ABSENT"
         )
+
+
+class TestLogfileNamespace:
+    """Unit testcases for the result.LogfileNamespace class."""
+
+    def test_seek_eof_match(self, logfile_ns, logfile_w_matcher):
+        f, lm = logfile_w_matcher
+        f.logline("coffee")
+        f.flush()
+
+        drinks = [
+            "green tea",
+            "black tea",
+            "oolong tea",
+            "whisky",
+            "rum",
+            "vodka",
+        ]
+
+        logfile_ns.seek_eof(lm)
+        for d in drinks:
+            f.logline(d)
+        f.flush()
+        logfile_ns.match(
+            lm,
+            r"vodka",
+            timeout=0.1,
+        )
+
+        assert len(logfile_ns.result.entries) == 2
+        assert logfile_ns.result.entries[1]
+        e = logfile_ns.result.entries[1]
+        assert len(e.results) == 1
+        pattern_s = set(map(lambda x: x.pattern, e.results))
+        matched_s = set(map(lambda x: x.matched, e.results))
+        assert pattern_s == {"vodka"} == matched_s
+        assert e.timeout == 0.1
+
+    def test_expect(self, logfile_ns, logfile_w_matcher):
+        f, lm = logfile_w_matcher
+        f.logline("whisky regions:")
+        f.flush()
+
+        regions = [
+            "speyside",
+            "highland",
+            "lowland",
+            "campbeltown",
+            "islay",
+        ]
+
+        with logfile_ns.expect(
+            lm,
+            r"lowland",
+        ):
+            for r in regions:
+                f.logline(r)
+            f.flush()
+        assert len(logfile_ns.result.entries) == 1
+
+        assert logfile_ns.result.entries[0]
+        m_res = logfile_ns.result.entries[0].results
+        assert len(m_res) == 1
+
+        with logfile_ns.expect(lm, r"irish", timeout=0.1):
+            f.logline("some other whiskeys:")
+            f.logline("bourbon")
+            f.flush()
+
+        assert not logfile_ns.result.entries[1]
+        m_fai = logfile_ns.result.entries[1].failure
+        assert len(m_fai) == 1 and m_fai[0].pattern == "irish"
 
 
 class TestResultBaseNamespace:
