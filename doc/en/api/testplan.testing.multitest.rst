@@ -43,15 +43,6 @@ testplan.testing.multitest.parametrization module
     :show-inheritance:
 
 
-testplan.testing.multitest.result module
-++++++++++++++++++++++++++++++++++++++++
-
-.. automodule:: testplan.testing.multitest.result
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 testplan.testing.multitest.suite module
 +++++++++++++++++++++++++++++++++++++++
 

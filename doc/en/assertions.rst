@@ -60,7 +60,7 @@ Basic assertions can be used for common test cases, and accessible directly
 from the ``result`` object.
 
 
-:py:meth:`result.true <testplan.testing.multitest.result.Result.true>`
+:py:meth:`result.true <testplan.testing.result.Result.true>`
 ----------------------------------------------------------------------
 
 Checks if the ``value`` is `truthy`.
@@ -81,7 +81,7 @@ Checks if the ``value`` is `truthy`.
           ...
 
 
-:py:meth:`result.false <testplan.testing.multitest.result.Result.false>`
+:py:meth:`result.false <testplan.testing.result.Result.false>`
 ------------------------------------------------------------------------
 
 Checks if the ``value`` is `falsy`.
@@ -101,7 +101,7 @@ Checks if the ``value`` is `falsy`.
           Falsiness check - Pass
           ...
 
-:py:meth:`result.fail <testplan.testing.multitest.result.Result.fail>`
+:py:meth:`result.fail <testplan.testing.result.Result.fail>`
 ----------------------------------------------------------------------
 
 Creates an explicit failure, a common use case is to use it with conditions.
@@ -123,7 +123,7 @@ Creates an explicit failure, a common use case is to use it with conditions.
           Invalid outcome, result: ... - Fail
           ...
 
-:py:meth:`result.equal / result.eq <testplan.testing.multitest.result.Result.equal>`
+:py:meth:`result.equal / result.eq <testplan.testing.result.Result.equal>`
 ------------------------------------------------------------------------------------
 
 Equality assertion, checks if ``reference`` is equal to the ``value``.
@@ -144,7 +144,7 @@ Equality assertion, checks if ``reference`` is equal to the ``value``.
             foo == foo
           ...
 
-:py:meth:`result.not_equal / result.ne <testplan.testing.multitest.result.Result.not_equal>`
+:py:meth:`result.not_equal / result.ne <testplan.testing.result.Result.not_equal>`
 --------------------------------------------------------------------------------------------
 
 Inequality assertion, checks if ``reference`` is not equal to the ``value``.
@@ -165,7 +165,7 @@ Inequality assertion, checks if ``reference`` is not equal to the ``value``.
             foo != bar
           ...
 
-:py:meth:`result.less / result.lt <testplan.testing.multitest.result.Result.less>`
+:py:meth:`result.less / result.lt <testplan.testing.result.Result.less>`
 ----------------------------------------------------------------------------------
 
 Comparison assertion, checks if ``reference`` is less than the ``value``.
@@ -187,7 +187,7 @@ Comparison assertion, checks if ``reference`` is less than the ``value``.
           ...
 
 
-:py:meth:`result.less_equal / result.le <testplan.testing.multitest.result.Result.less_equal>`
+:py:meth:`result.less_equal / result.le <testplan.testing.result.Result.less_equal>`
 ----------------------------------------------------------------------------------------------
 
 Comparison assertion, checks if ``reference`` is less than or equal to the ``value``.
@@ -209,7 +209,7 @@ Comparison assertion, checks if ``reference`` is less than or equal to the ``val
           ...
 
 
-:py:meth:`result.greater / result.gt <testplan.testing.multitest.result.Result.greater>`
+:py:meth:`result.greater / result.gt <testplan.testing.result.Result.greater>`
 ----------------------------------------------------------------------------------------
 
 Comparison assertion, checks if ``reference`` is greater than the ``value``.
@@ -231,7 +231,7 @@ Comparison assertion, checks if ``reference`` is greater than the ``value``.
           ...
 
 
-:py:meth:`result.greater_equal / result.ge <testplan.testing.multitest.result.Result.greater_equal>`
+:py:meth:`result.greater_equal / result.ge <testplan.testing.result.Result.greater_equal>`
 ----------------------------------------------------------------------------------------------------
 
 Comparison assertion, checks if ``reference`` is greater than or equal the ``value``.
@@ -253,7 +253,7 @@ Comparison assertion, checks if ``reference`` is greater than or equal the ``val
           ...
 
 
-:py:meth:`result.isclose <testplan.testing.multitest.result.Result.isclose>`
+:py:meth:`result.isclose <testplan.testing.result.Result.isclose>`
 ----------------------------------------------------------------------------
 
 Checks if ``first`` is close to ``second`` without requiring them to be exactly equal.
@@ -275,7 +275,7 @@ Checks if ``first`` is close to ``second`` without requiring them to be exactly 
           ...
 
 
-:py:meth:`result.contain <testplan.testing.multitest.result.Result.contain>`
+:py:meth:`result.contain <testplan.testing.result.Result.contain>`
 ----------------------------------------------------------------------------
 
 Membership assertion, checks if ``member`` is in the ``container``.
@@ -297,7 +297,7 @@ Membership assertion, checks if ``member`` is in the ``container``.
           ...
 
 
-:py:meth:`result.not_contain <testplan.testing.multitest.result.Result.not_contain>`
+:py:meth:`result.not_contain <testplan.testing.result.Result.not_contain>`
 ------------------------------------------------------------------------------------
 
 Membership assertion, checks if ``member`` is not in the  ``container``.
@@ -319,7 +319,7 @@ Membership assertion, checks if ``member`` is not in the  ``container``.
           ...
 
 
-:py:meth:`result.equal_slices <testplan.testing.multitest.result.Result.equal_slices>`
+:py:meth:`result.equal_slices <testplan.testing.result.Result.equal_slices>`
 --------------------------------------------------------------------------------------
 
 Equality assertion on iterable slices, checks if slices of ``reference`` is equal to slices of  the ``value``.
@@ -350,7 +350,7 @@ Equality assertion on iterable slices, checks if slices of ``reference`` is equa
               Expected:	[7, 8]
           ...
 
-:py:meth:`result.equal_exclude_slices <testplan.testing.multitest.result.Result.equal_exclude_slices>`
+:py:meth:`result.equal_exclude_slices <testplan.testing.result.Result.equal_exclude_slices>`
 ------------------------------------------------------------------------------------------------------
 
 Equality assertion on iterables, checks if the items of ``reference`` and ``value`` which are outside the given slices match.
@@ -378,7 +378,7 @@ Equality assertion on iterables, checks if the items of ``reference`` and ``valu
           ...
 
 
-:py:meth:`result.raises <testplan.testing.multitest.result.Result.raises>`
+:py:meth:`result.raises <testplan.testing.result.Result.raises>`
 --------------------------------------------------------------------------
 
 Should be used as a context manager, checks if the block of code raises any of the given error types.
@@ -438,7 +438,7 @@ Supports additional checks via ``pattern`` and ``func`` arguments.
           ...
 
 
-:py:meth:`result.not_raises <testplan.testing.multitest.result.Result.not_raises>`
+:py:meth:`result.not_raises <testplan.testing.result.Result.not_raises>`
 ----------------------------------------------------------------------------------
 
 Should be used as a context manager, checks if the block of code `does not` raise any of the given error types.
@@ -504,7 +504,7 @@ of exception has been raised without matching the given ``pattern`` or ``func``.
           ...
 
 
-:py:meth:`result.diff <testplan.testing.multitest.result.Result.diff>`
+:py:meth:`result.diff <testplan.testing.result.Result.diff>`
 ----------------------------------------------------------------------
 
 Line diff assertion. Checks if textual content ``first`` and ``second`` have difference with given options.
@@ -581,7 +581,7 @@ If difference found, generates a list of strings showing the delta.
           ...
 
 
-:py:meth:`result.log <testplan.testing.multitest.result.Result.log>`
+:py:meth:`result.log <testplan.testing.result.Result.log>`
 --------------------------------------------------------------------
 
 Add a log entry in the console output and the report to make the output
@@ -614,7 +614,7 @@ more human readable.
           ...
 
 
-:py:meth:`result.markdown <testplan.testing.multitest.result.Result.markdown>`
+:py:meth:`result.markdown <testplan.testing.result.Result.markdown>`
 ------------------------------------------------------------------------------
 Add Markdown into the report. Useful for displaying blocks of formatted text, code, messages, images etc.
 Downloadable examples that use markdown assertion can be found :ref:`here <example_assertions>`.
@@ -629,9 +629,9 @@ Downloadable examples that use markdown assertion can be found :ref:`here <examp
         )
 
 
-:py:meth:`result.log_html <testplan.testing.multitest.result.Result.log_html>`
+:py:meth:`result.log_html <testplan.testing.result.Result.log_html>`
 ------------------------------------------------------------------------------
-A shortcut of :py:meth:result.markdown <testplan.testing.multitest.result.Result.markdown> but disable escape flag.
+A shortcut of :py:meth:`result.markdown <testplan.testing.result.Result.markdown>` but disable escape flag.
 Downloadable examples that use html assertion can be found :ref:`here <example_assertions>`.
 
     .. code-block:: python
@@ -649,7 +649,7 @@ Downloadable examples that use html assertion can be found :ref:`here <example_a
     Embedded HTML does not support <script> tags. HTML5 specifies script tags within innerHTML shall not execute.
 
 
-:py:meth:`result.log_code <testplan.testing.multitest.result.Result.log_code>`
+:py:meth:`result.log_code <testplan.testing.result.Result.log_code>`
 ------------------------------------------------------------------------------
 Add source code into the report. Useful for displaying source code which generated from a code-generation tool.
 Downloadable examples that use codelog assertion can be found
@@ -664,7 +664,7 @@ Downloadable examples that use codelog assertion can be found
         )
 
 
-:py:meth:`result.skip <testplan.testing.multitest.result.Result.skip>`
+:py:meth:`result.skip <testplan.testing.result.Result.skip>`
 ------------------------------------------------------------------------------
 Skip a testcase with the given reason.
 Downloadable examples that use skip assertion can be found
@@ -675,7 +675,7 @@ Downloadable examples that use skip assertion can be found
         result.skip(reason="skip me")
 
 
-:py:meth:`result.matplot <testplan.testing.multitest.result.Result.matplot>`
+:py:meth:`result.matplot <testplan.testing.result.Result.matplot>`
 ----------------------------------------------------------------------------
 
 Displays a Matplotlib plot in the report. Downloadable examples that use
@@ -683,7 +683,7 @@ matplot assertion and contain output sample images can be found
 :ref:`here <example_basic_models>`.
 
 
-:py:meth:`result.plotly <testplan.testing.multitest.result.Result.plotly>`
+:py:meth:`result.plotly <testplan.testing.result.Result.plotly>`
 ----------------------------------------------------------------------------
 
 Displays a Plotly figure in the report. Downloadable examples that use
@@ -824,7 +824,7 @@ Regex Assertions (``result.regex``)
 ===================================
 Contains assertion methods for regular expression based checks.
 
-:py:meth:`result.regex.match <testplan.testing.multitest.result.RegexNamespace.match>`
+:py:meth:`result.regex.match <testplan.testing.result.RegexNamespace.match>`
 --------------------------------------------------------------------------------------
 
 Checks if the given ``regexp`` (``string pattern`` or compiled ``re`` object) matches (``re.match``) the ``value``.
@@ -855,7 +855,7 @@ Checks if the given ``regexp`` (``string pattern`` or compiled ``re`` object) ma
           ...
 
 
-:py:meth:`result.regex.multiline_match <testplan.testing.multitest.result.RegexNamespace.multiline_match>`
+:py:meth:`result.regex.multiline_match <testplan.testing.result.RegexNamespace.multiline_match>`
 ----------------------------------------------------------------------------------------------------------
 
 Checks if the given ``regexp`` matches (``re.match``) the ``value``, uses (``re.DOTALL`` and ``re.MULTILINE``) flags implicitly.
@@ -887,7 +887,7 @@ Checks if the given ``regexp`` matches (``re.match``) the ``value``, uses (``re.
           ...
 
 
-:py:meth:`result.regex.not_match <testplan.testing.multitest.result.RegexNamespace.not_match>`
+:py:meth:`result.regex.not_match <testplan.testing.result.RegexNamespace.not_match>`
 ----------------------------------------------------------------------------------------------
 
 Checks if the given ``regexp`` does not match the ``value``.
@@ -909,7 +909,7 @@ Checks if the given ``regexp`` does not match the ``value``.
           ...
 
 
-:py:meth:`result.regex.multiline_not_match <testplan.testing.multitest.result.RegexNamespace.multiline_not_match>`
+:py:meth:`result.regex.multiline_not_match <testplan.testing.result.RegexNamespace.multiline_not_match>`
 ------------------------------------------------------------------------------------------------------------------
 Checks if the given ``regexp`` does not match the ``value``, uses (``re.DOTALL`` and ``re.MULTILINE``) flags implicitly.
 
@@ -939,7 +939,7 @@ Checks if the given ``regexp`` does not match the ``value``, uses (``re.DOTALL``
             third line
           ...
 
-:py:meth:`result.regex.search <testplan.testing.multitest.result.RegexNamespace.search>`
+:py:meth:`result.regex.search <testplan.testing.result.RegexNamespace.search>`
 ----------------------------------------------------------------------------------------
 
 Checks if ``re.search`` operation on the given text returns a match.
@@ -961,7 +961,7 @@ Checks if ``re.search`` operation on the given text returns a match.
           ...
 
 
-:py:meth:`result.regex.search_empty <testplan.testing.multitest.result.RegexNamespace.search_empty>`
+:py:meth:`result.regex.search_empty <testplan.testing.result.RegexNamespace.search_empty>`
 ----------------------------------------------------------------------------------------------------
 
 Checks if ``re.search`` operation on the given text does not return a match.
@@ -982,7 +982,7 @@ Checks if ``re.search`` operation on the given text does not return a match.
             Pattern: `aaa`, String: `foobarbaz`
           ...
 
-:py:meth:`result.regex.findall <testplan.testing.multitest.result.RegexNamespace.findall>`
+:py:meth:`result.regex.findall <testplan.testing.result.RegexNamespace.findall>`
 ------------------------------------------------------------------------------------------
 
 Checks if given ``regexp`` exists in the ``value`` via ``re.finditer``
@@ -1026,7 +1026,7 @@ and optionally runs a ``condition`` callable against the number of matches.
           ...
 
 
-:py:meth:`result.regex.matchline <testplan.testing.multitest.result.RegexNamespace.matchline>`
+:py:meth:`result.regex.matchline <testplan.testing.result.RegexNamespace.matchline>`
 ----------------------------------------------------------------------------------------------
 
 Checks if the given ``regexp`` returns a match (``re.match``) for any of the lines in the ``value``.
@@ -1063,7 +1063,7 @@ Contains assertion logic for comparing tables. A table may be represented as
 a list of dictionaries with uniform keys or a list of lists with the first item
 representing the column names and the rest corresponding to the rows.
 
-:py:meth:`result.table.match <testplan.testing.multitest.result.TableNamespace.match>`
+:py:meth:`result.table.match <testplan.testing.result.TableNamespace.match>`
 --------------------------------------------------------------------------------------
 
 Compares two tables, uses equality for each table cell for plain
@@ -1129,7 +1129,7 @@ values and supports regex / custom comparators as well.
 
           ...
 
-:py:meth:`result.table.diff <testplan.testing.multitest.result.TableNamespace.diff>`
+:py:meth:`result.table.diff <testplan.testing.result.TableNamespace.diff>`
 ------------------------------------------------------------------------------------
 
 Find differences of two tables, uses equality for each table cell for plain
@@ -1189,7 +1189,7 @@ values and supports regex / custom comparators as well.
 
           ...
 
-:py:meth:`result.table.log <testplan.testing.multitest.result.TableNamespace.log>`
+:py:meth:`result.table.log <testplan.testing.result.TableNamespace.log>`
 ----------------------------------------------------------------------------------
 
 Logs a table to console output and the report.
@@ -1272,7 +1272,7 @@ Or a custom format value.
         )
 
 
-:py:meth:`result.table.column_contain <testplan.testing.multitest.result.TableNamespace.column_contain>`
+:py:meth:`result.table.column_contain <testplan.testing.result.TableNamespace.column_contain>`
 --------------------------------------------------------------------------------------------------------
 
 Can be used for checking if all of the values of a table's column contain values from a given list.
@@ -1322,7 +1322,7 @@ Dict Assertions (``result.dict``)
 
 Contains assertion methods that operate on dictionaries.
 
-:py:meth:`result.dict.check <testplan.testing.multitest.result.DictNamespace.check>`
+:py:meth:`result.dict.check <testplan.testing.result.DictNamespace.check>`
 ------------------------------------------------------------------------------------
 
 Checks existence / absence of keys of a dictionary.
@@ -1354,7 +1354,7 @@ Checks existence / absence of keys of a dictionary.
           Absence check: ['bar', 'beta']
             Key should be absent: ['bar']
 
-:py:meth:`result.dict.match <testplan.testing.multitest.result.DictNamespace.match>`
+:py:meth:`result.dict.match <testplan.testing.result.DictNamespace.match>`
 ------------------------------------------------------------------------------------
 
 Matches two (nested) dictionaries against each other.
@@ -1446,7 +1446,7 @@ Matches two (nested) dictionaries against each other.
             (Passed)  Key(bar),
             (Passed)      Key(color),    blue <str> == <value> in ['blue', 'red', 'yellow'] <func>
 
-:py:meth:`result.dict.log <testplan.testing.multitest.result.DictNamespace.log>`
+:py:meth:`result.dict.log <testplan.testing.result.DictNamespace.log>`
 --------------------------------------------------------------------------------
 
 Add a log entry of dictionary in the console output and the report to make
@@ -1502,7 +1502,7 @@ Fix Assertions (``result.fix``)
 
 Contains assertion methods that operate on `Fix messages <https://en.wikipedia.org/wiki/Financial_Information_eXchange>`_.
 
-:py:meth:`result.fix.check <testplan.testing.multitest.result.FixNamespace.check>`
+:py:meth:`result.fix.check <testplan.testing.result.FixNamespace.check>`
 ----------------------------------------------------------------------------------
 
 Checks existence / absence of tags in a Fix message.
@@ -1540,7 +1540,7 @@ Checks existence / absence of tags in a Fix message.
             Absence check: [444, 555]
                 Key should be absent: [555]
 
-:py:meth:`result.fix.match <testplan.testing.multitest.result.FixNamespace.match>`
+:py:meth:`result.fix.match <testplan.testing.result.FixNamespace.match>`
 ----------------------------------------------------------------------------------
 
 Similar to ``result.dict.match``, matches 2 (nested) fix messages, ``expected`` message supports custom comparators as well.
@@ -1659,7 +1659,7 @@ Similar to ``result.dict.match``, matches 2 (nested) fix messages, ``expected`` 
             (Passed)  Key(22),    5 <int> == 5 <int>
             (Passed)  Key(55),    2 <int> == 2 <int>
 
-:py:meth:`result.fix.log <testplan.testing.multitest.result.FixNamespace.log>`
+:py:meth:`result.fix.log <testplan.testing.result.FixNamespace.log>`
 ------------------------------------------------------------------------------
 
 Add a log entry of fix message in the console output and the report to make
@@ -1732,7 +1732,7 @@ XML Assertions (``result.xml``)
 ===============================
 Contains assertion methods that operate on XML strings.
 
-:py:meth:`result.xml.check <testplan.testing.multitest.result.XMLNamespace.check>`
+:py:meth:`result.xml.check <testplan.testing.result.XMLNamespace.check>`
 ----------------------------------------------------------------------------------
 
 Checks if given tags / paths exist in the XML string, supports namespace lookups and value/regex matching for tag values.
@@ -1807,6 +1807,105 @@ Checks if given tags / paths exist in the XML string, supports namespace lookups
               Hello world! == REGEX('Hello*')
           ...
 
+.. _assertion_logfile:
+
+Logfile Assertions (``result.logfile``)
+=======================================
+Contains assertion methods that operates on log files equipped with
+:py:class:`~testplan.common.utils.match.LogMatcher`.
+
+:py:meth:`result.logfile.seek_eof <testplan.testing.result.LogfileNamespace.seek_eof>`
+--------------------------------------------------------------------------------------
+
+Set the position of LogMatcher to end of logfile, with operation logged to the report.
+
+    .. code-block:: python
+
+        from testplan.common.utils.match import LogMatcher
+
+        log_matcher = LogMatcher("my_log_file")
+
+        @testcase
+        def sample_testcase(self, env, result):
+            result.logfile.seek_eof(log_matcher, description="SEEKING")
+
+Sample output:
+
+    .. code-block:: bash
+
+        $ ./test_plan.py --verbose
+        ...
+        SEEKING
+          LogMatcher[...] now at <inode XXX, position XXX>
+        ...
+
+:py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`
+--------------------------------------------------------------------------------
+
+Match patterns in logfile using LogMatcher, with matching results logged to the report.
+
+    .. code-block:: python
+
+        from testplan.common.utils.match import LogMatcher
+
+        log_matcher = LogMatcher("my_log_file")
+
+        @testcase
+        def sample_testcase(self, env, result):
+            result.logfile.match(
+                log_matcher,
+                r".*passed.*",
+                timeout=2.0,
+                description="my logfile match assertion",
+            )
+
+Sample output:
+
+    .. code-block:: bash
+
+        $ ./test_plan.py --verbose
+        ...
+        my logfile match assertion - Pass
+          Pattern: `.*passed.*`
+        ...
+
+:py:meth:`result.logfile.expect <testplan.testing.result.LogfileNamespace.expect>`
+----------------------------------------------------------------------------------
+
+Call as context manager for pattern matching in logfile, given expected lines
+(indirectly) produced by context manager body, with matching results logged to the
+report. On enter doing position seeking operation as
+:py:meth:`result.logfile.seek_eof <testplan.testing.result.LogfileNamespace.seek_eof>`,
+on exit doing matching operation as
+:py:meth:`result.logfile.match <testplan.testing.result.LogfileNamespace.match>`.
+
+    .. code-block:: python
+
+        from testplan.common.utils.match import LogMatcher
+
+        log_matcher = LogMatcher("my_log_file")
+
+        @testcase
+        def sample_testcase(self, env, result):
+            with result.logfile.expect(
+                log_matcher,
+                r".*passed.*",
+                timeout=2.0,
+                description="my logfile match assertion",
+            ):
+                with open("my_log_file", "r+") as f:
+                    f.write("passed passed passed\n")
+                    f.write("failed failed failed\n")
+
+Sample output:
+
+    .. code-block:: bash
+
+        $ ./test_plan.py --verbose
+        ...
+        my logfile match assertion - Pass
+          Pattern: `.*passed.*`
+        ...
 
 Graph Visualisation
 ===================
@@ -1984,7 +2083,7 @@ The options for the entire graph
 
 Custom Comparators
 ==================
-Some assertion methods can make use of custom comparators, which are located at ``testplan.common.utils.comparison`` module.
+Some assertion methods can make use of custom comparators, which are located at :py:mod:`testplan.common.utils.comparison` module.
 
 These utilities are simple, composable and callable objects and produce more readable output compared to plain ``lambda`` functions.
 
