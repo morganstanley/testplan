@@ -250,8 +250,7 @@ const styles = StyleSheet.create({
   },
 
   timeInfo: {
-    padding: "4px 0px",
-    fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+    padding: "2px 0px",
   },
 
   cardHeaderPath: {

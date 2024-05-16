@@ -13963,7 +13963,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           0,
-                          "15:30:12.010 (UTC+00:00)",
+                          "15:30:12.010+00:00",
                           "(+0.000s)",
                         ],
                         "type": "Equal",
@@ -13981,7 +13981,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           1,
-                          "15:30:14.015 (UTC+00:00)",
+                          "15:30:14.015+00:00",
                           "(+2.005s)",
                         ],
                         "type": "Equal",
@@ -13999,7 +13999,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           2,
-                          "15:32:21.123 (UTC+00:00)",
+                          "15:32:21.123+00:00",
                           "(+2m 7.108s)",
                         ],
                         "type": "Equal",
@@ -14017,7 +14017,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           3,
-                          "15:33:37.015 (UTC+00:00)",
+                          "15:33:37.015+00:00",
                           "(+1m 15.892s)",
                         ],
                         "type": "Equal",
@@ -14472,7 +14472,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             0,
-                            "15:30:12.010 (UTC+00:00)",
+                            "15:30:12.010+00:00",
                             "(+0.000s)",
                           ],
                           "type": "Equal",
@@ -14490,7 +14490,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             1,
-                            "15:30:14.015 (UTC+00:00)",
+                            "15:30:14.015+00:00",
                             "(+2.005s)",
                           ],
                           "type": "Equal",
@@ -14508,7 +14508,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             2,
-                            "15:32:21.123 (UTC+00:00)",
+                            "15:32:21.123+00:00",
                             "(+2m 7.108s)",
                           ],
                           "type": "Equal",
@@ -14526,7 +14526,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             3,
-                            "15:33:37.015 (UTC+00:00)",
+                            "15:33:37.015+00:00",
                             "(+1m 15.892s)",
                           ],
                           "type": "Equal",
@@ -14672,7 +14672,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                       "second": 1,
                       "timeInfoArray": Array [
                         0,
-                        "15:30:12.010 (UTC+00:00)",
+                        "15:30:12.010+00:00",
                         "(+0.000s)",
                       ],
                       "type": "Equal",
@@ -14690,7 +14690,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                       "second": 1,
                       "timeInfoArray": Array [
                         1,
-                        "15:30:14.015 (UTC+00:00)",
+                        "15:30:14.015+00:00",
                         "(+2.005s)",
                       ],
                       "type": "Equal",
@@ -14708,7 +14708,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                       "second": 1,
                       "timeInfoArray": Array [
                         2,
-                        "15:32:21.123 (UTC+00:00)",
+                        "15:32:21.123+00:00",
                         "(+2m 7.108s)",
                       ],
                       "type": "Equal",
@@ -14726,7 +14726,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                       "second": 1,
                       "timeInfoArray": Array [
                         3,
-                        "15:33:37.015 (UTC+00:00)",
+                        "15:33:37.015+00:00",
                         "(+1m 15.892s)",
                       ],
                       "type": "Equal",
@@ -14833,7 +14833,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   "second": 1,
                   "timeInfoArray": Array [
                     0,
-                    "15:30:12.010 (UTC+00:00)",
+                    "15:30:12.010+00:00",
                     "(+0.000s)",
                   ],
                   "type": "Equal",
@@ -14851,7 +14851,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   "second": 1,
                   "timeInfoArray": Array [
                     1,
-                    "15:30:14.015 (UTC+00:00)",
+                    "15:30:14.015+00:00",
                     "(+2.005s)",
                   ],
                   "type": "Equal",
@@ -14869,7 +14869,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   "second": 1,
                   "timeInfoArray": Array [
                     2,
-                    "15:32:21.123 (UTC+00:00)",
+                    "15:32:21.123+00:00",
                     "(+2m 7.108s)",
                   ],
                   "type": "Equal",
@@ -14887,7 +14887,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   "second": 1,
                   "timeInfoArray": Array [
                     3,
-                    "15:33:37.015 (UTC+00:00)",
+                    "15:33:37.015+00:00",
                     "(+1m 15.892s)",
                   ],
                   "type": "Equal",
@@ -14964,7 +14964,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               "second": 1,
               "timeInfoArray": Array [
                 0,
-                "15:30:12.010 (UTC+00:00)",
+                "15:30:12.010+00:00",
                 "(+0.000s)",
               ],
               "type": "Equal",
@@ -14982,7 +14982,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               "second": 1,
               "timeInfoArray": Array [
                 1,
-                "15:30:14.015 (UTC+00:00)",
+                "15:30:14.015+00:00",
                 "(+2.005s)",
               ],
               "type": "Equal",
@@ -15000,7 +15000,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               "second": 1,
               "timeInfoArray": Array [
                 2,
-                "15:32:21.123 (UTC+00:00)",
+                "15:32:21.123+00:00",
                 "(+2m 7.108s)",
               ],
               "type": "Equal",
@@ -15018,7 +15018,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               "second": 1,
               "timeInfoArray": Array [
                 3,
-                "15:33:37.015 (UTC+00:00)",
+                "15:33:37.015+00:00",
                 "(+1m 15.892s)",
               ],
               "type": "Equal",
@@ -15396,7 +15396,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             0,
-                            "15:30:12.010 (UTC+00:00)",
+                            "15:30:12.010+00:00",
                             "(+0.000s)",
                           ],
                           "type": "Equal",
@@ -15414,7 +15414,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             1,
-                            "15:30:14.015 (UTC+00:00)",
+                            "15:30:14.015+00:00",
                             "(+2.005s)",
                           ],
                           "type": "Equal",
@@ -15432,7 +15432,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             2,
-                            "15:32:21.123 (UTC+00:00)",
+                            "15:32:21.123+00:00",
                             "(+2m 7.108s)",
                           ],
                           "type": "Equal",
@@ -15450,7 +15450,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           "second": 1,
                           "timeInfoArray": Array [
                             3,
-                            "15:33:37.015 (UTC+00:00)",
+                            "15:33:37.015+00:00",
                             "(+1m 15.892s)",
                           ],
                           "type": "Equal",
@@ -15898,7 +15898,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                             "second": 1,
                             "timeInfoArray": Array [
                               0,
-                              "15:30:12.010 (UTC+00:00)",
+                              "15:30:12.010+00:00",
                               "(+0.000s)",
                             ],
                             "type": "Equal",
@@ -15916,7 +15916,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                             "second": 1,
                             "timeInfoArray": Array [
                               1,
-                              "15:30:14.015 (UTC+00:00)",
+                              "15:30:14.015+00:00",
                               "(+2.005s)",
                             ],
                             "type": "Equal",
@@ -15934,7 +15934,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                             "second": 1,
                             "timeInfoArray": Array [
                               2,
-                              "15:32:21.123 (UTC+00:00)",
+                              "15:32:21.123+00:00",
                               "(+2m 7.108s)",
                             ],
                             "type": "Equal",
@@ -15952,7 +15952,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                             "second": 1,
                             "timeInfoArray": Array [
                               3,
-                              "15:33:37.015 (UTC+00:00)",
+                              "15:33:37.015+00:00",
                               "(+1m 15.892s)",
                             ],
                             "type": "Equal",
@@ -16098,7 +16098,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           0,
-                          "15:30:12.010 (UTC+00:00)",
+                          "15:30:12.010+00:00",
                           "(+0.000s)",
                         ],
                         "type": "Equal",
@@ -16116,7 +16116,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           1,
-                          "15:30:14.015 (UTC+00:00)",
+                          "15:30:14.015+00:00",
                           "(+2.005s)",
                         ],
                         "type": "Equal",
@@ -16134,7 +16134,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           2,
-                          "15:32:21.123 (UTC+00:00)",
+                          "15:32:21.123+00:00",
                           "(+2m 7.108s)",
                         ],
                         "type": "Equal",
@@ -16152,7 +16152,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         "second": 1,
                         "timeInfoArray": Array [
                           3,
-                          "15:33:37.015 (UTC+00:00)",
+                          "15:33:37.015+00:00",
                           "(+1m 15.892s)",
                         ],
                         "type": "Equal",
@@ -16259,7 +16259,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                     "second": 1,
                     "timeInfoArray": Array [
                       0,
-                      "15:30:12.010 (UTC+00:00)",
+                      "15:30:12.010+00:00",
                       "(+0.000s)",
                     ],
                     "type": "Equal",
@@ -16277,7 +16277,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                     "second": 1,
                     "timeInfoArray": Array [
                       1,
-                      "15:30:14.015 (UTC+00:00)",
+                      "15:30:14.015+00:00",
                       "(+2.005s)",
                     ],
                     "type": "Equal",
@@ -16295,7 +16295,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                     "second": 1,
                     "timeInfoArray": Array [
                       2,
-                      "15:32:21.123 (UTC+00:00)",
+                      "15:32:21.123+00:00",
                       "(+2m 7.108s)",
                     ],
                     "type": "Equal",
@@ -16313,7 +16313,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                     "second": 1,
                     "timeInfoArray": Array [
                       3,
-                      "15:33:37.015 (UTC+00:00)",
+                      "15:33:37.015+00:00",
                       "(+1m 15.892s)",
                     ],
                     "type": "Equal",
@@ -16390,7 +16390,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   0,
-                  "15:30:12.010 (UTC+00:00)",
+                  "15:30:12.010+00:00",
                   "(+0.000s)",
                 ],
                 "type": "Equal",
@@ -16408,7 +16408,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   1,
-                  "15:30:14.015 (UTC+00:00)",
+                  "15:30:14.015+00:00",
                   "(+2.005s)",
                 ],
                 "type": "Equal",
@@ -16426,7 +16426,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   2,
-                  "15:32:21.123 (UTC+00:00)",
+                  "15:32:21.123+00:00",
                   "(+2m 7.108s)",
                 ],
                 "type": "Equal",
@@ -16444,7 +16444,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   3,
-                  "15:33:37.015 (UTC+00:00)",
+                  "15:33:37.015+00:00",
                   "(+1m 15.892s)",
                 ],
                 "type": "Equal",
@@ -16511,7 +16511,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   0,
-                  "15:30:12.010 (UTC+00:00)",
+                  "15:30:12.010+00:00",
                   "(+0.000s)",
                 ],
                 "type": "Equal",
@@ -16529,7 +16529,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   1,
-                  "15:30:14.015 (UTC+00:00)",
+                  "15:30:14.015+00:00",
                   "(+2.005s)",
                 ],
                 "type": "Equal",
@@ -16547,7 +16547,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   2,
-                  "15:32:21.123 (UTC+00:00)",
+                  "15:32:21.123+00:00",
                   "(+2m 7.108s)",
                 ],
                 "type": "Equal",
@@ -16565,7 +16565,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "second": 1,
                 "timeInfoArray": Array [
                   3,
-                  "15:33:37.015 (UTC+00:00)",
+                  "15:33:37.015+00:00",
                   "(+1m 15.892s)",
                 ],
                 "type": "Equal",
@@ -16921,7 +16921,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           0,
-                          "14:30:12.010 (UTC)",
+                          "14:30:12.010Z",
                           "(+0.000s)",
                         ],
                         "type": "Equal",
@@ -16939,7 +16939,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           1,
-                          "14:30:14.015 (UTC)",
+                          "14:30:14.015Z",
                           "(+2.005s)",
                         ],
                         "type": "Equal",
@@ -16957,7 +16957,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           2,
-                          "14:32:21.123 (UTC)",
+                          "14:32:21.123Z",
                           "(+2m 7.108s)",
                         ],
                         "type": "Equal",
@@ -16975,7 +16975,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           3,
-                          "14:33:37.015 (UTC)",
+                          "14:33:37.015Z",
                           "(+1m 15.892s)",
                         ],
                         "type": "Equal",
@@ -17430,7 +17430,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             0,
-                            "14:30:12.010 (UTC)",
+                            "14:30:12.010Z",
                             "(+0.000s)",
                           ],
                           "type": "Equal",
@@ -17448,7 +17448,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             1,
-                            "14:30:14.015 (UTC)",
+                            "14:30:14.015Z",
                             "(+2.005s)",
                           ],
                           "type": "Equal",
@@ -17466,7 +17466,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             2,
-                            "14:32:21.123 (UTC)",
+                            "14:32:21.123Z",
                             "(+2m 7.108s)",
                           ],
                           "type": "Equal",
@@ -17484,7 +17484,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             3,
-                            "14:33:37.015 (UTC)",
+                            "14:33:37.015Z",
                             "(+1m 15.892s)",
                           ],
                           "type": "Equal",
@@ -17630,7 +17630,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                       "second": 1,
                       "timeInfoArray": Array [
                         0,
-                        "14:30:12.010 (UTC)",
+                        "14:30:12.010Z",
                         "(+0.000s)",
                       ],
                       "type": "Equal",
@@ -17648,7 +17648,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                       "second": 1,
                       "timeInfoArray": Array [
                         1,
-                        "14:30:14.015 (UTC)",
+                        "14:30:14.015Z",
                         "(+2.005s)",
                       ],
                       "type": "Equal",
@@ -17666,7 +17666,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                       "second": 1,
                       "timeInfoArray": Array [
                         2,
-                        "14:32:21.123 (UTC)",
+                        "14:32:21.123Z",
                         "(+2m 7.108s)",
                       ],
                       "type": "Equal",
@@ -17684,7 +17684,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                       "second": 1,
                       "timeInfoArray": Array [
                         3,
-                        "14:33:37.015 (UTC)",
+                        "14:33:37.015Z",
                         "(+1m 15.892s)",
                       ],
                       "type": "Equal",
@@ -17791,7 +17791,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   "second": 1,
                   "timeInfoArray": Array [
                     0,
-                    "14:30:12.010 (UTC)",
+                    "14:30:12.010Z",
                     "(+0.000s)",
                   ],
                   "type": "Equal",
@@ -17809,7 +17809,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   "second": 1,
                   "timeInfoArray": Array [
                     1,
-                    "14:30:14.015 (UTC)",
+                    "14:30:14.015Z",
                     "(+2.005s)",
                   ],
                   "type": "Equal",
@@ -17827,7 +17827,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   "second": 1,
                   "timeInfoArray": Array [
                     2,
-                    "14:32:21.123 (UTC)",
+                    "14:32:21.123Z",
                     "(+2m 7.108s)",
                   ],
                   "type": "Equal",
@@ -17845,7 +17845,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   "second": 1,
                   "timeInfoArray": Array [
                     3,
-                    "14:33:37.015 (UTC)",
+                    "14:33:37.015Z",
                     "(+1m 15.892s)",
                   ],
                   "type": "Equal",
@@ -17922,7 +17922,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               "second": 1,
               "timeInfoArray": Array [
                 0,
-                "14:30:12.010 (UTC)",
+                "14:30:12.010Z",
                 "(+0.000s)",
               ],
               "type": "Equal",
@@ -17940,7 +17940,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               "second": 1,
               "timeInfoArray": Array [
                 1,
-                "14:30:14.015 (UTC)",
+                "14:30:14.015Z",
                 "(+2.005s)",
               ],
               "type": "Equal",
@@ -17958,7 +17958,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               "second": 1,
               "timeInfoArray": Array [
                 2,
-                "14:32:21.123 (UTC)",
+                "14:32:21.123Z",
                 "(+2m 7.108s)",
               ],
               "type": "Equal",
@@ -17976,7 +17976,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               "second": 1,
               "timeInfoArray": Array [
                 3,
-                "14:33:37.015 (UTC)",
+                "14:33:37.015Z",
                 "(+1m 15.892s)",
               ],
               "type": "Equal",
@@ -18354,7 +18354,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             0,
-                            "14:30:12.010 (UTC)",
+                            "14:30:12.010Z",
                             "(+0.000s)",
                           ],
                           "type": "Equal",
@@ -18372,7 +18372,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             1,
-                            "14:30:14.015 (UTC)",
+                            "14:30:14.015Z",
                             "(+2.005s)",
                           ],
                           "type": "Equal",
@@ -18390,7 +18390,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             2,
-                            "14:32:21.123 (UTC)",
+                            "14:32:21.123Z",
                             "(+2m 7.108s)",
                           ],
                           "type": "Equal",
@@ -18408,7 +18408,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           "second": 1,
                           "timeInfoArray": Array [
                             3,
-                            "14:33:37.015 (UTC)",
+                            "14:33:37.015Z",
                             "(+1m 15.892s)",
                           ],
                           "type": "Equal",
@@ -18856,7 +18856,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                             "second": 1,
                             "timeInfoArray": Array [
                               0,
-                              "14:30:12.010 (UTC)",
+                              "14:30:12.010Z",
                               "(+0.000s)",
                             ],
                             "type": "Equal",
@@ -18874,7 +18874,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                             "second": 1,
                             "timeInfoArray": Array [
                               1,
-                              "14:30:14.015 (UTC)",
+                              "14:30:14.015Z",
                               "(+2.005s)",
                             ],
                             "type": "Equal",
@@ -18892,7 +18892,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                             "second": 1,
                             "timeInfoArray": Array [
                               2,
-                              "14:32:21.123 (UTC)",
+                              "14:32:21.123Z",
                               "(+2m 7.108s)",
                             ],
                             "type": "Equal",
@@ -18910,7 +18910,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                             "second": 1,
                             "timeInfoArray": Array [
                               3,
-                              "14:33:37.015 (UTC)",
+                              "14:33:37.015Z",
                               "(+1m 15.892s)",
                             ],
                             "type": "Equal",
@@ -19056,7 +19056,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           0,
-                          "14:30:12.010 (UTC)",
+                          "14:30:12.010Z",
                           "(+0.000s)",
                         ],
                         "type": "Equal",
@@ -19074,7 +19074,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           1,
-                          "14:30:14.015 (UTC)",
+                          "14:30:14.015Z",
                           "(+2.005s)",
                         ],
                         "type": "Equal",
@@ -19092,7 +19092,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           2,
-                          "14:32:21.123 (UTC)",
+                          "14:32:21.123Z",
                           "(+2m 7.108s)",
                         ],
                         "type": "Equal",
@@ -19110,7 +19110,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         "second": 1,
                         "timeInfoArray": Array [
                           3,
-                          "14:33:37.015 (UTC)",
+                          "14:33:37.015Z",
                           "(+1m 15.892s)",
                         ],
                         "type": "Equal",
@@ -19217,7 +19217,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                     "second": 1,
                     "timeInfoArray": Array [
                       0,
-                      "14:30:12.010 (UTC)",
+                      "14:30:12.010Z",
                       "(+0.000s)",
                     ],
                     "type": "Equal",
@@ -19235,7 +19235,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                     "second": 1,
                     "timeInfoArray": Array [
                       1,
-                      "14:30:14.015 (UTC)",
+                      "14:30:14.015Z",
                       "(+2.005s)",
                     ],
                     "type": "Equal",
@@ -19253,7 +19253,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                     "second": 1,
                     "timeInfoArray": Array [
                       2,
-                      "14:32:21.123 (UTC)",
+                      "14:32:21.123Z",
                       "(+2m 7.108s)",
                     ],
                     "type": "Equal",
@@ -19271,7 +19271,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                     "second": 1,
                     "timeInfoArray": Array [
                       3,
-                      "14:33:37.015 (UTC)",
+                      "14:33:37.015Z",
                       "(+1m 15.892s)",
                     ],
                     "type": "Equal",
@@ -19348,7 +19348,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   0,
-                  "14:30:12.010 (UTC)",
+                  "14:30:12.010Z",
                   "(+0.000s)",
                 ],
                 "type": "Equal",
@@ -19366,7 +19366,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   1,
-                  "14:30:14.015 (UTC)",
+                  "14:30:14.015Z",
                   "(+2.005s)",
                 ],
                 "type": "Equal",
@@ -19384,7 +19384,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   2,
-                  "14:32:21.123 (UTC)",
+                  "14:32:21.123Z",
                   "(+2m 7.108s)",
                 ],
                 "type": "Equal",
@@ -19402,7 +19402,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   3,
-                  "14:33:37.015 (UTC)",
+                  "14:33:37.015Z",
                   "(+1m 15.892s)",
                 ],
                 "type": "Equal",
@@ -19469,7 +19469,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   0,
-                  "14:30:12.010 (UTC)",
+                  "14:30:12.010Z",
                   "(+0.000s)",
                 ],
                 "type": "Equal",
@@ -19487,7 +19487,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   1,
-                  "14:30:14.015 (UTC)",
+                  "14:30:14.015Z",
                   "(+2.005s)",
                 ],
                 "type": "Equal",
@@ -19505,7 +19505,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   2,
-                  "14:32:21.123 (UTC)",
+                  "14:32:21.123Z",
                   "(+2m 7.108s)",
                 ],
                 "type": "Equal",
@@ -19523,7 +19523,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "second": 1,
                 "timeInfoArray": Array [
                   3,
-                  "14:33:37.015 (UTC)",
+                  "14:33:37.015Z",
                   "(+1m 15.892s)",
                 ],
                 "type": "Equal",

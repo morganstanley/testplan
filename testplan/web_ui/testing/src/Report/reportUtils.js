@@ -297,7 +297,7 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
                     : links[i].utc_time.substring(0, idx)
                 ),
                 "HH:mm:ss.SSS"
-              ) + " (UTC)"
+              ) + "Z"
             : ""
           : links[i].machine_time
             ? format(
@@ -307,7 +307,7 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
                     : links[i].machine_time.substring(0, idx)
                 ),
                 "HH:mm:ss.SSS"
-              ) + " (UTC" + links[i].machine_time.substring(idx) + ")"
+              ) + links[i].machine_time.substring(idx)
             : ""
         );
       }

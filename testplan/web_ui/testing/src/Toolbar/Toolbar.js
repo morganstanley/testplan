@@ -211,7 +211,7 @@ const TimeInfoRadioButtons = ({ enabled }) => {
       preferenceAtom={timeInfoUTCPreference}
       name="timezone"
       value={false}>
-      Machine time
+      Server time
     </UserPreferenceRadio>
   </>
   : "";
