@@ -1,0 +1,1 @@
+Users can now switch between Server time and UTC when enabling time information enabled on the WebUI. Additionally, the time information has been moved to the left side before the assertion title.
