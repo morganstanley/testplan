@@ -184,7 +184,8 @@ const UserPreferenceRadio = ({ children, preferenceAtom, name, value }) => {
   const [preference, setPreference] = useAtom(preferenceAtom);
   return (
     <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-      <Label check className={css(styles.filterLabel_indent1)}>
+      <Label check className={css(
+        styles.filterLabel, styles.filterLabel_indent1)}>
         <Input
           type="radio"
           name={name}
