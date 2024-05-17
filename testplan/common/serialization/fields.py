@@ -4,8 +4,9 @@ Custom marshmallow fields.
 import abc
 import pprint
 
-import pytz
-from dateutil import parser
+from datetime import timezone, datetime
+from typing import Optional
+
 from lxml import etree
 
 from marshmallow import fields
@@ -361,25 +362,26 @@ class UTCDateTime(fields.DateTime):
     Example: 2014-12-22T03:12:58.019077+00:00  (always ends with '+00:00')
     """
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Optional[datetime], attr, obj, **kwargs):
         if value is None:
             return None
 
-        return (
-            value.replace(tzinfo=pytz.UTC)
-            if value.tzinfo is None
-            else value.astimezone(tz=pytz.UTC)
-        ).isoformat()
+        if value.tzname() != "UTC":
+            # note: below doesn't work when value is a rpyc netref
+            # if value.tzinfo != timezone.utc:
+            raise RuntimeError("Field is expected to have utc timezone info")
+
+        return value.isoformat()
 
     def _deserialize(self, value, attr, data, **kwargs):
         if value is None:
             return None
 
-        dt = parser.parse(value)
+        dt = datetime.fromisoformat(value)
         return (
-            dt.replace(tzinfo=pytz.UTC)
+            dt.replace(tzinfo=timezone.utc)
             if dt.tzinfo is None
-            else dt.astimezone(tz=pytz.UTC)
+            else dt.astimezone(tz=timezone.utc)
         )
 
 
@@ -397,7 +399,11 @@ class LocalDateTime(fields.DateTime):
         return None if value is None else value.astimezone().isoformat()
 
     def _deserialize(self, value, attr, data, **kwargs):
-        return None if value is None else parser.parse(value).astimezone()
+        return (
+            None
+            if value is None
+            else datetime.fromisoformat(value).astimezone()
+        )
 
 
 class ExceptionField(fields.Field):

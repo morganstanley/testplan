@@ -10,8 +10,7 @@ import logging
 import datetime
 import weakref
 
-from dateutil.tz import tzutc
-
+from datetime import timezone
 from testplan.common.utils import strings
 
 LOGGER = logging.getLogger(__name__)
@@ -31,7 +30,7 @@ class ReportLogHandler(logging.Handler):
             if report is not None:
                 created = datetime.datetime.utcfromtimestamp(
                     record.created
-                ).replace(tzinfo=tzutc())
+                ).replace(tzinfo=timezone.utc)
                 report.logs.append(
                     {
                         "message": self.format(record),
