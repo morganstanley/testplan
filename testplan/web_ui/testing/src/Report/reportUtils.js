@@ -277,20 +277,13 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
   };
 
   const createTimeInfoString = (entry, UTCTime) => {
-    let Z;
-    let timestamp;
-    if (UTCTime) {
-      timestamp = entry.utc_time;
-      Z = "Z";
-    } else {
-      timestamp = entry.machine_time;
-    }
+    let timestamp = UTCTime ? entry.utc_time : entry.machine_time;
     if (!timestamp) {
       return "";
     }
     timestamp = timestamp.split("+");
-    return format(new Date(timestamp[0]), "HH:mm:ss.SSS")
-    .concat(Z || "+" + timestamp[1]);
+    let label = UTCTime ? "Z" : timestamp.length == 2 ? "+" + timestamp[1] : "";
+    return format(new Date(timestamp[0]), "HH:mm:ss.SSS") + label;
   };
 
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
