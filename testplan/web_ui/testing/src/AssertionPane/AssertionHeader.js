@@ -201,7 +201,7 @@ const renderPath = (assertion) => {
     return (
       <>
         <span className={css(styles.icon)}>
-          <i class="fa fa-copy fa-s"></i>
+          <i className="fa fa-copy fa-s"></i>
         </span>
         <div className={css(styles.cardHeaderPath)}>{getPath(assertion)}</div>
       </>

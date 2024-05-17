@@ -52,7 +52,7 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
       </WithStyles(ForwardRef(Button))>
     </li>
     <li
-      key="breadcrumbMenutestplan"
+      key="breadcrumbMenutestplan0"
     >
       <BreadcrumbMenu
         current={

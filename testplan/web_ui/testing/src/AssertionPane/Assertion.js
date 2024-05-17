@@ -27,6 +27,7 @@ import {
   RegexAssertion,
   RegexMatchLineAssertion,
 } from "./AssertionTypes/RegexAssertions";
+import LogfileMatchAssertion from "./AssertionTypes/LogfileMatchAssertion";
 import { EXPAND_STATUS } from "../Common/defaults";
 import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 
@@ -81,6 +82,7 @@ function Assertion({
       RegexFindIter: RegexAssertion,
       RegexMatchLine: RegexMatchLineAssertion,
       XMLCheck: XMLCheckAssertion,
+      LogfileMatch: LogfileMatchAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
@@ -118,16 +120,13 @@ function Assertion({
       const AssertionTypeComponent = assertionComponent(assertionType);
       if (AssertionTypeComponent) {
         assertionType = (
-          <AssertionTypeComponent
-            assertion={assertion}
-            reportUid={reportUid}
-          />
+          <AssertionTypeComponent assertion={assertion} reportUid={reportUid} />
         );
       } else {
         assertionType = <NotImplementedAssertion />;
       }
     }
-  };
+  }
 
   return (
     <Card className={css(styles.card)}>
@@ -146,14 +145,10 @@ function Assertion({
         <ErrorBoundary>
           <CardBody
             className={css(
-              isAssertionGroup
-                ? styles.groupCardBody
-                : styles.assertionCardBody
+              isAssertionGroup ? styles.groupCardBody : styles.assertionCardBody
             )}
           >
-            {expand === EXPAND_STATUS.EXPAND
-              ? assertionType
-              : null}
+            {expand === EXPAND_STATUS.EXPAND ? assertionType : null}
           </CardBody>
         </ErrorBoundary>
       </Collapse>

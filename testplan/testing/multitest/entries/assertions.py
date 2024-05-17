@@ -18,7 +18,8 @@ import re
 import subprocess
 import sys
 import tempfile
-from typing import Dict, Hashable, List
+from dataclasses import dataclass
+from typing import Dict, Hashable, List, Optional
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
@@ -66,6 +67,7 @@ __all__ = [
     "FixCheck",
     "FixMatch",
     "FixMatchAll",
+    "LogfileMatch",
 ]
 
 
@@ -1475,3 +1477,57 @@ class FixMatchAll(DictMatchAll):
             category=category,
             value_cmp_func=value_cmp_func,
         )
+
+
+class LogfileMatch(Assertion):
+    """
+    NOTE: this structure was designed for multiple regexes matching,
+    NOTE: which will be implemented in the future
+    """
+
+    @dataclass
+    class Result:
+        matched: Optional[str]
+        pattern: str
+        start_pos: str
+        end_pos: str
+
+    def __init__(
+        self,
+        timeout: float,
+        results: List[tuple],
+        failure: Optional[tuple],
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ):
+        self.timeout = timeout
+        self.results = [LogfileMatch._handle_quadruple(r) for r in results]
+        self.failure = (
+            [LogfileMatch._handle_quadruple(failure)]
+            if failure is not None
+            else []
+        )
+
+        super().__init__(description=description, category=category)
+
+    @staticmethod
+    def _truncate_str(s):
+        if len(s) <= 50:
+            return s
+        return f"{s[:50]} ... ({len(s) - 50} chars omitted)"
+
+    @classmethod
+    def _handle_quadruple(cls, tup):
+        m, r, s, e = tup
+        if s is None:
+            s = "<BOF>"
+        r = re.compile(r).pattern
+        return cls.Result(
+            cls._truncate_str(m.group()) if m is not None else None,
+            cls._truncate_str(r),
+            str(s),
+            str(e),
+        )
+
+    def evaluate(self):
+        return not self.failure

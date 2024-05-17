@@ -47,6 +47,14 @@ testplan.testing.ordering module
     :undoc-members:
     :show-inheritance:
 
+testplan.testing.result module
+++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.result
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.testing.tagging module
 +++++++++++++++++++++++++++++++
 
