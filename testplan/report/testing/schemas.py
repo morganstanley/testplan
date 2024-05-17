@@ -12,7 +12,9 @@ from testplan.common.report.schemas import (
     BaseReportGroupSchema,
     ReportLogSchema,
     TimerField,
+    ReportLinkSchema,
 )
+
 from testplan.common.report import Status, RuntimeStatus
 from testplan.common.serialization import fields as custom_fields
 from testplan.common.serialization.schemas import load_tree_data
@@ -215,9 +217,11 @@ class ShallowTestGroupReportSchema(Schema):
     hash = fields.Integer(dump_only=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
+    children = fields.List(fields.Nested(ReportLinkSchema))
 
     @post_load
     def make_testgroup_report(self, data, **kwargs):
+        children = data.pop("children", [])
         timer = data.pop("timer")
         logs = data.pop("logs", [])
 
@@ -226,6 +230,7 @@ class ShallowTestGroupReportSchema(Schema):
 
         group_report.timer = timer
         group_report.logs = logs
+        group_report.children = children
 
         return group_report
 
