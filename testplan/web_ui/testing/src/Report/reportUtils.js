@@ -276,6 +276,23 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
     }
   };
 
+  const createTimeInfoString = (entry, UTCTime) => {
+    let Z;
+    let timestamp;
+    if (UTCTime) {
+      timestamp = entry.utc_time;
+      Z = "Z";
+    } else {
+      timestamp = entry.machine_time;
+    }
+    if (!timestamp) {
+      return "";
+    }
+    timestamp = timestamp.split("+");
+    return format(new Date(timestamp[0]), "HH:mm:ss.SSS")
+    .concat(Z || "+" + timestamp[1]);
+  };
+
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
   if (selectedEntry && isReportLeaf(selectedEntry)) {
     let links = [];
@@ -285,31 +302,8 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
     if (displayTime) {
       // add time information to the array in a human readable format
       for (let i = 0; i < links.length; ++i) {
-        links[i].timeInfoArray = [i]; // [index, start_time, duration]
-        const idx = links[i].utc_time.lastIndexOf("+");
-        links[i].timeInfoArray.push(
-          UTCTime ?
-          links[i].utc_time
-            ? format(
-                new Date(
-                  idx === -1
-                    ? links[i].utc_time
-                    : links[i].utc_time.substring(0, idx)
-                ),
-                "HH:mm:ss.SSS"
-              ) + "Z"
-            : ""
-          : links[i].machine_time
-            ? format(
-                new Date(
-                  idx === -1
-                    ? links[i].machine_time
-                    : links[i].machine_time.substring(0, idx)
-                ),
-                "HH:mm:ss.SSS"
-              ) + links[i].machine_time.substring(idx)
-            : ""
-        );
+        // links[i].timeInfoArray = [index, start_time, duration]
+        links[i].timeInfoArray = [i, createTimeInfoString(links[i], UTCTime)];
       }
       // calculate the time elapsed between assertions
       for (let i = links.length - 1; i > 0; --i) {
