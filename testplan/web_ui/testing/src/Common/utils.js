@@ -137,34 +137,30 @@ function formatSeconds(durationInSeconds) {
 
 /**
  * Formats the input number representing milliseconds into a string
- * with format H:m:s:ms. Each value is display only if it is greater
+ * with format H:m:s.SSS. Each value is displayed only if it is greater
  * than 0 or the previous value has been displayed.
  * @param {number} durationInMilliseconds
  * @returns {string}
  */
 function formatMilliseconds(durationInMilliseconds) {
-  let milliseconds = durationInMilliseconds % 1000;
-  durationInMilliseconds = (durationInMilliseconds - milliseconds) / 1000;
-  let seconds = durationInMilliseconds % 60;
-  durationInMilliseconds = (durationInMilliseconds - seconds) / 60;
-  let minutes = durationInMilliseconds % 60;
-  let hours = (durationInMilliseconds - minutes) / 60;
+  let secondsInMilliseconds = durationInMilliseconds % 60000;
+  let seconds = secondsInMilliseconds / 1000;
+  let minutesInMilliseconds = (durationInMilliseconds - secondsInMilliseconds)
+  / 60000;
+  let minutes = minutesInMilliseconds % 60;
+  let hours = (minutesInMilliseconds - minutes) / 60;
 
   const isDisplayedHours = hours > 0;
-  const isDisplayedMinutes = minutes > 0;
-  const isDisplayedSeconds = seconds > 0 && !isDisplayedHours;
-  const isDisplayedMilliseconds =
-    milliseconds > 0 && !isDisplayedMinutes && !isDisplayedHours;
+  const isDisplayedMinutes = isDisplayedHours || minutes > 0;
 
   let hoursDisplay = isDisplayedHours ? hours + "h" : "";
   let minutesDisplay = isDisplayedMinutes ? minutes + "m" : "";
-  let secondsDisplay = isDisplayedSeconds ? seconds + "s" : "";
-  let millisecondsDisplay = isDisplayedMilliseconds ? milliseconds + "ms" : "";
+  let secondsDisplay = seconds.toFixed(3) + "s";
 
   return (
-    [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
+    [hoursDisplay, minutesDisplay, secondsDisplay]
       .filter(Boolean)
-      .join(" ") || "0ms"
+      .join(" ") || "0s"
   );
 }
 

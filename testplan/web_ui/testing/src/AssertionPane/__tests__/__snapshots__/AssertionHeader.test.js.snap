@@ -17,7 +17,7 @@ exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
       style={
         Object {
           "flexGrow": 4,
-          "order": 1,
+          "order": 4,
           "padding": ".125rem 0.75rem",
         }
       }
