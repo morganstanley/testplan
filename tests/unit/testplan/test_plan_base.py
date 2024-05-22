@@ -48,13 +48,6 @@ class DummyTest(Test):
         self.resources.add(DummyDriver(), uid=self.name)
         self.resources.add(DummyDriver())
 
-    def _new_test_report(self):
-        return TestGroupReport(
-            name=self.cfg.name,
-            # NOTE: unexpected usage, test only
-            category=ReportCategories.UNITTEST,
-        )
-
     def run_tests(self):
         self.result.custom = "{}Result[{}]".format(
             self.__class__.__name__, self.name

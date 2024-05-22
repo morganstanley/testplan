@@ -5,7 +5,12 @@ from unittest import mock
 
 import pytest
 
-from testplan.common.report import Report, BaseReportGroup, MergeError
+from testplan.common.report import (
+    BaseReportGroup,
+    MergeError,
+    Report,
+    ReportCategories,
+)
 from testplan.common.report.log import LOGGER
 from testplan.common.utils.testing import disable_log_propagation
 
@@ -354,3 +359,8 @@ class TestReportGroup:
 
         assert parent.parent_uids == [grand_parent.uid]
         assert child.parent_uids == [grand_parent.uid, parent.uid]
+
+
+def test_report_categories_type():
+    assert ReportCategories.MULTITEST == "multitest"
+    assert type(ReportCategories.MULTITEST) is str

@@ -27,7 +27,7 @@ expected_report = TestReport(
     entries=[
         TestGroupReport(
             name="MyTest",
-            category="unittest",
+            category="dummytest",
             entries=[
                 TestGroupReport(
                     name="ProcessChecks",
