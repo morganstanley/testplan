@@ -11,6 +11,7 @@ import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
 import base64url from "base64url";
 import { atom, useAtomValue } from "jotai";
+import _ from "lodash";
 
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar.js";
@@ -487,12 +488,10 @@ class InteractiveReportComponent extends BaseReport {
       category: category,
     };
 
-    if (entries) {
-      if (entries.length && !isReportLeaf(reportEntry)) {
-        pruneEntry.entries = entries.map((entry) =>
-          this.pruneReportEntry(entry)
-        );
-      }
+    if (!isReportLeaf(reportEntry) && !_.isEmpty(entries)) {
+      pruneEntry.entries = entries.map((entry) =>
+        this.pruneReportEntry(entry)
+      );
     }
 
     return pruneEntry;
@@ -505,6 +504,11 @@ class InteractiveReportComponent extends BaseReport {
    */
   shallowReportEntry(reportEntry) {
     const { entries, ...shallowEntry } = reportEntry;
+
+    if (isReportLeaf(reportEntry)) {
+      return shallowEntry;
+    }
+
     shallowEntry.entry_uids = entries.map((entry) => entry.uid);
 
     // the filter text is either "null" or an empty string, use truthy-falsy

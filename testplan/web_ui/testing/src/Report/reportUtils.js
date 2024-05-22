@@ -282,7 +282,7 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
       return "";
     }
     timestamp = timestamp.split("+");
-    let label = UTCTime ? "Z" : timestamp.length == 2 ? "+" + timestamp[1] : "";
+    let label = UTCTime ? "Z" : timestamp.length === 2 ? "+" + timestamp[1] : "";
     return format(new Date(timestamp[0]), "HH:mm:ss.SSS") + label;
   };
 

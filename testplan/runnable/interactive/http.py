@@ -952,7 +952,11 @@ def _extract_entries(entry: Dict) -> Dict:
     """
     entries = {}
 
-    if entry["category"] == ReportCategories.TESTCASE:
+    # FIXME:
+    # by design, filtering out assertions has been properly done in frontend
+    # code; following lines are still kept for possible corner cases, while
+    # currently ``type`` field does not exist in ``Shallow*`` schemas...
+    if entry.get("type") == TestCaseReport.__name__:
         return entries
 
     for child in entry.get("entries", []):

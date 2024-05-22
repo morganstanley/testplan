@@ -97,7 +97,25 @@ def example_report():
                                 ],
                             ),
                         ],
-                    )
+                    ),
+                    report.TestGroupReport(
+                        name="After Stop",
+                        uid="MT1AS",
+                        category=report.ReportCategories.SYNTHESIZED,
+                        parent_uids=["Interactive API Test", "MTest1"],
+                        entries=[
+                            report.TestCaseReport(
+                                name="after_stop_hook",
+                                uid="MT1ASH",
+                                category=report.ReportCategories.SYNTHESIZED,
+                                parent_uids=[
+                                    "Interactive API Test",
+                                    "MTest1",
+                                    "MT1AS",
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             )
         ],

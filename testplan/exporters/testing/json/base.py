@@ -19,8 +19,7 @@ from testplan.common.exporters import (
 )
 from testplan.common.utils.path import makedirs
 from testplan.defaults import ATTACHMENTS, RESOURCE_DATA
-from testplan.report import ReportCategories
-from testplan.report.testing.base import TestReport
+from testplan.report.testing.base import TestReport, TestCaseReport
 from testplan.report.testing.schemas import TestReportSchema
 from ..base import Exporter
 
@@ -216,7 +215,7 @@ class JSONExporter(Exporter):
         def split_assertions(entries, assertions):
             """Remove assertions from report and place them in a dictionary."""
             for entry in entries:
-                if entry.get("category") == ReportCategories.TESTCASE:
+                if entry["type"] == TestCaseReport.__name__:
                     assertions[entry["uid"]] = entry["entries"]
                     entry["entries"] = []
                 elif "entries" in entry:
@@ -234,7 +233,7 @@ class JSONExporter(Exporter):
         def merge_assertions(entries, assertions, strict=True):
             """Fill assertions into report by the unique id."""
             for entry in entries:
-                if entry.get("category") == ReportCategories.TESTCASE:
+                if entry["type"] == TestCaseReport.__name__:
                     if entry["uid"] in assertions:
                         entry["entries"] = assertions[entry["uid"]]
                     elif strict:
