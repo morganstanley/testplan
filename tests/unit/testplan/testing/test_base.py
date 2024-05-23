@@ -1,10 +1,10 @@
 import time
 
 from testplan import TestplanMock
-from testplan.report import Status, ReportCategories, TestGroupReport
+from testplan.report import Status
 from testplan.runnable import TestRunnerStatus
 from testplan.runners.local import LocalRunner
-from testplan.testing.base import Test, TestResult
+from testplan.testing.base import Test
 from testplan.testing.multitest.driver import Driver
 
 
@@ -25,13 +25,6 @@ class DummyTest(Test):
             name=name,
             environment=[DummyDriver("drv1"), DummyDriver("drv2")],
             **options
-        )
-
-    def _new_test_report(self):
-        return TestGroupReport(
-            name=self.cfg.name,
-            # NOTE: unexpected usage, test only
-            category=ReportCategories.UNITTEST,
         )
 
     def run_tests(self):
@@ -88,7 +81,7 @@ def test_time_information():
     assert res.run is True
 
     test_report = res.report["Dummy"]
-    assert test_report.name == "Dummy" and test_report.category == "unittest"
+    assert test_report.name == "Dummy" and test_report.category == "dummytest"
     assert (
         test_report.timer.last(key="setup").elapsed > 0.4
     )  # 2 drivers startup

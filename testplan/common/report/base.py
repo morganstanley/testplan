@@ -215,12 +215,10 @@ class Status(Enum):
         return cls[s.replace("-", "_").upper()]
 
 
-class ReportCategories(str, Enum):
+class ReportCategories:
     """
-    Enumeration of possible categories of report nodes.
-
-    Note: we don't use the enum.Enum base class to simplify report
-    serialization via marshmallow.
+    Some possible categories of report nodes, grouped as easy-to-use constants.
+    ``Test`` is extensible, so should ``ReportCategories`` be.
     """
 
     TESTPLAN = "testplan"

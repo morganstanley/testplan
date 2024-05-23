@@ -25,7 +25,7 @@ testcase_report.runtime_status = RuntimeStatus.FINISHED
 
 my_test_report = TestGroupReport(
     name="MyTest",
-    category="unittest",
+    category="dummytest",
     entries=[
         TestGroupReport(
             name="ProcessChecks",

@@ -232,8 +232,7 @@ class Test(Runnable):
         return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
-            # TODO: lift to class var?
-            category=ReportCategories(self.__class__.__name__.lower()),
+            category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
             env_status=ResourceStatus.STOPPED,
         )
