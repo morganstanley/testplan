@@ -931,9 +931,7 @@ class BaseReportGroup(Report):
                         new_status, entries[entry.name]
                     )
                 else:
-                    entry.set_runtime_status_filtered(
-                        new_status, entries[entry.name]
-                    )
+                    entry.runtime_status = new_status
         self._runtime_status = new_status
 
     def _get_comparison_attrs(self):
