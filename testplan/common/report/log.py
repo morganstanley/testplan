@@ -45,6 +45,7 @@ class ReportLogHandler(logging.Handler):
 
 
 LOGGER.addHandler(ReportLogHandler())
+LOGGER.propagate = False
 
 
 def create_logging_adapter(report):
