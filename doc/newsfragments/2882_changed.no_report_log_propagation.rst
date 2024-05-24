@@ -1,0 +1,1 @@
+Do not propagate logs, meant to the report, to the root logger, as that is polluting the log. These logs are visible with ``-v`` or ``-d``.
