@@ -61,7 +61,7 @@ class TimeoutExceptionInfo:
             "%Y-%m-%d %H:%M:%S"
         )
         duration = ended - self.started
-        return "Info[started at {}, raised at {} after {}s]".format(
+        return "Started at {}, raised at {} after {}s.".format(
             started_wait, raised_date, round(duration, 2)
         )
 

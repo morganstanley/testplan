@@ -287,10 +287,19 @@ def test_multitest_driver_start_timeout():
     assert driver1.cfg.status_wait_timeout == 1
     assert driver1.cfg.timeout == 1
 
-    with pytest.raises(TimeoutException, match=r".*Timeout.*after 1.0s*"):
+    try:
         with driver1:
             # we will not reach here
             assert False
+    except TimeoutException as exc:
+        assert (
+            r"Timeout when starting BaseDriver[timeout_driver]. Started at"
+            in str(exc)
+        )
+        assert (
+            r"""Unmatched stdout_regexps: [re.compile("Expression that won't match")]"""
+            in str(exc)
+        )
 
     driver2 = GoodDriver(
         name="good_driver",
