@@ -2,9 +2,10 @@
 
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
+from typing import Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
 
@@ -26,37 +27,9 @@ from testplan.common.utils.timing import (
     DEFAULT_INTERVAL,
     PollInterval,
     get_sleeper,
+    TimeoutException,
+    TimeoutExceptionInfo,
 )
-
-
-def format_regexp_matches(
-    name: str, regexps: List[Pattern], unmatched: List
-) -> str:
-    """
-    Utility for formatting regexp match context for rendering.
-
-    :param name: name of regexp group
-    :param regexps: list of compiled regexps
-    :param unmatched: list of unmatched regexps
-    :return: message to be used in exception raised or empty string
-    """
-    if unmatched:
-        err = "{newline} {name} matched: {matched}".format(
-            newline=os.linesep,
-            name=name,
-            matched=[
-                "REGEX('{}')".format(e.pattern)
-                for e in regexps
-                if e not in unmatched
-            ],
-        )
-
-        err += "{newline}Unmatched: {unmatched}".format(
-            newline=os.linesep,
-            unmatched=["REGEX('{}')".format(e.pattern) for e in unmatched],
-        )
-        return err
-    return ""
 
 
 class Direction(Enum):
@@ -284,12 +257,18 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         sleeper = get_sleeper(
             interval=self.started_check_interval,
             timeout=timeout if timeout is not None else self.cfg.timeout,
-            raise_timeout_with_msg=lambda: f"Timeout when starting {self}",
-            timeout_info=True,
         )
+
+        info = TimeoutExceptionInfo(time.time())
         while next(sleeper):
-            if self.started_check():
+            rc = self.started_check()
+            if rc:
                 break
+        else:  # timeout
+            raise TimeoutException(
+                f"Timeout when starting {self}. {info.msg()}\n\n{rc.error_msg}"
+            )
+
         super(Driver, self)._wait_started(timeout=timeout)
 
     def _wait_stopped(self, timeout: Optional[float] = None) -> None:
@@ -325,73 +304,42 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
     def extract_values(self) -> ActionResult:
         """Extract matching values from input regex configuration options."""
-        log_unmatched = []
-        stdout_unmatched = []
-        stderr_unmatched = []
-        result = True
+        rc = True
+        err = f"{self} started_check failed, unmatched regexps:\n"
 
-        regex_sources = []
-        if self.logpath and self.cfg.log_regexps:
-            regex_sources.append(
-                (self.logpath, self.cfg.log_regexps, log_unmatched)
-            )
-        if self.outpath and self.cfg.stdout_regexps:
-            regex_sources.append(
-                (self.outpath, self.cfg.stdout_regexps, stdout_unmatched)
-            )
-        if self.errpath and self.cfg.stderr_regexps:
-            regex_sources.append(
-                (self.errpath, self.cfg.stderr_regexps, stderr_unmatched)
-            )
+        for name, filepath, regexps in (
+            ("log_regexps", self.logpath, self.cfg.log_regexps),
+            ("stdout_regexps", self.outpath, self.cfg.stdout_regexps),
+            ("stderr_regexps", self.errpath, self.cfg.stderr_regexps),
+        ):
+            if not filepath or not regexps:
+                continue
 
-        for outfile, regexps, unmatched in regex_sources:
-            file_result, file_extracts, file_unmatched = match_regexps_in_file(
-                logpath=outfile, log_extracts=regexps
+            result, extracts, unmatched = match_regexps_in_file(
+                filepath, regexps
             )
-            unmatched.extend(file_unmatched)
-            for k, v in file_extracts.items():
+            rc = rc and result
+
+            for k, v in extracts.items():
                 if isinstance(v, bytes):
                     self.extracts[k] = v.decode("utf-8")
                 else:
                     self.extracts[k] = v
-            result = result and file_result
 
-        if log_unmatched or stdout_unmatched or stderr_unmatched:
-
-            err = (
-                "Timed out starting {}({}):" " unmatched log_regexps in {}."
-            ).format(type(self).__name__, self.name, self.logpath)
-
-            err += format_regexp_matches(
-                name="log_regexps",
-                regexps=self.cfg.log_regexps,
-                unmatched=log_unmatched,
-            )
-
-            err += format_regexp_matches(
-                name="stdout_regexps",
-                regexps=self.cfg.stdout_regexps,
-                unmatched=stdout_unmatched,
-            )
-
-            err += format_regexp_matches(
-                name="stderr_regexps",
-                regexps=self.cfg.stderr_regexps,
-                unmatched=stderr_unmatched,
-            )
-
-            if self.extracts:
-                err += "{newline}Matching groups:{newline}".format(
-                    newline=os.linesep
+            if unmatched:
+                err += (
+                    f"\tFile: {filepath}\n"
+                    f"\tUnmatched {name}: {unmatched}\n\n"
                 )
-                err += os.linesep.join(
-                    [
-                        "\t{}: {}".format(key, value)
-                        for key, value in self.extracts.items()
-                    ]
-                )
+        if self.extracts:
+            err += f"Extracted Values:\n"
+            err += "\n".join(
+                [f"\t{key}: {value}" for key, value in self.extracts.items()]
+            )
+
+        if not rc:
             return FailedAction(error_msg=err)
-        return result
+        return rc
 
     def _install_target(self):
         raise NotImplementedError()
