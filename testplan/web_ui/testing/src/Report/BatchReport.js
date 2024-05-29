@@ -47,7 +47,7 @@ const BatchReport = (props) => {
       {...props}
       displayTime={displayTimeInfo}
       UTCTime={UTCTimeInfo}
-      />
+    />
   );
 };
 class BatchReportComponent extends BaseReport {
