@@ -42,8 +42,13 @@ import { displayTimeInfoPreference, timeInfoUTCPreference } from "../UserSetting
 const BatchReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
   const UTCTimeInfo = useAtomValue(timeInfoUTCPreference);
-  return <BatchReportComponent {...props} displayTime={displayTimeInfo}
-          UTCTime={UTCTimeInfo}/>;
+  return (
+    <BatchReportComponent
+      {...props}
+      displayTime={displayTimeInfo}
+      UTCTime={UTCTimeInfo}
+      />
+  );
 };
 class BatchReportComponent extends BaseReport {
   constructor(props) {
