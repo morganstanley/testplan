@@ -188,7 +188,8 @@ def test_json_exporter_generating_split_report(runpath):
     assert (
         len(structure[1]["entries"]) == 2
     )  # one suite in 2nd multitest, 1 synthesized
-    assert structure[1]["entries"][0]["name"] == "After Start"
+    assert structure[1]["entries"][0]["name"] == "Environment Start"
+    assert structure[1]["entries"][0]["entries"][0]["name"] == "After Start"
     assert len(structure[1]["entries"][0]["entries"]) == 1
     assert structure[1]["entries"][1]["name"] == "Beta"  # 1st suite name
     assert len(structure[1]["entries"][1]["entries"]) == 2  # 2 testcases
@@ -207,7 +208,7 @@ def test_json_exporter_generating_split_report(runpath):
     assert len(assertions["test_error"]) == 0
     # 2 assertions in synthesized cases, i.e. custom hooks
     assert assertions["setup"][0]["type"] == "Log"
-    assert assertions["secondary_after_start"][0]["type"] == "Log"
+    assert assertions["After Start"][0]["type"] == "Log"
 
 
 def test_implicit_exporter_initialization(runpath):

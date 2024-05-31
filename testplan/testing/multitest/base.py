@@ -581,8 +581,9 @@ class MultiTest(testing_base.Test):
                 or self._get_error_logs()
             )
         elif step in (
-            self.resources.start,
-            self.resources.stop,
+            self._start_resource,
+            self._stop_resource,
+            self._finish_resource_report,
             self.apply_xfail_tests,
         ):
             return False
@@ -590,27 +591,6 @@ class MultiTest(testing_base.Test):
             self.logger.critical('Skipping step "%s"', step.__name__)
             return True
         return False
-
-    def post_step_call(self, step):
-        """Callable to be executed after each step."""
-        exceptions = None
-        if step == self.resources.start:
-            exceptions = self.resources.start_exceptions
-        elif step == self.resources.stop:
-            exceptions = self.resources.stop_exceptions
-        if exceptions:
-            for msg in exceptions.values():
-                self.result.report.logger.error(msg)
-            self.result.report.status_override = Status.ERROR
-
-        if step == self.resources.stop:
-            drivers = set(self.resources.start_exceptions.keys())
-            drivers.update(self.resources.stop_exceptions.keys())
-            for driver in drivers:
-                if driver.cfg.report_errors_from_logs:
-                    error_log = os.linesep.join(driver.fetch_error_log())
-                    if error_log:
-                        self.result.report.logger.error(error_log)
 
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""

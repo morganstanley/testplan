@@ -18,9 +18,61 @@
                 "passed": 0,
                 "total": 0
             },
-            "definition_name": "After Start",
+            "definition_name": "Environment Start",
             "description": null,
             "entries": [
+                {
+                    "name": "Starting",
+                    "definition_name": "Starting",
+                    "counter": {
+                        "passed": 1,
+                        "failed": 0,
+                        "total": 1
+                    },
+                    "status_override": null,
+                    "category": "synthesized",
+                    "runtime_status": "finished",
+                    "status": "passed",
+                    "logs": [],
+                    "timer": {},
+                    "description": "",
+                    "status_reason": null,
+                    "type": "TestCaseReport",
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test1",
+                        "Environment Start"
+                    ],
+                    "entries": [
+                        {
+                            "category": "DEFAULT",
+                            "description": "TCPServer[server] Status: STARTED",
+                            "file_path": "",
+                            "flag": "DEFAULT",
+                            "line_no": 0,
+                            "machine_time": "",
+                            "message": "TCPServer[server] Status: STARTED",
+                            "meta_type": "entry",
+                            "type": "Log",
+                            "utc_time": ""
+                        },
+                        {
+                            "category": "DEFAULT",
+                            "description": "TCPClient[client] Status: STARTED",
+                            "file_path": "",
+                            "flag": "DEFAULT",
+                            "line_no": 0,
+                            "machine_time": "",
+                            "message": "TCPClient[client] Status: STARTED",
+                            "meta_type": "entry",
+                            "type": "Log",
+                            "utc_time": ""
+                        }
+                    ],
+                    "hash": 0,
+                    "uid": "Starting",
+                    "tags": {}
+                },
                 {
                     "category": "synthesized",
                     "counter": {
@@ -28,16 +80,16 @@
                         "passed": 1,
                         "total": 1
                     },
-                    "definition_name": "accept_connection",
+                    "definition_name": "After Start",
                     "description": null,
                     "entries": [],
                     "hash": 0,
                     "logs": [],
-                    "name": "accept_connection",
+                    "name": "After Start",
                     "parent_uids": [
                         "InteractivePlan",
                         "Test1",
-                        "After Start"
+                        "Environment Start"
                     ],
                     "runtime_status": "finished",
                     "status": "passed",
@@ -46,7 +98,7 @@
                     "tags": {},
                     "timer": {},
                     "type": "TestCaseReport",
-                    "uid": "accept_connection"
+                    "uid": "After Start"
                 }
             ],
             "env_status": null,
@@ -54,7 +106,7 @@
             "hash": 0,
             "host": null,
             "logs": [],
-            "name": "After Start",
+            "name": "Environment Start",
             "parent_uids": [
                 "InteractivePlan",
                 "Test1"
@@ -68,7 +120,7 @@
             "tags": {},
             "timer": {},
             "type": "TestGroupReport",
-            "uid": "After Start"
+            "uid": "Environment Start"
         },
         {
             "category": "testsuite",
@@ -366,6 +418,67 @@
             "timer": {},
             "type": "TestGroupReport",
             "uid": "Custom_1"
+        },
+        {
+            "type": "TestGroupReport",
+            "runtime_status": "ready",
+            "parent_uids": [
+                "InteractivePlan",
+                "Test1"
+            ],
+            "category": "synthesized",
+            "hash": 0,
+            "tags": {},
+            "uid": "Environment Stop",
+            "fix_spec_path": null,
+            "entries": [
+                {
+                    "status_reason": null,
+                    "entries": [],
+                    "type": "TestCaseReport",
+                    "runtime_status": "ready",
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test1",
+                        "Environment Stop"
+                    ],
+                    "category": "synthesized",
+                    "timer": {},
+                    "hash": 0,
+                    "definition_name": "Stopping",
+                    "uid": "Stopping",
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 1,
+                        "unknown": 1
+                    },
+                    "status_override": null,
+                    "tags": {},
+                    "name": "Stopping",
+                    "status": "unknown",
+                    "description": null,
+                    "logs": []
+                }
+            ],
+            "counter": {
+                "passed": 0,
+                "failed": 0,
+                "total": 0
+            },
+            "status_override": null,
+            "children": [],
+            "status": "unknown",
+            "description": null,
+            "status_reason": null,
+            "host": null,
+            "name": "Environment Stop",
+            "strict_order": false,
+            "env_status": null,
+            "part": null,
+            "timer": {},
+            "definition_name": "Environment Stop",
+            "logs": []
         }
     ],
     "env_status": "STARTED",

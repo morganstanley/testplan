@@ -901,7 +901,7 @@ class Runnable(Entity):
         self._ihandler = None
 
     @property
-    def resources(self):
+    def resources(self) -> Environment:
         """
         Returns the
         :py:class:`Environment <testplan.common.entity.base.Environment>`

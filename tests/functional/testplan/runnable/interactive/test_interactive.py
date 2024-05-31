@@ -202,7 +202,15 @@ def test_top_level_tests():
             compare(
                 BRSTest2,
                 plan.interactive.test_report("Test2"),
-                ignore=["hash", "information", "timer"],
+                ignore=[
+                    "hash",
+                    "information",
+                    "timer",
+                    "machine_time",
+                    "utc_time",
+                    "file_path",
+                    "line_no",
+                ],
             )[0]
             is True
         )

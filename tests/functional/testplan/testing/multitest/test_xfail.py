@@ -81,7 +81,7 @@ def test_dynamic_xfail():
                 "reason": "known flaky",
                 "strict": False,
             },
-            "Testsuite Setup Error:After Start:error_hook": {
+            "Testsuite Setup Error:Environment Start:After Start": {
                 "reason": "known flaky",
                 "strict": False,
             },
