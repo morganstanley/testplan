@@ -1,0 +1,1 @@
+Add 'Environment Start' and 'Environment Stop' entries to Multitest report.

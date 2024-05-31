@@ -66,35 +66,25 @@ def test_driver_failure(mockplan):
     mockplan.add(multitest)
     mockplan.run()
 
-    expected_report = TestReport(
-        name="plan",
+    expected_report = TestGroupReport(
+        name="Error Handler",
+        category=ReportCategories.SYNTHESIZED,
         entries=[
-            TestGroupReport(
-                name="MyMultitest",
-                category=ReportCategories.MULTITEST,
+            TestCaseReport(
+                name="error_handler_fn",
                 entries=[
-                    TestGroupReport(
-                        name="Error handler",
-                        category=ReportCategories.SYNTHESIZED,
-                        entries=[
-                            TestCaseReport(
-                                name="error_handler_fn",
-                                entries=[
-                                    {
-                                        "description": "Error handler ran!",
-                                        "type": "Log",
-                                    }
-                                ],
-                            ),
-                        ],
-                    ),
+                    {
+                        "description": "Error handler ran!",
+                        "type": "Log",
+                    }
                 ],
-                status_override=Status.ERROR,
-            )
+            ),
         ],
     )
 
-    check_report(expected_report, mockplan.report)
+    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.entries[0].status == Status.ERROR
+    check_report(expected_report, mockplan.report.entries[0].entries[2])
 
 
 def test_suite_hook_failure(mockplan):
@@ -126,7 +116,7 @@ def test_suite_hook_failure(mockplan):
                         tags=None,
                     ),
                     TestGroupReport(
-                        name="Error handler",
+                        name="Error Handler",
                         category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
@@ -145,6 +135,9 @@ def test_suite_hook_failure(mockplan):
         ],
     )
 
+    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.entries[0].status == Status.ERROR
+    assert mockplan.report.entries[0].entries[1].status == Status.PASSED
     check_report(expected_report, mockplan.report)
 
 
@@ -166,11 +159,11 @@ def test_multitest_hook_failure(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
-                        name="After Start",
+                        name="Environment Start",
                         category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
-                                name="raising_hook",
+                                name="After Start",
                                 entries=[],
                                 status_override=Status.ERROR,
                             )
@@ -189,7 +182,7 @@ def test_multitest_hook_failure(mockplan):
                         tags=None,
                     ),
                     TestGroupReport(
-                        name="Error handler",
+                        name="Error Handler",
                         category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
