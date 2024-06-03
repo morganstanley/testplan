@@ -155,6 +155,17 @@ class WorkerBase(entity.Resource):
         return f"{self.__class__.__name__}[{self.cfg.index}]"
 
 
+def get_test_status(task_result: TaskResult) -> Status:
+    # if task_result.status is false that means execution failed
+    # and task_result.result is None. For safety, we are checking both
+    # and assume if no result then it was an error
+
+    if not task_result.status or task_result.result is None:
+        return Status.ERROR
+
+    return task_result.result.report.status
+
+
 class Worker(WorkerBase):
     """
     Worker that runs a thread and pull tasks from transport
@@ -225,8 +236,9 @@ class Worker(WorkerBase):
                     task_result = self.execute(item)
                     if not self._discard_running.is_set():
                         results.append(task_result)
+
                     if self.cfg.skip_strategy.should_skip_rest_tests(
-                        task_result.result.report.status
+                        get_test_status(task_result)
                     ):
                         break
                 received_ = transport.send_and_receive(
@@ -621,12 +633,14 @@ class Pool(Executor):
             self.logger.user_info(
                 "De-assign %s from %s", task_result.task, worker
             )
+
+            agg_report_status = Status.precedent(
+                [agg_report_status, get_test_status(task_result)]
+            )
+
             if isinstance(task_result.result, TestResult):
                 report: TestGroupReport = task_result.result.report
                 report.host = worker.host
-                agg_report_status = Status.precedent(
-                    [agg_report_status, report.status]
-                )
                 worker.rebase_attachment(task_result.result)
 
             if task_should_rerun():
