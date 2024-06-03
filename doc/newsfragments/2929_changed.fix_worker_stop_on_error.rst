@@ -1,0 +1,1 @@
+Fixed an issue which make the worker stop in case of Task errors.
