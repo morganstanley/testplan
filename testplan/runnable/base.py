@@ -600,7 +600,8 @@ class TestRunner(Runnable):
                         )
                     )
                     if num_of_parts < 1:
-                        raise RuntimeError(
+                        num_of_parts = 1
+                        self.logger.error(
                             f"Calculated num_of_parts for {uid} is {num_of_parts},"
                             " check the input runtime_data and auto_part_runtime_limit"
                         )
