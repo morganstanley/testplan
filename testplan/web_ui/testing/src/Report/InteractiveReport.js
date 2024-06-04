@@ -42,7 +42,7 @@ import { encodeURIComponent2, parseToJson } from "../Common/utils";
 import { POLL_MS, CATEGORIES } from "../Common/defaults";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
-import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
+import { displayTimeInfoPreference, timeInfoUTCPreference } from "../UserSettings/UserSettings";
 
 const api_prefix = "/api/v1/interactive";
 const pendingEnvRequestAtom = atom("");
@@ -56,11 +56,13 @@ const pendingEnvRequestAtom = atom("");
 const InteractiveReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
   const pendingEnvRequest = useAtomValue(pendingEnvRequestAtom);
+  const UTCTimeInfo = useAtomValue(timeInfoUTCPreference);
   return (
     <InteractiveReportComponent
       {...props}
       displayTime={displayTimeInfo}
       pendingEnvRequest={pendingEnvRequest}
+      UTCTime={UTCTimeInfo}
     />
   );
 };
