@@ -10,7 +10,7 @@ jobs:
       is_source_changed: ${{steps.check_source_change.outputs.changed}}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           fetch-depth: 0
       - name: Check if any source changed
@@ -48,9 +48,9 @@ jobs:
       LINT_PYTHON_VERSION: "3.7"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       - name: Set up Python ${{ env.LINT_PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: ${{ env.LINT_PYTHON_VERSION }}
       - name: Restore pip cache
@@ -70,19 +70,19 @@ jobs:
       REACT_APP_API_BASE_URL: "/fake/api/endpoint"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: 3.11
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
           node-version: "16.x"
       - name: Restore pip cache
         uses: ./.github/actions/pip-cache
       - name: Set up PNPM
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8.10.4
       - name: Setup
@@ -94,7 +94,7 @@ jobs:
             CI=false doit build_ui            
             doit test_ui
       - name: Archive ui artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: ui_bundle
           path: testplan/web_ui/testing/build
@@ -115,15 +115,15 @@ jobs:
     steps:
       - run: echo "BUILD ${{ matrix.os }} ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore pip cache
         uses: ./.github/actions/pip-cache
       - name: Download ui bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: ui_bundle
           path: testplan/web_ui/testing/build
