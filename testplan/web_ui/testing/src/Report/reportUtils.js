@@ -223,15 +223,10 @@ const GetCenterPane = (
   }
 
   if (state.currentPanelView === VIEW_TYPE.RESOURCE) {
-    let selectedHostUid = null;
-    if (selectedEntries.length >= 2) {
-      selectedHostUid = selectedEntries[1].host;
-    }
     return (
       <ResourcePanel
         key="resourcePanel"
         report={state.report}
-        selectedHostUid={selectedHostUid}
       />
     );
   }
@@ -432,6 +427,7 @@ const getSelectedUIDsFromPath = ({ uid, selection }, uidDecoder) => {
   const uids = [uid, ...(selection ? selection.split("/") : [])];
   return uidDecoder ? uids.map((uid) => (uid ? uidDecoder(uid) : uid)) : uids;
 };
+
 
 export {
   isReportLeaf,

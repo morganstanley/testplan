@@ -256,6 +256,9 @@ const LOG_TYPE = {
   warning: "WARNING",
 };
 
+
+const LOCALHOST = "Localhost";
+
 export {
   BLUE,
   DARK_BLUE,
@@ -300,4 +303,5 @@ export {
   POLL_MS,
   defaultFixSpec,
   LOG_TYPE,
+  LOCALHOST,
 };

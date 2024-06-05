@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouteMatch } from "react-router-dom";
 import axios from "axios";
 import {
   Chart as ChartJS,
   ArcElement,
+  BarElement,
   Tooltip,
   Legend,
   CategoryScale,
@@ -13,15 +15,16 @@ import {
   Filler,
 } from "chart.js";
 import { format as dateFormat, addMinutes as dateAddMinutes } from "date-fns";
-import { Line } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 import annotationPlugin from "chartjs-plugin-annotation";
 import "chartjs-adapter-date-fns";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import prettyBytes from "pretty-bytes";
-import { getResourceUrl } from "../Common/utils";
+import { getResourceUrl, timeToTimestamp } from "../Common/utils";
 import {
   RED,
+  GREEN,
   BLUE,
   DARK_BLUE,
   TEAL,
@@ -30,10 +33,13 @@ import {
   DARK_YELLOW,
   ROSE,
   DARK_ROSE,
+  LOCALHOST,
+  STATUS_CATEGORY,
 } from "../Common/defaults";
 
 ChartJS.register(
   ArcElement,
+  BarElement,
   Tooltip,
   Legend,
   Filler,
@@ -44,6 +50,9 @@ ChartJS.register(
   TimeSeriesScale,
   annotationPlugin
 );
+
+const hostEntryPrefix = "hostEntry";
+const anchorPrefix = "anchor";
 
 const percentageTicks = () => {
   return {
@@ -67,6 +76,18 @@ const prettySizeTicks = (options) => {
       return prettyBytes(val, options);
     },
   };
+};
+
+const AnchorDiv = ({ elementIds }) => {
+  const anchorDiv = [];
+  for (let uid of elementIds) {
+    anchorDiv.push(<div key={uid} id={`${anchorPrefix}${uid}`}></div>);
+  }
+  return anchorDiv;
+};
+
+AnchorDiv.propTypes = {
+  elementIds: PropTypes.array,
 };
 
 const ResourceGraph = ({
@@ -99,7 +120,6 @@ const ResourceGraph = ({
   return (
     <div
       style={{
-        position: "relative",
         height: "150px",
         width: "100%",
       }}
@@ -144,7 +164,7 @@ const ResourceGraph = ({
                     return `${dateFormat(
                       dateAddMinutes(value, timezoneOffset),
                       "H:mm:ss"
-                    )} (UTC)`;
+                    )}Z`;
                   }
                   return null;
                 },
@@ -163,7 +183,7 @@ const ResourceGraph = ({
                   return `${dateFormat(
                     dateAddMinutes(context[0].raw.x, timezoneOffset),
                     "H:mm:ss"
-                  )} (UTC)`;
+                  )}Z`;
                 },
                 label: (context) => {
                   if (ticksCallback) {
@@ -190,6 +210,124 @@ ResourceGraph.propTypes = {
   valueTicks: PropTypes.func,
   lineColor: PropTypes.string,
   fillColor: PropTypes.string,
+};
+
+const TimerGraph = ({ timerEntries, startTime, endTime }) => {
+  const labels = [];
+  const timezoneOffset = new Date().getTimezoneOffset();
+  const datasets = [
+    {
+      data: [],
+      backgroundColor: [],
+      barThickness: 6,
+      minBarLength: 2,
+    },
+  ];
+
+  timerEntries.forEach((entity) => {
+    labels.push(entity.name);
+    datasets[0].backgroundColor.push(
+      // TODO: move color to a constant map
+      entity.status === STATUS_CATEGORY.passed ? GREEN : RED
+    );
+    let start = null;
+    if (!_.isNil(entity.timer[0].setup?.start)) {
+      start = entity.timer[0].setup.start;
+    } else if (!_.isNil(entity.timer[0].run?.start)) {
+      start = entity.timer[0].run.start;
+    } else {
+      datasets[0].data.push(null);
+      return;
+    }
+
+    if (!_.isNil(entity.timer[0].teardown?.end)) {
+      datasets[0].data.push([start, entity.timer[0].teardown.end]);
+    } else if (!_.isNil(entity.timer[0].run?.end)) {
+      datasets[0].data.push([start, entity.timer[0].run.end]);
+    } else {
+      datasets[0].data.push(null);
+    }
+  });
+  const height = 10 + timerEntries.length * 5;
+  return (
+    <div
+      style={{
+        width: "100%",
+      }}
+    >
+      <Bar
+        height={height}
+        options={{
+          indexAxis: "y",
+          responsive: true,
+          animation: {
+            duration: 0, // disable animation
+          },
+          scales: {
+            x: {
+              type: "time",
+              beginAtZero: false,
+              min: startTime,
+              max: endTime,
+              time: {
+                unit: "second",
+              },
+              ticks: {
+                autoSkip: false,
+                maxTicksLimit: 10,
+                callback: (value, index) => {
+                  return `${dateFormat(
+                    dateAddMinutes(value, timezoneOffset),
+                    "H:mm:ss"
+                  )}Z`;
+                },
+              },
+            },
+            y: {
+              ticks: {
+                autoSkip: false,
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  return [
+                    `From: ${dateFormat(
+                      dateAddMinutes(context.raw[0], timezoneOffset),
+                      "H:mm:ss"
+                    )}Z`,
+                    `To: ${dateFormat(
+                      dateAddMinutes(context.raw[1], timezoneOffset),
+                      "H:mm:ss"
+                    )}Z`,
+                    `Duration: ${(
+                      (context.raw[1] - context.raw[0]) /
+                      1000
+                    ).toFixed(2)}s`,
+                  ];
+                },
+              },
+            },
+          },
+        }}
+        data={{
+          labels: labels,
+          datasets: datasets,
+        }}
+      />
+    </div>
+  );
+};
+
+TimerGraph.propTypes = {
+  timerEntries: PropTypes.array,
+  startTime: PropTypes.number,
+  endTime: PropTypes.number,
 };
 
 const HostResourceGraphContainer = ({
@@ -278,7 +416,6 @@ const HostResourceGraphContainer = ({
 
 const HostMetaTitle = ({
   uid,
-  onClick,
   hostname,
   cpuCount,
   diskSize,
@@ -289,32 +426,45 @@ const HostMetaTitle = ({
   let uidDiv = null;
   if (isLocal) {
     uidDiv = (
-      <span style={{ marginLeft: "5px", fontSize: "10px", color: "gray" }}>
-        LocalHost
-      </span>
+      <>
+        {hostname}
+        <span style={{ marginLeft: "5px", fontSize: "10px", color: "gray" }}>
+          {LOCALHOST}
+        </span>
+      </>
     );
   } else if (hostname !== uid) {
     uidDiv = (
-      <span style={{ marginLeft: "5px", fontSize: "10px", color: "gray" }}>
-        {uid}
-      </span>
+      <>
+        {hostname}
+        <span style={{ marginLeft: "5px", fontSize: "10px", color: "gray" }}>
+          {uid}
+        </span>
+      </>
     );
+  } else {
+    uidDiv = <>{hostname}</>;
   }
-
+  const cpuInfo = _.isNil(cpuCount) ? null : (
+    <span>CPU: {cpuCount * 100}%</span>
+  );
+  const memoryInfo = _.isNil(memorySize) ? null : (
+    <span>Memory Size: {prettyBytes(memorySize, { binary: true })}</span>
+  );
+  const diskInfo = _.isNil(diskSize) ? null : (
+    <span>Disk Size: {prettyBytes(diskSize)}</span>
+  );
+  const diskPathInfo = _.isNil(diskPath) ? null : (
+    <span>Disk Path: {diskPath}</span>
+  );
   return (
     <div
-      style={{ width: "100%", textAlign: "left", cursor: "pointer" }}
+      style={{ width: "100%", textAlign: "left" }}
       id={`resource-host-${uid}`}
-      onClick={onClick}
     >
-      <div style={{ fontSize: "24px" }}>
-        {hostname}
-        {uidDiv}
-      </div>
+      <div style={{ fontSize: "24px" }}>{uidDiv}</div>
       <div style={{ fontSize: "12px", color: "gray" }}>
-        CPU: {cpuCount * 100}% Memory Size:{" "}
-        {prettyBytes(memorySize, { binary: true })} Disk Size:{" "}
-        {prettyBytes(diskSize)} Disk Path: {diskPath}
+        {cpuInfo} {memoryInfo} {diskInfo} {diskPathInfo}
       </div>
     </div>
   );
@@ -322,7 +472,6 @@ const HostMetaTitle = ({
 
 HostMetaTitle.propTypes = {
   uid: PropTypes.string,
-  onClick: PropTypes.func,
   hostname: PropTypes.string,
   cpuCount: PropTypes.number,
   diskSize: PropTypes.number,
@@ -332,91 +481,95 @@ HostMetaTitle.propTypes = {
 };
 
 const HostResource = ({
-  metadata,
-  resource_meta_path,
+  entryTag,
+  resourceMetaPath,
+  resourceEntry,
   startTime,
   endTime,
-  isOpen,
-  onClick,
-  entryIndex,
 }) => {
   const [hostResourceGraph, setHostResourceGraph] = useState(null);
-  const [errorInfo, setErrorInfo] = useState(null);
 
-  useLayoutEffect(() => {
-    if (_.isEmpty(metadata.resource_file)) {
-      setHostResourceGraph(<div>No Resource Data</div>);
+  useEffect(() => {
+    if (_.isEmpty(resourceEntry.metaData.resource_file)) {
+      setHostResourceGraph(<>{null}</>);
     } else {
       const hostResourceUrl = getResourceUrl(
-        resource_meta_path,
-        metadata.resource_file
+        resourceMetaPath,
+        resourceEntry.metaData.resource_file
       );
       axios
         .get(hostResourceUrl)
         .then((response) => {
           setHostResourceGraph(
-            <HostResourceGraphContainer
-              {...response.data}
-              startTime={startTime}
-              endTime={endTime}
-              memorySize={metadata.memory_size}
-            />
+            <>
+              <HostResourceGraphContainer
+                {...response.data}
+                startTime={startTime}
+                endTime={endTime}
+                memorySize={resourceEntry.memory_size}
+              />
+            </>
           );
         })
         .catch((error) => {
           console.error(error);
-          setErrorInfo(error.message);
+          setHostResourceGraph(<div>{error.message}</div>);
         });
     }
-  }, [resource_meta_path, metadata, startTime, endTime]);
+  }, [resourceMetaPath, resourceEntry, startTime, endTime]);
 
-  if (errorInfo) {
-    return <span style={{ color: { RED } }}>{errorInfo}</span>;
-  } else {
-    return (
-      <div
-        style={{
-          padding: "20px 40px",
-          marginBottom: "10px",
-          backgroundColor: "#f8f9fa",
-          borderRadius: "4px",
-        }}
-        id={entryIndex}
-      >
-        <HostMetaTitle
-          onClick={onClick}
-          key={metadata.uid}
-          uid={metadata.uid}
-          hostname={metadata.hostname}
-          cpuCount={metadata.cpu_count}
-          diskSize={metadata.disk_size}
-          diskPath={metadata.disk_path}
-          memorySize={metadata.memory_size}
-          isLocal={metadata.is_local}
-        />
-        <div style={{ display: isOpen ? "block" : "none" }}>
-          {hostResourceGraph}
-        </div>
-      </div>
+  let timerGraph = undefined;
+  let anchorDiv = undefined;
+  if (!_.isNil(resourceEntry.timer)) {
+    anchorDiv = (
+      <AnchorDiv elementIds={resourceEntry.timer.map((e) => e.uid)} />
+    );
+
+    timerGraph = (
+      <TimerGraph
+        timerEntries={resourceEntry.timer}
+        startTime={startTime}
+        endTime={endTime}
+      />
     );
   }
+
+  return (
+    <div
+      style={{
+        padding: "20px 40px",
+        marginBottom: "10px",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "4px",
+        width: "100%",
+      }}
+      id={entryTag}
+    >
+      {anchorDiv}
+      <HostMetaTitle
+        uid={resourceEntry.metaData.uid}
+        hostname={resourceEntry.metaData.hostname}
+        cpuCount={resourceEntry.metaData.cpu_count}
+        diskSize={resourceEntry.metaData.disk_size}
+        diskPath={resourceEntry.metaData.disk_path}
+        memorySize={resourceEntry.metaData.memory_size}
+        isLocal={resourceEntry.metaData.is_local}
+      />
+      {hostResourceGraph}
+      {timerGraph}
+    </div>
+  );
 };
 
 HostResource.propTypes = {
-  metadata: PropTypes.object,
+  entryTag: PropTypes.string,
+  resourceMetaPath: PropTypes.string,
+  resourceEntry: PropTypes.object,
   startTime: PropTypes.number,
   endTime: PropTypes.number,
-  isOpen: PropTypes.bool,
-  onClick: PropTypes.func,
 };
 
-const TopUsageBanner = ({
-  maxCPU,
-  maxMemory,
-  maxDisk,
-  maxIOPS,
-  onClickCallBack,
-}) => {
+const TopUsageBanner = ({ maxCPU, maxMemory, maxDisk, maxIOPS }) => {
   const itemStyle = {
     padding: "8px",
     border: "1px solid #0597ff",
@@ -427,42 +580,26 @@ const TopUsageBanner = ({
     fontWeight: "500",
     cursor: "pointer",
   };
-  const cpuDiv = _.isEmpty(maxCPU?.value, true) ? null : (
-    <div
-      style={itemStyle}
-      title={maxCPU.uid}
-      onClick={onClickCallBack(maxCPU.uid)}
-    >
+  const cpuDiv = _.isNil(maxCPU?.value, true) ? null : (
+    <div style={itemStyle} title={maxCPU.uid}>
       Max CPU Usage: {maxCPU.value}%
     </div>
   );
 
-  const memDiv = _.isEmpty(maxMemory?.value, true) ? null : (
-    <div
-      style={itemStyle}
-      title={maxMemory.uid}
-      onClick={onClickCallBack(maxMemory.uid)}
-    >
+  const memDiv = _.isNil(maxMemory?.value) ? null : (
+    <div style={itemStyle} title={maxMemory.uid}>
       Max Memory Usage: {prettyBytes(maxMemory.value, { binary: true })}
     </div>
   );
 
-  const diskDiv = _.isEmpty(maxDisk?.value, true) ? null : (
-    <div
-      style={itemStyle}
-      title={maxDisk.uid}
-      onClick={onClickCallBack(maxDisk.uid)}
-    >
+  const diskDiv = _.isNil(maxDisk?.value) ? null : (
+    <div style={itemStyle} title={maxDisk.uid}>
       Max Disk Usage: {prettyBytes(maxDisk.value)}
     </div>
   );
 
-  const iopsDiv = _.isEmpty(maxIOPS?.value, true) ? null : (
-    <div
-      style={itemStyle}
-      title={maxIOPS.uid}
-      onClick={onClickCallBack(maxIOPS.uid)}
-    >
+  const iopsDiv = _.isNil(maxIOPS?.value) ? null : (
+    <div style={itemStyle} title={maxIOPS.uid}>
       Max IOPS: {maxIOPS.value.toFixed(2)}
     </div>
   );
@@ -495,108 +632,102 @@ TopUsageBanner.propTypes = {
   onClickCallBack: PropTypes.func,
 };
 
-const maxVal = (meta, key, maxRef) => {
-  if (maxRef.value === undefined || meta[key] > maxRef.value) {
-    maxRef.value = meta[key];
-    maxRef.uid = meta.uid;
+const maxVal = (meta, maxRef, hostTag) => {
+  const keyMap = {
+    max_cpu: "maxCPU",
+    max_memory: "maxMemory",
+    max_disk: "maxDisk",
+    max_iops: "maxIOPS",
+  };
+  for (let key in keyMap) {
+    if (maxRef[keyMap[key]] === undefined) {
+      maxRef[keyMap[key]] = {};
+    }
+
+    if (
+      maxRef[keyMap[key]].value === undefined ||
+      meta[key] > maxRef[keyMap[key]].value
+    ) {
+      maxRef[keyMap[key]].value = meta[key];
+      maxRef[keyMap[key]].tag = hostTag;
+    }
   }
 };
 
 const ResourceContainer = ({
-  defaultExpandStatus,
-  defaultJumpHostUid,
-  resource_meta_path,
-  hostMeta,
+  resourceMetaPath,
+  resourceEntries,
+  timerEntries,
   testStartTime,
   testEndTime,
 }) => {
-  const [graphState, setGraphState] = useState({
-    jumpHostUid: defaultJumpHostUid,
-    expendHost: defaultExpandStatus,
-  });
-  const [isJumped, setIsJumped] = useState(false);
-  const entryPrefix = "hostEntry";
-  useEffect(() => {
-    if (isJumped === false) {
-      for (let [index, ele] of hostMeta.entries()) {
-        if (ele.uid === graphState.jumpHostUid) {
-          setIsJumped(true);
-          setTimeout(() => {
-            document
-              .querySelector(`#${entryPrefix}${index}`)
-              ?.scrollIntoView(true);
-          }, 100);
+  const routeMatch = useRouteMatch();
 
-          break;
-        }
+  useEffect(() => {
+    const selection = routeMatch.params?.selection;
+    if (selection) {
+      const selectedDiv = document.getElementById(
+        `${anchorPrefix}${selection}`
+      );
+      if (selectedDiv) {
+        selectedDiv.scrollIntoView({ hehavior: "smooth", block: "start" });
       }
     }
-  }, [hostMeta, graphState.jumpHostUid, isJumped]);
+  }, [routeMatch]);
 
-  const updateExpandStatus = (hostUid) => {
-    return () => {
-      if (graphState.expendHost[hostUid] === true) {
-        setGraphState((prev) => {
-          const newState = { ...prev };
-          newState.expendHost = { ...prev.expendHost, ...{ [hostUid]: false } };
-          return newState;
-        });
+  let usageBanner;
+  const hostContent = [];
+  let hostIndex = 0;
+
+  if (!_.isEmpty(resourceEntries)) {
+    const maxRes = {};
+
+    for (let host in resourceEntries) {
+      hostIndex++;
+      const hostMeta = resourceEntries[host].metaData;
+      const hostTag = `${hostEntryPrefix}${hostIndex}`;
+      maxVal(hostMeta, maxRes, hostTag);
+      const hostDiv = (
+        <HostResource
+          key={hostMeta.uid}
+          entryTag={hostTag}
+          resourceMetaPath={resourceMetaPath}
+          resourceEntry={resourceEntries[host]}
+          startTime={testStartTime}
+          endTime={testEndTime}
+        />
+      );
+      if (host === LOCALHOST) {
+        hostContent.unshift(hostDiv); // insert to first
       } else {
-        setGraphState((prev) => {
-          const newState = { ...prev };
-          newState.expendHost = { ...prev.expendHost, ...{ [hostUid]: true } };
-          return newState;
-        });
+        hostContent.push(hostDiv);
       }
-    };
-  };
+    }
+    if (!_.isEmpty(maxRes)) {
+      usageBanner = <TopUsageBanner {...maxRes} />;
+    }
+  }
 
-  const jumpToHost = (hostUid) => {
-    return () => {
-      setGraphState((prev) => {
-        const newState = { ...prev };
-        newState.jumpHostUid = hostUid;
-        newState.expendHost = { ...prev.expendHost, ...{ [hostUid]: true } };
-        return newState;
-      });
-      setIsJumped(false);
-    };
-  };
-
-  const hostEnties = [];
-  const maxCPU = {};
-  const maxMemory = {};
-  const maxDisk = {};
-  const maxIOPS = {};
-
-  hostMeta.forEach((hostValue, index) => {
-    maxVal(hostValue, "max_cpu", maxCPU);
-    maxVal(hostValue, "max_memory", maxMemory);
-    maxVal(hostValue, "max_disk", maxDisk);
-    maxVal(hostValue, "max_iops", maxIOPS);
-    hostEnties.push(
-      <HostResource
-        key={hostValue.uid}
-        entryIndex={`${entryPrefix}${index}`}
-        isOpen={graphState.expendHost[hostValue.uid] === true}
-        resource_meta_path={resource_meta_path}
-        onClick={updateExpandStatus(hostValue.uid)}
-        metadata={hostValue}
-        startTime={testStartTime}
-        endTime={testEndTime}
-      />
-    );
-  });
-
-  const usageBanner = (
-    <TopUsageBanner
-      maxCPU={maxCPU}
-      maxMemory={maxMemory}
-      maxDisk={maxDisk}
-      maxIOPS={maxIOPS}
-      onClickCallBack={jumpToHost}
-    />
-  );
+  const timerContent = [];
+  if (!_.isEmpty(timerEntries)) {
+    for (let hostId in timerEntries) {
+      hostIndex++;
+      const hostTag = `${hostEntryPrefix}${hostIndex}`;
+      timerContent.push(
+        <HostResource
+          key={hostId}
+          entryTag={hostTag}
+          resourceMetaPath={null}
+          resourceEntry={{
+            metaData: { uid: hostId },
+            timer: timerEntries[hostId],
+          }}
+          startTime={testStartTime}
+          endTime={testEndTime}
+        />
+      );
+    }
+  }
 
   return (
     <>
@@ -605,63 +736,156 @@ const ResourceContainer = ({
         key="panel-blank-header-margin"
         style={{ height: "20px", width: "100%" }}
       ></div>
-      {hostEnties}
+      {hostContent}
+      {timerContent}
     </>
   );
 };
 
 ResourceContainer.propTypes = {
-  defaultExpandStatus: PropTypes.object,
-  defaultJumpHostUid: PropTypes.string,
-  resource_meta_path: PropTypes.string,
-  hostMeta: PropTypes.array,
+  resourceMetaPath: PropTypes.string,
+  resourceEntries: PropTypes.object,
+  timerEntries: PropTypes.object,
   testStartTime: PropTypes.number,
   testEndTime: PropTypes.number,
+};
+
+const normalizeTimer = (timer) => {
+  let timerArray = [];
+  if (Array.isArray(timer?.run)) {
+    for (let timerIndex in timer.run) {
+      timerArray.push({
+        setup: {
+          start: timeToTimestamp(timer.setup[timerIndex]?.start),
+          end: timeToTimestamp(timer.setup[timerIndex]?.end),
+        },
+        run: {
+          start: timeToTimestamp(timer.run[timerIndex]?.start),
+          end: timeToTimestamp(timer.run[timerIndex]?.end),
+        },
+        teardown: {
+          start: timeToTimestamp(timer.teardown[timerIndex]?.start),
+          end: timeToTimestamp(timer.teardown[timerIndex]?.end),
+        },
+      });
+    }
+  } else {
+    timerArray.push({
+      setup: {
+        start: timeToTimestamp(timer.setup?.start),
+        end: timeToTimestamp(timer.setup?.end),
+      },
+      run: {
+        start: timeToTimestamp(timer.run?.start),
+        end: timeToTimestamp(timer.run?.end),
+      },
+      teardown: {
+        start: timeToTimestamp(timer.teardown?.start),
+        end: timeToTimestamp(timer.teardown?.end),
+      },
+    });
+  }
+  return timerArray;
+};
+
+const extractTimeInfo = (report) => {
+  const timeInfo = {};
+  if (Array.isArray(report.entries)) {
+    for (let mtIndex in report.entries) {
+      const timer = normalizeTimer(report.entries[mtIndex].timer);
+      let host = report.entries[mtIndex].host
+        ? report.entries[mtIndex].host
+        : LOCALHOST;
+      if (_.isNil(timeInfo[host])) {
+        timeInfo[host] = [];
+      }
+      timeInfo[host].push({
+        name: report.entries[mtIndex].name,
+        uid: report.entries[mtIndex].uid,
+        status: report.entries[mtIndex].status,
+        timer: timer,
+      });
+    }
+  }
+  return timeInfo;
 };
 
 /**
  * Render the Resource monitor and event data.
  */
-const ResourcePanel = ({ report, selectedHostUid }) => {
+const ResourcePanel = ({ report }) => {
   const [resourceMeta, setResourceMeta] = useState(null);
   const [errorInfo, setErrorInfo] = useState(null);
 
   useEffect(() => {
-    if (_.isEmpty(report.resource_meta_path) || resourceMeta) {
+    if (resourceMeta || errorInfo) {
+      return;
+    }
+
+    const timerEntries = extractTimeInfo(report);
+
+    if (_.isEmpty(report.resource_meta_path)) {
+      setResourceMeta({
+        resourceEntries: null,
+        timerEntries: timerEntries,
+      });
       return;
     } else {
       const resourceUrl = getResourceUrl(report.resource_meta_path);
       axios
         .get(resourceUrl)
         .then((response) => {
-          setResourceMeta(response.data);
+          const resourceEntries = {};
+          for (let resourceIndex in response.data.entries) {
+            const hostEntry = response.data.entries[resourceIndex];
+            if (hostEntry.is_local && !_.isNil(timerEntries[LOCALHOST])) {
+              resourceEntries[LOCALHOST] = {
+                metaData: hostEntry,
+                timer: timerEntries[LOCALHOST],
+              };
+              delete timerEntries[LOCALHOST];
+            } else if (!_.isNil(timerEntries[hostEntry.uid])) {
+              resourceEntries[hostEntry.uid] = {
+                metaData: hostEntry,
+                timer: timerEntries[hostEntry.uid],
+              };
+              delete timerEntries[hostEntry.uid];
+            }
+          }
+
+          setResourceMeta({
+            resourceEntries: resourceEntries,
+            timerEntries: timerEntries,
+          });
         })
         .catch((error) => {
           console.error(error);
           setErrorInfo(error.message);
         });
     }
-  }, [resourceMeta, report]);
+  }, [resourceMeta, report, errorInfo]);
 
   let content = null;
-  if (_.isEmpty(report.resource_meta_path)) {
-    content = <div>No Resource data</div>;
-  } else if (errorInfo) {
+
+  if (errorInfo) {
     content = <div style={{ color: { RED } }}>{errorInfo}</div>;
+  } else if (_.isEmpty(resourceMeta)) {
+    content = <div>Resource data was not collected for this test report.</div>;
   } else if (resourceMeta) {
-    const hostMeta = resourceMeta.entries;
-    const testStartTime = Number(new Date(report.timer.run.start));
-    const testEndTime = Number(new Date(report.timer.run.end));
-    const defaultExpandStatus = selectedHostUid
-      ? { [selectedHostUid]: true }
-      : {};
+    const { resourceEntries, timerEntries } = resourceMeta;
+    const testStartTime = Array.isArray(report.timer.run)
+      ? new Date(report.timer.run[0].start).getTime()
+      : new Date(report.timer.run.start).getTime();
+    const testEndTime = Array.isArray(report.timer.run)
+      ? new Date(report.timer.run[0].end).getTime()
+      : new Date(report.timer.run.end).getTime();
+
     content = (
       <ResourceContainer
-        key={`resource-container${new Date()}`}
-        defaultExpandStatus={defaultExpandStatus}
-        defaultJumpHostUid={selectedHostUid}
-        resource_meta_path={report.resource_meta_path}
-        hostMeta={hostMeta}
+        key={`resource-container`}
+        resourceMetaPath={report.resource_meta_path}
+        resourceEntries={resourceEntries}
+        timerEntries={timerEntries}
         testStartTime={testStartTime}
         testEndTime={testEndTime}
       />
@@ -686,7 +910,6 @@ const ResourcePanel = ({ report, selectedHostUid }) => {
 
 ResourcePanel.propTypes = {
   report: PropTypes.object,
-  selectedHostUid: PropTypes.string,
 };
 
 export default ResourcePanel;
