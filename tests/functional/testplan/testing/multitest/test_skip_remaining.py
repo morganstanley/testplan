@@ -8,6 +8,7 @@ from testplan.base import TestplanMock
 from testplan.runners.local import LocalRunner
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.process import ProcessPool
+from testplan.testing.base import Test
 
 
 @mt.testsuite
@@ -161,3 +162,40 @@ def test_inter_executor(exec_ids):
     report = mockplan.run().report
     assert len(report) == 1
     assert report.entries[0].name == "mt5"
+
+
+class ErrorTest(Test):
+    def run(self):
+        raise RuntimeError("Failing Task")
+
+
+ERROR_TEST_NAME = "error_test_name"
+
+
+def make_tests_with_task_error():
+    yield mt.MultiTest("mt4", [Suite5()])
+    yield ErrorTest(ERROR_TEST_NAME)
+    yield mt.MultiTest("mt6", [Suite2(), Suite5()])
+
+
+@pytest.mark.parametrize(
+    "exec_ids",
+    (
+        *permutations(("lrunner", "tpool", "ppool"), 2),
+        ("tpool", "lrunner", "tpool"),
+        ("ppool", "ppool", "ppool"),
+    ),
+)
+def test_task_error(exec_ids):
+    mockplan = TestplanMock(
+        name="in the middle of functional test",
+        skip_strategy="tests-on-failed",
+    )
+    mockplan.add_resource(lrunner("lrunner"))
+    mockplan.add_resource(tpool("tpool", 4))
+    mockplan.add_resource(ppool("ppool", 4))
+    for mt, rid in zip(make_tests_with_task_error(), exec_ids):
+        mockplan.schedule(target=mt, resource=rid)
+    report = mockplan.run().report
+    assert len(report) == 1
+    assert ERROR_TEST_NAME in report.entries[0].name

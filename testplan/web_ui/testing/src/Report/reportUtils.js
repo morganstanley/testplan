@@ -276,9 +276,9 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
     if (!timestamp) {
       return "";
     }
-    timestamp = timestamp.split("+");
-    let label = UTCTime ? "Z" : timestamp.length === 2 ? "+" + timestamp[1] : "";
-    return format(new Date(timestamp[0]), "HH:mm:ss.SSS") + label;
+    let label = UTCTime ? "Z" : timestamp.substring(26, 32);
+    timestamp = timestamp.substring(0, 26);
+    return format(new Date(timestamp), "HH:mm:ss.SSS") + label;
   };
 
   const selectedEntry = selectedEntries[selectedEntries.length - 1];

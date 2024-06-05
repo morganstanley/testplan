@@ -264,9 +264,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
             rc = self.started_check()
             if rc:
                 break
-        else:  # timeout
+        else:
             raise TimeoutException(
-                f"Timeout when starting {self}. {info.msg()}\n\n{rc.error_msg}"
+                f"Timeout when starting {self}. {info.msg()}\n\n{getattr(rc, 'error_msg', '')}"
             )
 
         super(Driver, self)._wait_started(timeout=timeout)
