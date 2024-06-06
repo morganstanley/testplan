@@ -1,0 +1,1 @@
+Users can now use :py:meth:`install_files <testplan.testing.multitest.driver.base.Driver.install_files>` method with Driver objects to copy files over to a specified location during environment startup.

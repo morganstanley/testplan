@@ -215,6 +215,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Steps to be executed right before resource starts."""
         self.make_runpath_dirs()
 
+        if self.cfg.install_files:
+            self.install_files()
+
     @property
     def started_check_interval(self) -> PollInterval:
         """
