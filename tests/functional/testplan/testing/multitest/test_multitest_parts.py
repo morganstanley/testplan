@@ -1,11 +1,11 @@
-import itertools
-
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+from itertools import chain, cycle, repeat
+from operator import eq
 
 from testplan import TestplanMock
+from testplan.report import Status
 from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.runners.pools.tasks import Task
-from testplan.report import Status
+from testplan.testing.multitest import MultiTest, testcase, testsuite
 
 
 @testsuite
@@ -44,16 +44,19 @@ class MockMultiTest(MultiTest):
             raise RuntimeError("Deliberately raises")
 
 
-uid_gen = itertools.cycle([i for i in range(10)])
-
-
 def get_mtest(part_tuple=None):
     return MultiTest(
         name="MTest", suites=[Suite1(), Suite2()], part=part_tuple
     )
 
 
+uid_gen = cycle([i for i in range(10)])
+
+
 def get_mtest_with_custom_uid(part_tuple=None):
+    # XXX: abolish multi_part_uid, may rename it to multi_part_report_name?
+    # XXX: or we may still accept customised uids, but we need to rewrite
+    # XXX: current filters
     return MultiTest(
         name="MTest",
         suites=[Suite1(), Suite2()],
@@ -224,3 +227,33 @@ def test_multi_parts_not_successfully_executed():
     assert plan.report.status == Status.ERROR  # Testplan result
     assert plan.report.entries[0].status == Status.ERROR  # 1st part raised
     assert "Deliberately raises" in plan.report.entries[0].logs[0]["message"]
+
+
+def test_even_parts():
+    plan = TestplanMock(name="plan")
+    for i in range(8):
+        plan.add(
+            MultiTest(
+                name="MTest",
+                suites=[Suite1(), Suite2(), Suite3()],
+                part=(i, 8),
+            )
+        )
+
+    assert plan.run().run is True
+    assert all(
+        map(
+            eq,
+            map(lambda e: e.counter["total"], plan.report.entries),
+            chain(repeat(2, 7), repeat(1)),
+        )
+    )
+    assert all(
+        map(eq, map(len, plan.report.entries), [1, 1, 2, 2, 2, 2, 2, 1])
+    )
+    for i in range(8):
+        assert plan.report.entries[i].entries[0].name == "Suite1"
+    for i in range(2, 5):
+        assert plan.report.entries[i].entries[1].name == "Suite2"
+    for i in range(5, 7):
+        assert plan.report.entries[i].entries[1].name == "Suite3"
