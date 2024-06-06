@@ -592,19 +592,46 @@ class TestRunner(Runnable):
                     )
                     num_of_parts = 1
                 else:
-                    num_of_parts = math.ceil(
+                    # the setup time shall take no more than 50% of runtime
+                    cap = math.ceil(
                         time_info["execution_time"]
-                        / (
-                            self.cfg.auto_part_runtime_limit
-                            - time_info["setup_time"]
-                        )
+                        / self.cfg.auto_part_runtime_limit
+                        * 2
                     )
-                    if num_of_parts < 1:
-                        num_of_parts = 1
-                        self.logger.error(
-                            f"Calculated num_of_parts for {uid} is {num_of_parts},"
-                            " check the input runtime_data and auto_part_runtime_limit"
+                    formula = f"""
+    num_of_parts = math.ceil(
+        time_info["execution_time"] {time_info["execution_time"]}
+        / (
+            self.cfg.auto_part_runtime_limit {self.cfg.auto_part_runtime_limit}
+            - time_info["setup_time"] {time_info["setup_time"]}
+        )
+    )
+"""
+                    try:
+                        num_of_parts = math.ceil(
+                            time_info["execution_time"]
+                            / (
+                                self.cfg.auto_part_runtime_limit
+                                - time_info["setup_time"]
+                            )
                         )
+                    except ZeroDivisionError:
+                        self.logger.error(
+                            f"ZeroDivisionError occurred when calculating num_of_parts for {uid}, set to 1. {formula}"
+                        )
+                        num_of_parts = 1
+
+                    if num_of_parts < 1:
+                        self.logger.error(
+                            f"Calculated num_of_parts for {uid} is {num_of_parts}, set to 1. {formula}"
+                        )
+                        num_of_parts = 1
+
+                    if num_of_parts > cap:
+                        self.logger.error(
+                            f"Calculated num_of_parts for {uid} is {num_of_parts} > cap {cap}, set to {cap}. {formula}"
+                        )
+                        num_of_parts = cap
             if "weight" not in _task_arguments:
                 _task_arguments["weight"] = (
                     math.ceil(

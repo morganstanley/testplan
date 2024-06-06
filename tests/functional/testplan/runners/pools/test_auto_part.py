@@ -97,3 +97,63 @@ def test_auto_weight_discover():
             assert task.weight == 140
         mockplan.run()
         assert pool.size == 1
+
+
+def test_auto_parts_zero_neg_parts():
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit=45,
+            plan_runtime_target=200,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 50,
+                    "setup_time": 50,  # setup_time > runtime_limit -> negtive num_of_parts
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        mockplan.schedule_all(
+            path=f"{current_folder}/discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+        assert len(pool.added_items) == 1
+        for task in pool.added_items.values():
+            assert task.weight == 100
+        mockplan.run()
+        assert pool.size == 1
+
+
+def test_auto_parts_cap_parts():
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit=45,
+            plan_runtime_target=200,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 60,
+                    "setup_time": 44,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        mockplan.schedule_all(
+            path=f"{current_folder}/discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+        assert len(pool.added_items) == 3
+        for task in pool.added_items.values():
+            assert task.weight == 64
+        mockplan.run()
+        assert pool.size == 1
