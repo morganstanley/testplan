@@ -1,5 +1,6 @@
 from typing import List
 
+from testplan.common.utils.strings import uuid4
 from testplan.importers import ImportedResult
 from testplan.report import TestGroupReport, TestReport, ReportCategories
 
@@ -30,11 +31,14 @@ class SuitesResult(ImportedResult):
 
         :return: a plan report contains a single test having all the returned suite results
         """
-        report = TestReport(name=self.name, description=self.description)
+        report = TestReport(
+            name=self.name, description=self.description, uid=uuid4()
+        )
         test_report = TestGroupReport(
             name=self.name,
             category=self.REPORT_CATEGORY,
             description=self.description,
+            uid=uuid4(),
         )
 
         for suite_report in self.results():
