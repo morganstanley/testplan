@@ -9,6 +9,7 @@ from lxml import objectify, etree
 from lxml.builder import E
 from lxml.objectify import Element
 
+from testplan.common.utils.strings import uuid4
 from testplan.importers.base import ThreePhaseFileImporter, T
 from testplan.importers.suitesresults import SuitesResult
 from testplan.report import (
@@ -133,6 +134,7 @@ class CPPUnitResultImporter(ThreePhaseFileImporter[Element]):
             suite_report = TestGroupReport(
                 name=suite_name,
                 category=ReportCategories.TESTSUITE,
+                uid=uuid4(),
             )
 
             for testcase in suite.getchildren():
@@ -144,6 +146,7 @@ class CPPUnitResultImporter(ThreePhaseFileImporter[Element]):
                 testcase_prefix = testcase_classname.split(".")[-1]
                 testcase_report = TestCaseReport(
                     name="{}::{}".format(testcase_prefix, testcase_name),
+                    uid=uuid4(),
                 )
 
                 if not testcase.getchildren():

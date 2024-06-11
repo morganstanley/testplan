@@ -16,6 +16,7 @@ from testplan.report import (
 )
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
+from ..common.utils.strings import uuid4
 
 
 class JUnitImportedResult(SuitesResult):
@@ -53,6 +54,7 @@ class JUnitResultImporter(ThreePhaseFileImporter):
             suite_report = TestGroupReport(
                 name=suite_name,
                 category=ReportCategories.TESTSUITE,
+                uid=uuid4(),
             )
 
             for element in suite.getchildren():
@@ -76,7 +78,9 @@ class JUnitResultImporter(ThreePhaseFileImporter):
                 else:
                     case_report_name = f"{case_class}::{case_name}"
 
-                case_report = TestCaseReport(name=case_report_name)
+                case_report = TestCaseReport(
+                    name=case_report_name, uid=uuid4()
+                )
 
                 if not element.getchildren():
                     assertion = RawAssertion(
