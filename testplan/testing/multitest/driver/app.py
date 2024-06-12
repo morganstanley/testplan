@@ -310,20 +310,6 @@ class App(Driver):
         """
         return socket.gethostname()
 
-    def pre_start(self) -> None:
-        """
-        Create mandatory directories and install files from given templates
-        using the drivers context before starting the application binary.
-        """
-        super(App, self).pre_start()
-
-        self._make_dirs()
-        makedirs(self.app_path)
-        self.std = StdFiles(self.app_path)
-
-        if self.cfg.install_files:
-            self.install_files()
-
     def starting(self) -> None:
         """Starts the application binary."""
         super(App, self).starting()
@@ -411,13 +397,20 @@ class App(Driver):
             )
             raise RuntimeError(err_msg)
 
-    def _make_dirs(self) -> None:
+    def make_runpath_dirs(self) -> None:
+        """
+        Create mandatory directories and install files from given templates
+        using the drivers context before starting the application binary.
+        """
+        super(App, self).make_runpath_dirs()
+
         bin_dir = os.path.join(self.runpath, "bin")
         etc_dir = os.path.join(self.runpath, "etc")
-        for directory in (bin_dir, etc_dir):
+        for directory in (bin_dir, etc_dir, self.app_path):
             makedirs(directory)
         self._binpath = bin_dir
         self._etcpath = etc_dir
+        self.std = StdFiles(self.app_path)
 
     def _install_target(self) -> str:
         return self.etcpath
