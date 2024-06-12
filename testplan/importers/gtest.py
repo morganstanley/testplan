@@ -6,6 +6,7 @@ from typing import List
 from lxml import objectify
 from lxml.objectify import Element
 
+from testplan.common.utils.strings import uuid4
 from testplan.importers.base import T, ThreePhaseFileImporter
 from testplan.importers.suitesresults import SuitesResult
 from testplan.report import (
@@ -51,13 +52,16 @@ class GTestResultImporter(ThreePhaseFileImporter[Element]):
             suite_report = TestGroupReport(
                 name=suite_name,
                 category=ReportCategories.TESTSUITE,
+                uid=uuid4(),
             )
             suite_has_run = False
 
             for testcase in suite.getchildren():
 
                 testcase_name = testcase.attrib["name"]
-                testcase_report = TestCaseReport(name=testcase_name)
+                testcase_report = TestCaseReport(
+                    name=testcase_name, uid=uuid4()
+                )
 
                 if not testcase.getchildren():
                     assertion_obj = RawAssertion(
