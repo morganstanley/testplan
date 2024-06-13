@@ -694,6 +694,7 @@ class Test(Runnable):
             testcase_name=hook_name,
             testcase_report=case_report,
         )
+        case_report.pass_if_empty()
         try:
             interface.check_signature(hook, ["env", "result"])
             hook_args = (runtime_env, case_result)
@@ -709,7 +710,6 @@ class Test(Runnable):
         if self.get_stdout_style(case_report.passed).display_testcase:
             self.log_testcase_status(case_report)
 
-        case_report.pass_if_empty()
         pattern = ":".join([self.name, suite_name, hook_name])
         self._xfail(pattern, case_report)
         case_report.runtime_status = RuntimeStatus.FINISHED
