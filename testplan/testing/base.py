@@ -112,7 +112,7 @@ class TestConfig(RunnableConfig):
                 [Or(Resource, RemoteDriver)], validate_func()
             ),
             ConfigOption("dependencies", default=None): Or(
-                Use(parse_dependency), validate_func()
+                None, Use(parse_dependency), validate_func()
             ),
             ConfigOption("initial_context", default={}): Or(
                 dict, validate_func()
@@ -437,10 +437,11 @@ class Test(Runnable):
 
     def _set_dependencies(self) -> None:
         if callable(self.cfg.dependencies):
-            deps = parse_dependency(self.cfg.dependencies())
+            ret = self.cfg.dependencies()
+            deps = parse_dependency(ret) if ret is not None else None
         else:
             deps = self.cfg.dependencies
-        if deps:
+        if deps is not None:
             self.resources.set_dependency(deps)
 
     def _start_resource(self) -> None:
