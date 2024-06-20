@@ -440,8 +440,7 @@ class Test(Runnable):
             deps = parse_dependency(self.cfg.dependencies())
         else:
             deps = self.cfg.dependencies
-        if deps:
-            self.resources.set_dependency(deps)
+        self.resources.set_dependency(deps)
 
     def _start_resource(self) -> None:
         if len(self.resources) == 0:

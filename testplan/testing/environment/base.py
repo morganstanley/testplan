@@ -58,7 +58,10 @@ class TestEnvironment(Environment):
         self.__dict__["_rt_dependency"]: Optional[DriverDepGraph] = None
         self.__dict__["_pocketwatches"]: Dict[str, DriverPocketwatch] = dict()
 
-    def set_dependency(self, dependency: DriverDepGraph):
+    def set_dependency(self, dependency: Optional[DriverDepGraph]):
+        if dependency is None:
+            return
+
         for d in dependency.vertices.values():
             if (
                 d.uid() not in self._resources

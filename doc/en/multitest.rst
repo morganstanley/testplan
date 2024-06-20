@@ -67,8 +67,11 @@ A MultiTest instance can be constructed from the following parameters:
   :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`.
   Drivers on the value side should only start after drivers on the key side are
   fully started. When specified, Testplan will try to schedule more drivers
-  starting parallelly based on the dependencies. Click
-  :ref:`here <multitest_drivers>` for more information.
+  starting concurrently based on the dependencies. Drivers included in
+  ``environment`` while not presented in ``dependencies`` will be started
+  concurrently at the very beginning. Using empty dict here to instruct all
+  drivers to start concurrently. Click :ref:`here <multitest_drivers>` for more
+  information.
 
 * **Runtime Information**: The environment always contains a member called
   ``runtime_info`` which contains information about the current state of the
