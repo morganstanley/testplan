@@ -1,0 +1,1 @@
+Testcases of ``MultiTest`` can now be distributed more evenly across parts.

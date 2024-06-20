@@ -392,6 +392,11 @@ class MultiTest(testing_base.Test):
         ctx = []
         sorted_suites = self.cfg.test_sorter.sorted_testsuites(self.cfg.suites)
 
+        if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:
+            xfail_data = self.cfg.xfail_tests
+        else:
+            xfail_data = {}
+
         for suite in sorted_suites:
             testcases = suite.get_testcases()
 
@@ -401,13 +406,6 @@ class MultiTest(testing_base.Test):
                 or not hasattr(self.cfg, "test_sorter")
                 else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
-
-            if self.cfg.part:
-                sorted_testcases = [
-                    testcase
-                    for (idx, testcase) in enumerate(sorted_testcases)
-                    if (idx) % self.cfg.part[1] == self.cfg.part[0]
-                ]
 
             testcases_to_run = [
                 case
@@ -425,25 +423,38 @@ class MultiTest(testing_base.Test):
                 testcases_to_run = sorted_testcases
 
             if testcases_to_run:
-                if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:
-                    for testcase in testcases_to_run:
-                        testcase_instance = ":".join(
-                            [
-                                self.name,
-                                suite.name,
-                                testcase.name,
-                            ]
-                        )
-                        data = self.cfg.xfail_tests.get(
-                            testcase_instance, None
-                        )
-                        if data is not None:
-                            testcase.__func__.__xfail__ = {
-                                "reason": data["reason"],
-                                "strict": data["strict"],
-                            }
+                for testcase in testcases_to_run:
+                    testcase_instance = ":".join(
+                        [
+                            self.name,
+                            suite.name,
+                            testcase.name,
+                        ]
+                    )
+                    data = xfail_data.get(testcase_instance, None)
+                    if data is not None:
+                        testcase.__func__.__xfail__ = {
+                            "reason": data["reason"],
+                            "strict": data["strict"],
+                        }
 
                 ctx.append((suite, testcases_to_run))
+
+        if self.cfg.part:
+            # round-robin at testcase level
+            numer, denom = self.cfg.part
+            ofst = 0
+            ctx_ = []
+            for suite, cases in ctx:
+                cases_ = [
+                    case
+                    for idx, case in enumerate(cases)
+                    if (idx + ofst) % denom == numer
+                ]
+                ofst = (ofst + len(cases)) % denom
+                if cases_:
+                    ctx_.append((suite, cases_))
+            return ctx_
 
         return ctx
 
