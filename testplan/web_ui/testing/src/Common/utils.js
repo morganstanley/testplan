@@ -28,6 +28,21 @@ function calcExecutionTime(entry) {
 }
 
 /**
+ * Calculate elapsed time of a timer field
+ */
+function calcElapsedTime(timerField) {
+  let elapsed = null;
+  if (timerField && Array.isArray(timerField) && !_.isEmpty(timerField)) {
+    elapsed = 0;
+    timerField.forEach((interval) => {
+      elapsed +=
+      timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
+    });
+  }
+  return elapsed;
+}
+
+/**
  * Convert string to timestamp.
  *
  * @param {object|string} time
@@ -153,6 +168,8 @@ function formatSeconds(durationInSeconds) {
  * @returns {string}
  */
 function formatMilliseconds(durationInMilliseconds) {
+  if (!_.isNumber(durationInMilliseconds)) { return "na"; };
+
   let secondsInMilliseconds = durationInMilliseconds % 60000;
   let seconds = secondsInMilliseconds / 1000;
   let minutesInMilliseconds = (durationInMilliseconds - secondsInMilliseconds)
@@ -176,6 +193,7 @@ function formatMilliseconds(durationInMilliseconds) {
 
 export {
   calcExecutionTime,
+  calcElapsedTime,
   timeToTimestamp,
   getNavEntryDisplayData,
   any,
