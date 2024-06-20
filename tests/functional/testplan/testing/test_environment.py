@@ -56,27 +56,22 @@ class DriverGeneratorDict(dict):
 
 
 def _assert_orig_dep(env):
-    if env["is_set"] is True:
-        assert env.__dict__["_orig_dependency"] is not None
-    else:
-        assert env.__dict__["_orig_dependency"] is None
+    assert env.__dict__["_orig_dependency"] is not None
 
 
 @skip_on_windows(reason="Bash files skipped on Windows.")
 @pytest.mark.parametrize(
-    "driver_dependencies, is_lift, is_set",
+    "driver_dependencies, use_callable",
     [
-        (None, False, False),
-        (None, True, False),
-        ([], False, True),
-        ([], True, True),
-        ([("a", "b")], False, True),
-        ([("a", "b"), ("b", "c"), ("a", "c")], True, True),
-        ([("a", "b"), ("c", "d"), ("a", "d"), ("c", "b")], False, True),
+        ([], False),
+        ([], True),
+        ([("a", "b")], False),
+        ([("a", "b"), ("b", "c"), ("a", "c")], True),
+        ([("a", "b"), ("c", "d"), ("a", "d"), ("c", "b")], False),
     ],
 )
 def test_testing_environment(
-    mockplan, named_temp_file, driver_dependencies, is_lift, is_set
+    mockplan, named_temp_file, driver_dependencies, use_callable
 ):
     drivers = DriverGeneratorDict(named_temp_file)
     for k in ["a", "b"]:
@@ -98,11 +93,12 @@ def test_testing_environment(
         target=DummyTest(
             name="MyTest",
             binary=binary_path,
-            initial_context={"is_set": is_set},
             environment=lambda: list(drivers.values())
-            if is_lift
+            if use_callable
             else list(drivers.values()),
-            dependencies=lambda: dependencies if is_lift else dependencies,
+            dependencies=lambda: dependencies
+            if use_callable
+            else dependencies,
             after_start=_assert_orig_dep,
         ),
         resource=None,
