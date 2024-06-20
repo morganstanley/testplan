@@ -11,7 +11,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-failedBadge_1i8mqax"
+    className="entryIcon_9gb3m5-o_O-failedBadge_1i8mqax"
     color="secondary"
     pill={true}
     tag="span"
@@ -20,16 +20,19 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
     C
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-failed_11es5k7"
+    className="entryName_j2oag5-o_O-failed_11es5k7"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-failed_11es5k7"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -100,7 +103,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -109,16 +112,19 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
     C
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -189,7 +195,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-passedBadge_1isorc2"
+    className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2"
     color="secondary"
     pill={true}
     tag="span"
@@ -198,16 +204,19 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
     C
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-passed_1kh4m98"
+    className="entryName_j2oag5-o_O-passed_1kh4m98"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-passed_1kh4m98"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -278,7 +287,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -287,16 +296,19 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
     C
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -367,7 +379,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -376,16 +388,19 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
     C
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -456,7 +471,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -465,16 +480,19 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
     C
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -545,7 +563,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -554,16 +572,19 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
     C
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -634,7 +655,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -643,16 +664,19 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
     MT
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -805,7 +829,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -814,16 +838,19 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
     MT
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -979,7 +1006,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -988,16 +1015,19 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
     MT
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -1150,7 +1180,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
   }
 >
   <Badge
-    className="entryIcon_lzttp4-o_O-unknownBadge_y8uc99"
+    className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
     color="secondary"
     pill={true}
     tag="span"
@@ -1159,16 +1189,19 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
     MT
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unknown_1qg7pkz"
+    className="entryName_j2oag5-o_O-unknown_1qg7pkz"
     title="TestCaseDesc"
   >
     FakeTestcase
   </div>
   <div
-    className="entryIcons_195essn"
+    className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_lzttp4"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+    />
+    <span
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
