@@ -321,15 +321,14 @@ def test_synthesized_preserved_in_merged():
     # | s1c5  | s1c6  | s1c7  | s1c8  |
     # |       |       | s4s   | s4s   |
     # | s1c9  | s1c10 | s4c1  | s4c2  |
-    # | s4s   |       |       |       |
+    # | s4s   | s4s   |       |       |
     # | s4c3  | s4c4  | s4c5  | s4c6  |
     # | s4c7  | s4c8  | s4c9  | s4c10 |
-    # | s4c11 |       |       |       |
-    # | s4t   | s4t   | s4t   | s4t   |
-
-    # during merging, empty cells will be removed
-    # s4c2 == test_params__arg_0
-    # s4c9 == test_params_2__arg_0
+    # | s4c11 | s4t   | s4t   | s4t   |
+    # | s4t   |       |       |       |
+    # where
+    #   s4c2 == test_params__arg_0
+    #   s4c9 == test_params_2__arg_0
 
     s4 = plan.report["mtest"]["Suite4"]
     assert (
@@ -363,6 +362,69 @@ def test_synthesized_preserved_in_merged():
     es = plan.report["mtest"]["Environment Stop"]
     assert len(es) == 4
     assert es.entries[0].uid == "Before Stop - part(2/4)"
-    assert es.entries[1].uid == "Before Stop - part(0/4)"
-    assert es.entries[2].uid == "Stopping - part(2/4)"
+    assert es.entries[1].uid == "Stopping - part(2/4)"
+    assert es.entries[2].uid == "Before Stop - part(0/4)"
     assert es.entries[3].uid == "Stopping - part(0/4)"
+
+
+@testsuite
+class Suite5:
+    def teardown(self, env, result):
+        result.log("padding")
+
+    @testcase
+    def c1(self, env, result):
+        result.true(True)
+
+
+@testsuite
+class Suite6:
+    @testcase
+    def c1(self, env, result):
+        result.false(True)
+
+    @testcase
+    def c2(self, env, result):
+        result.true(False)
+
+
+@testsuite
+class Suite7:
+    @testcase
+    def c1(self, env, result):
+        result.false(False)
+
+    @testcase
+    def c2(self, env, result):
+        result.false(False)
+
+    @testcase
+    def c3(self, env, result):
+        result.false(False)
+
+
+def test_order_maintained_w_synthesized_in_merged():
+    plan = TestplanMock(name="plan", merge_scheduled_parts=True)
+    for i in range(3):
+        plan.add(
+            MultiTest(
+                "mtest",
+                [Suite5(), Suite6(), Suite7()],
+                part=(i, 3),
+            )
+        )
+
+    assert plan.run().run is True
+
+    # | p0    | p1    | p2    |
+    # | ----- | ----- | ----- |
+    # | s5c1  | s6c1  | sbc2  |
+    # | s5t   |       |       |
+    # | s7c1  | s7c2  | s7c3  |
+
+    # round-robin without collation will result in order [s7c2, s7c3, s7c1]
+
+    s7 = plan.report["mtest"]["Suite7"]
+    assert s7.entries[0].uid == "c1"
+    assert s7.entries[1].uid == "c2"
+    assert s7.entries[2].uid == "c3"
