@@ -9,7 +9,10 @@ from enum import Enum, IntEnum, auto
 from typing import TYPE_CHECKING, Callable, List, Type
 
 from testplan.testing import tagging
-from testplan.testing.common import TEST_PART_PATTERN_REGEX
+from testplan.testing.common import (
+    TEST_PART_PATTERN_REGEX,
+    TEST_PART_PATTERN_FORMAT_STRING,
+)
 
 if TYPE_CHECKING:
     from testplan.testing.base import Test
@@ -42,6 +45,9 @@ class BaseFilter:
     e.g. (FilterA(...) & FilterB(...)) | ~FilterC(...)
     """
 
+    def map(self, f):
+        raise NotImplementedError
+
     def filter(self, test, suite, case) -> bool:
         raise NotImplementedError
 
@@ -67,6 +73,9 @@ class Filter(BaseFilter):
 
     category = FilterCategory.COMMON
 
+    def map(self, f):
+        return f(self)
+
     def filter_test(self, test) -> bool:
         return True
 
@@ -91,7 +100,7 @@ class Filter(BaseFilter):
 
 
 def flatten_filters(
-    metafilter_kls: Type["MetaFilter"], filters: List["Filter"]
+    metafilter_kls: Type["MetaFilter"], filters: List[Filter]
 ) -> List[Filter]:
     """
     This is used for flattening nested filters of same type
@@ -142,6 +151,10 @@ class MetaFilter(BaseFilter):
             isinstance(other, self.__class__) and other.filters == self.filters
         )
 
+    def map(self, f):
+        self.filters = list(map(f, self.filters))
+        return self
+
     def composed_filter(self, _test, _suite, _case) -> bool:
         raise NotImplementedError
 
@@ -186,6 +199,10 @@ class Not(BaseFilter):
 
     def __eq__(self, other):
         return isinstance(other, Not) and other.filter_obj == self.filter_obj
+
+    def map(self, f):
+        self.filter_obj = f(self.filter_obj)
+        return self
 
     def filter(self, test, suite, case):
         return not self.filter_obj.filter(test, suite, case)
@@ -266,7 +283,6 @@ class Pattern(Filter):
     category = FilterCategory.PATTERN
 
     def __init__(self, pattern, match_uid=False):
-        self.pattern = pattern
         self.match_uid = match_uid
         self.parse_pattern(pattern)
 
@@ -279,6 +295,18 @@ class Pattern(Filter):
 
     def __repr__(self):
         return '{}(pattern="{}")'.format(self.__class__.__name__, self.pattern)
+
+    @property
+    def pattern(self):
+        if isinstance(self.test_pattern, tuple):
+            test_p = TEST_PART_PATTERN_FORMAT_STRING.format(
+                self.test_pattern[0],
+                self.test_pattern[1][0],
+                self.test_pattern[1][1],
+            )
+        else:
+            test_p = self.test_pattern
+        return ":".join([test_p, self.suite_pattern, self.case_pattern])
 
     def parse_pattern(self, pattern: str) -> List[str]:
         # ":" or "::" can be used as delimiter

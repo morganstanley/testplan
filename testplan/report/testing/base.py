@@ -58,6 +58,7 @@ from testplan.common.report import (
     BaseReportGroup,
 )
 from testplan.testing import tagging
+from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 
 
 class TestReport(BaseReportGroup):
@@ -267,6 +268,7 @@ class TestGroupReport(BaseReportGroup):
 
         # A test can be split into many parts and the report of each part
         # can be hold back for merging (if necessary)
+        # this is a multitest only feature
         self.part = part  # i.e. (m, n), while 0 <= m < n and n > 1
         self.part_report_lookup = {}
 
@@ -452,6 +454,24 @@ class TestGroupReport(BaseReportGroup):
 
         return self
 
+    def annotate_part_num(self):
+        # NOTE: part is only set at mt level, meth is for mt-level report only
+        if not self.part:
+            return
+        _wrap = lambda s: TEST_PART_PATTERN_FORMAT_STRING.format(
+            s, self.part[0], self.part[1]
+        )
+        for e in self.pre_order_reports():
+            if (
+                isinstance(e, TestCaseReport)
+                and e.category == ReportCategories.SYNTHESIZED
+            ):
+                # assuming specially names are in backend only
+                e.uid = _wrap(e.uid)
+                e.name = _wrap(e.name)
+        # NOTE: synthesized tc not only exists in synthesized ts
+        self.build_index(recursive=True)
+
 
 class TestCaseReport(Report):
     """
@@ -597,6 +617,9 @@ class TestCaseReport(Report):
         self.entries = report.entries
         self.timer = report.timer
         self.status_reason = report.status_reason
+
+    def non_recursive_merge(self, report):
+        return self.merge(report)
 
     def flattened_entries(self, depth):
         """Need to take assertion groups into account."""
