@@ -1346,8 +1346,16 @@ class MultiTest(testing_base.Test):
         self._init_test_report()
 
     def unset_part(self) -> None:
-        """Disable part feature"""
+        """Disable part feature, "sanitise" patterns as well"""
         self._cfg.part = None
+
+        def _drop_parts(f):
+            if isinstance(f, filtering.Pattern):
+                if isinstance(f.test_pattern, tuple):
+                    f.test_pattern = f.test_pattern[0]
+            return f
+
+        self._cfg.test_filter.map(_drop_parts)
         self._init_test_report()
 
 

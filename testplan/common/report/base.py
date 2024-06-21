@@ -386,6 +386,12 @@ class Report:
 
         raise NotImplementedError
 
+    def non_recursive_merge(self, report):
+        """
+        variant of ``merge`` method, with ``entries`` not processed
+        """
+        raise NotImplementedError
+
     def append(self, item):
         """Append ``item`` to ``self.entries``, no restrictions."""
         self.entries.append(item)
@@ -572,7 +578,7 @@ class BaseReportGroup(Report):
                 if isinstance(child, BaseReportGroup):
                     child.build_index(recursive=recursive)
 
-    def get_by_uids(self, uids):
+    def get_by_uids(self, uids: List[str]) -> Report:
         """
         Get child report via a series of `uid` lookup.
 
@@ -584,7 +590,7 @@ class BaseReportGroup(Report):
             report = report.get_by_uid(uid)
         return report
 
-    def has_uid(self, uid):
+    def has_uid(self, uid: str) -> bool:
         """
         Has a child report of `uid`
         """
@@ -592,7 +598,7 @@ class BaseReportGroup(Report):
 
     __contains__ = has_uid
 
-    def get_by_uid(self, uid):
+    def get_by_uid(self, uid: str) -> Report:
         """
         Get child report via `uid` lookup.
 
@@ -634,6 +640,27 @@ class BaseReportGroup(Report):
         self._index = {child.uid: i for i, child in enumerate(self)}
 
     __delitem__ = remove_by_uid
+
+    def pre_order_reports(self):
+        yield self
+        for e in self:
+            if isinstance(e, BaseReportGroup):
+                yield from e.pre_order_reports()
+            elif isinstance(e, Report):
+                yield e
+
+    def disassemble(self):
+        c = []
+        for u in copy.copy(list(self._index.keys())):
+            c.append(self[u])
+            del self[u]
+
+        yield self
+        for e in c:
+            if isinstance(e, BaseReportGroup):
+                yield from e.disassemble()
+            elif isinstance(e, Report):
+                yield e
 
     @property
     def entry_uids(self):
@@ -683,11 +710,43 @@ class BaseReportGroup(Report):
         self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
 
         self.timer.merge(report.timer)
+        # FIXME: simple extend discards certain context info
         self.children.extend(report.children)
 
         self.status_override = Status.precedent(
             [self.status_override, report.status_override]
         )
+
+    def non_recursive_merge(self, report):
+        self._check_report(report)
+        log_ids = [rec["uid"] for rec in self.logs]
+        self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
+        self.timer.merge(report.timer)
+        # FIXME: simple extend discards certain context info
+        self.children.extend(report.children)
+        self.status_override = Status.precedent(
+            [self.status_override, report.status_override]
+        )
+
+    def graft_entry(self, report: Report, parent_uids: List[str]):
+        if not parent_uids:
+            if report.uid in self:
+                self.get_by_uid(report.uid).non_recursive_merge(report)
+            else:
+                self.append(report)
+            return
+
+        u = parent_uids.pop(0)
+        if u not in self:
+            raise MergeError(
+                "Parent report should be grafted before child report being grafted."
+            )
+        e = self.get_by_uid(u)
+        if not isinstance(e, BaseReportGroup):
+            raise MergeError(
+                "Cannot graft report onto a non-BaseReportGroup entry."
+            )
+        e.graft_entry(report, parent_uids)
 
     def append(self, item):
         """Add `item` to `self.entries`, checking type & index."""

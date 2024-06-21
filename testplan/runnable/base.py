@@ -1,5 +1,4 @@
 """Tests runner module."""
-import datetime
 import inspect
 import math
 import os
@@ -9,7 +8,9 @@ import time
 import uuid
 import webbrowser
 from collections import OrderedDict
+from copy import copy
 from dataclasses import dataclass
+from itertools import zip_longest
 from typing import (
     Any,
     Callable,
@@ -747,9 +748,9 @@ class TestRunner(Runnable):
                                     task_arguments["kwargs"] = None
                                 else:
                                     raise TypeError(
-                                        f"task_target's parameters can only"
+                                        "task_target's parameters can only"
                                         " contain dict/tuple/list, but"
-                                        " received: {param}"
+                                        f" received: {param}"
                                     )
                                 task_arguments["part"] = None
                                 tasks.extend(
@@ -1174,22 +1175,34 @@ class TestRunner(Runnable):
                     ).append((test_results[uid].run, report))
                     if report.definition_name not in plan_report.entry_uids:
                         # Create a placeholder for merging sibling reports
-                        if isinstance(resource_result, TaskResult):
-                            # `runnable` must be an instance of MultiTest since
-                            # the corresponding report has `part` defined. Can
-                            # get a full structured report by `dry_run` and the
-                            # order of testsuites/testcases can be retained.
-                            runnable = resource_result.task.materialize()
-                            runnable.parent = self
-                            runnable.cfg.parent = self.cfg
-                            runnable.unset_part()
-                            report = runnable.dry_run().report
 
-                        else:
-                            report = report.__class__(
-                                report.definition_name,
-                                category=report.category,
-                            )
+                        # here `report` must be an empty MultiTest report since
+                        # parting is mt-only feature, directly creating an original-
+                        # compatible mt report would reduce mt materialize overhead
+
+                        # if isinstance(resource_result, TaskResult):
+                        #     # `runnable` must be an instance of MultiTest since
+                        #     # the corresponding report has `part` defined. Can
+                        #     # get a full structured report by `dry_run` and the
+                        #     # order of testsuites/testcases can be retained.
+                        #     runnable: MultiTest = resource_result.task.materialize()
+                        #     runnable.parent = self
+                        #     runnable.cfg.parent = self.cfg
+                        #     runnable.unset_part()
+                        #     report = runnable.dry_run().report
+                        # else:
+
+                        # while currently the only parting strategy is case-level
+                        # round-robin, more complicated parting strategy could make
+                        # it hard to obtain the defined mt/ts/tc order, since then
+                        # ref report from dry_run will become necessary
+
+                        report = TestGroupReport(
+                            name=report.definition_name,
+                            description=report.description,
+                            category=ReportCategories.MULTITEST,
+                            tags=report.tags,
+                        )
                     else:
                         continue  # Wait all sibling reports collected
 
@@ -1225,13 +1238,19 @@ class TestRunner(Runnable):
         merge_result = True
 
         for uid, result in test_report_lookup.items():
-            placeholder_report = self.result.report.get_by_uid(uid)
+            placeholder_report: TestGroupReport = (
+                self.result.report.get_by_uid(uid)
+            )
             num_of_parts = 0
             part_indexes = set()
             merged = False
 
+            # should we continue merging on exception raised?
+
             with placeholder_report.logged_exceptions():
+                disassembled = []
                 for run, report in result:
+                    report: TestGroupReport
                     if num_of_parts and num_of_parts != report.part[1]:
                         raise ValueError(
                             "Cannot merge parts for child report with"
@@ -1252,20 +1271,26 @@ class TestRunner(Runnable):
                         if isinstance(run, Exception):
                             raise run
                         else:
-                            placeholder_report.merge(report, strict=False)
+                            report.annotate_part_num()
+                            disassembled.append(list(report.disassemble()))
                     else:
                         raise MergeError(
-                            "Cannot merge parts for child report with"
-                            " `uid`: {uid}, at least one part (index:{part})"
-                            " didn't run.".format(uid=uid, part=report.part[0])
+                            f"While merging parts of report `uid`: {uid}, "
+                            f"part {report.part[0]} didn't run. Merge of this part was skipped"
                         )
-                else:
-                    if len(part_indexes) < num_of_parts:
-                        raise MergeError(
-                            "Cannot merge parts for child report with"
-                            " `uid`: {uid}, not all MultiTest parts"
-                            " had been scheduled.".format(uid=uid)
-                        )
+
+                for it in zip_longest(*disassembled, fillvalue=None):
+                    for e in it:
+                        if e is None:
+                            continue
+                        if not e.parent_uids:
+                            # specially handle mt entry
+                            placeholder_report.non_recursive_merge(e)
+                        else:
+                            placeholder_report.graft_entry(
+                                e, copy(e.parent_uids[1:])
+                            )
+                placeholder_report.build_index(recursive=True)
                 merged = True
 
             # If fail to merge sibling reports, clear the placeholder report
