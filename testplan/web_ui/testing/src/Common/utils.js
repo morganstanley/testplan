@@ -39,7 +39,7 @@ function calcElapsedTime(timerField) {
       timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
     });
   }
-  return elapsed;
+  return elapsed < 0 ? null : elapsed;
 }
 
 /**
