@@ -237,10 +237,18 @@ exports[`BatchReport loads a failed simple report 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -515,10 +523,18 @@ exports[`BatchReport loads a failed simple report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -780,10 +796,18 @@ exports[`BatchReport loads a failed simple report 1`] = `
             ],
           },
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:11.159661+00:00",
-              "start": "2018-10-15T14:30:11.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.159661+00:00",
+                "start": "2018-10-15T14:30:11.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.008995+00:00",
+                "start": "2018-10-15T14:30:10.079745+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -1385,10 +1409,18 @@ exports[`BatchReport loads a failed simple report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -1656,10 +1688,18 @@ exports[`BatchReport loads a failed simple report 1`] = `
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -1921,10 +1961,18 @@ exports[`BatchReport loads a failed simple report 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -2664,10 +2712,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -2732,10 +2788,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -3019,10 +3083,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -3087,10 +3159,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -3189,10 +3269,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
           "tags": Object {},
           "tags_index": Object {},
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:12.159661+00:00",
-              "start": "2018-10-15T14:30:12.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.159661+00:00",
+                "start": "2018-10-15T14:30:12.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.008705+00:00",
+                "start": "2018-10-15T14:30:11.879705+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -3492,10 +3580,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -3560,10 +3656,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -3840,10 +3944,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -3908,10 +4020,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -4010,10 +4130,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -4405,10 +4533,18 @@ exports[`BatchReport loads a more complex report 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -4550,10 +4686,24 @@ exports[`BatchReport loads a more complex report 1`] = `
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -4894,10 +5044,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -5039,10 +5197,24 @@ exports[`BatchReport loads a more complex report 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -5370,10 +5542,18 @@ exports[`BatchReport loads a more complex report 1`] = `
             ],
           },
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:11.159661+00:00",
-              "start": "2018-10-15T14:30:11.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.159661+00:00",
+                "start": "2018-10-15T14:30:11.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.008995+00:00",
+                "start": "2018-10-15T14:30:10.079745+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -5900,10 +6080,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -6045,10 +6233,24 @@ exports[`BatchReport loads a more complex report 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -6382,10 +6584,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -6527,10 +6737,24 @@ exports[`BatchReport loads a more complex report 1`] = `
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -6858,10 +7082,18 @@ exports[`BatchReport loads a more complex report 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -7366,10 +7598,24 @@ exports[`BatchReport loads a passed simple report 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -7642,10 +7888,24 @@ exports[`BatchReport loads a passed simple report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -7929,10 +8189,24 @@ exports[`BatchReport loads a passed simple report 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -8198,10 +8472,24 @@ exports[`BatchReport loads a passed simple report 1`] = `
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -8565,10 +8853,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -8710,10 +9006,24 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -9054,10 +9364,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -9199,10 +9517,24 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -9530,10 +9862,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
             ],
           },
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:11.159661+00:00",
-              "start": "2018-10-15T14:30:11.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.159661+00:00",
+                "start": "2018-10-15T14:30:11.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.008995+00:00",
+                "start": "2018-10-15T14:30:10.079745+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -9850,10 +10190,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -9995,10 +10343,24 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -10332,10 +10694,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -10477,10 +10847,24 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -10808,10 +11192,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -11145,10 +11537,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -11294,10 +11694,24 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -11638,10 +12052,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -11787,10 +12209,24 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -11971,10 +12407,24 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
           "tags": Object {},
           "tags_index": Object {},
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:12.159661+00:00",
-              "start": "2018-10-15T14:30:12.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.159661+00:00",
+                "start": "2018-10-15T14:30:12.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.008705+00:00",
+                "start": "2018-10-15T14:30:11.879705+00:00",
+              },
+            ],
+            "teardown": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.645329+00:00",
+                "start": "2018-10-15T14:30:12.160132+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -12498,10 +12948,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -12647,10 +13105,24 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -12984,10 +13456,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -13133,10 +13613,24 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -13317,10 +13811,24 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -13927,10 +14435,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -14092,10 +14608,24 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -14436,10 +14966,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -14601,10 +15139,24 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -14801,10 +15353,24 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
           "tags": Object {},
           "tags_index": Object {},
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:12.159661+00:00",
-              "start": "2018-10-15T14:30:12.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.159661+00:00",
+                "start": "2018-10-15T14:30:12.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.008705+00:00",
+                "start": "2018-10-15T14:30:11.879705+00:00",
+              },
+            ],
+            "teardown": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.645329+00:00",
+                "start": "2018-10-15T14:30:12.160132+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -15360,10 +15926,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -15525,10 +16099,24 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -15862,10 +16450,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -16027,10 +16623,24 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -16227,10 +16837,24 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -16885,10 +17509,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -17050,10 +17682,24 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -17394,10 +18040,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -17559,10 +18213,24 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -17759,10 +18427,24 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
           "tags": Object {},
           "tags_index": Object {},
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:12.159661+00:00",
-              "start": "2018-10-15T14:30:12.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.159661+00:00",
+                "start": "2018-10-15T14:30:12.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.008705+00:00",
+                "start": "2018-10-15T14:30:11.879705+00:00",
+              },
+            ],
+            "teardown": Array [
+              Object {
+                "end": "2018-10-15T14:30:12.645329+00:00",
+                "start": "2018-10-15T14:30:12.160132+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -18318,10 +19000,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -18483,10 +19173,24 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -18820,10 +19524,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -18985,10 +19697,24 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -19185,10 +19911,24 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -19843,10 +20583,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -19988,10 +20736,24 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -20332,10 +21094,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -20477,10 +21247,24 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -20808,10 +21592,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
             ],
           },
           "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:11.159661+00:00",
-              "start": "2018-10-15T14:30:11.009705+00:00",
-            },
+            "run": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.159661+00:00",
+                "start": "2018-10-15T14:30:11.009705+00:00",
+              },
+            ],
+            "setup": Array [
+              Object {
+                "end": "2018-10-15T14:30:11.008995+00:00",
+                "start": "2018-10-15T14:30:10.079745+00:00",
+              },
+            ],
           },
           "type": "TestGroupReport",
           "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -21284,10 +22076,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -21429,10 +22229,24 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -21766,10 +22580,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -21911,10 +22733,24 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -22242,10 +23078,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -22734,10 +23578,18 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -22879,10 +23731,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -23222,10 +24088,18 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -23367,10 +24241,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -23721,10 +24609,18 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
               },
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:11.159661+00:00",
-                  "start": "2018-10-15T14:30:11.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.159661+00:00",
+                    "start": "2018-10-15T14:30:11.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:11.008995+00:00",
+                    "start": "2018-10-15T14:30:10.079745+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -23866,10 +24762,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
               "tags": Object {},
               "tags_index": Object {},
               "timer": Object {
-                "run": Object {
-                  "end": "2018-10-15T14:30:12.159661+00:00",
-                  "start": "2018-10-15T14:30:12.009705+00:00",
-                },
+                "run": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.159661+00:00",
+                    "start": "2018-10-15T14:30:12.009705+00:00",
+                  },
+                ],
+                "setup": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.008705+00:00",
+                    "start": "2018-10-15T14:30:11.879705+00:00",
+                  },
+                ],
+                "teardown": Array [
+                  Object {
+                    "end": "2018-10-15T14:30:12.645329+00:00",
+                    "start": "2018-10-15T14:30:12.160132+00:00",
+                  },
+                ],
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -24202,10 +25112,18 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                   ],
                 },
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:11.159661+00:00",
-                    "start": "2018-10-15T14:30:11.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:11.008995+00:00",
+                      "start": "2018-10-15T14:30:10.079745+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -24347,10 +25265,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {
-                  "run": Object {
-                    "end": "2018-10-15T14:30:12.159661+00:00",
-                    "start": "2018-10-15T14:30:12.009705+00:00",
-                  },
+                  "run": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  ],
+                  "setup": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.008705+00:00",
+                      "start": "2018-10-15T14:30:11.879705+00:00",
+                    },
+                  ],
+                  "teardown": Array [
+                    Object {
+                      "end": "2018-10-15T14:30:12.645329+00:00",
+                      "start": "2018-10-15T14:30:12.160132+00:00",
+                    },
+                  ],
                 },
                 "type": "TestGroupReport",
                 "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -24476,6 +25408,10 @@ ZeroDivisionError: integer division or modulo by zero
             "run": Object {
               "end": "2018-10-15T14:30:11.296158+00:00",
               "start": "2018-10-15T14:30:10.998071+00:00",
+            },
+            "setup": Object {
+              "end": "2018-10-15T14:30:10.997971+00:00",
+              "start": "2018-10-15T14:30:10.925461+00:00",
             },
           },
           "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
@@ -25890,6 +26826,10 @@ ZeroDivisionError: integer division or modulo by zero
                             "run": Object {
                               "end": "2018-10-15T14:30:11.296158+00:00",
                               "start": "2018-10-15T14:30:10.998071+00:00",
+                            },
+                            "setup": Object {
+                              "end": "2018-10-15T14:30:10.997971+00:00",
+                              "start": "2018-10-15T14:30:10.925461+00:00",
                             },
                           },
                           "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",

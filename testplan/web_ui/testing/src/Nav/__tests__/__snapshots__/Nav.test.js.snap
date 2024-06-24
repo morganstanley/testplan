@@ -167,10 +167,18 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
           ],
         },
         "timer": Object {
-          "run": Object {
-            "end": "2018-10-15T14:30:11.159661+00:00",
-            "start": "2018-10-15T14:30:11.009705+00:00",
-          },
+          "run": Array [
+            Object {
+              "end": "2018-10-15T14:30:11.159661+00:00",
+              "start": "2018-10-15T14:30:11.009705+00:00",
+            },
+          ],
+          "setup": Array [
+            Object {
+              "end": "2018-10-15T14:30:11.008995+00:00",
+              "start": "2018-10-15T14:30:10.079745+00:00",
+            },
+          ],
         },
         "type": "TestGroupReport",
         "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -276,10 +284,24 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
         "status_override": null,
         "tags": Object {},
         "timer": Object {
-          "run": Object {
-            "end": "2018-10-15T14:30:12.159661+00:00",
-            "start": "2018-10-15T14:30:12.009705+00:00",
-          },
+          "run": Array [
+            Object {
+              "end": "2018-10-15T14:30:12.159661+00:00",
+              "start": "2018-10-15T14:30:12.009705+00:00",
+            },
+          ],
+          "setup": Array [
+            Object {
+              "end": "2018-10-15T14:30:12.008705+00:00",
+              "start": "2018-10-15T14:30:11.879705+00:00",
+            },
+          ],
+          "teardown": Array [
+            Object {
+              "end": "2018-10-15T14:30:12.645329+00:00",
+              "start": "2018-10-15T14:30:12.160132+00:00",
+            },
+          ],
         },
         "type": "TestGroupReport",
         "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -458,10 +480,18 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
           ],
         },
         "timer": Object {
-          "run": Object {
-            "end": "2018-10-15T14:30:11.159661+00:00",
-            "start": "2018-10-15T14:30:11.009705+00:00",
-          },
+          "run": Array [
+            Object {
+              "end": "2018-10-15T14:30:11.159661+00:00",
+              "start": "2018-10-15T14:30:11.009705+00:00",
+            },
+          ],
+          "setup": Array [
+            Object {
+              "end": "2018-10-15T14:30:11.008995+00:00",
+              "start": "2018-10-15T14:30:10.079745+00:00",
+            },
+          ],
         },
         "type": "TestGroupReport",
         "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -567,10 +597,24 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
         "status_override": null,
         "tags": Object {},
         "timer": Object {
-          "run": Object {
-            "end": "2018-10-15T14:30:12.159661+00:00",
-            "start": "2018-10-15T14:30:12.009705+00:00",
-          },
+          "run": Array [
+            Object {
+              "end": "2018-10-15T14:30:12.159661+00:00",
+              "start": "2018-10-15T14:30:12.009705+00:00",
+            },
+          ],
+          "setup": Array [
+            Object {
+              "end": "2018-10-15T14:30:12.008705+00:00",
+              "start": "2018-10-15T14:30:11.879705+00:00",
+            },
+          ],
+          "teardown": Array [
+            Object {
+              "end": "2018-10-15T14:30:12.645329+00:00",
+              "start": "2018-10-15T14:30:12.160132+00:00",
+            },
+          ],
         },
         "type": "TestGroupReport",
         "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
@@ -744,10 +788,18 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
               ],
             },
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:11.159661+00:00",
-                "start": "2018-10-15T14:30:11.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:11.008995+00:00",
+                  "start": "2018-10-15T14:30:10.079745+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
@@ -853,10 +905,24 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
             "status_override": null,
             "tags": Object {},
             "timer": Object {
-              "run": Object {
-                "end": "2018-10-15T14:30:12.159661+00:00",
-                "start": "2018-10-15T14:30:12.009705+00:00",
-              },
+              "run": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              ],
+              "setup": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.008705+00:00",
+                  "start": "2018-10-15T14:30:11.879705+00:00",
+                },
+              ],
+              "teardown": Array [
+                Object {
+                  "end": "2018-10-15T14:30:12.645329+00:00",
+                  "start": "2018-10-15T14:30:12.160132+00:00",
+                },
+              ],
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
