@@ -17,6 +17,7 @@ from typing import (
     Type,
     Tuple,
 )
+import plotly.express as px
 
 from testplan import defaults
 from testplan.common.config import ConfigOption, validate_func
@@ -26,6 +27,7 @@ from testplan.common.entity import (
     Runnable,
     RunnableConfig,
     RunnableResult,
+    ResourceTimings,
 )
 from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.utils import strings, interface, validation
@@ -448,15 +450,11 @@ class Test(Runnable):
         case_report = self._create_case_or_override(
             ResourceHooks.ENVIRONMENT_START.value, ResourceHooks.STARTING
         )
-        case_result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self.scratch
-        )
         self.resources.start()
-        for uid, driver in self.resources.items():
-            case_result.log(f"{driver} Status: {driver.status.tag}")
-
-        case_report.extend(case_result.serialized_entries)
-        case_report.attachments.extend(case_result.attachments)
+        if self.driver_info:
+            self._record_driver_timing(
+                ResourceTimings.RESOURCE_SETUP, case_report
+            )
         case_report.pass_if_empty()
         if self.resources.start_exceptions:
             for msg in self.resources.start_exceptions.values():
@@ -474,12 +472,11 @@ class Test(Runnable):
         case_report = self._create_case_or_override(
             ResourceHooks.ENVIRONMENT_STOP.value, ResourceHooks.STOPPING.value
         )
-        case_result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self.scratch
-        )
         self.resources.stop(is_reversed=is_reversed)
-        case_report.extend(case_result.serialized_entries)
-        case_report.attachments.extend(case_result.attachments)
+        if self.driver_info:
+            self._record_driver_timing(
+                ResourceTimings.RESOURCE_TEARDOWN, case_report
+            )
         case_report.pass_if_empty()
         if self.resources.stop_exceptions:
             for msg in self.resources.stop_exceptions.values():
@@ -524,6 +521,7 @@ class Test(Runnable):
             hook_name=ResourceHooks.AFTER_START.value,
             suite_name=ResourceHooks.ENVIRONMENT_START.value,
         )
+
         self._add_step(
             self._finish_resource_report,
             suite_name=ResourceHooks.ENVIRONMENT_START.value,
@@ -544,7 +542,6 @@ class Test(Runnable):
             hook_name=ResourceHooks.AFTER_STOP.value,
             suite_name=ResourceHooks.ENVIRONMENT_STOP.value,
         )
-
         self._add_step(
             self._finish_resource_report,
             suite_name=ResourceHooks.ENVIRONMENT_STOP.value,
@@ -763,7 +760,6 @@ class Test(Runnable):
             ),
         ):
             self._dry_run_resource_hook(hook, hook_name, suite_name)
-
         self._dry_run_testsuites()
 
         for hook, hook_name, suite_name in (
@@ -802,6 +798,76 @@ class Test(Runnable):
             found = self.cfg.xfail_tests.get(pattern)
             if found:
                 report.xfail(strict=found["strict"])
+
+    def _record_driver_timing(
+        self, setup_or_teardown: str, case_report: TestCaseReport
+    ) -> None:
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self.scratch
+        )
+
+        # input for tablelog
+        table = [
+            {
+                "Driver Class": driver.__class__.__name__,
+                "Driver Name": driver.name,
+                "Start Time (UTC)": driver.timer[setup_or_teardown][-1].start,
+                "Stop Time (UTC)": driver.timer[setup_or_teardown][-1].end,
+                "Duration(seconds)": driver.timer[setup_or_teardown][
+                    0
+                ].elapsed,
+            }
+            for driver in self.resources
+            if setup_or_teardown in driver.timer.keys()
+        ]
+        table.sort(key=lambda entry: entry["Start Time (UTC)"])
+
+        # input for plotly
+        px_input = {
+            "Start Time (UTC)": [],
+            "Stop Time (UTC)": [],
+            "Driver Name": [],
+        }
+        for driver in table:
+            px_input["Driver Name"].append(driver["Driver Name"])
+            px_input["Start Time (UTC)"].append(driver["Start Time (UTC)"])
+            px_input["Stop Time (UTC)"].append(driver["Stop Time (UTC)"])
+
+            # format tablelog entries to be human readable
+            if driver["Start Time (UTC)"]:
+                driver["Start Time (UTC)"] = driver[
+                    "Start Time (UTC)"
+                ].strftime("%H:%M:%S.%f")
+            if driver["Stop Time (UTC)"]:
+                driver["Stop Time (UTC)"] = driver["Stop Time (UTC)"].strftime(
+                    "%H:%M:%S.%f"
+                )
+
+        case_result.table.log(
+            table, description=f"Driver {setup_or_teardown.capitalize()} Info"
+        )
+
+        fig = px.timeline(
+            px_input,
+            x_start="Start Time (UTC)",
+            x_end="Stop Time (UTC)",
+            y="Driver Name",
+        )
+        fig.update_yaxes(autorange="reversed")
+        case_result.plotly(
+            fig,
+            description=f"Driver {setup_or_teardown.capitalize()} Timeline",
+        )
+
+        case_report.extend(case_result.serialized_entries)
+        case_report.attachments.extend(case_result.attachments)
+
+    @property
+    def driver_info(self) -> bool:
+        # handle possibly missing ``driver_info``
+        if not hasattr(self.cfg, "driver_info"):
+            return False
+        return self.cfg.driver_info
 
 
 class ProcessRunnerTestConfig(TestConfig):

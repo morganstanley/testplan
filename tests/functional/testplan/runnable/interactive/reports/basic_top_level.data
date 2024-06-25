@@ -65,32 +65,7 @@
                                 "Test1",
                                 "Environment Start"
                             ],
-                            "entries": [
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "TCPServer[server] Status: STARTED",
-                                    "file_path": "",
-                                    "flag": "DEFAULT",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "message": "TCPServer[server] Status: STARTED",
-                                    "meta_type": "entry",
-                                    "type": "Log",
-                                    "utc_time": ""
-                                },
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "TCPClient[client] Status: STARTED",
-                                    "file_path": "",
-                                    "flag": "DEFAULT",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "message": "TCPClient[client] Status: STARTED",
-                                    "meta_type": "entry",
-                                    "type": "Log",
-                                    "utc_time": ""
-                                }
-                            ],
+                            "entries": [],
                             "hash": 0,
                             "uid": "Starting",
                             "tags": {}
@@ -665,32 +640,7 @@
                                 "Test2",
                                 "Environment Start"
                             ],
-                            "entries": [
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "TCPServer[server] Status: STARTED",
-                                    "file_path": "",
-                                    "flag": "DEFAULT",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "message": "TCPServer[server] Status: STARTED",
-                                    "meta_type": "entry",
-                                    "type": "Log",
-                                    "utc_time": ""
-                                },
-                                {
-                                    "category": "DEFAULT",
-                                    "description": "TCPClient[client] Status: STARTED",
-                                    "file_path": "",
-                                    "flag": "DEFAULT",
-                                    "line_no": 0,
-                                    "machine_time": "",
-                                    "message": "TCPClient[client] Status: STARTED",
-                                    "meta_type": "entry",
-                                    "type": "Log",
-                                    "utc_time": ""
-                                }
-                            ],
+                            "entries": [],
                             "hash": 0,
                             "uid": "Starting",
                             "tags": {}
