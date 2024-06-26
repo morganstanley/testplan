@@ -386,12 +386,6 @@ class Report:
 
         raise NotImplementedError
 
-    def non_recursive_merge(self, report):
-        """
-        variant of ``merge`` method, with ``entries`` not processed
-        """
-        raise NotImplementedError
-
     def append(self, item):
         """Append ``item`` to ``self.entries``, no restrictions."""
         self.entries.append(item)
@@ -716,21 +710,10 @@ class BaseReportGroup(Report):
             [self.status_override, report.status_override]
         )
 
-    def non_recursive_merge(self, report):
-        self._check_report(report)
-        log_ids = [rec["uid"] for rec in self.logs]
-        self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
-        self.timer.merge(report.timer)
-        # FIXME: simple extend discards certain context info
-        self.children.extend(report.children)
-        self.status_override = Status.precedent(
-            [self.status_override, report.status_override]
-        )
-
     def graft_entry(self, report: Report, parent_uids: List[str]):
         if not parent_uids:
             if report.uid in self:
-                self.get_by_uid(report.uid).non_recursive_merge(report)
+                self.get_by_uid(report.uid).merge(report)
             else:
                 self.append(report)
             return

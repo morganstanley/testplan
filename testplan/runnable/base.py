@@ -1321,7 +1321,7 @@ class TestRunner(Runnable):
                         for e in t:
                             if not e.parent_uids:
                                 # specially handle mt entry
-                                placeholder_report.non_recursive_merge(e)
+                                placeholder_report.merge(e)
                             else:
                                 placeholder_report.graft_entry(
                                     e, copy(e.parent_uids[1:])
