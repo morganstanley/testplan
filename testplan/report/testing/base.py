@@ -618,9 +618,6 @@ class TestCaseReport(Report):
         self.timer = report.timer
         self.status_reason = report.status_reason
 
-    def non_recursive_merge(self, report):
-        return self.merge(report)
-
     def flattened_entries(self, depth):
         """Need to take assertion groups into account."""
 
