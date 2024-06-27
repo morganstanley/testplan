@@ -91,3 +91,26 @@ def test_process_runner(mockplan, binary_path, expected_report, test_kwargs):
     assert mockplan.run().run is True
 
     check_report(expected=expected_report, actual=mockplan.report)
+
+
+@skip_on_windows(reason="Bash files skipped on Windows.")
+def test_process_runner_with_driver_info_flag(mockplan):
+    binary_path = os.path.join(fixture_root, "passing", "test_env.sh")
+    expected_report = (
+        base.passing.report.expected_report_with_driver_and_driver_info_flag
+    )
+    process_test = DummyTest(
+        name="MyTest",
+        binary=binary_path,
+        proc_env={
+            "proc_env1": "abc",
+            "proc_env2": "123",
+            "test_name": "{{name}}",
+        },
+        environment=[MyDriver(name="My executable", my_val="hello")],
+    )
+    process_test.cfg.set_local("driver_info", True)
+    mockplan.add(process_test)
+    assert mockplan.run().run is True
+
+    check_report(expected=expected_report, actual=mockplan.report)

@@ -491,6 +491,13 @@ that match ALL of the given tags.
             'useful to categorize or classify similar reports (aka "run-id").',
         )
 
+        report_group.add_argument(
+            "--driver-info",
+            action="store_true",
+            default=False,
+            help="Display drivers startup and shutdown info.",
+        )
+
         self.add_arguments(parser)
         return parser
 
