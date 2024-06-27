@@ -222,7 +222,16 @@ def clean_runpath_if_passed(
     """
     multitest = env.parent
     if multitest.report.passed:
-        shutil.rmtree(multitest.runpath, ignore_errors=True)
+        for subfile in os.listdir(multitest.runpath):
+            # TODO: Define scratch as a constant
+            if subfile != "scratch":
+                path = os.path.join(
+                    os.path.abspath(multitest.runpath), subfile
+                )
+                if os.path.isfile(path) or os.path.islink(path):
+                    os.remove(path)
+                elif os.path.isdir(path):
+                    shutil.rmtree(path, ignore_errors=True)
 
 
 @testsuite
