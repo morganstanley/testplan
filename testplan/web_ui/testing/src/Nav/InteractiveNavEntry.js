@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Badge } from "reactstrap";
-import { StyleSheet, css } from "aphrodite";
+import { css } from "aphrodite";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -12,13 +12,8 @@ import {
   faFastBackward,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAtom } from "jotai";
-import _ from "lodash";
 
 import {
-  RED,
-  GREEN,
-  ORANGE,
-  BLACK,
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
@@ -27,10 +22,9 @@ import {
   ENV_STATUSES,
   NAV_ENTRY_ACTIONS,
 } from "../Common/defaults";
-import { formatMilliseconds } from "./../Common/utils";
-import {
-  pendingEnvRequestAtom,
-} from "../Report/InteractiveReport";
+import { navStyles } from "../Common/Styles";
+import { generateNavTimeInfo } from "./navUtils";
+import { pendingEnvRequestAtom } from "../Report/InteractiveReport";
 
 /**
  * Display interactive NavEntry information:
@@ -66,13 +60,12 @@ const InteractiveNavEntry = (props) => {
     props.handleClick,
     props.type
   );
-  const executionTime =
-    props.displayTime && _.isNumber(props.executionTime) ? (
-      <span className={css(styles.entryIcon)} title="Execution time">
-        <span className={css(styles[STATUS_CATEGORY[props.status]])}>
-          {formatMilliseconds(props.executionTime)}
-        </span>
-      </span>
+
+  const navTimeInfo =  
+    props.displayTime ? generateNavTimeInfo(
+      props.setupTime,
+      props.teardownTime,
+      props.executionTime,
     ) : null;
 
   return (
@@ -84,23 +77,32 @@ const InteractiveNavEntry = (props) => {
       }}
     >
       <Badge
-        className={css(styles.entryIcon, styles[badgeStyle])}
+        className={css(navStyles.entryIcon, navStyles[badgeStyle])}
         title={props.type}
         pill
       >
         {CATEGORY_ICONS[props.type]}
       </Badge>
       <div
-        className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
+        className={
+          css(navStyles.entryName, navStyles[STATUS_CATEGORY[props.status]])
+        }
         title={props.description || props.name}
       >
         {props.name}
       </div>
-      <div className={css(styles.entryIcons)}>
-        {executionTime}
-        <span className={css(styles.entryIcon)} title="passed/failed testcases">
-          <span className={css(styles.passed)}>{props.caseCountPassed}</span>/
-          <span className={css(styles.failed)}>{props.caseCountFailed}</span>
+      <div className={css(navStyles.entryIcons)}>
+        <span className={
+          css(navStyles.entryIcon, navStyles[STATUS_CATEGORY[props.status]])
+        }>
+          {navTimeInfo}
+        </span>
+        <span className={
+          css(navStyles.entryIcon)
+        } title="passed/failed testcases">
+          <span className={css(navStyles.passed)}>{props.caseCountPassed}</span>
+          /
+          <span className={css(navStyles.failed)}>{props.caseCountFailed}</span>
         </span>
         {resetReportIcon}
         {envStatusIcon}
@@ -144,7 +146,9 @@ const getStatusIcon = (
       return (
         <FontAwesomeIcon
           className={
-            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            disabled
+            ? css(navStyles.inactiveEntryButton)
+            : css(navStyles.entryButton)
           }
           icon={faPlay}
           title="Run tests"
@@ -157,7 +161,7 @@ const getStatusIcon = (
     case "waiting":
       return (
         <FontAwesomeIcon
-          className={css(styles.inactiveEntryButton)}
+          className={css(navStyles.inactiveEntryButton)}
           icon={faHourglass}
           title="Waiting..."
           spin
@@ -168,7 +172,7 @@ const getStatusIcon = (
     case "resetting":
       return (
         <FontAwesomeIcon
-          className={css(styles.inactiveEntryButton)}
+          className={css(navStyles.inactiveEntryButton)}
           icon={faRedo}
           title="Resetting..."
           spin
@@ -179,7 +183,7 @@ const getStatusIcon = (
     case "running":
       return (
         <FontAwesomeIcon
-          className={css(styles.inactiveEntryButton)}
+          className={css(navStyles.inactiveEntryButton)}
           icon={faRedo}
           title="Running..."
           spin
@@ -191,7 +195,9 @@ const getStatusIcon = (
       return (
         <FontAwesomeIcon
           className={
-            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            disabled
+            ? css(navStyles.inactiveEntryButton)
+            : css(navStyles.entryButton)
           }
           icon={faRedo}
           title="Run tests"
@@ -205,7 +211,9 @@ const getStatusIcon = (
       return (
         <FontAwesomeIcon
           className={
-            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            disabled
+            ? css(navStyles.inactiveEntryButton)
+            : css(navStyles.entryButton)
           }
           icon={faRedo}
           title="Run tests"
@@ -242,13 +250,15 @@ function StartingStoppingIcon(starting) {
         <FontAwesomeIcon
             className={
                 css(
-                    styles.inactiveEntryButton,
-                    styles.environmentToggle,
-                    styles.busyEnvironmentToggle,
+                    navStyles.inactiveEntryButton,
+                    navStyles.environmentToggle,
+                    navStyles.busyEnvironmentToggle,
                 )
             }
             icon={starting ? faToggleOn : faToggleOff}
-            title={starting ? "Environment starting..." : "Environment stopping..."}
+            title={
+              starting ? "Environment starting..." : "Environment stopping..."
+            }
             onClick={ignoreClickEvent}
             transition="opacity 0.175s ease-in-out"
             animation={isPulsating ? "pulsate 0.35s infinite" : "none"}
@@ -272,12 +282,15 @@ const getEnvStatusIcon = (
     || envStatusChanging(pendingEnvRequest);
   switch (envStatus) {
     case ENV_STATUSES.stopped:
+      if (pendingEnvRequest === ENV_STATUSES.stopping) {
+        setPendingEnvRequest("");
+      };
       return (
         <FontAwesomeIcon
           className={
             disabled ?
-            css(styles.inactiveEntryButton, styles.environmentToggle) :
-            css(styles.entryButton, styles.environmentToggle)
+            css(navStyles.inactiveEntryButton, navStyles.environmentToggle) :
+            css(navStyles.entryButton, navStyles.environmentToggle)
           }
           icon={faToggleOff}
           title={disabled ? "Pending action" : "Start environment"}
@@ -297,12 +310,17 @@ const getEnvStatusIcon = (
       return StartingStoppingIcon(false);
 
     case ENV_STATUSES.started:
+      // Sometimes the transition is so fast, that it doesn't enter the
+      // temporary state and stucks in pending, hence checking here as well.
+      if (pendingEnvRequest === ENV_STATUSES.starting) {
+        setPendingEnvRequest("");
+      };
       return (
         <FontAwesomeIcon
           className={
             disabled ?
-            css(styles.inactiveEntryButton, styles.environmentToggle) :
-            css(styles.entryButton, styles.environmentToggle)
+            css(navStyles.inactiveEntryButton, navStyles.environmentToggle) :
+            css(navStyles.entryButton, navStyles.environmentToggle)
           }
           icon={faToggleOn}
           title={disabled ? "Pending action" : "Stop environment"}
@@ -337,7 +355,9 @@ const getResetReportIcon = (entryStatus, envStatus, handleClick, entryType) => {
     return (
       <FontAwesomeIcon
         className={
-          disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+          disabled
+          ? css(navStyles.inactiveEntryButton)
+          : css(navStyles.entryButton)
         }
         icon={faFastBackward}
         title="Reset MultiTest environment and report"
@@ -417,88 +437,5 @@ InteractiveNavEntry.propTypes = {
   /** If to display execution time */
   displayTime: PropTypes.bool,
 };
-
-const styles = StyleSheet.create({
-  entryName: {
-    overflow: "hidden",
-    "text-overflow": "ellipsis",
-    "white-space": "nowrap",
-    fontSize: "small",
-    fontWeight: 500,
-    marginLeft: "3px",
-    flex: "auto",
-  },
-  entryIcons: {
-    paddingLeft: "1em",
-    display: "flex",
-    "flex-wrap": "nowrap",
-    "align-items": "center",
-  },
-  entryIcon: {
-    fontSize: "small",
-    margin: "0em 0.5em 0em 0.5em",
-  },
-  entryButton: {
-    textDecoration: "none",
-    position: "relative",
-    display: "inline-block",
-    height: "2.4em",
-    width: "2.4em",
-    cursor: "pointer",
-    color: "black",
-    padding: "0.7em 0em 0.7em 0em",
-    transition: "all 0.3s ease-out 0s",
-  },
-  inactiveEntryButton: {
-    textDecoration: "none",
-    position: "relative",
-    display: "inline-block",
-    height: "2.4em",
-    width: "2.4em",
-    cursor: "pointer",
-    color: BLACK,
-    padding: "0.7em 0em 0.7em 0em",
-    transition: "all 0.3s ease-out 0s !important",
-  },
-  environmentToggle: {
-    padding: "0.65em 0em 0.65em 0em",
-  },
-  busyEnvironmentToggle: {
-    color: "orange",
-  },
-  badge: {
-    opacity: 0.5,
-  },
-  passedBadge: {
-    backgroundColor: GREEN,
-  },
-  failedBadge: {
-    backgroundColor: RED,
-  },
-  errorBadge: {
-    backgroundColor: RED,
-  },
-  unstableBadge: {
-    backgroundColor: ORANGE,
-  },
-  unknownBadge: {
-    backgroundColor: BLACK,
-  },
-  passed: {
-    color: GREEN,
-  },
-  failed: {
-    color: RED,
-  },
-  error: {
-    color: RED,
-  },
-  unstable: {
-    color: ORANGE,
-  },
-  unknown: {
-    color: BLACK,
-  },
-});
 
 export default InteractiveNavEntry;

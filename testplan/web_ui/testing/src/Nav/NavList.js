@@ -6,7 +6,7 @@ import InteractiveNavEntry from "./InteractiveNavEntry";
 import NavEntry from "./NavEntry";
 import { CreateNavButtons, GetNavColumn } from "./navUtils.js";
 import { STATUS, RUNTIME_STATUS, NAV_ENTRY_ACTIONS, CATEGORIES } from "../Common/defaults";
-import { calcExecutionTime } from "./../Common/utils";
+import { calcExecutionTime, calcElapsedTime } from "./../Common/utils";
 
 /**
  * Render a vertical list of all the currently selected entries children.
@@ -34,6 +34,8 @@ const NavList = (props) => {
           suiteRelated={entry.category === CATEGORIES.synthesized}
           action={entry.action}
           executionTime={calcExecutionTime(entry)}
+          setupTime={calcElapsedTime(entry?.timer?.setup)}
+          teardownTime={calcElapsedTime(entry?.timer?.teardown)}
           displayTime={props.displayTime}
         />
       ),
@@ -50,6 +52,8 @@ const NavList = (props) => {
           caseCountPassed={entry.counter.passed}
           caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
           executionTime={calcExecutionTime(entry)}
+          setupTime={calcElapsedTime(entry?.timer?.setup)}
+          teardownTime={calcElapsedTime(entry?.timer?.teardown)}
           displayTime={props.displayTime}
         />
       );

@@ -20,14 +20,17 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-passed_1kh4m98"
+    className="entryName_j2oag5-o_O-passed_1kh4m98"
     title="entry description - passed"
   >
     entry name
   </div>
   <div
-    className="entryIcons_jqmit5"
+    className="entryIcons_9stzon"
   >
+    <span
+      className="entryIcon_9gb3m5-o_O-passed_1kh4m98"
+    />
     <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
@@ -68,14 +71,17 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-failed_11es5k7"
+    className="entryName_j2oag5-o_O-failed_11es5k7"
     title="entry description - failed"
   >
     entry name
   </div>
   <div
-    className="entryIcons_jqmit5"
+    className="entryIcons_9stzon"
   >
+    <span
+      className="entryIcon_9gb3m5-o_O-failed_11es5k7"
+    />
     <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
@@ -116,14 +122,17 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     TP
   </Badge>
   <div
-    className="entryName_1ocij4b-o_O-unstable_17i2uy2"
+    className="entryName_j2oag5-o_O-unstable_17i2uy2"
     title="entry description - xfail"
   >
     entry name
   </div>
   <div
-    className="entryIcons_jqmit5"
+    className="entryIcons_9stzon"
   >
+    <span
+      className="entryIcon_9gb3m5-o_O-unstable_17i2uy2"
+    />
     <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"

@@ -4,14 +4,16 @@
 import React from "react";
 import { ListGroup, ListGroupItem } from "reactstrap";
 import { StyleSheet, css } from "aphrodite";
+import _ from "lodash";
 
 import TagList from "./TagList";
 import Column from "./Column";
 import { LIGHT_GREY, MEDIUM_GREY } from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
+import { statusStyles } from "../Common/Styles";
 import { NavLink } from "react-router-dom";
 import { generatePath } from "react-router";
-import { generateURLWithParameters } from "../Common/utils";
+import { formatMilliseconds, generateURLWithParameters } from "../Common/utils";
 import { isReportLeaf } from "../Report/reportUtils";
 
 /**
@@ -140,6 +142,10 @@ const applyNamedFilter = (entries, filter) => {
 };
 
 export const styles = StyleSheet.create({
+  entryIcon: {
+    fontSize: "x-small",
+    margin: "0em 0.5em 0em 0.5em",
+  },
   navButton: {
     position: "relative",
     display: "block",
@@ -160,6 +166,7 @@ export const styles = StyleSheet.create({
     "overflow-y": "auto",
     height: "100%",
   },
+  ...statusStyles,
 });
 
 /**
@@ -317,8 +324,52 @@ const GetNavColumn = (props, navButtons) => (
   </Column>
 );
 
+const generateNavTimeInfo = (
+  setupTimeProp,
+  teardownTimeProp,
+  executionTimeProp,
+) => {
+  let totalTime = null;
+  if (_.isNumber(executionTimeProp)) {
+    totalTime = executionTimeProp;
+    totalTime += _.isNumber(setupTimeProp) ? setupTimeProp : 0;
+    totalTime += _.isNumber(teardownTimeProp) ? teardownTimeProp : 0;
+  };
+
+  const detailedTimeElement =
+    (_.isNumber(setupTimeProp) || _.isNumber(teardownTimeProp))
+    ? (
+      <span className={css(styles.entryIcon)} title="Setup / Execution / Teardown duration">
+          (
+            {
+              formatMilliseconds(setupTimeProp)
+            } / {
+              formatMilliseconds(executionTimeProp)
+            } / {
+              formatMilliseconds(teardownTimeProp)
+            }
+          )
+      </span>
+    )
+    : null;
+  const totalTimeElement = 
+    _.isNumber(totalTime)
+    ? (
+      <span className={css(styles.entryIcon)} title="Total runtime">
+          {formatMilliseconds(totalTime)}
+      </span>
+    )
+    : null;
+
+    return [
+      detailedTimeElement,
+      totalTimeElement
+    ];
+};
+
 export {
   CreateNavButtons,
+  generateNavTimeInfo,
   GetSelectedUid,
   GetNavEntries,
   GetInteractiveNavEntries,
