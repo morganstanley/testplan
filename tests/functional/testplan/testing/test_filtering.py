@@ -5,6 +5,7 @@ import pytest
 
 from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden, check_report_context
+from testplan.runners.pools.base import Pool
 from testplan.testing import filtering
 from testplan.testing.multitest import MultiTest, testcase, testsuite
 
@@ -238,6 +239,116 @@ def test_programmatic_filtering_with_parts(filter_obj, report_ctx):
     plan = TestplanMock(name="plan", test_filter=filter_obj)
     for i in range(0, 3):
         plan.add(MultiTest(name="XXX", suites=[Alpha(), Beta()], part=(i, 3)))
+    plan.run()
+
+    test_report = plan.report
+    check_report_context(test_report, report_ctx)
+
+
+@pytest.mark.parametrize(
+    "filter_obj, num_parts, report_ctx",
+    (
+        (
+            filtering.Pattern("XXX - part(0/3)")
+            | filtering.Pattern("XXX - part(1/3)"),
+            3,
+            [
+                (
+                    "XXX",
+                    [
+                        ("Alpha", ["test_one", "test_two"]),
+                        ("Beta", ["test_one", "test_two"]),
+                    ],
+                ),
+            ],
+        ),
+        (
+            filtering.Pattern("XXX:Alpha") | filtering.Pattern("XXX:Beta"),
+            2,
+            [
+                (
+                    "XXX",
+                    [
+                        ("Alpha", ["test_one", "test_two", "test_three"]),
+                        ("Beta", ["test_one", "test_two", "test_three"]),
+                    ],
+                ),
+            ],
+        ),
+        # as parts being a runtime-only feature, specifying part in patterns
+        # having suite-level or case-level is a bad idea, nevertheless the
+        # following one works intuitively
+        (
+            filtering.Pattern("XXX - part(0/2):Alpha")
+            | filtering.Pattern("XXX - part(1/2):Beta"),
+            2,
+            [
+                (
+                    "XXX",
+                    [
+                        ("Alpha", ["test_one", "test_three"]),
+                        ("Beta", ["test_two"]),
+                    ],
+                ),
+            ],
+        ),
+        # the following one serves as an example of unexpected outcome
+        # here's why:
+        #   user's perspective
+        #       one only wants Alpha cases from part 0 (p0) together with all Beta
+        #       cases, one's expectation would be
+        #           p0 <= a1 a3 b2
+        #           p1 <= b1 b3
+        #           merged <= a1 a3 b1 b2 b3
+        #   p0's perspective:
+        #       p0 is able to collect all cases, after parting, p0 thinks
+        #           p0 <= a1 a3 b2
+        #           p1 <= a2 b1 b3
+        #       p0 will execute a1 a3 b2
+        #   p1's perspective:
+        #       p1 could only collect Beta cases, since part number being encoded in
+        #       input pattern, after parting, p1 thinks
+        #           p0 <= b1 b3
+        #           p1 <= b2
+        #       p1 will only execute b2
+        #   after merged, user will only get a1 a3 b2, mismatch expectation!
+        (
+            filtering.Pattern("XXX - part(0/2):Alpha")
+            | filtering.Pattern("XXX:Beta"),
+            2,
+            [
+                (
+                    "XXX",
+                    [
+                        ("Alpha", ["test_one", "test_three"]),
+                        ("Beta", ["test_two"]),
+                    ],
+                ),
+            ],
+        ),
+        # the following one servers as another example of unexpected outcome
+        (
+            filtering.Pattern("XXX - part(0/2):Beta:test_one")
+            | filtering.Pattern("XXX - part(0/2):Beta:test_two"),
+            2,
+            [("XXX", [("Beta", ["test_one"])])],
+        ),
+    ),
+)
+def test_programmatic_filtering_with_parts_merged(
+    filter_obj, num_parts, report_ctx
+):
+    plan = TestplanMock(
+        name="plan", test_filter=filter_obj, merge_scheduled_parts=True
+    )
+    plan.add_resource(Pool(name="tpool"))
+    for i in range(num_parts):
+        plan.schedule(
+            target=MultiTest(
+                name="XXX", suites=[Alpha(), Beta()], part=(i, num_parts)
+            ),
+            resource="tpool",
+        )
     plan.run()
 
     test_report = plan.report
