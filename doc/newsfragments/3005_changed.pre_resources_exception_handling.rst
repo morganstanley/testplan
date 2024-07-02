@@ -1,0 +1,1 @@
+Fix two runtime issues related to driver dependency setting.
