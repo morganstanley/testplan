@@ -11,6 +11,7 @@ from testplan.common.utils import path, testing
 from testplan.common.utils.thread import Barrier
 from testplan.testing import common, filtering, multitest, ordering
 from testplan.testing.multitest import base
+from testplan.testing.multitest.driver import Driver
 
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
@@ -597,3 +598,26 @@ def test_skip_strategy(skip_strategy, case_count):
     )
     ret = mt.run()
     assert len(ret.report.entries[0]) == case_count
+
+
+def test_skip_steps():
+    s = Driver(name="server")
+    c = Driver(
+        name="client",
+    )
+    mt = multitest.MultiTest(
+        name="Test",
+        suites=[Suite()],
+        environment=lambda: [s, c],
+        dependencies=lambda: {s: c, c: s},
+    )
+
+    mt.run()
+    assert mt.resources.self_exception is not None
+    assert all(
+        map(
+            lambda x: x in mt.result.step_results,
+            ["_init_context", "_build_environment", "_set_dependencies"],
+        )
+    )
+    assert "_start_resource" not in mt.result.step_results
