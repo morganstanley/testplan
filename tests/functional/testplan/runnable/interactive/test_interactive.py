@@ -430,3 +430,54 @@ def test_abort_handler():
                 timeout=5,
                 raise_on_timeout=True,
             )
+
+
+def test_restart_multitest_w_dependencies():
+    s = TCPServer(name="server")
+    c = TCPClient(
+        name="client",
+        host=context("server", "{{host}}"),
+        port=context("server", "{{port}}"),
+    )
+    mt = MultiTest(
+        name="Test",
+        suites=[TCPSuite(0)],
+        environment=[s, c],
+        dependencies={s: c},
+        after_start=lambda env: env.server.accept_connection(),
+    )
+
+    with InteractivePlan(
+        name="InteractivePlan",
+        interactive_port=0,
+        interactive_block=False,
+        parse_cmdline=False,
+        logger_level=USER_INFO,
+    ) as plan:
+        plan.add(mt)
+        plan.run()
+        wait_for_interactive_start(plan)
+
+        plan.interactive.start_test_resources("Test")
+        plan.interactive.run_test("Test")
+        assert plan.interactive.test(
+            "Test"
+        ).run_result(), "no exceptions in steps"
+        assert plan.interactive.report[
+            "Test"
+        ].unknown, "env stop remain unknown"
+        plan.interactive.stop_test_resources("Test")
+        assert plan.interactive.report["Test"].passed, "env stop succeeded"
+
+        plan.interactive.reset_all_tests()
+
+        plan.interactive.start_test_resources("Test")
+        plan.interactive.run_test("Test")
+        assert plan.interactive.test(
+            "Test"
+        ).run_result(), "no exceptions in steps"
+        assert plan.interactive.report[
+            "Test"
+        ].unknown, "env stop remain unknown"
+        plan.interactive.stop_test_resources("Test")
+        assert plan.interactive.report["Test"].passed, "env stop succeeded"
