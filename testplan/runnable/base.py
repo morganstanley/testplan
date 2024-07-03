@@ -1078,7 +1078,6 @@ class TestRunner(Runnable):
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
         self._add_step(self._stop_remote_services)
-        self._add_step(self._close_file_logger)
         super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._stop_resource_monitor)
 
@@ -1125,6 +1124,10 @@ class TestRunner(Runnable):
             if pending_work is False:
                 break
             time.sleep(self.cfg.active_loop_sleep)
+
+    def _post_run_checks(self, start_threads, start_procs):
+        super()._post_run_checks(start_threads, start_procs)
+        self._close_file_logger()
 
     def _create_result(self):
         """Fetch task result from executors and create a full test result."""
