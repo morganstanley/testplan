@@ -77,6 +77,11 @@ export const navStyles = StyleSheet.create({
     padding: "0.7em 0em 0.7em 0em",
     transition: "all 0.3s ease-out 0s !important",
   },
+  navTime: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "end",
+  },
   environmentToggle: {
     padding: "0.65em 0em 0.65em 0em",
   },

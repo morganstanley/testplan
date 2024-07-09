@@ -93,7 +93,11 @@ const InteractiveNavEntry = (props) => {
       </div>
       <div className={css(navStyles.entryIcons)}>
         <span className={
-          css(navStyles.entryIcon, navStyles[STATUS_CATEGORY[props.status]])
+          css(
+            navStyles.entryIcon,
+            navStyles[STATUS_CATEGORY[props.status]],
+            navStyles.navTime,
+          )
         }>
           {navTimeInfo}
         </span>

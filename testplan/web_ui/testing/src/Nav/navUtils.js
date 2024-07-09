@@ -13,7 +13,10 @@ import CommonStyles from "../Common/Styles.js";
 import { statusStyles } from "../Common/Styles";
 import { NavLink } from "react-router-dom";
 import { generatePath } from "react-router";
-import { formatMilliseconds, generateURLWithParameters } from "../Common/utils";
+import {
+  generateURLWithParameters,
+  formatShortDuration,
+} from "../Common/utils";
 import { isReportLeaf } from "../Report/reportUtils";
 
 /**
@@ -339,14 +342,15 @@ const generateNavTimeInfo = (
   const detailedTimeElement =
     (_.isNumber(setupTimeProp) || _.isNumber(teardownTimeProp))
     ? (
-      <span className={css(styles.entryIcon)} title="Setup / Execution / Teardown duration">
+      <span className={css(styles.entryIcon)}
+      title="Setup / Execution / Teardown duration">
           (
             {
-              formatMilliseconds(setupTimeProp)
-            } / {
-              formatMilliseconds(executionTimeProp)
-            } / {
-              formatMilliseconds(teardownTimeProp)
+              formatShortDuration(setupTimeProp)
+            }/{
+              formatShortDuration(executionTimeProp)
+            }/{
+              formatShortDuration(teardownTimeProp)
             }
           )
       </span>
@@ -356,14 +360,14 @@ const generateNavTimeInfo = (
     _.isNumber(totalTime)
     ? (
       <span className={css(styles.entryIcon)} title="Total runtime">
-          {formatMilliseconds(totalTime)}
+          {formatShortDuration(totalTime)}
       </span>
     )
     : null;
 
     return [
-      detailedTimeElement,
-      totalTimeElement
+      totalTimeElement,
+      detailedTimeElement
     ];
 };
 

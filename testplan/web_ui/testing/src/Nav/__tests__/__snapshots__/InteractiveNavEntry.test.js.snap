@@ -29,7 +29,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-failed_11es5k7"
+      className="entryIcon_9gb3m5-o_O-failed_11es5k7-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -121,7 +121,7 @@ exports[`InteractiveNavEntry renders a testcase in "not_run" state 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -213,7 +213,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-passed_1kh4m98"
+      className="entryIcon_9gb3m5-o_O-passed_1kh4m98-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -305,7 +305,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -397,7 +397,7 @@ exports[`InteractiveNavEntry renders a testcase in "resetting" state 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -489,7 +489,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -581,7 +581,7 @@ exports[`InteractiveNavEntry renders a testcase in "waiting" state 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -673,7 +673,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -847,7 +847,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -1024,7 +1024,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -1198,7 +1198,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz"
+      className="entryIcon_9gb3m5-o_O-unknown_1qg7pkz-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"

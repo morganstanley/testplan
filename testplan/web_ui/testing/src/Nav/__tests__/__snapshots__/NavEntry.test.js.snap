@@ -29,7 +29,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-passed_1kh4m98"
+      className="entryIcon_9gb3m5-o_O-passed_1kh4m98-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -80,7 +80,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-failed_11es5k7"
+      className="entryIcon_9gb3m5-o_O-failed_11es5k7-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
@@ -131,7 +131,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unstable_17i2uy2"
+      className="entryIcon_9gb3m5-o_O-unstable_17i2uy2-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"

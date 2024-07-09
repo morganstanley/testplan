@@ -191,6 +191,47 @@ function formatMilliseconds(durationInMilliseconds) {
   );
 }
 
+
+/**
+ * Formats the input number representing milliseconds into a string
+ * with format H:m:s.SSS. Each value is displayed only if it is greater
+ * than 0 or the previous value has been displayed.
+ * @param {number} durationInMilliseconds
+ * @returns {string}
+ */
+function formatShortDuration(durationInMilliseconds) {
+  if (!_.isNumber(durationInMilliseconds)) { return "na"; };
+
+  durationInMilliseconds = _.round(durationInMilliseconds, -2);
+
+  let secondsInMilliseconds = durationInMilliseconds % 60000;
+  let seconds = secondsInMilliseconds / 1000;
+  let minutesInMilliseconds = (durationInMilliseconds - secondsInMilliseconds)
+  / 60000;
+  let minutes = minutesInMilliseconds % 60;
+  let hours = (minutesInMilliseconds - minutes) / 60;
+
+  const isDisplayedHours = hours > 0;
+  const isDisplayedMinutes = minutes > 0;
+  const isDisplayedSeconds = seconds > 0 && !isDisplayedHours;
+  const isDisplayedMilliseconds = isDisplayedSeconds && !isDisplayedMinutes;
+
+  let hoursDisplay = isDisplayedHours ? hours + "h" : "";
+  let minutesDisplay = isDisplayedMinutes ? minutes + "m" : "";
+  let secondsDisplay = isDisplayedSeconds
+  ? isDisplayedMilliseconds
+    ? seconds.toFixed(1) + "s"
+    : seconds.toFixed(0) + "s"
+  : null;
+
+  return (
+    [hoursDisplay, minutesDisplay, secondsDisplay]
+      .filter(Boolean)
+      .join(":") || "0s"
+  );
+}
+
+
 export {
   calcExecutionTime,
   calcElapsedTime,
@@ -204,6 +245,7 @@ export {
   encodeURIComponent2,
   formatSeconds,
   formatMilliseconds,
+  formatShortDuration,
 };
 
 /**
