@@ -47,7 +47,9 @@ exports[`NavList shallow renders and matches snapshot 1`] = `
         displayTime={false}
         executionTime={null}
         name="test"
+        setupTime={null}
         status="passed"
+        teardownTime={null}
       />
     </ListGroupItem>
   </ListGroup>
