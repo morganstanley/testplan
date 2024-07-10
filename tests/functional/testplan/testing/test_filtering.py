@@ -219,12 +219,12 @@ def test_programmatic_filtering(filter_obj, report_ctx):
             filtering.Pattern("XXX - part([012]/*):Alpha")
             | filtering.Pattern("XXX:Beta:test_three"),
             [
-                ("XXX - part(0/3)", [("Alpha", ["test_one"])]),
-                ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
                 (
-                    "XXX - part(2/3)",
-                    [("Alpha", ["test_three"]), ("Beta", ["test_three"])],
+                    "XXX - part(0/3)",
+                    [("Alpha", ["test_one"]), ("Beta", ["test_three"])],
                 ),
+                ("XXX - part(1/3)", [("Alpha", ["test_two"])]),
+                ("XXX - part(2/3)", [("Alpha", ["test_three"])]),
             ],
         ),
         # Case 4, ill-formed part

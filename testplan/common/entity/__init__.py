@@ -16,4 +16,5 @@ from .base import (
     RunnableManagerConfig,
     RunnableResult,
     RunnableStatus,
+    ResourceTimings,
 )

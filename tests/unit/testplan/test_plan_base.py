@@ -2,6 +2,7 @@
 
 import os
 
+from testplan.testing.multitest.driver.base import Driver
 import pytest
 
 from testplan import Testplan, TestplanMock, TestplanResult
@@ -18,7 +19,7 @@ from testplan.runners.pools.tasks import Task
 from testplan.testing.base import Test, TestResult
 
 
-class DummyDriver(Resource):
+class DummyDriver(Driver):
     def starting(self):
         self.status.change(ResourceStatus.STARTED)
 
@@ -45,8 +46,8 @@ class DummyTest(Test):
 
     def __init__(self, name="dummyTest"):
         super(DummyTest, self).__init__(name=name)
-        self.resources.add(DummyDriver(), uid=self.name)
-        self.resources.add(DummyDriver())
+        self.resources.add(DummyDriver("drv1"), uid=self.name)
+        self.resources.add(DummyDriver("drv2"))
 
     def run_tests(self):
         self.result.custom = "{}Result[{}]".format(

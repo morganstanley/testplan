@@ -1,10 +1,13 @@
 """Unit tests for the driver base."""
 from dataclasses import dataclass
+import time
 
 import pytest
 from schema import SchemaError
 
 from testplan.testing.multitest.driver import base
+from testplan.common.utils.timing import Interval
+from testplan.common.entity import ResourceTimings
 
 
 def pre_start_fn(driver):
@@ -251,3 +254,42 @@ class TestDriverMetadata:
         test = my_driver.extract_driver_metadata().to_dict()
         expected["test_attribute"] = "bar"
         assert test == expected
+
+
+class TestDriverTiming:
+    """
+    Tests driver records the start and stop timing
+    """
+
+    class DummyDriver(base.Driver):
+        def starting(self):
+            time.sleep(0.2)  # 200ms for startup
+
+        def stopping(self):
+            time.sleep(0.1)  # 100ms for teardown
+
+    def test_driver_timings(self):
+        """
+        Test start and stop methods record the time.
+        """
+        driver = self.DummyDriver(name="MyDriver")
+        driver.start()
+        assert len(driver.timer[ResourceTimings.RESOURCE_SETUP]) == 1
+        assert isinstance(
+            driver.timer[ResourceTimings.RESOURCE_SETUP][0], Interval
+        )
+        # there is some UnicodeEncodeError when using pytest.approx
+        assert (
+            0.1 < driver.timer[ResourceTimings.RESOURCE_SETUP][0].elapsed < 0.3
+        )
+
+        driver.stop()
+        assert len(driver.timer[ResourceTimings.RESOURCE_TEARDOWN]) == 1
+        assert isinstance(
+            driver.timer[ResourceTimings.RESOURCE_TEARDOWN][0], Interval
+        )
+        assert (
+            0
+            < driver.timer[ResourceTimings.RESOURCE_TEARDOWN][0].elapsed
+            < 0.2
+        )

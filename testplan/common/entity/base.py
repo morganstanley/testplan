@@ -3,6 +3,7 @@ Module containing base classes that represent object entities that can accept
 configuration, start/stop/run/abort, create results and have some state.
 """
 
+from enum import Enum
 import os
 import signal
 import sys
@@ -1311,6 +1312,14 @@ class ResourceStatus(EntityStatus):
         return transitions
 
 
+class ResourceTimings(str, Enum):
+    RESOURCE_SETUP = "setup"
+    RESOURCE_TEARDOWN = "teardown"
+
+    def __str__(self) -> str:
+        return self.value
+
+
 class Resource(Entity):
     """
     An object that can be started/stopped and expose its context
@@ -1398,6 +1407,7 @@ class Resource(Entity):
         self.timer.start("lifespan")
 
         self.logger.info("Starting %s", self)
+        self.timer.start(ResourceTimings.RESOURCE_SETUP)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
         if self.cfg.pre_start:
@@ -1432,6 +1442,7 @@ class Resource(Entity):
             return
 
         self.logger.info("Stopping %s", self)
+        self.timer.start(ResourceTimings.RESOURCE_TEARDOWN)
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
         if self.cfg.pre_stop:
@@ -1489,6 +1500,14 @@ class Resource(Entity):
         Common logic after a successful Resource start.
         """
         self.status.change(self.STATUS.STARTED)
+        try:
+            self.timer.end(ResourceTimings.RESOURCE_SETUP)
+        except KeyError as err:
+            # wait has been called already, timing already recorded
+            self.logger.debug(
+                "Key error raised on recording %s setup time, likely due to wait being called twice",
+                self,
+            )
         self.post_start()
         if self.cfg.post_start:
             self.cfg.post_start(self)
@@ -1506,6 +1525,14 @@ class Resource(Entity):
         Common logic after a successful Resource stop.
         """
         self.status.change(self.STATUS.STOPPED)
+        try:
+            self.timer.end(ResourceTimings.RESOURCE_TEARDOWN)
+        except KeyError as err:
+            # wait has been called already, timing already recorded
+            self.logger.debug(
+                "Key error raised on recording %s teardown time, likely due to wait being called twice",
+                self,
+            )
         self.post_stop()
         if self.cfg.post_stop:
             self.cfg.post_stop(self)

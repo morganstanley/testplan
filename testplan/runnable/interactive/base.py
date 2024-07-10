@@ -21,6 +21,7 @@ from testplan.report import (
     TestReport,
 )
 from testplan.runnable.interactive import http, reloader, resource_loader
+from testplan.testing.base import ResourceHooks
 
 
 def _exclude_assertions_filter(obj: object) -> bool:
@@ -491,10 +492,16 @@ class TestRunnerIHandler(entity.Entity):
         if self.report[test_uid].status_override == Status.ERROR:
             self._clear_env_errors(test_uid)
         self.test(test_uid).start_test_resources()
+        self.get_driver_info_report(
+            test_uid, ResourceHooks.ENVIRONMENT_START.value
+        )
 
         exceptions = self.test(test_uid).resources.start_exceptions
         if exceptions:
             self.test(test_uid).stop_test_resources()
+            self.get_driver_info_report(
+                test_uid, ResourceHooks.ENVIRONMENT_STOP.value
+            )
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
             raise RuntimeError(
                 "Exception raised during starting drivers: {}".format(
@@ -522,6 +529,9 @@ class TestRunnerIHandler(entity.Entity):
         if self.report[test_uid].status_override == Status.ERROR:
             self._clear_env_errors(test_uid)
         self.test(test_uid).stop_test_resources()
+        self.get_driver_info_report(
+            test_uid, ResourceHooks.ENVIRONMENT_STOP.value
+        )
 
         exceptions = self.test(test_uid).resources.stop_exceptions
         if exceptions:
@@ -533,6 +543,28 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
+
+    def get_driver_info_report(self, test_uid, start_or_stop):
+        # get the plotly graph attachment
+        if (
+            len(self.test(test_uid).resources) > 0
+            and self.test(test_uid).driver_info
+        ):
+            case_report = (
+                ResourceHooks.STARTING.value
+                if start_or_stop == ResourceHooks.ENVIRONMENT_START.value
+                else ResourceHooks.STOPPING.value
+            )
+            self._update_reports(
+                [
+                    (
+                        self.test(test_uid)
+                        .report.get_by_uids([start_or_stop])
+                        .get_by_uids([case_report]),
+                        [test_uid, start_or_stop],
+                    )
+                ]
+            )
 
     def get_environment(self, env_uid):
         """Get an environment."""
