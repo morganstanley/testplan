@@ -114,7 +114,7 @@ class TestConfig(RunnableConfig):
                 [Or(Resource, RemoteDriver)], validate_func()
             ),
             ConfigOption("dependencies", default=None): Or(
-                Use(parse_dependency), validate_func()
+                None, Use(parse_dependency), validate_func()
             ),
             ConfigOption("initial_context", default={}): Or(
                 dict, validate_func()
@@ -416,21 +416,18 @@ class Test(Runnable):
             self.report.propagate_tag_indices()
 
     def _init_context(self) -> None:
-        try:
+        with self.resources.set_self_exception():
             if callable(self.cfg.initial_context):
                 self.resources._initial_context = self.cfg.initial_context()
             else:
                 self.resources._initial_context = self.cfg.initial_context
-        except Exception as e:
-            self.resources.self_exception = e
-            raise
 
     def _build_environment(self) -> None:
         # build environment only once in interactive mode
         if self._env_built:
             return
 
-        try:
+        with self.resources.set_self_exception():
             if callable(self.cfg.environment):
                 drivers = self.cfg.environment()
             else:
@@ -439,22 +436,16 @@ class Test(Runnable):
                 driver.parent = self
                 driver.cfg.parent = self.cfg
                 self.resources.add(driver)
-        except Exception as e:
-            self.resources.self_exception = e
-            raise
 
         self._env_built = True
 
     def _set_dependencies(self) -> None:
-        try:
+        with self.resources.set_self_exception():
             if callable(self.cfg.dependencies):
                 deps = parse_dependency(self.cfg.dependencies())
             else:
                 deps = self.cfg.dependencies
             self.resources.set_dependency(deps)
-        except Exception as e:
-            self.resources.self_exception = e
-            raise
 
     def _start_resource(self) -> None:
         if len(self.resources) == 0:

@@ -602,9 +602,7 @@ def test_skip_strategy(skip_strategy, case_count):
 
 def test_skip_steps():
     s = Driver(name="server")
-    c = Driver(
-        name="client",
-    )
+    c = Driver(name="client")
     mt = multitest.MultiTest(
         name="Test",
         suites=[Suite()],
