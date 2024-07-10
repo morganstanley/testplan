@@ -22,7 +22,7 @@ import { generatePath } from "react-router";
 import { NavLink } from "react-router-dom";
 import TagList from "./TagList";
 import { makeStyles } from "@material-ui/core/styles";
-import { generateURLWithParameters, calcExecutionTime } from "../Common/utils";
+import { generateURLWithParameters, calcExecutionTime, calcElapsedTime } from "../Common/utils";
 import { isReportLeaf } from "../Report/reportUtils";
 
 const SelectionContext = React.createContext(null);
@@ -339,6 +339,8 @@ const createNavEntry = (props, entry) => {
         suiteRelated={entry.category === CATEGORIES.synthesized}
         action={entry.action}
         executionTime={calcExecutionTime(entry)}
+        setupTime={calcElapsedTime(entry?.timer?.setup)}
+        teardownTime={calcElapsedTime(entry?.timer?.teardown)}
         displayTime={props.displayTime}
       />
     );
@@ -352,6 +354,8 @@ const createNavEntry = (props, entry) => {
         caseCountPassed={entry.counter.passed}
         caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
         executionTime={calcExecutionTime(entry)}
+        setupTime={calcElapsedTime(entry?.timer?.setup)}
+        teardownTime={calcElapsedTime(entry?.timer?.teardown)}
         displayTime={props.displayTime}
       />
     );
