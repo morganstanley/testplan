@@ -2,7 +2,23 @@
  * Common aphrodite styles.
  */
 import { StyleSheet } from "aphrodite";
-import { RED, GREEN, ORANGE, BLACK } from "../Common/defaults";
+import {
+  faBug,
+  faCheck,
+  faExclamationCircle,
+  faForward,
+  faQuestionCircle,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+
+import {
+  RED,
+  GREEN,
+  ORANGE,
+  BLACK,
+  LIGHT_GREY,
+  MEDIUM_GREY
+} from "../Common/defaults";
 
 export const unselectable = {
   "moz-user-select": "-moz-none",
@@ -15,21 +31,27 @@ export const unselectable = {
 export const statusStyles = {
   passed: {
     color: GREEN,
+    icon: faCheck,
   },
   failed: {
     color: RED,
+    icon: faTimes,
   },
   error: {
     color: RED,
+    icon: faBug,
   },
   skipped: {
     color: ORANGE,
+    icon: faForward,
   },
   unstable: {
     color: ORANGE,
+    icon: faExclamationCircle,
   },
   unknown: {
     color: BLACK,
+    icon: faQuestionCircle,
   },
 };
 
@@ -81,6 +103,32 @@ export const navStyles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "end",
+  },
+  navButton: {
+    position: "relative",
+    display: "block",
+    border: "none",
+    backgroundColor: LIGHT_GREY,
+    cursor: "pointer",
+  },
+  navButtonInteract: {
+    ":hover": {
+      backgroundColor: MEDIUM_GREY,
+    },
+  },
+  navButtonInteractFocus: {
+    backgroundColor: MEDIUM_GREY,
+    outline: "none",
+  },
+  buttonList: {
+    "overflow-y": "auto",
+    height: "100%",
+  },
+  statusIcon: {
+    display: "inline-flex",
+    width: "1rem",
+    justifyContent: "center",
+    marginRight: "0.3rem",
   },
   environmentToggle: {
     padding: "0.65em 0em 0.65em 0em",

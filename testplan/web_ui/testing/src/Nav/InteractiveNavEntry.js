@@ -11,7 +11,7 @@ import {
   faToggleOn,
   faFastBackward,
 } from "@fortawesome/free-solid-svg-icons";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
 import {
   CATEGORY_ICONS,
@@ -23,8 +23,9 @@ import {
   NAV_ENTRY_ACTIONS,
 } from "../Common/defaults";
 import { navStyles } from "../Common/Styles";
-import { generateNavTimeInfo } from "./navUtils";
+import { generateNavTimeInfo, GetStatusIcon } from "./navUtils";
 import { pendingEnvRequestAtom } from "../Report/InteractiveReport";
+import { showStatusIconsPreference } from "../UserSettings/UserSettings";
 
 /**
  * Display interactive NavEntry information:
@@ -67,6 +68,10 @@ const InteractiveNavEntry = (props) => {
       props.teardownTime,
       props.executionTime,
     ) : null;
+  
+  const statusIcon2 = useAtomValue(showStatusIconsPreference)
+    ? GetStatusIcon(props.status)
+    : null;
 
   return (
     <div
@@ -89,6 +94,7 @@ const InteractiveNavEntry = (props) => {
         }
         title={props.description || props.name}
       >
+        {statusIcon2}
         {props.name}
       </div>
       <div className={css(navStyles.entryIcons)}>
