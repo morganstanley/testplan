@@ -416,36 +416,33 @@ class Test(Runnable):
             self.report.propagate_tag_indices()
 
     def _init_context(self) -> None:
-        with self.resources.set_self_exception():
-            if callable(self.cfg.initial_context):
-                self.resources._initial_context = self.cfg.initial_context()
-            else:
-                self.resources._initial_context = self.cfg.initial_context
+        if callable(self.cfg.initial_context):
+            self.resources._initial_context = self.cfg.initial_context()
+        else:
+            self.resources._initial_context = self.cfg.initial_context
 
     def _build_environment(self) -> None:
         # build environment only once in interactive mode
         if self._env_built:
             return
 
-        with self.resources.set_self_exception():
-            if callable(self.cfg.environment):
-                drivers = self.cfg.environment()
-            else:
-                drivers = self.cfg.environment
-            for driver in drivers:
-                driver.parent = self
-                driver.cfg.parent = self.cfg
-                self.resources.add(driver)
+        if callable(self.cfg.environment):
+            drivers = self.cfg.environment()
+        else:
+            drivers = self.cfg.environment
+        for driver in drivers:
+            driver.parent = self
+            driver.cfg.parent = self.cfg
+            self.resources.add(driver)
 
         self._env_built = True
 
     def _set_dependencies(self) -> None:
-        with self.resources.set_self_exception():
-            if callable(self.cfg.dependencies):
-                deps = parse_dependency(self.cfg.dependencies())
-            else:
-                deps = self.cfg.dependencies
-            self.resources.set_dependency(deps)
+        if callable(self.cfg.dependencies):
+            deps = parse_dependency(self.cfg.dependencies())
+        else:
+            deps = self.cfg.dependencies
+        self.resources.set_dependency(deps)
 
     def _start_resource(self) -> None:
         if len(self.resources) == 0:

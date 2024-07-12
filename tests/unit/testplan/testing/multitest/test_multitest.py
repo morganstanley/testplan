@@ -611,7 +611,6 @@ def test_skip_steps():
     )
 
     mt.run()
-    assert mt.resources.self_exception is not None
     assert all(
         map(
             lambda x: x in mt.result.step_results,

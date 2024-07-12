@@ -587,13 +587,17 @@ class MultiTest(testing_base.Test):
         """Check if a step should be skipped."""
         if step == self._run_error_handler:
             return not (
-                self.resources.self_exception is not None
-                or self.resources.start_exceptions
+                self.resources.start_exceptions
                 or self.resources.stop_exceptions
                 or self._get_error_logs()
             )
-        elif self.resources.self_exception is not None:
-            # self of status ERROR
+        elif "_start_resource" not in self.result.step_results and any(
+            map(
+                lambda x: isinstance(x, Exception),
+                self.result.step_results.values(),
+            )
+        ):
+            # exc before _start_resource
             return True
         elif step in (
             self._start_resource,

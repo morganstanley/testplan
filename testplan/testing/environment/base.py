@@ -55,18 +55,9 @@ class TestEnvironment(Environment):
     def __init__(self, parent: Optional["Test"] = None):
         super().__init__(parent)
 
-        self.__dict__["self_exception"] = None  # Optional[Exception]
         self.__dict__["_orig_dependency"] = None  # Optional[DriverDepGraph]
         self.__dict__["_rt_dependency"] = None  # Optional[DriverDepGraph]
         self.__dict__["_pocketwatches"] = {}  # Dict[str, DriverPocketwatch]
-
-    @contextmanager
-    def set_self_exception(self):
-        try:
-            yield
-        except Exception as e:
-            self.self_exception = e
-            raise
 
     def set_dependency(self, dependency: Optional[DriverDepGraph]):
         if dependency is None:

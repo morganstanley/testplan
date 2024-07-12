@@ -37,10 +37,20 @@ def test_exception_logger_suppression():
 @disable_log_propagation(LOGGER)
 def test_exception_logger_reraise():
     """
-    ExceptionLoggerBase should raise the exception without logging
+    ExceptionLogger.* should raise the exception without logging
     if it doesn't match `exception_classes`.
     """
     rep = DummyReport()
+
+    with pytest.raises(KeyError):
+
+        with rep.logged_exceptions(IndexError):
+            raise IndexError("foo")  # suppressed
+
+        with rep.logged_exceptions(IndexError):
+            raise KeyError("bar")  # raised
+
+    rep = DummyReportGroup()
 
     with pytest.raises(KeyError):
 
