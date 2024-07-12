@@ -1450,9 +1450,9 @@ class LogfileNamespace(AssertionNamespace):
         """
         results = []
         failure = None
-        s_pos = log_matcher.position
         m = log_matcher.match(regex, timeout, raise_on_timeout=False)
-        e_pos = log_matcher.position
+        s_pos = log_matcher._debug_info_s[0]
+        e_pos = log_matcher._debug_info_e[0]
         if m is not None:
             results.append((m, regex, s_pos, e_pos))
         else:

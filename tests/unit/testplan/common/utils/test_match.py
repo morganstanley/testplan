@@ -166,11 +166,11 @@ class TestLogMatcher:
             regex=re.compile(r"bob"), timeout=LOG_MATCHER_TIMEOUT
         )
         matcher.seek()
-        with pytest.raises(Exception):
+        with pytest.raises(Exception, match=r"^Unexpected match.*"):
             matcher.not_match(
                 regex=re.compile(r"third"), timeout=LOG_MATCHER_TIMEOUT
             )
-        with pytest.raises(Exception):
+        with pytest.raises(Exception, match=r"^Unexpected match.*"):
             matcher.not_match(regex=re.compile(r"fourth"), timeout=0)
 
     def test_match_all(self, basic_logfile):

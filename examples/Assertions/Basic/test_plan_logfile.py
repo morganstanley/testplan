@@ -35,6 +35,8 @@ class CustomZMQServer(Driver):
     def starting(self):
         super().starting()
         self._log = open(self.logpath, "wb+")
+        self._log.write(b"pretending setup line\n")
+        self._log.flush()
         self._sig = threading.Event()
         self._thr = threading.Thread(target=self._start_loop)
         self._thr.start()
@@ -93,9 +95,9 @@ class LogfileSuite:
     def match_logfile_xfail(self, env, result):
         lm = LogMatcher(env.server.logpath, binary=True)
         with result.logfile.expect(
-            lm, r"pong", description="first assertion", timeout=0.2
+            lm, r"pong", description="first assertion", timeout=1
         ):
-            env.client.send(b"ping")
+            env.client.send(b"ping\n")
 
 
 @test_plan(
