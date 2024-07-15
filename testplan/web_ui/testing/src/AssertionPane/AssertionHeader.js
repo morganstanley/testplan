@@ -80,20 +80,27 @@ function AssertionHeader({
     ) : (
       <>
         <span
-          className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
+          className={
+            css(styles.cardHeaderAlignRight, styles.timeInfo, styles.button)
+          }
+          onClick={toggleExpand}
           id={`tooltip_duration_${timeInfoArray[0]}`}
           style={{ order: 3, display: "inline-flex", alignItems: "center" }}
         >
           {timeInfoArray[2]}
         </span>
         <span
-          className={css(styles.cardHeaderAlignRight)}
+          className={css(styles.cardHeaderAlignRight, styles.button)}
+          onClick={toggleExpand}
           style={{ order: 2 }}
         >
           &nbsp;&nbsp;
         </span>
         <span
-          className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
+          className={
+            css(styles.cardHeaderAlignRight, styles.timeInfo, styles.button)
+          }
+          onClick={toggleExpand}
           id={`tooltip_utc_${timeInfoArray[0]}`}
           style={{ order: 1, display: "inline-flex", alignItems: "center" }}
         >

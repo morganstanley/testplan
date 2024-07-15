@@ -17,5 +17,5 @@ export const hideSkippedTestcasesPreference = atomWithStorage(
 );
 export const showStatusIconsPreference = atomWithStorage(
   "showStatusIcons",
-  true
+  false
 );

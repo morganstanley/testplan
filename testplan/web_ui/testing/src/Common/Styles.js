@@ -6,9 +6,9 @@ import {
   faBug,
   faCheck,
   faExclamationCircle,
-  faForward,
   faQuestionCircle,
   faTimes,
+  faAngleDoubleRight,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -43,7 +43,7 @@ export const statusStyles = {
   },
   skipped: {
     color: ORANGE,
-    icon: faForward,
+    icon: faAngleDoubleRight,
   },
   unstable: {
     color: ORANGE,
@@ -57,6 +57,7 @@ export const statusStyles = {
 
 export const navStyles = StyleSheet.create({
   entryName: {
+    display: "flex",
     overflow: "hidden",
     "text-overflow": "ellipsis",
     "white-space": "nowrap",
@@ -129,6 +130,7 @@ export const navStyles = StyleSheet.create({
     width: "1rem",
     justifyContent: "center",
     marginRight: "0.3rem",
+    alignSelf: "center",
   },
   environmentToggle: {
     padding: "0.65em 0em 0.65em 0em",

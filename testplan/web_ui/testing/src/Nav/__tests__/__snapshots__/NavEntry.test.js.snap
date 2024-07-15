@@ -20,7 +20,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
     TP
   </Badge>
   <div
-    className="entryName_j2oag5-o_O-passed_1kh4m98"
+    className="entryName_1u6ioda-o_O-passed_159jltg"
     title="entry description - passed"
   >
     entry name
@@ -29,20 +29,115 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-passed_1kh4m98-o_O-navTime_rnvtmc"
+      className="entryIcon_9gb3m5-o_O-passed_159jltg-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
-        className="passed_1kh4m98"
+        className="passed_159jltg"
       >
         0
       </span>
       /
       <span
-        className="failed_11es5k7"
+        className="failed_fshwig"
+      >
+        0
+      </span>
+    </span>
+  </div>
+</div>
+`;
+
+exports[`NavEntry shallow renders the correct HTML structure with status icons enabled 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+      "userSelect": "none",
+    }
+  }
+>
+  <Badge
+    className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2-o_O-badge_1nusemj"
+    color="secondary"
+    pill={true}
+    tag="span"
+    title="testplan"
+  >
+    TP
+  </Badge>
+  <div
+    className="entryName_1u6ioda-o_O-passed_159jltg"
+    title="entry description - passed"
+  >
+    <span
+      className="statusIcon_15gxpoi"
+    >
+      <FontAwesomeIcon
+        beat={false}
+        beatFade={false}
+        border={false}
+        bounce={false}
+        className=""
+        fade={false}
+        fixedWidth={false}
+        flip={false}
+        icon={
+          Object {
+            "icon": Array [
+              512,
+              512,
+              Array [],
+              "f00c",
+              "M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z",
+            ],
+            "iconName": "check",
+            "prefix": "fas",
+          }
+        }
+        inverse={false}
+        listItem={false}
+        mask={null}
+        maskId={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        shake={false}
+        size="sm"
+        spin={false}
+        spinPulse={false}
+        spinReverse={false}
+        swapOpacity={false}
+        symbol={false}
+        title="passed"
+        titleId={null}
+        transform={null}
+      />
+    </span>
+    entry name
+  </div>
+  <div
+    className="entryIcons_9stzon"
+  >
+    <span
+      className="entryIcon_9gb3m5-o_O-passed_159jltg-o_O-navTime_rnvtmc"
+    />
+    <span
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_159jltg"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_fshwig"
       >
         0
       </span>
@@ -71,7 +166,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
     TP
   </Badge>
   <div
-    className="entryName_j2oag5-o_O-failed_11es5k7"
+    className="entryName_1u6ioda-o_O-failed_fshwig"
     title="entry description - failed"
   >
     entry name
@@ -80,20 +175,20 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-failed_11es5k7-o_O-navTime_rnvtmc"
+      className="entryIcon_9gb3m5-o_O-failed_fshwig-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
-        className="passed_1kh4m98"
+        className="passed_159jltg"
       >
         0
       </span>
       /
       <span
-        className="failed_11es5k7"
+        className="failed_fshwig"
       >
         0
       </span>
@@ -122,7 +217,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     TP
   </Badge>
   <div
-    className="entryName_j2oag5-o_O-unstable_17i2uy2"
+    className="entryName_1u6ioda-o_O-unstable_jlehcb"
     title="entry description - xfail"
   >
     entry name
@@ -131,20 +226,20 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unstable_17i2uy2-o_O-navTime_rnvtmc"
+      className="entryIcon_9gb3m5-o_O-unstable_jlehcb-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
-        className="passed_1kh4m98"
+        className="passed_159jltg"
       >
         0
       </span>
       /
       <span
-        className="failed_11es5k7"
+        className="failed_fshwig"
       >
         0
       </span>
