@@ -217,7 +217,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     TP
   </Badge>
   <div
-    className="entryName_1u6ioda-o_O-unstable_jlehcb"
+    className="entryName_1u6ioda-o_O-unstable_zxs7ca"
     title="entry description - xfail"
   >
     entry name
@@ -226,7 +226,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     className="entryIcons_9stzon"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unstable_jlehcb-o_O-navTime_rnvtmc"
+      className="entryIcon_9gb3m5-o_O-unstable_zxs7ca-o_O-navTime_rnvtmc"
     />
     <span
       className="entryIcon_9gb3m5"

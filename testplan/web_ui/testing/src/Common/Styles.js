@@ -4,8 +4,8 @@
 import { StyleSheet } from "aphrodite";
 import {
   faCheck,
-  faExclamationCircle,
   faInfo,
+  faQuestionCircle,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -41,11 +41,11 @@ export const statusStyles = {
   },
   skipped: {
     color: ORANGE,
-    icon: faExclamationCircle,
+    icon: faQuestionCircle,
   },
   unstable: {
     color: ORANGE,
-    icon: faExclamationCircle,
+    icon: faQuestionCircle,
   },
   unknown: {
     color: BLACK,
