@@ -4,11 +4,23 @@ import { css, StyleSheet } from "aphrodite";
 import { CardHeader, Tooltip } from "reactstrap";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLayerGroup } from "@fortawesome/free-solid-svg-icons";
+import {
+  faLayerGroup,
+  faTimes,
+  faInfo,
+  faCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import Button from "@material-ui/core/Button";
 import Linkify from "linkify-react";
 
 library.add(faLayerGroup);
+
+
+const STATUS_ICONS = {
+  false: faTimes,
+  true: faCheck,
+  undefined: faInfo,
+};
 
 /**
  * Header component of an assertion.
@@ -18,6 +30,7 @@ function AssertionHeader({
   displayPath,
   uid,
   toggleExpand,
+  showStatusIcons,
 }) {
   const [isUTCTooltipOpen, setIsUTCTooltipOpen] = useState(false);
   const [isPathTooltipOpen, setIsPathTooltipOpen] = useState(false);
@@ -67,20 +80,27 @@ function AssertionHeader({
     ) : (
       <>
         <span
-          className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
+          className={
+            css(styles.cardHeaderAlignRight, styles.timeInfo, styles.button)
+          }
+          onClick={toggleExpand}
           id={`tooltip_duration_${timeInfoArray[0]}`}
           style={{ order: 3, display: "inline-flex", alignItems: "center" }}
         >
           {timeInfoArray[2]}
         </span>
         <span
-          className={css(styles.cardHeaderAlignRight)}
+          className={css(styles.cardHeaderAlignRight, styles.button)}
+          onClick={toggleExpand}
           style={{ order: 2 }}
         >
           &nbsp;&nbsp;
         </span>
         <span
-          className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
+          className={
+            css(styles.cardHeaderAlignRight, styles.timeInfo, styles.button)
+          }
+          onClick={toggleExpand}
           id={`tooltip_utc_${timeInfoArray[0]}`}
           style={{ order: 1, display: "inline-flex", alignItems: "center" }}
         >
@@ -159,6 +179,17 @@ function AssertionHeader({
     ""
   );
 
+  const statusIcon = showStatusIcons ? (
+    <span className={css(styles.statusIcon)}>
+      <FontAwesomeIcon
+        title={assertion.passed ? "passed" : "failed"}
+        size="sm"
+        icon={STATUS_ICONS[assertion.passed]}
+        className={css(styles.icon)}
+      />
+    </span>
+  ) : null;
+
   return (
     <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
       <div style={{ display: "flex" }}>
@@ -172,10 +203,10 @@ function AssertionHeader({
             ...assertion.custom_style,
           }}
         >
+          {statusIcon}
           <span style={{ fontWeight: "bold" }}>{description}</span>
           <span>({assertion.type})</span>
         </span>
-
         {component}
         {pathButton}
         {/*
@@ -272,6 +303,11 @@ const styles = StyleSheet.create({
 
   icon: {
     margin: "0rem .25rem 0rem 0rem",
+  },
+  statusIcon: {
+    display: "inline-flex",
+    width: "1rem",
+    justifyContent: "center",
   },
 });
 

@@ -22,6 +22,7 @@ exports[`Assertion shallow renders the correct HTML structure 1`] = `
       }
     }
     index={0}
+    showStatusIcons={false}
   />
   <Collapse
     appear={false}

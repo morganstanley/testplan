@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Badge } from "reactstrap";
 import { css } from "aphrodite";
+import { useAtomValue } from "jotai";
 
 import {
   CATEGORY_ICONS,
@@ -10,7 +11,8 @@ import {
   STATUS_CATEGORY,
 } from "../Common/defaults";
 import { navStyles } from "../Common/Styles";
-import { generateNavTimeInfo } from "./navUtils";
+import { generateNavTimeInfo, GetStatusIcon } from "./navUtils";
+import { showStatusIconsPreference } from "../UserSettings/UserSettings";
 
 /**
  * Display NavEntry information:
@@ -26,6 +28,9 @@ const NavEntry = (props) => {
       props.teardownTime,
       props.executionTime,
     ) : null;
+  const statusIcon =
+    useAtomValue(showStatusIconsPreference) ? GetStatusIcon(props.status)
+    : null;
 
   return (
     <div
@@ -50,6 +55,7 @@ const NavEntry = (props) => {
         }
         title={`${props.description || props.name} - ${props.status}`}
       >
+        {statusIcon}
         {props.name}
       </div>
       <div className={css(navStyles.entryIcons)}>
