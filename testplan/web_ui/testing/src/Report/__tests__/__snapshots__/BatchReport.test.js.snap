@@ -26259,6 +26259,62 @@ ZeroDivisionError: integer division or modulo by zero
                                       </button>
                                     </DropdownItem>
                                   </UserPreferenceCheckbox>
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
+                                  >
+                                    <DropdownItem
+                                      className="dropdownItem_1h5fos4"
+                                      tag="button"
+                                      toggle={false}
+                                    >
+                                      <button
+                                        className="dropdownItem_1h5fos4 dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
+                                      >
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_1wpifct"
+                                          tag="label"
+                                          widths={
+                                            Array [
+                                              "xs",
+                                              "sm",
+                                              "md",
+                                              "lg",
+                                              "xl",
+                                            ]
+                                          }
+                                        >
+                                          <label
+                                            className="filterLabel_1wpifct form-check-label"
+                                          >
+                                            <Input
+                                              checked={false}
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                            >
+                                              <input
+                                                checked={false}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Show status icons
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
                                   <DropdownItem
                                     divider={true}
                                     tag="button"
