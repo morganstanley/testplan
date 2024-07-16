@@ -3,12 +3,10 @@
  */
 import { StyleSheet } from "aphrodite";
 import {
-  faBug,
   faCheck,
   faExclamationCircle,
-  faQuestionCircle,
+  faInfo,
   faTimes,
-  faAngleDoubleRight,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -39,11 +37,11 @@ export const statusStyles = {
   },
   error: {
     color: RED,
-    icon: faBug,
+    icon: faTimes,
   },
   skipped: {
     color: ORANGE,
-    icon: faAngleDoubleRight,
+    icon: faExclamationCircle,
   },
   unstable: {
     color: ORANGE,
@@ -51,7 +49,7 @@ export const statusStyles = {
   },
   unknown: {
     color: BLACK,
-    icon: faQuestionCircle,
+    icon: faInfo,
   },
 };
 
