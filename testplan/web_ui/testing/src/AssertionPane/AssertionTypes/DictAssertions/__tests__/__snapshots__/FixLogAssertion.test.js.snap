@@ -2,7 +2,7 @@
 
 exports[`FixLogAssertion shallow renders the correct HTML structure 1`] = `
 <DictBaseAssertion
-  buttonGroup={
+  buttons={
     <DictButtonGroup
       defaultSortType={Symbol(NONE)}
       flattenedDict={

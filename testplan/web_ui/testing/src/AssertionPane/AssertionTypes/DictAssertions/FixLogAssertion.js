@@ -59,7 +59,7 @@ export default function FixLogAssertion(props) {
 
   return (
     <DictBaseAssertion
-      buttonGroup={buttonGroup}
+      buttons={buttonGroup}
       columns={columns}
       rows={prepareDictRowData(rowData, props.assertion.line_no)}
     />
