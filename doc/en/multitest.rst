@@ -70,8 +70,9 @@ A MultiTest instance can be constructed from the following parameters:
   starting concurrently based on the dependencies. Drivers included in
   ``environment`` while not presented in ``dependencies`` will be started
   concurrently at the very beginning. Using empty dict here to instruct all
-  drivers to start concurrently. Click :ref:`here <multitest_drivers>` for more
-  information.
+  drivers to start concurrently. Using ``None`` here to specify the legacy
+  scheduling with ``async_start`` flags being set. Click :ref:`here <multitest_drivers>`
+  for more information.
 
 * **Runtime Information**: The environment always contains a member called
   ``runtime_info`` which contains information about the current state of the

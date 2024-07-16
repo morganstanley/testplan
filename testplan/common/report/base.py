@@ -70,6 +70,7 @@ class ExceptionLogger(ExceptionLoggerBase):
                     str(exc_value),
                 )
                 self.report.status_override = Status.SKIPPED
+                return True
             elif issubclass(exc_type, self.exception_classes):
                 # Custom exception message with extra args
                 exc_msg = "".join(
@@ -79,7 +80,7 @@ class ExceptionLogger(ExceptionLoggerBase):
 
                 if self.fail:
                     self.report.status_override = Status.ERROR
-            return True
+                return True
 
 
 @total_ordering

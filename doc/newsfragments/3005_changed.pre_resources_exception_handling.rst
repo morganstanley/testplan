@@ -1,0 +1,1 @@
+Fix some runtime issues when driver dependency is set. ``dependencies`` argument of ``MultiTest`` now supports ``None``.
