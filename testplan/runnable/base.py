@@ -577,6 +577,8 @@ class TestRunner(Runnable):
 
         tasks: List[TaskInformation] = []
         time_info = runtime_data.get(uid, None)
+        if time_info and "teardown_time" not in time_info:
+            time_info["teardown_time"] = 0
         if num_of_parts:
 
             if not isinstance(task_info.materialized_test, MultiTest):
@@ -605,6 +607,7 @@ class TestRunner(Runnable):
         / (
             self.cfg.auto_part_runtime_limit {self.cfg.auto_part_runtime_limit}
             - time_info["setup_time"] {time_info["setup_time"]}
+            - time_info["teardown_time"] {time_info["teardown_time"]}
         )
     )
 """
@@ -614,6 +617,7 @@ class TestRunner(Runnable):
                             / (
                                 self.cfg.auto_part_runtime_limit
                                 - time_info["setup_time"]
+                                - time_info["teardown_time"]
                             )
                         )
                     except ZeroDivisionError:
@@ -638,6 +642,7 @@ class TestRunner(Runnable):
                     math.ceil(
                         (time_info["execution_time"] / num_of_parts)
                         + time_info["setup_time"]
+                        + time_info["teardown_time"]
                     )
                     if time_info
                     else self.cfg.auto_part_runtime_limit
@@ -664,7 +669,9 @@ class TestRunner(Runnable):
         else:
             if time_info and not task.weight:
                 task_info.target.weight = math.ceil(
-                    time_info["execution_time"] + time_info["setup_time"]
+                    time_info["execution_time"]
+                    + time_info["setup_time"]
+                    + time_info["teardown_time"]
                 )
                 self.logger.user_info(
                     "%s: weight=%d", uid, task_info.target.weight
