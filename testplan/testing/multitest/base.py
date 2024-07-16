@@ -591,6 +591,14 @@ class MultiTest(testing_base.Test):
                 or self.resources.stop_exceptions
                 or self._get_error_logs()
             )
+        elif "_start_resource" not in self.result.step_results and any(
+            map(
+                lambda x: isinstance(x, Exception),
+                self.result.step_results.values(),
+            )
+        ):
+            # exc before _start_resource
+            return True
         elif step in (
             self._start_resource,
             self._stop_resource,

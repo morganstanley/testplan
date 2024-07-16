@@ -1,7 +1,8 @@
 import copy
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from testplan.common.config import UNSET
 from testplan.common.entity.base import Environment
@@ -54,9 +55,9 @@ class TestEnvironment(Environment):
     def __init__(self, parent: Optional["Test"] = None):
         super().__init__(parent)
 
-        self.__dict__["_orig_dependency"]: Optional[DriverDepGraph] = None
-        self.__dict__["_rt_dependency"]: Optional[DriverDepGraph] = None
-        self.__dict__["_pocketwatches"]: Dict[str, DriverPocketwatch] = dict()
+        self.__dict__["_orig_dependency"] = None  # Optional[DriverDepGraph]
+        self.__dict__["_rt_dependency"] = None  # Optional[DriverDepGraph]
+        self.__dict__["_pocketwatches"] = {}  # Dict[str, DriverPocketwatch]
 
     def set_dependency(self, dependency: Optional[DriverDepGraph]):
         if dependency is None:
@@ -72,7 +73,7 @@ class TestEnvironment(Environment):
                     "while not being declared in `environment` parameter."
                 )
         for d in self._resources.values():
-            if d.async_start != UNSET:
+            if d.cfg.async_start != UNSET:
                 raise ValueError(
                     f"`async_start` parameter of driver {d} should not "
                     "be set if driver dependency is specified."

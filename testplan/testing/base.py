@@ -114,7 +114,7 @@ class TestConfig(RunnableConfig):
                 [Or(Resource, RemoteDriver)], validate_func()
             ),
             ConfigOption("dependencies", default=None): Or(
-                Use(parse_dependency), validate_func()
+                None, Use(parse_dependency), validate_func()
             ),
             ConfigOption("initial_context", default={}): Or(
                 dict, validate_func()
@@ -430,11 +430,11 @@ class Test(Runnable):
             drivers = self.cfg.environment()
         else:
             drivers = self.cfg.environment
-
         for driver in drivers:
             driver.parent = self
             driver.cfg.parent = self.cfg
             self.resources.add(driver)
+
         self._env_built = True
 
     def _set_dependencies(self) -> None:
