@@ -889,6 +889,23 @@ class TestFIXNamespace:
 class TestLogfileNamespace:
     """Unit testcases for the result.LogfileNamespace class."""
 
+    def test_match(self, logfile_ns, logfile_w_matcher):
+        f, lm = logfile_w_matcher
+        f.logline("chai")
+        f.flush()
+
+        logfile_ns.match(lm, r"chai", timeout=0)
+        assert len(logfile_ns.result.entries) == 1
+        assert logfile_ns.result.entries[0]
+        e = logfile_ns.result.entries[0]
+        assert len(e.results) == 1
+        assert e.results[0].pattern == "chai" == e.results[0].matched
+        assert e.results[0].start_pos == "<BOF>"
+        if os.name == "posix":
+            assert e.results[0].end_pos == "<position {}>".format(
+                len("chai\n")
+            )
+
     def test_seek_eof_match(self, logfile_ns, logfile_w_matcher):
         f, lm = logfile_w_matcher
         f.logline("coffee")
@@ -907,16 +924,19 @@ class TestLogfileNamespace:
         for d in drinks:
             f.logline(d)
         f.flush()
-        logfile_ns.match(
-            lm,
-            r"vodka",
-            timeout=0.1,
-        )
+        logfile_ns.match(lm, r"vodka", timeout=0.1)
 
         assert len(logfile_ns.result.entries) == 2
         assert logfile_ns.result.entries[1]
         e = logfile_ns.result.entries[1]
         assert len(e.results) == 1
+        assert all(
+            map(
+                lambda x: x.start_pos.startswith("<position")
+                and x.end_pos.startswith("<position"),
+                e.results,
+            )
+        )
         pattern_s = set(map(lambda x: x.pattern, e.results))
         matched_s = set(map(lambda x: x.matched, e.results))
         assert pattern_s == {"vodka"} == matched_s
@@ -935,10 +955,7 @@ class TestLogfileNamespace:
             "islay",
         ]
 
-        with logfile_ns.expect(
-            lm,
-            r"lowland",
-        ):
+        with logfile_ns.expect(lm, r"lowland"):
             for r in regions:
                 f.logline(r)
             f.flush()
@@ -946,7 +963,9 @@ class TestLogfileNamespace:
 
         assert logfile_ns.result.entries[0]
         m_res = logfile_ns.result.entries[0].results
-        assert len(m_res) == 1
+        assert len(m_res) == 1 and m_res[0].pattern == "lowland"
+        assert m_res[0].start_pos.startswith("<position")
+        assert m_res[0].end_pos.startswith("<position")
 
         with logfile_ns.expect(lm, r"irish", timeout=0.1):
             f.logline("some other whiskeys:")
@@ -956,6 +975,8 @@ class TestLogfileNamespace:
         assert not logfile_ns.result.entries[1]
         m_fai = logfile_ns.result.entries[1].failure
         assert len(m_fai) == 1 and m_fai[0].pattern == "irish"
+        assert m_fai[0].start_pos.startswith("<position")
+        assert m_fai[0].end_pos.startswith("<position")
 
 
 class TestResultBaseNamespace:

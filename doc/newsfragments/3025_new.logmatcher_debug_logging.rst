@@ -1,0 +1,1 @@
+Add more logging to :py:meth:`~testplan.common.utils.match.LogMatcher.match`, :py:meth:`~testplan.common.utils.match.LogMatcher.not_match` and :py:meth:`~testplan.common.utils.match.LogMatcher.match_all` for debugging purpose.
