@@ -1,0 +1,1 @@
+Fixed FixLog assertion not showing sort buttons on the web UI.
