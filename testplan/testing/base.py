@@ -814,7 +814,7 @@ class Test(Runnable):
                 "Start Time (UTC)": driver.timer[setup_or_teardown][-1].start,
                 "Stop Time (UTC)": driver.timer[setup_or_teardown][-1].end,
                 "Duration(seconds)": driver.timer[setup_or_teardown][
-                    0
+                    -1
                 ].elapsed,
             }
             for driver in self.resources

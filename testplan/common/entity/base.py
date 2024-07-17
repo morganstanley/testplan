@@ -1312,12 +1312,9 @@ class ResourceStatus(EntityStatus):
         return transitions
 
 
-class ResourceTimings(str, Enum):
+class ResourceTimings:
     RESOURCE_SETUP = "setup"
     RESOURCE_TEARDOWN = "teardown"
-
-    def __str__(self) -> str:
-        return self.value
 
 
 class Resource(Entity):
