@@ -56,6 +56,7 @@ import {
   hideEmptyTestcasesPreference,
   hideSkippedTestcasesPreference,
   useTreeViewPreference,
+  showStatusIconsPreference,
 } from "../UserSettings/UserSettings";
 import { useAtom, useAtomValue } from "jotai";
 import _ from "lodash";
@@ -241,6 +242,9 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
           enabled={useAtomValue(displayTimeInfoPreference)}/>
         <UserPreferenceCheckbox preferenceAtom={displayPathPreference}>
           Display file path of assertions
+        </UserPreferenceCheckbox>
+        <UserPreferenceCheckbox preferenceAtom={showStatusIconsPreference}>
+          Show status icons
         </UserPreferenceCheckbox>
         <DropdownItem divider />
         <DropdownItem header>Navigation preferences</DropdownItem>
