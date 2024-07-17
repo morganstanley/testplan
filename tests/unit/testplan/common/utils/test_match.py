@@ -104,6 +104,8 @@ class TestLogMatcher:
         matcher = LogMatcher(log_path=basic_logfile)
         regex_exp = re.compile(r"second")
         match = matcher.match(regex=regex_exp)
+        assert len(matcher._debug_info_s) == 3
+        assert len(matcher._debug_info_e) == 3
 
         assert match is not None
         assert match.group(0) == "second"
@@ -125,6 +127,8 @@ class TestLogMatcher:
         matcher = LogMatcher(log_path=basic_logfile)
         second_string = re.compile(r"second")
         match = matcher.match(regex=second_string)
+        assert len(matcher._debug_info_s) == 3
+        assert len(matcher._debug_info_e) == 3
 
         # It should find this string.
         assert match is not None
@@ -152,6 +156,8 @@ class TestLogMatcher:
         matcher = LogMatcher(log_path=basic_logfile)
         with pytest.raises(timing.TimeoutException):
             matcher.match(regex=r"bob", timeout=LOG_MATCHER_TIMEOUT)
+            assert len(matcher._debug_info_s) == 3
+            assert len(matcher._debug_info_e) == 3
 
     def test_binary_match_not_found(self, basic_logfile):
         """Does the LogMatcher raise an exception when no match is found."""
@@ -165,13 +171,19 @@ class TestLogMatcher:
         matcher.not_match(
             regex=re.compile(r"bob"), timeout=LOG_MATCHER_TIMEOUT
         )
+        assert len(matcher._debug_info_s) == 3
+        assert len(matcher._debug_info_e) == 3
         matcher.seek()
-        with pytest.raises(Exception):
+        with pytest.raises(Exception, match=r"^Unexpected match.*"):
             matcher.not_match(
                 regex=re.compile(r"third"), timeout=LOG_MATCHER_TIMEOUT
             )
-        with pytest.raises(Exception):
+            assert len(matcher._debug_info_s) == 3
+            assert len(matcher._debug_info_e) == 3
+        with pytest.raises(Exception, match=r"^Unexpected match.*"):
             matcher.not_match(regex=re.compile(r"fourth"), timeout=0)
+            assert len(matcher._debug_info_s) == 3
+            assert len(matcher._debug_info_e) == 3
 
     def test_match_all(self, basic_logfile):
         """Can the LogMatcher find all the correct lines in the log file."""
@@ -179,6 +191,8 @@ class TestLogMatcher:
         matches = matcher.match_all(
             regex=re.compile(r".+ir.+"), timeout=LOG_MATCHER_TIMEOUT
         )
+        assert len(matcher._debug_info_s) == 3
+        assert len(matcher._debug_info_e) == 3
         assert len(matches) == 2
         assert matches[0].group(0) == "first"
         assert matches[1].group(0) == "third"
@@ -186,6 +200,8 @@ class TestLogMatcher:
         matches = matcher.match_all(
             regex=re.compile(r".+th.*"), timeout=LOG_MATCHER_TIMEOUT
         )
+        assert len(matcher._debug_info_s) == 3
+        assert len(matcher._debug_info_e) == 3
         assert len(matches) == 2
         assert matches[0].group(0) == "fourth"
         assert matches[1].group(0) == "fifth"
@@ -202,6 +218,13 @@ class TestLogMatcher:
         matcher.seek()
         with pytest.raises(timing.TimeoutException):
             matcher.match_all(regex=r".+th.+", timeout=LOG_MATCHER_TIMEOUT)
+
+    def test_match_all_large(self, large_logfile):
+        matcher = LogMatcher(log_path=large_logfile)
+        matcher.match_all(r"blah", timeout=0.5)
+        assert len(matcher._debug_info_s) == 3
+        assert len(matcher._debug_info_e) == 3
+        assert matcher._debug_info_e[2] == "blah\n"
 
     def test_match_between(self, basic_logfile):
         """

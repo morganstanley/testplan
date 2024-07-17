@@ -1486,7 +1486,7 @@ class LogfileMatch(Assertion):
     """
 
     @dataclass
-    class Result:
+    class ResultRep:
         matched: Optional[str]
         pattern: str
         start_pos: str
@@ -1519,14 +1519,12 @@ class LogfileMatch(Assertion):
     @classmethod
     def _handle_quadruple(cls, tup):
         m, r, s, e = tup
-        if s is None:
-            s = "<BOF>"
         r = re.compile(r).pattern
-        return cls.Result(
+        return cls.ResultRep(
             cls._truncate_str(m.group()) if m is not None else None,
             cls._truncate_str(r),
-            str(s),
-            str(e),
+            s,
+            e,
         )
 
     def evaluate(self):
