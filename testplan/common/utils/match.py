@@ -411,7 +411,6 @@ class LogMatcher(logger.Loggable):
         end_time = time.time() + timeout
 
         self._debug_info_s = None
-        self._debug_info_e = None
         regex = self._prepare_regexp(regex)
 
         while True:
@@ -421,9 +420,9 @@ class LogMatcher(logger.Loggable):
                 t = end_time - time.time()
                 if t <= 0:
                     break
+            self._debug_info_e = None
             m = self._match(regex, t)
             if m is not None:
-                self._debug_info_e = None
                 matches.append(m)
             else:
                 break
