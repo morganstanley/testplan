@@ -499,6 +499,13 @@ that match ALL of the given tags.
             help="Display drivers startup and shutdown info.",
         )
 
+        report_group.add_argument(
+            "--driver-connection",
+            action="store_true",
+            default=False,
+            help="Display connections between drivers.",
+        )
+
         self.add_arguments(parser)
         return parser
 
