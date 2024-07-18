@@ -13,7 +13,17 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.strings import slugify
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+    DriverMetadata,
+)
+from ..connection import (
+    Direction,
+    Protocol,
+    PortConnectionInfo,
+    PortDriverConnection,
+)
 
 _CONTENT_TYPE_KEY = "Content-Type"
 _CONTENT_LENGTH_KEY = "Content-Length"
@@ -262,6 +272,28 @@ class HTTPServerConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.http.server.HTTPServer`
     driver.
     """
+
+    @staticmethod
+    def default_metadata_extractor(driver) -> DriverMetadata:
+        return DriverMetadata(
+            name=driver.name,
+            driver_metadata={
+                "class": driver.__class__.__name__,
+                "host": driver.host,
+            },
+            conn_info=[
+                PortConnectionInfo(
+                    name="Listening port",
+                    connectionType=PortDriverConnection,
+                    service="HTTP",
+                    protocol=Protocol.TCP,
+                    identifier=driver.port,
+                    direction=Direction.listening,
+                    local_port=driver.port,
+                    local_host=driver.host,
+                )
+            ]
+        )
 
     @classmethod
     def get_options(cls):

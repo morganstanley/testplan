@@ -31,6 +31,7 @@ from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import kill_process, subprocess_popen
 
 from .base import Driver, DriverConfig, DriverMetadata
+from .connection import get_connections
 
 IS_WIN = platform.system() == "Windows"
 
@@ -50,6 +51,7 @@ class AppConfig(DriverConfig):
                 "outpath": driver.outpath,
                 "errpath": driver.errpath,
             },
+            conn_info=get_connections(str(driver), driver.pid)
         )
 
     @classmethod

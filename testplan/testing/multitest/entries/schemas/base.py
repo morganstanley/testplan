@@ -114,3 +114,18 @@ class DirectorySchema(BaseSchema):
     only = fields.List(fields.String(), allow_none=True)
     recursive = fields.Boolean()
     file_list = fields.List(fields.String())
+
+
+class EdgeSchema(Schema):
+    id = fields.String()
+    source = fields.String()
+    target = fields.String()
+    startLabel = fields.String()
+    label = fields.String()
+    endLabel = fields.String()
+
+
+@registry.bind(base.FlowLog)
+class FlowSchema(BaseSchema):
+    nodes = fields.List(fields.String())
+    edges = fields.Nested(EdgeSchema, many=True)

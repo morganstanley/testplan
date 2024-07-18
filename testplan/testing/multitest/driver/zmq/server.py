@@ -7,7 +7,17 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.timing import retry_until_timeout
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+    DriverMetadata,
+)
+from ..connection import (
+    Direction,
+    Protocol,
+    PortConnectionInfo,
+    PortDriverConnection,
+)
 
 
 class ZMQServerConfig(DriverConfig):
@@ -15,6 +25,27 @@ class ZMQServerConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.zmq.server.ZMQServer` driver.
     """
+
+    @staticmethod
+    def default_metadata_extractor(driver) -> DriverMetadata:
+        return DriverMetadata(
+            name=driver.name,
+            driver_metadata={
+                "class": driver.__class__.__name__,
+            },
+            conn_info=[
+                PortConnectionInfo(
+                    name="Listening port",
+                    connectionType=PortDriverConnection,
+                    service="TCP",
+                    protocol=Protocol.TCP,
+                    identifier=driver.port,
+                    direction=Direction.listening,
+                    local_port=driver.port,
+                    local_host=driver.host,
+                )
+            ],
+        )
 
     @classmethod
     def get_options(cls):

@@ -30,33 +30,7 @@ from testplan.common.utils.timing import (
     TimeoutException,
     TimeoutExceptionInfo,
 )
-
-
-class Direction(Enum):
-    connecting = "connecting"
-    listening = "listening"
-
-
-@dataclass
-class Connection:
-    """
-    Base class for connection information objects.
-
-    Such objects ideally hold data with respect to the participants in the
-     connection, the ports and hosts, or the protocol.
-    """
-
-    name: str
-    protocol: str
-    identifier: Union[int, str, ContextValue]
-    direction: Direction
-
-    def to_dict(self):
-        return {
-            "protocol": self.protocol,
-            "identifier": self.identifier,
-            "direction": self.direction,
-        }
+from .connection import ConnectionInfo
 
 
 @dataclass
@@ -71,7 +45,7 @@ class DriverMetadata:
 
     name: str
     driver_metadata: Dict
-    conn_info: List[Connection] = field(default_factory=list)
+    conn_info: List[ConnectionInfo] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
         """

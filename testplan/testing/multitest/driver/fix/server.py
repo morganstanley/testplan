@@ -15,7 +15,17 @@ from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.server import Server
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+    DriverMetadata,
+)
+from ..connection import (
+    Direction,
+    Protocol,
+    PortConnectionInfo,
+    PortDriverConnection,
+)
 
 
 class FixServerConfig(DriverConfig):
@@ -23,6 +33,29 @@ class FixServerConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.fix.server.FixServer` driver.
     """
+
+    @staticmethod
+    def default_metadata_extractor(driver) -> DriverMetadata:
+        return DriverMetadata(
+            name=driver.name,
+            driver_metadata={
+                "class": driver.__class__.__name__,
+                "host": driver.host,
+            },
+            conn_info=[
+                PortConnectionInfo(
+                    name="Listening port",
+                    connectionType=PortDriverConnection,
+                    service=driver.cfg.version,
+                    protocol=Protocol.TCP,
+                    identifier=driver.port,
+                    direction=Direction.connecting,
+                    local_port=driver.port,
+                    local_host=driver.host,
+                )
+            ]
+        )
+
 
     @classmethod
     def get_options(cls):

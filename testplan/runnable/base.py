@@ -267,6 +267,7 @@ class TestRunnerConfig(RunnableConfig):
                 "skip_strategy", default=common.SkipStrategy.noop()
             ): Use(common.SkipStrategy.from_option_or_none),
             ConfigOption("driver_info", default=False): bool,
+            ConfigOption("driver_connection", default=False): bool,
         }
 
 

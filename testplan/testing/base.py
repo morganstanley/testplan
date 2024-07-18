@@ -54,6 +54,9 @@ from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
+from testplan.testing.multitest.driver.connection import (
+    BaseDriverConnection,
+)
 
 from testplan.testing.multitest import result
 
@@ -459,6 +462,8 @@ class Test(Runnable):
             self._record_driver_timing(
                 ResourceTimings.RESOURCE_SETUP, case_report
             )
+        if self.driver_connection:
+            self._record_driver_connection(case_report)
         case_report.pass_if_empty()
         if self.resources.start_exceptions:
             for msg in self.resources.start_exceptions.values():
@@ -875,12 +880,80 @@ class Test(Runnable):
         case_report.extend(case_result.serialized_entries)
         case_report.attachments.extend(case_result.attachments)
 
+    def _record_driver_connection(self, case_report: TestCaseReport) -> None:
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self.scratch
+        )
+        connections: list[BaseDriverConnection] = []
+        for driver in self.resources:
+            try:
+                for conn_info in driver.extract_driver_metadata().conn_info:
+                    connection = conn_info.connectionType
+                    if issubclass(connection, BaseDriverConnection):
+                        added = False
+                        for existing_connection in connections:
+                            added = existing_connection.add_driver_if_in_connection(
+                                str(driver), conn_info
+                            )
+                            if added:
+                                break
+                        if not added:
+                            new_connection = connection(conn_info)
+                            new_connection.add_driver_if_in_connection(
+                                str(driver), conn_info
+                            )
+                            connections.append(new_connection)
+            except Exception as err:
+                self.logger.debug(f"Error getting metadata for driver {driver}: {err}")
+
+        drivers = set()
+        edges = []
+        for connection in connections:
+            if connection.should_include():
+                for (
+                    listening_driver,
+                    listening_driver_identifier
+                ) in connection.drivers_listening.items():
+                    drivers.add(listening_driver)
+                    for (
+                        connecting_driver,
+                        connecting_driver_identifier
+                    ) in connection.drivers_connecting.items():
+                        drivers.add(connecting_driver)
+                        if listening_driver == connecting_driver:
+                            continue
+                        edges.append(
+                            {
+                                "id": f"{connection.connection}: {connecting_driver} -> {listening_driver}",
+                                "source": connecting_driver,
+                                "target": listening_driver,
+                                "startLabel": ",".join(
+                                    connecting_driver_identifier
+                                ),
+                                "label": connection.connection,
+                                "endLabel": ",".join(
+                                    listening_driver_identifier
+                                )
+                            }
+                        )
+        case_result.flow(
+            list(drivers), edges, description="Driver Connections"
+        )
+        case_report.extend(case_result.serialized_entries)
+
     @property
     def driver_info(self) -> bool:
         # handle possibly missing ``driver_info``
         if not hasattr(self.cfg, "driver_info"):
             return False
         return self.cfg.driver_info
+
+    @property
+    def driver_connection(self) -> bool:
+        # handle possibly missing ``driver_connection``
+        if not hasattr(self.cfg, "driver_connection"):
+            return False
+        return self.cfg.driver_connection
 
 
 class ProcessRunnerTestConfig(TestConfig):
