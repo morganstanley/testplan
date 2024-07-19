@@ -41,7 +41,7 @@ class TCPClientConfig(DriverConfig):
                 PortConnectionInfo(
                     name="Connecting port",
                     connectionType=PortDriverConnection,
-                    service="TCP",
+                    service=Protocol.TCP,
                     protocol=Protocol.TCP,
                     identifier=driver.server_port,
                     direction=Direction.connecting,

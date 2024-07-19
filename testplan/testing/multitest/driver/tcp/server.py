@@ -44,7 +44,7 @@ class TCPServerConfig(DriverConfig):
                 PortConnectionInfo(
                     name="Listening port",
                     connectionType=PortDriverConnection,
-                    service="TCP",
+                    service=Protocol.TCP,
                     protocol=Protocol.TCP,
                     identifier=driver.port,
                     direction=Direction.listening,

@@ -201,3 +201,94 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
         ),
     ],
 )
+
+expected_report_with_driver_and_driver_connection_flag = TestReport(
+    name="plan",
+    entries=[
+        TestGroupReport(
+            name="MyTest",
+            category="multitest",
+            entries=[
+                TestGroupReport(
+                    name="Environment Start",
+                    category="synthesized",
+                    entries=[
+                        TestCaseReport(
+                            name="Starting",
+                            uid="Starting",
+                            description="",
+                            entries=[
+                                {
+                                    "type": "FlowLog",
+                                    "category": "DEFAULT",
+                                    "description": "Driver Connections",
+                                    "nodes": [
+                                        "TCPServer[server]",
+                                        "FXConverter[converter]",
+                                        "TCPClient[client]",
+                                    ],
+                                    "edges": [
+                                        {
+                                            "id": re.compile(
+                                                r"tcp:\/\/:\d{1,5}-TCPServer\[server\]-FXConverter\[converter\]"
+                                            ),
+                                            "source": "TCPServer[server]",
+                                            "target": "FXConverter[converter]",
+                                            "startLabel": re.compile(
+                                                r"\d{1,5}"
+                                            ),
+                                            "label": re.compile(
+                                                r"tcp:\/\/:\d{1,5}"
+                                            ),
+                                            "endLabel": re.compile(r"\d{1,5}"),
+                                        },
+                                        {
+                                            "id": re.compile(
+                                                r"tcp:\/\/:\d{1,5}-FXConverter\[converter\]-TCPClient\[client\]"
+                                            ),
+                                            "source": "FXConverter[converter]",
+                                            "target": "TCPClient[client]",
+                                            "startLabel": re.compile(
+                                                r"\d{1,5}"
+                                            ),
+                                            "label": re.compile(
+                                                r"tcp:\/\/:\d{1,5}"
+                                            ),
+                                            "endLabel": re.compile(r"\d{1,5}"),
+                                        }
+                                    ],
+                                },
+                            ],
+                        ),
+                        TestCaseReport(
+                            name="After Start",
+                            uid="After Start",
+                            description="Called right after MultiTest starts.",
+                            entries=[],
+                        )
+                    ],
+                    tags=None,
+                ),
+                TestGroupReport(
+                    name="Environment Stop",
+                    category="synthesized",
+                    entries=[
+                        TestCaseReport(
+                            name="Before Stop",
+                            uid="Before Stop",
+                            description="Called right before MultiTest stops.",
+                            entries=[],
+                        ),
+                        TestCaseReport(
+                            name="Stopping",
+                            uid="Stopping",
+                            description="",
+                            entries=[],
+                        )
+                    ],
+                    tags=None,
+                ),
+            ],
+        ),
+    ],
+)
