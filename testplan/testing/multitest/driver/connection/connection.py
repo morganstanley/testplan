@@ -8,12 +8,12 @@ from .connection_info import (
     PortConnectionInfo,
     PortDriverConnection,
     FileConnectionInfo,
-    FileDriverConnection
+    FileDriverConnection,
 )
 
 SOCKET_CONNECTION_MAP = {
     SocketKind.SOCK_STREAM: Protocol.TCP,
-    SocketKind.SOCK_DGRAM: Protocol.UDP
+    SocketKind.SOCK_DGRAM: Protocol.UDP,
 }
 
 
@@ -80,35 +80,36 @@ def get_network_connections(proc: psutil.Process):
 
 
 def get_file_connections(
-        proc: psutil.Process, ignore_files: "list[str]" = ["stdout", "stderr"]
+    proc: psutil.Process, ignore_files: "list[str]" = ["stdout", "stderr"]
 ):
     connections = []
     for open_file in proc.open_files():
         if open_file.path.split("/")[-1] in ignore_files:
             continue
         if open_file.mode in ["r", "r+", "a+"]:
-                connections.append(
-                    FileConnectionInfo(
-                        name="Reading from file",
-                        connectionType=FileDriverConnection,
-                        service=Protocol.FILE,
-                        protocol=Protocol.FILE,
-                        identifier=open_file.path,
-                        direction=Direction.listening,
-                    )
+            connections.append(
+                FileConnectionInfo(
+                    name="Reading from file",
+                    connectionType=FileDriverConnection,
+                    service=Protocol.FILE,
+                    protocol=Protocol.FILE,
+                    identifier=open_file.path,
+                    direction=Direction.listening,
                 )
+            )
         if open_file.mode in ["w", "a", "r+", "a+"]:
-                connections.append(
-                    FileConnectionInfo(
-                        name="Writing from file",
-                        connectionType=FileDriverConnection,
-                        service=Protocol.FILE,
-                        protocol=Protocol.FILE,
-                        identifier=open_file.path,
-                        direction=Direction.connecting,
-                    )
+            connections.append(
+                FileConnectionInfo(
+                    name="Writing from file",
+                    connectionType=FileDriverConnection,
+                    service=Protocol.FILE,
+                    protocol=Protocol.FILE,
+                    identifier=open_file.path,
+                    direction=Direction.connecting,
                 )
+            )
     return connections
+
 
 def get_connections(driver: str, pid: int):
     network_connections = []
@@ -118,5 +119,7 @@ def get_connections(driver: str, pid: int):
         network_connections = get_network_connections(proc)
         file_connections = get_file_connections(proc)
     except psutil.NoSuchProcess as err:
-        TESTPLAN_LOGGER.debug(f"Error getting metadata for driver {driver}: {err}")
+        TESTPLAN_LOGGER.debug(
+            f"Error getting metadata for driver {driver}: {err}"
+        )
     return network_connections + file_connections

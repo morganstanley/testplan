@@ -23,8 +23,8 @@ class PortConnectionInfo(ConnectionInfo):
     ConnectionInfo for port communication (e.g TCP/UDP) between drivers
     """
 
-    local_port: Optional[int] = None # port the driver is using
-    local_host: Optional[str] = None # host the driver is using
+    local_port: Optional[int] = None  # port the driver is using
+    local_host: Optional[str] = None  # host the driver is using
 
     @property
     def connection(self):
@@ -53,22 +53,22 @@ class PortDriverConnection(BaseDriverConnection):
                 self.service = driver_connection_info.service.upper()
             port = (
                 str(driver_connection_info.local_port)
-                if driver_connection_info.local_port
+                if str(driver_connection_info.local_port)
                 else "Unknown"
             )
             if (
                 driver_connection_info.direction == Direction.listening
-                and port not in drivers_listening[driver_name]
+                and port not in self.drivers_listening[driver_name]
             ):
                 self.drivers_listening[driver_name].append(port)
             elif (
                 driver_connection_info.direction == Direction.connecting
-                and port not in drivers_connecting[driver_name]
+                and port not in self.drivers_connecting[driver_name]
             ):
                 self.drivers_connecting[driver_name].append(port)
             return True
         return False
-    
+
 
 @dataclass
 class FileConnectionInfo(ConnectionInfo):
@@ -85,7 +85,7 @@ class FileDriverConnection(BaseDriverConnection):
     """
     Connection class for file-based between drivers
     """
-    
+
     def __init__(self, driver_connection_info: FileConnectionInfo):
         super().__init__(driver_connection_info)
 
@@ -95,12 +95,12 @@ class FileDriverConnection(BaseDriverConnection):
         if self.connection == driver_connection_info.connection:
             if (
                 driver_connection_info.direction == Direction.listening
-                and "Read" not in drivers_listening[driver_name]
+                and "Read" not in self.drivers_listening[driver_name]
             ):
                 self.drivers_listening[driver_name].append("Read")
             elif (
                 driver_connection_info.direction == Direction.connecting
-                and "Write" not in drivers_connecting[driver_name]
+                and "Write" not in self.drivers_connecting[driver_name]
             ):
                 self.drivers_connecting[driver_name].append("Write")
             return True

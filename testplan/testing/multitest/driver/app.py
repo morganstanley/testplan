@@ -51,7 +51,7 @@ class AppConfig(DriverConfig):
                 "outpath": driver.outpath,
                 "errpath": driver.errpath,
             },
-            conn_info=get_connections(str(driver), driver.pid)
+            conn_info=get_connections(str(driver), driver.pid),
         )
 
     @classmethod

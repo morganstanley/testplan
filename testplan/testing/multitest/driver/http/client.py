@@ -56,7 +56,7 @@ class HTTPClientConfig(DriverConfig):
                     local_port=None,
                     local_host=None,
                 )
-            ]
+            ],
         )
 
     @classmethod

@@ -904,7 +904,9 @@ class Test(Runnable):
                             )
                             connections.append(new_connection)
             except Exception as err:
-                self.logger.debug(f"Error getting metadata for driver {driver}: {err}")
+                self.logger.debug(
+                    f"Error getting metadata for driver {driver}: {err}"
+                )
 
         drivers = set()
         edges = []
@@ -912,12 +914,12 @@ class Test(Runnable):
             if connection.should_include():
                 for (
                     listening_driver,
-                    listening_driver_identifier
+                    listening_driver_identifier,
                 ) in connection.drivers_listening.items():
                     drivers.add(listening_driver)
                     for (
                         connecting_driver,
-                        connecting_driver_identifier
+                        connecting_driver_identifier,
                     ) in connection.drivers_connecting.items():
                         drivers.add(connecting_driver)
                         if listening_driver == connecting_driver:
@@ -933,7 +935,7 @@ class Test(Runnable):
                                 "label": connection.connection,
                                 "endLabel": ",".join(
                                     listening_driver_identifier
-                                )
+                                ),
                             }
                         )
         case_result.flow(

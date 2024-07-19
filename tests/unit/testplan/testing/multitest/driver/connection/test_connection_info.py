@@ -35,7 +35,7 @@ class TestPortDriverConnection:
         protocol=Protocol.TCP,
         identifier=0,
         direction=Direction.listening,
-        local_port= 0,
+        local_port=0,
     )
     connecting_to_1 = PortConnectionInfo(
         name="connection 4",
@@ -62,54 +62,70 @@ class TestPortDriverConnection:
             "driver", self.connecting_to_1
         )
         assert len(connection.drivers_connecting) == 0
-    
+
     def test_add_if_in_connection(self):
         connection = PortDriverConnection(self.connecting_to_0_from_0)
         assert connection.add_driver_if_in_connection(
             "driver", self.connecting_to_0_from_0
         )
         assert len(connection.drivers_connecting) == 1
-        assert connection.drivers_connecting["driver"] == [0]
-        
+        assert connection.drivers_connecting["driver"] == ["0"]
+
     def test_no_duplicat_port_if_already_in_connection(self):
         connection = PortDriverConnection(self.connecting_to_0_from_0)
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_0)
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_0)
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_0
+        )
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_0
+        )
         assert len(connection.drivers_connecting) == 1
-        assert connection.drivers_connecting["driver"] == [0]
+        assert connection.drivers_connecting["driver"] == ["0"]
 
     def test_add_multiple_port_if_driver_already_in_connection(self):
         connection = PortDriverConnection(self.connecting_to_0_from_0)
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_0)
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_1)
-        assert len(connection.drivers_connecting) == 2
-        assert connection.drivers_connecting["driver"] == [0, 1]
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_0
+        )
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_1
+        )
+        assert len(connection.drivers_connecting) == 1
+        assert connection.drivers_connecting["driver"] == ["0", "1"]
 
     def test_update_service_if_not_in_protocol(self):
         connection = PortDriverConnection(self.connecting_to_0_from_0)
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_0)
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_1_with_FIX)
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_0
+        )
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_1_with_FIX
+        )
         assert connection.service == "FIX"
-        assert len(connection.drivers_connecting) == 2
-        assert connection.drivers_connecting["driver"] == [0, 1]
+        assert len(connection.drivers_connecting) == 1
+        assert connection.drivers_connecting["driver"] == ["0", "1"]
 
     def test_should_include_if_both_connecting_and_listening(self):
         connection = PortDriverConnection(self.connecting_to_0_from_0)
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_0)
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_0
+        )
         connection.add_driver_if_in_connection("driver", self.listening_from_0)
         assert connection.should_include()
         assert len(connection.drivers_connecting) == 1
         assert len(connection.drivers_listening) == 1
-        assert connection.drivers_connecting["driver"] == [0]
-        assert connection.drivers_listening["driver"] == [0]
-        
+        assert connection.drivers_connecting["driver"] == ["0"]
+        assert connection.drivers_listening["driver"] == ["0"]
+
     def test_should_not_include_if_missing_connecting_or_listening(self):
         connection = PortDriverConnection(self.connecting_to_0_from_0)
         assert not connection.should_include()
 
-        connection.add_driver_if_in_connection("driver", self.connecting_to_0_from_0)
+        connection.add_driver_if_in_connection(
+            "driver", self.connecting_to_0_from_0
+        )
         assert not connection.should_include()
-        
+
         connection = PortDriverConnection(self.listening_from_0)
         connection.add_driver_if_in_connection("driver", self.listening_from_0)
         assert not connection.should_include()

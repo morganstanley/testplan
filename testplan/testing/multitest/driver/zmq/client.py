@@ -47,7 +47,7 @@ class ZMQClientConfig(DriverConfig):
                     local_host=None,
                 )
                 for host, port in zip(driver.hosts, driver.ports)
-            ]
+            ],
         )
 
     @classmethod

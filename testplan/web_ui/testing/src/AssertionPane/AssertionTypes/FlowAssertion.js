@@ -59,19 +59,19 @@ const customEdge = ({
       <EdgeLabelRenderer>
         {selected && data.startLabel && (
             <EdgeLabel
-              transform={`translate(-50%. -40%) translate(${sourceX}px,${sourceY}px)`}
+              transform={`translate(-50%, -40%) translate(${sourceX}px,${sourceY}px)`}
               label={data.startLabel}
             />
         )}
         {data.label && (
             <EdgeLabel
-              transform={`translate(-50%. -50%) translate(${labelX}px,${labelY}px)`}
+              transform={`translate(-50%, -50%) translate(${labelX}px,${labelY}px)`}
               label={selected ? data.label : truncateString(data.label)}
             />
         )}
         {selected && data.endLabel && (
             <EdgeLabel
-              transform={`translate(-50%. -60%) translate(${targetX}px,${targetY}px)`}
+              transform={`translate(-50%, -60%) translate(${targetX}px,${targetY}px)`}
               label={data.endLabel}
             />
         )}

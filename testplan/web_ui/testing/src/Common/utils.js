@@ -446,4 +446,4 @@ export const truncateString = (
   const endPortion = str.slice(-1 * endLength);
   
   return `${startPortion}...${endPortion}`;
-}
+};

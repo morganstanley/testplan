@@ -51,7 +51,7 @@ class TCPServerConfig(DriverConfig):
                     local_port=driver.port,
                     local_host=driver.host,
                 )
-            ]
+            ],
         )
 
     @classmethod

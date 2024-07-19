@@ -53,9 +53,8 @@ class FixServerConfig(DriverConfig):
                     local_port=driver.port,
                     local_host=driver.host,
                 )
-            ]
+            ],
         )
-
 
     @classmethod
     def get_options(cls):

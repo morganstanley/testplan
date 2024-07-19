@@ -255,7 +255,7 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                                                 r"tcp:\/\/:\d{1,5}"
                                             ),
                                             "endLabel": re.compile(r"\d{1,5}"),
-                                        }
+                                        },
                                     ],
                                 },
                             ],
@@ -265,7 +265,7 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                             uid="After Start",
                             description="Called right after MultiTest starts.",
                             entries=[],
-                        )
+                        ),
                     ],
                     tags=None,
                 ),
@@ -284,7 +284,7 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                             uid="Stopping",
                             description="",
                             entries=[],
-                        )
+                        ),
                     ],
                     tags=None,
                 ),

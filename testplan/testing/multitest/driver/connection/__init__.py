@@ -5,10 +5,10 @@ from .connection_info import (
     PortConnectionInfo,
     PortDriverConnection,
     FileConnectionInfo,
-    FileDriverConnection
+    FileDriverConnection,
 )
 from .connection import (
     get_connections,
     get_network_connections,
-    get_file_connections
+    get_file_connections,
 )

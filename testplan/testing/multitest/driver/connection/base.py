@@ -13,9 +13,9 @@ class Direction(Enum):
 
 @dataclass
 class BaseConnectionInfo:
-    name: str # name of the connection
-    service: str # e.g. HTTP, TCP, FIX
-    protocol: str # tcp, udp, file
+    name: str  # name of the connection
+    service: str  # e.g. HTTP, TCP, FIX
+    protocol: str  # tcp, udp, file
     identifier: Union[int, str, ContextValue]
     direction: Direction
 
