@@ -223,31 +223,20 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                                     "category": "DEFAULT",
                                     "description": "Driver Connections",
                                     "nodes": [
-                                        "TCPServer[server]",
-                                        "FXConverter[converter]",
-                                        "TCPClient[client]",
+                                        re.compile(
+                                            r"TCPClient\[client\]|TCPServer\[server\]"
+                                        ),
+                                        re.compile(
+                                            r"TCPClient\[client\]|TCPServer\[server\]"
+                                        ),
                                     ],
                                     "edges": [
                                         {
                                             "id": re.compile(
-                                                r"tcp:\/\/:\d{1,5}-TCPServer\[server\]-FXConverter\[converter\]"
+                                                r"tcp:\/\/:\d{1,5}: TCPClient\[client\] -> TCPServer\[server\]"
                                             ),
-                                            "source": "TCPServer[server]",
-                                            "target": "FXConverter[converter]",
-                                            "startLabel": re.compile(
-                                                r"\d{1,5}"
-                                            ),
-                                            "label": re.compile(
-                                                r"tcp:\/\/:\d{1,5}"
-                                            ),
-                                            "endLabel": re.compile(r"\d{1,5}"),
-                                        },
-                                        {
-                                            "id": re.compile(
-                                                r"tcp:\/\/:\d{1,5}-FXConverter\[converter\]-TCPClient\[client\]"
-                                            ),
-                                            "source": "FXConverter[converter]",
-                                            "target": "TCPClient[client]",
+                                            "source": "TCPClient[client]",
+                                            "target": "TCPServer[server]",
                                             "startLabel": re.compile(
                                                 r"\d{1,5}"
                                             ),
@@ -260,12 +249,6 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                                 },
                             ],
                         ),
-                        TestCaseReport(
-                            name="After Start",
-                            uid="After Start",
-                            description="Called right after MultiTest starts.",
-                            entries=[],
-                        ),
                     ],
                     tags=None,
                 ),
@@ -273,12 +256,6 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                     name="Environment Stop",
                     category="synthesized",
                     entries=[
-                        TestCaseReport(
-                            name="Before Stop",
-                            uid="Before Stop",
-                            description="Called right before MultiTest stops.",
-                            entries=[],
-                        ),
                         TestCaseReport(
                             name="Stopping",
                             uid="Stopping",

@@ -1,4 +1,4 @@
-from socket import SocketKind, AddressFamily
+import socket
 import psutil
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -12,8 +12,8 @@ from .connection_info import (
 )
 
 SOCKET_CONNECTION_MAP = {
-    SocketKind.SOCK_STREAM: Protocol.TCP,
-    SocketKind.SOCK_DGRAM: Protocol.UDP,
+    socket.SocketKind.SOCK_STREAM: Protocol.TCP,
+    socket.SocketKind.SOCK_DGRAM: Protocol.UDP,
 }
 
 
@@ -29,10 +29,10 @@ def get_network_connections(proc: psutil.Process):
 
     for conn in proc.connections():
         # second loop to get connections
-        if conn.family == AddressFamily.AF_UNIX:
+        if conn.family == socket.AddressFamily.AF_UNIX:
             # ignore unix sockets for now
             continue
-        if conn.type == SocketKind.SOCK_SEQPACKET:
+        if conn.type == socket.SocketKind.SOCK_SEQPACKET:
             # ignore seqpacket for now
             continue
         if conn.status == psutil.CONN_NONE:
@@ -71,7 +71,7 @@ def get_network_connections(proc: psutil.Process):
                         service=SOCKET_CONNECTION_MAP[conn.type],
                         protocol=SOCKET_CONNECTION_MAP[conn.type],
                         identifier=conn.raddr.port,
-                        direction=Direction.listening,
+                        direction=Direction.connecting,
                         local_port=conn.laddr.port,
                         local_host=conn.laddr.ip,
                     )

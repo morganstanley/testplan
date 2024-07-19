@@ -9,11 +9,6 @@ from testplan import test_plan
 from testplan.common.utils import helper
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.driver.base import (
-    Direction,
-    Connection,
-    DriverMetadata,
-)
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
@@ -31,54 +26,6 @@ def after_start(env, result):
     """
     env.server.accept_connection()
     helper.extract_driver_metadata(env, result)
-
-
-def metadata_extractor_server(driver: TCPServer) -> DriverMetadata:
-    """
-    TCPServer specific metadata extractor function.
-
-    :param driver: TCPServer driver instance
-    :return: driver name, driver class, host, and connecting port metadata
-    """
-    return DriverMetadata(
-        name=driver.name,
-        driver_metadata={
-            "class": driver.__class__.__name__,
-            "host": driver.host or driver.cfg.host,
-        },
-        conn_info=[
-            Connection(
-                name="data_port",
-                protocol="TCP",
-                identifier=driver.port or driver.cfg.port,
-                direction=Direction.listening,
-            )
-        ],
-    )
-
-
-def metadata_extractor_client(driver: TCPClient) -> DriverMetadata:
-    """
-    TCPClient specific metadata extractor function.
-
-    :param driver: TCPClient driver instance
-    :return: driver name, driver class, host, and connecting port metadata
-    """
-    return DriverMetadata(
-        name=driver.name,
-        driver_metadata={
-            "class": driver.__class__.__name__,
-            "host": driver.host or driver.cfg.host,
-        },
-        conn_info=[
-            Connection(
-                name="to_server",
-                protocol="TCP",
-                identifier=driver.server_port or driver.cfg.port,
-                direction=Direction.connecting,
-            )
-        ],
-    )
 
 
 @testsuite
@@ -104,13 +51,11 @@ def main(plan):
             environment=[
                 TCPServer(
                     name="server",
-                    metadata_extractor=metadata_extractor_server,
                 ),
                 TCPClient(
                     name="client",
                     host=context("server", "{{host}}"),
                     port=context("server", "{{port}}"),
-                    metadata_extractor=metadata_extractor_client,
                 ),
             ],
             before_start=before_start,

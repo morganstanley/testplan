@@ -16,7 +16,6 @@ from testplan.common.utils.path import (
     makeemptydirs,
 )
 from testplan.common.utils.process import execute_cmd
-from testplan.testing.multitest.driver.base import Driver, DriverConfig
 
 from .base import (
     Driver,

@@ -10,6 +10,8 @@ from testplan.testing.multitest.driver.connection import (
     PortDriverConnection,
     get_network_connections,
 )
+from pytest_test_filters import skip_on_windows
+
 
 addr = namedtuple("addr", ["ip", "port"])
 pconn = namedtuple(
@@ -17,6 +19,9 @@ pconn = namedtuple(
 )
 
 
+@skip_on_windows(
+    reason="psutil/socket has different functions and attributes on Windows."
+)
 def test_get_network_connections(mocker):
     mocked_output = [
         pconn(
