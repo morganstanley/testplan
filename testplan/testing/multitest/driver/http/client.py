@@ -20,13 +20,10 @@ from testplan.common.utils.strings import slugify
 from ..base import (
     Driver,
     DriverConfig,
-    DriverMetadata,
 )
 from ..connection import (
     Direction,
     Protocol,
-    PortConnectionInfo,
-    PortDriverConnection,
 )
 
 
@@ -36,28 +33,6 @@ class HTTPClientConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.http.client.HTTPClient`
     driver.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-                "host": driver.host,
-            },
-            conn_info=[
-                PortConnectionInfo(
-                    name="Connecting port",
-                    connectionType=PortDriverConnection,
-                    service="HTTP",
-                    protocol=Protocol.TCP,
-                    identifier=driver.port,
-                    direction=Direction.connecting,
-                    local_port=None,
-                    local_host=None,
-                )
-            ],
-        )
 
     @classmethod
     def get_options(cls):
@@ -101,6 +76,9 @@ class HTTPClient(Driver):
     """
 
     CONFIG = HTTPClientConfig
+    service = "HTTP"
+    protocol = Protocol.TCP
+    direction = Direction.connecting
 
     def __init__(
         self,
@@ -127,6 +105,10 @@ class HTTPClient(Driver):
     def host(self):
         """Target host name."""
         return self._host
+
+    @property
+    def identifier(self):
+        return self.port
 
     @property
     def port(self):

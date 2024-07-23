@@ -28,28 +28,6 @@ class ZMQClientConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.zmq.client.ZMQClient` driver.
     """
 
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-            },
-            conn_info=[
-                PortConnectionInfo(
-                    name="Connecting port",
-                    connectionType=PortDriverConnection,
-                    service="TCP",
-                    protocol=Protocol.TCP,
-                    identifier=port,
-                    direction=Direction.connecting,
-                    local_port=None,
-                    local_host=None,
-                )
-                for host, port in zip(driver.hosts, driver.ports)
-            ],
-        )
-
     @classmethod
     def get_options(cls):
         """
@@ -255,3 +233,24 @@ class ZMQClient(Driver):
         Flush the clients queue of messages by reconnecting.
         """
         self.reconnect()
+
+    def extract_driver_metadata(self) -> DriverMetadata:
+        return DriverMetadata(
+            name=self.name,
+            driver_metadata={
+                "class": self.__class__.__name__,
+            },
+            conn_info=[
+                PortConnectionInfo(
+                    name="Connecting port",
+                    connectionType=PortDriverConnection,
+                    service="TCP",
+                    protocol=Protocol.TCP,
+                    identifier=port,
+                    direction=Direction.connecting,
+                    local_port=None,
+                    local_host=None,
+                )
+                for host, port in zip(self.hosts, self.ports)
+            ],
+        )

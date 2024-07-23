@@ -20,13 +20,10 @@ from testplan.common.utils.process import execute_cmd
 from .base import (
     Driver,
     DriverConfig,
-    DriverMetadata,
 )
 from .connection import (
     Direction,
     Protocol,
-    PortConnectionInfo,
-    PortDriverConnection,
 )
 
 ZK_SERVER = "/usr/share/zookeeper/bin/zkServer.sh"
@@ -37,27 +34,6 @@ class ZookeeperStandaloneConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.zookeeper.ZookeeperStandalone` resource.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-            },
-            conn_info=[
-                PortConnectionInfo(
-                    name="Listening port",
-                    connectionType=PortDriverConnection,
-                    service="TCP",
-                    protocol=Protocol.TCP,
-                    identifier=driver.port,
-                    direction=Direction.listening,
-                    local_port=driver.port,
-                    local_host=driver.host,
-                )
-            ],
-        )
 
     @classmethod
     def get_options(cls):
@@ -87,6 +63,9 @@ class ZookeeperStandalone(Driver):
     """
 
     CONFIG = ZookeeperStandaloneConfig
+    service = "TCP"
+    protocol = Protocol.TCP
+    direction = Direction.listening
 
     def __init__(
         self,
@@ -151,6 +130,18 @@ class ZookeeperStandalone(Driver):
                 "Host not resolved yet, shouldn't be accessed now."
             )
         return "{}:{}".format(self._host, self._port)
+
+    @property
+    def identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host if self._host else None
 
     def pre_start(self):
         """

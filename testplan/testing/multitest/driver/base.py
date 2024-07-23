@@ -30,7 +30,11 @@ from testplan.common.utils.timing import (
     TimeoutException,
     TimeoutExceptionInfo,
 )
-from .connection import ConnectionInfo
+from .connection import (
+    ConnectionInfo,
+    PortConnectionInfo,
+    PortDriverConnection,
+)
 
 
 @dataclass
@@ -65,13 +69,6 @@ class DriverConfig(ResourceConfig):
     :py:class:`~testplan.testing.multitest.driver.base.Driver` resource.
     """
 
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={"class": driver.__class__.__name__},
-        )
-
     @classmethod
     def get_options(cls):
         """
@@ -93,9 +90,6 @@ class DriverConfig(ResourceConfig):
             ConfigOption("post_start", default=None): validate_func("driver"),
             ConfigOption("pre_stop", default=None): validate_func("driver"),
             ConfigOption("post_stop", default=None): validate_func("driver"),
-            ConfigOption(
-                "metadata_extractor", default=cls.default_metadata_extractor
-            ): validate_func("driver"),
         }
 
 
@@ -122,13 +116,15 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     :param post_start: callable to execute after the driver is started
     :param pre_stop: callable to execute before stopping the driver
     :param pre_stop: callable to execute after the driver is stopped
-    :param metadata_extractor: callable for driver metadata extraction
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` options.
     """
 
     CONFIG = DriverConfig
+    service = None
+    protocol = None
+    direction = None
 
     def __init__(
         self,
@@ -146,7 +142,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         post_start: Callable = None,
         pre_stop: Callable = None,
         post_stop: Callable = None,
-        metadata_extractor: Callable = None,
         **options,
     ):
 
@@ -438,15 +433,50 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         return content
 
+    @property
+    def identifier(self):
+        return None
+
+    @property
+    def local_port(self):
+        return None
+
+    @property
+    def local_host(self):
+        return None
+
     def extract_driver_metadata(self) -> DriverMetadata:
         """
         Extracts driver metadata as described in the extractor function.
 
         :return: driver metadata
         """
-        # pylint: disable=not-callable
-        return self.cfg.metadata_extractor(self)
-        # pylint: enable=not-callable
+        if (
+            self.service
+            and self.protocol
+            and self.direction
+            and self.identifier
+        ):
+            return DriverMetadata(
+                name=self.name,
+                driver_metadata={"class": self.__class__.__name__},
+                conn_info=[
+                    PortConnectionInfo(
+                        name="Port",
+                        connectionType=PortDriverConnection,
+                        service=self.service,
+                        protocol=self.protocol,
+                        identifier=self.identifier,
+                        direction=self.direction,
+                        local_port=self.local_port,
+                        local_host=self.local_host,
+                    )
+                ],
+            )
+        return DriverMetadata(
+            name=self.name,
+            driver_metadata={"class": self.__class__.__name__},
+        )
 
     def __str__(self):
         return f"{self.__class__.__name__}[{self.name}]"

@@ -18,13 +18,10 @@ from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 from ..base import (
     Driver,
     DriverConfig,
-    DriverMetadata,
 )
 from ..connection import (
     Direction,
     Protocol,
-    PortConnectionInfo,
-    PortDriverConnection,
 )
 
 
@@ -33,28 +30,6 @@ class FixServerConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.fix.server.FixServer` driver.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-                "host": driver.host,
-            },
-            conn_info=[
-                PortConnectionInfo(
-                    name="Listening port",
-                    connectionType=PortDriverConnection,
-                    service=driver.cfg.version,
-                    protocol=Protocol.TCP,
-                    identifier=driver.port,
-                    direction=Direction.connecting,
-                    local_port=driver.port,
-                    local_host=driver.host,
-                )
-            ],
-        )
 
     @classmethod
     def get_options(cls):
@@ -110,6 +85,9 @@ class FixServer(Driver):
     """
 
     CONFIG = FixServerConfig
+    service = "FIX"
+    protocol = Protocol.TCP
+    direction = Direction.listening
 
     def __init__(
         self,
@@ -147,6 +125,18 @@ class FixServer(Driver):
     def port(self):
         """Port retrieved after binding."""
         return self._port
+
+    @property
+    def identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def starting(self):
         """Starts the TCP server."""

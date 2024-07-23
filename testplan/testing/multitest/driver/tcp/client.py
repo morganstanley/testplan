@@ -13,13 +13,10 @@ from testplan.common.utils.sockets import Client
 from ..base import (
     Driver,
     DriverConfig,
-    DriverMetadata,
 )
 from ..connection import (
     Direction,
     Protocol,
-    PortConnectionInfo,
-    PortDriverConnection,
 )
 
 
@@ -28,28 +25,6 @@ class TCPClientConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.tcp.client.TCPClient` driver.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-                "host": driver.host,
-            },
-            conn_info=[
-                PortConnectionInfo(
-                    name="Connecting port",
-                    connectionType=PortDriverConnection,
-                    service=Protocol.TCP,
-                    protocol=Protocol.TCP,
-                    identifier=driver.server_port,
-                    direction=Direction.connecting,
-                    local_port=driver.port,
-                    local_host=driver.host,
-                )
-            ],
-        )
 
     @classmethod
     def get_options(cls):
@@ -89,6 +64,9 @@ class TCPClient(Driver):
     """
 
     CONFIG = TCPClientConfig
+    service = "TCP"
+    protocol = Protocol.TCP
+    direction = Direction.connecting
 
     def __init__(
         self,
@@ -120,6 +98,18 @@ class TCPClient(Driver):
     @property
     def server_port(self) -> int:
         return self._server_port
+
+    @property
+    def identifier(self):
+        return self.server_port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def connect(self) -> None:
         """

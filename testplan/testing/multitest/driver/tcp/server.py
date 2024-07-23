@@ -16,13 +16,10 @@ from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 from ..base import (
     Driver,
     DriverConfig,
-    DriverMetadata,
 )
 from ..connection import (
     Direction,
     Protocol,
-    PortConnectionInfo,
-    PortDriverConnection,
 )
 
 
@@ -31,28 +28,6 @@ class TCPServerConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.tcp.server.TCPServer` driver.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-                "host": driver.host,
-            },
-            conn_info=[
-                PortConnectionInfo(
-                    name="Listening port",
-                    connectionType=PortDriverConnection,
-                    service=Protocol.TCP,
-                    protocol=Protocol.TCP,
-                    identifier=driver.port,
-                    direction=Direction.listening,
-                    local_port=driver.port,
-                    local_host=driver.host,
-                )
-            ],
-        )
 
     @classmethod
     def get_options(cls):
@@ -88,6 +63,9 @@ class TCPServer(Driver):
     """
 
     CONFIG = TCPServerConfig
+    service = "TCP"
+    protocol = Protocol.TCP
+    direction = Direction.listening
 
     def __init__(
         self,
@@ -120,6 +98,18 @@ class TCPServer(Driver):
         Returns the underlying ``socket`` object
         """
         return self._server.socket
+
+    @property
+    def identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def accept_connection(self, timeout=10):
         """Doc from Server."""

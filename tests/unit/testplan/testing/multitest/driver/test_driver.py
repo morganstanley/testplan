@@ -194,16 +194,11 @@ class TestDriverMetadata:
             self._test_attribute = "bar"
             super(TestDriverMetadata.MyDriver, self).stopping()
 
-    @staticmethod
-    def metadata_extractor_mydriver(driver: MyDriver):
-        return base.DriverMetadata(
-            name=driver.name,
-            driver_metadata={"test_attribute": driver.test_attribute},
-        )
-
-    @staticmethod
-    def metadata_extractor_invalid(mydriver):
-        pass
+        def extract_driver_metadata(self):
+            return base.DriverMetadata(
+                name=self.name,
+                driver_metadata={"test_attribute": self.test_attribute},
+            )
 
     def test_to_dict(self):
         """
@@ -223,23 +218,12 @@ class TestDriverMetadata:
         }
         assert test == expected
 
-    def test_invalid_extractor_signature(self):
-        """
-        Tests whether the invalid signature of the metadata extractor raises.
-        """
-        with pytest.raises(SchemaError):
-            TestDriverMetadata.MyDriver(
-                name="mydriver",
-                metadata_extractor=TestDriverMetadata.metadata_extractor_invalid,
-            )
-
     def test_extract_mydriver_metadata(self):
         """
         Tests before and after start as well as after stop metadata.
         """
         my_driver = TestDriverMetadata.MyDriver(
             name="mydriver",
-            metadata_extractor=TestDriverMetadata.metadata_extractor_mydriver,
         )
         test = my_driver.extract_driver_metadata().to_dict()
         expected = {"test_attribute": my_driver.test_attribute}
