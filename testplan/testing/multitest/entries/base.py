@@ -478,10 +478,10 @@ class Markdown(BaseEntry):
         super(Markdown, self).__init__(description=description)
 
 
-class FlowLog(BaseEntry):
+class FlowChart(BaseEntry):
     """Log a flowchart object that consists of nodes and edges to the report"""
 
     def __init__(self, nodes: list, edges: list, description=None):
         self.nodes = nodes
         self.edges = edges
-        super(FlowLog, self).__init__(description=description)
+        super(FlowChart, self).__init__(description=description)

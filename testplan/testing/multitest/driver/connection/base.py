@@ -7,8 +7,8 @@ from testplan.common.utils.context import ContextValue
 
 
 class Direction(Enum):
-    connecting = "connecting"
-    listening = "listening"
+    CONNECTING = "connecting"
+    LISTENING = "listening"
 
 
 @dataclass
@@ -29,6 +29,9 @@ class BaseConnectionInfo:
 
     @property
     def connection(self):
+        raise NotImplementedError
+
+    def promote_to_connection(self):
         raise NotImplementedError
 
 

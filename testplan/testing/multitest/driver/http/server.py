@@ -316,9 +316,9 @@ class HTTPServer(Driver):
     """
 
     CONFIG = HTTPServerConfig
-    service = "HTTP"
-    protocol = Protocol.TCP
-    direction = Direction.listening
+    SERVICE = "HTTP"
+    PROTOCOL = Protocol.TCP
+    DIRECTION = Direction.LISTENING
 
     def __init__(
         self,

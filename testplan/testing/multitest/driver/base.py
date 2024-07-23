@@ -30,7 +30,7 @@ from testplan.common.utils.timing import (
     TimeoutException,
     TimeoutExceptionInfo,
 )
-from .connection import (
+from testplan.testing.multitest.driver.connection import (
     ConnectionInfo,
     PortConnectionInfo,
     PortDriverConnection,
@@ -122,9 +122,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     """
 
     CONFIG = DriverConfig
-    service = None
-    protocol = None
-    direction = None
+    SERVICE = None
+    PROTOCOL = None
+    DIRECTION = None
 
     def __init__(
         self,
@@ -452,9 +452,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         :return: driver metadata
         """
         if (
-            self.service
-            and self.protocol
-            and self.direction
+            self.SERVICE
+            and self.PROTOCOL
+            and self.DIRECTION
             and self.identifier
         ):
             return DriverMetadata(
@@ -464,10 +464,10 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                     PortConnectionInfo(
                         name="Port",
                         connectionType=PortDriverConnection,
-                        service=self.service,
-                        protocol=self.protocol,
+                        service=self.SERVICE,
+                        protocol=self.PROTOCOL,
                         identifier=self.identifier,
-                        direction=self.direction,
+                        direction=self.DIRECTION,
                         local_port=self.local_port,
                         local_host=self.local_host,
                     )

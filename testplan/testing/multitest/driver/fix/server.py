@@ -85,9 +85,9 @@ class FixServer(Driver):
     """
 
     CONFIG = FixServerConfig
-    service = "FIX"
-    protocol = Protocol.TCP
-    direction = Direction.listening
+    SERVICE = "FIX"
+    PROTOCOL = Protocol.TCP
+    DIRECTION = Direction.LISTENING
 
     def __init__(
         self,

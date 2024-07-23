@@ -884,7 +884,7 @@ class Test(Runnable):
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
-        connections: list[BaseDriverConnection] = []
+        connections: List[BaseDriverConnection] = []
         for driver in self.resources:
             try:
                 for conn_info in driver.extract_driver_metadata().conn_info:
@@ -904,8 +904,8 @@ class Test(Runnable):
                             )
                             connections.append(new_connection)
             except Exception as err:
-                self.logger.debug(
-                    f"Error getting metadata for driver {driver}: {err}"
+                self.logger.info(
+                    f"Error getting metadata for driver %s: %s", driver, err
                 )
 
         drivers = set()
@@ -938,7 +938,7 @@ class Test(Runnable):
                                 ),
                             }
                         )
-        case_result.flow(
+        case_result.flow_chart(
             list(drivers), edges, description="Driver Connections"
         )
         case_report.extend(case_result.serialized_entries)

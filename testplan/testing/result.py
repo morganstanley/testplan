@@ -2569,7 +2569,7 @@ class Result:
         return chart
 
     @assertion
-    def flow(self, nodes, edges, description=None):
+    def flow_chart(self, nodes, edges, description=None):
         """
         Displays a flow chart in the report.
 
@@ -2581,7 +2581,7 @@ class Result:
                  fail.
         :rtype: ``bool``
         """
-        entry = base.FlowLog(nodes, edges, description)
+        entry = base.FlowChart(nodes, edges, description)
 
         return entry
 

@@ -60,9 +60,9 @@ class ZMQServer(Driver):
     """
 
     CONFIG = ZMQServerConfig
-    service = "TCP"
-    protocol = Protocol.TCP
-    direction = Direction.listening
+    SERVICE = "TCP"
+    PROTOCOL = Protocol.TCP
+    DIRECTION = Direction.LISTENING
 
     def __init__(
         self,

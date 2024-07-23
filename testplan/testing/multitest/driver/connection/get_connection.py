@@ -1,8 +1,9 @@
 import socket
+from typing import List
 import psutil
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from .connection_info import (
+from testplan.testing.multitest.driver.connection.connection_info import (
     Direction,
     Protocol,
     PortConnectionInfo,
@@ -20,14 +21,13 @@ SOCKET_CONNECTION_MAP = {
 def get_network_connections(proc: psutil.Process):
     connections = []
     listening_addresses = []
-    # update to proc.net_connections when psutil is updated to >=6.0.0
-    for conn in proc.connections():
+    for conn in proc.net_connections():
         # first loop to determine which is listening
         if conn.status == psutil.CONN_LISTEN:
             # TODO: account for host types
             listening_addresses.append(conn.laddr.port)
 
-    for conn in proc.connections():
+    for conn in proc.net_connections():
         # second loop to get connections
         if conn.family == socket.AddressFamily.AF_UNIX:
             # ignore unix sockets for now
@@ -44,7 +44,7 @@ def get_network_connections(proc: psutil.Process):
                     service=SOCKET_CONNECTION_MAP[conn.type],
                     protocol=SOCKET_CONNECTION_MAP[conn.type],
                     identifier=conn.laddr.port,
-                    direction=Direction.listening,
+                    direction=Direction.LISTENING,
                     local_port=conn.laddr.port,
                     local_host=conn.laddr.ip,
                 )
@@ -58,7 +58,7 @@ def get_network_connections(proc: psutil.Process):
                         service=SOCKET_CONNECTION_MAP[conn.type],
                         protocol=SOCKET_CONNECTION_MAP[conn.type],
                         identifier=conn.laddr.port,
-                        direction=Direction.listening,
+                        direction=Direction.LISTENING,
                         local_port=conn.laddr.port,
                         local_host=conn.laddr.ip,
                     )
@@ -71,7 +71,7 @@ def get_network_connections(proc: psutil.Process):
                         service=SOCKET_CONNECTION_MAP[conn.type],
                         protocol=SOCKET_CONNECTION_MAP[conn.type],
                         identifier=conn.raddr.port,
-                        direction=Direction.connecting,
+                        direction=Direction.CONNECTING,
                         local_port=conn.laddr.port,
                         local_host=conn.laddr.ip,
                     )
@@ -80,7 +80,7 @@ def get_network_connections(proc: psutil.Process):
 
 
 def get_file_connections(
-    proc: psutil.Process, ignore_files: "list[str]" = ["stdout", "stderr"]
+    proc: psutil.Process, ignore_files: List[str]
 ):
     connections = []
     for open_file in proc.open_files():
@@ -94,18 +94,18 @@ def get_file_connections(
                     service=Protocol.FILE,
                     protocol=Protocol.FILE,
                     identifier=open_file.path,
-                    direction=Direction.listening,
+                    direction=Direction.LISTENING,
                 )
             )
         if open_file.mode in ["w", "a", "r+", "a+"]:
             connections.append(
                 FileConnectionInfo(
-                    name="Writing from file",
+                    name="Writing to file",
                     connectionType=FileDriverConnection,
                     service=Protocol.FILE,
                     protocol=Protocol.FILE,
                     identifier=open_file.path,
-                    direction=Direction.connecting,
+                    direction=Direction.CONNECTING,
                 )
             )
     return connections
@@ -117,7 +117,7 @@ def get_connections(driver: str, pid: int):
     try:
         proc = psutil.Process(pid)
         network_connections = get_network_connections(proc)
-        file_connections = get_file_connections(proc)
+        file_connections = get_file_connections(proc, ["stdout", "stderr"])
     except psutil.NoSuchProcess as err:
         TESTPLAN_LOGGER.debug(
             f"Error getting metadata for driver {driver}: {err}"

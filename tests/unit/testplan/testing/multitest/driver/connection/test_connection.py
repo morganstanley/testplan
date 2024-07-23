@@ -59,7 +59,7 @@ def test_get_network_connections(mocker):
         service=Protocol.TCP,
         protocol=Protocol.TCP,
         identifier=0,
-        direction=Direction.listening,
+        direction=Direction.LISTENING,
         local_port=0,
         local_host="127.0.0.1",
     )
@@ -69,7 +69,7 @@ def test_get_network_connections(mocker):
         service=Protocol.UDP,
         protocol=Protocol.UDP,
         identifier=2,
-        direction=Direction.listening,
+        direction=Direction.LISTENING,
         local_port=2,
         local_host="127.0.0.1",
     )

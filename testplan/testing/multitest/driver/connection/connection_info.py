@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Union, Optional, Type
 
-from .base import Direction, BaseConnectionInfo, BaseDriverConnection
+from testplan.testing.multitest.driver.connection.base import Direction, BaseConnectionInfo, BaseDriverConnection
 
 
 @dataclass
@@ -32,6 +32,9 @@ class PortConnectionInfo(ConnectionInfo):
         # identifier should be host:port
         return f"{self.protocol}://:{self.identifier}"
 
+    def promote_to_connection(self):
+        return PortDriverConnection(self)
+
 
 class PortDriverConnection(BaseDriverConnection):
     """
@@ -57,12 +60,12 @@ class PortDriverConnection(BaseDriverConnection):
                 else "Unknown"
             )
             if (
-                driver_connection_info.direction == Direction.listening
+                driver_connection_info.direction == Direction.LISTENING
                 and port not in self.drivers_listening[driver_name]
             ):
                 self.drivers_listening[driver_name].append(port)
             elif (
-                driver_connection_info.direction == Direction.connecting
+                driver_connection_info.direction == Direction.CONNECTING
                 and port not in self.drivers_connecting[driver_name]
             ):
                 self.drivers_connecting[driver_name].append(port)
@@ -94,12 +97,12 @@ class FileDriverConnection(BaseDriverConnection):
     ):
         if self.connection == driver_connection_info.connection:
             if (
-                driver_connection_info.direction == Direction.listening
+                driver_connection_info.direction == Direction.LISTENING
                 and "Read" not in self.drivers_listening[driver_name]
             ):
                 self.drivers_listening[driver_name].append("Read")
             elif (
-                driver_connection_info.direction == Direction.connecting
+                driver_connection_info.direction == Direction.CONNECTING
                 and "Write" not in self.drivers_connecting[driver_name]
             ):
                 self.drivers_connecting[driver_name].append("Write")

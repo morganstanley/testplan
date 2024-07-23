@@ -119,9 +119,9 @@ class FixClient(Driver):
     """
 
     CONFIG = FixClientConfig
-    service = "FIX"
-    protocol = Protocol.TCP
-    direction = Direction.connecting
+    SERVICE = "FIX"
+    PROTOCOL = Protocol.TCP
+    DIRECTION = Direction.CONNECTING
 
     def __init__(
         self,

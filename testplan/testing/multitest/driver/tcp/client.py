@@ -64,9 +64,9 @@ class TCPClient(Driver):
     """
 
     CONFIG = TCPClientConfig
-    service = "TCP"
-    protocol = Protocol.TCP
-    direction = Direction.connecting
+    SERVICE = "TCP"
+    PROTOCOL = Protocol.TCP
+    DIRECTION = Direction.CONNECTING
 
     def __init__(
         self,

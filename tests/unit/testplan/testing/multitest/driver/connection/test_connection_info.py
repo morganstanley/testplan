@@ -16,7 +16,7 @@ class TestPortDriverConnection:
         service=Protocol.TCP,
         protocol=Protocol.TCP,
         identifier=0,
-        direction=Direction.connecting,
+        direction=Direction.CONNECTING,
         local_port=0,
     )
     connecting_to_0_from_1 = PortConnectionInfo(
@@ -25,7 +25,7 @@ class TestPortDriverConnection:
         service=Protocol.TCP,
         protocol=Protocol.TCP,
         identifier=0,
-        direction=Direction.connecting,
+        direction=Direction.CONNECTING,
         local_port=1,
     )
     listening_from_0 = PortConnectionInfo(
@@ -34,7 +34,7 @@ class TestPortDriverConnection:
         service=Protocol.TCP,
         protocol=Protocol.TCP,
         identifier=0,
-        direction=Direction.listening,
+        direction=Direction.LISTENING,
         local_port=0,
     )
     connecting_to_1 = PortConnectionInfo(
@@ -43,7 +43,7 @@ class TestPortDriverConnection:
         service=Protocol.TCP,
         protocol=Protocol.TCP,
         identifier=1,
-        direction=Direction.connecting,
+        direction=Direction.CONNECTING,
         local_port=0,
     )
     connecting_to_0_from_1_with_FIX = PortConnectionInfo(
@@ -52,7 +52,7 @@ class TestPortDriverConnection:
         service="FIX",
         protocol=Protocol.TCP,
         identifier=0,
-        direction=Direction.connecting,
+        direction=Direction.CONNECTING,
         local_port=1,
     )
 

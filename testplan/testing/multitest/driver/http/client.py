@@ -76,9 +76,9 @@ class HTTPClient(Driver):
     """
 
     CONFIG = HTTPClientConfig
-    service = "HTTP"
-    protocol = Protocol.TCP
-    direction = Direction.connecting
+    SERVICE = "HTTP"
+    PROTOCOL = Protocol.TCP
+    DIRECTION = Direction.CONNECTING
 
     def __init__(
         self,
