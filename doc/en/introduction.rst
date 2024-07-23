@@ -455,6 +455,7 @@ Command line
 
       --label LABEL         Label the test report with the given name, useful to categorize or classify similar reports (aka "run-id").
       --driver-info         Display drivers startup and teardown information in the report.
+      --driver-connection   Visualise connections between drivers in the report.
 
 
 Highlighted features

@@ -9,3 +9,7 @@
 .. _multitest_custom_drivers:
 
 .. include:: drivers_custom.rst
+
+.. _multitest_drivers_connections:
+
+.. include:: drivers_connection.rst

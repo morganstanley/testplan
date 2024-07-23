@@ -1,0 +1,1 @@
+Add ``--driver-connection`` flag to visualise driver connections in the web report. Extracting ``DriverMetadata`` has been shifted into a class method for the ``Driver`` class instead of the config. See :ref:`here <multitest_drivers_connections>` for more information.
