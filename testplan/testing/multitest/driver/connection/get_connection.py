@@ -8,9 +8,7 @@ from testplan.testing.multitest.driver.connection.connection_info import (
     Direction,
     Protocol,
     PortConnectionInfo,
-    PortDriverConnection,
     FileConnectionInfo,
-    FileDriverConnection,
 )
 
 SOCKET_CONNECTION_MAP = {
@@ -120,7 +118,7 @@ def get_connections(driver: str, pid: int):
         psutil.NoSuchProcess,
         psutil.AccessDenied,
     ) as err:
-        TESTPLAN_LOGGER.debug(
+        TESTPLAN_LOGGER.info(
             f"Error getting metadata for driver {driver}: {err}"
         )
     return network_connections + file_connections

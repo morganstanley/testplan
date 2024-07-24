@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
-from typing import Union, Optional, Type
+from typing import Optional
 
 from testplan.testing.multitest.driver.connection.base import (
     Direction,
@@ -58,7 +57,7 @@ class PortDriverConnection(BaseDriverConnection):
 
             port = (
                 str(driver_connection_info.local_port)
-                if str(driver_connection_info.local_port)
+                if driver_connection_info.local_port is not None
                 else "Unknown"
             )
             if (
