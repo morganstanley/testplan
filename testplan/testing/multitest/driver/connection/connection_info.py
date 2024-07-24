@@ -32,9 +32,7 @@ class PortConnectionInfo(BaseConnectionInfo):
         return f"{self.protocol}://:{self.identifier}"
 
     def promote_to_connection(self):
-        conn = PortDriverConnection.from_connection_info(self)
-        conn.add_driver_if_in_connection(self)
-        return conn
+        return PortDriverConnection.from_connection_info(self)
 
 
 class PortDriverConnection(BaseDriverConnection):
@@ -46,15 +44,18 @@ class PortDriverConnection(BaseDriverConnection):
         self, driver_name: str, driver_connection_info: PortConnectionInfo
     ):
         if self.connection_rep == driver_connection_info.connection_rep:
-            if driver_connection_info.service.upper() != self.service:
-                if (
-                    driver_connection_info.service.lower()
-                    not in Protocol.default
-                ):
-                    self.service = driver_connection_info.service.upper()
-                else:
+            if (
+                driver_connection_info.service.upper() != self.service
+                and driver_connection_info.service.lower()
+                not in Protocol.default
+            ):
+                if self.service.lower() not in Protocol.default:
+                    # if the service has been updated already, raise an error
                     msg = f"Driver connection service do not match. {driver_connection_info.service.upper()} != {self.service}"
                     raise ValueError(msg)
+                else:
+                    self.service = driver_connection_info.service.upper()
+
             port = (
                 str(driver_connection_info.local_port)
                 if str(driver_connection_info.local_port)
@@ -85,18 +86,13 @@ class FileConnectionInfo(BaseConnectionInfo):
         return f"file://{self.identifier}"
 
     def promote_to_connection(self):
-        conn = FileDriverConnection.from_connection_info(self)
-        conn.add_driver_if_in_connection(self)
-        return conn
+        return FileDriverConnection.from_connection_info(self)
 
 
 class FileDriverConnection(BaseDriverConnection):
     """
     Connection class for file-based between drivers
     """
-
-    def __init__(self, driver_connection_info: FileConnectionInfo):
-        super().__init__(driver_connection_info)
 
     def add_driver_if_in_connection(
         self, driver_name: str, driver_connection_info: FileConnectionInfo

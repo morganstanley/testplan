@@ -219,7 +219,7 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                             description="",
                             entries=[
                                 {
-                                    "type": "FlowLog",
+                                    "type": "FlowChart",
                                     "category": "DEFAULT",
                                     "description": "Driver Connections",
                                     "nodes": [

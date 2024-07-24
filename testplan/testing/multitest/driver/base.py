@@ -31,9 +31,8 @@ from testplan.common.utils.timing import (
     TimeoutExceptionInfo,
 )
 from testplan.testing.multitest.driver.connection import (
-    ConnectionInfo,
+    BaseConnectionInfo,
     PortConnectionInfo,
-    PortDriverConnection,
 )
 
 
@@ -49,7 +48,7 @@ class DriverMetadata:
 
     name: str
     driver_metadata: Dict
-    conn_info: List[ConnectionInfo] = field(default_factory=list)
+    conn_info: List[BaseConnectionInfo] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
         """
@@ -463,7 +462,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                 conn_info=[
                     PortConnectionInfo(
                         name="Port",
-                        connectionType=PortDriverConnection,
                         service=self.SERVICE,
                         protocol=self.PROTOCOL,
                         identifier=self.identifier,

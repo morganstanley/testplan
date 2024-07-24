@@ -18,26 +18,31 @@ Testplan defines 2 types of connections by default, ``PortDriverConnection`` and
 Drivers that inherit `App` will automatically search for the its network and file connections via ``psutil`` functions.
 
 New types of driver connections can also be defined. To do so, you will need to create 2 new classes that inherits
-:py:class:`ConnectionInfo <testplan.testing.multitest.driver.connection.connection_info.ConnectionInfo>` and 
+:py:class:`BaseConnectionInfo <testplan.testing.multitest.driver.connection.base.BaseConnectionInfo>` and 
 :py:class:`BaseDriverConnection <testplan.testing.multitest.driver.connection.base.BaseDriverConnection>`.
 
 Here is an example to define a new type of connection.
 
 .. code-block:: python
 
-    from testplan.testing.multitest.driver.connection import Direction, ConnectionInfo, BaseDriverConnection
+    from testplan.testing.multitest.driver.connection import Direction, BaseConnectionInfo, BaseDriverConnection
 
-    class NewConnectionInfo(ConnectionInfo):
+    class NewConnectionInfo(BaseConnectionInfo):
         @property
-        def connection(self):
+        def connection_rep(self):
             return f"new://{self.identifier}" # this is the value by which drivers will be matched
 
+        def promote_to_connection(self):
+            return NewDriverConnection.from_connection_info(self)
+
     class NewDriverConnection(BaseDriverConnection):
-        def __init__(self, driver_connection_info: NewConnectionInfo):
-            super().__init__(driver_connection_info)
+        @classmethod
+        def from_connection_info(cls, driver_connection_info: BaseConnectionInfo):
             # Add any custom logic if needed here.
             # For example, to add a dummy driver
-            self.drivers_listening["Dummy"].append("")
+            conn = super(NewDriverConnection, cls).from_connection_info(driver_connection_info)
+            conn.drivers_listening["Dummy"].append("")
+            return conn
 
         def add_driver_if_in_connection(self, driver_name: str, driver_connection_info: NewConnectionInfo):
             # Define any logic on how to match drivers here
@@ -63,7 +68,6 @@ To use the new connection, override the ``extract_driver_metadata`` in the relev
                 },
                 conn_info=[NewConnectionInfo(
                     name="Example",
-                    connectionType=NewDriverConnection,
                     service="Example",
                     protocol="Example",
                     identifier="Example",

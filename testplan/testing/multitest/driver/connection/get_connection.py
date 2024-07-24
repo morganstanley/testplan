@@ -45,7 +45,6 @@ def get_network_connections(proc: psutil.Process):
             connections.append(
                 PortConnectionInfo(
                     name="Listening port",
-                    connectionType=PortDriverConnection,
                     service=SOCKET_CONNECTION_MAP[conn.type],
                     protocol=SOCKET_CONNECTION_MAP[conn.type],
                     identifier=conn.laddr.port,
@@ -59,7 +58,6 @@ def get_network_connections(proc: psutil.Process):
                 connections.append(
                     PortConnectionInfo(
                         name="Listening port",
-                        connectionType=PortDriverConnection,
                         service=SOCKET_CONNECTION_MAP[conn.type],
                         protocol=SOCKET_CONNECTION_MAP[conn.type],
                         identifier=conn.laddr.port,
@@ -72,7 +70,6 @@ def get_network_connections(proc: psutil.Process):
                 connections.append(
                     PortConnectionInfo(
                         name="Connecting port",
-                        connectionType=PortDriverConnection,
                         service=SOCKET_CONNECTION_MAP[conn.type],
                         protocol=SOCKET_CONNECTION_MAP[conn.type],
                         identifier=conn.raddr.port,
@@ -93,7 +90,6 @@ def get_file_connections(proc: psutil.Process, ignore_files: List[str]):
             connections.append(
                 FileConnectionInfo(
                     name="Reading from file",
-                    connectionType=FileDriverConnection,
                     service=Protocol.FILE,
                     protocol=Protocol.FILE,
                     identifier=open_file.path,
@@ -104,7 +100,6 @@ def get_file_connections(proc: psutil.Process, ignore_files: List[str]):
             connections.append(
                 FileConnectionInfo(
                     name="Writing to file",
-                    connectionType=FileDriverConnection,
                     service=Protocol.FILE,
                     protocol=Protocol.FILE,
                     identifier=open_file.path,

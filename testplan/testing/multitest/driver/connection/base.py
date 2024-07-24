@@ -49,11 +49,12 @@ class BaseDriverConnection:
 
     @classmethod
     def from_connection_info(cls, driver_connection_info: BaseConnectionInfo):
-        conn = cls()
-        conn.service = driver_connection_info.service.upper()
-        conn.connection_rep = driver_connection_info.connection_rep
-        conn.drivers_listening = defaultdict(list)
-        conn.drivers_connecting = defaultdict(list)
+        conn = cls(
+            service=driver_connection_info.service.upper(),
+            connection_rep=driver_connection_info.connection_rep,
+            drivers_listening=defaultdict(list),
+            drivers_connecting=defaultdict(list),
+        )
         return conn
 
     def add_driver_if_in_connection(

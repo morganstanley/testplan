@@ -888,7 +888,7 @@ class Test(Runnable):
         connections: List[BaseDriverConnection] = []
         for driver in self.resources:
             for conn_info in driver.extract_driver_metadata().conn_info:
-                if issubclass(conn_info, BaseConnectionInfo):
+                if issubclass(type(conn_info), BaseConnectionInfo):
                     added = False
                     for existing_connection in connections:
                         added = (
@@ -900,6 +900,9 @@ class Test(Runnable):
                             break
                     if not added:
                         new_connection = conn_info.promote_to_connection()
+                        new_connection.add_driver_if_in_connection(
+                            str(driver), conn_info
+                        )
                         connections.append(new_connection)
 
         drivers = set()

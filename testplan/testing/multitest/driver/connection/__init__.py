@@ -5,7 +5,6 @@ from testplan.testing.multitest.driver.connection.base import (
 )
 from testplan.testing.multitest.driver.connection.connection_info import (
     Protocol,
-    ConnectionInfo,
     PortConnectionInfo,
     PortDriverConnection,
     FileConnectionInfo,

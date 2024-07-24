@@ -243,7 +243,6 @@ class ZMQClient(Driver):
             conn_info=[
                 PortConnectionInfo(
                     name="Connecting port",
-                    connectionType=PortDriverConnection,
                     service="TCP",
                     protocol=Protocol.TCP,
                     identifier=port,

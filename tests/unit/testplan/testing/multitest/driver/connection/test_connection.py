@@ -55,7 +55,6 @@ def test_get_network_connections(mocker):
     assert len(conn) == 2
     assert conn[0] == PortConnectionInfo(
         name="Listening port",
-        connectionType=PortDriverConnection,
         service=Protocol.TCP,
         protocol=Protocol.TCP,
         identifier=0,
@@ -65,7 +64,6 @@ def test_get_network_connections(mocker):
     )
     assert conn[1] == PortConnectionInfo(
         name="Listening port",
-        connectionType=PortDriverConnection,
         service=Protocol.UDP,
         protocol=Protocol.UDP,
         identifier=2,
