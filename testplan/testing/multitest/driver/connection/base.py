@@ -41,10 +41,11 @@ class BaseDriverConnection:
     Base class to show connection between drivers.
     Each specific type (protocol) of connection should have its own subclass.
     """
+
     service: str
     connection_rep: str
-    drivers_listening: defaultdict[List]
-    drivers_connecting: defaultdict[List]
+    drivers_listening: "defaultdict[List]"
+    drivers_connecting: "defaultdict[List]"
 
     @classmethod
     def from_connection_info(cls, driver_connection_info: BaseConnectionInfo):

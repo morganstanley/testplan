@@ -32,7 +32,7 @@ class PortConnectionInfo(BaseConnectionInfo):
         return f"{self.protocol}://:{self.identifier}"
 
     def promote_to_connection(self):
-        conn =  PortDriverConnection.from_connection_info(self)
+        conn = PortDriverConnection.from_connection_info(self)
         conn.add_driver_if_in_connection(self)
         return conn
 
@@ -46,13 +46,15 @@ class PortDriverConnection(BaseDriverConnection):
         self, driver_name: str, driver_connection_info: PortConnectionInfo
     ):
         if self.connection_rep == driver_connection_info.connection_rep:
-            if (
-                driver_connection_info.service.upper() != self.service
-            ):
-                if driver_connection_info.service.lower() not in Protocol.default:
+            if driver_connection_info.service.upper() != self.service:
+                if (
+                    driver_connection_info.service.lower()
+                    not in Protocol.default
+                ):
                     self.service = driver_connection_info.service.upper()
                 else:
-                    raise 
+                    msg = f"Driver connection service do not match. {driver_connection_info.service.upper()} != {self.service}"
+                    raise ValueError(msg)
             port = (
                 str(driver_connection_info.local_port)
                 if str(driver_connection_info.local_port)
@@ -83,9 +85,10 @@ class FileConnectionInfo(BaseConnectionInfo):
         return f"file://{self.identifier}"
 
     def promote_to_connection(self):
-        conn =  FileDriverConnection.from_connection_info(self)
+        conn = FileDriverConnection.from_connection_info(self)
         conn.add_driver_if_in_connection(self)
         return conn
+
 
 class FileDriverConnection(BaseDriverConnection):
     """
