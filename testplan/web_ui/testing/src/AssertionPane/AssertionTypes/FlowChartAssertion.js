@@ -110,7 +110,7 @@ const getLayoutedElements = (nodes, edges) => {
   return { nodes, edges };
 };
 
-export default function FlowAssertion(props) {
+export default function FlowChartAssertion(props) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -158,7 +158,7 @@ export default function FlowAssertion(props) {
   );
 }
 
-FlowAssertion.prototype = {
+FlowChartAssertion.prototype = {
   /** Assertion being rendered */
   assertion: PropTypes.object,
 };

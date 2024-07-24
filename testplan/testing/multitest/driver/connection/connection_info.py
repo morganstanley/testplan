@@ -2,12 +2,11 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Union, Optional, Type
 
-from testplan.testing.multitest.driver.connection.base import Direction, BaseConnectionInfo, BaseDriverConnection
-
-
-@dataclass
-class ConnectionInfo(BaseConnectionInfo):
-    connectionType: Union[str, Type[BaseDriverConnection]]
+from testplan.testing.multitest.driver.connection.base import (
+    Direction,
+    BaseConnectionInfo,
+    BaseDriverConnection,
+)
 
 
 class Protocol:
@@ -18,7 +17,7 @@ class Protocol:
 
 
 @dataclass
-class PortConnectionInfo(ConnectionInfo):
+class PortConnectionInfo(BaseConnectionInfo):
     """
     ConnectionInfo for port communication (e.g TCP/UDP) between drivers
     """
@@ -27,13 +26,15 @@ class PortConnectionInfo(ConnectionInfo):
     local_host: Optional[str] = None  # host the driver is using
 
     @property
-    def connection(self):
+    def connection_rep(self):
         # TODO: Add host info
         # identifier should be host:port
         return f"{self.protocol}://:{self.identifier}"
 
     def promote_to_connection(self):
-        return PortDriverConnection(self)
+        conn =  PortDriverConnection.from_connection_info(self)
+        conn.add_driver_if_in_connection(self)
+        return conn
 
 
 class PortDriverConnection(BaseDriverConnection):
@@ -41,19 +42,17 @@ class PortDriverConnection(BaseDriverConnection):
     Connection class for port communication (e.g TCP/UDP) between drivers
     """
 
-    def __init__(self, driver_connection_info: PortConnectionInfo):
-        super().__init__(driver_connection_info)
-
     def add_driver_if_in_connection(
         self, driver_name: str, driver_connection_info: PortConnectionInfo
     ):
-        if self.connection == driver_connection_info.connection:
+        if self.connection_rep == driver_connection_info.connection_rep:
             if (
                 driver_connection_info.service.upper() != self.service
-                and driver_connection_info.service.lower()
-                not in Protocol.default
             ):
-                self.service = driver_connection_info.service.upper()
+                if driver_connection_info.service.lower() not in Protocol.default:
+                    self.service = driver_connection_info.service.upper()
+                else:
+                    raise 
             port = (
                 str(driver_connection_info.local_port)
                 if str(driver_connection_info.local_port)
@@ -74,15 +73,19 @@ class PortDriverConnection(BaseDriverConnection):
 
 
 @dataclass
-class FileConnectionInfo(ConnectionInfo):
+class FileConnectionInfo(BaseConnectionInfo):
     """
     ConnectionInfo for file-based communication between drivers
     """
 
     @property
-    def connection(self):
+    def connection_rep(self):
         return f"file://{self.identifier}"
 
+    def promote_to_connection(self):
+        conn =  FileDriverConnection.from_connection_info(self)
+        conn.add_driver_if_in_connection(self)
+        return conn
 
 class FileDriverConnection(BaseDriverConnection):
     """
@@ -95,7 +98,7 @@ class FileDriverConnection(BaseDriverConnection):
     def add_driver_if_in_connection(
         self, driver_name: str, driver_connection_info: FileConnectionInfo
     ):
-        if self.connection == driver_connection_info.connection:
+        if self.connection_rep == driver_connection_info.connection_rep:
             if (
                 driver_connection_info.direction == Direction.LISTENING
                 and "Read" not in self.drivers_listening[driver_name]

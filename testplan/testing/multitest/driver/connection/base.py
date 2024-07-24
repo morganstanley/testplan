@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Union
+from typing import List, Union
 from collections import defaultdict
 
 from testplan.common.utils.context import ContextValue
@@ -28,24 +28,32 @@ class BaseConnectionInfo:
         }
 
     @property
-    def connection(self):
+    def connection_rep(self):
         raise NotImplementedError
 
     def promote_to_connection(self):
         raise NotImplementedError
 
 
+@dataclass
 class BaseDriverConnection:
     """
     Base class to show connection between drivers.
     Each specific type (protocol) of connection should have its own subclass.
     """
+    service: str
+    connection_rep: str
+    drivers_listening: defaultdict[List]
+    drivers_connecting: defaultdict[List]
 
-    def __init__(self, driver_connection_info: BaseConnectionInfo):
-        self.service = driver_connection_info.service.upper()
-        self.connection = driver_connection_info.connection
-        self.drivers_listening = defaultdict(list)
-        self.drivers_connecting = defaultdict(list)
+    @classmethod
+    def from_connection_info(cls, driver_connection_info: BaseConnectionInfo):
+        conn = cls()
+        conn.service = driver_connection_info.service.upper()
+        conn.connection_rep = driver_connection_info.connection_rep
+        conn.drivers_listening = defaultdict(list)
+        conn.drivers_connecting = defaultdict(list)
+        return conn
 
     def add_driver_if_in_connection(
         self, driver_name: str, driver_connection_info: BaseConnectionInfo
@@ -53,7 +61,7 @@ class BaseDriverConnection:
         raise NotImplementedError
 
     def __str__(self):
-        return f"{self.service}-{self.connection}"
+        return f"{self.service}-{self.connection_rep}"
 
     def should_include(self):
         return self.drivers_connecting and self.drivers_listening

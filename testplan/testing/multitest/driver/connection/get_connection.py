@@ -1,4 +1,5 @@
 import socket
+import sys
 from typing import List
 import psutil
 
@@ -21,15 +22,19 @@ SOCKET_CONNECTION_MAP = {
 def get_network_connections(proc: psutil.Process):
     connections = []
     listening_addresses = []
-    for conn in proc.net_connections():
+    # update to net_connections when psutil is updated to 6.0.0
+    for conn in proc.connections():
         # first loop to determine which is listening
         if conn.status == psutil.CONN_LISTEN:
             # TODO: account for host types
             listening_addresses.append(conn.laddr.port)
 
-    for conn in proc.net_connections():
+    for conn in proc.connections():
         # second loop to get connections
-        if conn.family == socket.AddressFamily.AF_UNIX:
+        if (
+            sys.platform != "win32"
+            and conn.family == socket.AddressFamily.AF_UNIX
+        ):
             # ignore unix sockets for now
             continue
         if conn.type == socket.SocketKind.SOCK_SEQPACKET:
@@ -79,9 +84,7 @@ def get_network_connections(proc: psutil.Process):
     return connections
 
 
-def get_file_connections(
-    proc: psutil.Process, ignore_files: List[str]
-):
+def get_file_connections(proc: psutil.Process, ignore_files: List[str]):
     connections = []
     for open_file in proc.open_files():
         if open_file.path.split("/")[-1] in ignore_files:

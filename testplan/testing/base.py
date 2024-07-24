@@ -55,6 +55,7 @@ from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
 from testplan.testing.multitest.driver.connection import (
+    BaseConnectionInfo,
     BaseDriverConnection,
 )
 
@@ -886,27 +887,20 @@ class Test(Runnable):
         )
         connections: List[BaseDriverConnection] = []
         for driver in self.resources:
-            try:
-                for conn_info in driver.extract_driver_metadata().conn_info:
-                    connection = conn_info.connectionType
-                    if issubclass(connection, BaseDriverConnection):
-                        added = False
-                        for existing_connection in connections:
-                            added = existing_connection.add_driver_if_in_connection(
+            for conn_info in driver.extract_driver_metadata().conn_info:
+                if issubclass(conn_info, BaseConnectionInfo):
+                    added = False
+                    for existing_connection in connections:
+                        added = (
+                            existing_connection.add_driver_if_in_connection(
                                 str(driver), conn_info
                             )
-                            if added:
-                                break
-                        if not added:
-                            new_connection = connection(conn_info)
-                            new_connection.add_driver_if_in_connection(
-                                str(driver), conn_info
-                            )
-                            connections.append(new_connection)
-            except Exception as err:
-                self.logger.info(
-                    f"Error getting metadata for driver %s: %s", driver, err
-                )
+                        )
+                        if added:
+                            break
+                    if not added:
+                        new_connection = conn_info.promote_to_connection()
+                        connections.append(new_connection)
 
         drivers = set()
         edges = []
@@ -926,13 +920,13 @@ class Test(Runnable):
                             continue
                         edges.append(
                             {
-                                "id": f"{connection.connection}: {connecting_driver} -> {listening_driver}",
+                                "id": f"{connection.connection_rep}: {connecting_driver} -> {listening_driver}",
                                 "source": connecting_driver,
                                 "target": listening_driver,
                                 "startLabel": ",".join(
                                     connecting_driver_identifier
                                 ),
-                                "label": connection.connection,
+                                "label": connection.connection_rep,
                                 "endLabel": ",".join(
                                     listening_driver_identifier
                                 ),
