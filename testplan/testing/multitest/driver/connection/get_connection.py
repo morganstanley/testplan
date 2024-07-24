@@ -116,7 +116,10 @@ def get_connections(driver: str, pid: int):
         proc = psutil.Process(pid)
         network_connections = get_network_connections(proc)
         file_connections = get_file_connections(proc, ["stdout", "stderr"])
-    except psutil.NoSuchProcess as err:
+    except (
+        psutil.NoSuchProcess,
+        psutil.AccessDenied,
+    ) as err:
         TESTPLAN_LOGGER.debug(
             f"Error getting metadata for driver {driver}: {err}"
         )
