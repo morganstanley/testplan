@@ -494,7 +494,7 @@ that match ALL of the given tags.
         report_group.add_argument(
             "--driver-info",
             action="store_true",
-            default=False,
+            default=self._default_options["driver_info"],
             help="Display drivers startup and shutdown info.",
         )
 
