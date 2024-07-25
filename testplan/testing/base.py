@@ -847,13 +847,18 @@ class Test(Runnable):
             table, description=f"Driver {setup_or_teardown.capitalize()} Info"
         )
 
+        # values are arbitary
+        padding = 150
+        row_size = 25
+        height = padding + row_size * len(px_input["Driver Name"])
         fig = px.timeline(
             px_input,
             x_start="Start Time (UTC)",
             x_end="Stop Time (UTC)",
             y="Driver Name",
+            height=height,
         )
-        fig.update_yaxes(autorange="reversed")
+        fig.update_yaxes(autorange="reversed", automargin=True)
         case_result.plotly(
             fig,
             description=f"Driver {setup_or_teardown.capitalize()} Timeline",
