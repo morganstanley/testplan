@@ -1,6 +1,7 @@
 """Base classes for all Tests"""
 import functools
 import os
+import re
 import subprocess
 import sys
 import warnings
@@ -905,7 +906,8 @@ class Test(Runnable):
                         )
                         connections.append(new_connection)
 
-        drivers = set()
+        drivers = set([str(driver) for driver in self.resources])
+        unconnected_drivers = set(drivers)
         edges = []
         for connection in connections:
             if connection.should_include():
@@ -913,6 +915,7 @@ class Test(Runnable):
                     listening_driver,
                     listening_driver_identifier,
                 ) in connection.drivers_listening.items():
+                    # in case custom drivers are added in connections
                     drivers.add(listening_driver)
                     for (
                         connecting_driver,
@@ -921,6 +924,8 @@ class Test(Runnable):
                         drivers.add(connecting_driver)
                         if listening_driver == connecting_driver:
                             continue
+                        unconnected_drivers.discard(listening_driver)
+                        unconnected_drivers.discard(connecting_driver)
                         edges.append(
                             {
                                 "id": f"{connection.connection_rep}: {connecting_driver} -> {listening_driver}",
@@ -935,8 +940,22 @@ class Test(Runnable):
                                 ),
                             }
                         )
+        drivers = [
+            {
+                "id": driver,
+                "data": {
+                    "label": re.sub(r"(\w+)(\[\w+\])", r"\1\n\2", driver)
+                },
+                "style": (
+                    {"border": "1px solid #FF0000"}
+                    if driver in unconnected_drivers
+                    else {}
+                ),
+            }
+            for driver in drivers
+        ]
         case_result.flow_chart(
-            list(drivers), edges, description="Driver Connections"
+            drivers, edges, description="Driver Connections"
         )
         case_report.extend(case_result.serialized_entries)
 

@@ -117,10 +117,7 @@ export default function FlowChartAssertion(props) {
   const assertion_nodes = props.assertion.nodes;
   const assertion_edges = props.assertion.edges;
   useEffect(() => {
-    const initialNodes = Array.from(assertion_nodes).map((driver, index) => ({
-      id: driver,
-      data: {label: driver}
-    }));
+    const initialNodes = assertion_nodes;
     const initialEdges = assertion_edges.map((edge) => ({
       type: "custom",
       data: {
@@ -130,6 +127,8 @@ export default function FlowChartAssertion(props) {
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
+        height: "20",
+        width: "20",
       },
       ...edge
     }));
@@ -152,7 +151,7 @@ export default function FlowChartAssertion(props) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         edgeTypes={edgeTypes}
-        fitview
+        fitView
       />
     </div>
   );

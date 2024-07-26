@@ -125,7 +125,13 @@ class EdgeSchema(Schema):
     endLabel = fields.String()
 
 
+class NodeSchema(Schema):
+    id = fields.String()
+    data = fields.Dict(keys=fields.String(), values=fields.String())
+    style = fields.Dict(keys=fields.String(), values=fields.String())
+
+
 @registry.bind(base.FlowChart)
 class FlowChartSchema(BaseSchema):
-    nodes = fields.List(fields.String())
+    nodes = fields.Nested(NodeSchema, many=True)
     edges = fields.Nested(EdgeSchema, many=True)
