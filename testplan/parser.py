@@ -502,7 +502,7 @@ that match ALL of the given tags.
         report_group.add_argument(
             "--driver-connection",
             action="store_true",
-            default=False,
+            default=self._default_options["driver_connection"],
             help="Display connections between drivers.",
         )
 

@@ -145,6 +145,7 @@ class Testplan(entity.RunnableManager):
     :param label: Label the test report with the given name, useful to
         categorize or classify similar reports .
     :param driver_info: Display driver setup and teardown time in the report.
+    :param driver_connection: Display driver connection info in the report.
     """
 
     CONFIG = TestplanConfig
@@ -193,6 +194,7 @@ class Testplan(entity.RunnableManager):
         extra_deps: Optional[List[Union[str, ModuleType]]] = None,
         label: Optional[str] = None,
         driver_info: bool = False,
+        driver_connection: bool = False,
         auto_part_runtime_limit: int = defaults.AUTO_PART_RUNTIME_LIMIT,
         plan_runtime_target: int = defaults.PLAN_RUNTIME_TARGET,
         **options,
@@ -255,6 +257,7 @@ class Testplan(entity.RunnableManager):
             extra_deps=extra_deps,
             label=label,
             driver_info=driver_info,
+            driver_connection=driver_connection,
             auto_part_runtime_limit=auto_part_runtime_limit,
             plan_runtime_target=plan_runtime_target,
             **options,
@@ -400,6 +403,7 @@ class Testplan(entity.RunnableManager):
         extra_deps=None,
         label=None,
         driver_info=False,
+        driver_connection=False,
         auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_LIMIT,
         plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         **options,
@@ -461,6 +465,7 @@ class Testplan(entity.RunnableManager):
                     extra_deps=extra_deps,
                     label=label,
                     driver_info=driver_info,
+                    driver_connection=driver_connection,
                     auto_part_runtime_limit=auto_part_runtime_limit,
                     plan_runtime_target=plan_runtime_target,
                     **options,

@@ -223,12 +223,28 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                                     "category": "DEFAULT",
                                     "description": "Driver Connections",
                                     "nodes": [
-                                        re.compile(
-                                            r"TCPClient\[client\]|TCPServer\[server\]"
-                                        ),
-                                        re.compile(
-                                            r"TCPClient\[client\]|TCPServer\[server\]"
-                                        ),
+                                        {
+                                            "id": re.compile(
+                                                r"TCPClient\[client\]|TCPServer\[server\]"
+                                            ),
+                                            "style": {},
+                                            "data": {
+                                                "label": re.compile(
+                                                    r"TCPClient\n\[client\]|TCPServer\n\[server\]"
+                                                ),
+                                            },
+                                        },
+                                        {
+                                            "id": re.compile(
+                                                r"TCPClient\[client\]|TCPServer\[server\]"
+                                            ),
+                                            "style": {},
+                                            "data": {
+                                                "label": re.compile(
+                                                    r"TCPClient\n\[client\]|TCPServer\n\[server\]"
+                                                ),
+                                            },
+                                        },
                                     ],
                                     "edges": [
                                         {
