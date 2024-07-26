@@ -200,6 +200,7 @@ A typical input JSON looks like below:
     "<Multitest>": {
         "execution_time": 199.99,
         "setup_time": 39.99,
+        "teardown_time": 39.99, // optional
     },
     ......
 }""",
@@ -594,6 +595,7 @@ runtime_schema = schema.Schema(
         str: {
             "execution_time": schema.Or(int, float),
             "setup_time": schema.Or(int, float),
+            schema.Optional("teardown_time"): schema.Or(int, float),
         }
     }
 )
