@@ -379,9 +379,9 @@ class TestReportGroup:
         parent.append(child)
 
         refs = list(grand_parent.pre_order_reports())
-        parts = list(grand_parent.disassemble())
+        parts = list(grand_parent.pre_order_disassemble())
 
-        # disasembled in place
+        # disassembled in place
         assert not grand_parent.entries
         assert all(map(lambda x, y: x is y, refs, parts))
 

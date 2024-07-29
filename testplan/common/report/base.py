@@ -649,16 +649,15 @@ class BaseReportGroup(Report):
             elif isinstance(e, Report):
                 yield e
 
-    def disassemble(self):
-        c = []
-        for u in copy.copy(list(self._index.keys())):
-            c.append(self[u])
-            del self[u]
+    def pre_order_disassemble(self):
+        es = copy.copy(self.entries)
+        self.entries.clear()
+        self._index.clear()
 
         yield self
-        for e in c:
+        for e in es:
             if isinstance(e, BaseReportGroup):
-                yield from e.disassemble()
+                yield from e.pre_order_disassemble()
             elif isinstance(e, Report):
                 yield e
 

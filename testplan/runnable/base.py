@@ -140,6 +140,41 @@ def validate_lines(d: dict) -> bool:
     return True
 
 
+def collate_for_merging_parts(es):
+    # to group report entries into buckets, where synthesized ones in the
+    # same bucket containing the previous non-synthesized one
+
+    fst = iter(es)
+    snd = iter(es)
+    _ = next(fst)
+    res = []
+
+    while True:
+        try:
+            snd_e = next(snd)
+            try:
+                fst_e = next(fst)
+            except StopIteration:
+                # snd already at -1, no further (synth) reports
+                res.append((snd_e,))
+                break
+        except StopIteration:
+            break
+
+        grp = [snd_e]
+        while fst_e.category == ReportCategories.SYNTHESIZED:
+            grp.append(fst_e)
+            # there's no prev, cannot set snd at the end
+            _ = next(snd)  # equivalent to ``snd = copy(fst)``
+            try:
+                fst_e = next(fst)
+            except StopIteration:
+                break
+        res.append(tuple(grp))
+
+    return res
+
+
 class TestRunnerConfig(RunnableConfig):
     """
     Configuration object for
@@ -1272,24 +1307,25 @@ class TestRunner(Runnable):
                             raise run
                         else:
                             report.annotate_part_num()
-                            disassembled.append(list(report.disassemble()))
+                            flatten = list(report.pre_order_disassemble())
+                            disassembled.append(
+                                collate_for_merging_parts(flatten)
+                            )
                     else:
                         raise MergeError(
                             f"While merging parts of report `uid`: {uid}, "
                             f"part {report.part[0]} didn't run. Merge of this part was skipped"
                         )
-
-                for it in zip_longest(*disassembled, fillvalue=None):
-                    for e in it:
-                        if e is None:
-                            continue
-                        if not e.parent_uids:
-                            # specially handle mt entry
-                            placeholder_report.non_recursive_merge(e)
-                        else:
-                            placeholder_report.graft_entry(
-                                e, copy(e.parent_uids[1:])
-                            )
+                for it in zip_longest(*disassembled, fillvalue=()):
+                    for t in it:
+                        for e in t:
+                            if not e.parent_uids:
+                                # specially handle mt entry
+                                placeholder_report.non_recursive_merge(e)
+                            else:
+                                placeholder_report.graft_entry(
+                                    e, copy(e.parent_uids[1:])
+                                )
                 placeholder_report.build_index(recursive=True)
                 merged = True
 
