@@ -140,37 +140,29 @@ def validate_lines(d: dict) -> bool:
     return True
 
 
-def collate_for_merging_parts(es):
-    # to group report entries into buckets, where synthesized ones in the
-    # same bucket containing the previous non-synthesized one
-
-    fst = iter(es)
-    snd = iter(es)
-    _ = next(fst)
+def collate_for_merging(es):
+    """
+    Group report entries into buckets, where synthesized ones in the same
+    bucket containing the previous non-synthesized one.
+    """
     res = []
+    i, j = 0, 0
+    while i < len(es):
+        if i < j:
+            i += 1
+            continue
 
-    while True:
-        try:
-            snd_e = next(snd)
-            try:
-                fst_e = next(fst)
-            except StopIteration:
-                # snd already at -1, no further (synth) reports
-                res.append((snd_e,))
+        grp = [es[i]]
+        j = i + 1
+        while j < len(es):
+            if es[j].category == ReportCategories.SYNTHESIZED:
+                grp.append(es[j])
+                j += 1
+            else:
                 break
-        except StopIteration:
-            break
 
-        grp = [snd_e]
-        while fst_e.category == ReportCategories.SYNTHESIZED:
-            grp.append(fst_e)
-            # there's no prev, cannot set snd at the end
-            _ = next(snd)  # equivalent to ``snd = copy(fst)``
-            try:
-                fst_e = next(fst)
-            except StopIteration:
-                break
         res.append(tuple(grp))
+        i += 1
 
     return res
 
@@ -1308,9 +1300,7 @@ class TestRunner(Runnable):
                         else:
                             report.annotate_part_num()
                             flatten = list(report.pre_order_disassemble())
-                            disassembled.append(
-                                collate_for_merging_parts(flatten)
-                            )
+                            disassembled.append(collate_for_merging(flatten))
                     else:
                         raise MergeError(
                             f"While merging parts of report `uid`: {uid}, "
