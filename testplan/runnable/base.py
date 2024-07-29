@@ -53,6 +53,7 @@ from testplan.exporters.testing.base import Exporter
 from testplan.report import (
     ReportCategories,
     Status,
+    TestCaseReport,
     TestGroupReport,
     TestReport,
 )
@@ -140,7 +141,9 @@ def validate_lines(d: dict) -> bool:
     return True
 
 
-def collate_for_merging(es):
+def collate_for_merging(
+    es: List[Union[TestGroupReport, TestCaseReport]]
+) -> List[List[Union[TestGroupReport, TestCaseReport]]]:
     """
     Group report entries into buckets, where synthesized ones in the same
     bucket containing the previous non-synthesized one.
@@ -161,7 +164,7 @@ def collate_for_merging(es):
             else:
                 break
 
-        res.append(tuple(grp))
+        res.append(grp)
         i += 1
 
     return res
@@ -1207,18 +1210,6 @@ class TestRunner(Runnable):
                         # parting is mt-only feature, directly creating an original-
                         # compatible mt report would reduce mt materialize overhead
 
-                        # if isinstance(resource_result, TaskResult):
-                        #     # `runnable` must be an instance of MultiTest since
-                        #     # the corresponding report has `part` defined. Can
-                        #     # get a full structured report by `dry_run` and the
-                        #     # order of testsuites/testcases can be retained.
-                        #     runnable: MultiTest = resource_result.task.materialize()
-                        #     runnable.parent = self
-                        #     runnable.cfg.parent = self.cfg
-                        #     runnable.unset_part()
-                        #     report = runnable.dry_run().report
-                        # else:
-
                         # while currently the only parting strategy is case-level
                         # round-robin, more complicated parting strategy could make
                         # it hard to obtain the defined mt/ts/tc order, since then
@@ -1272,8 +1263,7 @@ class TestRunner(Runnable):
             part_indexes = set()
             merged = False
 
-            # should we continue merging on exception raised?
-
+            # XXX: should we continue merging on exception raised?
             with placeholder_report.logged_exceptions():
                 disassembled = []
                 for run, report in result:
@@ -1307,8 +1297,8 @@ class TestRunner(Runnable):
                             f"part {report.part[0]} didn't run. Merge of this part was skipped"
                         )
                 for it in zip_longest(*disassembled, fillvalue=()):
-                    for t in it:
-                        for e in t:
+                    for es in it:
+                        for e in es:
                             if not e.parent_uids:
                                 # specially handle mt entry
                                 placeholder_report.merge(e)
