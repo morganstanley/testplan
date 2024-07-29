@@ -75,3 +75,4 @@ To use the new connection, override the ``extract_driver_metadata`` in the relev
                 )]
             )
 
+See the example for more information :ref:`here <example_driver_connection>`.

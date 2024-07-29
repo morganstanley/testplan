@@ -47,18 +47,19 @@ def environment():
         re.compile(r".*Reading from file: (?P<file_path>.*)"),
     ]
     reader = ReadingDriver(
-        name=writer_name,
+        name="ReadingDriver",
         pre_args=[sys.executable],
         binary=os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "reader.py"
         ),
-        args=[context(writer, "{{file_path}}")],
+        args=[context(writer_name, "{{file_path}}")],
         log_regexps=reader_regexps,
     )
 
     unconnected = UnconnectedDriver("unconnected_driver")
 
     return [server, client, writer, reader, unconnected]
+
 
 @test_plan(name="DriverConnectionExample", driver_connection=True)
 def main(plan):

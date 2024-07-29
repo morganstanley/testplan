@@ -1,6 +1,6 @@
 import socket
 import sys
-from typing import List
+from typing import List, Union
 import psutil
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -17,7 +17,10 @@ SOCKET_CONNECTION_MAP = {
 }
 
 
-def get_network_connections(proc: psutil.Process):
+def get_network_connections(proc: psutil.Process) -> List[PortConnectionInfo]:
+    """
+    Extract network communications in subprocess
+    """
     connections = []
     listening_addresses = []
     # update to net_connections when psutil is updated to 6.0.0
@@ -79,7 +82,12 @@ def get_network_connections(proc: psutil.Process):
     return connections
 
 
-def get_file_connections(proc: psutil.Process, ignore_files: List[str]):
+def get_file_connections(
+    proc: psutil.Process, ignore_files: List[str]
+) -> List[FileConnectionInfo]:
+    """
+    Extract file communications in subprocess
+    """
     connections = []
     for open_file in proc.open_files():
         if open_file.path.split("/")[-1] in ignore_files:
@@ -107,7 +115,12 @@ def get_file_connections(proc: psutil.Process, ignore_files: List[str]):
     return connections
 
 
-def get_connections(driver: str, pid: int):
+def get_connections(
+    driver: str, pid: int
+) -> List[Union[FileConnectionInfo, PortConnectionInfo]]:
+    """
+    Extract file and network communications in subprocess
+    """
     network_connections = []
     file_connections = []
     try:

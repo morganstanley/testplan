@@ -90,7 +90,7 @@ class FileConnectionInfo(BaseConnectionInfo):
 
 class FileDriverConnection(BaseDriverConnection):
     """
-    Connection class for file-based between drivers
+    Connection class for file-based communication between drivers
     """
 
     def add_driver_if_in_connection(

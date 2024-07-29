@@ -4,7 +4,7 @@ Example for creating new custom connections
 
 from testplan.testing.multitest.driver.connection import (
     BaseConnectionInfo,
-    BaseDriverConnection
+    BaseDriverConnection,
 )
 
 
@@ -20,7 +20,9 @@ class CustomConnectionInfo(BaseConnectionInfo):
 
 class CustomDriverConnection(BaseDriverConnection):
     @classmethod
-    def from_connection_info(cls, driver_connection_info: CustomConnectionInfo):
+    def from_connection_info(
+        cls, driver_connection_info: CustomConnectionInfo
+    ):
         # Add any custom logic here
         # For example, to add a dummy driver
         conn = super(CustomDriverConnection, cls).from_connection_info(

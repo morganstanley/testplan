@@ -3,36 +3,36 @@ from testplan.testing.multitest.driver.app import App
 from testplan.testing.multitest.driver.tcp import TCPClient
 from testplan.testing.multitest.driver.connection import (
     Direction,
-    PortConnectionInfo
+    PortConnectionInfo,
 )
 
-from custom_connection import NewConnectionInfo
+from custom_connection import CustomConnectionInfo
 
 
 class CustomTCPClient(TCPClient):
     def extract_driver_metadata(self) -> DriverMetadata:
         return DriverMetadata(
-                name=self.name,
-                driver_metadata={"class": self.__class__.__name__},
-                conn_info=[
-                    PortConnectionInfo(
-                        name="Port",
-                        service=self.SERVICE,
-                        protocol=self.PROTOCOL,
-                        identifier=self.identifier,
-                        direction=self.DIRECTION,
-                        local_port=self.local_port,
-                        local_host=self.local_host,
-                    ),
-                    NewConnectionInfo(
-                        name="Custom",
-                        service="Custom",
-                        protocol="Custom",
-                        identifier=0,
-                        direction=Direction.CONNECTING,
-                    )
-                ],
-            )
+            name=self.name,
+            driver_metadata={"class": self.__class__.__name__},
+            conn_info=[
+                PortConnectionInfo(
+                    name="Port",
+                    service=self.SERVICE,
+                    protocol=self.PROTOCOL,
+                    identifier=self.identifier,
+                    direction=self.DIRECTION,
+                    local_port=self.local_port,
+                    local_host=self.local_host,
+                ),
+                CustomConnectionInfo(
+                    name="Custom",
+                    service="Custom",
+                    protocol="Custom",
+                    identifier=0,
+                    direction=Direction.CONNECTING,
+                ),
+            ],
+        )
 
 
 class WritingDriver(App):
@@ -58,6 +58,7 @@ class ReadingDriver(App):
     """
     Inherits the generic ``testplan.testing.multitest.driver.app.App`` driver
     """
+
     pass
 
 
