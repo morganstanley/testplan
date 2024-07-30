@@ -6,6 +6,7 @@ from testplan.report import Status
 from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.runners.pools.tasks import Task
 from testplan.testing.multitest import MultiTest, testcase, testsuite
+from testplan.testing.multitest.driver import Driver
 
 
 @testsuite
@@ -189,8 +190,8 @@ def test_multi_parts_duplicate_part():
 
 def test_multi_parts_missing_parts():
     """
-    Execute MultiTest parts with invalid parameters that
-    not all parts of a MultiTest are scheduled.
+    Execute MultiTest parts while not all parts of a MultiTest are scheduled.
+    It should just work now.
     """
     plan = TestplanMock(name="plan", merge_scheduled_parts=True)
     pool = ThreadPool(name="MyThreadPool", size=2)
@@ -200,15 +201,20 @@ def test_multi_parts_missing_parts():
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
         plan.schedule(task, resource="MyThreadPool")
 
-    assert plan.run().run is False
+    assert plan.run().run is True
 
-    assert len(plan.report.entries) == 3  # one placeholder report & 2 siblings
-    assert len(plan.report.entries[0].entries) == 0  # already cleared
-    assert plan.report.status == Status.ERROR  # Testplan result
-    assert (
-        "not all MultiTest parts had been scheduled"
-        in plan.report.entries[0].logs[0]["message"]
-    )
+    assert len(plan.report.entries) == 1
+    assert plan.report.status == Status.PASSED  # Testplan result
+    assert plan.report.entries[0].name == "MTest"
+    assert len(plan.report.entries[0].entries) == 2  # 2 suites
+    assert plan.report.entries[0].entries[0].name == "Suite1"
+    assert plan.report.entries[0].entries[1].name == "Suite2"
+    assert len(plan.report.entries[0].entries[0].entries) == 1  # param group
+    assert plan.report.entries[0].entries[0].entries[0].name == "test_true"
+    assert len(plan.report.entries[0].entries[1].entries) == 1  # param group
+    assert plan.report.entries[0].entries[1].entries[0].name == "test_false"
+    assert len(plan.report.entries[0].entries[0].entries[0].entries) == 6
+    assert len(plan.report.entries[0].entries[1].entries[0].entries) == 2
 
 
 def test_multi_parts_not_successfully_executed():
@@ -257,3 +263,168 @@ def test_even_parts():
         assert plan.report.entries[i].entries[1].name == "Suite2"
     for i in range(5, 7):
         assert plan.report.entries[i].entries[1].name == "Suite3"
+
+
+@testsuite
+class Suite4:
+    def setup(self, env, result):
+        result.log("dummy setup")
+
+    @testcase
+    def test_single(self, env, result):
+        result.true(True)
+
+    @testcase(parameters=tuple(range(7)))
+    def test_params(self, env, result, arg):
+        result.gt(arg, 4)
+
+    @testcase(parameters=tuple(range(3)), execution_group="epsilon")
+    def test_params_2(self, env, result, arg):
+        result.gt(arg, 1)
+
+    def teardown(self, env, result):
+        result.log("dummy teardown")
+
+
+class DummyDriver(Driver):
+    def starting(self):
+        pass
+
+    def stopping(self):
+        pass
+
+
+def test_synthesized_preserved_in_merged():
+    plan = TestplanMock(name="plan", merge_scheduled_parts=True)
+    for i in range(4):
+        if i % 2 == 0:
+            plan.add(
+                MultiTest(
+                    "mtest",
+                    [Suite1(), Suite4()],
+                    environment=[DummyDriver("d")],
+                    part=(i, 4),
+                    before_stop=lambda env, result: result.log(
+                        "dummy before_stop"
+                    ),
+                )
+            )
+
+    assert plan.run().run is True
+    assert len(plan.report["mtest"]["Environment Start"]) == 2
+    for i, e in enumerate(plan.report["mtest"]["Environment Start"]):
+        assert e.uid == f"Starting - part({i * 2}/4)"
+
+    # | p0    | p1    | p2    | p3    |
+    # | ----- | ----- | ----- | ----- |
+    # | s1c1  | s1c2  | s1c3  | s1c4  |
+    # | s1c5  | s1c6  | s1c7  | s1c8  |
+    # |       |       | s4s   | s4s   |
+    # | s1c9  | s1c10 | s4c1  | s4c2  |
+    # | s4s   | s4s   |       |       |
+    # | s4c3  | s4c4  | s4c5  | s4c6  |
+    # | s4c7  | s4c8  | s4c9  | s4c10 |
+    # | s4c11 | s4t   | s4t   | s4t   |
+    # | s4t   |       |       |       |
+    # where
+    #   s4c2 == test_params__arg_0
+    #   s4c9 == test_params_2__arg_0
+
+    s4 = plan.report["mtest"]["Suite4"]
+    assert (
+        s4.counter["total"] == 6
+    )  # part 0, part 2 scheduled, 2 setups & 2 teardowns
+    assert len(s4) == 7  # setups & teardowns not grouped, param grouped
+    assert s4.entries[0].uid == "setup - part(2/4)"
+    assert s4.entries[1].uid == "setup - part(0/4)"
+    assert s4.entries[2].uid == "test_single"
+    assert s4.entries[3].uid == "test_params"
+    assert s4.entries[4].uid == "test_params_2"
+    assert s4.entries[5].uid == "teardown - part(2/4)"
+    assert s4.entries[6].uid == "teardown - part(0/4)"
+
+    assert all(
+        map(
+            eq,
+            map(lambda x: x.uid, s4.entries[3].entries),
+            map(lambda x: f"test_params__arg_{x}", [1, 3, 5]),
+        )
+    )
+    assert all(
+        map(
+            eq,
+            map(lambda x: x.uid, s4.entries[4].entries),
+            map(lambda x: f"test_params_2__arg_{x}", [0, 2]),
+        )
+    )
+
+    assert len(plan.report["mtest"]["Environment Stop"]) == 4  # 2 before_stop
+    es = plan.report["mtest"]["Environment Stop"]
+    assert len(es) == 4
+    assert es.entries[0].uid == "Before Stop - part(2/4)"
+    assert es.entries[1].uid == "Stopping - part(2/4)"
+    assert es.entries[2].uid == "Before Stop - part(0/4)"
+    assert es.entries[3].uid == "Stopping - part(0/4)"
+
+
+@testsuite
+class Suite5:
+    def teardown(self, env, result):
+        result.log("padding")
+
+    @testcase
+    def c1(self, env, result):
+        result.true(True)
+
+
+@testsuite
+class Suite6:
+    @testcase
+    def c1(self, env, result):
+        result.false(True)
+
+    @testcase
+    def c2(self, env, result):
+        result.true(False)
+
+
+@testsuite
+class Suite7:
+    @testcase
+    def c1(self, env, result):
+        result.false(False)
+
+    @testcase
+    def c2(self, env, result):
+        result.false(False)
+
+    @testcase
+    def c3(self, env, result):
+        result.false(False)
+
+
+def test_order_maintained_w_synthesized_in_merged():
+    plan = TestplanMock(name="plan", merge_scheduled_parts=True)
+    for i in range(3):
+        plan.add(
+            MultiTest(
+                "mtest",
+                [Suite5(), Suite6(), Suite7()],
+                part=(i, 3),
+            )
+        )
+
+    assert plan.run().run is True
+
+    # | p0    | p1    | p2    |
+    # | ----- | ----- | ----- |
+    # | s5c1  | s6c1  | sbc2  |
+    # | s5t   |       |       |
+    # | s7c1  | s7c2  | s7c3  |
+
+    # round-robin without collation will result in order [s7c2, s7c3, s7c1]
+
+    s7 = plan.report["mtest"]["Suite7"]
+    assert s7.entries[0].uid == "c1"
+    assert s7.entries[1].uid == "c2"
+    assert s7.entries[2].uid == "c3"

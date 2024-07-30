@@ -39,10 +39,12 @@ from testplan.common.utils.process import (
     subprocess_popen,
 )
 from testplan.common.utils.timing import format_duration, parse_duration
-from testplan.common.report.base import Status as ReportStatus
-from testplan.report import (
-    RuntimeStatus,
+from testplan.common.report import (
+    Status as ReportStatus,
     ReportCategories,
+    RuntimeStatus,
+)
+from testplan.report import (
     TestCaseReport,
     TestGroupReport,
     test_styles,
@@ -62,12 +64,14 @@ ASSERTION_INDENT = 8
 
 
 class ResourceHooks(str, Enum):
+    # suite names
     ENVIRONMENT_START = "Environment Start"
     ENVIRONMENT_STOP = "Environment Stop"
     ERROR_HANDLER = "Error Handler"
+
+    # case names
     STARTING = "Starting"
     STOPPING = "Stopping"
-
     BEFORE_START = "Before Start"
     AFTER_START = "After Start"
     BEFORE_STOP = "Before Stop"

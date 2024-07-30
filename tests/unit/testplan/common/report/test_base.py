@@ -370,6 +370,32 @@ class TestReportGroup:
         assert parent.parent_uids == [grand_parent.uid]
         assert child.parent_uids == [grand_parent.uid, parent.uid]
 
+    def test_graft_round_trip(self):
+        grand_parent = DummyReportGroup()
+        parent = DummyReportGroup()
+        child = DummyReport()
+
+        grand_parent.append(parent)
+        parent.append(child)
+
+        refs = list(grand_parent.pre_order_reports())
+        parts = list(grand_parent.pre_order_disassemble())
+
+        # disassembled in place
+        assert not grand_parent.entries
+        assert all(map(lambda x, y: x is y, refs, parts))
+
+        child.parent_uids.clear()
+        parent.parent_uids.clear()
+
+        grand_parent.graft_entry(parent, [])
+        grand_parent.graft_entry(child, [parent.uid])
+
+        assert child.parent_uids == ["dummy", "dummy"]
+        assert parent.parent_uids == ["dummy"]
+        assert "dummy" in grand_parent
+        assert "dummy" in parent
+
 
 def test_report_categories_type():
     assert ReportCategories.MULTITEST == "multitest"
