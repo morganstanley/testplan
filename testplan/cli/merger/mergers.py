@@ -50,4 +50,7 @@ class SimpleCombiner:
             # TODO: what to do with meta, tags_index
         result.description = "\n".join(description)
 
+        # Reset uids to prevent failures of reports exported from interactive mode
+        result.reset_uid()
+
         return result
