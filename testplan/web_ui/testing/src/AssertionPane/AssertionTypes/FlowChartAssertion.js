@@ -1,3 +1,4 @@
+import _ from "lodash";
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import Dagre from "@dagrejs/dagre";
@@ -132,10 +133,36 @@ export default function FlowChartAssertion(props) {
       },
       ...edge
     }));
+    const [orphanNodes, nodes] = _.partition(initialNodes, (node) => {
+      for (const edge of initialEdges) {
+        if (node.id == edge.source || node.id == edge.target) {
+          return false;
+        }
+      }
+      return true;
+    });
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      initialNodes,
+      nodes,
       initialEdges
     );
+    // find the leftmost node and start layouting the orphan nodes there
+    let leftmostNode = layoutedNodes.reduce(
+      (prev, curr) => 
+        prev.position.x < curr.position.x
+      ? prev
+      : curr
+    );
+    let positionX = leftmostNode.position.x;
+    for (let node of orphanNodes) {
+      node.position = {
+        x: positionX,
+        y: -80
+      };
+      node.width = 150;
+      node.height = 40;
+      positionX += 175;
+    }
+    layoutedNodes.push(...orphanNodes);
 
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
