@@ -75,7 +75,7 @@ class TCPClient(Driver):
         port: Union[int, str, ContextValue],
         interface: Union[Tuple[str, int], None] = None,
         connect_at_start: bool = True,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(TCPClient, self).__init__(**options)
@@ -100,8 +100,8 @@ class TCPClient(Driver):
         return self._server_port
 
     @property
-    def identifier(self):
-        return self.server_port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self.server_port}"
 
     @property
     def local_port(self):

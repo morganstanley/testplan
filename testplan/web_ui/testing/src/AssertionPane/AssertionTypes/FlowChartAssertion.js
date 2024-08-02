@@ -135,7 +135,7 @@ export default function FlowChartAssertion(props) {
     }));
     const [orphanNodes, nodes] = _.partition(initialNodes, (node) => {
       for (const edge of initialEdges) {
-        if (node.id == edge.source || node.id == edge.target) {
+        if (node.id === edge.source || node.id === edge.target) {
           return false;
         }
       }

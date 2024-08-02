@@ -56,8 +56,7 @@ from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
 from testplan.testing.multitest.driver.connection import (
-    BaseConnectionInfo,
-    BaseDriverConnection,
+    DriverConnectionGraph
 )
 
 from testplan.testing.multitest import result
@@ -464,7 +463,6 @@ class Test(Runnable):
             self._record_driver_timing(
                 ResourceTimings.RESOURCE_SETUP, case_report
             )
-        if self.driver_connection:
             self._record_driver_connection(case_report)
         case_report.pass_if_empty()
         if self.resources.start_exceptions:
@@ -886,76 +884,13 @@ class Test(Runnable):
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
-        connections: List[BaseDriverConnection] = []
+        graph = DriverConnectionGraph(self.resources)
         for driver in self.resources:
             for conn_info in driver.extract_driver_metadata().conn_info:
-                if issubclass(type(conn_info), BaseConnectionInfo):
-                    added = False
-                    for existing_connection in connections:
-                        added = (
-                            existing_connection.add_driver_if_in_connection(
-                                str(driver), conn_info
-                            )
-                        )
-                        if added:
-                            break
-                    if not added:
-                        new_connection = conn_info.promote_to_connection()
-                        new_connection.add_driver_if_in_connection(
-                            str(driver), conn_info
-                        )
-                        connections.append(new_connection)
-
-        drivers = set([str(driver) for driver in self.resources])
-        unconnected_drivers = set(drivers)
-        edges = []
-        for connection in connections:
-            if connection.should_include():
-                for (
-                    listening_driver,
-                    listening_driver_identifier,
-                ) in connection.drivers_listening.items():
-                    # in case custom drivers are added in connections
-                    drivers.add(listening_driver)
-                    for (
-                        connecting_driver,
-                        connecting_driver_identifier,
-                    ) in connection.drivers_connecting.items():
-                        drivers.add(connecting_driver)
-                        if listening_driver == connecting_driver:
-                            continue
-                        unconnected_drivers.discard(listening_driver)
-                        unconnected_drivers.discard(connecting_driver)
-                        edges.append(
-                            {
-                                "id": f"{connection.connection_rep}: {connecting_driver} -> {listening_driver}",
-                                "source": connecting_driver,
-                                "target": listening_driver,
-                                "startLabel": ",".join(
-                                    connecting_driver_identifier
-                                ),
-                                "label": connection.connection_rep,
-                                "endLabel": ",".join(
-                                    listening_driver_identifier
-                                ),
-                            }
-                        )
-        drivers = [
-            {
-                "id": driver,
-                "data": {
-                    "label": re.sub(r"(\w+)(\[\w+\])", r"\1\n\2", driver)
-                },
-                "style": (
-                    {"border": "1px solid #FF0000"}
-                    if driver in unconnected_drivers
-                    else {}
-                ),
-            }
-            for driver in drivers
-        ]
+                graph.add_connection(str(driver), conn_info)
+        graph.set_nodes_and_edges()
         case_result.flow_chart(
-            drivers, edges, description="Driver Connections"
+            graph.nodes, graph.edges, description="Driver Connections"
         )
         case_report.extend(case_result.serialized_entries)
 
@@ -965,13 +900,6 @@ class Test(Runnable):
         if not hasattr(self.cfg, "driver_info"):
             return False
         return self.cfg.driver_info
-
-    @property
-    def driver_connection(self) -> bool:
-        # handle possibly missing ``driver_connection``
-        if not hasattr(self.cfg, "driver_connection"):
-            return False
-        return self.cfg.driver_connection
 
 
 class ProcessRunnerTestConfig(TestConfig):

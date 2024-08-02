@@ -12,13 +12,11 @@ from testplan.common.utils.timing import retry_until_timeout
 from ..base import (
     Driver,
     DriverConfig,
-    DriverMetadata,
 )
 from ..connection import (
     Direction,
     Protocol,
     PortConnectionInfo,
-    PortDriverConnection,
 )
 
 
@@ -82,7 +80,7 @@ class ZMQClient(Driver):
         ports,
         message_pattern=zmq.PAIR,
         connect_at_start: bool = True,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(ZMQClient, self).__init__(**options)
@@ -234,22 +232,16 @@ class ZMQClient(Driver):
         """
         self.reconnect()
 
-    def extract_driver_metadata(self) -> DriverMetadata:
-        return DriverMetadata(
-            name=self.name,
-            driver_metadata={
-                "class": self.__class__.__name__,
-            },
-            conn_info=[
-                PortConnectionInfo(
-                    name="Connecting port",
-                    service="TCP",
-                    protocol=Protocol.TCP,
-                    identifier=port,
-                    direction=Direction.CONNECTING,
-                    local_port=None,
-                    local_host=None,
-                )
-                for host, port in zip(self.hosts, self.ports)
-            ],
-        )
+    def get_connections(self) -> List[PortConnectionInfo]:
+        return [
+            PortConnectionInfo(
+                name="Connecting port",
+                service="TCP",
+                protocol=Protocol.TCP,
+                connection_rep=f"tcp://:{port}",
+                direction=Direction.CONNECTING,
+                port=None,
+                host=None,
+            )
+            for host, port in zip(self.hosts, self.ports)
+        ]

@@ -88,7 +88,7 @@ class HTTPClient(Driver):
         protocol: str = "http",
         timeout: int = 5,
         interval: float = 0.01,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
@@ -107,8 +107,8 @@ class HTTPClient(Driver):
         return self._host
 
     @property
-    def identifier(self):
-        return self.port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self.port}"
 
     @property
     def port(self):

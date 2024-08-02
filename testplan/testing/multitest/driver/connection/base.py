@@ -16,20 +16,8 @@ class BaseConnectionInfo:
     name: str  # name of the connection
     service: str  # e.g. HTTP, TCP, FIX
     protocol: str  # tcp, udp, file
-    identifier: Union[int, str, ContextValue]
+    connection_rep: str
     direction: Direction
-
-    def to_dict(self):
-        return {
-            "service": self.service,
-            "protocol": self.protocol,
-            "identifier": self.identifier,
-            "direction": self.direction,
-        }
-
-    @property
-    def connection_rep(self):
-        raise NotImplementedError
 
     def promote_to_connection(self):
         raise NotImplementedError
@@ -67,3 +55,8 @@ class BaseDriverConnection:
 
     def should_include(self):
         return self.drivers_connecting and self.drivers_listening
+
+
+class BaseConnectionExtractor:
+    def extract_connection(self, driver) -> List[BaseConnectionInfo]:
+        raise NotImplementedError

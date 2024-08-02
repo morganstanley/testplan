@@ -132,8 +132,8 @@ class ZookeeperStandalone(Driver):
         return "{}:{}".format(self._host, self._port)
 
     @property
-    def identifier(self):
-        return self.port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self.port}"
 
     @property
     def local_port(self):

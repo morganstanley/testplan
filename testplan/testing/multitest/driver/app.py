@@ -30,8 +30,8 @@ from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import kill_process, subprocess_popen
 
-from .base import Driver, DriverConfig, DriverMetadata
-from .connection import get_connections
+from .base import Driver, DriverConfig
+from .connection import FileConnectionExtractor, PortConnectionExtractor
 
 IS_WIN = platform.system() == "Windows"
 
@@ -103,6 +103,7 @@ class App(Driver):
     """
 
     CONFIG = AppConfig
+    EXTRACTORS = [FileConnectionExtractor(), PortConnectionExtractor()]
 
     def __init__(
         self,
@@ -463,14 +464,3 @@ class App(Driver):
             kill_process(self.proc, self.cfg.sigint_timeout)
         if self.std:
             self.std.close()
-
-    def extract_driver_metadata(self) -> DriverMetadata:
-        return DriverMetadata(
-            name=self.name,
-            driver_metadata={
-                "class": self.__class__.__name__,
-                "outpath": self.outpath,
-                "errpath": self.errpath,
-            },
-            conn_info=get_connections(str(self), self.pid),
-        )

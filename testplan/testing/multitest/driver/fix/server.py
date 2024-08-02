@@ -98,7 +98,7 @@ class FixServer(Driver):
         port: int = 0,
         version: str = "FIX.4.2",
         tls_config: Optional[TLSConfig] = None,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
@@ -127,8 +127,8 @@ class FixServer(Driver):
         return self._port
 
     @property
-    def identifier(self):
-        return self.port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self.port}"
 
     @property
     def local_port(self):

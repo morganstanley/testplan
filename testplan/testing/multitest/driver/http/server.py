@@ -329,7 +329,7 @@ class HTTPServer(Driver):
         handler_attributes=None,
         timeout=5,
         interval=0.01,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
@@ -357,8 +357,8 @@ class HTTPServer(Driver):
         return self._port
 
     @property
-    def identifier(self):
-        return self.port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self.port}"
 
     @property
     def local_port(self):

@@ -181,8 +181,8 @@ class FixClient(Driver):
         return self.cfg.sendersub
 
     @property
-    def identifier(self):
-        return self._client.port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self._client.port}"
 
     @property
     def local_port(self):

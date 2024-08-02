@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional
+import re
+from typing import List, Optional
 
 from testplan.testing.multitest.driver.connection.base import (
     Direction,
@@ -21,14 +22,8 @@ class PortConnectionInfo(BaseConnectionInfo):
     ConnectionInfo for port communication (e.g TCP/UDP) between drivers
     """
 
-    local_port: Optional[int] = None  # port the driver is using
-    local_host: Optional[str] = None  # host the driver is using
-
-    @property
-    def connection_rep(self):
-        # TODO: Add host info
-        # identifier should be host:port
-        return f"{self.protocol}://:{self.identifier}"
+    port: Optional[int] = None  # port the driver is using
+    host: Optional[str] = None  # host the driver is using
 
     def promote_to_connection(self):
         return PortDriverConnection.from_connection_info(self)
@@ -56,8 +51,8 @@ class PortDriverConnection(BaseDriverConnection):
                     self.service = driver_connection_info.service.upper()
 
             port = (
-                str(driver_connection_info.local_port)
-                if driver_connection_info.local_port is not None
+                str(driver_connection_info.port)
+                if driver_connection_info.port is not None
                 else "Unknown"
             )
             if (
@@ -79,10 +74,6 @@ class FileConnectionInfo(BaseConnectionInfo):
     """
     ConnectionInfo for file-based communication between drivers
     """
-
-    @property
-    def connection_rep(self):
-        return f"file://{self.identifier}"
 
     def promote_to_connection(self):
         return FileDriverConnection.from_connection_info(self)
@@ -109,3 +100,81 @@ class FileDriverConnection(BaseDriverConnection):
                 self.drivers_connecting[driver_name].append("Write")
             return True
         return False
+
+
+class DriverConnectionGraph:
+    def __init__(self, drivers):
+        self.drivers = drivers
+        self.connections: List[BaseDriverConnection] = []
+        self._nodes = []
+        self._edges = []
+
+    @property
+    def nodes(self):
+        return self._nodes
+    @property
+    def edges(self):
+        return self._edges
+
+    def add_connection(self, driver_name: str, conn_info: BaseConnectionInfo):
+        added = False
+        for existing_connection in self.connections:
+            added = existing_connection.add_driver_if_in_connection(
+                driver_name, conn_info
+            )
+            if added:
+                break
+        if not added:
+            new_connection = conn_info.promote_to_connection()
+            new_connection.add_driver_if_in_connection(driver_name, conn_info)
+            self.connections.append(new_connection)
+
+    def set_nodes_and_edges(self):
+        drivers = set([str(driver) for driver in self.drivers])
+        unconnected_drivers = set(drivers)
+        edges = []
+        for connection in self.connections:
+            if connection.should_include():
+                for (
+                    listening_driver,
+                    listening_driver_identifier,
+                ) in connection.drivers_listening.items():
+                    # in case custom drivers are added in connections
+                    drivers.add(listening_driver)
+                    for (
+                        connecting_driver,
+                        connecting_driver_identifier,
+                    ) in connection.drivers_connecting.items():
+                        drivers.add(connecting_driver)
+                        if listening_driver == connecting_driver:
+                            continue
+                        unconnected_drivers.discard(listening_driver)
+                        unconnected_drivers.discard(connecting_driver)
+                        self._edges.append(
+                            {
+                                "id": f"{connection.connection_rep}: {connecting_driver} -> {listening_driver}",
+                                "source": connecting_driver,
+                                "target": listening_driver,
+                                "startLabel": ",".join(
+                                    connecting_driver_identifier
+                                ),
+                                "label": connection.connection_rep,
+                                "endLabel": ",".join(
+                                    listening_driver_identifier
+                                ),
+                            }
+                        )
+        self._nodes = [
+            {
+                "id": driver,
+                "data": {
+                    "label": re.sub(r"(\w+)(\[\w+\])", r"\1\n\2", driver)
+                },
+                "style": (
+                    {"border": "1px solid #FF0000"}
+                    if driver in unconnected_drivers
+                    else {}
+                ),
+            }
+            for driver in drivers
+        ]

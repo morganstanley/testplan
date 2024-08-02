@@ -32,34 +32,9 @@ from testplan.common.utils.timing import (
 )
 from testplan.testing.multitest.driver.connection import (
     BaseConnectionInfo,
-    PortConnectionInfo,
+    BaseConnectionExtractor,
+    ConnectionExtractor,
 )
-
-
-@dataclass
-class DriverMetadata:
-    """
-    Base class for holding Driver metadata.
-
-    :param name:
-    :param driver_metadata:
-    :param conn_info: list of connection info objects
-    """
-
-    name: str
-    driver_metadata: Dict
-    conn_info: List[BaseConnectionInfo] = field(default_factory=list)
-
-    def to_dict(self) -> Dict:
-        """
-        Returns the metadata of the driver except for the connections.
-        """
-        data = self.driver_metadata
-        if self.conn_info:
-            data["Connections"] = {
-                conn.name: conn.to_dict() for conn in self.conn_info
-            }
-        return data
 
 
 class DriverConfig(ResourceConfig):
@@ -121,9 +96,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     """
 
     CONFIG = DriverConfig
-    SERVICE = None
-    PROTOCOL = None
-    DIRECTION = None
+    EXTRACTORS: List[BaseConnectionExtractor] = [ConnectionExtractor()]
 
     def __init__(
         self,
@@ -432,49 +405,11 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         return content
 
-    @property
-    def identifier(self):
-        return None
-
-    @property
-    def local_port(self):
-        return None
-
-    @property
-    def local_host(self):
-        return None
-
-    def extract_driver_metadata(self) -> DriverMetadata:
-        """
-        Extracts driver metadata as described in the extractor function.
-
-        :return: driver metadata
-        """
-        if (
-            self.SERVICE
-            and self.PROTOCOL
-            and self.DIRECTION
-            and self.identifier
-        ):
-            return DriverMetadata(
-                name=self.name,
-                driver_metadata={"class": self.__class__.__name__},
-                conn_info=[
-                    PortConnectionInfo(
-                        name="Port",
-                        service=self.SERVICE,
-                        protocol=self.PROTOCOL,
-                        identifier=self.identifier,
-                        direction=self.DIRECTION,
-                        local_port=self.local_port,
-                        local_host=self.local_host,
-                    )
-                ],
-            )
-        return DriverMetadata(
-            name=self.name,
-            driver_metadata={"class": self.__class__.__name__},
-        )
+    def get_Connections(self) -> List[BaseConnectionInfo]:
+        connections = []
+        for extractor in self.EXTRACTORS:
+            connections.extend(extractor.extract_connection(self))
+        return connections
 
     def __str__(self):
         return f"{self.__class__.__name__}[{self.name}]"

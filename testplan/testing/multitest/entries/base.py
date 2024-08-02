@@ -484,4 +484,4 @@ class FlowChart(BaseEntry):
     def __init__(self, nodes: list, edges: list, description=None):
         self.nodes = nodes
         self.edges = edges
-        super(FlowChart, self).__init__(description=description)
+        super().__init__(description=description)

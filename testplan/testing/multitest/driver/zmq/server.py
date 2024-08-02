@@ -70,7 +70,7 @@ class ZMQServer(Driver):
         host: str = "localhost",
         port: int = 0,
         message_pattern=zmq.PAIR,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(ZMQServer, self).__init__(**options)
@@ -99,8 +99,8 @@ class ZMQServer(Driver):
         return self._socket
 
     @property
-    def identifier(self):
-        return self.port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self.port}"
 
     @property
     def local_port(self):

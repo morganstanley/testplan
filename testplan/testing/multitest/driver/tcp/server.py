@@ -72,7 +72,7 @@ class TCPServer(Driver):
         name: str,
         host: Optional[Union[str, ContextValue]] = "localhost",
         port: Optional[Union[int, str, ContextValue]] = 0,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(TCPServer, self).__init__(**options)
@@ -100,8 +100,8 @@ class TCPServer(Driver):
         return self._server.socket
 
     @property
-    def identifier(self):
-        return self.port
+    def connection_rep(self):
+        return f"{self.PROTOCOL}://:{self.port}"
 
     @property
     def local_port(self):
