@@ -3,6 +3,8 @@
 import os
 import signal
 import socket
+import threading
+import time
 from multiprocessing.pool import ThreadPool
 from typing import Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -286,6 +288,7 @@ class RemotePool(Pool):
 
     CONFIG = RemotePoolConfig
     CONN_MANAGER = ZMQServer
+    QUEUE_WAIT_INTERVAL = 3
 
     def __init__(
         self,
@@ -321,7 +324,6 @@ class RemotePool(Pool):
         options.update(self.filter_locals(locals()))
         super(RemotePool, self).__init__(**options)
         self._options = options  # pass to remote worker later
-
         self._request_handlers[
             Message.MetadataPull
         ] = self._worker_setup_metadata
@@ -334,16 +336,27 @@ class RemotePool(Pool):
                 "number_of_workers": number_of_workers,
             }
 
+        self._stop_worker_thread = threading.Thread(
+            target=self._stop_worker_loop
+        )
+        self._stop_worker_thread.daemon = True
+
     @property
     def resource_monitor_address(self) -> Optional[str]:
         if self.parent.resource_monitor_server:
             return self.parent.resource_monitor_server.address
 
     @staticmethod
-    def _worker_setup_metadata(worker, request, response) -> None:
+    def _worker_setup_metadata(
+        worker: RemoteWorker, _: Message, response: Message
+    ) -> None:
         worker.respond(
             response.make(Message.Metadata, data=worker.setup_metadata)
         )
+
+    def post_start(self) -> None:
+        super().post_start()
+        self._stop_worker_thread.start()
 
     def _add_workers(self) -> None:
         """TODO."""
@@ -384,6 +397,47 @@ class RemotePool(Pool):
                 self.logger.warning(
                     "Please upgrade to the suggested python interpreter."
                 )
+
+    def _stop_worker_loop(self):
+        while self.active:
+            worker_id = None
+            with self._pool_lock:
+                try:
+                    worker_id = self._wait_stop_queue.pop(0)
+                    self._stopping_queue.append(worker_id)
+                except IndexError:
+                    pass
+
+            if worker_id:
+                self.logger.debug(
+                    "Get early stop worker %s in queue", worker_id
+                )
+                worker = self._workers[worker_id]
+                if self.pool:
+                    self.pool.apply_async(
+                        self._workers.sync_stop_resource, (worker,)
+                    )
+                else:
+                    self._workers.sync_stop_resource(worker)
+            else:
+                time.sleep(self.QUEUE_WAIT_INTERVAL)
+
+    def _early_stop_worker(self, worker_uid: Union[str, int]) -> bool:
+        with self._pool_lock:
+            if (
+                worker_uid not in self._wait_stop_queue
+                and worker_uid not in self._stopping_queue
+            ):
+                if self.RESERVE_WORKER_NUM + self.unassigned.size() < len(
+                    self.worker_status["active"]
+                ) - len(self._wait_stop_queue) - len(self._stopping_queue):
+                    self.logger.user_info(
+                        "Early stop worker %s", self._workers[worker_uid]
+                    )
+                    print(f"Early stop worker {self._workers[worker_uid]}")
+                    self._wait_stop_queue.append(worker_uid)
+                    return True
+        return False
 
     def starting(self) -> None:
         self._start_thread_pool()
