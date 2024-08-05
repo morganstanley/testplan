@@ -16,7 +16,7 @@ Testplan defines 2 types of connections by default, ``PortDriverConnection`` and
       connection between drivers via files (e.g Driver A writes to file X, Driver B reads file X).
 
 Drivers that inherit `App` will automatically search for the its network and file connections
-via the ``PortConnectionExtractor`` and the ``FileConnectionExtractor``. These extractors use ``psutil`` functions to extract connections.
+via the ``SubprocessPortConnectionExtractor`` and the ``SubprocessFileConnectionExtractor``. These extractors use ``psutil`` functions to extract connections.
 
 New types of driver connections can also be defined. To do so, you will need to create 3 new classes that inherits
 :py:class:`BaseConnectionInfo <testplan.testing.multitest.driver.connection.base.BaseConnectionInfo>`, 

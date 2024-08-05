@@ -53,7 +53,9 @@ class BaseDriverConnection:
         raise NotImplementedError
 
     def __str__(self):
-        return f"{self.service}-{self.connection_rep}"
+        return (
+            f"{self.__class__.__name__}[{self.service}-{self.connection_rep}]"
+        )
 
     def should_include(self):
         return self.drivers_connecting and self.drivers_listening

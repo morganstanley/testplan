@@ -33,7 +33,6 @@ from testplan.common.utils.timing import (
 from testplan.testing.multitest.driver.connection import (
     BaseConnectionInfo,
     BaseConnectionExtractor,
-    ConnectionExtractor,
 )
 
 

@@ -14,6 +14,6 @@ from testplan.testing.multitest.driver.connection.connection_info import (
 )
 from testplan.testing.multitest.driver.connection.connection_extractor import (
     ConnectionExtractor,
-    PortConnectionExtractor,
-    FileConnectionExtractor,
+    SubprocessPortConnectionExtractor,
+    SubprocessFileConnectionExtractor,
 )

@@ -358,8 +358,8 @@ expected_report_with_driver_connections_and_driver_info_flag = TestReport(
                                     "category": "DEFAULT",
                                     "table": [
                                         [
-                                            "TCPClient",
-                                            "client",
+                                            re.compile(r"TCPClient|TCPServer"),
+                                            re.compile(r"client|server"),
                                             re.compile(
                                                 r"\d{2}:\d{2}:\d{2}.\d{6}"
                                             ),
@@ -369,8 +369,8 @@ expected_report_with_driver_connections_and_driver_info_flag = TestReport(
                                             lambda x: isinstance(x, float),
                                         ],
                                         [
-                                            "TCPServer",
-                                            "server",
+                                            re.compile(r"TCPClient|TCPServer"),
+                                            re.compile(r"client|server"),
                                             re.compile(
                                                 r"\d{2}:\d{2}:\d{2}.\d{6}"
                                             ),

@@ -133,7 +133,6 @@ class DriverConnectionGraph:
     def set_nodes_and_edges(self):
         drivers = set([str(driver) for driver in self.drivers])
         unconnected_drivers = set(drivers)
-        edges = []
         for connection in self.connections:
             if connection.should_include():
                 for (

@@ -31,7 +31,10 @@ from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import kill_process, subprocess_popen
 
 from .base import Driver, DriverConfig
-from .connection import FileConnectionExtractor, PortConnectionExtractor
+from .connection import (
+    SubprocessFileConnectionExtractor,
+    SubprocessPortConnectionExtractor,
+)
 
 IS_WIN = platform.system() == "Windows"
 
@@ -103,7 +106,10 @@ class App(Driver):
     """
 
     CONFIG = AppConfig
-    EXTRACTORS = [FileConnectionExtractor(), PortConnectionExtractor()]
+    EXTRACTORS = [
+        SubprocessFileConnectionExtractor(),
+        SubprocessPortConnectionExtractor(),
+    ]
 
     def __init__(
         self,

@@ -49,7 +49,7 @@ class ConnectionExtractor(BaseConnectionExtractor):
         ]
 
 
-class PortConnectionExtractor(BaseConnectionExtractor):
+class SubprocessPortConnectionExtractor(BaseConnectionExtractor):
     def __init__(
         self,
         connections_to_check: List[Protocol] = None,
@@ -141,7 +141,7 @@ class PortConnectionExtractor(BaseConnectionExtractor):
         return connections
 
 
-class FileConnectionExtractor(BaseConnectionExtractor):
+class SubprocessFileConnectionExtractor(BaseConnectionExtractor):
     def __init__(self, files_to_ignore: List[str] = None):
         if not files_to_ignore:
             files_to_ignore = ["stdout", "stderr"]

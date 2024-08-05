@@ -8,9 +8,9 @@ from testplan.testing.multitest.driver.connection import (
     Direction,
     Protocol,
     PortConnectionInfo,
-    PortConnectionExtractor,
+    SubprocessPortConnectionExtractor,
     FileConnectionInfo,
-    FileConnectionExtractor,
+    SubprocessFileConnectionExtractor,
 )
 from pytest_test_filters import skip_on_windows
 
@@ -25,7 +25,7 @@ popenfile = namedtuple("popenfile", ["path", "mode"])
 @skip_on_windows(
     reason="psutil/socket has different functions and attributes on Windows."
 )
-class TestPortConnectionExtractor:
+class TestSubprocessPortConnectionExtractor:
     def test_extract_connections(self, mocker):
         mocked_output = [
             pconn(
@@ -57,7 +57,7 @@ class TestPortConnectionExtractor:
         mocker.patch("psutil.Process.connections", return_value=mocked_output)
         driver = MagicMock()
         driver.pid = 0
-        extractor = PortConnectionExtractor()
+        extractor = SubprocessPortConnectionExtractor()
         conn = extractor.extract_connection(driver)
         assert len(conn) == 2
         assert conn[0] == PortConnectionInfo(
@@ -110,7 +110,7 @@ class TestPortConnectionExtractor:
         mocker.patch("psutil.Process.connections", return_value=mocked_output)
         driver = MagicMock()
         driver.pid = 0
-        extractor = PortConnectionExtractor(
+        extractor = SubprocessPortConnectionExtractor(
             connections_to_ignore=[Protocol.UDP]
         )
         conn = extractor.extract_connection(driver)
@@ -125,7 +125,7 @@ class TestPortConnectionExtractor:
             host="127.0.0.1",
         )
 
-        extractor = PortConnectionExtractor(
+        extractor = SubprocessPortConnectionExtractor(
             connections_to_ignore=[Protocol.TCP]
         )
         conn = extractor.extract_connection(driver)
@@ -144,7 +144,7 @@ class TestPortConnectionExtractor:
 @skip_on_windows(
     reason="psutil/socket has different functions and attributes on Windows."
 )
-class TestPortConnectionExtractor:
+class TestSubprocessFileConnectionExtractor:
     def test_extract_connections(self, mocker):
         mocked_output = [
             popenfile(path="test/stdout", mode="w"),
@@ -154,7 +154,7 @@ class TestPortConnectionExtractor:
         mocker.patch("psutil.Process.open_files", return_value=mocked_output)
         driver = MagicMock()
         driver.pid = 0
-        extractor = FileConnectionExtractor()
+        extractor = SubprocessFileConnectionExtractor()
         conn = extractor.extract_connection(driver)
         assert len(conn) == 2
         assert conn[0] == FileConnectionInfo(
@@ -181,7 +181,7 @@ class TestPortConnectionExtractor:
         mocker.patch("psutil.Process.open_files", return_value=mocked_output)
         driver = MagicMock()
         driver.pid = 0
-        extractor = FileConnectionExtractor("log")
+        extractor = SubprocessFileConnectionExtractor("log")
         conn = extractor.extract_connection(driver)
         assert len(conn) == 1
         assert conn[0] == FileConnectionInfo(
