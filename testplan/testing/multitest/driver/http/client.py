@@ -24,6 +24,7 @@ from ..base import (
 from ..connection import (
     Direction,
     Protocol,
+    ConnectionExtractor,
 )
 
 
@@ -76,9 +77,9 @@ class HTTPClient(Driver):
     """
 
     CONFIG = HTTPClientConfig
-    SERVICE = "HTTP"
-    PROTOCOL = Protocol.TCP
-    DIRECTION = Direction.CONNECTING
+    EXTRACTORS = [
+        ConnectionExtractor("HTTP", Protocol.TCP, Direction.CONNECTING)
+    ]
 
     def __init__(
         self,
@@ -107,8 +108,8 @@ class HTTPClient(Driver):
         return self._host
 
     @property
-    def connection_rep(self):
-        return f"{self.PROTOCOL}://:{self.port}"
+    def connection_identifier(self):
+        return self.port
 
     @property
     def port(self):

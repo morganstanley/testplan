@@ -55,9 +55,7 @@ from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
-from testplan.testing.multitest.driver.connection import (
-    DriverConnectionGraph
-)
+from testplan.testing.multitest.driver.connection import DriverConnectionGraph
 
 from testplan.testing.multitest import result
 
@@ -886,7 +884,7 @@ class Test(Runnable):
         )
         graph = DriverConnectionGraph(self.resources)
         for driver in self.resources:
-            for conn_info in driver.extract_driver_metadata().conn_info:
+            for conn_info in driver.get_connections():
                 graph.add_connection(str(driver), conn_info)
         graph.set_nodes_and_edges()
         case_result.flow_chart(

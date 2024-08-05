@@ -14,10 +14,7 @@ from ..base import (
     Driver,
     DriverConfig,
 )
-from ..connection import (
-    Direction,
-    Protocol,
-)
+from ..connection import Direction, Protocol, ConnectionExtractor
 
 
 class TCPClientConfig(DriverConfig):
@@ -64,9 +61,9 @@ class TCPClient(Driver):
     """
 
     CONFIG = TCPClientConfig
-    SERVICE = "TCP"
-    PROTOCOL = Protocol.TCP
-    DIRECTION = Direction.CONNECTING
+    EXTRACTORS = [
+        ConnectionExtractor("TCP", Protocol.TCP, Direction.CONNECTING)
+    ]
 
     def __init__(
         self,
@@ -100,8 +97,8 @@ class TCPClient(Driver):
         return self._server_port
 
     @property
-    def connection_rep(self):
-        return f"{self.PROTOCOL}://:{self.server_port}"
+    def connection_identifier(self):
+        return self.server_port
 
     @property
     def local_port(self):

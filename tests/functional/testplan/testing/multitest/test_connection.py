@@ -11,7 +11,7 @@ from ..fixtures import base
 
 def test_multitest_drivers_connection_in_testplan(mockplan):
     expected_report = (
-        base.passing.report.expected_report_with_driver_and_driver_connection_flag
+        base.passing.report.expected_report_with_driver_connections_and_driver_info_flag
     )
     server = TCPServer("server")
     client = TCPClient(
@@ -24,7 +24,7 @@ def test_multitest_drivers_connection_in_testplan(mockplan):
         suites=[],
         environment=[server, client],
     )
-    mtest.cfg.set_local("driver_connection", True)
+    mtest.cfg.set_local("driver_info", True)
     mockplan.add(mtest)
     assert mockplan.run().run is True
 

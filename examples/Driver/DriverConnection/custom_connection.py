@@ -2,9 +2,12 @@
 Example for creating new custom connections
 """
 
+from typing import List
 from testplan.testing.multitest.driver.connection import (
     BaseConnectionInfo,
     BaseDriverConnection,
+    BaseConnectionExtractor,
+    Direction,
 )
 
 
@@ -43,3 +46,16 @@ class CustomDriverConnection(BaseDriverConnection):
             self.drivers_connecting[driver_name].append("Read")
             return True
         return False
+
+
+class CustomConnectionExtractor(BaseConnectionExtractor):
+    def extract_connection(self, driver) -> List[CustomConnectionInfo]:
+        return [
+            CustomConnectionInfo(
+                name="Custom",
+                service="Custom",
+                protocol="Custom",
+                identifier=driver.name,
+                direction=Direction.CONNECTING,
+            )
+        ]

@@ -14,6 +14,7 @@ from ..base import (
 from ..connection import (
     Direction,
     Protocol,
+    ConnectionExtractor,
 )
 
 
@@ -60,9 +61,9 @@ class ZMQServer(Driver):
     """
 
     CONFIG = ZMQServerConfig
-    SERVICE = "TCP"
-    PROTOCOL = Protocol.TCP
-    DIRECTION = Direction.LISTENING
+    EXTRACTORS = [
+        ConnectionExtractor("TCP", Protocol.TCP, Direction.LISTENING)
+    ]
 
     def __init__(
         self,
@@ -99,8 +100,8 @@ class ZMQServer(Driver):
         return self._socket
 
     @property
-    def connection_rep(self):
-        return f"{self.PROTOCOL}://:{self.port}"
+    def connection_identifier(self):
+        return self.port
 
     @property
     def local_port(self):

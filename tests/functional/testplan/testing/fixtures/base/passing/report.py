@@ -139,6 +139,23 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
                                     "description": "Driver Setup Timeline",
                                     "meta_type": "entry",
                                 },
+                                {
+                                    "type": "FlowChart",
+                                    "category": "DEFAULT",
+                                    "description": "Driver Connections",
+                                    "nodes": [
+                                        {
+                                            "id": "MyDriver[My executable]",
+                                            "style": {
+                                                "border": "1px solid #FF0000"
+                                            },
+                                            "data": {
+                                                "label": "MyDriver[My executable]"
+                                            },
+                                        },
+                                    ],
+                                    "edges": [],
+                                },
                             ],
                         )
                     ],
@@ -202,7 +219,7 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
     ],
 )
 
-expected_report_with_driver_and_driver_connection_flag = TestReport(
+expected_report_with_driver_connections_and_driver_info_flag = TestReport(
     name="plan",
     entries=[
         TestGroupReport(
@@ -218,6 +235,56 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                             uid="Starting",
                             description="",
                             entries=[
+                                {
+                                    "type": "TableLog",
+                                    "indices": [0],
+                                    "display_index": False,
+                                    "columns": [
+                                        "Driver Class",
+                                        "Driver Name",
+                                        "Start Time (UTC)",
+                                        "Stop Time (UTC)",
+                                        "Duration(seconds)",
+                                    ],
+                                    "category": "DEFAULT",
+                                    "table": [
+                                        [
+                                            "TCPServer",
+                                            "server",
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            lambda x: isinstance(x, float),
+                                        ],
+                                        [
+                                            "TCPClient",
+                                            "client",
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            lambda x: isinstance(x, float),
+                                        ],
+                                    ],
+                                    "description": "Driver Setup Info",
+                                    "meta_type": "entry",
+                                },
+                                {
+                                    "style": None,
+                                    "type": "Plotly",
+                                    "filesize": lambda x: isinstance(x, int),
+                                    "dst_path": re.compile(r".*\.json"),
+                                    "category": "DEFAULT",
+                                    "source_path": re.compile(r".*\.json"),
+                                    "orig_filename": re.compile(r".*\.json"),
+                                    "description": "Driver Setup Timeline",
+                                    "meta_type": "entry",
+                                },
                                 {
                                     "type": "FlowChart",
                                     "category": "DEFAULT",
@@ -249,7 +316,7 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                                     "edges": [
                                         {
                                             "id": re.compile(
-                                                r"tcp:\/\/:\d{1,5}: TCPClient\[client\] -> TCPServer\[server\]"
+                                                r"tcp:\/\/\d{1,5}: TCPClient\[client\] -> TCPServer\[server\]"
                                             ),
                                             "source": "TCPClient[client]",
                                             "target": "TCPServer[server]",
@@ -257,7 +324,7 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                                                 r"\d{1,5}"
                                             ),
                                             "label": re.compile(
-                                                r"tcp:\/\/:\d{1,5}"
+                                                r"tcp:\/\/\d{1,5}"
                                             ),
                                             "endLabel": re.compile(r"\d{1,5}"),
                                         },
@@ -276,7 +343,58 @@ expected_report_with_driver_and_driver_connection_flag = TestReport(
                             name="Stopping",
                             uid="Stopping",
                             description="",
-                            entries=[],
+                            entries=[
+                                {
+                                    "type": "TableLog",
+                                    "indices": [0],
+                                    "display_index": False,
+                                    "columns": [
+                                        "Driver Class",
+                                        "Driver Name",
+                                        "Start Time (UTC)",
+                                        "Stop Time (UTC)",
+                                        "Duration(seconds)",
+                                    ],
+                                    "category": "DEFAULT",
+                                    "table": [
+                                        [
+                                            "TCPClient",
+                                            "client",
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            lambda x: isinstance(x, float),
+                                        ],
+                                        [
+                                            "TCPServer",
+                                            "server",
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            lambda x: isinstance(x, float),
+                                        ],
+                                    ],
+                                    "description": "Driver Teardown Info",
+                                    "meta_type": "entry",
+                                },
+                                {
+                                    "style": None,
+                                    "type": "Plotly",
+                                    "filesize": lambda x: isinstance(x, int),
+                                    "dst_path": re.compile(r".*\.json"),
+                                    "category": "DEFAULT",
+                                    "source_path": re.compile(r".*\.json"),
+                                    "orig_filename": re.compile(r".*\.json"),
+                                    "description": "Driver Teardown Timeline",
+                                    "meta_type": "entry",
+                                },
+                            ],
                         ),
                     ],
                     tags=None,

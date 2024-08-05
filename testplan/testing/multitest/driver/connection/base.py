@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Union
+from typing import List
 from collections import defaultdict
-
-from testplan.common.utils.context import ContextValue
 
 
 class Direction(Enum):
@@ -16,8 +14,12 @@ class BaseConnectionInfo:
     name: str  # name of the connection
     service: str  # e.g. HTTP, TCP, FIX
     protocol: str  # tcp, udp, file
-    connection_rep: str
+    identifier: str
     direction: Direction
+
+    @property
+    def connection_rep(self):
+        return f"{self.protocol}://{self.identifier}"
 
     def promote_to_connection(self):
         raise NotImplementedError

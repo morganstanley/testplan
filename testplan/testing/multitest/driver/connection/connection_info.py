@@ -112,6 +112,7 @@ class DriverConnectionGraph:
     @property
     def nodes(self):
         return self._nodes
+
     @property
     def edges(self):
         return self._edges

@@ -238,7 +238,7 @@ class ZMQClient(Driver):
                 name="Connecting port",
                 service="TCP",
                 protocol=Protocol.TCP,
-                connection_rep=f"tcp://:{port}",
+                identifier=port,
                 direction=Direction.CONNECTING,
                 port=None,
                 host=None,

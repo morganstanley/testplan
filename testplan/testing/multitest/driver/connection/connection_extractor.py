@@ -6,12 +6,12 @@ import psutil
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.multitest.driver.connection.base import (
     BaseConnectionExtractor,
-    Direction
+    Direction,
 )
 from testplan.testing.multitest.driver.connection.connection_info import (
     Protocol,
     PortConnectionInfo,
-    FileConnectionInfo
+    FileConnectionInfo,
 )
 
 
@@ -20,36 +20,52 @@ SOCKET_CONNECTION_MAP = {
     socket.SocketKind.SOCK_DGRAM: Protocol.UDP,
 }
 
+NETWORK_CONNECTION_MAP = {
+    Protocol.TCP: socket.SocketKind.SOCK_STREAM,
+    Protocol.UDP: socket.SocketKind.SOCK_DGRAM,
+}
+
 
 class ConnectionExtractor(BaseConnectionExtractor):
+    def __init__(
+        self, service: str, protocol: Protocol, direction: Direction
+    ) -> None:
+        self.service = service
+        self.protocol = protocol
+        self.direction = direction
+
     def extract_connection(self, driver) -> List[PortConnectionInfo]:
-        if (
-            hasattr(driver, "SERVICE")
-            and hasattr(driver, "PROTOCOL")
-            and hasattr(driver, "DIRECTION")
-            and hasattr(driver, "connection_rep")
-        ):
-            return [
-                PortConnectionInfo(
-                    name="Port",
-                    service=driver.SERVICE,
-                    protocol=driver.PROTOCOL,
-                    direction=driver.DIRECTION,
-                    connection_rep=driver.connection_rep,
-                    port=getattr(driver, "local_port", None),
-                    host=getattr(driver, "local_host", None),
-                )
-            ]
-        return []
+
+        return [
+            PortConnectionInfo(
+                name="Port",
+                service=self.service,
+                protocol=self.protocol,
+                direction=self.direction,
+                identifier=driver.connection_identifier,
+                port=getattr(driver, "local_port", None),
+                host=getattr(driver, "local_host", None),
+            )
+        ]
 
 
 class PortConnectionExtractor(BaseConnectionExtractor):
     def __init__(
-        self, connections_to_ignore: List[socket.SocketKind] = None
+        self,
+        connections_to_check: List[Protocol] = None,
+        connections_to_ignore: List[Protocol] = None,
     ):
+        if not connections_to_check:
+            connections_to_check = [Protocol.TCP, Protocol.UDP]
         if not connections_to_ignore:
             connections_to_ignore = []
+        # map the protocols to SocketKind
+        for (idx, protocol) in enumerate(connections_to_check):
+            connections_to_check[idx] = NETWORK_CONNECTION_MAP[protocol]
+        for (idx, protocol) in enumerate(connections_to_ignore):
+            connections_to_ignore[idx] = NETWORK_CONNECTION_MAP[protocol]
         connections_to_ignore.append(socket.SocketKind.SOCK_SEQPACKET)
+        self.connections_to_check = connections_to_check
         self.connections_to_ignore = connections_to_ignore
 
     def extract_connection(self, driver) -> List[PortConnectionInfo]:
@@ -72,7 +88,10 @@ class PortConnectionExtractor(BaseConnectionExtractor):
                 ):
                     # ignore unix sockets for now
                     continue
-                if conn.type in self.connections_to_ignore:
+                if (
+                    conn.type not in self.connections_to_check
+                    or conn.type in self.connections_to_ignore
+                ):
                     continue
                 if conn.status == psutil.CONN_NONE:
                     # UDP sockets
@@ -81,7 +100,7 @@ class PortConnectionExtractor(BaseConnectionExtractor):
                             name="Listening port",
                             service=SOCKET_CONNECTION_MAP[conn.type],
                             protocol=SOCKET_CONNECTION_MAP[conn.type],
-                            connection_rep=f"udp://{conn.laddr.port}",
+                            identifier=conn.laddr.port,
                             direction=Direction.LISTENING,
                             port=conn.laddr.port,
                             host=conn.laddr.ip,
@@ -94,7 +113,7 @@ class PortConnectionExtractor(BaseConnectionExtractor):
                                 name="Listening port",
                                 service=SOCKET_CONNECTION_MAP[conn.type],
                                 protocol=SOCKET_CONNECTION_MAP[conn.type],
-                                connection_rep=f"tcp://{conn.laddr.port}",
+                                identifier=conn.laddr.port,
                                 direction=Direction.LISTENING,
                                 port=conn.laddr.port,
                                 host=conn.laddr.ip,
@@ -106,7 +125,7 @@ class PortConnectionExtractor(BaseConnectionExtractor):
                                 name="Connecting port",
                                 service=SOCKET_CONNECTION_MAP[conn.type],
                                 protocol=SOCKET_CONNECTION_MAP[conn.type],
-                                connection_rep=f"tcp://{conn.raddr.port}",
+                                identifier=conn.raddr.port,
                                 direction=Direction.CONNECTING,
                                 port=conn.laddr.port,
                                 host=conn.laddr.ip,
@@ -123,19 +142,17 @@ class PortConnectionExtractor(BaseConnectionExtractor):
 
 
 class FileConnectionExtractor(BaseConnectionExtractor):
-    def __init__(
-        self, files_to_ignore: List[str] = None
-    ):
+    def __init__(self, files_to_ignore: List[str] = None):
         if not files_to_ignore:
             files_to_ignore = ["stdout", "stderr"]
         self.files_to_ignore = files_to_ignore
-    
+
     def extract_connection(self, driver) -> List[FileConnectionInfo]:
         connections = []
         try:
             proc = psutil.Process(driver.pid)
             for open_file in proc.open_files():
-                if open_file.path.split("/")[-1] in self.ignore_files:
+                if open_file.path.split("/")[-1] in self.files_to_ignore:
                     continue
                 if open_file.mode in ["r", "r+", "a+"]:
                     connections.append(
@@ -143,7 +160,7 @@ class FileConnectionExtractor(BaseConnectionExtractor):
                             name="Reading from file",
                             service=Protocol.FILE,
                             protocol=Protocol.FILE,
-                            connection_rep=f"file://{open_file.path}",
+                            identifier=open_file.path,
                             direction=Direction.LISTENING,
                         )
                     )
@@ -153,7 +170,7 @@ class FileConnectionExtractor(BaseConnectionExtractor):
                             name="Writing to file",
                             service=Protocol.FILE,
                             protocol=Protocol.FILE,
-                            connection_rep=f"file://{open_file.path}",
+                            identifier=open_file.path,
                             direction=Direction.CONNECTING,
                         )
                     )

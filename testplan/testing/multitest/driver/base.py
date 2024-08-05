@@ -96,7 +96,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     """
 
     CONFIG = DriverConfig
-    EXTRACTORS: List[BaseConnectionExtractor] = [ConnectionExtractor()]
+    EXTRACTORS: List[BaseConnectionExtractor] = []
 
     def __init__(
         self,
@@ -405,7 +405,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         return content
 
-    def get_Connections(self) -> List[BaseConnectionInfo]:
+    def get_connections(self) -> List[BaseConnectionInfo]:
         connections = []
         for extractor in self.EXTRACTORS:
             connections.extend(extractor.extract_connection(self))

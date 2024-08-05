@@ -17,10 +17,7 @@ from ..base import (
     Driver,
     DriverConfig,
 )
-from ..connection import (
-    Direction,
-    Protocol,
-)
+from ..connection import Direction, Protocol, ConnectionExtractor
 
 _CONTENT_TYPE_KEY = "Content-Type"
 _CONTENT_LENGTH_KEY = "Content-Length"
@@ -316,9 +313,9 @@ class HTTPServer(Driver):
     """
 
     CONFIG = HTTPServerConfig
-    SERVICE = "HTTP"
-    PROTOCOL = Protocol.TCP
-    DIRECTION = Direction.LISTENING
+    EXTRACTORS = [
+        ConnectionExtractor("HTTP", Protocol.TCP, Direction.LISTENING)
+    ]
 
     def __init__(
         self,
@@ -357,8 +354,8 @@ class HTTPServer(Driver):
         return self._port
 
     @property
-    def connection_rep(self):
-        return f"{self.PROTOCOL}://:{self.port}"
+    def connection_identifier(self):
+        return self.port
 
     @property
     def local_port(self):

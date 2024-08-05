@@ -22,6 +22,7 @@ from ..base import (
 from ..connection import (
     Direction,
     Protocol,
+    ConnectionExtractor,
 )
 
 
@@ -85,9 +86,9 @@ class FixServer(Driver):
     """
 
     CONFIG = FixServerConfig
-    SERVICE = "FIX"
-    PROTOCOL = Protocol.TCP
-    DIRECTION = Direction.LISTENING
+    EXTRACTORS = [
+        ConnectionExtractor("FIX", Protocol.TCP, Direction.LISTENING)
+    ]
 
     def __init__(
         self,
@@ -127,8 +128,8 @@ class FixServer(Driver):
         return self._port
 
     @property
-    def connection_rep(self):
-        return f"{self.PROTOCOL}://:{self.port}"
+    def connection_identifier(self):
+        return self.port
 
     @property
     def local_port(self):

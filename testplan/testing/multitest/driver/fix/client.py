@@ -25,10 +25,7 @@ from ..base import (
     Driver,
     DriverConfig,
 )
-from ..connection import (
-    Direction,
-    Protocol,
-)
+from ..connection import Direction, Protocol, ConnectionExtractor
 
 
 class FixClientConfig(DriverConfig):
@@ -119,9 +116,9 @@ class FixClient(Driver):
     """
 
     CONFIG = FixClientConfig
-    SERVICE = "FIX"
-    PROTOCOL = Protocol.TCP
-    DIRECTION = Direction.CONNECTING
+    EXTRACTORS = [
+        ConnectionExtractor("FIX", Protocol.TCP, Direction.CONNECTING)
+    ]
 
     def __init__(
         self,
@@ -181,8 +178,8 @@ class FixClient(Driver):
         return self.cfg.sendersub
 
     @property
-    def connection_rep(self):
-        return f"{self.PROTOCOL}://:{self._client.port}"
+    def connection_identifier(self):
+        return self._client.port
 
     @property
     def local_port(self):

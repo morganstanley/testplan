@@ -1,38 +1,21 @@
-from testplan.testing.multitest.driver.base import Driver, DriverMetadata
+from testplan.testing.multitest.driver.base import Driver
 from testplan.testing.multitest.driver.app import App
 from testplan.testing.multitest.driver.tcp import TCPClient
 from testplan.testing.multitest.driver.connection import (
     Direction,
-    PortConnectionInfo,
+    Protocol,
+    ConnectionExtractor,
 )
 
-from custom_connection import CustomConnectionInfo
+from custom_connection import CustomConnectionExtractor
 
 
 class CustomTCPClient(TCPClient):
-    def extract_driver_metadata(self) -> DriverMetadata:
-        return DriverMetadata(
-            name=self.name,
-            driver_metadata={"class": self.__class__.__name__},
-            conn_info=[
-                PortConnectionInfo(
-                    name="Port",
-                    service=self.SERVICE,
-                    protocol=self.PROTOCOL,
-                    identifier=self.identifier,
-                    direction=self.DIRECTION,
-                    local_port=self.local_port,
-                    local_host=self.local_host,
-                ),
-                CustomConnectionInfo(
-                    name="Custom",
-                    service="Custom",
-                    protocol="Custom",
-                    identifier=0,
-                    direction=Direction.CONNECTING,
-                ),
-            ],
-        )
+    # override EXTRACTORS
+    EXTRACTORS = [
+        ConnectionExtractor("TCP", Protocol.TCP, Direction.CONNECTING),
+        CustomConnectionExtractor(),
+    ]
 
 
 class WritingDriver(App):

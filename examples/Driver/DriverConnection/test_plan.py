@@ -61,7 +61,7 @@ def environment():
     return [server, client, writer, reader, unconnected]
 
 
-@test_plan(name="DriverConnectionExample", driver_connection=True)
+@test_plan(name="DriverConnectionExample", driver_info=True)
 def main(plan):
     """
     Testplan decorated main function to add and execute MultiTests.
