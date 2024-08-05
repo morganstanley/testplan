@@ -270,12 +270,39 @@ class Environment:
                 resource.wait(resource.STATUS.STARTED)
                 resource.logger.info("%s started", resource)
 
-    def stop(self, is_reversed=False):
+    def sync_stop_resource(self, resource: "Resource"):
+        """
+        Stop a resource and log exceptions.
+        """
+        if resource.status in (
+            resource.STATUS.STOPPING,
+            resource.STATUS.STOPPED,
+        ):
+            return
+
+        resource.logger.info("Stopping %s", resource)
+        try:
+            resource.stop()
+        except Exception:
+            self._record_resource_exception(
+                message="While stopping resource {resource}:\n"
+                "{traceback_exc}\n{fetch_msg}",
+                resource=resource,
+                msg_store=self.stop_exceptions,
+            )
+
+            # Resource status should be STOPPED even it failed to stop
+            resource.force_stopped()
+        else:
+            if resource.async_start:
+                resource.wait(resource.STATUS.STOPPED)
+        resource.logger.info("%s stopped", resource)
+
+    def stop(self, is_reversed: bool = False):
         """
         Stop all resources, optionally in reverse order, and log exceptions.
 
         :param is_reversed: flag whether to stop resources in reverse order
-        :type is_reversed: ``bool``
         """
         resources = list(self._resources.values())
         if is_reversed is True:
@@ -284,6 +311,11 @@ class Environment:
         # Stop all resources
         resources_to_wait_for = []
         for resource in resources:
+            if resource.status in (
+                resource.STATUS.STOPPING,
+                resource.STATUS.STOPPED,
+            ):
+                continue
             try:
                 resource.stop()
             except Exception:
@@ -335,6 +367,11 @@ class Environment:
         # Stop all resources
         resources_to_wait_for = []
         for resource in resources:
+            if resource.status in (
+                resource.STATUS.STOPPING,
+                resource.STATUS.STOPPED,
+            ):
+                continue
             pool.apply_async(
                 self._log_exception(
                     resource, resource.stop, self.stop_exceptions
