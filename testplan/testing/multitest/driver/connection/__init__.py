@@ -1,15 +1,15 @@
 from testplan.testing.multitest.driver.connection.base import (
     Direction,
     BaseConnectionInfo,
-    BaseDriverConnection,
+    BaseDriverConnectionGroup,
     BaseConnectionExtractor,
 )
 from testplan.testing.multitest.driver.connection.connection_info import (
     Protocol,
     PortConnectionInfo,
-    PortDriverConnection,
+    PortDriverConnectionGroup,
     FileConnectionInfo,
-    FileDriverConnection,
+    FileDriverConnectionGroup,
     DriverConnectionGraph,
 )
 from testplan.testing.multitest.driver.connection.connection_extractor import (

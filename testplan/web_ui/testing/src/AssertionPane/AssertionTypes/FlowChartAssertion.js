@@ -146,13 +146,16 @@ export default function FlowChartAssertion(props) {
       initialEdges
     );
     // find the leftmost node and start layouting the orphan nodes there
-    let leftmostNode = layoutedNodes.reduce(
-      (prev, curr) => 
-        prev.position.x < curr.position.x
-      ? prev
-      : curr
-    );
-    let positionX = leftmostNode.position.x;
+    let positionX = 0;
+    if (layoutedNodes.length) {
+      let leftmostNode = layoutedNodes.reduce(
+        (prev, curr) => 
+          prev.position.x < curr.position.x
+        ? prev
+        : curr
+      );
+      positionX = leftmostNode.position.x;
+    }
     for (let node of orphanNodes) {
       node.position = {
         x: positionX,

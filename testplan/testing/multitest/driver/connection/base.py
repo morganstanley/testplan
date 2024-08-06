@@ -26,10 +26,12 @@ class BaseConnectionInfo:
 
 
 @dataclass
-class BaseDriverConnection:
+class BaseDriverConnectionGroup:
     """
     Base class to show connection between drivers.
     Each specific type (protocol) of connection should have its own subclass.
+
+    Stores the drivers involved in the connection as well as the logic of whether to add a driver into the connection
     """
 
     service: str

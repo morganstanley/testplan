@@ -454,8 +454,7 @@ Command line
                             Specify log level for file logs. Set to None to disable file logging.
 
       --label LABEL         Label the test report with the given name, useful to categorize or classify similar reports (aka "run-id").
-      --driver-info         Display drivers startup and teardown information in the report.
-      --driver-connection   Visualise connections between drivers in the report.
+      --driver-info         Display drivers startup and teardown information, and visualise driver connections in the report.
 
 
 Highlighted features

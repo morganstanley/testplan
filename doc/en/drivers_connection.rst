@@ -20,14 +20,14 @@ via the ``SubprocessPortConnectionExtractor`` and the ``SubprocessFileConnection
 
 New types of driver connections can also be defined. To do so, you will need to create 3 new classes that inherits
 :py:class:`BaseConnectionInfo <testplan.testing.multitest.driver.connection.base.BaseConnectionInfo>`, 
-:py:class:`BaseDriverConnection <testplan.testing.multitest.driver.connection.base.BaseDriverConnection>` and
+:py:class:`BaseDriverConnectionGroup <testplan.testing.multitest.driver.connection.base.BaseDriverConnectionGroup>` and
 :py:class:`BaseConnectionExtractor <testplan.testing.multitest.driver.connection.base.BaseConnectionExtractor>`.
 
 Here is an example to define a new type of connection.
 
 .. code-block:: python
 
-    from testplan.testing.multitest.driver.connection import Direction, BaseConnectionInfo, BaseDriverConnection
+    from testplan.testing.multitest.driver.connection import Direction, BaseConnectionInfo, BaseDriverConnectionGroup
 
     class NewConnectionInfo(BaseConnectionInfo):
         @property
@@ -35,9 +35,9 @@ Here is an example to define a new type of connection.
             return f"new://{self.identifier}" # this is the value by which drivers will be matched
 
         def promote_to_connection(self):
-            return NewDriverConnection.from_connection_info(self)
+            return NewDriverConnectionGroup.from_connection_info(self)
 
-    class NewDriverConnection(BaseDriverConnection):
+    class NewDriverConnectionGroup(BaseDriverConnectionGroup):
         @classmethod
         def from_connection_info(cls, driver_connection_info: BaseConnectionInfo):
             # Add any custom logic if needed here.

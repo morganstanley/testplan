@@ -5,7 +5,7 @@ from typing import List, Optional
 from testplan.testing.multitest.driver.connection.base import (
     Direction,
     BaseConnectionInfo,
-    BaseDriverConnection,
+    BaseDriverConnectionGroup,
 )
 
 
@@ -19,19 +19,21 @@ class Protocol:
 @dataclass
 class PortConnectionInfo(BaseConnectionInfo):
     """
-    ConnectionInfo for port communication (e.g TCP/UDP) between drivers
+    ConnectionInfo for port communication (e.g TCP/UDP) between drivers.
     """
 
     port: Optional[int] = None  # port the driver is using
     host: Optional[str] = None  # host the driver is using
 
     def promote_to_connection(self):
-        return PortDriverConnection.from_connection_info(self)
+        return PortDriverConnectionGroup.from_connection_info(self)
 
 
-class PortDriverConnection(BaseDriverConnection):
+class PortDriverConnectionGroup(BaseDriverConnectionGroup):
     """
-    Connection class for port communication (e.g TCP/UDP) between drivers
+    ConnectionGroup for port communication (e.g TCP/UDP) between drivers.
+
+    Stores the drivers involved in the connection as well as the logic of whether to add a driver into the connection.
     """
 
     def add_driver_if_in_connection(
@@ -72,16 +74,18 @@ class PortDriverConnection(BaseDriverConnection):
 @dataclass
 class FileConnectionInfo(BaseConnectionInfo):
     """
-    ConnectionInfo for file-based communication between drivers
+    ConnectionInfo for file-based communication between drivers.
     """
 
     def promote_to_connection(self):
-        return FileDriverConnection.from_connection_info(self)
+        return FileDriverConnectionGroup.from_connection_info(self)
 
 
-class FileDriverConnection(BaseDriverConnection):
+class FileDriverConnectionGroup(BaseDriverConnectionGroup):
     """
-    Connection class for file-based communication between drivers
+    ConnectionGroup for file-based communication between drivers.
+
+    Stores the drivers involved in the connection as well as the logic of whether to add a driver into the connection.
     """
 
     def add_driver_if_in_connection(
@@ -105,7 +109,7 @@ class FileDriverConnection(BaseDriverConnection):
 class DriverConnectionGraph:
     def __init__(self, drivers):
         self.drivers = drivers
-        self.connections: List[BaseDriverConnection] = []
+        self.connections: List[BaseDriverConnectionGroup] = []
         self._nodes = []
         self._edges = []
 
