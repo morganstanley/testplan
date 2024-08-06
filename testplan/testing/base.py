@@ -815,11 +815,11 @@ class Test(Runnable):
             {
                 "Driver Class": driver.__class__.__name__,
                 "Driver Name": driver.name,
-                "Start Time (UTC)": driver.timer[setup_or_teardown][-1].start,
-                "Stop Time (UTC)": driver.timer[setup_or_teardown][-1].end,
-                "Duration(seconds)": driver.timer[setup_or_teardown][
-                    -1
-                ].elapsed,
+                "Start Time (UTC)": driver.timer.last(setup_or_teardown).start,
+                "Stop Time (UTC)": driver.timer.last(setup_or_teardown).end,
+                "Duration(seconds)": driver.timer.last(
+                    setup_or_teardown
+                ).elapsed,
             }
             for driver in self.resources
             if setup_or_teardown in driver.timer.keys()
@@ -833,9 +833,10 @@ class Test(Runnable):
             "Driver Name": [],
         }
         for driver in table:
-            px_input["Driver Name"].append(driver["Driver Name"])
-            px_input["Start Time (UTC)"].append(driver["Start Time (UTC)"])
-            px_input["Stop Time (UTC)"].append(driver["Stop Time (UTC)"])
+            if driver["Stop Time (UTC)"]:
+                px_input["Driver Name"].append(driver["Driver Name"])
+                px_input["Start Time (UTC)"].append(driver["Start Time (UTC)"])
+                px_input["Stop Time (UTC)"].append(driver["Stop Time (UTC)"])
 
             # format tablelog entries to be human readable
             if driver["Start Time (UTC)"]:
@@ -855,6 +856,9 @@ class Test(Runnable):
         padding = 150
         row_size = 25
         height = padding + row_size * len(px_input["Driver Name"])
+        if height == padding:
+            # min height
+            height = padding + row_size
         fig = px.timeline(
             px_input,
             x_start="Start Time (UTC)",
