@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
+from typing import List, Set
 from collections import defaultdict
 
 
@@ -31,21 +31,23 @@ class BaseDriverConnectionGroup:
     Base class to show connection between drivers.
     Each specific type (protocol) of connection should have its own subclass.
 
-    Stores the drivers involved in the connection as well as the logic of whether to add a driver into the connection
+    Stores the drivers involved in the connection as well as the logic of whether to add a driver into the connection.
+
+    in_drivers store incoming connections (e.g a server listening for connections), out_drivers store outgoing connections (e.g a client connecting to a server).
     """
 
     service: str
     connection_rep: str
-    drivers_listening: "defaultdict[List]"
-    drivers_connecting: "defaultdict[List]"
+    in_drivers: "defaultdict[Set]"
+    out_drivers: "defaultdict[Set]"
 
     @classmethod
     def from_connection_info(cls, driver_connection_info: BaseConnectionInfo):
         conn = cls(
             service=driver_connection_info.service.upper(),
             connection_rep=driver_connection_info.connection_rep,
-            drivers_listening=defaultdict(list),
-            drivers_connecting=defaultdict(list),
+            in_drivers=defaultdict(set),
+            out_drivers=defaultdict(set),
         )
         return conn
 
@@ -60,7 +62,7 @@ class BaseDriverConnectionGroup:
         )
 
     def should_include(self):
-        return self.drivers_connecting and self.drivers_listening
+        return self.in_drivers and self.out_drivers
 
 
 class BaseConnectionExtractor:

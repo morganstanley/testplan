@@ -31,7 +31,7 @@ class CustomDriverConnectionGroup(BaseDriverConnectionGroup):
         conn = super(CustomDriverConnectionGroup, cls).from_connection_info(
             driver_connection_info
         )
-        conn.drivers_listening["Dummy Driver"].append("")
+        conn.in_drivers["Dummy Driver"].add("")
         return conn
 
     def add_driver_if_in_connection(
@@ -43,7 +43,7 @@ class CustomDriverConnectionGroup(BaseDriverConnectionGroup):
             # Append the identifier
             # For port based connection, ports are the identifier
             # For file based connections, read/write are the identifier
-            self.drivers_connecting[driver_name].append("Read")
+            self.out_drivers[driver_name].add("Read")
             return True
         return False
 

@@ -57,16 +57,10 @@ class PortDriverConnectionGroup(BaseDriverConnectionGroup):
                 if driver_connection_info.port is not None
                 else "Unknown"
             )
-            if (
-                driver_connection_info.direction == Direction.LISTENING
-                and port not in self.drivers_listening[driver_name]
-            ):
-                self.drivers_listening[driver_name].append(port)
-            elif (
-                driver_connection_info.direction == Direction.CONNECTING
-                and port not in self.drivers_connecting[driver_name]
-            ):
-                self.drivers_connecting[driver_name].append(port)
+            if driver_connection_info.direction == Direction.LISTENING:
+                self.in_drivers[driver_name].add(port)
+            elif driver_connection_info.direction == Direction.CONNECTING:
+                self.out_drivers[driver_name].add(port)
             return True
         return False
 
@@ -92,16 +86,10 @@ class FileDriverConnectionGroup(BaseDriverConnectionGroup):
         self, driver_name: str, driver_connection_info: FileConnectionInfo
     ):
         if self.connection_rep == driver_connection_info.connection_rep:
-            if (
-                driver_connection_info.direction == Direction.LISTENING
-                and "Read" not in self.drivers_listening[driver_name]
-            ):
-                self.drivers_listening[driver_name].append("Read")
-            elif (
-                driver_connection_info.direction == Direction.CONNECTING
-                and "Write" not in self.drivers_connecting[driver_name]
-            ):
-                self.drivers_connecting[driver_name].append("Write")
+            if driver_connection_info.direction == Direction.LISTENING:
+                self.in_drivers[driver_name].add("Read")
+            elif driver_connection_info.direction == Direction.CONNECTING:
+                self.out_drivers[driver_name].add("Write")
             return True
         return False
 
@@ -140,32 +128,28 @@ class DriverConnectionGraph:
         for connection in self.connections:
             if connection.should_include():
                 for (
-                    listening_driver,
-                    listening_driver_identifier,
-                ) in connection.drivers_listening.items():
+                    in_driver,
+                    in_driver_identifier,
+                ) in connection.in_drivers.items():
                     # in case custom drivers are added in connections
-                    drivers.add(listening_driver)
+                    drivers.add(in_driver)
                     for (
-                        connecting_driver,
-                        connecting_driver_identifier,
-                    ) in connection.drivers_connecting.items():
-                        drivers.add(connecting_driver)
-                        if listening_driver == connecting_driver:
+                        out_driver,
+                        out_driver_identifier,
+                    ) in connection.out_drivers.items():
+                        drivers.add(out_driver)
+                        if in_driver == out_driver:
                             continue
-                        unconnected_drivers.discard(listening_driver)
-                        unconnected_drivers.discard(connecting_driver)
+                        unconnected_drivers.discard(in_driver)
+                        unconnected_drivers.discard(out_driver)
                         self._edges.append(
                             {
-                                "id": f"{connection.connection_rep}: {connecting_driver} -> {listening_driver}",
-                                "source": connecting_driver,
-                                "target": listening_driver,
-                                "startLabel": ",".join(
-                                    connecting_driver_identifier
-                                ),
+                                "id": f"{connection.connection_rep}: {out_driver} -> {in_driver}",
+                                "source": out_driver,
+                                "target": in_driver,
+                                "startLabel": ",".join(out_driver_identifier),
                                 "label": connection.connection_rep,
-                                "endLabel": ",".join(
-                                    listening_driver_identifier
-                                ),
+                                "endLabel": ",".join(in_driver_identifier),
                             }
                         )
         self._nodes = [

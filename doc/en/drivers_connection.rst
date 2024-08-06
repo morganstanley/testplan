@@ -43,7 +43,7 @@ Here is an example to define a new type of connection.
             # Add any custom logic if needed here.
             # For example, to add a dummy driver
             conn = super(NewDriverConnection, cls).from_connection_info(driver_connection_info)
-            conn.drivers_listening["Dummy"].append("")
+            conn.in_drivers["Dummy"].add("")
             return conn
 
         def add_driver_if_in_connection(self, driver_name: str, driver_connection_info: NewConnectionInfo):
@@ -51,7 +51,7 @@ Here is an example to define a new type of connection.
             # Default behavior for predefined Connections is to match based on connection attribute
             if self.connection == driver_connection_info.connection:
                 # Add the drivers here
-                self.drivers_connecting[driver_name].append(SOME_INFO)
+                self.out_drivers[driver_name].append(SOME_INFO)
                 return True
             return False
 
