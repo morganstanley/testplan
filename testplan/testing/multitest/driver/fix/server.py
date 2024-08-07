@@ -15,7 +15,15 @@ from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.server import Server
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import (
+    Direction,
+    Protocol,
+    ConnectionExtractor,
+)
 
 
 class FixServerConfig(DriverConfig):
@@ -78,6 +86,7 @@ class FixServer(Driver):
     """
 
     CONFIG = FixServerConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,
@@ -88,7 +97,7 @@ class FixServer(Driver):
         port: int = 0,
         version: str = "FIX.4.2",
         tls_config: Optional[TLSConfig] = None,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
@@ -115,6 +124,18 @@ class FixServer(Driver):
     def port(self):
         """Port retrieved after binding."""
         return self._port
+
+    @property
+    def connection_identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def starting(self):
         """Starts the TCP server."""

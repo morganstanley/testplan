@@ -95,6 +95,23 @@ expected_report_with_failing_driver_and_driver_info_flag = TestReport(
                                     "description": "Driver Setup Timeline",
                                     "meta_type": "entry",
                                 },
+                                {
+                                    "type": "FlowChart",
+                                    "category": "DEFAULT",
+                                    "description": "Driver Connections",
+                                    "nodes": [
+                                        {
+                                            "id": "FailingDriver[driver]",
+                                            "style": {
+                                                "border": "1px solid #FF0000"
+                                            },
+                                            "data": {
+                                                "label": "FailingDriver\n[driver]"
+                                            },
+                                        },
+                                    ],
+                                    "edges": [],
+                                },
                             ],
                         )
                     ],

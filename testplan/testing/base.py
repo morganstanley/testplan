@@ -1,6 +1,7 @@
 """Base classes for all Tests"""
 import functools
 import os
+import re
 import subprocess
 import sys
 import warnings
@@ -54,6 +55,7 @@ from testplan.testing.environment import TestEnvironment, parse_dependency
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
+from testplan.testing.multitest.driver.connection import DriverConnectionGraph
 
 from testplan.testing.multitest import result
 
@@ -459,6 +461,7 @@ class Test(Runnable):
             self._record_driver_timing(
                 ResourceTimings.RESOURCE_SETUP, case_report
             )
+            self._record_driver_connection(case_report)
         case_report.pass_if_empty()
         if self.resources.start_exceptions:
             for msg in self.resources.start_exceptions.values():
@@ -874,6 +877,20 @@ class Test(Runnable):
 
         case_report.extend(case_result.serialized_entries)
         case_report.attachments.extend(case_result.attachments)
+
+    def _record_driver_connection(self, case_report: TestCaseReport) -> None:
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self.scratch
+        )
+        graph = DriverConnectionGraph(self.resources)
+        for driver in self.resources:
+            for conn_info in driver.get_connections():
+                graph.add_connection(str(driver), conn_info)
+        graph.set_nodes_and_edges()
+        case_result.flow_chart(
+            graph.nodes, graph.edges, description="Driver Connections"
+        )
+        case_report.extend(case_result.serialized_entries)
 
     @property
     def driver_info(self) -> bool:
