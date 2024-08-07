@@ -496,7 +496,7 @@ that match ALL of the given tags.
             "--driver-info",
             action="store_true",
             default=self._default_options["driver_info"],
-            help="Display drivers startup and shutdown info.",
+            help="Display drivers setup / teardown timing and interconnection information in UI report.",
         )
 
         self.add_arguments(parser)

@@ -30,7 +30,11 @@ from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import kill_process, subprocess_popen
 
-from .base import Driver, DriverConfig, DriverMetadata
+from .base import Driver, DriverConfig
+from .connection import (
+    SubprocessFileConnectionExtractor,
+    SubprocessPortConnectionExtractor,
+)
 
 IS_WIN = platform.system() == "Windows"
 
@@ -40,17 +44,6 @@ class AppConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.app.App` resource.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-                "outpath": driver.outpath,
-                "errpath": driver.errpath,
-            },
-        )
 
     @classmethod
     def get_options(cls):
@@ -113,6 +106,10 @@ class App(Driver):
     """
 
     CONFIG = AppConfig
+    EXTRACTORS = [
+        SubprocessFileConnectionExtractor(),
+        SubprocessPortConnectionExtractor(),
+    ]
 
     def __init__(
         self,

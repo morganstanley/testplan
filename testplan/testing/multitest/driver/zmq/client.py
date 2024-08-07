@@ -9,7 +9,15 @@ from testplan.common.utils.context import ContextValue, expand
 from testplan.common.utils.convert import make_iterables
 from testplan.common.utils.timing import retry_until_timeout
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import (
+    Direction,
+    Protocol,
+    PortConnectionInfo,
+)
 
 
 class ZMQClientConfig(DriverConfig):
@@ -72,7 +80,7 @@ class ZMQClient(Driver):
         ports,
         message_pattern=zmq.PAIR,
         connect_at_start: bool = True,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(ZMQClient, self).__init__(**options)
@@ -223,3 +231,13 @@ class ZMQClient(Driver):
         Flush the clients queue of messages by reconnecting.
         """
         self.reconnect()
+
+    def get_connections(self) -> List[PortConnectionInfo]:
+        return [
+            PortConnectionInfo(
+                protocol=Protocol.TCP,
+                identifier=port,
+                direction=Direction.CONNECTING,
+            )
+            for host, port in zip(self.hosts, self.ports)
+        ]

@@ -13,7 +13,11 @@ from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.sockets import Server
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import Direction, Protocol, ConnectionExtractor
 
 
 class TCPServerConfig(DriverConfig):
@@ -56,13 +60,14 @@ class TCPServer(Driver):
     """
 
     CONFIG = TCPServerConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,
         name: str,
         host: Optional[Union[str, ContextValue]] = "localhost",
         port: Optional[Union[int, str, ContextValue]] = 0,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(TCPServer, self).__init__(**options)
@@ -88,6 +93,18 @@ class TCPServer(Driver):
         Returns the underlying ``socket`` object
         """
         return self._server.socket
+
+    @property
+    def connection_identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def accept_connection(self, timeout=10):
         """Doc from Server."""
