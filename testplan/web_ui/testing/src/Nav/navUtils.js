@@ -3,15 +3,20 @@
  */
 import React from "react";
 import { ListGroup, ListGroupItem } from "reactstrap";
-import { StyleSheet, css } from "aphrodite";
+import { css } from "aphrodite";
+import _ from "lodash";
+import { NavLink } from "react-router-dom";
+import { generatePath } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import TagList from "./TagList";
 import Column from "./Column";
-import { LIGHT_GREY, MEDIUM_GREY } from "../Common/defaults";
-import CommonStyles from "../Common/Styles.js";
-import { NavLink } from "react-router-dom";
-import { generatePath } from "react-router";
-import { generateURLWithParameters } from "../Common/utils";
+import CommonStyles, { statusStyles } from "../Common/Styles.js";
+import { navStyles } from "../Common/Styles";
+import {
+  generateURLWithParameters,
+  formatShortDuration,
+} from "../Common/utils";
 import { isReportLeaf } from "../Report/reportUtils";
 
 /**
@@ -38,11 +43,11 @@ const CreateNavButtons = (props, createEntryComponent, uidEncoder) => {
 
     const tabIndex = entryIndex + 1;
     const cssClass = [
-      styles.navButton,
-      styles.navButtonInteract,
+      navStyles.navButton,
+      navStyles.navButtonInteract,
       CommonStyles.unselectable,
     ];
-    const cssActiveClass = [...cssClass, styles.navButtonInteractFocus];
+    const cssActiveClass = [...cssClass, navStyles.navButtonInteractFocus];
 
     let [reportuid, ...selectionuids] = uidEncoder
       ? entry.uids.map(uidEncoder)
@@ -72,7 +77,7 @@ const CreateNavButtons = (props, createEntryComponent, uidEncoder) => {
   });
 
   const navButtonsEmpty = (
-    <ListGroupItem className={css(styles.navButton)}>
+    <ListGroupItem className={css(navStyles.navButton)}>
       No entries to display...
     </ListGroupItem>
   );
@@ -138,29 +143,6 @@ const applyNamedFilter = (entries, filter) => {
       return entries;
   }
 };
-
-export const styles = StyleSheet.create({
-  navButton: {
-    position: "relative",
-    display: "block",
-    border: "none",
-    backgroundColor: LIGHT_GREY,
-    cursor: "pointer",
-  },
-  navButtonInteract: {
-    ":hover": {
-      backgroundColor: MEDIUM_GREY,
-    },
-  },
-  navButtonInteractFocus: {
-    backgroundColor: MEDIUM_GREY,
-    outline: "none",
-  },
-  buttonList: {
-    "overflow-y": "auto",
-    height: "100%",
-  },
-});
 
 /**
  * Return the UID of the currently selected entry, or null if there is no
@@ -313,12 +295,69 @@ const GetNavBreadcrumbs = (selected) => {
 
 const GetNavColumn = (props, navButtons) => (
   <Column width={props.width} handleColumnResizing={props.handleColumnResizing}>
-    <ListGroup className={css(styles.buttonList)}>{navButtons}</ListGroup>
+    <ListGroup className={css(navStyles.buttonList)}>{navButtons}</ListGroup>
   </Column>
 );
 
+const GetStatusIcon = (status) => (
+  <span className={css(navStyles.statusIcon)}>
+    <FontAwesomeIcon
+      title={status}
+      size="sm"
+      icon={statusStyles[status].icon}
+      className={css(navStyles.icon)}
+    />
+  </span>
+);
+
+const generateNavTimeInfo = (
+  setupTimeProp,
+  teardownTimeProp,
+  executionTimeProp,
+) => {
+  let totalTime = null;
+  if (_.isNumber(executionTimeProp)) {
+    totalTime = executionTimeProp;
+    totalTime += _.isNumber(setupTimeProp) ? setupTimeProp : 0;
+    totalTime += _.isNumber(teardownTimeProp) ? teardownTimeProp : 0;
+  };
+
+  const detailedTimeElement =
+    (_.isNumber(setupTimeProp) || _.isNumber(teardownTimeProp))
+    ? (
+      <span className={css(navStyles.entryIcon)}
+      title="Setup / Execution / Teardown duration">
+          (
+            {
+              formatShortDuration(setupTimeProp)
+            }/{
+              formatShortDuration(executionTimeProp)
+            }/{
+              formatShortDuration(teardownTimeProp)
+            }
+          )
+      </span>
+    )
+    : null;
+  const totalTimeElement = 
+    _.isNumber(totalTime)
+    ? (
+      <span className={css(navStyles.entryIcon)} title="Total runtime">
+          {formatShortDuration(totalTime)}
+      </span>
+    )
+    : null;
+
+    return [
+      totalTimeElement,
+      detailedTimeElement
+    ];
+};
+
 export {
   CreateNavButtons,
+  generateNavTimeInfo,
+  GetStatusIcon,
   GetSelectedUid,
   GetNavEntries,
   GetInteractiveNavEntries,

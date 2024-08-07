@@ -1,0 +1,1 @@
+Fix a bug where ``driver_info`` flag does not work in decorator.

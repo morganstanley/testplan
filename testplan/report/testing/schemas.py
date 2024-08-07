@@ -12,12 +12,13 @@ from testplan.common.report.schemas import (
     BaseReportGroupSchema,
     ReportLogSchema,
     TimerField,
+    ReportLinkSchema,
 )
+
 from testplan.common.report import Status, RuntimeStatus
 from testplan.common.serialization import fields as custom_fields
 from testplan.common.serialization.schemas import load_tree_data
 from testplan.report.testing.base import (
-    ReportCategories,
     TestCaseReport,
     TestGroupReport,
     TestReport,
@@ -80,7 +81,7 @@ class TestCaseReportSchema(ReportSchema):
     source_class = TestCaseReport
 
     entries = fields.List(EntriesField())
-    category = fields.Enum(ReportCategories, by_value=True, dump_only=True)
+    category = fields.String(dump_only=True)
     status = fields.Function(
         lambda x: x.status.to_json_compatible(),
         Status.from_json_compatible,
@@ -90,7 +91,6 @@ class TestCaseReportSchema(ReportSchema):
         RuntimeStatus.from_json_compatible,
     )
     counter = fields.Dict(dump_only=True)
-    suite_related = fields.Bool(load_only=True, allow_none=True)
     tags = TagField()
 
     @post_load
@@ -120,9 +120,8 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
-    category = fields.Enum(ReportCategories, by_value=True)
+    category = fields.String()
     tags = TagField()
-    suite_related = fields.Bool(load_only=True, allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={
@@ -151,7 +150,7 @@ class TestReportSchema(BaseReportGroupSchema):
 
     source_class = TestReport
 
-    category = fields.Enum(ReportCategories, by_value=True, dump_only=True)
+    category = fields.String(dump_only=True)
     meta = fields.Dict()
     label = fields.String(allow_none=True)
     tags_index = TagField(dump_only=True)
@@ -193,7 +192,7 @@ class ShallowTestGroupReportSchema(Schema):
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
     uid = fields.String(required=True)
-    category = fields.Enum(ReportCategories, by_value=True)
+    category = fields.String()
     timer = TimerField(required=True)
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
@@ -206,7 +205,6 @@ class ShallowTestGroupReportSchema(Schema):
         lambda x: x.runtime_status.to_json_compatible()
     )
     counter = fields.Dict(dump_only=True)
-    suite_related = fields.Bool(load_only=True, allow_none=True)
     tags = TagField()
 
     entry_uids = fields.List(fields.String(), dump_only=True)
@@ -215,9 +213,11 @@ class ShallowTestGroupReportSchema(Schema):
     hash = fields.Integer(dump_only=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
+    children = fields.List(fields.Nested(ReportLinkSchema))
 
     @post_load
     def make_testgroup_report(self, data, **kwargs):
+        children = data.pop("children", [])
         timer = data.pop("timer")
         logs = data.pop("logs", [])
 
@@ -226,6 +226,7 @@ class ShallowTestGroupReportSchema(Schema):
 
         group_report.timer = timer
         group_report.logs = logs
+        group_report.children = children
 
         return group_report
 
@@ -239,7 +240,7 @@ class ShallowTestReportSchema(Schema):
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
     uid = fields.String(required=True)
-    category = fields.Enum(ReportCategories, by_value=True, dump_only=True)
+    category = fields.String(dump_only=True)
     timer = TimerField(required=True)
     meta = fields.Dict()
     status = fields.Function(lambda x: x.status.to_json_compatible())

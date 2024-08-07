@@ -344,11 +344,12 @@ Command line
 
                             {
                                 "<Multitest>": {
-                                    "execution_time": 199.99,
-                                    "setup_time": 39.99,
+                                    | "execution_time": 199.99,
+                                    | "setup_time": 39.99,
+                                    | "teardown_time": 39.99, // optional
                                 },
-                                ......
                             }
+
       --skip-remaining      {cases-on-failed,cases-on-error,suites-on-failed,suites-on-error,tests-on-failed,tests-on-error}
 
                             Make Testplan break from the current execution flow and skip remaining iterations at certain level (choose one from all the options). "on-error" make this skip upon exception raised, and "on-failed" make this skip upon both exception raised and test failure. In other words, "on-failed" has higher precedence.
@@ -453,6 +454,8 @@ Command line
                             Specify log level for file logs. Set to None to disable file logging.
 
       --label LABEL         Label the test report with the given name, useful to categorize or classify similar reports (aka "run-id").
+      --driver-info         Display drivers startup and teardown information, and visualise driver connections in the report.
+
 
 Highlighted features
 ====================

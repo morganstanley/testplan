@@ -52,11 +52,13 @@ import styles from "./navStyles";
 import {
   displayPathPreference,
   displayTimeInfoPreference,
+  timeInfoUTCPreference,
   hideEmptyTestcasesPreference,
   hideSkippedTestcasesPreference,
   useTreeViewPreference,
+  showStatusIconsPreference,
 } from "../UserSettings/UserSettings";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import _ from "lodash";
 
 library.add(
@@ -179,6 +181,45 @@ const UserPreferenceCheckbox = ({ children, preferenceAtom }) => {
   );
 };
 
+const UserPreferenceRadio = ({ children, preferenceAtom, name, value }) => {
+  const [preference, setPreference] = useAtom(preferenceAtom);
+  return (
+    <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+      <Label check className={css(
+        styles.filterLabel, styles.filterLabel_indent1)}>
+        <Input
+          type="radio"
+          name={name}
+          value={value}
+          checked={value === preference}
+          onChange={() => setPreference(value)}
+        />{" "}
+        {children}
+      </Label>
+    </DropdownItem>
+  );
+};
+
+const TimeInfoRadioButtons = ({ enabled }) => {
+  let component = enabled ? 
+  <>
+    <UserPreferenceRadio
+      preferenceAtom={timeInfoUTCPreference}
+      name="timezone"
+      value={true}>
+      UTC time
+    </UserPreferenceRadio>
+    <UserPreferenceRadio
+      preferenceAtom={timeInfoUTCPreference}
+      name="timezone"
+      value={false}>
+      Server time
+    </UserPreferenceRadio>
+  </>
+  : "";
+  return component;
+};
+
 const ToolbarPreferencesButton = ({ toolbarStyle }) => {
   return (
     <UncontrolledDropdown nav inNavbar>
@@ -197,8 +238,13 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
         <UserPreferenceCheckbox preferenceAtom={displayTimeInfoPreference}>
           Display time information
         </UserPreferenceCheckbox>
+        <TimeInfoRadioButtons
+          enabled={useAtomValue(displayTimeInfoPreference)}/>
         <UserPreferenceCheckbox preferenceAtom={displayPathPreference}>
           Display file path of assertions
+        </UserPreferenceCheckbox>
+        <UserPreferenceCheckbox preferenceAtom={showStatusIconsPreference}>
+          Show status icons
         </UserPreferenceCheckbox>
         <DropdownItem divider />
         <DropdownItem header>Navigation preferences</DropdownItem>

@@ -11,6 +11,7 @@ import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
 import base64url from "base64url";
 import { atom, useAtomValue } from "jotai";
+import _ from "lodash";
 
 import BaseReport from "./BaseReport";
 import Toolbar from "../Toolbar/Toolbar.js";
@@ -41,7 +42,7 @@ import { encodeURIComponent2, parseToJson } from "../Common/utils";
 import { POLL_MS, CATEGORIES } from "../Common/defaults";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
-import { displayTimeInfoPreference } from "../UserSettings/UserSettings";
+import { displayTimeInfoPreference, timeInfoUTCPreference } from "../UserSettings/UserSettings";
 
 const api_prefix = "/api/v1/interactive";
 const pendingEnvRequestAtom = atom("");
@@ -55,11 +56,13 @@ const pendingEnvRequestAtom = atom("");
 const InteractiveReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
   const pendingEnvRequest = useAtomValue(pendingEnvRequestAtom);
+  const UTCTimeInfo = useAtomValue(timeInfoUTCPreference);
   return (
     <InteractiveReportComponent
       {...props}
       displayTime={displayTimeInfo}
       pendingEnvRequest={pendingEnvRequest}
+      UTCTime={UTCTimeInfo}
     />
   );
 };
@@ -487,12 +490,10 @@ class InteractiveReportComponent extends BaseReport {
       category: category,
     };
 
-    if (entries) {
-      if (entries.length && !isReportLeaf(reportEntry)) {
-        pruneEntry.entries = entries.map((entry) =>
-          this.pruneReportEntry(entry)
-        );
-      }
+    if (!isReportLeaf(reportEntry) && !_.isEmpty(entries)) {
+      pruneEntry.entries = entries.map((entry) =>
+        this.pruneReportEntry(entry)
+      );
     }
 
     return pruneEntry;
@@ -505,6 +506,11 @@ class InteractiveReportComponent extends BaseReport {
    */
   shallowReportEntry(reportEntry) {
     const { entries, ...shallowEntry } = reportEntry;
+
+    if (isReportLeaf(reportEntry)) {
+      return shallowEntry;
+    }
+
     shallowEntry.entry_uids = entries.map((entry) => entry.uid);
 
     // the filter text is either "null" or an empty string, use truthy-falsy
@@ -700,7 +706,8 @@ class InteractiveReportComponent extends BaseReport {
       reportFetchMessage,
       null,
       selectedEntries,
-      this.props.displayTime
+      this.props.displayTime,
+      this.props.UTCTime
     );
 
     return (

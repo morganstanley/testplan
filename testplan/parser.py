@@ -200,6 +200,7 @@ A typical input JSON looks like below:
     "<Multitest>": {
         "execution_time": 199.99,
         "setup_time": 39.99,
+        "teardown_time": 39.99, // optional
     },
     ......
 }""",
@@ -491,6 +492,13 @@ that match ALL of the given tags.
             'useful to categorize or classify similar reports (aka "run-id").',
         )
 
+        report_group.add_argument(
+            "--driver-info",
+            action="store_true",
+            default=self._default_options["driver_info"],
+            help="Display drivers setup / teardown timing and interconnection information in UI report.",
+        )
+
         self.add_arguments(parser)
         return parser
 
@@ -587,6 +595,7 @@ runtime_schema = schema.Schema(
         str: {
             "execution_time": schema.Or(int, float),
             "setup_time": schema.Or(int, float),
+            schema.Optional("teardown_time"): schema.Or(int, float),
         }
     }
 )

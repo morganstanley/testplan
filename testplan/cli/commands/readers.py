@@ -70,7 +70,10 @@ class ReaderAction(ParseSingleAction):
         self.importer = importer(*args, **kwargs)
 
     def __call__(self) -> TestReport:
-        return self.importer.import_result().as_test_report()
+        # Reset uids to prevent failures of reports exported from interactive mode
+        test_report = self.importer.import_result().as_test_report()
+        test_report.reset_uid()
+        return test_report
 
 
 @single_reader_commands.command(name="fromcppunit")

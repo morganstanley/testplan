@@ -9,6 +9,7 @@ from lxml import objectify, etree
 from lxml.builder import E
 from lxml.objectify import Element
 
+from testplan.common.utils.strings import uuid4
 from testplan.importers.base import ThreePhaseFileImporter, T
 from testplan.importers.suitesresults import SuitesResult
 from testplan.report import (

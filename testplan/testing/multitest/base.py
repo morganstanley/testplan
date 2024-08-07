@@ -392,6 +392,11 @@ class MultiTest(testing_base.Test):
         ctx = []
         sorted_suites = self.cfg.test_sorter.sorted_testsuites(self.cfg.suites)
 
+        if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:
+            xfail_data = self.cfg.xfail_tests
+        else:
+            xfail_data = {}
+
         for suite in sorted_suites:
             testcases = suite.get_testcases()
 
@@ -401,13 +406,6 @@ class MultiTest(testing_base.Test):
                 or not hasattr(self.cfg, "test_sorter")
                 else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
-
-            if self.cfg.part:
-                sorted_testcases = [
-                    testcase
-                    for (idx, testcase) in enumerate(sorted_testcases)
-                    if (idx) % self.cfg.part[1] == self.cfg.part[0]
-                ]
 
             testcases_to_run = [
                 case
@@ -425,25 +423,38 @@ class MultiTest(testing_base.Test):
                 testcases_to_run = sorted_testcases
 
             if testcases_to_run:
-                if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:
-                    for testcase in testcases_to_run:
-                        testcase_instance = ":".join(
-                            [
-                                self.name,
-                                suite.name,
-                                testcase.name,
-                            ]
-                        )
-                        data = self.cfg.xfail_tests.get(
-                            testcase_instance, None
-                        )
-                        if data is not None:
-                            testcase.__func__.__xfail__ = {
-                                "reason": data["reason"],
-                                "strict": data["strict"],
-                            }
+                for testcase in testcases_to_run:
+                    testcase_instance = ":".join(
+                        [
+                            self.name,
+                            suite.name,
+                            testcase.name,
+                        ]
+                    )
+                    data = xfail_data.get(testcase_instance, None)
+                    if data is not None:
+                        testcase.__func__.__xfail__ = {
+                            "reason": data["reason"],
+                            "strict": data["strict"],
+                        }
 
                 ctx.append((suite, testcases_to_run))
+
+        if self.cfg.part:
+            # round-robin at testcase level
+            numer, denom = self.cfg.part
+            ofst = 0
+            ctx_ = []
+            for suite, cases in ctx:
+                cases_ = [
+                    case
+                    for idx, case in enumerate(cases)
+                    if (idx + ofst) % denom == numer
+                ]
+                ofst = (ofst + len(cases)) % denom
+                if cases_:
+                    ctx_.append((suite, cases_))
+            return ctx_
 
         return ctx
 
@@ -580,9 +591,18 @@ class MultiTest(testing_base.Test):
                 or self.resources.stop_exceptions
                 or self._get_error_logs()
             )
+        elif "_start_resource" not in self.result.step_results and any(
+            map(
+                lambda x: isinstance(x, Exception),
+                self.result.step_results.values(),
+            )
+        ):
+            # exc before _start_resource
+            return True
         elif step in (
-            self.resources.start,
-            self.resources.stop,
+            self._start_resource,
+            self._stop_resource,
+            self._finish_resource_report,
             self.apply_xfail_tests,
         ):
             return False
@@ -590,27 +610,6 @@ class MultiTest(testing_base.Test):
             self.logger.critical('Skipping step "%s"', step.__name__)
             return True
         return False
-
-    def post_step_call(self, step):
-        """Callable to be executed after each step."""
-        exceptions = None
-        if step == self.resources.start:
-            exceptions = self.resources.start_exceptions
-        elif step == self.resources.stop:
-            exceptions = self.resources.stop_exceptions
-        if exceptions:
-            for msg in exceptions.values():
-                self.result.report.logger.error(msg)
-            self.result.report.status_override = Status.ERROR
-
-        if step == self.resources.stop:
-            drivers = set(self.resources.start_exceptions.keys())
-            drivers.update(self.resources.stop_exceptions.keys())
-            for driver in drivers:
-                if driver.cfg.report_errors_from_logs:
-                    error_log = os.linesep.join(driver.fetch_error_log())
-                    if error_log:
-                        self.result.report.logger.error(error_log)
 
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
@@ -1347,8 +1346,16 @@ class MultiTest(testing_base.Test):
         self._init_test_report()
 
     def unset_part(self) -> None:
-        """Disable part feature"""
+        """Disable part feature, "sanitise" patterns as well"""
         self._cfg.part = None
+
+        def _drop_parts(f):
+            if isinstance(f, filtering.Pattern):
+                if isinstance(f.test_pattern, tuple):
+                    f.test_pattern = f.test_pattern[0]
+            return f
+
+        self._cfg.test_filter.map(_drop_parts)
         self._init_test_report()
 
 

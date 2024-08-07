@@ -33,9 +33,14 @@ const styles = StyleSheet.create({
     display: "inlinde-block",
     cursor: "pointer",
     padding: "0.2em",
+    "padding-right": "1em",
     "margin-left": "2em",
   },
+  filterLabel_indent1: {
+    "margin-left": "3em",
+  },
   dropdownItem: {
+    overflow: "hidden",
     padding: "0",
     ":focus": {
       outline: "0",

@@ -1,21 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Badge } from "reactstrap";
-import { StyleSheet, css } from "aphrodite";
-import { formatMilliseconds } from "./../Common/utils";
-import _ from "lodash";
+import { css } from "aphrodite";
+import { useAtomValue } from "jotai";
 
 import {
-  RED,
-  GREEN,
-  ORANGE,
-  BLACK,
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
   STATUS_CATEGORY,
 } from "../Common/defaults";
-import { statusStyles } from "../Common/Styles";
+import { navStyles } from "../Common/Styles";
+import { generateNavTimeInfo, GetStatusIcon } from "./navUtils";
+import { showStatusIconsPreference } from "../UserSettings/UserSettings";
 
 /**
  * Display NavEntry information:
@@ -25,14 +22,16 @@ import { statusStyles } from "../Common/Styles";
  */
 const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
-  const executionTime =
-    props.displayTime && _.isNumber(props.executionTime) ? (
-      <span className={css(styles.entryIcon)} title="Execution time">
-        <span className={css(styles[STATUS_CATEGORY[props.status]])}>
-          {formatMilliseconds(props.executionTime)}
-        </span>
-      </span>
+  const navTimeInfo =  
+    props.displayTime ? generateNavTimeInfo(
+      props.setupTime,
+      props.teardownTime,
+      props.executionTime,
     ) : null;
+  const statusIcon =
+    useAtomValue(showStatusIconsPreference) ? GetStatusIcon(props.status)
+    : null;
+
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -42,23 +41,39 @@ const NavEntry = (props) => {
       }}
     >
       <Badge
-        className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}
+        className={
+          css(navStyles.entryIcon, navStyles[badgeStyle], navStyles.badge)
+        }
         title={props.type}
         pill
       >
         {CATEGORY_ICONS[props.type]}
       </Badge>
       <div
-        className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
+        className={
+          css(navStyles.entryName, navStyles[STATUS_CATEGORY[props.status]])
+        }
         title={`${props.description || props.name} - ${props.status}`}
       >
+        {statusIcon}
         {props.name}
       </div>
-      <div className={css(styles.entryIcons)}>
-        {executionTime}
-        <span className={css(styles.entryIcon)} title="passed/failed testcases">
-          <span className={css(styles.passed)}>{props.caseCountPassed}</span>/
-          <span className={css(styles.failed)}>{props.caseCountFailed}</span>
+      <div className={css(navStyles.entryIcons)}>
+        <span className={
+          css(
+            navStyles.entryIcon,
+            navStyles[STATUS_CATEGORY[props.status]],
+            navStyles.navTime,
+          )
+        }>
+          {navTimeInfo}
+        </span>
+        <span className={
+          css(navStyles.entryIcon)
+        } title="passed/failed testcases">
+          <span className={css(navStyles.passed)}>{props.caseCountPassed}</span>
+          /
+          <span className={css(navStyles.failed)}>{props.caseCountFailed}</span>
         </span>
       </div>
     </div>
@@ -84,46 +99,5 @@ NavEntry.propTypes = {
   displayTime: PropTypes.bool,
 };
 
-const styles = StyleSheet.create({
-  entryName: {
-    overflow: "hidden",
-    "text-overflow": "ellipsis",
-    "white-space": "nowrap",
-    fontSize: "small",
-    fontWeight: 500,
-    marginLeft: "3px",
-    marginRight: "3px",
-    userSelect: "text",
-  },
-  entryIcons: {
-    paddingLeft: "1em",
-    display: "flex",
-    flexShrink: 0,
-    marginLeft: "auto",
-  },
-  entryIcon: {
-    fontSize: "x-small",
-    margin: "0em 0.5em 0em 0.5em",
-  },
-  badge: {
-    opacity: 0.5,
-  },
-  passedBadge: {
-    backgroundColor: GREEN,
-  },
-  failedBadge: {
-    backgroundColor: RED,
-  },
-  errorBadge: {
-    backgroundColor: RED,
-  },
-  unstableBadge: {
-    backgroundColor: ORANGE,
-  },
-  unknownBadge: {
-    backgroundColor: BLACK,
-  },
-  ...statusStyles,
-});
 
 export default NavEntry;

@@ -70,6 +70,7 @@ class ExceptionLogger(ExceptionLoggerBase):
                     str(exc_value),
                 )
                 self.report.status_override = Status.SKIPPED
+                return True
             elif issubclass(exc_type, self.exception_classes):
                 # Custom exception message with extra args
                 exc_msg = "".join(
@@ -79,7 +80,7 @@ class ExceptionLogger(ExceptionLoggerBase):
 
                 if self.fail:
                     self.report.status_override = Status.ERROR
-            return True
+                return True
 
 
 @total_ordering
@@ -215,12 +216,10 @@ class Status(Enum):
         return cls[s.replace("-", "_").upper()]
 
 
-class ReportCategories(str, Enum):
+class ReportCategories:
     """
-    Enumeration of possible categories of report nodes.
-
-    Note: we don't use the enum.Enum base class to simplify report
-    serialization via marshmallow.
+    Some possible categories of report nodes, grouped as easy-to-use constants.
+    ``Test`` is extensible, so should ``ReportCategories`` be.
     """
 
     TESTPLAN = "testplan"
@@ -573,7 +572,7 @@ class BaseReportGroup(Report):
                 if isinstance(child, BaseReportGroup):
                     child.build_index(recursive=recursive)
 
-    def get_by_uids(self, uids):
+    def get_by_uids(self, uids: List[str]) -> Report:
         """
         Get child report via a series of `uid` lookup.
 
@@ -585,7 +584,7 @@ class BaseReportGroup(Report):
             report = report.get_by_uid(uid)
         return report
 
-    def has_uid(self, uid):
+    def has_uid(self, uid: str) -> bool:
         """
         Has a child report of `uid`
         """
@@ -593,7 +592,7 @@ class BaseReportGroup(Report):
 
     __contains__ = has_uid
 
-    def get_by_uid(self, uid):
+    def get_by_uid(self, uid: str) -> Report:
         """
         Get child report via `uid` lookup.
 
@@ -635,6 +634,26 @@ class BaseReportGroup(Report):
         self._index = {child.uid: i for i, child in enumerate(self)}
 
     __delitem__ = remove_by_uid
+
+    def pre_order_reports(self):
+        yield self
+        for e in self:
+            if isinstance(e, BaseReportGroup):
+                yield from e.pre_order_reports()
+            elif isinstance(e, Report):
+                yield e
+
+    def pre_order_disassemble(self):
+        es = copy.copy(self.entries)
+        self.entries.clear()
+        self._index.clear()
+
+        yield self
+        for e in es:
+            if isinstance(e, BaseReportGroup):
+                yield from e.pre_order_disassemble()
+            elif isinstance(e, Report):
+                yield e
 
     @property
     def entry_uids(self):
@@ -684,11 +703,32 @@ class BaseReportGroup(Report):
         self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
 
         self.timer.merge(report.timer)
+        # FIXME: simple extend discards certain context info
         self.children.extend(report.children)
 
         self.status_override = Status.precedent(
             [self.status_override, report.status_override]
         )
+
+    def graft_entry(self, report: Report, parent_uids: List[str]):
+        if not parent_uids:
+            if report.uid in self:
+                self.get_by_uid(report.uid).merge(report)
+            else:
+                self.append(report)
+            return
+
+        u = parent_uids.pop(0)
+        if u not in self:
+            raise MergeError(
+                "Parent report should be grafted before child report being grafted."
+            )
+        e = self.get_by_uid(u)
+        if not isinstance(e, BaseReportGroup):
+            raise MergeError(
+                "Cannot graft report onto a non-BaseReportGroup entry."
+            )
+        e.graft_entry(report, parent_uids)
 
     def append(self, item):
         """Add `item` to `self.entries`, checking type & index."""
@@ -933,9 +973,7 @@ class BaseReportGroup(Report):
                         new_status, entries[entry.name]
                     )
                 else:
-                    entry.set_runtime_status_filtered(
-                        new_status, entries[entry.name]
-                    )
+                    entry.runtime_status = new_status
         self._runtime_status = new_status
 
     def _get_comparison_attrs(self):

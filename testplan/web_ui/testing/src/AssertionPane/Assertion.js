@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import { Card, CardBody, Collapse } from "reactstrap";
 import { css, StyleSheet } from "aphrodite";
-import { ErrorBoundary } from "../Common/ErrorBoundary";
+import { useAtomValue } from "jotai";
 
+import { ErrorBoundary } from "../Common/ErrorBoundary";
 import BasicAssertion from "./AssertionTypes/BasicAssertion";
 import MarkdownAssertion from "./AssertionTypes/MarkdownAssertion";
 import CodeLogAssertion from "./AssertionTypes/CodeLogAssertion";
@@ -30,6 +31,8 @@ import {
 import LogfileMatchAssertion from "./AssertionTypes/LogfileMatchAssertion";
 import { EXPAND_STATUS } from "../Common/defaults";
 import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
+import FlowChartAssertion from "./AssertionTypes/FlowChartAssertion";
+import { showStatusIconsPreference } from "../UserSettings/UserSettings";
 
 /**
  * Component to render one assertion.
@@ -83,6 +86,7 @@ function Assertion({
       RegexMatchLine: RegexMatchLineAssertion,
       XMLCheck: XMLCheckAssertion,
       LogfileMatch: LogfileMatchAssertion,
+      FlowChart: FlowChartAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
@@ -127,6 +131,7 @@ function Assertion({
       }
     }
   }
+  let showStatusIcons = useAtomValue(showStatusIconsPreference);
 
   return (
     <Card className={css(styles.card)}>
@@ -136,6 +141,7 @@ function Assertion({
         toggleExpand={toggleExpand}
         index={index}
         displayPath={displayPath}
+        showStatusIcons={showStatusIcons}
       />
       <Collapse
         isOpen={expand === EXPAND_STATUS.EXPAND}

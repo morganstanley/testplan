@@ -1,5 +1,4 @@
 """Tests runner module."""
-import datetime
 import inspect
 import math
 import os
@@ -9,7 +8,9 @@ import time
 import uuid
 import webbrowser
 from collections import OrderedDict
+from copy import copy
 from dataclasses import dataclass
+from itertools import zip_longest
 from typing import (
     Any,
     Callable,
@@ -23,7 +24,6 @@ from typing import (
     Union,
 )
 
-import pytz
 from schema import And, Or, Use
 
 from testplan import defaults
@@ -53,6 +53,7 @@ from testplan.exporters.testing.base import Exporter
 from testplan.report import (
     ReportCategories,
     Status,
+    TestCaseReport,
     TestGroupReport,
     TestReport,
 )
@@ -138,6 +139,35 @@ def validate_lines(d: dict) -> bool:
                 'list of integer or string literal "*" expected.'
             )
     return True
+
+
+def collate_for_merging(
+    es: List[Union[TestGroupReport, TestCaseReport]]
+) -> List[List[Union[TestGroupReport, TestCaseReport]]]:
+    """
+    Group report entries into buckets, where synthesized ones in the same
+    bucket containing the previous non-synthesized one.
+    """
+    res = []
+    i, j = 0, 0
+    while i < len(es):
+        if i < j:
+            i += 1
+            continue
+
+        grp = [es[i]]
+        j = i + 1
+        while j < len(es):
+            if es[j].category == ReportCategories.SYNTHESIZED:
+                grp.append(es[j])
+                j += 1
+            else:
+                break
+
+        res.append(grp)
+        i += 1
+
+    return res
 
 
 class TestRunnerConfig(RunnableConfig):
@@ -236,6 +266,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "skip_strategy", default=common.SkipStrategy.noop()
             ): Use(common.SkipStrategy.from_option_or_none),
+            ConfigOption("driver_info", default=False): bool,
         }
 
 
@@ -577,6 +608,8 @@ class TestRunner(Runnable):
 
         tasks: List[TaskInformation] = []
         time_info = runtime_data.get(uid, None)
+        if time_info and "teardown_time" not in time_info:
+            time_info["teardown_time"] = 0
         if num_of_parts:
 
             if not isinstance(task_info.materialized_test, MultiTest):
@@ -593,23 +626,54 @@ class TestRunner(Runnable):
                     )
                     num_of_parts = 1
                 else:
-                    num_of_parts = math.ceil(
+                    # the setup time shall take no more than 50% of runtime
+                    cap = math.ceil(
                         time_info["execution_time"]
-                        / (
-                            self.cfg.auto_part_runtime_limit
-                            - time_info["setup_time"]
-                        )
+                        / self.cfg.auto_part_runtime_limit
+                        * 2
                     )
-                    if num_of_parts < 1:
-                        raise RuntimeError(
-                            f"Calculated num_of_parts for {uid} is {num_of_parts},"
-                            " check the input runtime_data and auto_part_runtime_limit"
+                    formula = f"""
+    num_of_parts = math.ceil(
+        time_info["execution_time"] {time_info["execution_time"]}
+        / (
+            self.cfg.auto_part_runtime_limit {self.cfg.auto_part_runtime_limit}
+            - time_info["setup_time"] {time_info["setup_time"]}
+            - time_info["teardown_time"] {time_info["teardown_time"]}
+        )
+    )
+"""
+                    try:
+                        num_of_parts = math.ceil(
+                            time_info["execution_time"]
+                            / (
+                                self.cfg.auto_part_runtime_limit
+                                - time_info["setup_time"]
+                                - time_info["teardown_time"]
+                            )
                         )
+                    except ZeroDivisionError:
+                        self.logger.error(
+                            f"ZeroDivisionError occurred when calculating num_of_parts for {uid}, set to 1. {formula}"
+                        )
+                        num_of_parts = 1
+
+                    if num_of_parts < 1:
+                        self.logger.error(
+                            f"Calculated num_of_parts for {uid} is {num_of_parts}, set to 1. {formula}"
+                        )
+                        num_of_parts = 1
+
+                    if num_of_parts > cap:
+                        self.logger.error(
+                            f"Calculated num_of_parts for {uid} is {num_of_parts} > cap {cap}, set to {cap}. {formula}"
+                        )
+                        num_of_parts = cap
             if "weight" not in _task_arguments:
                 _task_arguments["weight"] = (
                     math.ceil(
                         (time_info["execution_time"] / num_of_parts)
                         + time_info["setup_time"]
+                        + time_info["teardown_time"]
                     )
                     if time_info
                     else self.cfg.auto_part_runtime_limit
@@ -636,7 +700,9 @@ class TestRunner(Runnable):
         else:
             if time_info and not task.weight:
                 task_info.target.weight = math.ceil(
-                    time_info["execution_time"] + time_info["setup_time"]
+                    time_info["execution_time"]
+                    + time_info["setup_time"]
+                    + time_info["teardown_time"]
                 )
                 self.logger.user_info(
                     "%s: weight=%d", uid, task_info.target.weight
@@ -712,9 +778,9 @@ class TestRunner(Runnable):
                                     task_arguments["kwargs"] = None
                                 else:
                                     raise TypeError(
-                                        f"task_target's parameters can only"
+                                        "task_target's parameters can only"
                                         " contain dict/tuple/list, but"
-                                        " received: {param}"
+                                        f" received: {param}"
                                     )
                                 task_arguments["part"] = None
                                 tasks.extend(
@@ -1043,14 +1109,13 @@ class TestRunner(Runnable):
 
     def add_post_resource_steps(self):
         """Runnable steps to be executed after resources stopped."""
-        self._add_step(self._stop_remote_services)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self.timer.end, "run")  # needs to happen before export
         self._add_step(self._pre_exporters)
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
-        self._add_step(self._close_file_logger)
+        self._add_step(self._stop_remote_services)
         super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._stop_resource_monitor)
 
@@ -1098,6 +1163,10 @@ class TestRunner(Runnable):
                 break
             time.sleep(self.cfg.active_loop_sleep)
 
+    def _post_run_checks(self, start_threads, start_procs):
+        super()._post_run_checks(start_threads, start_procs)
+        self._close_file_logger()
+
     def _create_result(self):
         """Fetch task result from executors and create a full test result."""
         step_result = True
@@ -1136,22 +1205,22 @@ class TestRunner(Runnable):
                     ).append((test_results[uid].run, report))
                     if report.definition_name not in plan_report.entry_uids:
                         # Create a placeholder for merging sibling reports
-                        if isinstance(resource_result, TaskResult):
-                            # `runnable` must be an instance of MultiTest since
-                            # the corresponding report has `part` defined. Can
-                            # get a full structured report by `dry_run` and the
-                            # order of testsuites/testcases can be retained.
-                            runnable = resource_result.task.materialize()
-                            runnable.parent = self
-                            runnable.cfg.parent = self.cfg
-                            runnable.unset_part()
-                            report = runnable.dry_run().report
 
-                        else:
-                            report = report.__class__(
-                                report.definition_name,
-                                category=report.category,
-                            )
+                        # here `report` must be an empty MultiTest report since
+                        # parting is mt-only feature, directly creating an original-
+                        # compatible mt report would reduce mt materialize overhead
+
+                        # while currently the only parting strategy is case-level
+                        # round-robin, more complicated parting strategy could make
+                        # it hard to obtain the defined mt/ts/tc order, since then
+                        # ref report from dry_run will become necessary
+
+                        report = TestGroupReport(
+                            name=report.definition_name,
+                            description=report.description,
+                            category=ReportCategories.MULTITEST,
+                            tags=report.tags,
+                        )
                     else:
                         continue  # Wait all sibling reports collected
 
@@ -1187,13 +1256,18 @@ class TestRunner(Runnable):
         merge_result = True
 
         for uid, result in test_report_lookup.items():
-            placeholder_report = self.result.report.get_by_uid(uid)
+            placeholder_report: TestGroupReport = (
+                self.result.report.get_by_uid(uid)
+            )
             num_of_parts = 0
             part_indexes = set()
             merged = False
 
+            # XXX: should we continue merging on exception raised?
             with placeholder_report.logged_exceptions():
+                disassembled = []
                 for run, report in result:
+                    report: TestGroupReport
                     if num_of_parts and num_of_parts != report.part[1]:
                         raise ValueError(
                             "Cannot merge parts for child report with"
@@ -1214,20 +1288,25 @@ class TestRunner(Runnable):
                         if isinstance(run, Exception):
                             raise run
                         else:
-                            placeholder_report.merge(report, strict=False)
+                            report.annotate_part_num()
+                            flatten = list(report.pre_order_disassemble())
+                            disassembled.append(collate_for_merging(flatten))
                     else:
                         raise MergeError(
-                            "Cannot merge parts for child report with"
-                            " `uid`: {uid}, at least one part (index:{part})"
-                            " didn't run.".format(uid=uid, part=report.part[0])
+                            f"While merging parts of report `uid`: {uid}, "
+                            f"part {report.part[0]} didn't run. Merge of this part was skipped"
                         )
-                else:
-                    if len(part_indexes) < num_of_parts:
-                        raise MergeError(
-                            "Cannot merge parts for child report with"
-                            " `uid`: {uid}, not all MultiTest parts"
-                            " had been scheduled.".format(uid=uid)
-                        )
+                for it in zip_longest(*disassembled, fillvalue=()):
+                    for es in it:
+                        for e in es:
+                            if not e.parent_uids:
+                                # specially handle mt entry
+                                placeholder_report.merge(e)
+                            else:
+                                placeholder_report.graft_entry(
+                                    e, copy(e.parent_uids[1:])
+                                )
+                placeholder_report.build_index(recursive=True)
                 merged = True
 
             # If fail to merge sibling reports, clear the placeholder report

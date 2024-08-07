@@ -30,7 +30,11 @@ from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import kill_process, subprocess_popen
 
-from .base import Driver, DriverConfig, DriverMetadata
+from .base import Driver, DriverConfig
+from .connection import (
+    SubprocessFileConnectionExtractor,
+    SubprocessPortConnectionExtractor,
+)
 
 IS_WIN = platform.system() == "Windows"
 
@@ -40,17 +44,6 @@ class AppConfig(DriverConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.app.App` resource.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={
-                "class": driver.__class__.__name__,
-                "outpath": driver.outpath,
-                "errpath": driver.errpath,
-            },
-        )
 
     @classmethod
     def get_options(cls):
@@ -113,6 +106,10 @@ class App(Driver):
     """
 
     CONFIG = AppConfig
+    EXTRACTORS = [
+        SubprocessFileConnectionExtractor(),
+        SubprocessPortConnectionExtractor(),
+    ]
 
     def __init__(
         self,
@@ -310,20 +307,6 @@ class App(Driver):
         """
         return socket.gethostname()
 
-    def pre_start(self) -> None:
-        """
-        Create mandatory directories and install files from given templates
-        using the drivers context before starting the application binary.
-        """
-        super(App, self).pre_start()
-
-        self._make_dirs()
-        makedirs(self.app_path)
-        self.std = StdFiles(self.app_path)
-
-        if self.cfg.install_files:
-            self.install_files()
-
     def starting(self) -> None:
         """Starts the application binary."""
         super(App, self).starting()
@@ -411,13 +394,20 @@ class App(Driver):
             )
             raise RuntimeError(err_msg)
 
-    def _make_dirs(self) -> None:
+    def make_runpath_dirs(self) -> None:
+        """
+        Create mandatory directories and install files from given templates
+        using the drivers context before starting the application binary.
+        """
+        super(App, self).make_runpath_dirs()
+
         bin_dir = os.path.join(self.runpath, "bin")
         etc_dir = os.path.join(self.runpath, "etc")
-        for directory in (bin_dir, etc_dir):
+        for directory in (bin_dir, etc_dir, self.app_path):
             makedirs(directory)
         self._binpath = bin_dir
         self._etcpath = etc_dir
+        self.std = StdFiles(self.app_path)
 
     def _install_target(self) -> str:
         return self.etcpath

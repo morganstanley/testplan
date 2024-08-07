@@ -21,7 +21,7 @@ from typing import (
     Union,
 )
 
-import pytz
+from datetime import timezone
 
 PollInterval = Union[float, Tuple[float, float]]
 
@@ -61,7 +61,7 @@ class TimeoutExceptionInfo:
             "%Y-%m-%d %H:%M:%S"
         )
         duration = ended - self.started
-        return "Info[started at {}, raised at {} after {}s]".format(
+        return "Started at {}, raised at {} after {}s.".format(
             started_wait, raised_date, round(duration, 2)
         )
 
@@ -269,7 +269,7 @@ def retry_until_timeout(
 
 def utcnow() -> datetime.datetime:
     """Timezone aware UTC now."""
-    return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
+    return datetime.datetime.utcnow().replace(tzinfo=timezone.utc)
 
 
 _Interval = collections.namedtuple("_Interval", "start end")

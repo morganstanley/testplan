@@ -5,6 +5,7 @@ from testplan.report import (
     TestGroupReport,
     TestCaseReport,
     RuntimeStatus,
+    Status,
 )
 
 testcase_report = TestCaseReport(
@@ -27,7 +28,7 @@ expected_report = TestReport(
     entries=[
         TestGroupReport(
             name="MyTest",
-            category="unittest",
+            category="dummytest",
             entries=[
                 TestGroupReport(
                     name="ProcessChecks",
@@ -36,5 +37,140 @@ expected_report = TestReport(
                 )
             ],
         )
+    ],
+)
+
+
+expected_report_with_failing_driver_and_driver_info_flag = TestReport(
+    name="plan",
+    entries=[
+        TestGroupReport(
+            name="MyTest",
+            category="multitest",
+            entries=[
+                TestGroupReport(
+                    name="Environment Start",
+                    category="synthesized",
+                    entries=[
+                        TestCaseReport(
+                            name="Starting",
+                            uid="Starting",
+                            description="",
+                            status_override=Status.ERROR,
+                            entries=[
+                                {
+                                    "type": "TableLog",
+                                    "indices": [0],
+                                    "display_index": False,
+                                    "columns": [
+                                        "Driver Class",
+                                        "Driver Name",
+                                        "Start Time (UTC)",
+                                        "Stop Time (UTC)",
+                                        "Duration(seconds)",
+                                    ],
+                                    "category": "DEFAULT",
+                                    "table": [
+                                        [
+                                            "FailingDriver",
+                                            "driver",
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            None,
+                                            None,
+                                        ]
+                                    ],
+                                    "description": "Driver Setup Info",
+                                    "meta_type": "entry",
+                                },
+                                {
+                                    "style": None,
+                                    "type": "Plotly",
+                                    "filesize": lambda x: isinstance(x, int),
+                                    "dst_path": re.compile(r".*\.json"),
+                                    "category": "DEFAULT",
+                                    "source_path": re.compile(r".*\.json"),
+                                    "orig_filename": re.compile(r".*\.json"),
+                                    "description": "Driver Setup Timeline",
+                                    "meta_type": "entry",
+                                },
+                                {
+                                    "type": "FlowChart",
+                                    "category": "DEFAULT",
+                                    "description": "Driver Connections",
+                                    "nodes": [
+                                        {
+                                            "id": "FailingDriver[driver]",
+                                            "style": {
+                                                "border": "1px solid #FF0000"
+                                            },
+                                            "data": {
+                                                "label": "FailingDriver\n[driver]"
+                                            },
+                                        },
+                                    ],
+                                    "edges": [],
+                                },
+                            ],
+                        )
+                    ],
+                    tags=None,
+                ),
+                TestGroupReport(
+                    name="Environment Stop",
+                    category="synthesized",
+                    entries=[
+                        TestCaseReport(
+                            name="Stopping",
+                            uid="Stopping",
+                            description="",
+                            entries=[
+                                {
+                                    "type": "TableLog",
+                                    "indices": [0],
+                                    "display_index": False,
+                                    "columns": [
+                                        "Driver Class",
+                                        "Driver Name",
+                                        "Start Time (UTC)",
+                                        "Stop Time (UTC)",
+                                        "Duration(seconds)",
+                                    ],
+                                    "category": "DEFAULT",
+                                    "table": [
+                                        [
+                                            "FailingDriver",
+                                            "driver",
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            re.compile(
+                                                r"\d{2}:\d{2}:\d{2}.\d{6}"
+                                            ),
+                                            lambda x: isinstance(x, float),
+                                        ]
+                                    ],
+                                    "description": "Driver Teardown Info",
+                                    "meta_type": "entry",
+                                },
+                                {
+                                    "style": None,
+                                    "type": "Plotly",
+                                    "filesize": lambda x: isinstance(x, int),
+                                    "dst_path": re.compile(r".*\.json"),
+                                    "category": "DEFAULT",
+                                    "source_path": re.compile(r".*\.json"),
+                                    "orig_filename": re.compile(r".*\.json"),
+                                    "description": "Driver Teardown Timeline",
+                                    "meta_type": "entry",
+                                },
+                            ],
+                        )
+                    ],
+                    tags=None,
+                ),
+            ],
+        ),
     ],
 )

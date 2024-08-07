@@ -12,179 +12,17 @@ from testplan.exporters.testing.json import gen_attached_report_names
 from testplan.testing import multitest
 
 
-full_report = {
-    "python_version": "3.7.5",
-    "category": "testplan",
-    "runtime_status": "finished",
-    "status": "failed",
-    "entries": [
-        {
-            "category": "multitest",
-            "parent_uids": ["Multiply"],
-            "name": "MultiplyTest",
-            "uid": "MultiplyTest",
-            "entries": [
-                {
-                    "category": "testsuite",
-                    "parent_uids": ["Multiply", "MultiplyTest"],
-                    "name": "BasicSuite",
-                    "uid": "BasicSuite",
-                    "entries": [
-                        {
-                            "category": "parametrization",
-                            "parent_uids": [
-                                "Multiply",
-                                "MultiplyTest",
-                                "BasicSuite",
-                            ],
-                            "name": "Basic Multiply",
-                            "uid": "basic_multiply",
-                            "entries": [
-                                {
-                                    "entries": [
-                                        {
-                                            "name": "test assertion1",
-                                            "uid": "test_assertion1",
-                                        },
-                                    ],
-                                    "type": "TestCaseReport",
-                                    "category": "testcase",
-                                    "parent_uids": [
-                                        "Multiply",
-                                        "MultiplyTest",
-                                        "BasicSuite",
-                                        "basic_multiply",
-                                    ],
-                                    "name": "basic multiply <p1='aaa', p2=111>",
-                                    "uid": "basic_multiply__p1_aaa__p2_111",
-                                },
-                                {
-                                    "entries": [
-                                        {
-                                            "name": "test assertion2",
-                                            "uid": "test_assertion2",
-                                        }
-                                    ],
-                                    "type": "TestCaseReport",
-                                    "category": "testcase",
-                                    "parent_uids": [
-                                        "Multiply",
-                                        "MultiplyTest",
-                                        "BasicSuite",
-                                        "basic_multiply",
-                                    ],
-                                    "name": "basic multiply <p1='bbb', p2=222>",
-                                    "uid": "basic_multiply__p1_bbb__p2_222",
-                                },
-                            ],
-                            "type": "TestGroupReport",
-                        }
-                    ],
-                    "type": "TestGroupReport",
-                }
-            ],
-            "type": "TestGroupReport",
-        }
-    ],
-    "name": "Multiply",
-    "uid": "Multiply",
-    "project": "testplan",
-    "timeout": 14400,
-}
-
-
-meta_part = {
-    "python_version": "3.7.5",
-    "category": "testplan",
-    "runtime_status": "finished",
-    "status": "failed",
-    "entries": [],
-    "name": "Multiply",
-    "uid": "Multiply",
-    "project": "testplan",
-    "timeout": 14400,
-}
-
-
-structure_part = [
-    {
-        "category": "multitest",
-        "parent_uids": ["Multiply"],
-        "name": "MultiplyTest",
-        "uid": "MultiplyTest",
-        "entries": [
-            {
-                "category": "testsuite",
-                "parent_uids": ["Multiply", "MultiplyTest"],
-                "name": "BasicSuite",
-                "uid": "BasicSuite",
-                "entries": [
-                    {
-                        "category": "parametrization",
-                        "parent_uids": [
-                            "Multiply",
-                            "MultiplyTest",
-                            "BasicSuite",
-                        ],
-                        "name": "Basic Multiply",
-                        "uid": "basic_multiply",
-                        "entries": [
-                            {
-                                "entries": [],
-                                "type": "TestCaseReport",
-                                "category": "testcase",
-                                "parent_uids": [
-                                    "Multiply",
-                                    "MultiplyTest",
-                                    "BasicSuite",
-                                    "basic_multiply",
-                                ],
-                                "name": "basic multiply <p1='aaa', p2=111>",
-                                "uid": "basic_multiply__p1_aaa__p2_111",
-                            },
-                            {
-                                "entries": [],
-                                "type": "TestCaseReport",
-                                "category": "testcase",
-                                "parent_uids": [
-                                    "Multiply",
-                                    "MultiplyTest",
-                                    "BasicSuite",
-                                    "basic_multiply",
-                                ],
-                                "name": "basic multiply <p1='bbb', p2=222>",
-                                "uid": "basic_multiply__p1_bbb__p2_222",
-                            },
-                        ],
-                        "type": "TestGroupReport",
-                    }
-                ],
-                "type": "TestGroupReport",
-            }
-        ],
-        "type": "TestGroupReport",
-    }
-]
-
-
-assertions_part = {
-    "basic_multiply__p1_aaa__p2_111": [
-        {"name": "test assertion1", "uid": "test_assertion1"},
-    ],
-    "basic_multiply__p1_bbb__p2_222": [
-        {"name": "test assertion2", "uid": "test_assertion2"},
-    ],
-}
-
-
 @multitest.testsuite
 class Alpha:
+    def setup(self, env, result):
+        result.log("within suite setup...")
+
     @multitest.testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
 
-    @multitest.testcase
-    def test_membership(self, env, result):
+    @multitest.testcase(parameters=(1, 2, 3))
+    def test_membership(self, env, result, arg):
         result.contain(1, [1, 2, 3])
 
     @multitest.testcase
@@ -208,19 +46,40 @@ class Beta:
         raise Exception("foo")
 
 
-def test_split_and_merge():
+def secondary_after_start(env, result):
+    result.log("within after start...")
+
+
+def test_split_and_merge(runpath):
     """
     Test static methods used for splitting and merging JSON report.
     """
-    meta, structure, assertions = JSONExporter.split_json_report(
-        copy.deepcopy(full_report)
+    json_path = os.path.join(runpath, "report.json")
+    plan = TestplanMock(
+        "plan", exporters=JSONExporter(json_path=json_path), runpath=runpath
     )
-    assert meta == meta_part
-    assert structure == structure_part
-    assert assertions == assertions_part
+    multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
+    multitest_2 = multitest.MultiTest(
+        name="Secondary", suites=[Beta()], after_start=secondary_after_start
+    )
+    plan.add(multitest_1)
+    plan.add(multitest_2)
+    plan.run()
+
+    assert os.path.exists(json_path)
+    assert os.stat(json_path).st_size > 0
+
+    with open(json_path) as json_file:
+        report = json.load(json_file)
+    del report["version"]
+
+    meta, structure, assertions = JSONExporter.split_json_report(
+        copy.deepcopy(report)
+    )
+    assert "information" in meta
+    assert meta["entries"] == []
     assert (
-        JSONExporter.merge_json_report(meta, structure, assertions)
-        == full_report
+        JSONExporter.merge_json_report(meta, structure, assertions) == report
     )
 
 
@@ -234,7 +93,9 @@ def test_json_exporter(runpath):
         "plan", exporters=JSONExporter(json_path=json_path), runpath=runpath
     )
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
-    multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
+    multitest_2 = multitest.MultiTest(
+        name="Secondary", suites=[Beta()], after_start=secondary_after_start
+    )
     plan.add(multitest_1)
     plan.add(multitest_2)
     plan.run()
@@ -273,7 +134,9 @@ def test_json_exporter_generating_split_report(runpath):
     )
 
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
-    multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
+    multitest_2 = multitest.MultiTest(
+        name="Secondary", suites=[Beta()], after_start=secondary_after_start
+    )
     plan.add(multitest_1)
     plan.add(multitest_2)
     plan.run()
@@ -314,22 +177,38 @@ def test_json_exporter_generating_split_report(runpath):
     assert structure[0]["name"] == "Primary"  # 1st multitest name
     assert len(structure[0]["entries"]) == 1  # one suite in 1st multitest
     assert structure[0]["entries"][0]["name"] == "Alpha"  # 1st suite name
-    assert len(structure[0]["entries"][0]["entries"]) == 3  # 3 testcases
-    assert structure[1]["name"] == "Secondary"  # 2nd multitest name
-    assert len(structure[1]["entries"]) == 1  # one suite in 2nd multitest
-    assert structure[1]["entries"][0]["name"] == "Beta"  # 1st suite name
-    assert len(structure[1]["entries"][0]["entries"]) == 2  # 2 testcases
+    assert (
+        len(structure[0]["entries"][0]["entries"]) == 4
+    )  # 3 testcases, 1 synthesized
+    assert (
+        len(structure[0]["entries"][0]["entries"][2]["entries"]) == 3
+    )  # 3 parametrized testcases
 
-    assert len(assertions) == 5  # 5 assertions in total
+    assert structure[1]["name"] == "Secondary"  # 2nd multitest name
+    assert (
+        len(structure[1]["entries"]) == 2
+    )  # one suite in 2nd multitest, 1 synthesized
+    assert structure[1]["entries"][0]["name"] == "Environment Start"
+    assert structure[1]["entries"][0]["entries"][0]["name"] == "After Start"
+    assert len(structure[1]["entries"][0]["entries"]) == 1
+    assert structure[1]["entries"][1]["name"] == "Beta"  # 1st suite name
+    assert len(structure[1]["entries"][1]["entries"]) == 2  # 2 testcases
+
+    assert len(assertions) == 9  # 9 assertions in total
     # only one assertion in each testcase in suite `Alpha`
     assert assertions["test_comparison"][0]["type"] == "Equal"
-    assert assertions["test_membership"][0]["type"] == "Contain"
+    assert assertions["test_membership__arg_1"][0]["type"] == "Contain"
+    assert assertions["test_membership__arg_2"][0]["type"] == "Contain"
+    assert assertions["test_membership__arg_3"][0]["type"] == "Contain"
     assert assertions["test_attach"][0]["type"] == "Attachment"
     # 2 assertions in testcase `test_failure`
     assert assertions["test_failure"][0]["type"] == "Equal"
     assert assertions["test_failure"][1]["type"] == "NotEqual"
     # no assertion in testcase `test_error`
     assert len(assertions["test_error"]) == 0
+    # 2 assertions in synthesized cases, i.e. custom hooks
+    assert assertions["setup"][0]["type"] == "Log"
+    assert assertions["After Start"][0]["type"] == "Log"
 
 
 def test_implicit_exporter_initialization(runpath):

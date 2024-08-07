@@ -1,0 +1,1 @@
+Remove certain version constraints of Flask and related packages, Testplan can be used with Flask 3 now.

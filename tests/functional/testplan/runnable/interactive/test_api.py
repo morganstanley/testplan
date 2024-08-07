@@ -1051,11 +1051,18 @@ def test_cannot_start_environment(plan2):
     )
 
     # Check the error message
+    mtest_url = (
+        "http://localhost:{}/api/v1/interactive/report/tests/"
+        "BrokenMTest/suites/Environment%2520Start/testcases"
+    ).format(port)
+
     rsp = requests.get(mtest_url)
     assert rsp.status_code == 200
     mtest_json = rsp.json()
-    assert len(mtest_json["logs"]) == 1
-    assert "Failed to start with no reason" in mtest_json["logs"][0]["message"]
+    assert len(mtest_json[0]["logs"]) == 1
+    assert (
+        "Failed to start with no reason" in mtest_json[0]["logs"][0]["message"]
+    )
 
 
 def test_cannot_run_mtest(plan2):
@@ -1091,7 +1098,7 @@ def test_cannot_run_mtest(plan2):
             _check_test_status,
             mtest_url,
             Status.ERROR.to_json_compatible(),
-            RuntimeStatus.NOT_RUN.to_json_compatible(),
+            RuntimeStatus.READY.to_json_compatible(),
             updated_json["hash"],
         ),
         interval=0.2,
@@ -1100,11 +1107,15 @@ def test_cannot_run_mtest(plan2):
     )
 
     # Check the error message
-    rsp = requests.get(mtest_url)
+    ts_url = (
+        "http://localhost:{}/api/v1/interactive/report/tests/"
+        "BrokenMTest/suites/Environment%2520Start/testcases"
+    ).format(port)
+    rsp = requests.get(ts_url)
     assert rsp.status_code == 200
-    mtest_json = rsp.json()
-    assert len(mtest_json["logs"]) == 1
-    assert "Failed to start with no reason" in mtest_json["logs"][0]["message"]
+    ts_json = rsp.json()
+    assert len(ts_json[0]["logs"]) == 1
+    assert "Failed to start with no reason" in ts_json[0]["logs"][0]["message"]
 
 
 def test_run_testcases_sequentially(plan3):

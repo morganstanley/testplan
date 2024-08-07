@@ -1,0 +1,1 @@
+Users now can make all drivers of a certain ``Test`` start concurrently by passing an empty dict to ``dependencies`` argument.

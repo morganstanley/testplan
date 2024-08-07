@@ -11,18 +11,21 @@ exports[`LogfileMatchAssertion shallow renders the correct HTML structure 1`] = 
   </div>
   <LogfileMatchEntry
     endPos="<inode 110000, position 5>"
+    key="logmatch0"
     matched="okok"
     pattern=".*ok.*"
     startPos="<BOF>"
   />
   <LogfileMatchEntry
     endPos="<inode 110000, position 10>"
+    key="logmatch1"
     matched="okok"
     pattern=".*ok.*"
     startPos="<inode 110000, position 5>"
   />
   <LogfileMatchEntry
     endPos="<inode 110000, position 15>"
+    key="logmatch2"
     matched={null}
     pattern=".*ok.*"
     startPos="<inode 110000, position 10>"

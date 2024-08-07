@@ -5,7 +5,12 @@ from unittest import mock
 
 import pytest
 
-from testplan.common.report import Report, BaseReportGroup, MergeError
+from testplan.common.report import (
+    BaseReportGroup,
+    MergeError,
+    Report,
+    ReportCategories,
+)
 from testplan.common.report.log import LOGGER
 from testplan.common.utils.testing import disable_log_propagation
 
@@ -32,10 +37,20 @@ def test_exception_logger_suppression():
 @disable_log_propagation(LOGGER)
 def test_exception_logger_reraise():
     """
-    ExceptionLoggerBase should raise the exception without logging
+    ExceptionLogger.* should raise the exception without logging
     if it doesn't match `exception_classes`.
     """
     rep = DummyReport()
+
+    with pytest.raises(KeyError):
+
+        with rep.logged_exceptions(IndexError):
+            raise IndexError("foo")  # suppressed
+
+        with rep.logged_exceptions(IndexError):
+            raise KeyError("bar")  # raised
+
+    rep = DummyReportGroup()
 
     with pytest.raises(KeyError):
 
@@ -354,3 +369,34 @@ class TestReportGroup:
 
         assert parent.parent_uids == [grand_parent.uid]
         assert child.parent_uids == [grand_parent.uid, parent.uid]
+
+    def test_graft_round_trip(self):
+        grand_parent = DummyReportGroup()
+        parent = DummyReportGroup()
+        child = DummyReport()
+
+        grand_parent.append(parent)
+        parent.append(child)
+
+        refs = list(grand_parent.pre_order_reports())
+        parts = list(grand_parent.pre_order_disassemble())
+
+        # disassembled in place
+        assert not grand_parent.entries
+        assert all(map(lambda x, y: x is y, refs, parts))
+
+        child.parent_uids.clear()
+        parent.parent_uids.clear()
+
+        grand_parent.graft_entry(parent, [])
+        grand_parent.graft_entry(child, [parent.uid])
+
+        assert child.parent_uids == ["dummy", "dummy"]
+        assert parent.parent_uids == ["dummy"]
+        assert "dummy" in grand_parent
+        assert "dummy" in parent
+
+
+def test_report_categories_type():
+    assert ReportCategories.MULTITEST == "multitest"
+    assert type(ReportCategories.MULTITEST) is str

@@ -40,9 +40,36 @@
                         "passed": 0,
                         "total": 0
                     },
-                    "definition_name": "After Start",
+                    "definition_name": "Environment Start",
                     "description": null,
                     "entries": [
+                        {
+                            "name": "Starting",
+                            "definition_name": "Starting",
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "status_override": null,
+                            "category": "synthesized",
+                            "runtime_status": "finished",
+                            "status": "passed",
+                            "logs": [],
+                            "timer": {},
+                            "description": "",
+                            "status_reason": null,
+                            "type": "TestCaseReport",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test1",
+                                "Environment Start"
+                            ],
+                            "entries": [],
+                            "hash": 0,
+                            "uid": "Starting",
+                            "tags": {}
+                        },
                         {
                             "category": "synthesized",
                             "counter": {
@@ -50,16 +77,16 @@
                                 "passed": 1,
                                 "total": 1
                             },
-                            "definition_name": "accept_connection",
+                            "definition_name": "After Start",
                             "description": null,
                             "entries": [],
                             "hash": 0,
                             "logs": [],
-                            "name": "accept_connection",
+                            "name": "After Start",
                             "parent_uids": [
                                 "InteractivePlan",
                                 "Test1",
-                                "After Start"
+                                "Environment Start"
                             ],
                             "runtime_status": "finished",
                             "status": "passed",
@@ -68,7 +95,7 @@
                             "tags": {},
                             "timer": {},
                             "type": "TestCaseReport",
-                            "uid": "accept_connection"
+                            "uid": "After Start"
                         }
                     ],
                     "env_status": null,
@@ -76,7 +103,7 @@
                     "hash": 0,
                     "host": null,
                     "logs": [],
-                    "name": "After Start",
+                    "name": "Environment Start",
                     "parent_uids": [
                         "InteractivePlan",
                         "Test1"
@@ -90,7 +117,7 @@
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
-                    "uid": "After Start"
+                    "uid": "Environment Start"
                 },
                 {
                     "category": "testsuite",
@@ -486,6 +513,67 @@
                     "timer": {},
                     "type": "TestGroupReport",
                     "uid": "Custom_1"
+                },
+                {
+                    "definition_name": "Environment Stop",
+                    "children": [],
+                    "status": "unknown",
+                    "description": null,
+                    "status_reason": null,
+                    "type": "TestGroupReport",
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test1"
+                    ],
+                    "fix_spec_path": null,
+                    "part": null,
+                    "tags": {},
+                    "logs": [],
+                    "uid": "Environment Stop",
+                    "name": "Environment Stop",
+                    "host": null,
+                    "status_override": null,
+                    "category": "synthesized",
+                    "runtime_status": "ready",
+                    "timer": {},
+                    "strict_order": false,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 0
+                    },
+                    "entries": [
+                        {
+                            "name": "Stopping",
+                            "definition_name": "Stopping",
+                            "counter": {
+                                "passed": 0,
+                                "failed": 0,
+                                "total": 1,
+                                "unknown": 1
+                            },
+                            "status_override": null,
+                            "category": "synthesized",
+                            "runtime_status": "ready",
+                            "status": "unknown",
+                            "logs": [],
+                            "timer": {},
+                            "description": null,
+                            "status_reason": null,
+                            "type": "TestCaseReport",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test1",
+                                "Environment Stop"
+                            ],
+                            "entries": [],
+                            "hash": 0,
+                            "uid": "Stopping",
+                            "tags": {}
+                        }
+                    ],
+                    "env_status": null,
+                    "hash": 0
                 }
             ],
             "env_status": "STARTED",
@@ -498,8 +586,8 @@
                 "InteractivePlan"
             ],
             "part": null,
-            "runtime_status": "finished",
-            "status": "passed",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
@@ -527,9 +615,36 @@
                         "passed": 0,
                         "total": 0
                     },
-                    "definition_name": "After Start",
+                    "definition_name": "Environment Start",
                     "description": null,
                     "entries": [
+                        {
+                            "name": "Starting",
+                            "definition_name": "Starting",
+                            "counter": {
+                                "passed": 1,
+                                "failed": 0,
+                                "total": 1
+                            },
+                            "status_override": null,
+                            "category": "synthesized",
+                            "runtime_status": "finished",
+                            "status": "passed",
+                            "logs": [],
+                            "timer": {},
+                            "description": "",
+                            "status_reason": null,
+                            "type": "TestCaseReport",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "Environment Start"
+                            ],
+                            "entries": [],
+                            "hash": 0,
+                            "uid": "Starting",
+                            "tags": {}
+                        },
                         {
                             "category": "synthesized",
                             "counter": {
@@ -537,16 +652,16 @@
                                 "passed": 1,
                                 "total": 1
                             },
-                            "definition_name": "accept_connection",
+                            "definition_name": "After Start",
                             "description": null,
                             "entries": [],
                             "hash": 0,
                             "logs": [],
-                            "name": "accept_connection",
+                            "name": "After Start",
                             "parent_uids": [
                                 "InteractivePlan",
                                 "Test2",
-                                "After Start"
+                                "Environment Start"
                             ],
                             "runtime_status": "finished",
                             "status": "passed",
@@ -555,7 +670,7 @@
                             "tags": {},
                             "timer": {},
                             "type": "TestCaseReport",
-                            "uid": "accept_connection"
+                            "uid": "After Start"
                         }
                     ],
                     "env_status": null,
@@ -563,7 +678,7 @@
                     "hash": 0,
                     "host": null,
                     "logs": [],
-                    "name": "After Start",
+                    "name": "Environment Start",
                     "parent_uids": [
                         "InteractivePlan",
                         "Test2"
@@ -577,7 +692,7 @@
                     "tags": {},
                     "timer": {},
                     "type": "TestGroupReport",
-                    "uid": "After Start"
+                    "uid": "Environment Start"
                 },
                 {
                     "category": "testsuite",
@@ -973,6 +1088,67 @@
                     "timer": {},
                     "type": "TestGroupReport",
                     "uid": "Custom_1"
+                },
+                {
+                    "definition_name": "Environment Stop",
+                    "children": [],
+                    "status": "unknown",
+                    "description": null,
+                    "status_reason": null,
+                    "type": "TestGroupReport",
+                    "parent_uids": [
+                        "InteractivePlan",
+                        "Test2"
+                    ],
+                    "fix_spec_path": null,
+                    "part": null,
+                    "tags": {},
+                    "logs": [],
+                    "uid": "Environment Stop",
+                    "name": "Environment Stop",
+                    "host": null,
+                    "status_override": null,
+                    "category": "synthesized",
+                    "runtime_status": "ready",
+                    "timer": {},
+                    "strict_order": false,
+                    "counter": {
+                        "passed": 0,
+                        "failed": 0,
+                        "total": 0
+                    },
+                    "entries": [
+                        {
+                            "name": "Stopping",
+                            "definition_name": "Stopping",
+                            "counter": {
+                                "passed": 0,
+                                "failed": 0,
+                                "total": 1,
+                                "unknown": 1
+                            },
+                            "status_override": null,
+                            "category": "synthesized",
+                            "runtime_status": "ready",
+                            "status": "unknown",
+                            "logs": [],
+                            "timer": {},
+                            "description": null,
+                            "status_reason": null,
+                            "type": "TestCaseReport",
+                            "parent_uids": [
+                                "InteractivePlan",
+                                "Test2",
+                                "Environment Stop"
+                            ],
+                            "entries": [],
+                            "hash": 0,
+                            "uid": "Stopping",
+                            "tags": {}
+                        }
+                    ],
+                    "env_status": null,
+                    "hash": 0
                 }
             ],
             "env_status": "STARTED",
@@ -985,8 +1161,8 @@
                 "InteractivePlan"
             ],
             "part": null,
-            "runtime_status": "finished",
-            "status": "passed",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "status_reason": null,
             "strict_order": false,
@@ -1004,8 +1180,8 @@
     "name": "InteractivePlan",
     "parent_uids": [],
     "resource_meta_path": null,
-    "runtime_status": "finished",
-    "status": "passed",
+    "runtime_status": "ready",
+    "status": "unknown",
     "status_override": null,
     "status_reason": null,
     "tags_index": {},

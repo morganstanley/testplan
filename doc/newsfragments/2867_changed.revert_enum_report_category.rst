@@ -1,0 +1,1 @@
+Revert the refactor replacing plain string with Python Enum for ``category`` fields in report entries. Plain string as custom category is supported again.

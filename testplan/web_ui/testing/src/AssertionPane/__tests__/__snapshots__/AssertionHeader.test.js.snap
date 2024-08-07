@@ -17,7 +17,49 @@ exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
       style={
         Object {
           "flexGrow": 4,
-          "order": 1,
+          "order": 4,
+          "padding": ".125rem 0.75rem",
+        }
+      }
+    >
+      <span
+        style={
+          Object {
+            "fontWeight": "bold",
+          }
+        }
+      />
+      <span>
+        (
+        Equal
+        )
+      </span>
+    </span>
+    <span
+      className="cardHeaderAlignRight_107ja4p"
+    />
+  </div>
+</CardHeader>
+`;
+
+exports[`AssertionHeader shallow renders the correct HTML structure with status icons enabled 1`] = `
+<CardHeader
+  className="cardHeader_1s246z6-o_O-cardHeaderColorPassed_1nxwz58"
+  tag="div"
+>
+  <div
+    style={
+      Object {
+        "display": "flex",
+      }
+    }
+  >
+    <span
+      className="button_13xlah4"
+      style={
+        Object {
+          "flexGrow": 4,
+          "order": 4,
           "padding": ".125rem 0.75rem",
         }
       }

@@ -476,3 +476,12 @@ class Markdown(BaseEntry):
         self.escape = escape
 
         super(Markdown, self).__init__(description=description)
+
+
+class FlowChart(BaseEntry):
+    """Log a flowchart object that consists of nodes and edges to the report"""
+
+    def __init__(self, nodes: list, edges: list, description=None):
+        self.nodes = nodes
+        self.edges = edges
+        super().__init__(description=description)

@@ -6,11 +6,9 @@ import re
 import time
 import warnings
 from contextlib import closing
-from itertools import repeat
 from typing import (
     AnyStr,
     Dict,
-    Iterator,
     List,
     Match,
     Optional,
@@ -39,6 +37,14 @@ LOG_MATCHER_DEFAULT_TIMEOUT = 5.0
 
 
 Regex: TypeAlias = Union[str, bytes, Pattern]
+
+
+def _format_logline(s):
+    if not s:
+        return "<EOF>\n"
+    if len(s) <= 100:
+        return s
+    return f"{s[:100]} ... ({len(s) - 100} chars omitted)"
 
 
 def match_regexps_in_file(
@@ -109,11 +115,11 @@ class ScopedLogfileMatch:
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
             return False
-        s_pos = self.log_matcher.position
         m = self.log_matcher.match(
             self.regex, self.timeout, raise_on_timeout=False
         )
-        e_pos = self.log_matcher.position
+        s_pos = self.log_matcher._debug_info_s[0]
+        e_pos = self.log_matcher._debug_info_e[0]
         if m is not None:
             self.match_results.append((m, self.regex, s_pos, e_pos))
         else:
@@ -141,6 +147,9 @@ class LogMatcher(logger.Loggable):
         self.marks = {}
         self.position: Optional[LogPosition] = None
         self.log_stream: FileLogStream = self._create_log_stream()
+
+        self._debug_info_s = ()
+        self._debug_info_e = ()
 
         # deprecation helpers
         self.had_transformed = False
@@ -241,6 +250,65 @@ class LogMatcher(logger.Loggable):
         """
         self.marks[name] = self.position
 
+    def _match(
+        self,
+        regex: Pattern[AnyStr],
+        timeout: float,
+    ) -> Optional[Match]:
+        """
+        Base block for ``match``, ``not_match`` & ``match_all``,
+        as well as certain ``LogfileNamespace`` assertions.
+
+        :param regex: Checked regular expression
+        :param timeout: Timeout in seconds to wait for matching process,
+            0 means matching till EOF and not waiting for new lines, any
+            value greater than 0 means doing matching up to such seconds,
+            defaults to 5 seconds
+        :return: The regex match or None if no match is found
+        """
+        match = None
+        start_time = time.time()
+        end_time = start_time + timeout
+        regex = self._prepare_regexp(regex)
+
+        with closing(self.log_stream) as log:
+            log.seek(self.position)
+
+            non_eof = ""
+            while True:
+                line = log.readline()
+                if self._debug_info_s is None:
+                    self._debug_info_s = (
+                        str(self.position)
+                        if self.position is not None
+                        else "<BOF>",
+                        start_time,
+                        _format_logline(line),
+                    )
+
+                if line:
+                    non_eof = line
+                    match = regex.match(line)
+                    if match:
+                        break
+                elif timeout > 0:
+                    time.sleep(LOG_MATCHER_INTERVAL)
+                else:
+                    break
+
+                if timeout > 0 and time.time() > end_time:
+                    break
+
+            self.position = self.log_stream.position
+            if self._debug_info_e is None:
+                self._debug_info_e = (
+                    str(self.position),
+                    time.time(),
+                    _format_logline(non_eof),
+                )
+
+        return match
+
     def match(
         self,
         regex: Regex,
@@ -262,42 +330,28 @@ class LogMatcher(logger.Loggable):
         :param raise_on_timeout: To raise TimeoutException or not
         :return: The regex match or None if no match is found
         """
-        match = None
-        start_time = time.time()
-        end_time = start_time + timeout
-
+        self._debug_info_s = None
+        self._debug_info_e = None
         regex = self._prepare_regexp(regex)
 
-        with closing(self.log_stream) as log:
-            log.seek(self.position)
+        m = self._match(regex, timeout=timeout)
 
-            while True:
-                if timeout > 0 and time.time() > end_time:
-                    break
-                line = log.readline()
-                if line:
-                    match = regex.match(line)
-                    if match:
-                        break
-                elif timeout > 0:
-                    time.sleep(LOG_MATCHER_INTERVAL)
-                else:
-                    break
-
-            self.position = self.log_stream.position
-
-        if match is not None:
+        if m is None:
             self.logger.debug(
-                "Match[%s] found in %.2fs",
+                "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
+                "where first line seen as:\n%s"
+                "and ending at %s (around %s), where last line seen as:\n%s",
+                self,
                 regex.pattern,
-                time.time() - start_time,
+                *self._debug_info_s,
+                *self._debug_info_e,
             )
-        elif timeout and raise_on_timeout:
-            raise timing.TimeoutException(
-                "No match[{}] found in {}s".format(regex.pattern, timeout)
-            )
+            if timeout and raise_on_timeout:
+                raise timing.TimeoutException(
+                    "No match[%s] found in %.2fs.", regex.pattern, timeout
+                )
 
-        return match
+        return m
 
     def not_match(
         self,
@@ -316,9 +370,22 @@ class LogMatcher(logger.Loggable):
             0 means should not wait and return whatever matched on initial
             scan, defaults to 5 seconds
         """
+        self._debug_info_s = None
+        self._debug_info_e = None
+        regex = self._prepare_regexp(regex)
 
-        match = self.match(regex, timeout, raise_on_timeout=False)
-        if match is not None:
+        m = self._match(regex, timeout)
+
+        if m is not None:
+            self.logger.debug(
+                "%s: unexpected match[%s] found,\nsearch starting from %s (around %s), "
+                "where first line seen as:\n%s"
+                "and ending at %s (around %s), where last line seen as:\n%s",
+                self,
+                regex.pattern,
+                *self._debug_info_s,
+                *self._debug_info_e,
+            )
             raise Exception(
                 f"Unexpected match[{regex.pattern}] found in {timeout}s"
             )
@@ -343,15 +410,37 @@ class LogMatcher(logger.Loggable):
         matches = []
         end_time = time.time() + timeout
 
-        try:
-            while timeout >= 0:
-                matches.append(
-                    self.match(regex, timeout, raise_on_timeout=True)
+        self._debug_info_s = None
+        regex = self._prepare_regexp(regex)
+
+        while True:
+            if timeout == 0:
+                t = 0
+            else:
+                t = end_time - time.time()
+                if t <= 0:
+                    break
+            self._debug_info_e = None
+            m = self._match(regex, t)
+            if m is not None:
+                matches.append(m)
+            else:
+                break
+
+        if not matches:
+            self.logger.debug(
+                "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
+                "where first line seen as:\n%s"
+                "and ending at %s (around %s), where last line seen as:\n%s",
+                self,
+                regex.pattern,
+                *self._debug_info_s,
+                *self._debug_info_e,
+            )
+            if timeout and raise_on_timeout:
+                raise timing.TimeoutException(
+                    "No match[%s] found in %.2fs.", regex.pattern, timeout
                 )
-                timeout = end_time - time.time()
-        except timing.TimeoutException:
-            if not matches and raise_on_timeout:
-                raise
 
         return matches
 

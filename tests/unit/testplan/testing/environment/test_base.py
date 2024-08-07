@@ -37,6 +37,23 @@ def test_legacy_driver_scheduling(mocker):
     env.stop()
 
 
+def test_set_dependency_none(mocker):
+    m = mocker.Mock()
+    env = TestEnvironment()
+    env.add(MockDriver("a", m, async_start=True))
+    env.add(MockDriver("b", m))
+    env.set_dependency(None)
+    env.start()
+    m.assert_has_calls(
+        [
+            mocker.call.pre("a"),
+            mocker.call.pre("b"),
+            mocker.call.post("b"),
+            mocker.call.post("a"),
+        ]
+    )
+
+
 def test_bad_config_exception():
     env = TestEnvironment()
     env.add(MockDriver("a", async_start=True))

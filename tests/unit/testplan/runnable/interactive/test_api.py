@@ -97,7 +97,25 @@ def example_report():
                                 ],
                             ),
                         ],
-                    )
+                    ),
+                    report.TestGroupReport(
+                        name="After Stop",
+                        uid="MT1AS",
+                        category=report.ReportCategories.SYNTHESIZED,
+                        parent_uids=["Interactive API Test", "MTest1"],
+                        entries=[
+                            report.TestCaseReport(
+                                name="after_stop_hook",
+                                uid="MT1ASH",
+                                category=report.ReportCategories.SYNTHESIZED,
+                                parent_uids=[
+                                    "Interactive API Test",
+                                    "MTest1",
+                                    "MT1AS",
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             )
         ],
@@ -215,23 +233,23 @@ class TestReport:
         ihandler.reset_all_tests.assert_called_once_with(await_results=False)
 
     def test_put_validation(self, api_env):
-        """Test that 400 BAD REQUEST is returned for invalid PUT data."""
+        """Test that (400 if Werkzeug < 2.3.0 else 415) is returned for invalid PUT data."""
         client, ihandler = api_env
         api_url = "/api/v1/interactive/report"
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "ReportName"})
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field cannot be changed.
         shallow_report = ihandler.report.shallow_serialize()
         shallow_report["uid"] = "I have changed"
         rsp = client.put(api_url, json=shallow_report)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
 
 class TestAllTests:
@@ -367,26 +385,26 @@ class TestSingleTest:
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
     def test_put_validation(self, api_env):
-        """Test that 400 BAD REQUEST is returned for invalid PUT data."""
+        """Test that (400 if Werkzeug < 2.3.0 else 415) is returned for invalid PUT data."""
         client, ihandler = api_env
         api_url = "/api/v1/interactive/report/tests/MTest1"
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "MTestName"})
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field cannot be changed.
         json_test = ihandler.report["MTest1"].shallow_serialize()
         json_test["uid"] = "I have changed"
         rsp = client.put(api_url, json=json_test)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # Cannot change status if test is already running/resetting/waiting
         json_test = ihandler.report["MTest1"].shallow_serialize()
@@ -488,17 +506,17 @@ class TestSingleSuite:
         )
 
     def test_put_validation(self, api_env):
-        """Test that 400 BAD REQUEST is returned for invalid PUT data."""
+        """Test that (400 if Werkzeug < 2.3.0 else 415) is returned for invalid PUT data."""
         client, ihandler = api_env
         api_url = "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1"
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "SuiteName"})
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field cannot be changed.
         shallow_suite = ihandler.report["MTest1"][
@@ -506,7 +524,7 @@ class TestSingleSuite:
         ].shallow_serialize()
         shallow_suite["uid"] = "I have changed"
         rsp = client.put(api_url, json=shallow_suite)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
 
 class TestAllTestcases:
@@ -649,7 +667,7 @@ class TestSingleTestcase:
         )
 
     def test_put_validation(self, api_env):
-        """Test that 400 BAD REQUEST is returned for invalid PUT data."""
+        """Test that (400 if Werkzeug < 2.3.0 else 415) is returned for invalid PUT data."""
         client, ihandler = api_env
         api_url = (
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
@@ -658,11 +676,11 @@ class TestSingleTestcase:
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "TestcaseName"})
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field cannot be changed.
         serialized_testcase = ihandler.report["MTest1"]["MT1Suite1"][
@@ -670,7 +688,7 @@ class TestSingleTestcase:
         ].serialize()
         serialized_testcase["uid"] = "I have changed"
         rsp = client.put(api_url, json=serialized_testcase)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
 
 class TestAllParametrizations:
@@ -757,7 +775,7 @@ class TestParametrizedTestCase:
         )
 
     def test_put_validation(self, api_env):
-        """Test that 400 BAD REQUEST is returned for invalid PUT data."""
+        """Test that (400 if Werkzeug < 2.3.0 else 415) is returned for invalid PUT data."""
         client, ihandler = api_env
         api_url = (
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
@@ -766,11 +784,11 @@ class TestParametrizedTestCase:
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "TestcaseName"})
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
         # "uid" field cannot be changed.
         serialized_testcase = ihandler.report["MTest1"]["MT1Suite1"][
@@ -778,7 +796,7 @@ class TestParametrizedTestCase:
         ]["MT1S1TC2_0"].serialize()
         serialized_testcase["uid"] = "I have changed"
         rsp = client.put(api_url, json=serialized_testcase)
-        assert rsp.status_code == 400
+        assert rsp.status_code in (400, 415)
 
 
 class TestAllAttachments:

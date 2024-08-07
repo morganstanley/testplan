@@ -61,22 +61,16 @@ def test_pre_post_steps(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
-                        name="Before Start",
+                        name="Environment Start",
                         category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
-                                name="check_func_1",
+                                name="Before Start",
                                 category=ReportCategories.SYNTHESIZED,
                                 entries=[{"type": "Equal", "passed": True}],
                             ),
-                        ],
-                    ),
-                    TestGroupReport(
-                        name="After Start",
-                        category=ReportCategories.SYNTHESIZED,
-                        entries=[
                             TestCaseReport(
-                                name="check_func_2",
+                                name="After Start",
                                 category=ReportCategories.SYNTHESIZED,
                             ),
                         ],
@@ -93,21 +87,15 @@ def test_pre_post_steps(mockplan):
                         ],
                     ),
                     TestGroupReport(
-                        name="Before Stop",
+                        name="Environment Stop",
                         category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
-                                name="check_func_3",
+                                name="Before Stop",
                                 category=ReportCategories.SYNTHESIZED,
                             ),
-                        ],
-                    ),
-                    TestGroupReport(
-                        name="After Stop",
-                        category=ReportCategories.SYNTHESIZED,
-                        entries=[
                             TestCaseReport(
-                                name="check_func_4",
+                                name="After Stop",
                                 category=ReportCategories.SYNTHESIZED,
                                 entries=[
                                     {"type": "Equal", "passed": False},
@@ -145,11 +133,11 @@ def test_empty_pre_post_steps(mockplan):
                 category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
-                        name="After Start",
+                        name="Environment Start",
                         category=ReportCategories.SYNTHESIZED,
                         entries=[
                             TestCaseReport(
-                                name="check_func_2",
+                                name="After Start",
                                 category=ReportCategories.SYNTHESIZED,
                             ),
                         ],

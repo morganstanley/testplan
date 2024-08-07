@@ -1,5 +1,6 @@
 from typing import List
 
+from testplan.common.utils.strings import uuid4
 from testplan.importers import ImportedResult
 from testplan.report import TestGroupReport, TestReport, ReportCategories
 

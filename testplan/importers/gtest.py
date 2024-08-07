@@ -6,6 +6,7 @@ from typing import List
 from lxml import objectify
 from lxml.objectify import Element
 
+from testplan.common.utils.strings import uuid4
 from testplan.importers.base import T, ThreePhaseFileImporter
 from testplan.importers.suitesresults import SuitesResult
 from testplan.report import (

@@ -20,7 +20,8 @@ describe("BatchReport", () => {
   const renderBatchReport = (
     uid = "123",
     selection = undefined,
-    displayTime = false
+    displayTime = false,
+    UTCTime = false,
   ) => {
     // Mock the match object that would be passed down from react-router.
     // BatchReport uses this object to get the report UID.
@@ -35,6 +36,7 @@ describe("BatchReport", () => {
         match={mockMatch}
         history={routerContext.props().history}
         displayTime={displayTime}
+        UTCTime={UTCTime}
       />,
       {
         ...routerContext.get(),
@@ -274,7 +276,41 @@ describe("BatchReport", () => {
     });
   });
 
-  it("loads a report with selection at Testcase level and Time Information enanbled", (done) => {
+  it("loads a report with selection at Testcase level and UTC Time Information enabled", (done) => {
+    moxios.stubRequest("/api/v1/metadata/fix-spec/tags", {
+      status: 200,
+      response: {},
+    });
+    const batchReport = renderBatchReport(
+      "520a92e4-325e-4077-93e6-55d7091a3f83",
+      "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8/08d4c671-d55d-49d4-96ba-dc654d12be26/f73bd6ea-d378-437b-a5db-00d9e427f36a",
+      true,
+      true
+    );
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe(
+        "/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83"
+      );
+      request
+        .respondWith({
+          status: 200,
+          response: TESTPLAN_REPORT,
+        })
+        .then(() => {
+          batchReport.update();
+          const props = batchReport.instance().props;
+          expect(props.history.location.pathname).toBe(
+            `/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/8c3c7e6b-48e8-40cd-86db-8c8aed2592c8/08d4c671-d55d-49d4-96ba-dc654d12be26/f73bd6ea-d378-437b-a5db-00d9e427f36a`
+          );
+          handleRedirect(batchReport);
+          expect(batchReport).toMatchSnapshot();
+          done();
+        });
+    });
+  });
+
+  it("loads a report with selection at Testcase level and Time Information enabled", (done) => {
     moxios.stubRequest("/api/v1/metadata/fix-spec/tags", {
       status: 200,
       response: {},

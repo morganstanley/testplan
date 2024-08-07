@@ -2,9 +2,10 @@
 
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
+from typing import Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
 
@@ -26,90 +27,13 @@ from testplan.common.utils.timing import (
     DEFAULT_INTERVAL,
     PollInterval,
     get_sleeper,
+    TimeoutException,
+    TimeoutExceptionInfo,
 )
-
-
-def format_regexp_matches(
-    name: str, regexps: List[Pattern], unmatched: List
-) -> str:
-    """
-    Utility for formatting regexp match context for rendering.
-
-    :param name: name of regexp group
-    :param regexps: list of compiled regexps
-    :param unmatched: list of unmatched regexps
-    :return: message to be used in exception raised or empty string
-    """
-    if unmatched:
-        err = "{newline} {name} matched: {matched}".format(
-            newline=os.linesep,
-            name=name,
-            matched=[
-                "REGEX('{}')".format(e.pattern)
-                for e in regexps
-                if e not in unmatched
-            ],
-        )
-
-        err += "{newline}Unmatched: {unmatched}".format(
-            newline=os.linesep,
-            unmatched=["REGEX('{}')".format(e.pattern) for e in unmatched],
-        )
-        return err
-    return ""
-
-
-class Direction(Enum):
-    connecting = "connecting"
-    listening = "listening"
-
-
-@dataclass
-class Connection:
-    """
-    Base class for connection information objects.
-
-    Such objects ideally hold data with respect to the participants in the
-     connection, the ports and hosts, or the protocol.
-    """
-
-    name: str
-    protocol: str
-    identifier: Union[int, str, ContextValue]
-    direction: Direction
-
-    def to_dict(self):
-        return {
-            "protocol": self.protocol,
-            "identifier": self.identifier,
-            "direction": self.direction,
-        }
-
-
-@dataclass
-class DriverMetadata:
-    """
-    Base class for holding Driver metadata.
-
-    :param name:
-    :param driver_metadata:
-    :param conn_info: list of connection info objects
-    """
-
-    name: str
-    driver_metadata: Dict
-    conn_info: List[Connection] = field(default_factory=list)
-
-    def to_dict(self) -> Dict:
-        """
-        Returns the metadata of the driver except for the connections.
-        """
-        data = self.driver_metadata
-        if self.conn_info:
-            data["Connections"] = {
-                conn.name: conn.to_dict() for conn in self.conn_info
-            }
-        return data
+from testplan.testing.multitest.driver.connection import (
+    BaseConnectionInfo,
+    BaseConnectionExtractor,
+)
 
 
 class DriverConfig(ResourceConfig):
@@ -117,13 +41,6 @@ class DriverConfig(ResourceConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.base.Driver` resource.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={"class": driver.__class__.__name__},
-        )
 
     @classmethod
     def get_options(cls):
@@ -146,9 +63,6 @@ class DriverConfig(ResourceConfig):
             ConfigOption("post_start", default=None): validate_func("driver"),
             ConfigOption("pre_stop", default=None): validate_func("driver"),
             ConfigOption("post_stop", default=None): validate_func("driver"),
-            ConfigOption(
-                "metadata_extractor", default=cls.default_metadata_extractor
-            ): validate_func("driver"),
         }
 
 
@@ -175,13 +89,13 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     :param post_start: callable to execute after the driver is started
     :param pre_stop: callable to execute before stopping the driver
     :param pre_stop: callable to execute after the driver is stopped
-    :param metadata_extractor: callable for driver metadata extraction
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` options.
     """
 
     CONFIG = DriverConfig
+    EXTRACTORS: List[BaseConnectionExtractor] = []
 
     def __init__(
         self,
@@ -199,7 +113,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         post_start: Callable = None,
         pre_stop: Callable = None,
         post_stop: Callable = None,
-        metadata_extractor: Callable = None,
         **options,
     ):
 
@@ -241,6 +154,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def pre_start(self) -> None:
         """Steps to be executed right before resource starts."""
         self.make_runpath_dirs()
+
+        if self.cfg.install_files:
+            self.install_files()
 
     @property
     def started_check_interval(self) -> PollInterval:
@@ -284,12 +200,18 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         sleeper = get_sleeper(
             interval=self.started_check_interval,
             timeout=timeout if timeout is not None else self.cfg.timeout,
-            raise_timeout_with_msg=lambda: f"Timeout when starting {self}",
-            timeout_info=True,
         )
+
+        info = TimeoutExceptionInfo(time.time())
         while next(sleeper):
-            if self.started_check():
+            rc = self.started_check()
+            if rc:
                 break
+        else:
+            raise TimeoutException(
+                f"Timeout when starting {self}. {info.msg()}\n\n{getattr(rc, 'error_msg', '')}"
+            )
+
         super(Driver, self)._wait_started(timeout=timeout)
 
     def _wait_stopped(self, timeout: Optional[float] = None) -> None:
@@ -325,73 +247,42 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
     def extract_values(self) -> ActionResult:
         """Extract matching values from input regex configuration options."""
-        log_unmatched = []
-        stdout_unmatched = []
-        stderr_unmatched = []
-        result = True
+        rc = True
+        err = f"{self} started_check failed, unmatched regexps:\n"
 
-        regex_sources = []
-        if self.logpath and self.cfg.log_regexps:
-            regex_sources.append(
-                (self.logpath, self.cfg.log_regexps, log_unmatched)
-            )
-        if self.outpath and self.cfg.stdout_regexps:
-            regex_sources.append(
-                (self.outpath, self.cfg.stdout_regexps, stdout_unmatched)
-            )
-        if self.errpath and self.cfg.stderr_regexps:
-            regex_sources.append(
-                (self.errpath, self.cfg.stderr_regexps, stderr_unmatched)
-            )
+        for name, filepath, regexps in (
+            ("log_regexps", self.logpath, self.cfg.log_regexps),
+            ("stdout_regexps", self.outpath, self.cfg.stdout_regexps),
+            ("stderr_regexps", self.errpath, self.cfg.stderr_regexps),
+        ):
+            if not filepath or not regexps:
+                continue
 
-        for outfile, regexps, unmatched in regex_sources:
-            file_result, file_extracts, file_unmatched = match_regexps_in_file(
-                logpath=outfile, log_extracts=regexps
+            result, extracts, unmatched = match_regexps_in_file(
+                filepath, regexps
             )
-            unmatched.extend(file_unmatched)
-            for k, v in file_extracts.items():
+            rc = rc and result
+
+            for k, v in extracts.items():
                 if isinstance(v, bytes):
                     self.extracts[k] = v.decode("utf-8")
                 else:
                     self.extracts[k] = v
-            result = result and file_result
 
-        if log_unmatched or stdout_unmatched or stderr_unmatched:
-
-            err = (
-                "Timed out starting {}({}):" " unmatched log_regexps in {}."
-            ).format(type(self).__name__, self.name, self.logpath)
-
-            err += format_regexp_matches(
-                name="log_regexps",
-                regexps=self.cfg.log_regexps,
-                unmatched=log_unmatched,
-            )
-
-            err += format_regexp_matches(
-                name="stdout_regexps",
-                regexps=self.cfg.stdout_regexps,
-                unmatched=stdout_unmatched,
-            )
-
-            err += format_regexp_matches(
-                name="stderr_regexps",
-                regexps=self.cfg.stderr_regexps,
-                unmatched=stderr_unmatched,
-            )
-
-            if self.extracts:
-                err += "{newline}Matching groups:{newline}".format(
-                    newline=os.linesep
+            if unmatched:
+                err += (
+                    f"\tFile: {filepath}\n"
+                    f"\tUnmatched {name}: {unmatched}\n\n"
                 )
-                err += os.linesep.join(
-                    [
-                        "\t{}: {}".format(key, value)
-                        for key, value in self.extracts.items()
-                    ]
-                )
+        if self.extracts:
+            err += f"Extracted Values:\n"
+            err += "\n".join(
+                [f"\t{key}: {value}" for key, value in self.extracts.items()]
+            )
+
+        if not rc:
             return FailedAction(error_msg=err)
-        return result
+        return rc
 
     def _install_target(self):
         raise NotImplementedError()
@@ -513,15 +404,11 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         return content
 
-    def extract_driver_metadata(self) -> DriverMetadata:
-        """
-        Extracts driver metadata as described in the extractor function.
-
-        :return: driver metadata
-        """
-        # pylint: disable=not-callable
-        return self.cfg.metadata_extractor(self)
-        # pylint: enable=not-callable
+    def get_connections(self) -> List[BaseConnectionInfo]:
+        connections = []
+        for extractor in self.EXTRACTORS:
+            connections.extend(extractor.extract_connection(self))
+        return connections
 
     def __str__(self):
         return f"{self.__class__.__name__}[{self.name}]"

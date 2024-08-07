@@ -1,0 +1,1 @@
+Add ``--driver-info`` flag to display drivers startup and teardown information in the report.

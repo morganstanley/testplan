@@ -1,0 +1,1 @@
+Refactor and enhance report merging of parted ``MultiTest``.

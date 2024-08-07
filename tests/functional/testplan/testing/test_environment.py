@@ -55,40 +55,60 @@ class DriverGeneratorDict(dict):
         return self[key]
 
 
+def _assert_orig_dep(env):
+    assert env.__dict__["_orig_dependency"] is not None
+
+
 @skip_on_windows(reason="Bash files skipped on Windows.")
 @pytest.mark.parametrize(
-    "driver_dependencies",
+    "driver_dependencies, use_callable",
     [
-        [("a", "b")],
-        [("a", "b"), ("b", "c"), ("a", "c")],
-        [("a", "b"), ("c", "d"), ("a", "d"), ("c", "b")],
+        ([], False),
+        ([], True),
+        ([("a", "b")], False),
+        ([("a", "b"), ("b", "c"), ("a", "c")], True),
+        ([("a", "b"), ("c", "d"), ("a", "d"), ("c", "b")], False),
     ],
 )
-def test_testing_environment(mockplan, driver_dependencies, named_temp_file):
-
+def test_testing_environment(
+    mockplan, named_temp_file, driver_dependencies, use_callable
+):
     drivers = DriverGeneratorDict(named_temp_file)
-    dependencies = defaultdict(list)
-    predicates = list()
-    for side_a, side_b in driver_dependencies:
-        dependencies[drivers[side_a]].append(drivers[side_b])
-        predicates.append(
-            lambda line_of: line_of[f"{drivers[side_a].name}_POST"]
-            < line_of[f"{drivers[side_b].name}_PRE"]
-        )
+    for k in ["a", "b"]:
+        drivers[k] = MyDriver(named_temp_file, k)
 
-    mockplan.add_resource(ProcessPool(name="I'm not local."))
+    predicates = list()
+    if driver_dependencies is None:
+        dependencies = None
+    else:
+        dependencies = defaultdict(list)
+        for side_a, side_b in driver_dependencies:
+            dependencies[drivers[side_a]].append(drivers[side_b])
+            predicates.append(
+                lambda line_of: line_of[f"{drivers[side_a].name}_POST"]
+                < line_of[f"{drivers[side_b].name}_PRE"]
+            )
+
     mockplan.schedule(
         target=DummyTest(
             name="MyTest",
             binary=binary_path,
-            environment=list(drivers.values()),
-            dependencies=dependencies,
+            environment=lambda: list(drivers.values())
+            if use_callable
+            else list(drivers.values()),
+            dependencies=lambda: dependencies
+            if use_callable
+            else dependencies,
+            after_start=_assert_orig_dep,
         ),
-        resource="I'm not local.",
+        resource=None,
     )
     assert mockplan.run().success is True
-    assert "lifespan" in mockplan.result.report.entries[0].children[0].timer
-    assert "lifespan" in mockplan.result.report.entries[0].children[1].timer
+
+    for i in range(len(drivers)):
+        assert (
+            "lifespan" in mockplan.result.report.entries[0].children[i].timer
+        )
 
     with open(named_temp_file, "r") as f:
         lines = f.read().splitlines()

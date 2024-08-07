@@ -21,7 +21,11 @@ from testplan.common.utils.timing import (
     TimeoutExceptionInfo,
 )
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import Direction, Protocol, ConnectionExtractor
 
 
 class FixClientConfig(DriverConfig):
@@ -112,6 +116,7 @@ class FixClient(Driver):
     """
 
     CONFIG = FixClientConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.CONNECTING)]
 
     def __init__(
         self,
@@ -169,6 +174,18 @@ class FixClient(Driver):
     def sendersub(self) -> str:
         """FIX SenderSubID."""
         return self.cfg.sendersub
+
+    @property
+    def connection_identifier(self):
+        return self._client.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def started_check(self) -> ActionResult:
         try:

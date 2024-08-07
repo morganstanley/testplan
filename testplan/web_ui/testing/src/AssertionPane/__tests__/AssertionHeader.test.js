@@ -1,8 +1,10 @@
 import React from "react";
 import { shallow } from "enzyme";
 import { StyleSheetTestUtils } from "aphrodite";
+import { getDefaultStore } from "jotai";
 
 import AssertionHeader from "../AssertionHeader";
+import { showStatusIconsPreference } from "../../UserSettings/UserSettings";
 
 function defaultProps() {
   return {
@@ -36,6 +38,12 @@ describe("AssertionHeader", () => {
   });
 
   it("shallow renders the correct HTML structure", () => {
+    shallowComponent = shallow(<AssertionHeader {...props} />);
+    expect(shallowComponent).toMatchSnapshot();
+  });
+
+  it("shallow renders the correct HTML structure with status icons enabled", () => {
+    getDefaultStore().set(showStatusIconsPreference, true);
     shallowComponent = shallow(<AssertionHeader {...props} />);
     expect(shallowComponent).toMatchSnapshot();
   });

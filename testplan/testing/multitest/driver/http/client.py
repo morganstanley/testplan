@@ -17,7 +17,15 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.context import expand, is_context, ContextValue
 from testplan.common.utils.strings import slugify
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import (
+    Direction,
+    Protocol,
+    ConnectionExtractor,
+)
 
 
 class HTTPClientConfig(DriverConfig):
@@ -69,6 +77,7 @@ class HTTPClient(Driver):
     """
 
     CONFIG = HTTPClientConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.CONNECTING)]
 
     def __init__(
         self,
@@ -78,7 +87,7 @@ class HTTPClient(Driver):
         protocol: str = "http",
         timeout: int = 5,
         interval: float = 0.01,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
@@ -95,6 +104,10 @@ class HTTPClient(Driver):
     def host(self):
         """Target host name."""
         return self._host
+
+    @property
+    def connection_identifier(self):
+        return self.port
 
     @property
     def port(self):

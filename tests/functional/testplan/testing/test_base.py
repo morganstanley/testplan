@@ -6,9 +6,7 @@ from testplan.testing.base import ProcessRunnerTest
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 
 from testplan.common.config import ConfigOption
-from testplan.common.report import ReportCategories
 from testplan.common.utils.testing import check_report
-from testplan.report.testing import TestGroupReport
 
 from .fixtures import base
 
@@ -34,13 +32,6 @@ class MyDriver(Driver):
 
 
 class DummyTest(ProcessRunnerTest):
-    def _new_test_report(self):
-        return TestGroupReport(
-            name=self.cfg.name,
-            # NOTE: unexpected usage, test only
-            category=ReportCategories.UNITTEST,
-        )
-
     def should_run(self):
         return True
 
@@ -65,7 +56,7 @@ fixture_root = os.path.join(os.path.dirname(__file__), "fixtures", "base")
         ),
         (
             os.path.join(fixture_root, "passing", "test_env.sh"),
-            base.passing.report.expected_report,
+            base.passing.report.expected_report_with_driver,
             dict(
                 proc_env={
                     "proc_env1": "abc",
