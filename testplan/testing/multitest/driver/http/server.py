@@ -313,9 +313,7 @@ class HTTPServer(Driver):
     """
 
     CONFIG = HTTPServerConfig
-    EXTRACTORS = [
-        ConnectionExtractor("HTTP", Protocol.TCP, Direction.LISTENING)
-    ]
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,

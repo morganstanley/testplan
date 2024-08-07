@@ -61,9 +61,7 @@ class ZMQServer(Driver):
     """
 
     CONFIG = ZMQServerConfig
-    EXTRACTORS = [
-        ConnectionExtractor("TCP", Protocol.TCP, Direction.LISTENING)
-    ]
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,

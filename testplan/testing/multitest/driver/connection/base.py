@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Set
+from typing import List, Set, DefaultDict
 from collections import defaultdict
 
 
@@ -11,8 +11,6 @@ class Direction(Enum):
 
 @dataclass
 class BaseConnectionInfo:
-    name: str  # name of the connection
-    service: str  # e.g. HTTP, TCP, FIX
     protocol: str  # tcp, udp, file
     identifier: str
     direction: Direction
@@ -36,15 +34,13 @@ class BaseDriverConnectionGroup:
     in_drivers store incoming connections (e.g a server listening for connections), out_drivers store outgoing connections (e.g a client connecting to a server).
     """
 
-    service: str
     connection_rep: str
-    in_drivers: "defaultdict[Set]"
-    out_drivers: "defaultdict[Set]"
+    in_drivers: DefaultDict[str, Set]
+    out_drivers: DefaultDict[str, Set]
 
     @classmethod
     def from_connection_info(cls, driver_connection_info: BaseConnectionInfo):
         conn = cls(
-            service=driver_connection_info.service.upper(),
             connection_rep=driver_connection_info.connection_rep,
             in_drivers=defaultdict(set),
             out_drivers=defaultdict(set),

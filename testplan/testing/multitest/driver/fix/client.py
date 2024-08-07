@@ -116,9 +116,7 @@ class FixClient(Driver):
     """
 
     CONFIG = FixClientConfig
-    EXTRACTORS = [
-        ConnectionExtractor("FIX", Protocol.TCP, Direction.CONNECTING)
-    ]
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.CONNECTING)]
 
     def __init__(
         self,

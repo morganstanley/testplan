@@ -77,9 +77,7 @@ class HTTPClient(Driver):
     """
 
     CONFIG = HTTPClientConfig
-    EXTRACTORS = [
-        ConnectionExtractor("HTTP", Protocol.TCP, Direction.CONNECTING)
-    ]
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.CONNECTING)]
 
     def __init__(
         self,

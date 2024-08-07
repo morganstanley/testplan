@@ -24,6 +24,7 @@ from .base import (
 from .connection import (
     Direction,
     Protocol,
+    ConnectionExtractor,
 )
 
 ZK_SERVER = "/usr/share/zookeeper/bin/zkServer.sh"
@@ -63,9 +64,7 @@ class ZookeeperStandalone(Driver):
     """
 
     CONFIG = ZookeeperStandaloneConfig
-    SERVICE = "TCP"
-    PROTOCOL = Protocol.TCP
-    DIRECTION = Direction.LISTENING
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,
@@ -132,8 +131,8 @@ class ZookeeperStandalone(Driver):
         return "{}:{}".format(self._host, self._port)
 
     @property
-    def connection_rep(self):
-        return f"{self.PROTOCOL}://:{self.port}"
+    def connection_identifier(self):
+        return self.port
 
     @property
     def local_port(self):

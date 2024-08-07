@@ -13,7 +13,6 @@ class Protocol:
     TCP = "tcp"
     UDP = "udp"
     FILE = "file"
-    default = [TCP, UDP, FILE]
 
 
 @dataclass
@@ -40,18 +39,6 @@ class PortDriverConnectionGroup(BaseDriverConnectionGroup):
         self, driver_name: str, driver_connection_info: PortConnectionInfo
     ):
         if self.connection_rep == driver_connection_info.connection_rep:
-            if (
-                driver_connection_info.service.upper() != self.service
-                and driver_connection_info.service.lower()
-                not in Protocol.default
-            ):
-                if self.service.lower() not in Protocol.default:
-                    # if the service has been updated already, raise an error
-                    msg = f"Driver connection service do not match. {driver_connection_info.service.upper()} != {self.service}"
-                    raise ValueError(msg)
-                else:
-                    self.service = driver_connection_info.service.upper()
-
             port = (
                 str(driver_connection_info.port)
                 if driver_connection_info.port is not None

@@ -13,7 +13,7 @@ from custom_connection import CustomConnectionExtractor
 class CustomTCPClient(TCPClient):
     # override EXTRACTORS
     EXTRACTORS = [
-        ConnectionExtractor("TCP", Protocol.TCP, Direction.CONNECTING),
+        ConnectionExtractor(Protocol.TCP, Direction.CONNECTING),
         CustomConnectionExtractor(),
     ]
 

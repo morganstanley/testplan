@@ -235,13 +235,9 @@ class ZMQClient(Driver):
     def get_connections(self) -> List[PortConnectionInfo]:
         return [
             PortConnectionInfo(
-                name="Connecting port",
-                service="TCP",
                 protocol=Protocol.TCP,
                 identifier=port,
                 direction=Direction.CONNECTING,
-                port=None,
-                host=None,
             )
             for host, port in zip(self.hosts, self.ports)
         ]

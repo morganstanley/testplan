@@ -24,10 +24,10 @@ testplan.testing.multitest.driver.connection.connection_info module
     :show-inheritance:
     :inherited-members:
 
-testplan.testing.multitest.driver.connection.get_connection module
+testplan.testing.multitest.driver.connection.connection_extractor module
 +++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. automodule:: testplan.testing.multitest.driver.connection.get_connection
+.. automodule:: testplan.testing.multitest.driver.connection.connection_extractor
     :members:
     :undoc-members:
     :show-inheritance:

@@ -10,6 +10,6 @@
 
 .. include:: drivers_custom.rst
 
-.. _multitest_drivers_connections:
+.. _multitest_drivers_interconnections:
 
 .. include:: drivers_connection.rst

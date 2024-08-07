@@ -61,8 +61,6 @@ class TestSubprocessPortConnectionExtractor:
         conn = extractor.extract_connection(driver)
         assert len(conn) == 2
         assert conn[0] == PortConnectionInfo(
-            name="Listening port",
-            service=Protocol.TCP,
             protocol=Protocol.TCP,
             identifier=0,
             direction=Direction.LISTENING,
@@ -70,8 +68,6 @@ class TestSubprocessPortConnectionExtractor:
             host="127.0.0.1",
         )
         assert conn[1] == PortConnectionInfo(
-            name="Listening port",
-            service=Protocol.UDP,
             protocol=Protocol.UDP,
             identifier=2,
             direction=Direction.LISTENING,
@@ -116,8 +112,6 @@ class TestSubprocessPortConnectionExtractor:
         conn = extractor.extract_connection(driver)
         assert len(conn) == 1
         assert conn[0] == PortConnectionInfo(
-            name="Listening port",
-            service=Protocol.TCP,
             protocol=Protocol.TCP,
             identifier=0,
             direction=Direction.LISTENING,
@@ -131,8 +125,6 @@ class TestSubprocessPortConnectionExtractor:
         conn = extractor.extract_connection(driver)
         assert len(conn) == 1
         assert conn[0] == PortConnectionInfo(
-            name="Listening port",
-            service=Protocol.UDP,
             protocol=Protocol.UDP,
             identifier=2,
             direction=Direction.LISTENING,
@@ -158,15 +150,11 @@ class TestSubprocessFileConnectionExtractor:
         conn = extractor.extract_connection(driver)
         assert len(conn) == 2
         assert conn[0] == FileConnectionInfo(
-            name="Reading from file",
-            service=Protocol.FILE,
             protocol=Protocol.FILE,
             identifier="test/log",
             direction=Direction.LISTENING,
         )
         assert conn[1] == FileConnectionInfo(
-            name="Writing to file",
-            service=Protocol.FILE,
             protocol=Protocol.FILE,
             identifier="test/log",
             direction=Direction.CONNECTING,
@@ -185,8 +173,6 @@ class TestSubprocessFileConnectionExtractor:
         conn = extractor.extract_connection(driver)
         assert len(conn) == 1
         assert conn[0] == FileConnectionInfo(
-            name="Writing to file",
-            service=Protocol.FILE,
             protocol=Protocol.FILE,
             identifier="test/stdout",
             direction=Direction.CONNECTING,

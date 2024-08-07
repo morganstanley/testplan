@@ -144,8 +144,8 @@ class Testplan(entity.RunnableManager):
         paths of these modules.
     :param label: Label the test report with the given name, useful to
         categorize or classify similar reports .
-    :param driver_info: Display driver setup and teardown time
-        and driver connection info in the report.
+    :param driver_info: Display driver setup / teardown time and driver
+        interconnection information in UI report.
     """
 
     CONFIG = TestplanConfig

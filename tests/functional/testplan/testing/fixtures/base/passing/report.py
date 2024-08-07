@@ -145,12 +145,12 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
                                     "description": "Driver Connections",
                                     "nodes": [
                                         {
-                                            "id": "MyDriver[My executable]",
+                                            "id": "Driver[driver]",
                                             "style": {
                                                 "border": "1px solid #FF0000"
                                             },
                                             "data": {
-                                                "label": "MyDriver[My executable]"
+                                                "label": "Driver\n[driver]"
                                             },
                                         },
                                     ],

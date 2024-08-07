@@ -86,9 +86,7 @@ class FixServer(Driver):
     """
 
     CONFIG = FixServerConfig
-    EXTRACTORS = [
-        ConnectionExtractor("FIX", Protocol.TCP, Direction.LISTENING)
-    ]
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,

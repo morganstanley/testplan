@@ -27,19 +27,13 @@ NETWORK_CONNECTION_MAP = {
 
 
 class ConnectionExtractor(BaseConnectionExtractor):
-    def __init__(
-        self, service: str, protocol: Protocol, direction: Direction
-    ) -> None:
-        self.service = service
+    def __init__(self, protocol: Protocol, direction: Direction) -> None:
         self.protocol = protocol
         self.direction = direction
 
     def extract_connection(self, driver) -> List[PortConnectionInfo]:
-
         return [
             PortConnectionInfo(
-                name="Port",
-                service=self.service,
                 protocol=self.protocol,
                 direction=self.direction,
                 identifier=driver.connection_identifier,
@@ -97,8 +91,6 @@ class SubprocessPortConnectionExtractor(BaseConnectionExtractor):
                     # UDP sockets
                     connections.append(
                         PortConnectionInfo(
-                            name="Listening port",
-                            service=SOCKET_CONNECTION_MAP[conn.type],
                             protocol=SOCKET_CONNECTION_MAP[conn.type],
                             identifier=conn.laddr.port,
                             direction=Direction.LISTENING,
@@ -110,8 +102,6 @@ class SubprocessPortConnectionExtractor(BaseConnectionExtractor):
                     if conn.laddr.port in listening_addresses:
                         connections.append(
                             PortConnectionInfo(
-                                name="Listening port",
-                                service=SOCKET_CONNECTION_MAP[conn.type],
                                 protocol=SOCKET_CONNECTION_MAP[conn.type],
                                 identifier=conn.laddr.port,
                                 direction=Direction.LISTENING,
@@ -122,8 +112,6 @@ class SubprocessPortConnectionExtractor(BaseConnectionExtractor):
                     else:
                         connections.append(
                             PortConnectionInfo(
-                                name="Connecting port",
-                                service=SOCKET_CONNECTION_MAP[conn.type],
                                 protocol=SOCKET_CONNECTION_MAP[conn.type],
                                 identifier=conn.raddr.port,
                                 direction=Direction.CONNECTING,
@@ -154,11 +142,26 @@ class SubprocessFileConnectionExtractor(BaseConnectionExtractor):
             for open_file in proc.open_files():
                 if open_file.path.split("/")[-1] in self.files_to_ignore:
                     continue
+                if sys.platform == "win32":
+                    # psutil does not show open mode in windows, assume its read/write
+                    connections.append(
+                        FileConnectionInfo(
+                            protocol=Protocol.FILE,
+                            identifier=open_file.path,
+                            direction=Direction.LISTENING,
+                        )
+                    )
+                    connections.append(
+                        FileConnectionInfo(
+                            protocol=Protocol.FILE,
+                            identifier=open_file.path,
+                            direction=Direction.CONNECTING,
+                        )
+                    )
+                    continue
                 if open_file.mode in ["r", "r+", "a+"]:
                     connections.append(
                         FileConnectionInfo(
-                            name="Reading from file",
-                            service=Protocol.FILE,
                             protocol=Protocol.FILE,
                             identifier=open_file.path,
                             direction=Direction.LISTENING,
@@ -167,8 +170,6 @@ class SubprocessFileConnectionExtractor(BaseConnectionExtractor):
                 if open_file.mode in ["w", "a", "r+", "a+"]:
                     connections.append(
                         FileConnectionInfo(
-                            name="Writing to file",
-                            service=Protocol.FILE,
                             protocol=Protocol.FILE,
                             identifier=open_file.path,
                             direction=Direction.CONNECTING,

@@ -15,6 +15,7 @@ class CustomConnectionInfo(BaseConnectionInfo):
     @property
     def connection_rep(self):
         # this is the value by which drivers will be matched
+        # by default, this is f"self.protocol}//{self.identifier}
         return f"custom://{self.identifier}"
 
     def promote_to_connection(self):
@@ -52,9 +53,7 @@ class CustomConnectionExtractor(BaseConnectionExtractor):
     def extract_connection(self, driver) -> List[CustomConnectionInfo]:
         return [
             CustomConnectionInfo(
-                name="Custom",
-                service="Custom",
-                protocol="Custom",
+                protocol="custom",
                 identifier=driver.name,
                 direction=Direction.CONNECTING,
             )

@@ -1,4 +1,4 @@
-Driver Connections
+Driver Interconnections
 ======
 
 Connection between drivers can be visualised through the ``--driver-info`` flag
@@ -7,12 +7,12 @@ Testplan will extract connections from each driver and format them into a flow c
 visible on the web report. The built-in drivers already have their connections defined and you can add
 new connections by overriding the ``EXTRACTORS`` attribute for each ``Driver`` subclass.
 
-Testplan defines 2 types of connections by default, ``PortDriverConnection`` and ``FileDriverConnection``.
+Testplan defines 2 types of connections by default, ``PortDriverConnectionGroup`` and ``FileDriverConnectionGroup``.
 
-    * :py:class:`PortDriverConnection <testplan.testing.multitest.driver.connection.connection_info.PortDriverConnection>` defines
+    * :py:class:`PortDriverConnectionGroup <testplan.testing.multitest.driver.connection.connection_info.PortDriverConnectionGroup>` defines
       connection between drivers via ports (e.g TCP, HTTP, FIX connections).
 
-    * :py:class:`FileDriverConnection <testplan.testing.multitest.driver.connection.connection_info.FileDriverConnection>` defines
+    * :py:class:`FileDriverConnectionGroup <testplan.testing.multitest.driver.connection.connection_info.FileDriverConnectionGroup>` defines
       connection between drivers via files (e.g Driver A writes to file X, Driver B reads file X).
 
 Drivers that inherit `App` will automatically search for the its network and file connections

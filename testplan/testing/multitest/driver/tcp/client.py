@@ -61,9 +61,7 @@ class TCPClient(Driver):
     """
 
     CONFIG = TCPClientConfig
-    EXTRACTORS = [
-        ConnectionExtractor("TCP", Protocol.TCP, Direction.CONNECTING)
-    ]
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.CONNECTING)]
 
     def __init__(
         self,
