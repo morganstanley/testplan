@@ -89,7 +89,7 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
     entries=[
         TestGroupReport(
             name="MyTest",
-            category="dummytest",
+            category="multitest",
             entries=[
                 TestGroupReport(
                     name="Environment Start",
@@ -114,8 +114,8 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
                                     "category": "DEFAULT",
                                     "table": [
                                         [
-                                            "MyDriver",
-                                            "My executable",
+                                            "Driver",
+                                            "driver",
                                             re.compile(
                                                 r"\d{2}:\d{2}:\d{2}.\d{6}"
                                             ),
@@ -145,11 +145,6 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
                     tags=None,
                 ),
                 TestGroupReport(
-                    name="ProcessChecks",
-                    category="testsuite",
-                    entries=[testcase_report],
-                ),
-                TestGroupReport(
                     name="Environment Stop",
                     category="synthesized",
                     entries=[
@@ -172,8 +167,8 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
                                     "category": "DEFAULT",
                                     "table": [
                                         [
-                                            "MyDriver",
-                                            "My executable",
+                                            "Driver",
+                                            "driver",
                                             re.compile(
                                                 r"\d{2}:\d{2}:\d{2}.\d{6}"
                                             ),
