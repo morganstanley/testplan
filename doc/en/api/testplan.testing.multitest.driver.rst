@@ -10,6 +10,7 @@ Subpackages
     testplan.testing.multitest.driver.zmq
     testplan.testing.multitest.driver.fix
     testplan.testing.multitest.driver.http
+    testplan.testing.multitest.driver.connection
 
 
 Submodules

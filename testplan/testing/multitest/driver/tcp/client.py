@@ -10,7 +10,11 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.context import expand, ContextValue
 from testplan.common.utils.sockets import Client
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import Direction, Protocol, ConnectionExtractor
 
 
 class TCPClientConfig(DriverConfig):
@@ -57,6 +61,7 @@ class TCPClient(Driver):
     """
 
     CONFIG = TCPClientConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.CONNECTING)]
 
     def __init__(
         self,
@@ -65,7 +70,7 @@ class TCPClient(Driver):
         port: Union[int, str, ContextValue],
         interface: Union[Tuple[str, int], None] = None,
         connect_at_start: bool = True,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(TCPClient, self).__init__(**options)
@@ -88,6 +93,18 @@ class TCPClient(Driver):
     @property
     def server_port(self) -> int:
         return self._server_port
+
+    @property
+    def connection_identifier(self):
+        return self.server_port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def connect(self) -> None:
         """

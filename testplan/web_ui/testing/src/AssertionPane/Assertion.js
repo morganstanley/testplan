@@ -31,6 +31,7 @@ import {
 import LogfileMatchAssertion from "./AssertionTypes/LogfileMatchAssertion";
 import { EXPAND_STATUS } from "../Common/defaults";
 import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
+import FlowChartAssertion from "./AssertionTypes/FlowChartAssertion";
 import { showStatusIconsPreference } from "../UserSettings/UserSettings";
 
 /**
@@ -85,6 +86,7 @@ function Assertion({
       RegexMatchLine: RegexMatchLineAssertion,
       XMLCheck: XMLCheckAssertion,
       LogfileMatch: LogfileMatchAssertion,
+      FlowChart: FlowChartAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];

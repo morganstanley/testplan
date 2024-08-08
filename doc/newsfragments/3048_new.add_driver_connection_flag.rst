@@ -1,0 +1,1 @@
+Add driver connection visualisation into ``--driver-info`` flag. See :ref:`here <multitest_drivers_interconnections>` for more information. DriverMetadata has been decommissioned.

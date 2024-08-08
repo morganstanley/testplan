@@ -424,3 +424,26 @@ export const generateURLWithParameters = (
   }
   return `${newURL}?${new URLSearchParams(newQuery).toString()}`;
 };
+
+/**
+ * Truncates excessively long strings
+ * @param {String} str
+ * @param {Number} maxLength
+ * @param {Number} startLength
+ * @param {Number} endLength
+ */
+export const truncateString = (
+  str,
+  maxLength = 15,
+  startLength = 7,
+   endLength = 7
+) => {
+  if (str.length <= maxLength) {
+    return str;
+  }
+
+  const startPortion = str.slice(0, startLength);
+  const endPortion = str.slice(-1 * endLength);
+  
+  return `${startPortion}...${endPortion}`;
+};

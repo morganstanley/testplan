@@ -1,0 +1,1 @@
+Fix bug where timezone error is raised if drivers raise exception in ``started_check`` with ``--driver-info`` flag enabled.

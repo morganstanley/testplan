@@ -16,7 +16,16 @@ from testplan.common.utils.path import (
     makeemptydirs,
 )
 from testplan.common.utils.process import execute_cmd
-from testplan.testing.multitest.driver.base import Driver, DriverConfig
+
+from .base import (
+    Driver,
+    DriverConfig,
+)
+from .connection import (
+    Direction,
+    Protocol,
+    ConnectionExtractor,
+)
 
 ZK_SERVER = "/usr/share/zookeeper/bin/zkServer.sh"
 
@@ -55,6 +64,7 @@ class ZookeeperStandalone(Driver):
     """
 
     CONFIG = ZookeeperStandaloneConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,
@@ -119,6 +129,18 @@ class ZookeeperStandalone(Driver):
                 "Host not resolved yet, shouldn't be accessed now."
             )
         return "{}:{}".format(self._host, self._port)
+
+    @property
+    def connection_identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host if self._host else None
 
     def pre_start(self):
         """

@@ -2568,6 +2568,23 @@ class Result:
 
         return chart
 
+    @assertion
+    def flow_chart(self, nodes, edges, description=None):
+        """
+        Displays a flow chart in the report.
+
+        :param nodes: List of nodes
+        :type nodes: ``list`` of ``str``
+        :param edges: List of edges
+        :type edges: ``list`` of ``dict``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        entry = base.FlowChart(nodes, edges, description)
+
+        return entry
+
     @property
     def serialized_entries(self):
         """

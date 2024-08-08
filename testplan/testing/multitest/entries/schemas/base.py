@@ -114,3 +114,24 @@ class DirectorySchema(BaseSchema):
     only = fields.List(fields.String(), allow_none=True)
     recursive = fields.Boolean()
     file_list = fields.List(fields.String())
+
+
+class EdgeSchema(Schema):
+    id = fields.String()
+    source = fields.String()
+    target = fields.String()
+    startLabel = fields.String()
+    label = fields.String()
+    endLabel = fields.String()
+
+
+class NodeSchema(Schema):
+    id = fields.String()
+    data = fields.Dict(keys=fields.String(), values=fields.String())
+    style = fields.Dict(keys=fields.String(), values=fields.String())
+
+
+@registry.bind(base.FlowChart)
+class FlowChartSchema(BaseSchema):
+    nodes = fields.Nested(NodeSchema, many=True)
+    edges = fields.Nested(EdgeSchema, many=True)

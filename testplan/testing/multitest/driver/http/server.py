@@ -13,7 +13,11 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.strings import slugify
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import Direction, Protocol, ConnectionExtractor
 
 _CONTENT_TYPE_KEY = "Content-Type"
 _CONTENT_LENGTH_KEY = "Content-Length"
@@ -309,6 +313,7 @@ class HTTPServer(Driver):
     """
 
     CONFIG = HTTPServerConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,
@@ -319,7 +324,7 @@ class HTTPServer(Driver):
         handler_attributes=None,
         timeout=5,
         interval=0.01,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
@@ -345,6 +350,18 @@ class HTTPServer(Driver):
     def port(self):
         """Port number assigned."""
         return self._port
+
+    @property
+    def connection_identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def queue_response(self, response):
         """

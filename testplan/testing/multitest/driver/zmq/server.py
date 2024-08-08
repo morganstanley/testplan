@@ -7,7 +7,15 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.timing import retry_until_timeout
 
-from ..base import Driver, DriverConfig
+from ..base import (
+    Driver,
+    DriverConfig,
+)
+from ..connection import (
+    Direction,
+    Protocol,
+    ConnectionExtractor,
+)
 
 
 class ZMQServerConfig(DriverConfig):
@@ -53,6 +61,7 @@ class ZMQServer(Driver):
     """
 
     CONFIG = ZMQServerConfig
+    EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
 
     def __init__(
         self,
@@ -60,7 +69,7 @@ class ZMQServer(Driver):
         host: str = "localhost",
         port: int = 0,
         message_pattern=zmq.PAIR,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(ZMQServer, self).__init__(**options)
@@ -87,6 +96,18 @@ class ZMQServer(Driver):
         Returns the underlying ``zmq.sugar.socket.Socket`` object.
         """
         return self._socket
+
+    @property
+    def connection_identifier(self):
+        return self.port
+
+    @property
+    def local_port(self):
+        return self.port
+
+    @property
+    def local_host(self):
+        return self.host
 
     def send(self, data, timeout=30):
         """

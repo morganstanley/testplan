@@ -30,59 +30,10 @@ from testplan.common.utils.timing import (
     TimeoutException,
     TimeoutExceptionInfo,
 )
-
-
-class Direction(Enum):
-    connecting = "connecting"
-    listening = "listening"
-
-
-@dataclass
-class Connection:
-    """
-    Base class for connection information objects.
-
-    Such objects ideally hold data with respect to the participants in the
-     connection, the ports and hosts, or the protocol.
-    """
-
-    name: str
-    protocol: str
-    identifier: Union[int, str, ContextValue]
-    direction: Direction
-
-    def to_dict(self):
-        return {
-            "protocol": self.protocol,
-            "identifier": self.identifier,
-            "direction": self.direction,
-        }
-
-
-@dataclass
-class DriverMetadata:
-    """
-    Base class for holding Driver metadata.
-
-    :param name:
-    :param driver_metadata:
-    :param conn_info: list of connection info objects
-    """
-
-    name: str
-    driver_metadata: Dict
-    conn_info: List[Connection] = field(default_factory=list)
-
-    def to_dict(self) -> Dict:
-        """
-        Returns the metadata of the driver except for the connections.
-        """
-        data = self.driver_metadata
-        if self.conn_info:
-            data["Connections"] = {
-                conn.name: conn.to_dict() for conn in self.conn_info
-            }
-        return data
+from testplan.testing.multitest.driver.connection import (
+    BaseConnectionInfo,
+    BaseConnectionExtractor,
+)
 
 
 class DriverConfig(ResourceConfig):
@@ -90,13 +41,6 @@ class DriverConfig(ResourceConfig):
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.base.Driver` resource.
     """
-
-    @staticmethod
-    def default_metadata_extractor(driver) -> DriverMetadata:
-        return DriverMetadata(
-            name=driver.name,
-            driver_metadata={"class": driver.__class__.__name__},
-        )
 
     @classmethod
     def get_options(cls):
@@ -119,9 +63,6 @@ class DriverConfig(ResourceConfig):
             ConfigOption("post_start", default=None): validate_func("driver"),
             ConfigOption("pre_stop", default=None): validate_func("driver"),
             ConfigOption("post_stop", default=None): validate_func("driver"),
-            ConfigOption(
-                "metadata_extractor", default=cls.default_metadata_extractor
-            ): validate_func("driver"),
         }
 
 
@@ -148,13 +89,13 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     :param post_start: callable to execute after the driver is started
     :param pre_stop: callable to execute before stopping the driver
     :param pre_stop: callable to execute after the driver is stopped
-    :param metadata_extractor: callable for driver metadata extraction
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` options.
     """
 
     CONFIG = DriverConfig
+    EXTRACTORS: List[BaseConnectionExtractor] = []
 
     def __init__(
         self,
@@ -172,7 +113,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         post_start: Callable = None,
         pre_stop: Callable = None,
         post_stop: Callable = None,
-        metadata_extractor: Callable = None,
         **options,
     ):
 
@@ -464,15 +404,11 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         return content
 
-    def extract_driver_metadata(self) -> DriverMetadata:
-        """
-        Extracts driver metadata as described in the extractor function.
-
-        :return: driver metadata
-        """
-        # pylint: disable=not-callable
-        return self.cfg.metadata_extractor(self)
-        # pylint: enable=not-callable
+    def get_connections(self) -> List[BaseConnectionInfo]:
+        connections = []
+        for extractor in self.EXTRACTORS:
+            connections.extend(extractor.extract_connection(self))
+        return connections
 
     def __str__(self):
         return f"{self.__class__.__name__}[{self.name}]"

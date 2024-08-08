@@ -37,10 +37,3 @@ Required files:
 test_plan.py
 ++++++++++++
 .. literalinclude:: ../../../examples/Best Practice/Common Utilities/test_plan.py
-
-Required files:
-    - :download:`test_plan.py <../../../examples/Best Practice/Common Utilities/test_plan_metadata.py>`
-
-test_plan_metadata.py
-+++++++++++++++++++++
-.. literalinclude:: ../../../examples/Best Practice/Common Utilities/test_plan_metadata.py

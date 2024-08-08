@@ -1,0 +1,1 @@
+Fixed Gtest and Cppunit issue in interactive mode.
