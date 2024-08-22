@@ -136,7 +136,7 @@ def report_target(func: Callable, ref_func: Callable = None) -> Callable:
         lines, start = inspect.getsourcelines(ref_func or func)
         line_range = range(start, start + len(lines))
     except OSError:
-        pass
+        line_range = None
 
     @wraps(func)
     def wrapper(*args, **kwargs):
