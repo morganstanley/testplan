@@ -1,0 +1,1 @@
+Fix 'Line_range' referenced before assignment in enclosing scope.
