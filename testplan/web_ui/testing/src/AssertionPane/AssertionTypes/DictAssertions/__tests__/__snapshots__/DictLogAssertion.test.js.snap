@@ -77,7 +77,7 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
         "hide": true,
       },
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "cellStyle": [Function],
         "field": "key",
         "headerName": "Key",
@@ -86,7 +86,7 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
         "suppressSizeToFit": true,
       },
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "cellStyle": [Function],
         "field": "value",
         "headerName": "Value",
