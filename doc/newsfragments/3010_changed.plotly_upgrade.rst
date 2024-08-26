@@ -1,0 +1,1 @@
+Plotly.js library got upgraded to a recent version.
