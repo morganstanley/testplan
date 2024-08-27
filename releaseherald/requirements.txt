@@ -7,3 +7,4 @@ parse
 pydantic<2.0
 pluggy
 typing_extensions
+griffe<=0.49
