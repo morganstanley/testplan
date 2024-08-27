@@ -203,7 +203,7 @@ export function prepareTableLogColumnDefs(columns, display_index) {
       headerName: column,
       field: column,
       filterParams: { excelMode: "windows" },
-      cellRendererFramework: tableLogCellRender,
+      cellRenderer: tableLogCellRender,
       comparator: tableLogComparator,
     });
   });
