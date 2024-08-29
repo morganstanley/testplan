@@ -13,10 +13,10 @@ runs:
         python-version: "3.11"
     - uses: actions/setup-node@v4
       with:
-        node-version: "16"
+        node-version: "20"
     - uses: pnpm/action-setup@v3
       with:
-        version: 8.10.4
+        version: 9.9.0
     - run: |        
         pip install --upgrade pip
         pip install --upgrade -r requirements-build.txt        
