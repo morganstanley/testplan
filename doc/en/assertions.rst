@@ -25,16 +25,16 @@ a testcase, because it avoids the typical problem of fixing one assertion simply
 to find another one later on.
 
 If some assertions rely on the result of previous ones and does not make sense
-to be executed if the previous failed, their boolean return values can be used
-like this example:
+to be executed if the previous failed, the ``passed`` attribute of the returned
+assertion entry can be used like this example:
 
     .. code-block:: python
 
       @testcase
       def sample_testcase(self, env, result):
           item = get_item()
-          passed = result.true(isinstance(item, dict), description='Check if dict')
-          if passed is True:
+          entry = result.true(isinstance(item, dict), description='Check if dict')
+          if entry.passed is True:
               result.contain('key', item.keys(), description='.keys() used')
 
 If the test should be stopped on an assertion failure, an exception can be raised
@@ -44,9 +44,9 @@ or use a *return* statement like this example:
 
       @testcase
       def sample_testcase(self, env, result):
-           passed = result.true(isinstance(5, float), description='Check if float')
+           entry = result.true(isinstance(5, float), description='Check if float')
 
-           if passed is False:
+           if entry.passed is False:
                raise RuntimeError('5 is not a float.')
                # Or
                result.log('5 is not a float. Aborting testcase.')
