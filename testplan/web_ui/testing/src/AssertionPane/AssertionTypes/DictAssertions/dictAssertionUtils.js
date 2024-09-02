@@ -211,7 +211,7 @@ export function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
       resizable: true,
       suppressSizeToFit: true,
       cellStyle: cellStyle,
-      cellRendererFramework: cellRenderer,
+      cellRenderer: cellRenderer,
     },
   ];
 
@@ -220,7 +220,7 @@ export function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
       headerName: "Expected",
       field: "expected",
       cellStyle: cellStyle,
-      cellRendererFramework: cellRenderer,
+      cellRenderer: cellRenderer,
     });
   }
 
@@ -228,7 +228,7 @@ export function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
     headerName: "Value",
     field: "value",
     cellStyle: cellStyle,
-    cellRendererFramework: cellRenderer,
+    cellRenderer: cellRenderer,
   });
 
   return columnDefs;

@@ -5,7 +5,7 @@ exports[`TableLogAssertion shallow renders the advanced table log HTML structure
   columns={
     Array [
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "comparator": [Function],
         "field": "Description",
         "filterParams": Object {
@@ -14,7 +14,7 @@ exports[`TableLogAssertion shallow renders the advanced table log HTML structure
         "headerName": "Description",
       },
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "comparator": [Function],
         "field": "Data",
         "filterParams": Object {
@@ -72,7 +72,7 @@ exports[`TableLogAssertion shallow renders the table log HTML structure 1`] = `
   columns={
     Array [
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "comparator": [Function],
         "field": "age",
         "filterParams": Object {
@@ -81,7 +81,7 @@ exports[`TableLogAssertion shallow renders the table log HTML structure 1`] = `
         "headerName": "age",
       },
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "comparator": [Function],
         "field": "name",
         "filterParams": Object {

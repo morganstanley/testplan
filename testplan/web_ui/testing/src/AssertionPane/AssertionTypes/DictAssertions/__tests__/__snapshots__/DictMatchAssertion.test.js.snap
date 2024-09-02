@@ -86,7 +86,7 @@ exports[`DictMatchAssertion shallow renders the correct HTML structure 1`] = `
         "hide": true,
       },
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "cellStyle": [Function],
         "field": "key",
         "headerName": "Key",
@@ -95,13 +95,13 @@ exports[`DictMatchAssertion shallow renders the correct HTML structure 1`] = `
         "suppressSizeToFit": true,
       },
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "cellStyle": [Function],
         "field": "expected",
         "headerName": "Expected",
       },
       Object {
-        "cellRendererFramework": [Function],
+        "cellRenderer": [Function],
         "cellStyle": [Function],
         "field": "value",
         "headerName": "Value",
