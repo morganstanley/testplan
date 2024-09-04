@@ -63,8 +63,8 @@ circumstances.
 * ``__main__`` module (i.e. test_plan.py) cannot be reloaded. Because of this,
   it is recommended that test suites are defined in seperate modules. It is a
   good idea to keep the main script simple.
-* Testplan is not able to reload module that is under *Namespace Package*, the
-  workaround is to add dummy __init__.py file.
+* Testplan is not able to reload module that is under **Namespace Package**, the
+  workaround is to add dummy ``__init__.py`` file.
 * Unlike testcases that can be added/removed/modified, adding/removing/renaming
   testsuite class will not take effect after reloading.
 * Modules or objects imported using ``from some_module import *`` syntax are
@@ -73,6 +73,17 @@ circumstances.
 * In interactive mode, all modules containing test targets will be loaded at
   the same time, if the modules from which tasks are scheduled have the same
   name, they won't be reloaded properly.
+* `modulefinder.ModuleFinder <https://docs.python.org/3/library/modulefinder.html#modulefinder.ModuleFinder>`_
+  works purely on static analysis, which means it can handle the following cases
+  in the current module:
+
+  * Absolute import from the top-level package containing the current module.
+  * Relative import from the current module to its sibling modules.
+
+  It is completely ignorant of any programmatic import as well as import
+  requiring ``sys.path`` manipulation. Such dependencies will not be included
+  in the graph thus not reloaded. User can use the ``extra_deps`` parameter of
+  the ``@test_plan`` decorator to specify these dependencies manually.
 
 
 .. _Interactive_UI:
