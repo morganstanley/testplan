@@ -176,13 +176,13 @@ Contribution
 ============
 
 A step by step guide to contribute to Testplan framework can be found
-`here <http://testplan.readthedocs.io/en/latest/about.html#contributing>`_.
+`here <http://testplan.readthedocs.io/en/latest/about.html#contributing>`__.
 
 
 License
 =======
 
-License information `here <https://github.com/morganstanley/testplan/blob/main/LICENSE.md>`_.
+License information `here <https://github.com/morganstanley/testplan/blob/main/LICENSE.md>`__.
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/testplan/badge/?version=latest
 .. _ReadTheDocs: http://testplan.readthedocs.io/en/latest/
