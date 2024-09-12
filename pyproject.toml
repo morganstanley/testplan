@@ -32,7 +32,7 @@
         "sphinx<2",
         "sphinx_rtd_theme",
         "setuptools",
-        "pytest",
+        "pytest<8.3.3",
         "pytest-mock",
         "py",
         "psutil",
