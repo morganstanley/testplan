@@ -15,6 +15,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
+import psutil
 from schema import Or
 
 from testplan.common.config import ConfigOption
@@ -62,7 +63,7 @@ class AppConfig(DriverConfig):
             ConfigOption("app_dir_name", default=None): Or(None, str),
             ConfigOption("working_dir", default=None): Or(None, str),
             ConfigOption("expected_retcode", default=None): int,
-            ConfigOption("sigint_timeout", default=5): int,
+            ConfigOption("sigterm_timeout", default=5): int,
             ConfigOption("binary_log", default=False): bool,
         }
 
@@ -97,7 +98,7 @@ class App(Driver):
     :param expected_retcode: the expected return code of the subprocess.
         Default value is None meaning it won't be checked. Set it to 0 to
         ennsure the driver is always gracefully shut down.
-    :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
+    :param sigterm_timeout: number of seconds to wait between ``SIGTERM`` and ``SIGKILL``
     :param binary_log: if `True` the log_matcher will handle the logfile as binary,
         and need to use binary regexps. Default value is `False`
 
@@ -124,11 +125,19 @@ class App(Driver):
         app_dir_name: str = None,
         working_dir: str = None,
         expected_retcode: int = None,
-        sigint_timeout: int = 5,
+        sigterm_timeout: int = 5,
         binary_log: bool = False,
         **options,
     ) -> None:
         options.update(self.filter_locals(locals()))
+        # NOTE: sigint_timeout is deprecated
+        if "sigint_timeout" in options:
+            options["sigterm_timeout"] = options.pop("sigint_timeout")
+            warnings.warn(
+                "``sigint_timeout`` argument is deprecated, "
+                "please use ``sigterm_timeout`` instead.",
+                DeprecationWarning,
+            )
         super(App, self).__init__(**options)
         self.proc = None
         self.std = None
@@ -320,7 +329,7 @@ class App(Driver):
                 "\tOut file: %(out)s\n"
                 "\tErr file: %(err)s\n",
                 {
-                    "driver": self.uid(),
+                    "driver": self,
                     "cmd": cmd,
                     "runpath": self.runpath,
                     "out": self.std.out_path,
@@ -344,7 +353,7 @@ class App(Driver):
             )
             if self.proc is not None:
                 if self.proc.poll() is None:
-                    kill_process(self.proc, self.cfg.sigint_timeout)
+                    kill_process(self.proc, self.cfg.sigterm_timeout)
                 assert self.proc.returncode is not None
                 self._proc = None
             raise
@@ -364,17 +373,66 @@ class App(Driver):
             )
         return extract_values_result
 
+    @property
+    def stop_timeout(self) -> float:
+        return self.cfg.sigterm_timeout
+
     def stopping(self) -> None:
         """Stops the application binary process."""
-        super(App, self).stopping()
-        #
+        if self.proc is not None:
+            self.proc.terminate()  # SIGTERM
+        super().stopping()
+
+    def stopped_check(self) -> ActionResult:
         if self.proc is None:
-            return
-        try:
-            self._retcode = kill_process(self.proc, self.cfg.sigint_timeout)
-        except Exception as exc:
-            warnings.warn(f"On killing driver {self} process - {exc}")
-            self._retcode = self.proc.poll() if self.proc else 0
+            return True
+        return self.retcode is not None
+
+    def force_stopped(self):
+        if self.proc is not None and self.retcode is None:
+            self.logger.info(
+                "%s still alive after %ds sending SIGTERM, sending SIGKILL",
+                self,
+                self.stop_timeout,
+            )
+            child_procs = psutil.Process(self.pid).children(recursive=True)
+            try:
+                self.proc.kill()
+                self.proc.wait()
+            except (OSError, RuntimeError) as exc:
+                self.logger.info(
+                    "while killing process %s: %s", self.proc, exc
+                )
+            _, alive = psutil.wait_procs(
+                child_procs, timeout=self.cfg.sigterm_timeout
+            )
+            for c in alive:
+                try:
+                    c.kill()
+                    c.wait()
+                except psutil.NoSuchProcess:
+                    pass
+                except (OSError, RuntimeError) as exc:
+                    self.logger.info(
+                        "while killing child process %s of %s: %s",
+                        c,
+                        self.proc,
+                        exc,
+                    )
+
+            self.proc = None
+            if self.std:
+                self.std.close()
+
+        # reset env, binary etc. as they need re-eval in case of restart
+        self._env = None
+        self._binary = None
+        self._log_matcher = None
+
+        super().force_stopped()
+
+    def post_stop(self):
+        rc = self.retcode
         self.proc = None
         if self.std:
             self.std.close()
@@ -385,12 +443,12 @@ class App(Driver):
         self._log_matcher = None
 
         if (self.cfg.expected_retcode is not None) and (
-            self.cfg.expected_retcode != self.retcode
+            self.cfg.expected_retcode != rc
         ):
             err_msg = (
                 f"App driver error: {self},"
                 f" expected return code is {self.cfg.expected_retcode},"
-                f" but actual return code is {self.retcode}"
+                f" but actual return code is {rc}"
             )
             raise RuntimeError(err_msg)
 
@@ -467,6 +525,6 @@ class App(Driver):
             self.logger.info(
                 "Killing process id %s of %s", self.proc.pid, self
             )
-            kill_process(self.proc, self.cfg.sigint_timeout)
+            kill_process(self.proc, self.cfg.sigterm_timeout)
         if self.std:
             self.std.close()

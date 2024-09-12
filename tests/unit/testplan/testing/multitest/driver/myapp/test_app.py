@@ -6,8 +6,10 @@ import platform
 import re
 import sys
 import tempfile
+from itertools import count
 from pathlib import Path
 
+import psutil
 import pytest
 
 from testplan.common.entity import ActionResult
@@ -360,3 +362,61 @@ def run_app(cwd, runpath):
     with app:
         pass
     return app
+
+
+@pytest.mark.parametrize(
+    "app_args, force_stop, num_leftover",
+    (
+        ([], False, 0),
+        (["--mask-sigterm", "parent"], False, 3),
+        (["--mask-sigterm", "parent"], True, 0),
+        (["--mask-sigterm", "all"], False, 3),
+        (["--mask-sigterm", "all"], True, 0),
+        (["--mask-sigterm", "parent", "--term-child"], False, 0),
+        (["--mask-sigterm", "parent", "--term-child"], True, 0),
+        (
+            ["--mask-sigterm", "parent", "--term-child", "--sleep-time", "5"],
+            False,
+            1,
+        ),
+        (
+            ["--mask-sigterm", "parent", "--term-child", "--sleep-time", "5"],
+            True,
+            0,
+        ),
+        (["--mask-sigterm", "all", "--term-child"], False, 3),
+        (["--mask-sigterm", "all", "--term-child"], True, 0),
+    ),
+    ids=count(0),
+)
+def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
+    """Test App driver stopping behaviour when used with a binary that create processes."""
+    app = App(
+        name="dummy_multi_proc",
+        binary=sys.executable,
+        args=["-u", os.path.join(MYAPP_DIR, "multi_proc_app.py"), *app_args],
+        stdout_regexps=[
+            re.compile(r"^curr pid (?P<pid>[0-9]+)$"),
+            re.compile(r"^child 1 pid (?P<pid1>[0-9]+)$"),
+            re.compile(r"^child 2 pid (?P<pid2>[0-9]+)$"),
+        ],
+        runpath=runpath,
+        sigterm_timeout=1,
+        async_start=False,
+    )
+    app.start()
+    try:
+        app.stop()
+    except Exception as e:
+        if force_stop:
+            app.force_stopped()
+        else:
+            assert "Timeout when stopping App[App]" in str(e)
+            assert psutil.pid_exists(int(app.extracts["pid"]))
+
+    curr_proc = psutil.Process()
+    child_procs = curr_proc.children(recursive=True)
+    assert len(child_procs) == num_leftover
+    for p in child_procs:
+        p.kill()
+        p.wait()

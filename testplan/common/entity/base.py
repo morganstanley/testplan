@@ -3,7 +3,6 @@ Module containing base classes that represent object entities that can accept
 configuration, start/stop/run/abort, create results and have some state.
 """
 
-from enum import Enum
 import os
 import signal
 import sys
