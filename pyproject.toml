@@ -96,7 +96,7 @@
     extend-exclude = "testplan/vendor"
 
 [tool.bumpver]
-    current_version = "23.2.16"
+    current_version = "24.9.0"
     version_pattern = "YY.MM.INC0"
     commit_message = "bump version {old_version} -> {new_version}"
     commit = true
