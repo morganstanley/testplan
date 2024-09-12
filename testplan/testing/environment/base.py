@@ -112,11 +112,11 @@ class TestEnvironment(Environment):
             if isinstance(v.started_check_interval, tuple):
                 curr_interval, interval_cap = v.started_check_interval
                 self._pocketwatches[k] = DriverPocketwatch(
-                    v.cfg.timeout, curr_interval, interval_cap
+                    v.start_timeout, curr_interval, interval_cap
                 )
             else:
                 self._pocketwatches[k] = DriverPocketwatch(
-                    v.cfg.timeout, v.started_check_interval
+                    v.start_timeout, v.started_check_interval
                 )
 
         while not self._rt_dependency.all_drivers_processed():
@@ -179,7 +179,7 @@ class TestEnvironment(Environment):
             return super().stop(is_reversed=is_reversed)
 
         # schedule driver stopping in "reverse" order
-        self._rt_dependency = self._orig_dependency.transpose()
+        self._rt_dependency: DriverDepGraph = self._orig_dependency.transpose()
 
         # filter drivers based on status
         for driver in self._resources.values():
@@ -188,14 +188,14 @@ class TestEnvironment(Environment):
 
         # distribute pocketwatches
         for k, v in self._rt_dependency.vertices.items():
-            if isinstance(v.started_check_interval, tuple):
-                curr_interval, interval_cap = v.started_check_interval
+            if isinstance(v.stopped_check_interval, tuple):
+                curr_interval, interval_cap = v.stopped_check_interval
                 self._pocketwatches[k] = DriverPocketwatch(
-                    v.cfg.timeout, curr_interval, interval_cap
+                    v.stop_timeout, curr_interval, interval_cap
                 )
             else:
                 self._pocketwatches[k] = DriverPocketwatch(
-                    v.cfg.timeout, v.started_check_interval
+                    v.stop_timeout, v.stopped_check_interval
                 )
 
         while not self._rt_dependency.all_drivers_processed():
