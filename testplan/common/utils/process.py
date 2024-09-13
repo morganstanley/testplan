@@ -5,6 +5,7 @@ import platform
 import subprocess
 import threading
 import time
+import re
 import warnings
 from enum import Enum, auto
 from signal import Signals
@@ -13,7 +14,12 @@ from typing import IO, Any, Callable, List, Union
 import psutil
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.common.utils.timing import exponential_interval, get_sleeper
+from testplan.common.utils.timing import (
+    exponential_interval,
+    get_sleeper,
+    wait,
+    TimeoutException,
+)
 
 
 def _log_proc(msg: Any, warn=False, output: IO = None):
@@ -24,6 +30,31 @@ def _log_proc(msg: Any, warn=False, output: IO = None):
             pass
     if warn:
         warnings.warn(msg)
+
+
+def process_is_alive(proc_id: int) -> bool:
+    stat_file_path = f"/proc/{proc_id}/stat"
+    try:
+        with open(stat_file_path, "r") as stat_file:
+            stat_content = stat_file.read()
+        if re.match(r"\d+\s\(.*\)\s(\S+)\s.+", stat_content).group(1) != "Z":
+            return False
+        return True
+    except:
+        return True
+
+
+def wait_process_clean(proc_id: int, timeout: int = 5, output: IO = None):
+    if platform.system() != "Linux":
+        return
+    try:
+        wait(lambda: process_is_alive(proc_id), timeout=timeout)
+    except TimeoutException:
+        _log_proc(
+            msg=f"Process {proc_id} is not cleaned up",
+            warn=True,
+            output=output,
+        )
 
 
 def kill_process(
@@ -54,6 +85,7 @@ def kill_process(
 
     retcode = proc.poll()
     if retcode is not None:
+        wait_process_clean(proc.pid, timeout=timeout)
         return retcode
 
     child_procs = psutil.Process(proc.pid).children(recursive=True)
@@ -92,7 +124,7 @@ def kill_process(
                 msg="While terminating child process - {}".format(exc),
                 warn=True,
             )
-
+    wait_process_clean(proc.pid, timeout=timeout)
     return proc.returncode
 
 
