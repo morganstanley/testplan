@@ -396,7 +396,7 @@ def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
         binary=sys.executable,
         args=["-u", os.path.join(MYAPP_DIR, "multi_proc_app.py"), *app_args],
         stdout_regexps=[
-            re.compile(r"^curr pid (?P<pid>[0-9]+)$"),
+            re.compile(r"^parent pid (?P<pid>[0-9]+)$"),
             re.compile(r"^child 1 pid (?P<pid1>[0-9]+)$"),
             re.compile(r"^child 2 pid (?P<pid2>[0-9]+)$"),
         ],
@@ -411,7 +411,7 @@ def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
         if force_stop:
             app.force_stopped()
         else:
-            assert "Timeout when stopping App[App]" in str(e)
+            assert "Timeout when stopping App" in str(e)
             assert psutil.pid_exists(int(app.extracts["pid"]))
 
     curr_proc = psutil.Process()

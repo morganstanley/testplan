@@ -34,7 +34,7 @@ def dummy_loop(mask_sigterm):
 
 
 def main(mask_sigterm, sleep_time, term_child):
-    print(f"curr pid {os.getpid()}")
+    print(f"parent pid {os.getpid()}")
     child_mask = True if mask_sigterm == "all" else False
     p1 = mp.Process(target=dummy_loop, args=(child_mask,))
     p2 = mp.Process(target=dummy_loop, args=(child_mask,))
