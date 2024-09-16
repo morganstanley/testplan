@@ -1,3 +1,8 @@
+from pytest_test_filters import skip_module_on_windows
+
+skip_module_on_windows(reason="SIGTERM is not really used on windows.")
+
+
 import os
 import re
 import sys
