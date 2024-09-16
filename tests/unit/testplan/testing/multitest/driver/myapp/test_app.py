@@ -15,6 +15,9 @@ import pytest
 from testplan.common.entity import ActionResult
 from testplan.testing.multitest.driver.app import App
 
+from pytest_test_filters import skip_on_windows
+
+
 MYAPP_DIR = os.path.dirname(__file__)
 
 
@@ -364,6 +367,7 @@ def run_app(cwd, runpath):
     return app
 
 
+@skip_on_windows(reason="SIGTERM is not really used on windows.")
 @pytest.mark.parametrize(
     "app_args, force_stop, num_leftover",
     (
