@@ -329,37 +329,25 @@ class _ReportPlugin:
         # Its entries will later be added to current testcase report.
         self._current_result_obj = None
 
-        # Create fixture function for interface
-        self._fixtures_init()
-
-    def _fixtures_init(self):
+    @pytest.fixture
+    def result(self):
         """
-        Register fixtures with pytest.
+        Return the result object for the current test case.
+
+        :return: the result object for the current test case
+        :rtype: ``Result``
         """
+        return self._current_result_obj
 
-        @pytest.fixture
-        def result():
-            """
-            Return the result object for the current test case.
+    @pytest.fixture
+    def env(self):
+        """
+        Return the testing environment.
 
-            :return: the result object for the current test case
-            :rtype: ``Result``
-            """
-            return self._current_result_obj
-
-        @pytest.fixture
-        def env():
-            """
-            Return the testing environment.
-
-            :return: the testing environment
-            :rtype: ``Environment``
-            """
-            return self._parent.resources
-
-        # PyTest picks up fixtures from all files it loads (including plugins)
-        self.result = result
-        self.env = env
+        :return: the testing environment
+        :rtype: ``Environment``
+        """
+        return self._parent.resources
 
     def setup(self):
         """Set up environment as required."""
