@@ -34,7 +34,6 @@ class ProcessWorkerConfig(WorkerConfig):
         """
         return {
             ConfigOption("transport", default=ZMQClientProxy): object,
-            ConfigOption("sigint_timeout", default=5): int,
         }
 
 
@@ -44,18 +43,13 @@ class ProcessWorker(Worker):
     executes them and sends back task results.
 
     :param transport: Transport class for pool/worker communication.
-    :param sigint_timeout: number of seconds to wait between ``SIGINT`` and ``SIGKILL``
 
     Also inherits all :py:class:`~testplan.runners.pools.base.Worker` options.
     """
 
     CONFIG = ProcessWorkerConfig
 
-    def __init__(
-        self,
-        sigint_timeout: int = 5,
-        **options,
-    ) -> None:
+    def __init__(self, **options) -> None:
         options.update(self.filter_locals(locals()))
         super(ProcessWorker, self).__init__(**options)
 
@@ -151,8 +145,8 @@ class ProcessWorker(Worker):
 
     def stopping(self) -> None:
         """Stop child process worker."""
-        if hasattr(self, "_handler") and self._handler:
-            kill_process(self._handler, self.cfg.sigint_timeout)
+        if self._handler:
+            kill_process(self._handler, self.cfg.stop_timeout)
         self.status.change(self.STATUS.STOPPED)
 
     def aborting(self) -> None:
@@ -182,7 +176,7 @@ class ProcessPoolConfig(PoolConfig):
             ConfigOption("port", default=0): int,
             ConfigOption(
                 "abort_signals", default=[signal.SIGINT, signal.SIGTERM]
-            ): [int],
+            ): [signal.Signals],
             ConfigOption("worker_type", default=ProcessWorker): object,
             ConfigOption("worker_heartbeat", default=5): Or(int, float, None),
         }
