@@ -146,7 +146,10 @@ def run_exporter(
             ),
             exporter,
         )
-        result = exporter.export(source)
+        try:
+            result = exporter.export(source)
+        except Exception:
+            exp_result.traceback = traceback.format_exc()
     except Exception:
         exp_result.traceback = traceback.format_exc()
     finally:
