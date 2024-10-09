@@ -1,0 +1,1 @@
+Checks if a process exists by reading the `/proc/<pid>/stat`.
