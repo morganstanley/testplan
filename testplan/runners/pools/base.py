@@ -9,7 +9,7 @@ import time
 import traceback
 from typing import Dict, Generator, List, Optional, Tuple, Type, Union
 
-from schema import And, Or
+from schema import And, Or, Use
 
 from testplan.common import entity
 from testplan.common.config import ConfigOption
@@ -63,6 +63,7 @@ class WorkerConfig(entity.ResourceConfig):
             "index": Or(int, str),
             ConfigOption("transport", default=QueueClient): object,
             ConfigOption("restart_count", default=3): int,
+            ConfigOption("stop_timeout", default=10): Use(float),
         }
 
 
@@ -72,11 +73,9 @@ class WorkerBase(entity.Resource):
     and sends back task results.
 
     :param index: Worker index id.
-    :type index: ``int`` or ``str``
     :param transport: Transport class for pool/worker communication.
-    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
     :param restart_count: How many times a worker in pool can be restarted.
-    :type restart_count: ``int``
+    :param stop_timeout: Timeout for graceful shutdown (in seconds).
 
     Also inherits all :py:class:`~testplan.common.entity.base.Resource`
     options.
@@ -171,8 +170,6 @@ class Worker(WorkerBase):
     Worker that runs a thread and pull tasks from transport
     """
 
-    _STOP_TIMEOUT = 10
-
     def __init__(self, **options) -> None:
         super().__init__(**options)
         self._handler = None
@@ -195,7 +192,7 @@ class Worker(WorkerBase):
     def stopping(self) -> None:
         """Stops the worker."""
         if self._handler:
-            interruptible_join(self._handler, self._STOP_TIMEOUT)
+            interruptible_join(self._handler, self.cfg.stop_timeout)
         self._handler = None
 
     def aborting(self) -> None:

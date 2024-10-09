@@ -289,8 +289,8 @@ def test_multitest_driver_start_timeout():
         timeout=1,
         stdout_regexps=[re.compile(r"Expression that won't match")],
     )
-    assert driver1.cfg.status_wait_timeout == 1
     assert driver1.cfg.timeout == 1
+    assert driver1.stop_timeout == 1
 
     try:
         with driver1:
