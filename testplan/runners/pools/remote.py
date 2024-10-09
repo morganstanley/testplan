@@ -3,6 +3,7 @@
 import os
 import signal
 import socket
+from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from typing import Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -378,7 +379,7 @@ class RemotePool(Pool):
         size = len(self._instances)
         try:
             if size > 2:
-                self.pool = ThreadPool(5 if size > 5 else size)
+                self.pool = ThreadPool(min(size, cpu_count()))
         except Exception as exc:
             if isinstance(exc, AttributeError):
                 self.logger.warning(
