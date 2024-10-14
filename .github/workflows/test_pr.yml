@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   is_source_changed:
     name: Check if sources has changed
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       is_source_changed: ${{steps.check_source_change.outputs.changed}}
     steps:
@@ -30,9 +30,9 @@ jobs:
             requirements.txt
 
   success:
-    name: PR Tets Completed
+    name: PR Test Completed
     needs: [is_source_changed, test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: always() && needs.is_source_changed.result == 'success' && (needs.is_source_changed.outputs.is_source_changed == 'false' || needs.Test.result == 'success')
     steps:
       - run: echo ${{needs.is_source_changed.result}} ${{needs.is_source_changed.outputs.is_source_changed}} ${{needs.Test.result}}
@@ -41,7 +41,7 @@ jobs:
   lint_python:
     name: Run lint on python code
     needs: [is_source_changed]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
       BLACK_VERSION: "22.10.0"
@@ -64,7 +64,7 @@ jobs:
   build_ui:
     name: Build UI (with test and lint)
     needs: [is_source_changed]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
       REACT_APP_API_BASE_URL: "/fake/api/endpoint"
@@ -108,7 +108,7 @@ jobs:
       CI: ""
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-22.04, windows-latest]
         python-version: [3.7, 3.8, '3.10', 3.11]
       fail-fast: false
 
@@ -128,10 +128,10 @@ jobs:
           name: ui_bundle
           path: testplan/web_ui/testing/build
       - name: Set up Zookeeper for tests
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
       - name: Set up Kafka for tests
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           wget https://archive.apache.org/dist/kafka/3.5.2/kafka_2.13-3.5.2.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
