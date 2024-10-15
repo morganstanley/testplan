@@ -6,6 +6,8 @@ import platform
 import re
 import sys
 import tempfile
+import time
+from functools import reduce
 from itertools import count
 from pathlib import Path
 
@@ -367,29 +369,27 @@ def run_app(cwd, runpath):
     return app
 
 
-@skip_on_windows(reason="SIGTERM is not really used on windows.")
+@skip_on_windows(reason='No need to dive into Windows "signals".')
 @pytest.mark.parametrize(
     "app_args, force_stop, num_leftover",
     (
         ([], False, 0),
-        (["--mask-sigterm", "parent"], False, 3),
+        (["--mask-sigterm", "parent"], False, 0),
         (["--mask-sigterm", "parent"], True, 0),
-        (["--mask-sigterm", "all"], False, 3),
-        (["--mask-sigterm", "all"], True, 0),
-        (["--mask-sigterm", "parent", "--term-child"], False, 0),
-        (["--mask-sigterm", "parent", "--term-child"], True, 0),
         (
-            ["--mask-sigterm", "parent", "--term-child", "--sleep-time", "5"],
+            ["--mask-sigterm", "parent", "--sleep-time", "5"],
             False,
             1,
         ),
         (
-            ["--mask-sigterm", "parent", "--term-child", "--sleep-time", "5"],
+            ["--mask-sigterm", "parent", "--sleep-time", "5"],
             True,
             0,
         ),
-        (["--mask-sigterm", "all", "--term-child"], False, 3),
-        (["--mask-sigterm", "all", "--term-child"], True, 0),
+        (["--mask-sigterm", "child"], False, 2),
+        (["--mask-sigterm", "child"], True, 0),
+        (["--mask-sigterm", "all"], False, 3),
+        (["--mask-sigterm", "all"], True, 0),
     ),
     ids=count(0),
 )
@@ -405,8 +405,9 @@ def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
             re.compile(r"^child 2 pid (?P<pid2>[0-9]+)$"),
         ],
         runpath=runpath,
-        sigterm_timeout=1,
+        stop_timeout=1,
         async_start=False,
+        expected_retcode=0,
     )
     app.start()
     try:
@@ -414,13 +415,19 @@ def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
     except Exception as e:
         if force_stop:
             app.force_stopped()
+            # XXX: we don't wait on orphaned child procs, give OS some time
+            time.sleep(0.01)
         else:
-            assert "Timeout when stopping App" in str(e)
-            assert psutil.pid_exists(int(app.extracts["pid"]))
+            assert "Timeout when stopping App" in str(
+                e
+            ) or "but actual return code" in str(e)
 
-    curr_proc = psutil.Process()
-    child_procs = curr_proc.children(recursive=True)
-    assert len(child_procs) == num_leftover
-    for p in child_procs:
+    procs = reduce(
+        lambda x, y: psutil.pid_exists(y) and x + [psutil.Process(y)] or x,
+        map(lambda x: int(app.extracts[x]), ["pid", "pid1", "pid2"]),
+        [],
+    )
+    assert len(procs) == num_leftover
+    for p in procs:
         p.kill()
         p.wait()

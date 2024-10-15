@@ -1,10 +1,11 @@
 from pytest_test_filters import skip_module_on_windows
 
-skip_module_on_windows(reason="SIGTERM is not really used on windows.")
+skip_module_on_windows(reason='No need to dive into Windows "signals".')
 
 
 import os
 import re
+import signal
 import sys
 from datetime import datetime
 from itertools import count
@@ -58,23 +59,30 @@ def make_app(app_args, driver_args, name="app"):
     (
         ([], {}, GoodSuite, False),
         ([], {}, BadSuite, False),
-        (["--mask-sigterm", "parent", "--term-child"], {}, GoodSuite, False),
+        (["--mask-sigterm", "parent"], {}, GoodSuite, False),
         (
-            ["--mask-sigterm", "parent", "--term-child", "--sleep-time", "5"],
+            ["--mask-sigterm", "parent", "--sleep-time", "5"],
             {"sigint_timeout": 1},
             GoodSuite,
             True,
         ),
         (
-            ["--mask-sigterm", "parent", "--term-child", "--sleep-time", "5"],
-            {"sigterm_timeout": 1},
+            ["--mask-sigterm", "parent", "--sleep-time", "5"],
+            {"stop_timeout": 1},
             GoodSuite,
             True,
+        ),
+        (
+            ["--mask-sigterm", "parent", "--sleep-time", "5"],
+            {"stop_timeout": 1, "stop_signal": signal.SIGSEGV},
+            GoodSuite,
+            False,
         ),
     ),
     ids=count(0),
 )
-def test_basic(app_args, driver_args, suite_cls, has_exception):
+def test_basic(app_args, driver_args, suite_cls, has_exception, mocker):
+    mock_warn = mocker.patch("warnings.warn")
     mockplan = Mockplan(
         name="bad_app_mock_test",
     )
@@ -87,6 +95,13 @@ def test_basic(app_args, driver_args, suite_cls, has_exception):
     )
     report = mockplan.run().report
 
+    if "sigint_timeout" in driver_args:
+        mock_warn.assert_called_once()
+        assert re.search(
+            r"sigint_timeout.*deprecated", mock_warn.call_args[0][0]
+        )
+
+    # XXX: orphaned case tested in unit tests...
     curr_proc = psutil.Process()
     child_procs = curr_proc.children(recursive=True)
     assert len(child_procs) == 0
@@ -103,14 +118,14 @@ def test_basic(app_args, driver_args, suite_cls, has_exception):
     "app_args, driver_args, dependencies, stopped_order",
     (
         (
-            ["--mask-sigterm", "parent", "--term-child", "--sleep-time", "1"],
+            ["--mask-sigterm", "parent", "--sleep-time", "1"],
             {},
             {"app2": "app"},
             ["app3", "app", "app2"],
         ),
         (
             ["--mask-sigterm", "all"],
-            {"sigterm_timeout": 1},
+            {"stop_timeout": 1},
             {"app2": "app"},
             ["app3", "app2"],
         ),
@@ -127,9 +142,9 @@ def test_complex(app_args, driver_args, dependencies, stopped_order):
     app3 = make_app([], {}, name="app3")
     dmap = {app.name: app, app2.name: app2}
     dep = (
-        None
-        if dependencies is None
-        else {dmap[k]: dmap[v] for k, v in dependencies.items()}
+        dependencies
+        and {dmap[k]: dmap[v] for k, v in dependencies.items()}
+        or None
     )
     mockplan.add(
         mt.MultiTest(

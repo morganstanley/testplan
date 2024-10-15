@@ -7,17 +7,17 @@ import time
 from argparse import ArgumentParser
 
 
-def handler(p1: mp.Process, p2: mp.Process, mask_sigterm, term_child):
+# XXX: clumsy, works
+def handler(p1: mp.Process, p2: mp.Process, mask_sigterm):
     def _(signum, frame):
         print(f"{signum} received", file=sys.stderr)
-        if term_child:
-            p1.terminate()
-            p2.terminate()
-            print("p1 terminated", file=sys.stderr)
-            print("p2 terminated", file=sys.stderr)
-        if not mask_sigterm:
-            signal.signal(signal.SIGTERM, signal.SIG_DFL)
-            os.kill(os.getpid(), signal.SIGTERM)
+        os.kill(p1.pid, signal.SIGTERM)
+        os.kill(p2.pid, signal.SIGTERM)
+        if mask_sigterm == "child":
+            # pretend parent proc know something going wrong in child
+            os._exit(1)
+        if mask_sigterm == "none":
+            os._exit(0)
 
     return _
 
@@ -33,19 +33,20 @@ def dummy_loop(mask_sigterm):
         time.sleep(1)
 
 
-def main(mask_sigterm, sleep_time, term_child):
+def main(mask_sigterm, sleep_time):
     print(f"parent pid {os.getpid()}")
-    child_mask = True if mask_sigterm == "all" else False
+    child_mask = True if mask_sigterm in ("all", "child") else False
+    parent_mask = True if mask_sigterm in ("all", "parent") else False
     p1 = mp.Process(target=dummy_loop, args=(child_mask,))
     p2 = mp.Process(target=dummy_loop, args=(child_mask,))
     p1.start()
     print(f"child 1 pid {p1.pid}")
     p2.start()
     print(f"child 2 pid {p2.pid}")
-    parent_mask = True if mask_sigterm != "none" else False
+    print(f"mask_sigterm {mask_sigterm}")
     print(f"child sigterm mask {child_mask}")
     print(f"parent sigterm mask {parent_mask}")
-    signal.signal(signal.SIGTERM, handler(p1, p2, parent_mask, term_child))
+    signal.signal(signal.SIGTERM, handler(p1, p2, mask_sigterm))
     p1.join()
     p2.join()
     if 0 < sleep_time < float("inf"):
@@ -55,10 +56,11 @@ def main(mask_sigterm, sleep_time, term_child):
 if __name__ == "__main__":
     parser = ArgumentParser("multi_proc_app")
     parser.add_argument(
-        "--mask-sigterm", choices=["all", "parent", "none"], default="none"
+        "--mask-sigterm",
+        choices=["all", "parent", "child", "none"],
+        default="none",
     )
     parser.add_argument("--sleep-time", type=float, default=0)
-    parser.add_argument("--term-child", default=False, action="store_true")
     args = parser.parse_args()
     print(args)
-    main(args.mask_sigterm, args.sleep_time, args.term_child)
+    main(args.mask_sigterm, args.sleep_time)

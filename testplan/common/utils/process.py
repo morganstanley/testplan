@@ -2,6 +2,7 @@
 
 import functools
 import platform
+import shlex
 import subprocess
 import threading
 import time
@@ -9,7 +10,7 @@ import re
 import warnings
 from enum import Enum, auto
 from signal import Signals
-from typing import IO, Any, Callable, List, Union
+from typing import IO, Any, Callable, List, Union, Optional
 
 import psutil
 
@@ -60,9 +61,9 @@ def wait_process_clean(proc_id: int, timeout: int = 5, output: IO = None):
 def kill_process(
     proc: subprocess.Popen,
     timeout: int = 5,
-    signal_: Signals = None,
-    output: IO = None,
-    on_failed_termination: Callable[[int, int], None] = None,
+    signal_: Optional[Signals] = None,
+    output: Optional[IO] = None,
+    on_failed_termination: Optional[Callable[[int, int], None]] = None,
 ) -> Union[int, None]:
     """
     If alive, kills the process.
@@ -95,6 +96,9 @@ def kill_process(
     else:
         proc.terminate()
 
+    if timeout == 0:
+        return retcode
+
     sleeper = get_sleeper((0.05, 1), timeout=timeout)
     while next(sleeper):
         if retcode is None:
@@ -110,30 +114,23 @@ def kill_process(
             _log(msg="Binary still alive, killing it")
             proc.kill()
             proc.wait()
-        except (RuntimeError, OSError) as error:
+            wait_process_clean(proc.pid, timeout=timeout)
+        except (RuntimeError, OSError, TimeoutException) as error:
             _log(msg="Could not kill process - {}".format(error), warn=True)
 
-    _, alive = psutil.wait_procs(child_procs, timeout=timeout)
-    for p in alive:
-        try:
-            p.kill()
-        except psutil.NoSuchProcess:
-            pass  # already dead
-        except Exception as exc:
-            _log(
-                msg="While terminating child process - {}".format(exc),
-                warn=True,
-            )
-    wait_process_clean(proc.pid, timeout=timeout)
+    def _log_child_exc(exc):
+        _log(msg="While killing child process - {}".format(exc), warn=True)
+
+    cleanup_child_procs(child_procs, timeout, _log_child_exc)
     return proc.returncode
 
 
 def kill_process_psutil(
     proc: psutil.Process,
     timeout: int = 5,
-    signal_: Signals = None,
-    output: IO = None,
-    on_failed_termination: Callable[[int, int], None] = None,
+    signal_: Optional[Signals] = None,
+    output: Optional[IO] = None,
+    on_failed_termination: Optional[Callable[[int, int], None]] = None,
 ) -> List[psutil.Process]:
     """
     If alive, kills the process (an instance of ``psutil.Process``).
@@ -155,6 +152,8 @@ def kill_process_psutil(
     """
     _log = functools.partial(_log_proc, output=output)
     try:
+        # XXX: do we need to distinguish between parent and child?
+        # XXX: here we basically apply on_failed_termination to all procs
         all_procs = proc.children(recursive=True) + [proc]
     except psutil.NoSuchProcess:
         return []
@@ -183,6 +182,28 @@ def kill_process_psutil(
         _, alive = psutil.wait_procs(alive, timeout=timeout)
 
     return alive
+
+
+def cleanup_child_procs(
+    procs: List[psutil.Process],
+    timeout: float,
+    log: Callable[[BaseException], None],
+) -> None:
+    """
+    Kill child processes to eliminate possibly orphaned processes.
+
+    :param procs: List of child processes to kill.
+    :param timeout: Timeout in seconds, defaults to 5 seconds.
+    :param log: Callback function to log exceptions.
+    """
+    _, alive = psutil.wait_procs(procs, timeout=timeout)
+    for p in alive:
+        try:
+            p.kill()
+        except psutil.NoSuchProcess:
+            pass  # already reaped
+        except Exception as exc:
+            log(exc)
 
 
 DEFAULT_CLOSE_FDS = platform.system() != "Windows"
@@ -286,8 +307,8 @@ def execute_cmd(
 
     if isinstance(cmd, list):
         cmd = [str(a) for a in cmd]
-        # FIXME: not good enough, need shell escaping
-        cmd_string = " ".join(cmd)  # for logging, easy to copy and execute
+        # for logging, easy to copy and execute
+        cmd_string = " ".join(map(shlex.quote, cmd))
     else:
         cmd_string = cmd
 
