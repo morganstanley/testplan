@@ -1,0 +1,1 @@
+Refactor the stop logic of :py:class:`App <~testplan.testing.multitest.driver.app.App>` driver for faster environment shutdown. Rename parameter ``sigint_timeout`` to ``stop_timeout``. Add a new parameter ``stop_signal`` for custom stop signals, its default value ``None`` invokes ``terminate`` method on subprocess during stop.

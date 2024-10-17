@@ -198,3 +198,4 @@ class ZookeeperStandalone(Driver):
             )
         finally:
             self.std.close()
+        super().stopping()

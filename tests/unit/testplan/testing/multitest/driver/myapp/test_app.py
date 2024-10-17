@@ -6,12 +6,19 @@ import platform
 import re
 import sys
 import tempfile
+import time
+from functools import reduce
+from itertools import count
 from pathlib import Path
 
+import psutil
 import pytest
 
 from testplan.common.entity import ActionResult
 from testplan.testing.multitest.driver.app import App
+
+from pytest_test_filters import skip_on_windows
+
 
 MYAPP_DIR = os.path.dirname(__file__)
 
@@ -360,3 +367,67 @@ def run_app(cwd, runpath):
     with app:
         pass
     return app
+
+
+@skip_on_windows(reason='No need to dive into Windows "signals".')
+@pytest.mark.parametrize(
+    "app_args, force_stop, num_leftover",
+    (
+        ([], False, 0),
+        (["--mask-sigterm", "parent"], False, 0),
+        (["--mask-sigterm", "parent"], True, 0),
+        (
+            ["--mask-sigterm", "parent", "--sleep-time", "5"],
+            False,
+            1,
+        ),
+        (
+            ["--mask-sigterm", "parent", "--sleep-time", "5"],
+            True,
+            0,
+        ),
+        (["--mask-sigterm", "child"], False, 2),
+        (["--mask-sigterm", "child"], True, 0),
+        (["--mask-sigterm", "all"], False, 3),
+        (["--mask-sigterm", "all"], True, 0),
+    ),
+    ids=count(0),
+)
+def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
+    """Test App driver stopping behaviour when used with a binary that create processes."""
+    app = App(
+        name="dummy_multi_proc",
+        binary=sys.executable,
+        args=["-u", os.path.join(MYAPP_DIR, "multi_proc_app.py"), *app_args],
+        stdout_regexps=[
+            re.compile(r"^parent pid (?P<pid>[0-9]+)$"),
+            re.compile(r"^child 1 pid (?P<pid1>[0-9]+)$"),
+            re.compile(r"^child 2 pid (?P<pid2>[0-9]+)$"),
+        ],
+        runpath=runpath,
+        stop_timeout=1,
+        async_start=False,
+        expected_retcode=0,
+    )
+    app.start()
+    try:
+        app.stop()
+    except Exception as e:
+        if force_stop:
+            app.force_stopped()
+            # XXX: we don't wait on orphaned child procs, give OS some time
+            time.sleep(0.01)
+        else:
+            assert "Timeout when stopping App" in str(
+                e
+            ) or "but actual return code" in str(e)
+
+    procs = reduce(
+        lambda x, y: psutil.pid_exists(y) and x + [psutil.Process(y)] or x,
+        map(lambda x: int(app.extracts[x]), ["pid", "pid1", "pid2"]),
+        [],
+    )
+    assert len(procs) == num_leftover
+    for p in procs:
+        p.kill()
+        p.wait()

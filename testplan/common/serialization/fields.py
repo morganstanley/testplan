@@ -283,7 +283,7 @@ class GenericNested(fields.Field):
         self.schema_context = schema_context
         self.type_field = type_field
         self.many = kwargs.get("many", False)
-        super(GenericNested, self).__init__(default=default, **kwargs)
+        super(GenericNested, self).__init__(default=default, metadata=kwargs)
 
     def _get_schema_obj(self, schema_value):
         parent_ctx = getattr(self.parent, "context", {})

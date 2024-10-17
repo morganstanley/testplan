@@ -3,8 +3,6 @@
 import logging
 import os
 import time
-from dataclasses import dataclass, field
-from enum import Enum
 from typing import Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
@@ -16,7 +14,7 @@ from testplan.common.entity import (
     Resource,
     ResourceConfig,
 )
-from testplan.common.utils.context import ContextValue, render
+from testplan.common.utils.context import render
 from testplan.common.utils.documentation_helper import (
     emphasized,
     get_metaclass_for_documentation,
@@ -27,6 +25,7 @@ from testplan.common.utils.timing import (
     DEFAULT_INTERVAL,
     PollInterval,
     get_sleeper,
+    wait,
     TimeoutException,
     TimeoutExceptionInfo,
 )
@@ -117,8 +116,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     ):
 
         options.update(self.filter_locals(locals()))
-        if timeout is not None:
-            options.setdefault("status_wait_timeout", timeout)
         super(Driver, self).__init__(**options)
         self.extracts = {}
         self._file_log_handler = None
@@ -171,6 +168,33 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Driver stopped check interval."""
         return DEFAULT_INTERVAL
 
+    def wait(self, target_status, timeout=None):
+        """
+        Wait until objects status becomes target status.
+
+        :param target_status: expected status
+        :type target_status: ``str``
+        :param timeout: timeout in seconds
+        :type timeout: ``int`` or ``NoneType``
+        """
+        if target_status in self._wait_handlers:
+            self._wait_handlers[target_status](timeout=timeout)
+        else:
+            timeout = (
+                timeout
+                if timeout is not None
+                else self.cfg.status_wait_timeout
+            )
+            wait(lambda: self.status == target_status, timeout=timeout)
+
+    @property
+    def start_timeout(self) -> float:
+        return self.cfg.timeout
+
+    @property
+    def stop_timeout(self) -> float:
+        return self.cfg.timeout
+
     def started_check(self) -> ActionResult:
         """
         Predicate indicating whether driver has fully started.
@@ -199,7 +223,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def _wait_started(self, timeout: Optional[float] = None) -> None:
         sleeper = get_sleeper(
             interval=self.started_check_interval,
-            timeout=timeout if timeout is not None else self.cfg.timeout,
+            timeout=timeout if timeout is not None else self.start_timeout,
         )
 
         info = TimeoutExceptionInfo(time.time())
@@ -217,7 +241,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def _wait_stopped(self, timeout: Optional[float] = None) -> None:
         sleeper = get_sleeper(
             interval=self.stopped_check_interval,
-            timeout=timeout if timeout is not None else self.cfg.timeout,
+            timeout=timeout if timeout is not None else self.stop_timeout,
             raise_timeout_with_msg=lambda: f"Timeout when stopping {self}",
             timeout_info=True,
         )
