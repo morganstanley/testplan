@@ -152,6 +152,10 @@ class TestEnvironment(Environment):
                     res = None
                     if watch.should_check():
                         res = driver.started_check()
+                    if res:
+                        driver._after_started()
+                        driver.logger.info("%s started", driver)
+                        self._rt_dependency.mark_processed(driver)
                 except Exception:
                     self._record_resource_exception(
                         message="While waiting for driver {resource} to start:\n"
@@ -163,11 +167,6 @@ class TestEnvironment(Environment):
                     # continue here as we tend to have fully started drivers
                     self._rt_dependency.purge_drivers_to_process()
                     self._rt_dependency.mark_failed_to_process(driver)
-                else:
-                    if res:
-                        driver._after_started()
-                        driver.logger.info("%s started", driver)
-                        self._rt_dependency.mark_processed(driver)
 
             time.sleep(MINIMUM_CHECK_INTERVAL)
 
@@ -230,6 +229,10 @@ class TestEnvironment(Environment):
                     res = None
                     if watch.should_check():
                         res = driver.stopped_check()
+                    if res:
+                        driver._after_stopped()
+                        driver.logger.info("%s stopped", driver)
+                        self._rt_dependency.mark_processed(driver)
                 except Exception:
                     self._record_resource_exception(
                         message="While waiting for driver {resource} to stop:\n"
@@ -241,10 +244,5 @@ class TestEnvironment(Environment):
                     driver.force_stopped()
                     driver.logger.info("%s stopped", driver)
                     self._rt_dependency.mark_processed(driver)
-                else:
-                    if res:
-                        driver._after_stopped()
-                        driver.logger.info("%s stopped", driver)
-                        self._rt_dependency.mark_processed(driver)
 
             time.sleep(MINIMUM_CHECK_INTERVAL)

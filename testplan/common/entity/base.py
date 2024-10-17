@@ -306,7 +306,17 @@ class Environment:
 
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
-            resource.wait(resource.STATUS.STOPPED)
+            try:
+                resource.wait(resource.STATUS.STOPPED)
+            except Exception:
+                self._record_resource_exception(
+                    message="While waiting for resource {resource} to stop:"
+                    "\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.stop_exceptions,
+                )
+                # Resource status should be STOPPED even it failed to stop
+                resource.force_stopped()
             resource.logger.info("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
