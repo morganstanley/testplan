@@ -47,6 +47,11 @@ from .connection import (
 IS_WIN = platform.system() == "Windows"
 
 
+def _unblock_sigs():
+    # unblocking not blocked is not blocked
+    signal.pthread_sigmask(signal.SIG_UNBLOCK, range(1, signal.NSIG))
+
+
 class AppConfig(DriverConfig):
     """
     Configuration object for
@@ -357,6 +362,7 @@ class App(Driver):
                 stdin=subprocess.PIPE,
                 stdout=self.std.out,
                 stderr=self.std.err,
+                preexec_fn=_unblock_sigs if not IS_WIN else None,
                 cwd=cwd,
                 env=self.env,
             )
@@ -487,24 +493,31 @@ class App(Driver):
             all persistence is deleted, else a normal restart.
 
         """
-        self.stop()
-        if self.async_start:
-            self.wait(self.status.STOPPED)
+        try:
+            self.stop()
+            if self.async_start:
+                self.wait(self.status.STOPPED)
 
-        if clean:
-            self._move_app_path()
-        else:
-            self._move_std_and_logs()
+            if clean:
+                self._move_app_path()
+            else:
+                self._move_std_and_logs()
 
-        # we don't want to cleanup runpath during restart
-        path_cleanup = self.cfg.path_cleanup
-        self.cfg._options["path_cleanup"] = False
+            # we don't want to cleanup runpath during restart
+            path_cleanup = self.cfg.path_cleanup
+            self.cfg._options["path_cleanup"] = False
 
-        self.start()
-        if self.async_start:
-            self.wait(self.status.STARTED)
+            self.start()
+            if self.async_start:
+                self.wait(self.status.STARTED)
 
-        self.cfg._options["path_cleanup"] = path_cleanup
+            self.cfg._options["path_cleanup"] = path_cleanup
+        except Exception as e:
+            self.logger.error(
+                "Error during restart %s: %s, force stopping...", self, e
+            )
+            self.force_stopped()
+            raise
 
     def _move_app_path(self) -> None:
         """

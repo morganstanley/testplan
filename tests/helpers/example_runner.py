@@ -18,8 +18,15 @@ SUCCES_EXIT_CODES = (
 
 
 def run_example_in_process(
-    filename, root, known_exceptions, cmdline_args=None
+    filename,
+    root,
+    known_exceptions,
+    cmdline_args=None,
+    caplog=None,
 ):
+    if caplog is not None:
+        caplog.clear()
+
     sys_path = copy.copy(sys.path)
     sys_argv = copy.copy(sys.argv)
 
@@ -43,9 +50,12 @@ def run_example_in_process(
     except SystemExit as e:
         if e.code not in SUCCES_EXIT_CODES:
             assert (
-                "# This plan contains tests that demonstrate failures as well."
-            ) == second_line, (
-                'Expected "{}" example to pass, it failed'.format(file_path)
+                second_line
+                == "# This plan contains tests that demonstrate failures as well."
+            ), 'Expected "{}" example to pass, it failed'.format(file_path) + (
+                "\nCaptured logs:\n{}".format(caplog.text)
+                if caplog is not None
+                else ""
             )
     except Exception as e:
         for exception in known_exceptions:

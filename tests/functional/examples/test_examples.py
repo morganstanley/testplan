@@ -90,7 +90,7 @@ def _param_formatter(param):
     ],
     ids=_param_formatter,
 )
-def test_example(root, filename, runpath):
+def test_example(root, filename, runpath, captplog):
     file_path = os.path.join(root, filename)
 
     if ON_WINDOWS and any(
@@ -106,5 +106,9 @@ def test_example(root, filename, runpath):
         pytest.skip()
 
     run_example_in_process(
-        filename, root, KNOWN_EXCEPTIONS, ["--runpath", runpath]
+        filename,
+        root,
+        KNOWN_EXCEPTIONS,
+        ["--runpath", runpath],
+        captplog,
     )

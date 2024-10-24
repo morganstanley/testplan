@@ -4,7 +4,7 @@ import os
 import shutil
 import sys
 import tempfile
-from logging import Logger
+from logging import Logger, INFO
 from logging.handlers import RotatingFileHandler
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
@@ -125,3 +125,13 @@ def rotating_logger(runpath):
     yield logger
 
     logger.handler.close()
+
+
+@pytest.fixture
+def captplog(caplog):
+    from testplan.common.utils.logger import TESTPLAN_LOGGER
+
+    caplog.set_level(INFO)
+    TESTPLAN_LOGGER.addHandler(caplog.handler)
+    yield caplog
+    TESTPLAN_LOGGER.removeHandler(caplog.handler)
