@@ -482,6 +482,9 @@ class _ReportPlugin:
 
             if report.failed:
                 self._current_case_report.status_override = Status.FAILED
+            # XXX: report.skipped set to True when xfail, how to distinguish?
+            # elif report.skipped:
+            #     self._current_case_report.status_override = Status.SKIPPED
             else:
                 self._current_case_report.pass_if_empty()
             self._current_case_report.runtime_status = RuntimeStatus.FINISHED
