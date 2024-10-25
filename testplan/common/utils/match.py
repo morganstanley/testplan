@@ -196,6 +196,15 @@ class LogMatcher(logger.Loggable):
 
         if isinstance(regexp, (str, bytes)):
             regexp = re.compile(regexp)
+        else:
+            try:
+                import rpyc
+
+                if isinstance(regexp, rpyc.core.netref.BaseNetref):
+                    regexp = re.compile(regexp.pattern, regexp.flags)
+            except ImportError:
+                pass
+
         try:
             if self.binary and isinstance(regexp.pattern, str):
                 raise TypeError(
