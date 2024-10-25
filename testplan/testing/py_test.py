@@ -516,7 +516,6 @@ class _ReportPlugin:
         elif self._current_case_report is not None:
             # Log assertion errors or exceptions in testcase report
             trace = call.excinfo.traceback[-1]
-            # XXX: use report.longreprtext instead?
             message = (
                 getattr(call.excinfo.value, "message", None)
                 or getattr(call.excinfo.value, "msg", None)
