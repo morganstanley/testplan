@@ -7,7 +7,16 @@ import queue
 import threading
 import time
 import traceback
-from typing import Dict, Generator, List, Optional, Tuple, Type, Union
+from typing import (
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    Callable,
+)
 
 from schema import And, Or, Use
 
@@ -35,6 +44,9 @@ class TaskQueue:
     def __init__(self) -> None:
         self.q = queue.PriorityQueue()
         self.count = 0
+
+    def size(self) -> int:
+        return self.q.qsize()
 
     def put(self, priority: int, item: str) -> None:
         self.q.put((priority, self.count, item))
@@ -336,6 +348,7 @@ class Pool(Executor):
 
     CONFIG = PoolConfig
     CONN_MANAGER = QueueServer
+    RESERVE_WORKER_NUM = 3
 
     def __init__(
         self,
@@ -367,7 +380,9 @@ class Pool(Executor):
         # Methods for handling different Message types. These are expected to
         # take the worker, request and response objects as the only required
         # positional args.
-        self._request_handlers = {
+        self._request_handlers: Dict[
+            str, Callable[[Worker, Message, Message], None]
+        ] = {
             Message.ConfigRequest: self._handle_cfg_request,
             Message.TaskPullRequest: self._handle_taskpull_request,
             Message.TaskResults: self._handle_taskresults,
@@ -382,6 +397,13 @@ class Pool(Executor):
         # NOTE: the critical section would be rather meaningless
         self._discard_pending_lock = threading.RLock()
         self._discard_pending = False
+        self._stopping_queue = []
+        self.worker_status = {
+            "active": [],
+            "inactive": [],
+            "initializing": [],
+            "abort": [],
+        }
 
     def uid(self) -> str:
         """Pool name."""
@@ -532,6 +554,10 @@ class Pool(Executor):
                 try:
                     priority, uid = self.unassigned.get()
                 except queue.Empty:
+                    self.logger.debug("No tasks to assign to %s", worker)
+                    if self._early_stop_worker(worker.uid()):
+                        worker.respond(response.make(Message.Stop))
+                        return
                     break
 
                 task = self._input[uid]
@@ -699,6 +725,10 @@ class Pool(Executor):
         worker.respond(response.make(Message.Ack))
         self._decommission_worker(worker, "Aborting {}, setup failed.")
 
+    def _early_stop_worker(self, worker_uid: Union[str, int]) -> bool:
+        # Thread pool doesn't support early stop
+        return False
+
     def _decommission_worker(self, worker: Worker, message: str) -> None:
         """
         Decommission a worker by move all assigned task back to pool
@@ -721,12 +751,7 @@ class Pool(Executor):
         1) handler status
         2) heartbeat if available
         """
-        previous_status = {
-            "active": [],
-            "inactive": [],
-            "initializing": [],
-            "abort": [],
-        }
+
         loop_interval = self.cfg.worker_heartbeat or 5  # seconds
         break_outer_loop = False
 
@@ -747,8 +772,9 @@ class Pool(Executor):
                             and self.status != self.status.STOPPING
                             and self.status != self.status.STOPPED
                         ):
-                            if self._handle_inactive(worker, reason):
-                                status = "active"
+                            if worker.uid() not in self._stopping_queue:
+                                if self._handle_inactive(worker, reason):
+                                    status = "active"
                         else:
                             self.logger.user_info(
                                 "%s is aborting/stopping, exit monitor.", self
@@ -761,12 +787,12 @@ class Pool(Executor):
             if break_outer_loop:
                 break
 
-            if hosts_status != previous_status:
+            if hosts_status != self.worker_status:
                 self.logger.info(
                     "Hosts status update at %s", datetime.datetime.now()
                 )
                 self.logger.info(pprint.pformat(hosts_status))
-                previous_status = hosts_status
+                self.worker_status = hosts_status
 
             if (
                 not hosts_status["active"]
