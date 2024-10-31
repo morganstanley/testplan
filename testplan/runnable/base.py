@@ -428,7 +428,7 @@ class TestRunner(Runnable):
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = not self._is_interactive_run()
         self.scheduled_modules = []  # For interactive reload
-        self.remote_services = {}
+        self.remote_services: Dict[str, RemoteService] = {}
         self.runid_filename = uuid.uuid4().hex
         self.define_runpath()
         self._runnable_uids = set()
@@ -573,9 +573,7 @@ class TestRunner(Runnable):
         remote_service.start()
 
     def _stop_remote_services(self):
-
-        for name, rmt_svc in self.remote_services.items():
-            self.logger.info("Stopping Remote Server %s", name)
+        for _, rmt_svc in self.remote_services.items():
             rmt_svc.stop()
 
     def _clone_task_for_part(self, task_info, _task_arguments, part):
