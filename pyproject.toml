@@ -58,6 +58,7 @@
         "validators<=0.20.0",
         "Pillow",
         "plotly",
+        "pandas",
         "rpyc",
         "matplotlib",
         "memoization",
