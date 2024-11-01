@@ -74,7 +74,7 @@ def make_app(app_args, driver_args, name="app"):
         ),
         (
             ["--mask-sigterm", "parent", "--sleep-time", "5"],
-            {"stop_timeout": 1, "stop_signal": signal.SIGSEGV},
+            {"stop_timeout": 1, "stop_signal": signal.SIGKILL},
             GoodSuite,
             False,
         ),
