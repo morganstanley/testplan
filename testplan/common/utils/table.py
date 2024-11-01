@@ -7,6 +7,9 @@ class TableEntry:
     """
     Represents a table. Internally represented either
     as a ``list`` of ``list`` or a ``list`` of ``dict``.
+    ---
+    Note tuples are counted as lists here, callers should be able to handle
+    them.
     """
 
     def __init__(self, source, placeholder=None):
@@ -14,9 +17,6 @@ class TableEntry:
         self._placeholder = placeholder
 
         self._validate_input()
-
-        if self._source and isinstance(self._source[0], (list, tuple)):
-            self._columns = self._source[0]
 
     @property
     def columns(self):

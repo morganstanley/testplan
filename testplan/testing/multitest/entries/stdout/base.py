@@ -138,7 +138,7 @@ class TableLogRenderer(BaseRenderer):
                 if isinstance(cell, bytes):
                     entry.table[j][i] = str(cell)
 
-        return AsciiTable([entry.columns] + entry.table).table
+        return AsciiTable([entry.columns, *entry.table]).table
 
 
 @registry.bind(base.DictLog, base.FixLog)
