@@ -212,7 +212,7 @@ class TestEnvironment(Environment):
                     if do_suppress:
                         self._record_resource_warning(
                             message="While stopping driver {resource}"
-                            " (mitigated by forcefully stopping resource)"
+                            " (mitigated by forcefully stopping driver)"
                             ":\n{traceback_exc}\n{fetch_msg}",
                             resource=driver,
                             msg_store=self.stop_warnings,
@@ -259,7 +259,7 @@ class TestEnvironment(Environment):
                     if do_suppress:
                         self._record_resource_warning(
                             message="While waiting for driver {resource} to stop"
-                            " (mitigated by forcefully stopping resource)"
+                            " (mitigated by forcefully stopping driver)"
                             ":\n{traceback_exc}\n{fetch_msg}",
                             resource=driver,
                             msg_store=self.stop_warnings,
