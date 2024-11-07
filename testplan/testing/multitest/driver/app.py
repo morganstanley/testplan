@@ -31,6 +31,7 @@ from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import (
+    any_alive_child_procs,
     cleanup_child_procs,
     kill_process,
     subprocess_popen,
@@ -38,13 +39,19 @@ from testplan.common.utils.process import (
 )
 from testplan.common.utils.timing import TimeoutException
 
-from .base import Driver, DriverConfig
-from .connection import (
+from testplan.testing.multitest.driver.base import Driver, DriverConfig
+from testplan.testing.multitest.driver.connection import (
     SubprocessFileConnectionExtractor,
     SubprocessPortConnectionExtractor,
 )
 
 IS_WIN = platform.system() == "Windows"
+
+
+class OrphanedProcessException(Exception):
+    def __init__(self, driver, psutil_procs, *args, **kwargs):
+        msg = f"Orphaned processes detected after stopping {driver}: {psutil_procs}"
+        super().__init__(msg, *args, **kwargs)
 
 
 class AppConfig(DriverConfig):
@@ -122,6 +129,7 @@ class App(Driver):
         SubprocessFileConnectionExtractor(),
         SubprocessPortConnectionExtractor(),
     ]
+    SUPPRESSED_STOP_EXC = [TimeoutException, OrphanedProcessException]
 
     def __init__(
         self,
@@ -460,6 +468,14 @@ class App(Driver):
             )
             raise RuntimeError(err_msg)
 
+        if any_alive_child_procs(self._child_procs):
+            self.logger.warning(
+                "Orphaned processes detected after stopping %s: %s",
+                self,
+                self._child_procs,
+            )
+            raise OrphanedProcessException(self, self._child_procs)
+
     def make_runpath_dirs(self) -> None:
         """
         Create mandatory directories and install files from given templates
@@ -487,9 +503,22 @@ class App(Driver):
             all persistence is deleted, else a normal restart.
 
         """
-        self.stop()
-        if self.async_start:
-            self.wait(self.status.STOPPED)
+        try:
+            self.stop()
+            if self.async_start:
+                self.wait(self.status.STOPPED)
+        except Exception as e:
+            if isinstance(e, tuple(self.SUPPRESSED_STOP_EXC)):
+                self.logger.warning(
+                    "When stopping %s within restart call: %s", self, e
+                )
+                self.force_stopped()
+            else:
+                self.logger.error(
+                    "When stopping %s within restart call: %s", self, e
+                )
+                self.force_stopped()
+                raise
 
         if clean:
             self._move_app_path()
