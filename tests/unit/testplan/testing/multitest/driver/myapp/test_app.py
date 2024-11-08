@@ -409,6 +409,7 @@ def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
         async_start=False,
         expected_retcode=0,
     )
+    # TODO: make start, stop behave consistent regardlessly async_start
     app.start()
     try:
         app.stop()

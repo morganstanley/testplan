@@ -206,6 +206,17 @@ def cleanup_child_procs(
             log(exc)
 
 
+def any_alive_child_procs(procs: List[psutil.Process]) -> bool:
+    for p in procs:
+        try:
+            # orphaned zombie process should be reaped by pid 1
+            if p.is_running() and p.status() != psutil.STATUS_ZOMBIE:
+                return True
+        except psutil.NoSuchProcess:
+            pass
+    return False
+
+
 DEFAULT_CLOSE_FDS = platform.system() != "Windows"
 
 
