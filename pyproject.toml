@@ -58,7 +58,7 @@
         "validators<=0.20.0",
         "Pillow",
         "plotly",
-        "pandas",
+        "pandas", # required by plotly.express
         "rpyc",
         "matplotlib",
         "memoization",
