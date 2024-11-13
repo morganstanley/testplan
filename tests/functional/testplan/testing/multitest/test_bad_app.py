@@ -55,34 +55,30 @@ def make_app(app_args, driver_args, name="app"):
 
 
 @pytest.mark.parametrize(
-    "app_args, driver_args, suite_cls, warning_pattern",
+    "app_args, driver_args, suite_cls",
     (
         # normal operation
-        ([], {}, GoodSuite, None),
+        ([], {}, GoodSuite),
         # illegal operation would cause plan crash
-        ([], {}, BadSuite, None),
+        ([], {}, BadSuite),
         # terms all child, parent exit normally though sigterm trapped
-        (["--mask-sigterm", "parent"], {}, GoodSuite, None),
-        # parent term timeout, exc suppressed & parent killed
+        (["--mask-sigterm", "parent"], {}, GoodSuite),
+        # parent term timeout, parent killed
         (
             ["--mask-sigterm", "parent", "--sleep-time", "5"],
             {"sigint_timeout": 1},
             GoodSuite,
-            r"WARNING.*Timeout when stopping App\[app\].*",
         ),
         # parent killed with child orphaned, exc suppressed
         (
             ["--mask-sigterm", "parent", "--sleep-time", "5"],
             {"stop_timeout": 1, "stop_signal": signal.SIGKILL},
             GoodSuite,
-            r"WARNING.*Orphaned processes detected after stopping App\[app\].*",
         ),
     ),
     ids=count(0),
 )
-def test_basic_loose(
-    app_args, driver_args, suite_cls, warning_pattern, mocker
-):
+def test_basic_loose(app_args, driver_args, suite_cls, mocker):
     mock_warn = mocker.patch("warnings.warn")
     mockplan = Mockplan(
         name="bad_app_mock_test",
@@ -102,59 +98,12 @@ def test_basic_loose(
             r"sigint_timeout.*deprecated", mock_warn.call_args[0][0]
         )
 
-    # force_stopped triggered, direct child terminated
+    # force_stop triggered, direct child terminated
     curr_proc = psutil.Process()
     child_procs = curr_proc.children(recursive=True)
     assert len(child_procs) == 0
 
     assert report.status != report.status.ERROR
-    if warning_pattern:
-        stopping_case = report.entries[0].entries[2].entries[0]
-        assert re.match(
-            warning_pattern, stopping_case.logs[0]["message"], flags=re.DOTALL
-        )
-
-
-@pytest.mark.parametrize(
-    "app_args, driver_args, error_pattern",
-    (
-        (
-            ["--mask-sigterm", "parent", "--sleep-time", "5"],
-            {"stop_timeout": 1},
-            r"ERROR.*Timeout when stopping App\[app\].*",
-        ),
-        (
-            ["--mask-sigterm", "parent", "--sleep-time", "5"],
-            {"stop_timeout": 1, "stop_signal": signal.SIGKILL},
-            r"ERROR.*Orphaned processes detected after stopping App\[app\].*",
-        ),
-    ),
-    ids=count(0),
-)
-def test_basic_tight(app_args, driver_args, error_pattern):
-    App.SUPPRESSED_STOP_EXC = []
-    mockplan = Mockplan(
-        name="bad_app_mock_test",
-    )
-    mockplan.add(
-        mt.MultiTest(
-            "dummy_mt",
-            GoodSuite(),
-            environment=[make_app(app_args, driver_args)],
-        )
-    )
-    report = mockplan.run().report
-
-    # force_stopped triggered, direct child terminated
-    curr_proc = psutil.Process()
-    child_procs = curr_proc.children(recursive=True)
-    assert len(child_procs) == 0
-
-    assert report.status == report.status.ERROR
-    stopping_case = report.entries[0].entries[2].entries[0]
-    assert re.match(
-        error_pattern, stopping_case.logs[0]["message"], flags=re.DOTALL
-    )
 
 
 @pytest.mark.parametrize(
@@ -170,7 +119,7 @@ def test_basic_tight(app_args, driver_args, error_pattern):
             ["--mask-sigterm", "all"],
             {"stop_timeout": 1},
             {"app2": "app"},
-            ["app3", "app2"],
+            ["app3", "app", "app2"],
         ),
     ),
     ids=count(0),

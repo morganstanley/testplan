@@ -60,9 +60,6 @@ class Environment:
         self.__dict__["_resources"] = OrderedDict()
         self.__dict__["start_exceptions"] = OrderedDict()
         self.__dict__["stop_exceptions"] = OrderedDict()
-        # warnings for info display only, no interference needed (really?)
-        self.__dict__["start_warnings"] = OrderedDict()
-        self.__dict__["stop_warnings"] = OrderedDict()
 
     def add(self, item: "Resource", uid: Optional[str] = None) -> str:
         """
@@ -177,17 +174,6 @@ class Environment:
             for resource in self._resources
         )
 
-    def _record_resource_warning(self, message, resource, msg_store):
-        fetch_msg = "\n".join(resource.fetch_error_log())
-
-        msg = message.format(
-            resource=resource,
-            traceback_exc=traceback.format_exc(),
-            fetch_msg=fetch_msg,
-        )
-        resource.logger.warning(msg)
-        msg_store[resource] = "WARNING: " + msg
-
     def _record_resource_exception(self, message, resource, msg_store):
         fetch_msg = "\n".join(resource.fetch_error_log())
 
@@ -219,7 +205,6 @@ class Environment:
                     msg_store=self.start_exceptions,
                 )
 
-                # XXX: in the case of failover, put exc in warnings instead?
                 failover = resource.failover()
                 if failover:
                     self._resources[resource.uid()] = failover
@@ -296,34 +281,20 @@ class Environment:
         if is_reversed is True:
             resources = resources[::-1]
 
-        # XXX: with the legacy design, we cannot really distinguish exceptions
-        # XXX: raised by ``stopping`` from those raised by ``stopped_check``,
-        # XXX: we have this ambiguity regarding ``stop``.
-
         # Stop all resources
         resources_to_wait_for: List[Resource] = []
         for resource in resources:
             try:
                 resource.stop()
-            except Exception as e:
-                if isinstance(e, tuple(resource.SUPPRESSED_STOP_EXC)):
-                    self._record_resource_warning(
-                        message="While stopping resource {resource}"
-                        " (mitigated by forcefully stopping resource)"
-                        ":\n{traceback_exc}\n{fetch_msg}",
-                        resource=resource,
-                        msg_store=self.stop_warnings,
-                    )
-                else:
-                    self._record_resource_exception(
-                        message="While stopping resource {resource}"
-                        ":\n{traceback_exc}\n{fetch_msg}",
-                        resource=resource,
-                        msg_store=self.stop_exceptions,
-                    )
-
+            except Exception:
+                self._record_resource_exception(
+                    message="While stopping resource {resource}"
+                    ":\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.stop_exceptions,
+                )
                 # Resource status should be STOPPED even it failed to stop
-                resource.force_stopped()
+                resource.force_stop()
             else:
                 if (
                     resource.async_start
@@ -336,24 +307,15 @@ class Environment:
         for resource in resources_to_wait_for:
             try:
                 resource.wait(resource.STATUS.STOPPED)
-            except Exception as e:
-                if isinstance(e, tuple(resource.SUPPRESSED_STOP_EXC)):
-                    self._record_resource_warning(
-                        message="While waiting for resource {resource} to stop"
-                        " (mitigated by forcefully stopping resource)"
-                        ":\n{traceback_exc}\n{fetch_msg}",
-                        resource=resource,
-                        msg_store=self.stop_warnings,
-                    )
-                else:
-                    self._record_resource_exception(
-                        message="While waiting for resource {resource} to stop"
-                        ":\n{traceback_exc}\n{fetch_msg}",
-                        resource=resource,
-                        msg_store=self.stop_exceptions,
-                    )
+            except Exception:
+                self._record_resource_exception(
+                    message="While waiting for resource {resource} to stop"
+                    ":\n{traceback_exc}\n{fetch_msg}",
+                    resource=resource,
+                    msg_store=self.stop_exceptions,
+                )
                 # Resource status should be STOPPED even it failed to stop
-                resource.force_stopped()
+                resource.force_stop()
             resource.logger.info("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
@@ -393,7 +355,7 @@ class Environment:
                 resource.logger.info("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
-                resource.force_stopped()
+                resource.force_stop()
 
     def _log_exception(self, resource, func, exception_record):
         """
@@ -1385,7 +1347,6 @@ class Resource(Entity):
 
     CONFIG = ResourceConfig
     STATUS = ResourceStatus
-    SUPPRESSED_STOP_EXC = []
 
     def __init__(self, **options):
         super(Resource, self).__init__(**options)
@@ -1562,9 +1523,9 @@ class Resource(Entity):
 
         :param timeout: timeout in seconds
         """
-        self._after_stopped()
+        self._mark_stopped()
 
-    def _after_stopped(self):
+    def _mark_stopped(self):
         """
         Common logic after a successful Resource stop.
         """
@@ -1617,7 +1578,7 @@ class Resource(Entity):
         if self.async_start:
             self.wait(self.STATUS.STARTED)
 
-    def force_stopped(self):
+    def force_stop(self):
         """
         Change the status to STOPPED (e.g. exception raised).
         """
