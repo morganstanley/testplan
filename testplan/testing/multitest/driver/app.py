@@ -7,6 +7,7 @@ import shutil
 import signal
 import socket
 import subprocess
+import time
 import uuid
 import warnings
 from typing import Dict, List, Optional, Union
@@ -31,13 +32,11 @@ from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, archive, makedirs
 from testplan.common.utils.process import (
-    any_alive_child_procs,
-    cleanup_child_procs,
     kill_process,
     subprocess_popen,
-    wait_process_clean,
+    kill_proc_and_child_procs,
 )
-from testplan.common.utils.timing import TimeoutException
+from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 from testplan.testing.multitest.driver.connection import (
@@ -49,9 +48,15 @@ IS_WIN = platform.system() == "Windows"
 
 
 class OrphanedProcessException(Exception):
-    def __init__(self, driver, psutil_procs, *args, **kwargs):
-        msg = f"Orphaned processes detected after stopping {driver}: {psutil_procs}"
-        super().__init__(msg, *args, **kwargs)
+    """
+    Exception raised when there are orphaned processes after stopping the
+    driver.
+    """
+
+    def __init__(self, driver, procs):
+        self.driver = driver
+        self.procs = procs
+        super().__init__(f"Orphaned processes detected: {procs} for {driver}")
 
 
 class AppConfig(DriverConfig):
@@ -129,7 +134,6 @@ class App(Driver):
         SubprocessFileConnectionExtractor(),
         SubprocessPortConnectionExtractor(),
     ]
-    SUPPRESSED_STOP_EXC = [TimeoutException, OrphanedProcessException]
 
     def __init__(
         self,
@@ -169,7 +173,7 @@ class App(Driver):
         self._resolved_bin = None
         self._env = None
 
-        self._child_procs = []  # for orphaned procs elimination
+        self._alive_child_procs = []  # for orphaned procs elimination
 
     @emphasized
     @property
@@ -191,6 +195,13 @@ class App(Driver):
             if self.proc:
                 self._retcode = self.proc.poll()
         return self._retcode
+
+    @property
+    def alive_child_procs(self) -> List[psutil.Process]:
+        _, self._alive_child_procs = psutil.wait_procs(
+            self._alive_child_procs, timeout=0
+        )
+        return self._alive_child_procs
 
     @emphasized
     @property
@@ -399,9 +410,12 @@ class App(Driver):
     def stopping(self) -> None:
         """Stops the application binary process."""
         if self.proc is not None and self.retcode is None:
-            self._child_procs = psutil.Process(self.pid).children(
+            # take a snapshot of all child procs
+            # so that we can check if they all terminate later
+            self._alive_child_procs = psutil.Process(self.pid).children(
                 recursive=True
             )
+
             if self.cfg.stop_signal is None:
                 self.proc.terminate()
             else:
@@ -411,41 +425,68 @@ class App(Driver):
     def stopped_check(self) -> ActionResult:
         if self.proc is None:
             return True
-        return self.retcode is not None
 
-    def force_stopped(self):
-        if self.proc is not None and self.retcode is None:
-            self.logger.info(
-                "%s still alive after %d seconds, force killing",
+        if self.retcode is None:
+            return False
+
+        if self.alive_child_procs:
+            raise OrphanedProcessException(self, self._alive_child_procs)
+
+        return True
+
+    def stopped_check_with_watch(self, watch) -> ActionResult:
+        def log_fn(exc):
+            self.logger.warning("While killing driver %s: %s", self, exc)
+
+        if time.time() >= watch.start_time + watch.total_wait:
+            # not raising a timeout here
+            self.logger.warning(
+                "%s still alive after %d seconds, killing",
                 self,
                 self.stop_timeout,
             )
-            try:
-                self.proc.kill()
-                self.proc.wait()
-                wait_process_clean(self.proc.pid, timeout=self.stop_timeout)
-            except (OSError, RuntimeError, TimeoutException) as exc:
-                self.logger.info(
-                    "While killing process %s: %s", self.proc, exc
-                )
-
-        def _log_exc(exc):
-            self.logger.info(
-                "While killing child process of %s: %s", self.proc, exc
+            kill_proc_and_child_procs(
+                self.proc, self.alive_child_procs, log_fn
             )
 
-        cleanup_child_procs(self._child_procs, self.stop_timeout, _log_exc)
+        if watch.should_check():
+            try:
+                return self.stopped_check()
+            except OrphanedProcessException as exc:
+                self.logger.warning(exc)
+                kill_proc_and_child_procs(
+                    self.proc, self.alive_child_procs, log_fn
+                )
+                return True
 
-        self.proc = None
-        if self.std:
-            self.std.close()
+        return False
 
-        # reset env, binary etc. as they need re-eval in case of restart
-        self._env = None
-        self._binary = None
-        self._log_matcher = None
+    def _wait_stopped(self, timeout: Optional[float] = None) -> None:
+        # for App driver and its inheritance, always force stop
 
-        super().force_stopped()
+        def log_fn(exc):
+            self.logger.warning("While killing driver %s: %s", self, exc)
+
+        try:
+            super()._wait_stopped(timeout)
+        except TimeoutException:
+            self.logger.warning(
+                "%s still alive after %d seconds, killing",
+                self,
+                self.stop_timeout,
+            )
+            kill_proc_and_child_procs(
+                self.proc, self.alive_child_procs, log_fn
+            )
+            self._mark_stopped()
+        except OrphanedProcessException as exc:
+            self.logger.warning(exc)
+            kill_proc_and_child_procs(
+                self.proc, self.alive_child_procs, log_fn
+            )
+            self._mark_stopped()
+
+        # other exceptions gets propagated
 
     def post_stop(self):
         rc = self.retcode
@@ -467,14 +508,6 @@ class App(Driver):
                 f" but actual return code is {rc}"
             )
             raise RuntimeError(err_msg)
-
-        if any_alive_child_procs(self._child_procs):
-            self.logger.warning(
-                "Orphaned processes detected after stopping %s: %s",
-                self,
-                self._child_procs,
-            )
-            raise OrphanedProcessException(self, self._child_procs)
 
     def make_runpath_dirs(self) -> None:
         """
@@ -503,22 +536,9 @@ class App(Driver):
             all persistence is deleted, else a normal restart.
 
         """
-        try:
-            self.stop()
-            if self.async_start:
-                self.wait(self.status.STOPPED)
-        except Exception as e:
-            if isinstance(e, tuple(self.SUPPRESSED_STOP_EXC)):
-                self.logger.warning(
-                    "When stopping %s within restart call: %s", self, e
-                )
-                self.force_stopped()
-            else:
-                self.logger.error(
-                    "When stopping %s within restart call: %s", self, e
-                )
-                self.force_stopped()
-                raise
+        self.stop()
+        if self.async_start:
+            self.wait(self.status.STOPPED)
 
         if clean:
             self._move_app_path()

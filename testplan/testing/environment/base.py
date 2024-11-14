@@ -206,32 +206,17 @@ class TestEnvironment(Environment):
                     self._pocketwatches[driver.uid()].record_start()
                     driver.stop()
                 except Exception as e:
-                    do_suppress = isinstance(
-                        e, tuple(driver.SUPPRESSED_STOP_EXC)
+                    self._record_resource_exception(
+                        message="While stopping driver {resource}"
+                        ":\n{traceback_exc}\n{fetch_msg}",
+                        resource=driver,
+                        msg_store=self.stop_exceptions,
                     )
-                    if do_suppress:
-                        self._record_resource_warning(
-                            message="While stopping driver {resource}"
-                            " (mitigated by forcefully stopping driver)"
-                            ":\n{traceback_exc}\n{fetch_msg}",
-                            resource=driver,
-                            msg_store=self.stop_warnings,
-                        )
-                    else:
-                        self._record_resource_exception(
-                            message="While stopping driver {resource}"
-                            ":\n{traceback_exc}\n{fetch_msg}",
-                            resource=driver,
-                            msg_store=self.stop_exceptions,
-                        )
                     # driver status should be STOPPED even it failed to stop
-                    driver.force_stopped()
+                    driver.force_stop()
                     driver.logger.info("%s force stopped", driver)
                     self._rt_dependency.mark_processing(driver)
-                    if do_suppress:
-                        self._rt_dependency.mark_processed(driver)
-                    else:
-                        self._rt_dependency.mark_failed_to_process(driver)
+                    self._rt_dependency.mark_failed_to_process(driver)
                 else:
                     self._rt_dependency.mark_processing(driver)
 
@@ -239,44 +224,20 @@ class TestEnvironment(Environment):
             for driver in self._rt_dependency.drivers_processing():
                 watch: DriverPocketwatch = self._pocketwatches[driver.uid()]
                 try:
-                    if time.time() >= watch.start_time + watch.total_wait:
-                        # we got a timed-out here
-                        raise TimeoutException(
-                            f"Timeout when stopping {driver}. "
-                            f"{TimeoutExceptionInfo(watch.start_time).msg()}"
-                        )
-                    res = None
-                    if watch.should_check():
-                        res = driver.stopped_check()
-                    if res:
-                        driver._after_stopped()
+                    if driver.stopped_check_with_watch(watch):
+                        driver._mark_stopped()
                         driver.logger.info("%s stopped", driver)
                         self._rt_dependency.mark_processed(driver)
-                except Exception as e:
-                    do_suppress = isinstance(
-                        e, tuple(driver.SUPPRESSED_STOP_EXC)
+                except Exception:
+                    self._record_resource_exception(
+                        message="While waiting for driver {resource} to stop:\n"
+                        "{traceback_exc}\n{fetch_msg}",
+                        resource=driver,
+                        msg_store=self.stop_exceptions,
                     )
-                    if do_suppress:
-                        self._record_resource_warning(
-                            message="While waiting for driver {resource} to stop"
-                            " (mitigated by forcefully stopping driver)"
-                            ":\n{traceback_exc}\n{fetch_msg}",
-                            resource=driver,
-                            msg_store=self.stop_warnings,
-                        )
-                    else:
-                        self._record_resource_exception(
-                            message="While waiting for driver {resource} to stop"
-                            ":\n{traceback_exc}\n{fetch_msg}",
-                            resource=driver,
-                            msg_store=self.stop_exceptions,
-                        )
                     # driver status should be STOPPED even it failed to stop
-                    driver.force_stopped()
+                    driver.force_stop()
                     driver.logger.info("%s force stopped", driver)
-                    if do_suppress:
-                        self._rt_dependency.mark_processed(driver)
-                    else:
-                        self._rt_dependency.mark_failed_to_process(driver)
+                    self._rt_dependency.mark_failed_to_process(driver)
 
             time.sleep(MINIMUM_CHECK_INTERVAL)
