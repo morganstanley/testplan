@@ -1,0 +1,1 @@
+Use lazy import for Matplotlib and move cache to runpath.
