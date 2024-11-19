@@ -212,6 +212,19 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """
         return True
 
+    def stopped_check_with_watch(self, watch) -> ActionResult:
+
+        if time.time() >= watch.start_time + watch.total_wait:
+            raise TimeoutException(
+                f"Timeout when stopping {self}. "
+                f"{TimeoutExceptionInfo(watch.start_time).msg()}"
+            )
+
+        if watch.should_check():
+            return self.stopped_check()
+
+        return False
+
     def starting(self) -> None:
         """Triggers driver start."""
         self._setup_file_logger()
