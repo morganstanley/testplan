@@ -1054,21 +1054,12 @@ class TestRunner(Runnable):
 
         self._scratch = os.path.join(self._runpath, "scratch")
 
-        env_mpl_cache = os.environ.get("MPLCONFIGDIR")
-        if not env_mpl_cache:
-            self._mplcache = os.path.join(self._runpath, "matplotlib")
-            os.environ["MPLCONFIGDIR"] = self._mplcache
-
         if self.cfg.path_cleanup is False:
             makedirs(self._runpath)
             makedirs(self._scratch)
-            if not env_mpl_cache:
-                makedirs(self._mplcache)
         else:
             makeemptydirs(self._runpath)
             makeemptydirs(self._scratch)
-            if not env_mpl_cache:
-                makeemptydirs(self._mplcache)
 
         with open(
             os.path.join(self._runpath, self.runid_filename), "wb"
@@ -1080,6 +1071,11 @@ class TestRunner(Runnable):
                 self.scratch, "resource_monitor"
             )
             makedirs(self.resource_monitor_server_file_path)
+
+        if not os.environ.get("MPLCONFIGDIR"):
+            os.environ["MPLCONFIGDIR"] = os.path.join(
+                self._runpath, "matplotlib"
+            )
 
     def _start_resource_monitor(self):
         """Start resource monitor server and client"""
