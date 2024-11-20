@@ -287,6 +287,8 @@ class RemotePool(Pool):
 
     CONFIG = RemotePoolConfig
     CONN_MANAGER = ZMQServer
+    QUEUE_WAIT_INTERVAL = 3
+    MAX_THREAD_POOL_SIZE = 5
 
     def __init__(
         self,
@@ -322,7 +324,6 @@ class RemotePool(Pool):
         options.update(self.filter_locals(locals()))
         super(RemotePool, self).__init__(**options)
         self._options = options  # pass to remote worker later
-
         self._request_handlers[
             Message.MetadataPull
         ] = self._worker_setup_metadata
@@ -341,7 +342,9 @@ class RemotePool(Pool):
             return self.parent.resource_monitor_server.address
 
     @staticmethod
-    def _worker_setup_metadata(worker, request, response) -> None:
+    def _worker_setup_metadata(
+        worker: RemoteWorker, _: Message, response: Message
+    ) -> None:
         worker.respond(
             response.make(Message.Metadata, data=worker.setup_metadata)
         )
@@ -385,6 +388,26 @@ class RemotePool(Pool):
                 self.logger.warning(
                     "Please upgrade to the suggested python interpreter."
                 )
+
+    def _early_stop_worker(self, worker_uid: Union[str, int]) -> bool:
+        with self._pool_lock:
+            if self.pool and (worker_uid not in self._stopping_queue):
+                alive_worker_ids = set(
+                    [worker.uid() for worker in self.worker_status["active"]]
+                )
+                if self.RESERVE_WORKER_NUM + self.unassigned.size() < len(
+                    alive_worker_ids - set(self._stopping_queue)
+                ):
+                    self.logger.user_info(
+                        "Early stop worker %s", self._workers[worker_uid]
+                    )
+                    self._stopping_queue.append(worker_uid)
+                    self.pool.apply_async(
+                        self._workers.sync_stop_resource,
+                        (self._workers[worker_uid],),
+                    )
+                    return True
+        return False
 
     def starting(self) -> None:
         self._start_thread_pool()
