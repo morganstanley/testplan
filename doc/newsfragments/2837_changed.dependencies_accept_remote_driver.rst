@@ -1,0 +1,1 @@
+Support :py:class:`RemoteDriver <testplan.common.remote.remote_driver.RemoteDriver>` in dependency graph of test environment (the ``dependencies`` parameter).

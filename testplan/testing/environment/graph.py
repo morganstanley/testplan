@@ -1,12 +1,16 @@
 from copy import copy
 from dataclasses import dataclass, field
 from itertools import product
-from typing import TYPE_CHECKING, Dict, Iterable, List, Set
+from typing import TYPE_CHECKING, Iterable, List, Set, Union
+from typing_extensions import TypeAlias
 
 from testplan.common.utils.graph import DirectedGraph
 
 if TYPE_CHECKING:
+    from testplan.common.remote.remote_driver import RemoteDriver
     from testplan.testing.multitest.driver import Driver
+
+D: TypeAlias = Union["RemoteDriver", "Driver"]
 
 
 def _type_err(msg: str) -> TypeError:
@@ -16,13 +20,13 @@ def _type_err(msg: str) -> TypeError:
 
 
 @dataclass
-class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
+class DriverDepGraph(DirectedGraph[str, D, bool]):
     """
     An always acyclic directed graph, also bookkeeping driver starting status.
     """
 
-    processing: Set["Driver"] = field(default_factory=set)
-    processed: List["Driver"] = field(default_factory=list)
+    processing: Set[D] = field(default_factory=set)
+    processed: List[D] = field(default_factory=list)
 
     @classmethod
     def from_directed_graph(cls, g: DirectedGraph) -> "DriverDepGraph":
@@ -35,26 +39,26 @@ class DriverDepGraph(DirectedGraph[str, "Driver", bool]):
         g_ = copy(g)
         return cls(g_.vertices, g_.edges, g_.indegrees, g_.outdegrees)
 
-    def mark_processing(self, driver: "Driver"):
+    def mark_processing(self, driver: D):
         self.processing.add(driver.uid())
 
-    def mark_processed(self, driver: "Driver"):
+    def mark_processed(self, driver: D):
         self.processing.remove(driver.uid())
         self.remove_vertex(driver.uid())
         self.processed.append(driver.uid())
 
-    def mark_failed_to_process(self, driver: "Driver"):
+    def mark_failed_to_process(self, driver: D):
         self.processing.remove(driver.uid())
         self.remove_vertex(driver.uid())
 
-    def drivers_to_process(self) -> List["Driver"]:
+    def drivers_to_process(self) -> List[D]:
         return [
             self.vertices[d]
             for d in self.zero_indegrees()
             if d not in self.processing
         ]
 
-    def drivers_processing(self) -> List["Driver"]:
+    def drivers_processing(self) -> List[D]:
         return [self.vertices[d] for d in self.processing]
 
     def all_drivers_processed(self) -> bool:
@@ -102,6 +106,7 @@ def parse_dependency(input: dict) -> DriverDepGraph:
     }
     """
 
+    from testplan.common.remote.remote_driver import RemoteDriver
     from testplan.testing.multitest.driver import Driver
 
     if not isinstance(input, dict):
@@ -111,7 +116,7 @@ def parse_dependency(input: dict) -> DriverDepGraph:
 
     for k, v in input.items():
         if not (
-            isinstance(k, Driver)
+            isinstance(k, (Driver, RemoteDriver))
             or (
                 isinstance(k, Iterable)
                 and all(isinstance(x, Driver) for x in k)
@@ -122,19 +127,19 @@ def parse_dependency(input: dict) -> DriverDepGraph:
             )
 
         if not (
-            isinstance(v, Driver)
+            isinstance(v, (Driver, RemoteDriver))
             or (
                 isinstance(v, Iterable)
-                and all(isinstance(x, Driver) for x in v)
+                and all(isinstance(x, (Driver, RemoteDriver)) for x in v)
             )
         ):
             raise _type_err(
                 "Driver or flat collection of Driver expected for dict values."
             )
 
-        if isinstance(k, Driver):
+        if isinstance(k, (Driver, RemoteDriver)):
             k = (k,)
-        if isinstance(v, Driver):
+        if isinstance(v, (Driver, RemoteDriver)):
             v = (v,)
 
         for s, e in product(k, v):
