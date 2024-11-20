@@ -573,7 +573,7 @@ class TestRunner(Runnable):
         remote_service.start()
 
     def _stop_remote_services(self):
-        for _, rmt_svc in self.remote_services.items():
+        for rmt_svc in self.remote_services.values():
             rmt_svc.stop()
 
     def _clone_task_for_part(self, task_info, _task_arguments, part):
