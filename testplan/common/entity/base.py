@@ -183,14 +183,14 @@ class Environment:
             fetch_msg=fetch_msg,
         )
         resource.logger.error(msg)
-        msg_store[resource] = msg
+        msg_store[resource] = "ERROR: " + msg
 
     def start(self):
         """
         Starts all resources sequentially and log errors.
         """
         # Trigger start all resources
-        resources_to_wait_for = []
+        resources_to_wait_for: List[Resource] = []
         for resource in self._resources.values():
             if not resource.auto_start:
                 continue
@@ -304,12 +304,12 @@ class Environment:
 
         :param is_reversed: flag whether to stop resources in reverse order
         """
-        resources = list(self._resources.values())
+        resources: List[Resource] = list(self._resources.values())
         if is_reversed is True:
             resources = resources[::-1]
 
         # Stop all resources
-        resources_to_wait_for = []
+        resources_to_wait_for: List[Resource] = []
         for resource in resources:
             if resource.status in (
                 resource.STATUS.STOPPING,
@@ -320,14 +320,13 @@ class Environment:
                 resource.stop()
             except Exception:
                 self._record_resource_exception(
-                    message="While stopping resource {resource}:"
-                    "\n{traceback_exc}\n{fetch_msg}",
+                    message="While stopping resource {resource}"
+                    ":\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.stop_exceptions,
                 )
-
                 # Resource status should be STOPPED even it failed to stop
-                resource.force_stopped()
+                resource.force_stop()
             else:
                 if (
                     resource.async_start
@@ -342,13 +341,13 @@ class Environment:
                 resource.wait(resource.STATUS.STOPPED)
             except Exception:
                 self._record_resource_exception(
-                    message="While waiting for resource {resource} to stop:"
-                    "\n{traceback_exc}\n{fetch_msg}",
+                    message="While waiting for resource {resource} to stop"
+                    ":\n{traceback_exc}\n{fetch_msg}",
                     resource=resource,
                     msg_store=self.stop_exceptions,
                 )
                 # Resource status should be STOPPED even it failed to stop
-                resource.force_stopped()
+                resource.force_stop()
             resource.logger.info("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
@@ -393,7 +392,7 @@ class Environment:
                 resource.logger.info("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
-                resource.force_stopped()
+                resource.force_stop()
 
     def _log_exception(self, resource, func, exception_record):
         """
@@ -1561,9 +1560,9 @@ class Resource(Entity):
 
         :param timeout: timeout in seconds
         """
-        self._after_stopped()
+        self._mark_stopped()
 
-    def _after_stopped(self):
+    def _mark_stopped(self):
         """
         Common logic after a successful Resource stop.
         """
@@ -1616,7 +1615,7 @@ class Resource(Entity):
         if self.async_start:
             self.wait(self.STATUS.STARTED)
 
-    def force_stopped(self):
+    def force_stop(self):
         """
         Change the status to STOPPED (e.g. exception raised).
         """

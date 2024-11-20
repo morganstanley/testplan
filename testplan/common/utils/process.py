@@ -184,6 +184,55 @@ def kill_process_psutil(
     return alive
 
 
+def kill_proc_and_child_procs(
+    proc: subprocess.Popen,
+    child_procs: List[psutil.Process],
+    log: Callable[[BaseException], None] = None,
+    timeout: int = 5,
+) -> None:
+    """
+    Kill a process and its child processes.
+
+    This function attempts to kill a given process and its child processes.
+    It first kills the main process, waits for it to terminate, and then
+    attempts to kill any remaining child processes.
+
+    :param proc: The main process to kill.
+    :type proc: subprocess.Popen
+    :param child_procs: A list of child processes to kill.
+    :type child_procs: List[psutil.Process]
+    :param log: A callable to log exceptions, defaults to None.
+    :type log: Callable[[BaseException], None], optional
+    :param timeout: The timeout in seconds to wait for processes to terminate, defaults to 5.
+    :type timeout: int, optional
+    :return: The return code of the main process if it was terminated, otherwise None.
+    :rtype: Union[int, None]
+    """
+
+    if proc is not None and proc.poll() is None:
+        try:
+            proc.kill()
+            proc.wait()
+            wait_process_clean(proc.pid, timeout=timeout)
+        except Exception as exc:
+            if log:
+                log(exc)
+
+    if child_procs:
+        # we did not send sig term to child processes
+        # thus no point to wait for them to terminate
+        _, alive = psutil.wait_procs(child_procs, timeout=0)
+        for p in alive:
+            try:
+                p.kill()
+                p.wait()
+            except psutil.NoSuchProcess:
+                pass  # already reaped
+            except Exception as exc:
+                if log:
+                    log(exc)
+
+
 def cleanup_child_procs(
     procs: List[psutil.Process],
     timeout: float,

@@ -463,6 +463,7 @@ class Test(Runnable):
             )
             self._record_driver_connection(case_report)
         case_report.pass_if_empty()
+
         if self.resources.start_exceptions:
             for msg in self.resources.start_exceptions.values():
                 case_report.logger.error(msg)
@@ -485,6 +486,7 @@ class Test(Runnable):
                 ResourceTimings.RESOURCE_TEARDOWN, case_report
             )
         case_report.pass_if_empty()
+
         if self.resources.stop_exceptions:
             for msg in self.resources.stop_exceptions.values():
                 case_report.logger.error(msg)

@@ -371,29 +371,17 @@ def run_app(cwd, runpath):
 
 @skip_on_windows(reason='No need to dive into Windows "signals".')
 @pytest.mark.parametrize(
-    "app_args, force_stop, num_leftover",
+    "app_args, return_code",
     (
-        ([], False, 0),
-        (["--mask-sigterm", "parent"], False, 0),
-        (["--mask-sigterm", "parent"], True, 0),
-        (
-            ["--mask-sigterm", "parent", "--sleep-time", "5"],
-            False,
-            1,
-        ),
-        (
-            ["--mask-sigterm", "parent", "--sleep-time", "5"],
-            True,
-            0,
-        ),
-        (["--mask-sigterm", "child"], False, 2),
-        (["--mask-sigterm", "child"], True, 0),
-        (["--mask-sigterm", "all"], False, 3),
-        (["--mask-sigterm", "all"], True, 0),
+        ([], 0),
+        (["--mask-sigterm", "parent"], 0),
+        (["--mask-sigterm", "parent", "--sleep-time", "5"], -9),
+        (["--mask-sigterm", "child"], 1),
+        (["--mask-sigterm", "all"], -9),
     ),
     ids=count(0),
 )
-def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
+def test_multiproc_app_stop(runpath, app_args, return_code):
     """Test App driver stopping behaviour when used with a binary that create processes."""
     app = App(
         name="dummy_multi_proc",
@@ -407,27 +395,15 @@ def test_multiproc_app_stop(runpath, app_args, force_stop, num_leftover):
         runpath=runpath,
         stop_timeout=1,
         async_start=False,
-        expected_retcode=0,
+        expected_retcode=return_code,
     )
+    # TODO: make start, stop behave consistent regardlessly async_start
     app.start()
-    try:
-        app.stop()
-    except Exception as e:
-        if force_stop:
-            app.force_stopped()
-            # XXX: we don't wait on orphaned child procs, give OS some time
-            time.sleep(0.01)
-        else:
-            assert "Timeout when stopping App" in str(
-                e
-            ) or "but actual return code" in str(e)
+    app.stop()
 
     procs = reduce(
         lambda x, y: psutil.pid_exists(y) and x + [psutil.Process(y)] or x,
         map(lambda x: int(app.extracts[x]), ["pid", "pid1", "pid2"]),
         [],
     )
-    assert len(procs) == num_leftover
-    for p in procs:
-        p.kill()
-        p.wait()
+    assert len(procs) == 0

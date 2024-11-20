@@ -1,0 +1,1 @@
+If :py:class:`App <~testplan.testing.multitest.driver.app.App>` driver times out during shutdown or leaves orphaned processes after shutdown, Testplan will now emit a warning and perform a forced cleanup instead of failing the tests.

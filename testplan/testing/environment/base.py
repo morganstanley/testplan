@@ -1,6 +1,5 @@
 import copy
 import time
-from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
@@ -135,6 +134,8 @@ class TestEnvironment(Environment):
                     )
                     # exception occurred, skip rest of drivers
                     self._rt_dependency.purge_drivers_to_process()
+                    self._rt_dependency.mark_processing(driver)
+                    self._rt_dependency.mark_failed_to_process(driver)
                     break
                 else:
                     self._rt_dependency.mark_processing(driver)
@@ -204,15 +205,18 @@ class TestEnvironment(Environment):
                 try:
                     self._pocketwatches[driver.uid()].record_start()
                     driver.stop()
-                except Exception:
+                except Exception as e:
                     self._record_resource_exception(
-                        message="While stopping driver {resource}:\n"
-                        "{traceback_exc}\n{fetch_msg}",
+                        message="While stopping driver {resource}"
+                        ":\n{traceback_exc}\n{fetch_msg}",
                         resource=driver,
                         msg_store=self.stop_exceptions,
                     )
                     # driver status should be STOPPED even it failed to stop
-                    driver.force_stopped()
+                    driver.force_stop()
+                    driver.logger.info("%s force stopped", driver)
+                    self._rt_dependency.mark_processing(driver)
+                    self._rt_dependency.mark_failed_to_process(driver)
                 else:
                     self._rt_dependency.mark_processing(driver)
 
@@ -220,17 +224,8 @@ class TestEnvironment(Environment):
             for driver in self._rt_dependency.drivers_processing():
                 watch: DriverPocketwatch = self._pocketwatches[driver.uid()]
                 try:
-                    if time.time() >= watch.start_time + watch.total_wait:
-                        # we got a timed-out here
-                        raise TimeoutException(
-                            f"Timeout when stopping {driver}. "
-                            f"{TimeoutExceptionInfo(watch.start_time).msg()}"
-                        )
-                    res = None
-                    if watch.should_check():
-                        res = driver.stopped_check()
-                    if res:
-                        driver._after_stopped()
+                    if driver.stopped_check_with_watch(watch):
+                        driver._mark_stopped()
                         driver.logger.info("%s stopped", driver)
                         self._rt_dependency.mark_processed(driver)
                 except Exception:
@@ -241,8 +236,8 @@ class TestEnvironment(Environment):
                         msg_store=self.stop_exceptions,
                     )
                     # driver status should be STOPPED even it failed to stop
-                    driver.force_stopped()
-                    driver.logger.info("%s stopped", driver)
-                    self._rt_dependency.mark_processed(driver)
+                    driver.force_stop()
+                    driver.logger.info("%s force stopped", driver)
+                    self._rt_dependency.mark_failed_to_process(driver)
 
             time.sleep(MINIMUM_CHECK_INTERVAL)
