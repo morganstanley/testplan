@@ -24,7 +24,6 @@ def _patched_find_module(name, path=None):
     """
 
     # Old imp constants:
-
     _SEARCH_ERROR = 0
     _PY_SOURCE = 1
     _PY_COMPILED = 2
@@ -94,9 +93,6 @@ def _patched_find_module(name, path=None):
     suffix = os.path.splitext(file_path)[-1]
 
     return file, file_path, (suffix, "rb", kind)
-
-
-modulefinder._find_module = _patched_find_module
 
 
 class ModuleReloader(logger.Loggable):
@@ -643,6 +639,25 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
                     except ImportError as msg:
                         self.msg(2, "ImportError:", str(msg))
                         self._add_badmodule(fullname, caller)
+
+    def find_module(self, name, path, parent=None):
+        # NOTE: modified from trunk to use _patched_find_module
+        # NOTE: we can drop this overriden method once upstream issue is fixed
+        if parent is not None:
+            # assert path is not None
+            fullname = parent.__name__ + "." + name
+        else:
+            fullname = name
+        if fullname in self.excludes:
+            self.msgout(3, "find_module -> Excluded", fullname)
+            raise ImportError(name)
+
+        if path is None:
+            if name in sys.builtin_module_names:
+                return (None, None, ("", "", 6))  # _C_BUILTIN = 6
+
+            path = self.path
+        return _patched_find_module(name, path)
 
 
 class _ModuleNode:

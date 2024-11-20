@@ -1,0 +1,1 @@
+Fix interactive mode crashing issue when loading a namespace package. (It is still not supported to reload namespace packages.) ``SyntaxError`` will no longer be suppressed during interactive mode code reloading.
