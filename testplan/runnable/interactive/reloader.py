@@ -324,9 +324,14 @@ class ModuleReloader(logger.Loggable):
             and require reloading.
         :rtype: ``set[_ModuleNode]``
         """
-        # TODO: a depends on b,
-        # TODO: a recently converted into normal package from namespace package,
-        # TODO: b not reloaded due to mtime, a now uses an outdated b
+        # XXX: mtime-based modified module detection cannot handle the
+        # XXX: following case:
+        # XXX: at t0, namespace package A depends on module B
+        # XXX: at t1, B modified (B'), other modules picks B', A won't be
+        # XXX: processed, continue to use B
+        # XXX: at t2, A changed to normal package (A'), A' is added to dep
+        # XXX: graph, while B' mtime < t2, A' will continue to use B
+        # XXX: instead of B'
         return set(
             mod
             for mod in self._watched_modules

@@ -529,6 +529,13 @@ THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
                 ),
             },
         ),
+        # make sure loading namespace package won't raise exception
+        (
+            "import outer.namespace.mod1",
+            {
+                "__main__": ("outer",),
+            },
+        ),
     ),
 )
 def test_find_module(script_content, module_deps):
