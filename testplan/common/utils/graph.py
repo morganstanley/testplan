@@ -88,6 +88,7 @@ class DirectedGraph(Generic[T, U, V]):
         """
         if rep in self.vertices:
             return False
+
         self.vertices[rep] = val
         self.edges[rep] = dict()
         self.indegrees[rep] = 0
@@ -111,6 +112,7 @@ class DirectedGraph(Generic[T, U, V]):
             or dst in self.edges[src]
         ):
             return False
+
         self.edges[src][dst] = val
         self.indegrees[dst] += 1
         self.outdegrees[src] += 1

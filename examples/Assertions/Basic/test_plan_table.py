@@ -41,6 +41,8 @@ class TableSuite:
             ["Rick", 67],
         ]
 
+        tuple_of_tuples = tuple(tuple(r) for r in list_of_lists)
+
         sample_table = [
             ["symbol", "amount"],
             ["AAPL", 12],
@@ -60,6 +62,9 @@ class TableSuite:
             list_of_lists,
             display_index=True,
             description="Table Log: list of lists",
+        )
+        result.table.log(
+            tuple_of_tuples, description="Table Log: tuple of tuples"
         )
         result.table.log(list_of_lists[:1], description="Empty table")
         result.table.log(

@@ -81,6 +81,11 @@ def main(plan):
         driver_cls=TCPServer,  # what type of driver
         **tcp_server_args,  # args to driver class
     )
+    local_tcp_client = TCPClient(
+        name="client",
+        host=context("server", "{{host}}"),
+        port=context("server", "{{port}}"),
+    )
 
     plan.add(
         MultiTest(
@@ -88,13 +93,10 @@ def main(plan):
             suites=TCPTestsuite(),
             description="Running a TCP Server on remote host",
             environment=[
+                local_tcp_client,
                 remote_tcp_server,
-                TCPClient(
-                    name="client",
-                    host=context("server", "{{host}}"),
-                    port=context("server", "{{port}}"),
-                ),
             ],
+            dependencies={remote_tcp_server: local_tcp_client},
         )
     )
 

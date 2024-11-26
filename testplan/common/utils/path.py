@@ -35,6 +35,8 @@ def fix_home_prefix(path):
         realpwd = os.path.realpath(pwd)
         if path.startswith(realpwd):
             return path.replace(realpwd, pwd)
+        elif realpwd.startswith(path):  # path is parent of pwd
+            path = pwd.replace(realpwd.replace(path, ""), "")
 
     return path
 
