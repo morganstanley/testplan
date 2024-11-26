@@ -1070,6 +1070,11 @@ class TestRunner(Runnable):
             )
             makedirs(self.resource_monitor_server_file_path)
 
+        if not os.environ.get("MPLCONFIGDIR"):
+            os.environ["MPLCONFIGDIR"] = os.path.join(
+                self._runpath, "matplotlib"
+            )
+
     def _start_resource_monitor(self):
         """Start resource monitor server and client"""
         if self.cfg.resource_monitor:
