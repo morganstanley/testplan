@@ -18,6 +18,83 @@ from testplan.common.utils.package import import_tmp_module
 from testplan.testing.multitest import suite, MultiTest
 
 
+def _patched_find_module(name, path=None):
+    """
+    modified from <3.13 branches, to handle namespace packages
+    """
+
+    # Old imp constants:
+    _SEARCH_ERROR = 0
+    _PY_SOURCE = 1
+    _PY_COMPILED = 2
+    _C_EXTENSION = 3
+    _PKG_DIRECTORY = 5
+    _C_BUILTIN = 6
+    _PY_FROZEN = 7
+
+    # unused artifical value
+    _NAMESPACE_IGNORED = 10
+
+    import importlib.machinery
+    import importlib._bootstrap_external
+
+    # It's necessary to clear the caches for our Finder first, in case any
+    # modules are being added/deleted/modified at runtime. In particular,
+    # test_modulefinder.py changes file tree contents in a cache-breaking way:
+
+    importlib.machinery.PathFinder.invalidate_caches()
+
+    spec = importlib.machinery.PathFinder.find_spec(name, path)
+
+    if spec is None:
+        raise ImportError(
+            "No module named {name!r}".format(name=name), name=name
+        )
+
+    # Some special cases:
+
+    # ref: https://github.com/python/cpython/issues/84530
+    # ref: https://github.com/python/cpython/issues/92205
+    # ref: https://github.com/python/cpython/issues/92896
+    if spec.loader is None:
+        # spec.submodule_search_locations type set by PathFinder.find_spec
+        if isinstance(
+            spec.submodule_search_locations,
+            importlib._bootstrap_external._NamespacePath,
+        ):
+            # ModuleFinder.find_module is designed to only return one package dir,
+            # while namespace packages can have multiple
+            return None, None, ("", "", _NAMESPACE_IGNORED)
+
+    if spec.loader is importlib.machinery.BuiltinImporter:
+        return None, None, ("", "", _C_BUILTIN)
+
+    if spec.loader is importlib.machinery.FrozenImporter:
+        return None, None, ("", "", _PY_FROZEN)
+
+    file_path = spec.origin
+
+    if spec.loader.is_package(name):
+        return None, os.path.dirname(file_path), ("", "", _PKG_DIRECTORY)
+
+    if isinstance(spec.loader, importlib.machinery.SourceFileLoader):
+        kind = _PY_SOURCE
+
+    elif isinstance(spec.loader, importlib.machinery.ExtensionFileLoader):
+        kind = _C_EXTENSION
+
+    elif isinstance(spec.loader, importlib.machinery.SourcelessFileLoader):
+        kind = _PY_COMPILED
+
+    else:  # Should never happen.
+        return None, None, ("", "", _SEARCH_ERROR)
+
+    file = io.open_code(file_path)
+    suffix = os.path.splitext(file_path)[-1]
+
+    return file, file_path, (suffix, "rb", kind)
+
+
 class ModuleReloader(logger.Loggable):
     """
     Reloads modules and their dependencies if there was any file modification.
@@ -247,6 +324,14 @@ class ModuleReloader(logger.Loggable):
             and require reloading.
         :rtype: ``set[_ModuleNode]``
         """
+        # XXX: mtime-based modified module detection cannot handle the
+        # XXX: following case:
+        # XXX: at t0, namespace package A depends on module B
+        # XXX: at t1, B modified (B'), other modules picks B', A won't be
+        # XXX: processed, continue to use B
+        # XXX: at t2, A changed to normal package (A'), A' is added to dep
+        # XXX: graph, while B' mtime < t2, A' will continue to use B
+        # XXX: instead of B'
         return set(
             mod
             for mod in self._watched_modules
@@ -535,6 +620,57 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
         node = _ModuleNode(mod, dependencies)
         self._module_nodes[mod] = node
         return node
+
+    def _safe_import_hook(self, name, caller, fromlist, level=-1):
+        # NOTE: modified from trunk to "explicitly" not suppress SyntaxError
+        # wrapper for self.import_hook() that won't raise ImportError
+        if name in self.badmodules:
+            self._add_badmodule(name, caller)
+            return
+        try:
+            self.import_hook(name, caller, level=level)
+        except ImportError as msg:
+            self.msg(2, "ImportError:", str(msg))
+            self._add_badmodule(name, caller)
+        else:
+            if fromlist:
+                for sub in fromlist:
+                    fullname = name + "." + sub
+                    if fullname in self.badmodules:
+                        self._add_badmodule(fullname, caller)
+                        continue
+                    try:
+                        self.import_hook(name, caller, [sub], level=level)
+                    except ImportError as msg:
+                        self.msg(2, "ImportError:", str(msg))
+                        self._add_badmodule(fullname, caller)
+
+    def find_module(self, name, path, parent=None):
+        # NOTE: modified from trunk to use _patched_find_module
+        # NOTE: we can drop this overriden method once upstream issue is fixed
+        if parent is not None:
+            # assert path is not None
+            fullname = parent.__name__ + "." + name
+        else:
+            fullname = name
+        if fullname in self.excludes:
+            self.msgout(3, "find_module -> Excluded", fullname)
+            raise ImportError(name)
+
+        if path is None:
+            if name in sys.builtin_module_names:
+                return (None, None, ("", "", 6))  # _C_BUILTIN = 6
+
+            path = self.path
+
+        if sys.version_info < (3, 8):
+            # upstream stops using imp.find_module in py38
+            # imp dropped from stdlib in py312
+            import imp
+
+            return imp.find_module(name, path)
+        else:
+            return _patched_find_module(name, path)
 
 
 class _ModuleNode:

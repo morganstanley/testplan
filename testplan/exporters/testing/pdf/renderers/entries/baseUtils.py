@@ -2,12 +2,8 @@ import os
 import tempfile
 import uuid
 
-import matplotlib
 from reportlab.lib.units import inch
 from reportlab.platypus import Image
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plot
 
 
 def export_plot_to_image(graph_plot):
@@ -81,6 +77,11 @@ def get_matlib_plot(source):
     Call the appropriate plotting function based on
     whether a graph or chart is being plotted.
     """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plot
+
     graph_type = source["graph_type"]
 
     valid_graph_types = [
@@ -106,6 +107,8 @@ def plot_graph(source, graph_type):
     Create a MatPlot plot for any graph requiring
     axis (and can therefore use the get_xy_coords function.)
     """
+    import matplotlib.pyplot as plot
+
     data = source["graph_data"]
     graph_options = source["graph_options"]
     series_options = source["series_options"]
@@ -170,6 +173,8 @@ def plot_graph(source, graph_type):
 
 def plot_chart(source, graph_type):
     """Create a MatPlot plot for any chart not requiring axes."""
+    import matplotlib.pyplot as plot
+
     data = source["graph_data"]
 
     for entry in data:
