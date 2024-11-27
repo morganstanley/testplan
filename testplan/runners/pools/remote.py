@@ -389,7 +389,10 @@ class RemotePool(Pool):
                     "Please upgrade to the suggested python interpreter."
                 )
 
-    def _early_stop_worker(self, worker_uid: Union[str, int]) -> bool:
+    def _early_stop_worker(self, worker: RemoteWorker) -> bool:
+        if len(worker.assigned) != 0:
+            return False
+        worker_uid = worker.uid()
         with self._pool_lock:
             if self.pool and (worker_uid not in self._stopping_queue):
                 alive_worker_ids = set(

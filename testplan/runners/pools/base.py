@@ -555,7 +555,7 @@ class Pool(Executor):
                     priority, uid = self.unassigned.get()
                 except queue.Empty:
                     self.logger.debug("No tasks to assign to %s", worker)
-                    if self._early_stop_worker(worker.uid()):
+                    if self._early_stop_worker(worker):
                         worker.respond(response.make(Message.Stop))
                         return
                     break
@@ -725,7 +725,7 @@ class Pool(Executor):
         worker.respond(response.make(Message.Ack))
         self._decommission_worker(worker, "Aborting {}, setup failed.")
 
-    def _early_stop_worker(self, worker_uid: Union[str, int]) -> bool:
+    def _early_stop_worker(self, worker: WorkerBase) -> bool:
         # Thread pool doesn't support early stop
         return False
 

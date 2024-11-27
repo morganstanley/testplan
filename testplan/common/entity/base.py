@@ -292,7 +292,7 @@ class Environment:
             )
 
             # Resource status should be STOPPED even it failed to stop
-            resource.force_stopped()
+            resource.force_stop()
         else:
             if resource.async_start:
                 resource.wait(resource.STATUS.STOPPED)
