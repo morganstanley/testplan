@@ -49,30 +49,30 @@ class EntriesField(fields.Field):
     Handle encoding problems gracefully
     """
 
-    @staticmethod
-    def _json_serializable(v):
-        try:
-            json.dumps(v, ensure_ascii=True)
-        except (UnicodeDecodeError, TypeError):
-            return False
-        else:
-            return True
+    # @staticmethod
+    # def _json_serializable(v):
+    #     try:
+    #         json.dumps(v, ensure_ascii=True)
+    #     except (UnicodeDecodeError, TypeError):
+    #         return False
+    #     else:
+    #         return True
 
-    def _serialize(self, value, attr, obj, **kwargs):
-        # we don't need a _deserialize() here as we don't (and can't)
-        # convert str back to non-json-serializable.
-        def visit(parent, key, _value):
-            """
-            return
-                True - keep the node unchange
-                False - remove the node
-                tuple - update the node data.
-            """
-            if is_scalar(_value) and not self._json_serializable(_value):
-                return key, str(_value)
-            return True
+    # def _serialize(self, value, attr, obj, **kwargs):
+    #     # we don't need a _deserialize() here as we don't (and can't)
+    #     # convert str back to non-json-serializable.
+    #     def visit(parent, key, _value):
+    #         """
+    #         return
+    #             True - keep the node unchange
+    #             False - remove the node
+    #             tuple - update the node data.
+    #         """
+    #         if is_scalar(_value) and not self._json_serializable(_value):
+    #             return key, str(_value)
+    #         return True
 
-        return remap(value, visit=visit)
+    #     return remap(value, visit=visit)
 
 
 class TestCaseReportSchema(ReportSchema):
