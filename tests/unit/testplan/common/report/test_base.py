@@ -10,12 +10,56 @@ from testplan.common.report import (
     MergeError,
     Report,
     ReportCategories,
+    RuntimeStatus,
+    Status,
 )
 from testplan.common.report.log import LOGGER
 from testplan.common.utils.testing import disable_log_propagation
 
 DummyReport = functools.partial(Report, name="dummy")
 DummyReportGroup = functools.partial(BaseReportGroup, name="dummy")
+
+
+def test_report_status_basic_op():
+    assert Status.ERROR <= Status.ERROR
+    assert Status.FAILED > Status.ERROR
+    assert Status.INCOMPLETE < Status.FAILED
+    with pytest.raises(TypeError):
+        Status.INCOMPLETE < Status.XPASS_STRICT
+    with pytest.raises(TypeError):
+        Status.XFAIL >= Status.SKIPPED
+    assert Status.XFAIL != Status.XPASS
+    assert Status.XFAIL is not Status.XPASS
+    assert Status.UNKNOWN < Status.NONE
+    assert not Status.NONE
+
+    assert Status.XPASS_STRICT.normalised() is Status.FAILED
+    assert Status.PASSED.normalised() is Status.PASSED
+
+    assert not Status.INCOMPLETE.precede(Status.XPASS_STRICT)
+    assert Status.INCOMPLETE.precede(Status.FAILED)
+
+
+def test_report_status_precedent():
+    """
+    `precedent` should return the value with the
+    highest precedence (the lowest index).
+    """
+
+    assert Status.FAILED == Status.precedent([Status.FAILED, Status.UNKNOWN])
+    assert Status.ERROR == Status.precedent([Status.ERROR, Status.UNKNOWN])
+    assert Status.INCOMPLETE == Status.precedent(
+        [Status.INCOMPLETE, Status.UNKNOWN]
+    )
+    assert Status.XPASS_STRICT == Status.precedent(
+        [Status.XPASS_STRICT, Status.UNKNOWN]
+    )
+    assert Status.UNKNOWN == Status.precedent([Status.UNKNOWN, Status.PASSED])
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.SKIPPED])
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.XFAIL])
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.XPASS])
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.UNSTABLE])
+    assert Status.UNSTABLE == Status.precedent([Status.UNSTABLE, Status.NONE])
 
 
 @disable_log_propagation(LOGGER)
@@ -144,7 +188,13 @@ class TestReport:
         assert rep_copy_2.entries == [["bar", "baz"], {"hello": "world"}]
 
 
-class TestReportGroup:
+class DummyStatusReport:
+    def __init__(self, status, uid=None):
+        self.uid = uid or 0
+        self.status = status
+
+
+class TestBaseReportGroup:
     def test_build_index(self):
         """
         Should set `_index` attribute with child
@@ -396,7 +446,152 @@ class TestReportGroup:
         assert "dummy" in grand_parent
         assert "dummy" in parent
 
+    @pytest.mark.parametrize(
+        "statuses,expected",
+        (
+            ([Status.ERROR, Status.FAILED, Status.PASSED], Status.ERROR),
+            ([Status.FAILED, Status.PASSED], Status.FAILED),
+            (
+                [Status.INCOMPLETE, Status.PASSED, Status.SKIPPED],
+                Status.INCOMPLETE,
+            ),
+            ([Status.SKIPPED, Status.PASSED], Status.PASSED),
+            ([Status.INCOMPLETE, Status.FAILED], Status.INCOMPLETE),
+        ),
+    )
+    def test_status(self, statuses, expected):
+        """Should return the precedent status from children."""
+
+        reports = [
+            DummyStatusReport(uid=idx, status=status)
+            for idx, status in enumerate(statuses)
+        ]
+        group = DummyReportGroup(entries=reports)
+        assert group.status == expected
+
+    def test_status_no_entries(self):
+        """
+        Should return Status.UNKNOWN when `status_override`
+        is None and report has no entries.
+        """
+        group = DummyReportGroup()
+
+        assert group.status_override is Status.NONE
+        assert group.status == Status.UNKNOWN
+
+    def test_status_override(self):
+        """
+        `status_override` of a group should take
+        precedence over child statuses.
+        """
+        group = DummyReportGroup(
+            entries=[DummyStatusReport(status=Status.FAILED)]
+        )
+
+        assert group.status == Status.FAILED
+
+        group.status_override = Status.PASSED
+
+        assert group.status == Status.PASSED
+
+    def test_merge(self):
+        """
+        Should merge children and set `status_override`
+        using `report.status_override` precedence.
+        """
+        report_orig = DummyReportGroup(uid=1)
+        report_clone = DummyReportGroup(uid=1)
+
+        assert report_orig.status_override is Status.NONE
+
+        report_clone.status_override = Status.PASSED
+
+        with mock.patch.object(report_orig, "merge_entries"):
+            report_orig.merge(report_clone)
+            report_orig.merge_entries.assert_called_once_with(
+                report_clone, strict=True
+            )
+            assert report_orig.status_override == report_clone.status_override
+
+    def test_merge_children_not_strict(self):
+        """
+        Not strict merge should append child entries and update
+        the index if they do not exist in the parent.
+        """
+        child_clone_1 = DummyReport(uid=10)
+        child_clone_2 = DummyReport(uid=20)
+        parent_clone = DummyReportGroup(
+            uid=1, entries=[child_clone_1, child_clone_2]
+        )
+
+        child_orig_1 = DummyReport(uid=10)
+        parent_orig = DummyReportGroup(uid=1, entries=[child_orig_1])
+
+        parent_orig.merge(parent_clone, strict=False)
+        assert parent_orig.entries == [child_orig_1, child_clone_2]
+
+        # Merging a second time should give us the same results
+        parent_orig.merge(parent_clone, strict=False)
+        assert parent_orig.entries == [child_orig_1, child_clone_2]
+
+    def test_hash(self):
+        """
+        Test that a hash is generated for report groups, which depends on the
+        entries they contain.
+        """
+        grand_parent = DummyReportGroup()
+        parent = DummyReportGroup()
+        child = Report(name="testcase")
+
+        orig_root_hash = grand_parent.hash
+
+        grand_parent.append(parent)
+        updated_root_hash = grand_parent.hash
+        assert updated_root_hash != orig_root_hash
+
+        parent.append(child)
+
+        orig_root_hash = updated_root_hash
+        updated_root_hash = grand_parent.hash
+        assert updated_root_hash != orig_root_hash
+
+        child.append({"name": "entry", "passed": True})
+
+        orig_root_hash = updated_root_hash
+        updated_root_hash = grand_parent.hash
+        assert updated_root_hash != orig_root_hash
+
+    def test_hash_merge(self):
+        """
+        Test that the hash is updated after new report entries are merged in.
+        """
+        parent = DummyReportGroup()
+        child = Report(name="testcase")
+        parent.append(child)
+        orig_parent_hash = parent.hash
+
+        parent2 = DummyReportGroup(uid=parent.uid)
+        child2 = Report(name="testcase", uid=child.uid)
+        child2.append({"name": "entry", "passed": True})
+        parent2.append(child2)
+
+        parent.merge(parent2)
+        assert parent.hash != orig_parent_hash
+
 
 def test_report_categories_type():
     assert ReportCategories.MULTITEST == "multitest"
     assert type(ReportCategories.MULTITEST) is str
+
+
+def test_runtime_status_basic_op():
+    assert RuntimeStatus.WAITING < RuntimeStatus.READY
+    assert RuntimeStatus.RESETTING >= RuntimeStatus.RUNNING
+    assert RuntimeStatus.RUNNING.precede(RuntimeStatus.FINISHED)
+    assert RuntimeStatus.NOT_RUN < RuntimeStatus.NONE
+    assert not RuntimeStatus.NONE
+
+    assert RuntimeStatus.NOT_RUN.to_json_compatible() == "not_run"
+    assert (
+        RuntimeStatus.from_json_compatible("not_run") == RuntimeStatus.NOT_RUN
+    )
