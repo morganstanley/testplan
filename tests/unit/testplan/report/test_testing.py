@@ -26,8 +26,8 @@ from testplan.report.testing.base import (
 from testplan.report.testing.schemas import TestReportSchema
 from testplan.testing.result import Result
 
-DummyReport = functools.partial(TestCaseReport, name="dummy")
-DummyReportGroup = functools.partial(BaseReportGroup, name="dummy")
+DummyCaseReport = functools.partial(TestCaseReport, name="dummy")
+DummyGroupReport = functools.partial(TestGroupReport, name="dummy")
 
 
 @disable_log_propagation(report_logger)
@@ -50,6 +50,46 @@ def test_report_exception_logger():
         raise Exception("foo")
 
     assert rep.status_override is Status.ERROR
+
+
+class TestTestGroupReport:
+    def test_hash_merge(self):
+        """
+        Test that the hash is updated after new report entries are merged in.
+        """
+        parent = DummyGroupReport()
+        child = DummyCaseReport(name="testcase")
+        parent.append(child)
+        orig_parent_hash = parent.hash
+
+        parent2 = DummyGroupReport(uid=parent.uid)
+        child2 = DummyCaseReport(name="testcase", uid=child.uid)
+        child2.append({"name": "entry", "passed": True})
+        parent2.append(child2)
+
+        parent.merge(parent2)
+        assert parent.hash != orig_parent_hash
+
+    def test_merge_children_not_strict(self):
+        """
+        Not strict merge should append child entries and update
+        the index if they do not exist in the parent.
+        """
+        child_clone_1 = DummyCaseReport(uid=10)
+        child_clone_2 = DummyCaseReport(uid=20)
+        parent_clone = DummyGroupReport(
+            uid=1, entries=[child_clone_1, child_clone_2]
+        )
+
+        child_orig_1 = DummyCaseReport(uid=10)
+        parent_orig = DummyGroupReport(uid=1, entries=[child_orig_1])
+
+        parent_orig.merge(parent_clone, strict=False)
+        assert parent_orig.entries == [child_orig_1, child_clone_2]
+
+        # Merging a second time should give us the same results
+        parent_orig.merge(parent_clone, strict=False)
+        assert parent_orig.entries == [child_orig_1, child_clone_2]
 
 
 class TestTestCaseReport:

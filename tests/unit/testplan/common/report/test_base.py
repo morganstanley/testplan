@@ -428,7 +428,7 @@ class TestBaseReportGroup:
         grand_parent.append(parent)
         parent.append(child)
 
-        refs = list(grand_parent.pre_order_reports())
+        refs = list(grand_parent.pre_order_iterate())
         parts = list(grand_parent.pre_order_disassemble())
 
         # disassembled in place
@@ -513,27 +513,6 @@ class TestBaseReportGroup:
             )
             assert report_orig.status_override == report_clone.status_override
 
-    def test_merge_children_not_strict(self):
-        """
-        Not strict merge should append child entries and update
-        the index if they do not exist in the parent.
-        """
-        child_clone_1 = DummyReport(uid=10)
-        child_clone_2 = DummyReport(uid=20)
-        parent_clone = DummyReportGroup(
-            uid=1, entries=[child_clone_1, child_clone_2]
-        )
-
-        child_orig_1 = DummyReport(uid=10)
-        parent_orig = DummyReportGroup(uid=1, entries=[child_orig_1])
-
-        parent_orig.merge(parent_clone, strict=False)
-        assert parent_orig.entries == [child_orig_1, child_clone_2]
-
-        # Merging a second time should give us the same results
-        parent_orig.merge(parent_clone, strict=False)
-        assert parent_orig.entries == [child_orig_1, child_clone_2]
-
     def test_hash(self):
         """
         Test that a hash is generated for report groups, which depends on the
@@ -560,23 +539,6 @@ class TestBaseReportGroup:
         orig_root_hash = updated_root_hash
         updated_root_hash = grand_parent.hash
         assert updated_root_hash != orig_root_hash
-
-    def test_hash_merge(self):
-        """
-        Test that the hash is updated after new report entries are merged in.
-        """
-        parent = DummyReportGroup()
-        child = Report(name="testcase")
-        parent.append(child)
-        orig_parent_hash = parent.hash
-
-        parent2 = DummyReportGroup(uid=parent.uid)
-        child2 = Report(name="testcase", uid=child.uid)
-        child2.append({"name": "entry", "passed": True})
-        parent2.append(child2)
-
-        parent.merge(parent2)
-        assert parent.hash != orig_parent_hash
 
 
 def test_report_categories_type():

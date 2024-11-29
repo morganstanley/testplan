@@ -216,9 +216,9 @@ def test_json_exporter_generating_split_report(runpath):
     assert assertions["setup"][0]["type"] == "Log"
     assert assertions["After Start"][0]["type"] == "Log"
 
-    # roundtrip for special values
-    assert math.isnan(assertions["test_special_values"][0]["first"])
-    assert math.isinf(assertions["test_special_values"][1]["first"])
+    # special values representation preserved
+    assert str(assertions["test_special_values"][0]["first"]) == "NaN"
+    assert str(assertions["test_special_values"][1]["first"]) == "-Infinity"
 
 
 def test_implicit_exporter_initialization(runpath):
