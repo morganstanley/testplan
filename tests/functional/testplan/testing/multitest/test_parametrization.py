@@ -1,11 +1,9 @@
 import sys
 import logging
-from contextlib import contextmanager
 from unittest import mock
-from imp import reload
+from importlib import reload
 
 import pytest
-
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.parametrization import (
@@ -24,8 +22,8 @@ from testplan.common.utils.timing import Interval
 LOGGER = logging.getLogger()
 
 
-@contextmanager
-def module_reloaded(mod):
+@pytest.fixture()
+def suite_reloaded():
     """
     If uncaught exception raised, Testplan process should abort. However,
     if the process is managed by PyTest for testing purpose, then the
@@ -33,6 +31,7 @@ def module_reloaded(mod):
     modules still exist in memory, some global variables need to be reset.
     """
     yield
+    mod = "testplan.testing.multitest.suite"
     if mod in sys.modules:
         reload(sys.modules[mod])
 
@@ -214,7 +213,7 @@ def test_combinatorial_parametrization(mockplan):
         ),
     ),
 )
-def test_invalid_parametrization(val, msg):
+def test_invalid_parametrization(suite_reloaded, val, msg):
     """Correct arguments should be passed to parametrized testcases."""
     with pytest.raises(ParametrizationError):
 
@@ -227,7 +226,7 @@ def test_invalid_parametrization(val, msg):
         pytest.fail(msg)
 
 
-def test_duplicate_parametrization_template_definition():
+def test_duplicate_parametrization_template_definition(suite_reloaded):
     """No duplicate name of testcase or parametrization template allowed."""
     with pytest.raises(ValueError):
 
@@ -305,8 +304,8 @@ def test_auto_resolve_name_conflict(mockplan):
         (
             ("a" * MAX_METHOD_NAME_LENGTH, "b" * MAX_METHOD_NAME_LENGTH),
             [
-                "sample_test <val='{}'>".format("a" * MAX_METHOD_NAME_LENGTH),
-                "sample_test <val='{}'>".format("b" * MAX_METHOD_NAME_LENGTH),
+                "sample_test 0",
+                "sample_test 1",
             ],
             ["sample_test__0", "sample_test__1"],
             "Should use original method name + index fallback if"
@@ -451,7 +450,7 @@ def test_custom_name_func(mockplan, name_func, testcase_names):
         ),
     ),
 )
-def test_invalid_name_func(name_func, msg, err):
+def test_invalid_name_func(suite_reloaded, name_func, msg, err):
     """Custom naming function should be correctly defined."""
     with pytest.raises(err):
 

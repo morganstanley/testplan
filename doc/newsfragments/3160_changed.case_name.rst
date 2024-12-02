@@ -1,0 +1,1 @@
+Limit the length of parameterization testcase name to 255 characters. If the name length exceeds 255 characters, index-suffixed names (e.g., ``{func_name} 1``, ``{func_name} 2``) will be used.
