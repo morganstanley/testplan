@@ -217,8 +217,11 @@ def test_json_exporter_generating_split_report(runpath):
     assert assertions["After Start"][0]["type"] == "Log"
 
     # special values representation preserved
-    assert str(assertions["test_special_values"][0]["first"]) == "NaN"
-    assert str(assertions["test_special_values"][1]["first"]) == "-Infinity"
+    # NOTE: these values are of type float in old impl,
+    # NOTE: converted to js repr in cope with json lib change
+    assert assertions["test_special_values"][0]["first"] == "NaN"
+    assert assertions["test_special_values"][1]["first"] == "-Infinity"
+    assert assertions["test_special_values"][1]["second"] == "Infinity"
 
 
 def test_implicit_exporter_initialization(runpath):
