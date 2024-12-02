@@ -1,16 +1,12 @@
-# TODO: move certain tests to tests/unit/testplan/common/report/test_base.py
-
 import functools
 import json
 from collections import OrderedDict
-from unittest import mock
 
 import pytest
 from boltons.iterutils import get_path
 
 from testplan.common import entity
 from testplan.common.report import (
-    BaseReportGroup,
     ReportCategories,
     RuntimeStatus,
     Status,
