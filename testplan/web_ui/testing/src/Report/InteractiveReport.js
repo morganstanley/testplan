@@ -724,16 +724,16 @@ class InteractiveReportComponent extends BaseReport {
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
           extraButtons={[
+            <ReloadButton
+              key="reload-button"
+              reloading={this.state.reloading}
+              reloadCbk={this.reloadCode}
+            />,
             <RunAllButton
               key="runall-button"
               running={this.state.running}
               runAllCbk={this.runAll}
               filter={this.state.filteredReport.filter.text}
-            />,
-            <ReloadButton
-              key="reload-button"
-              reloading={this.state.reloading}
-              reloadCbk={this.reloadCode}
             />,
             <ResetButton
               key="reset-button"
