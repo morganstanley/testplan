@@ -33,6 +33,7 @@ class BaseSchema(Schema):
     category = fields.String()
     flag = fields.String()
     file_path = fields.String()
+    code_context = fields.String()
     custom_style = fields.Dict(keys=fields.String(), values=fields.String())
 
     def load(self, *args, **kwargs):
