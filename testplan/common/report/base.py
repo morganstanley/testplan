@@ -263,8 +263,8 @@ class Report:
         uid: Optional[str] = None,
         entries: Optional[list] = None,
         parent_uids: Optional[List[str]] = None,
-        status_override=None,
-        status_reason=None,
+        status_override: Optional[Status] = None,
+        status_reason: Optional[str] = None,
     ):
         self.name = name
         self.description = description
@@ -434,6 +434,56 @@ class Report:
         return len(self.entries) == len(self.logs) == 0
 
     @property
+    def passed(self) -> bool:
+        """Shortcut for getting if report status should be considered passed."""
+        return self.status.normalised() == Status.PASSED
+
+    @property
+    def failed(self) -> bool:
+        """
+        Shortcut for checking if report status should be considered failed.
+        """
+        return self.status <= Status.FAILED
+
+    @property
+    def unstable(self) -> bool:
+        """
+        Shortcut for checking if report status should be considered unstable.
+        """
+        return self.status.normalised() == Status.UNSTABLE
+
+    @property
+    def unknown(self) -> bool:
+        """
+        Shortcut for checking if report status is unknown.
+        """
+        return self.status.normalised() == Status.UNKNOWN
+
+    @property
+    def status(self) -> Status:
+        """Return the report status."""
+        if self.status_override:
+            return self.status_override
+        return self._status
+
+    @status.setter
+    def status(self, new_status: Status):
+        self._status = new_status
+
+    @property
+    def runtime_status(self) -> RuntimeStatus:
+        """
+        Used for interactive mode, the runtime status of a testcase will be one
+        of ``RuntimeStatus``.
+        """
+        return self._runtime_status
+
+    @runtime_status.setter
+    def runtime_status(self, new_status: RuntimeStatus):
+        """Set the runtime status."""
+        self._runtime_status = new_status
+
+    @property
     def hash(self):
         """Return a hash of all entries in this report."""
         return hash((self.uid, tuple(id(entry) for entry in self.entries)))
@@ -468,34 +518,8 @@ class BaseReportGroup(Report):
         for child in self.entries:
             self.set_parent_uids(child)
 
-    @property
-    def passed(self):
-        """Shortcut for getting if report status should be considered passed."""
-        return self.status.normalised() == Status.PASSED
-
-    @property
-    def failed(self):
-        """
-        Shortcut for checking if report status should be considered failed.
-        """
-        return self.status <= Status.FAILED
-
-    @property
-    def unstable(self):
-        """
-        Shortcut for checking if report status should be considered unstable.
-        """
-        return self.status.normalised() == Status.UNSTABLE
-
-    @property
-    def unknown(self):
-        """
-        Shortcut for checking if report status is unknown.
-        """
-        return self.status.normalised() == Status.UNKNOWN
-
-    @property
-    def status(self):
+    @Report.status.getter
+    def status(self) -> Status:
         """
         Status of the report, will be used to decide
         if a Testplan run has completed successfully or not.
@@ -513,12 +537,8 @@ class BaseReportGroup(Report):
 
         return self._status
 
-    @status.setter
-    def status(self, new_status):
-        self._status = new_status
-
     @property
-    def runtime_status(self):
+    def runtime_status(self) -> RuntimeStatus:
         """
         The runtime status is used for interactive running, and reports
         whether a particular entry is READY, WAITING, RUNNING, RESETTING,
@@ -534,7 +554,7 @@ class BaseReportGroup(Report):
         return self._runtime_status
 
     @runtime_status.setter
-    def runtime_status(self, new_status):
+    def runtime_status(self, new_status: RuntimeStatus):
         """Set the runtime_status of all child entries."""
         for entry in self:
             if entry.category != ReportCategories.SYNTHESIZED:
@@ -635,11 +655,11 @@ class BaseReportGroup(Report):
 
     __delitem__ = remove_by_uid
 
-    def pre_order_reports(self):
+    def pre_order_iterate(self):
         yield self
         for e in self:
             if isinstance(e, BaseReportGroup):
-                yield from e.pre_order_reports()
+                yield from e.pre_order_iterate()
             elif isinstance(e, Report):
                 yield e
 
@@ -961,7 +981,7 @@ class BaseReportGroup(Report):
     ) -> None:
         """
         Alternative setter for the runtime status of an entry. Propagates only
-          to the specified entries.
+        to the specified entries.
 
         :param new_status: new runtime status to be set
         :param entries: tree-like structure of entries names
