@@ -57,12 +57,6 @@ def generate_interactive_api(ihandler):
     api_blueprint = flask.Blueprint("api", "testplan")
     api = flask_restx.Api(api_blueprint)
     app = flask.Flask("testplan", static_folder=static_dir)
-    try:
-        from flask_orjson import OrjsonProvider
-    except ImportError:
-        pass
-    else:
-        app.json = OrjsonProvider(app)
     app.register_blueprint(api_blueprint, url_prefix=api_prefix)
 
     post_export_model = api.model(

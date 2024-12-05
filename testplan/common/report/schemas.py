@@ -4,15 +4,11 @@
 from marshmallow import Schema, fields, post_load
 from marshmallow.utils import EXCLUDE
 
-from testplan.common.report.base import (
-    BaseReportGroup,
-    Report,
-    RuntimeStatus,
-    Status,
-)
 from testplan.common.serialization import fields as custom_fields
 from testplan.common.serialization import schemas
 from testplan.common.utils import timing
+
+from .base import Report, BaseReportGroup, Status, RuntimeStatus
 
 __all__ = ["ReportLogSchema", "ReportSchema", "BaseReportGroupSchema"]
 
@@ -95,14 +91,6 @@ class ReportSchema(schemas.TreeNodeSchema):
         allow_none=True,
     )
     status_reason = fields.String(allow_none=True)
-    status = fields.Function(
-        lambda x: x.status.to_json_compatible(),
-        Status.from_json_compatible,
-    )
-    runtime_status = fields.Function(
-        lambda x: x.runtime_status.to_json_compatible(),
-        RuntimeStatus.from_json_compatible,
-    )
     logs = fields.Nested(ReportLogSchema, many=True)
     hash = fields.Integer(dump_only=True)
     parent_uids = fields.List(fields.String())
@@ -138,6 +126,14 @@ class BaseReportGroupSchema(ReportSchema):
             "BaseReportGroup": lambda: BaseReportGroupSchema(),
         },
         many=True,
+    )
+    status = fields.Function(
+        lambda x: x.status.to_json_compatible(),
+        Status.from_json_compatible,
+    )
+    runtime_status = fields.Function(
+        lambda x: x.runtime_status.to_json_compatible(),
+        RuntimeStatus.from_json_compatible,
     )
     counter = fields.Dict(dump_only=True)
     children = fields.List(fields.Nested(ReportLinkSchema))

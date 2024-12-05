@@ -1,22 +1,23 @@
 """Schema classes for test Reports."""
 
 import functools
-import math
+import json
 
 from boltons.iterutils import is_scalar, remap
 from marshmallow import Schema, fields, post_load
 from marshmallow.utils import EXCLUDE
 
 from testplan.common.report.schemas import (
-    BaseReportGroupSchema,
-    ReportLinkSchema,
-    ReportLogSchema,
     ReportSchema,
+    BaseReportGroupSchema,
+    ReportLogSchema,
     TimerField,
+    ReportLinkSchema,
 )
+
+from testplan.common.report import Status, RuntimeStatus
 from testplan.common.serialization import fields as custom_fields
 from testplan.common.serialization.schemas import load_tree_data
-from testplan.common.utils.json import json_dumps
 from testplan.report.testing.base import (
     TestCaseReport,
     TestGroupReport,
@@ -51,7 +52,7 @@ class EntriesField(fields.Field):
     @staticmethod
     def _json_serializable(v):
         try:
-            json_dumps(v)
+            json.dumps(v, ensure_ascii=True)
         except (UnicodeDecodeError, TypeError):
             return False
         else:
@@ -67,16 +68,8 @@ class EntriesField(fields.Field):
                 False - remove the node
                 tuple - update the node data.
             """
-            if is_scalar(_value):
-                if isinstance(_value, float):
-                    if math.isnan(_value):
-                        return key, "NaN"
-                    elif math.isinf(_value):
-                        if _value > 0:
-                            return key, "Infinity"
-                        return key, "-Infinity"
-                elif not self._json_serializable(_value):
-                    return key, str(_value)
+            if is_scalar(_value) and not self._json_serializable(_value):
+                return key, str(_value)
             return True
 
         return remap(value, visit=visit)
@@ -89,6 +82,14 @@ class TestCaseReportSchema(ReportSchema):
 
     entries = fields.List(EntriesField())
     category = fields.String(dump_only=True)
+    status = fields.Function(
+        lambda x: x.status.to_json_compatible(),
+        Status.from_json_compatible,
+    )
+    runtime_status = fields.Function(
+        lambda x: x.runtime_status.to_json_compatible(),
+        RuntimeStatus.from_json_compatible,
+    )
     counter = fields.Dict(dump_only=True)
     tags = TagField()
 

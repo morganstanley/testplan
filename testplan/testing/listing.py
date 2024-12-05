@@ -10,7 +10,6 @@ from os import PathLike
 from typing import TYPE_CHECKING, List, Tuple, Union
 from urllib.parse import urlparse
 
-from testplan.common.utils.json import json_dumps
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.parser import ArgMixin
 from testplan.testing import tagging
@@ -308,7 +307,7 @@ class SimpleJsonLister(MetadataBasedLister):
     )
 
     def get_output(self, metadata: TestPlanMetadata):
-        return json_dumps(dataclasses.asdict(metadata), indent_2=True)
+        return json.dumps(dataclasses.asdict(metadata), indent=2)
 
 
 class ListingRegistry:

@@ -1,9 +1,9 @@
+import json
 import os
 
 from schema import Or
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.json import json_loads
 from testplan.report import (
     ReportCategories,
     RuntimeStatus,
@@ -94,7 +94,7 @@ class HobbesTest(ProcessRunnerTest):
         :rtype: ``dict`` ot ``list``
         """
         with open(self.report_path) as report_file:
-            return json_loads(report_file.read())
+            return json.load(report_file)
 
     def process_test_data(self, test_data):
         """
