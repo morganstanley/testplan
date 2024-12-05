@@ -901,6 +901,14 @@ class Test(Runnable):
             return False
         return self.cfg.driver_info
 
+    @property
+    def collect_code_context(self) -> bool:
+        """
+        Collecting the file path, line number and code context of the assertions
+        if enabled.
+        """
+        return getattr(self.cfg, "collect_code_context", False)
+
 
 class ProcessRunnerTestConfig(TestConfig):
     """

@@ -30,7 +30,7 @@ from testplan.testing.common import (
 )
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
-from testplan.testing.result import report_target
+from testplan.testing.result import report_target, collect_code_context
 from testplan.testing.multitest.suite import (
     get_suite_metadata,
     get_testcase_metadata,
@@ -1157,6 +1157,9 @@ class MultiTest(testing_base.Test):
                     None,
                 ),
             )
+
+        if self.cfg.collect_code_context:
+            testcase = collect_code_context(func=testcase)
 
         # specially handle skipped testcases
         if hasattr(testcase, "__should_skip__"):

@@ -499,6 +499,14 @@ that match ALL of the given tags.
             help="Display drivers setup / teardown timing and interconnection information in UI report.",
         )
 
+        report_group.add_argument(
+            "--code",
+            dest="collect_code_context",
+            action="store_true",
+            default=self._default_options["collect_code_context"],
+            help="Collects file path, line number and code context of the assertions.",
+        )
+
         self.add_arguments(parser)
         return parser
 

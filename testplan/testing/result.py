@@ -113,6 +113,14 @@ class ExceptionCapture:
 assertion_state = threading.local()
 
 
+def collect_code_context(func: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        assertion_state.collect_code_context = True
+        func(*args, **kwargs)
+
+    return wrapper
+
+
 def report_target(func: Callable, ref_func: Callable = None) -> Callable:
     """
     Sets the decorated function's filepath and line-range in assertion state.
@@ -165,7 +173,10 @@ def assertion(func: Callable) -> Callable:
             custom_style = kwargs.pop("custom_style", None)
             dryrun = kwargs.pop("dryrun", False)
             entry = func(result, *args, **kwargs)
-            if top_assertion:
+            if not top_assertion:
+                return entry
+
+            if getattr(assertion_state, "collect_code_context", False):
                 with MOD_LOCK:
                     call_stack = inspect.stack()
                     try:
@@ -183,34 +194,35 @@ def assertion(func: Callable) -> Callable:
                                 frame = call_stack[1]
                         entry.file_path = os.path.abspath(frame.filename)
                         entry.line_no = frame.lineno
+                        entry.code_context = frame.code_context[0].strip()
                     finally:
                         # https://docs.python.org/3/library/inspect.html
                         del frame
                         del call_stack
 
-                if custom_style is not None:
-                    if not isinstance(custom_style, dict):
-                        raise TypeError(
-                            "Use `dict[str, str]` to specify custom CSS style"
-                        )
-                    entry.custom_style = custom_style
+            if custom_style is not None:
+                if not isinstance(custom_style, dict):
+                    raise TypeError(
+                        "Use `dict[str, str]` to specify custom CSS style"
+                    )
+                entry.custom_style = custom_style
 
-                assert isinstance(result, AssertionNamespace) or isinstance(
-                    result, Result
-                ), "Incorrect usage of assertion decorator"
+            assert isinstance(result, AssertionNamespace) or isinstance(
+                result, Result
+            ), "Incorrect usage of assertion decorator"
 
-                if isinstance(result, AssertionNamespace):
-                    result = result.result
+            if isinstance(result, AssertionNamespace):
+                result = result.result
 
-                if not dryrun:
-                    result.entries.append(entry)
+            if not dryrun:
+                result.entries.append(entry)
 
-                stdout_registry.log_entry(
-                    entry=entry, stdout_style=result.stdout_style
-                )
+            stdout_registry.log_entry(
+                entry=entry, stdout_style=result.stdout_style
+            )
 
-                if not entry and not result.continue_on_failure:
-                    raise AssertionError(entry)
+            if not entry and not result.continue_on_failure:
+                raise AssertionError(entry)
 
             return entry
         finally:
