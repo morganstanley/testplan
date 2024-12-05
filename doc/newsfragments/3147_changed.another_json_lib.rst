@@ -1,1 +1,0 @@
-Use a new JSON library ``orjson`` to improve performance when using Python 3.8 or later versions.

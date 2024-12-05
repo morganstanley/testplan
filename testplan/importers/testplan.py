@@ -1,11 +1,11 @@
 """
 Implements one-phase importer for Testplan JSON format.
 """
+import json
 from typing import List
 
-from testplan.common.utils.json import json_loads
-from testplan.importers import ImportedResult, ResultImporter
-from testplan.report import ReportCategories, TestGroupReport, TestReport
+from testplan.importers import ResultImporter, ImportedResult
+from testplan.report import TestGroupReport, TestReport, ReportCategories
 from testplan.report.testing.schemas import TestReportSchema
 
 
@@ -41,7 +41,7 @@ class TestplanResultImporter(ResultImporter):
     def import_result(self) -> ImportedResult:
         """ """
         with open(self.path) as fp:
-            result_json = json_loads(fp.read())
+            result_json = json.load(fp)
             result = self.schema.load(result_json)
 
             return TestplanImportedResult(result)

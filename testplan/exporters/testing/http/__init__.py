@@ -3,6 +3,7 @@ HTTP exporter for uploading test reports via HTTP transmission. The web server
 must be able to handle POST request and receive data in JSON format.
 """
 
+import json
 from typing import Any, Tuple, Union, Optional, Dict
 
 import requests
@@ -14,11 +15,17 @@ from testplan.common.exporters import (
     ExportContext,
     verify_export_context,
 )
-from testplan.common.utils.json import json_dumps
 from testplan.common.utils.validation import is_valid_url
 from testplan.report import TestReport
 from testplan.report.testing.schemas import TestReportSchema
 from ..base import Exporter
+
+
+class CustomJsonEncoder(json.JSONEncoder):
+    """To jsonify data that cannot be serialized by default JSONEncoder."""
+
+    def default(self, obj: Any) -> str:  # pylint: disable = method-hidden
+        return str(obj)
 
 
 class HTTPExporterConfig(ExporterConfig):
@@ -76,7 +83,7 @@ class HTTPExporter(Exporter):
                 response = requests.post(
                     url=url,
                     headers=headers,
-                    data=json_dumps(data, default=str),
+                    data=json.dumps(data, cls=CustomJsonEncoder),
                     timeout=self.cfg.timeout,
                 )
                 response.raise_for_status()

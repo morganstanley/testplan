@@ -66,9 +66,7 @@
         "typing_extensions",
         "dill",
         "gherkin-official==4.1.3",
-        "parse",
-        "orjson; python_version>='3.8'",
-        "flask-orjson; python_version>='3.8'"
+        "parse"
     ]
     requires-python = ">=3.7"
 
