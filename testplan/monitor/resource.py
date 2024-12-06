@@ -1,7 +1,6 @@
 import os
 import csv
 import time
-import json
 import socket
 import pathlib
 import asyncio
@@ -16,6 +15,7 @@ import multiprocessing
 from typing import Dict, Optional, Union, TextIO, NamedTuple
 from testplan.defaults import RESOURCE_META_FILE_NAME
 from testplan.common.utils.path import pwd
+from testplan.common.utils.json import json_dumps, json_loads
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.logger import LOGFILE_FORMAT
 from testplan.common.utils.timing import wait
@@ -345,7 +345,7 @@ class ResourceMonitorServer:
             with open(
                 self.file_directory / f"{slugify(client_id)}.meta", "w"
             ) as f:
-                json.dump(message.data, f)
+                f.write(json_dumps(message.data))
         elif message.cmd == communication.Message.Message:
             self.logger.info("Received resource data from %s.", client_id)
             if client_id not in self._file_handler:
@@ -463,7 +463,7 @@ class ResourceMonitorServer:
                     )
             json_file_path = self.file_directory / f"{slugify(client_id)}.json"
             with open(json_file_path, "w") as json_file:
-                json.dump(resource_data, json_file)
+                json_file.write(json_dumps(resource_data))
             return {
                 "resource_file": str(json_file_path.resolve()),
                 "max_cpu": max(resource_data["cpu"]),
@@ -478,7 +478,7 @@ class ResourceMonitorServer:
         resource_info = []
         for host_meta_path in self.file_directory.glob("*.meta"):
             with open(host_meta_path) as meta_file:
-                meta = json.load(meta_file)
+                meta = json_loads(meta_file.read())
             summary_data = self.normalize_data(meta["uid"])
             if summary_data:
                 meta.update(summary_data)
@@ -488,7 +488,7 @@ class ResourceMonitorServer:
                 resource_info.append(meta)
         meta_file_path = self.file_directory / RESOURCE_META_FILE_NAME
         with open(meta_file_path, "w") as meta_file:
-            json.dump({"entries": resource_info}, meta_file)
+            meta_file.write(json_dumps({"entries": resource_info}))
         return str(meta_file_path.resolve())
 
     def start(self, timeout=5):

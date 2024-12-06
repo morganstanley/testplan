@@ -35,27 +35,18 @@ function prepareLogContent(assertion, defaultContent) {
   let decodedMsg = null;
 
   if (assertion.message !== undefined) {
-    let bytearray;
-    if (
-      typeof assertion.message === "object" &&
-      typeof (bytearray = assertion.message["_BYTES_KEY"]) !== "undefined" &&
-      Array.isArray(bytearray)
-    ) {
-      decodedMsg = bytearray.length ? String.fromCodePoint(...bytearray) : "";
-    } else {
-      decodedMsg = (
-        <Linkify
-          options={{
-            target: "_blank",
-            validate: {
-              url: (value) => /^https?:\/\//.test(value),
-            },
-          }}
-        >
-          {assertion.message}
-        </Linkify>
-      );
-    }
+    decodedMsg = (
+      <Linkify
+        options={{
+          target: "_blank",
+          validate: {
+            url: (value) => /^https?:\/\//.test(value),
+          },
+        }}
+      >
+        {assertion.message}
+      </Linkify>
+    );
   }
 
   const preContent = <pre>{decodedMsg}</pre>;
@@ -246,27 +237,18 @@ function prepareFailContent(assertion, defaultContent) {
   let decodedMsg = null;
 
   if (assertion.message !== undefined) {
-    let bytearray;
-    if (
-      typeof assertion.message === "object" &&
-      typeof (bytearray = assertion.message["_BYTES_KEY"]) !== "undefined" &&
-      Array.isArray(bytearray)
-    ) {
-      decodedMsg = bytearray.length ? String.fromCodePoint(...bytearray) : "";
-    } else {
-      decodedMsg = (
-        <Linkify
-          options={{
-            target: "_blank",
-            validate: {
-              url: (value) => /^https?:\/\//.test(value),
-            },
-          }}
-        >
-          {assertion.message}
-        </Linkify>
-      );
-    }
+    decodedMsg = (
+      <Linkify
+        options={{
+          target: "_blank",
+          validate: {
+            url: (value) => /^https?:\/\//.test(value),
+          },
+        }}
+      >
+        {assertion.message}
+      </Linkify>
+    );
   }
 
   const preContent = <pre>{decodedMsg}</pre>;

@@ -50,12 +50,12 @@ from typing import Dict, Optional
 from typing_extensions import Self
 
 from testplan.common.report import (
-    Status,
-    RuntimeStatus,
-    ReportCategories,
+    BaseReportGroup,
     ExceptionLogger,
     Report,
-    BaseReportGroup,
+    ReportCategories,
+    RuntimeStatus,
+    Status,
 )
 from testplan.testing import tagging
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
@@ -461,7 +461,7 @@ class TestGroupReport(BaseReportGroup):
         _wrap = lambda s: TEST_PART_PATTERN_FORMAT_STRING.format(
             s, self.part[0], self.part[1]
         )
-        for e in self.pre_order_reports():
+        for e in self.pre_order_iterate():
             if (
                 isinstance(e, TestCaseReport)
                 and e.category == ReportCategories.SYNTHESIZED
@@ -503,33 +503,7 @@ class TestCaseReport(Report):
             "tags_index",
         ]
 
-    @property
-    def passed(self) -> bool:
-        """Shortcut for getting if report status should be considered passed."""
-        return self.status.normalised() == Status.PASSED
-
-    @property
-    def failed(self) -> bool:
-        """
-        Shortcut for checking if report status should be considered failed.
-        """
-        return self.status <= Status.FAILED
-
-    @property
-    def unstable(self) -> bool:
-        """
-        Shortcut for checking if report status should be considered unstable.
-        """
-        return self.status.normalised() == Status.UNSTABLE
-
-    @property
-    def unknown(self) -> bool:
-        """
-        Shortcut for checking if report status is unknown.
-        """
-        return self.status.normalised() == Status.UNKNOWN
-
-    @property
+    @Report.status.getter
     def status(self) -> Status:
         """
         Entries in this context correspond to serialized (raw)
@@ -545,19 +519,7 @@ class TestCaseReport(Report):
 
         return self._status
 
-    @status.setter
-    def status(self, new_status):
-        self._status = new_status
-
-    @property
-    def runtime_status(self):
-        """
-        Used for interactive mode, the runtime status of a testcase may be one
-        of ``RuntimeStatus``.
-        """
-        return self._runtime_status
-
-    @runtime_status.setter
+    @Report.runtime_status.setter
     def runtime_status(self, new_status):
         """
         Set the runtime status. As a special case, when a testcase is re-run
