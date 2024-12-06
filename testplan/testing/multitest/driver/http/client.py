@@ -195,7 +195,7 @@ class HTTPClient(Driver):
             args=(method, api, drop_response, self.timeout),
             kwargs=kwargs,
         )
-        request_thread.setDaemon(True)
+        request_thread.daemon = True
         request_thread.start()
         self.request_threads.append((request_thread, drop_response))
 
