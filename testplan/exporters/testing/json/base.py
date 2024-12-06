@@ -4,7 +4,6 @@ for `dict` serialization and JSON conversion.
 """
 
 import hashlib
-import json
 import os
 import pathlib
 
@@ -17,6 +16,7 @@ from testplan.common.exporters import (
     ExportContext,
     verify_export_context,
 )
+from testplan.common.utils.json import json_dumps, json_loads
 from testplan.common.utils.path import makedirs
 from testplan.defaults import ATTACHMENTS, RESOURCE_DATA
 from testplan.report.testing.base import TestReport, TestCaseReport
@@ -60,7 +60,7 @@ def save_resource_data(
 ) -> pathlib.Path:
     directory.mkdir(parents=True, exist_ok=True)
     with open(report.resource_meta_path) as meta_file:
-        meta_info = json.load(meta_file)
+        meta_info = json_loads(meta_file.read())
     for host_meta in meta_info["entries"]:
         if "resource_file" in host_meta:
             dist_path = (
@@ -70,7 +70,7 @@ def save_resource_data(
             host_meta["resource_file"] = dist_path.name
     meta_path = directory / pathlib.Path(report.resource_meta_path).name
     with open(meta_path, "w") as meta_file:
-        json.dump(meta_info, meta_file)
+        meta_file.write(json_dumps(meta_info))
     return meta_path
 
 
@@ -172,9 +172,9 @@ class JSONExporter(Exporter):
                 attachments_dir.mkdir(parents=True, exist_ok=True)
 
                 with open(structure_filepath, "w") as json_file:
-                    json.dump(structure, json_file)
+                    json_file.write(json_dumps(structure))
                 with open(assertions_filepath, "w") as json_file:
-                    json.dump(assertions, json_file)
+                    json_file.write(json_dumps(assertions))
 
                 meta["attachments"] = save_attachments(
                     report=source, directory=attachments_dir
@@ -190,7 +190,7 @@ class JSONExporter(Exporter):
                 meta["assertions_file"] = assertions_filename
 
                 with open(json_path, "w") as json_file:
-                    json.dump(meta, json_file)
+                    json_file.write(json_dumps(meta))
             else:
                 data["attachments"] = save_attachments(
                     report=source, directory=attachments_dir
@@ -198,7 +198,7 @@ class JSONExporter(Exporter):
                 data["version"] = 1
 
                 with open(json_path, "w") as json_file:
-                    json.dump(data, json_file)
+                    json_file.write(json_dumps(data))
 
             self.logger.user_info("JSON generated at %s", json_path)
             result = {"json": self.cfg.json_path}
