@@ -61,7 +61,6 @@
         "pandas", # required by plotly.express
         "rpyc",
         "matplotlib",
-        "memoization",
         "coverage",
         "typing_extensions",
         "dill",
