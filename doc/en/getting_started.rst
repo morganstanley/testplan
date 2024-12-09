@@ -76,7 +76,7 @@ Also find all our downloadable examples :ref:`here <download>`.
 
 Working with the source
 -----------------------
- 
+
 You will need a working python 3.7+ interrpreter preferably a venv, and for the interactive ui you need node installed. 
 We are using `doit <https://pydoit.org/contents.html>`_ as the taskrunner ``doit list`` can show all the commands.
 
@@ -85,10 +85,10 @@ We are using `doit <https://pydoit.org/contents.html>`_ as the taskrunner ``doit
     git clone https://github.com/morganstanley/testplan.git
     cd testplan
 
-    # install all dev requirements
-    pip install -r requirements-txt  # this install testplan in editable mode
+    # install testplan in editable mode & all dev requirements
+    pip install -e .
 
-    #build the interactive UI (if you do not like it is opening a browserwindow remove the `-o`)
+    # build the interactive UI (if you do not like it is opening a browserwindow remove the `-o`)
     doit build_ui -o
 
 Internal tests

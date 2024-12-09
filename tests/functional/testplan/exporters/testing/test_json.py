@@ -1,6 +1,7 @@
 """Test the JSON exporter."""
 import copy
 import json
+import math
 import os
 import pathlib
 import tempfile
@@ -32,6 +33,11 @@ class Alpha:
             tmpfile.write("testplan\n" * 100)
 
         result.attach(tmpfile.name)
+
+    @multitest.testcase
+    def test_special_values(self, env, result):
+        result.ne(float("nan"), float("nan"))
+        result.lt(float("-inf"), float("inf"))
 
 
 @multitest.testsuite
@@ -178,8 +184,8 @@ def test_json_exporter_generating_split_report(runpath):
     assert len(structure[0]["entries"]) == 1  # one suite in 1st multitest
     assert structure[0]["entries"][0]["name"] == "Alpha"  # 1st suite name
     assert (
-        len(structure[0]["entries"][0]["entries"]) == 4
-    )  # 3 testcases, 1 synthesized
+        len(structure[0]["entries"][0]["entries"]) == 5
+    )  # 4 testcases, 1 synthesized
     assert (
         len(structure[0]["entries"][0]["entries"][2]["entries"]) == 3
     )  # 3 parametrized testcases
@@ -194,7 +200,7 @@ def test_json_exporter_generating_split_report(runpath):
     assert structure[1]["entries"][1]["name"] == "Beta"  # 1st suite name
     assert len(structure[1]["entries"][1]["entries"]) == 2  # 2 testcases
 
-    assert len(assertions) == 9  # 9 assertions in total
+    assert len(assertions) == 10  # 10 cases in total
     # only one assertion in each testcase in suite `Alpha`
     assert assertions["test_comparison"][0]["type"] == "Equal"
     assert assertions["test_membership__arg_1"][0]["type"] == "Contain"
@@ -209,6 +215,13 @@ def test_json_exporter_generating_split_report(runpath):
     # 2 assertions in synthesized cases, i.e. custom hooks
     assert assertions["setup"][0]["type"] == "Log"
     assert assertions["After Start"][0]["type"] == "Log"
+
+    # special values representation preserved
+    # NOTE: these values are of type float in old impl,
+    # NOTE: converted to js repr in cope with json lib change
+    assert assertions["test_special_values"][0]["first"] == "NaN"
+    assert assertions["test_special_values"][1]["first"] == "-Infinity"
+    assert assertions["test_special_values"][1]["second"] == "Infinity"
 
 
 def test_implicit_exporter_initialization(runpath):

@@ -454,7 +454,7 @@ class HTTPServer(Driver):
             timeout=self.timeout,
             logger=self.logger,
         )
-        self._server_thread.setName(self.name)
+        self._server_thread.name = self.name
         self._server_thread.start()
 
         while not hasattr(self._server_thread.server, "server_port"):

@@ -1,7 +1,4 @@
-from jsonschema.cli import parse_args
-
 from testplan import TestplanMock
-from testplan.parser import TestplanParser
 from testplan.testing.listing import SimpleJsonLister, NameLister
 
 
