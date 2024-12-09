@@ -24,37 +24,6 @@ from testplan.report.testing.schemas import TestReportSchema
 from ..base import Exporter
 
 
-def save_attachments(report: TestReport, directory: str) -> Dict[str, str]:
-    """
-    Saves the report attachments to the given directory.
-
-    :param report: Testplan report.
-    :param directory: directory to save attachments in
-    :return: dictionary of destination paths
-    """
-    moved_attachments = {}
-    attachments = getattr(report, "attachments", None)
-    if attachments:
-        for dst, src in attachments.items():
-            src = pathlib.Path(src)
-            dst_path = pathlib.Path(directory) / dst
-            makedirs(dst_path.parent)
-            if not src.is_file():
-                dirname = src.parent
-                # Try retrieving the file from "_attachments" directory that is
-                # near to the test report, the downloaded report might be moved
-                src = pathlib.Path.cwd() / ATTACHMENTS / dst
-                if not src.is_file():
-                    raise FileNotFoundError(
-                        f'Attachment "{dst}" not found in either {dirname} or'
-                        f' the nearest "{ATTACHMENTS}" directory of test report'
-                    )
-            copyfile(src=src, dst=dst_path)
-            moved_attachments[dst] = str(dst_path)
-
-    return moved_attachments
-
-
 def save_resource_data(
     report: TestReport, directory: pathlib.Path
 ) -> pathlib.Path:
@@ -176,8 +145,9 @@ class JSONExporter(Exporter):
                 with open(assertions_filepath, "w") as json_file:
                     json.dump(assertions, json_file)
 
-                meta["attachments"] = save_attachments(
-                    report=source, directory=attachments_dir
+                meta["attachments"] = self.save_attachments(
+                    report=source,
+                    directory=attachments_dir,
                 )
                 meta["version"] = 2
                 meta["attachments"][structure_filename] = str(
@@ -192,8 +162,9 @@ class JSONExporter(Exporter):
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
             else:
-                data["attachments"] = save_attachments(
-                    report=source, directory=attachments_dir
+                data["attachments"] = self.save_attachments(
+                    report=source,
+                    directory=attachments_dir,
                 )
                 data["version"] = 1
 
@@ -207,6 +178,41 @@ class JSONExporter(Exporter):
                 "Skipping JSON creation for empty report: %s", source.name
             )
         return result
+
+    def save_attachments(
+        self, report: TestReport, directory: str
+    ) -> Dict[str, str]:
+        """
+        Saves the report attachments to the given directory.
+
+        :param report: Testplan report.
+        :param directory: directory to save attachments in
+        :return: dictionary of destination paths
+        """
+        moved_attachments = {}
+        attachments = getattr(report, "attachments", None)
+        if attachments:
+            for dst, src in attachments.items():
+                src = pathlib.Path(src)
+                dst_path = pathlib.Path(directory) / dst
+                makedirs(dst_path.parent)
+                if not src.is_file():
+                    dirname = src.parent
+                    # Try retrieving the file from "_attachments" directory that is
+                    # near to the test report, the downloaded report might be moved
+                    src = pathlib.Path.cwd() / ATTACHMENTS / dst
+                    if not src.is_file():
+                        self.logger.warning(
+                            'Attachment "%s" not found in either %s or the nearest "%s" directory of test report',
+                            dst,
+                            dirname,
+                            ATTACHMENTS,
+                        )
+                        continue
+                copyfile(src=src, dst=dst_path)
+                moved_attachments[dst] = str(dst_path)
+
+        return moved_attachments
 
     @staticmethod
     def split_json_report(data):
