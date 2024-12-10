@@ -1158,7 +1158,7 @@ class MultiTest(testing_base.Test):
                 ),
             )
 
-        if self.cfg.collect_code_context:
+        if getattr(self.cfg, "collect_code_context", False):
             testcase = collect_code_context(func=testcase)
 
         # specially handle skipped testcases
