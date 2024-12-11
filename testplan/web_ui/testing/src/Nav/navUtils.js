@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TagList from "./TagList";
 import Column from "./Column";
 import CommonStyles, { statusStyles } from "../Common/Styles.js";
+import { STATUS_CATEGORY } from "../Common/defaults.js";
 import { navStyles } from "../Common/Styles";
 import {
   generateURLWithParameters,
@@ -304,7 +305,7 @@ const GetStatusIcon = (status) => (
     <FontAwesomeIcon
       title={status}
       size="sm"
-      icon={statusStyles[status].icon}
+      icon={statusStyles[STATUS_CATEGORY[status]].icon}
       className={css(navStyles.icon)}
     />
   </span>
