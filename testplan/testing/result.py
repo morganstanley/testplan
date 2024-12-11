@@ -116,6 +116,11 @@ assertion_state = threading.local()
 
 
 def collect_code_context(func: Callable) -> Callable:
+    """
+    Sets the decorated function to collect code context
+    """
+
+    @wraps(func)
     def wrapper(*args, **kwargs):
         assertion_state.collect_code_context = True
         func(*args, **kwargs)
