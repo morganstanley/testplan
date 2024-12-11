@@ -153,7 +153,7 @@ class TestReportSchema(BaseReportGroupSchema):
     meta = fields.Dict()
     label = fields.String(allow_none=True)
     tags_index = TagField(dump_only=True)
-    information = fields.List(fields.List(fields.String()))
+    information = fields.List(fields.Tuple([fields.String(), fields.String()]))
     resource_meta_path = fields.String(dump_only=True, allow_none=True)
     counter = fields.Dict(dump_only=True)
 

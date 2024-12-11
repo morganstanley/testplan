@@ -418,6 +418,7 @@ class TestRunner(Runnable):
             uid=self.cfg.name,
             timeout=self.cfg.timeout,
             label=self.cfg.label,
+            information=[("testplan_version", self.get_testplan_version())],
         )
         self._exporters = None
         self._web_server_thread = None
@@ -439,6 +440,12 @@ class TestRunner(Runnable):
 
     def __str__(self):
         return f"Testplan[{self.uid()}]"
+
+    @staticmethod
+    def get_testplan_version():
+        import testplan
+
+        return testplan.__version__
 
     @property
     def report(self) -> TestReport:
