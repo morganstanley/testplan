@@ -1,0 +1,1 @@
+``JSONExporter`` will log a "file not found" warning in the log instead of raising an exception.

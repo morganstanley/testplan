@@ -204,7 +204,7 @@ def instantiate(template, values, destination):
             try:
                 target.write(render(source.read(), values))
             except UnicodeDecodeError:
-                shutil.copy(template, destination)
+                shutil.copyfile(template, destination)
             except Exception as exc:
                 raise Exception(
                     "On reading/writing template: {} - of file {}".format(
