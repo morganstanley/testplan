@@ -206,6 +206,9 @@ class TestReport:
         json_report[
             "runtime_status"
         ] = report.RuntimeStatus.RUNNING.to_json_compatible()
+        json_report["information"] = [
+            list(t) for t in json_report["information"]
+        ]
         rsp = client.put("/api/v1/interactive/report", json=json_report)
         assert rsp.status_code == 200
 

@@ -17,7 +17,7 @@ from .strings import slugify
 VAR_TMP = os.path.join(os.sep, "var", "tmp")
 
 
-@lru_cache
+@lru_cache(None)
 def fix_home_prefix(path):
     """
     Try to replace a real path (/a/path/user) with a symlink
