@@ -146,6 +146,8 @@ class Testplan(entity.RunnableManager):
         categorize or classify similar reports .
     :param driver_info: Display driver setup / teardown time and driver
         interconnection information in UI report.
+    :param collect_code_context: Collects the file path, line number and code
+        context of the assertions.
     """
 
     CONFIG = TestplanConfig
@@ -194,6 +196,7 @@ class Testplan(entity.RunnableManager):
         extra_deps: Optional[List[Union[str, ModuleType]]] = None,
         label: Optional[str] = None,
         driver_info: bool = False,
+        collect_code_context: bool = False,
         auto_part_runtime_limit: int = defaults.AUTO_PART_RUNTIME_LIMIT,
         plan_runtime_target: int = defaults.PLAN_RUNTIME_TARGET,
         **options,
@@ -256,6 +259,7 @@ class Testplan(entity.RunnableManager):
             extra_deps=extra_deps,
             label=label,
             driver_info=driver_info,
+            collect_code_context=collect_code_context,
             auto_part_runtime_limit=auto_part_runtime_limit,
             plan_runtime_target=plan_runtime_target,
             **options,
@@ -401,6 +405,7 @@ class Testplan(entity.RunnableManager):
         extra_deps=None,
         label=None,
         driver_info=False,
+        collect_code_context=False,
         auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_LIMIT,
         plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         **options,
@@ -462,6 +467,7 @@ class Testplan(entity.RunnableManager):
                     extra_deps=extra_deps,
                     label=label,
                     driver_info=driver_info,
+                    collect_code_context=collect_code_context,
                     auto_part_runtime_limit=auto_part_runtime_limit,
                     plan_runtime_target=plan_runtime_target,
                     **options,

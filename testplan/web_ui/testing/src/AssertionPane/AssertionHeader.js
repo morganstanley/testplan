@@ -12,6 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Button from "@material-ui/core/Button";
 import Linkify from "linkify-react";
+import { getWorkspacePath } from "../Common/utils";
 
 library.add(faLayerGroup);
 
@@ -35,6 +36,7 @@ function AssertionHeader({
   const [isUTCTooltipOpen, setIsUTCTooltipOpen] = useState(false);
   const [isPathTooltipOpen, setIsPathTooltipOpen] = useState(false);
   const [isDurationTooltipOpen, setIsDurationTooltipOpen] = useState(false);
+  const [is1LinerTooltipOpen, setIs1LinerTooltipOpen] = useState(false);
 
   /**
    * Toggle the visibility of tooltip of file path.
@@ -55,6 +57,13 @@ function AssertionHeader({
    */
   const toggleDurationTooltip = () => {
     setIsDurationTooltipOpen(!isDurationTooltipOpen);
+  };
+
+  /**
+   * Toggle the visibility of tooltip of duration between assertions.
+   */
+  const toggle1LinerTooltip = () => {
+    setIs1LinerTooltipOpen(!is1LinerTooltipOpen);
   };
 
   const cardHeaderColorStyle =
@@ -131,15 +140,13 @@ function AssertionHeader({
       </>
     );
 
-  let pathButton = displayPath ? (
+  const pathButton = assertion.file_path && assertion.line_no ? (
     <>
       <Button
-        size="small"
-        className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
+        className={css(styles.pathButton)}
         onClick={() => {
           navigator.clipboard.writeText(getPath(assertion));
         }}
-        style={{ order: 6, marginLeft: "10px" }}
       >
         <span
           id={`tooltip_path_${uid}`}
@@ -152,13 +159,55 @@ function AssertionHeader({
         isOpen={isPathTooltipOpen}
         target={`tooltip_path_${uid}`}
         toggle={togglePathTooltip}
+        style={{maxWidth: "400px"}}
       >
         {getPath(assertion)}
+      </Tooltip>
+      <br></br>
+    </>
+  ) : (
+    <></>
+  );
+
+  const oneLiner = assertion?.code_context ? (
+    <>
+      <span 
+        id={`tooltip_1liner_${uid}`}
+        className={css(styles.cardHeader1liner)}
+      >
+        {assertion.code_context}
+      </span>
+      <Tooltip
+        isOpen={is1LinerTooltipOpen}
+        target={`tooltip_1liner_${uid}`}
+        toggle={toggle1LinerTooltip}
+        style={{maxWidth: "400px"}}
+      >
+        {assertion.code_context}
       </Tooltip>
     </>
   ) : (
     <></>
   );
+
+  const codeContext = displayPath ? (
+    <>
+      <div
+        className={css(
+          styles.cardHeaderCode, styles.cardHeaderAlignRight, styles.timeInfo
+        )}
+        style={{ order: 6, marginLeft: "10px" }}
+      >
+        <span>
+          {pathButton}
+          {oneLiner}
+        </span>
+      </div>
+    </>
+  ) : (
+    <></>
+  );
+
 
   const description = assertion.description ? (
     assertion.type === "Log" ? (
@@ -200,6 +249,8 @@ function AssertionHeader({
             order: 4,
             flexGrow: 4,
             padding: ".125rem 0.75rem",
+            display: "flex",
+            alignItems: "center",
             ...assertion.custom_style,
           }}
         >
@@ -208,7 +259,7 @@ function AssertionHeader({
           <span>({assertion.type})</span>
         </span>
         {component}
-        {pathButton}
+        {codeContext}
         {/*
           TODO will be implemented when complete permalink feature
           linkIcon
@@ -234,7 +285,11 @@ const renderPath = (assertion) => {
         <span className={css(styles.icon)}>
           <i className="fa fa-copy fa-s"></i>
         </span>
-        <div className={css(styles.cardHeaderPath)}>{getPath(assertion)}</div>
+        <div className={css(styles.cardHeaderPath)}>
+          <span className={css(styles.cardHeaderPathInner)}>
+            {getWorkspacePath(getPath(assertion))}
+          </span>
+        </div>
       </>
     );
   }
@@ -286,7 +341,7 @@ const styles = StyleSheet.create({
 
   cardHeaderPath: {
     float: "right",
-    fontSize: "small",
+    //fontSize: "smaller",
     maxWidth: "400px",
     "-webkit-line-clamp": 1,
     "-webkit-box-orient": "vertical",
@@ -295,6 +350,39 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     textOverflow: "ellipsis",
     textTransform: "none",
+  },
+
+  cardHeader1liner: {
+    float: "right",
+    maxWidth: "400px",
+    "-webkit-line-clamp": 1,
+    "-webkit-box-orient": "vertical",
+    "white-space": "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    textTransform: "none",
+  },
+
+  pathButton: {
+    padding: "0px",
+    fontFamily: "inherit",
+    fontSize: "inherit",
+    lineHeight: "0.8rem",
+    letterSpacing: "normal",
+  },
+
+  cardHeaderPathInner: {
+    unicodeBidi: "plaintext",
+  },
+
+  cardHeaderCode: {
+    display: "flex",
+    alignItems: "center",
+    textAlign: "right",
+    whiteSpace: "pre-wrap",
+    fontFamily: "monospace",
+    opacity: "80%",
+    lineHeight: "0.8rem",
   },
 
   collapseDiv: {

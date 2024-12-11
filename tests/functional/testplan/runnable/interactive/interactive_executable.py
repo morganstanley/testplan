@@ -447,7 +447,13 @@ def main():
             module_info.original_report for module_info in TEST_SUITE_MODULES
         ],
         actual_reports=_get_actual_reports(plan),
-        ignore=["file_path", "line_no", "machine_time", "utc_time"],
+        ignore=[
+            "file_path",
+            "line_no",
+            "machine_time",
+            "utc_time",
+            "code_context",
+        ],
     )
     assert plan.interactive.report.passed is False
 
@@ -491,7 +497,13 @@ def main():
             module_info.updated_report for module_info in TEST_SUITE_MODULES
         ],
         actual_reports=actual_reports,
-        ignore=["file_path", "line_no", "machine_time", "utc_time"],
+        ignore=[
+            "file_path",
+            "line_no",
+            "machine_time",
+            "utc_time",
+            "code_context",
+        ],
     )
 
     assert plan.interactive.report.passed is True

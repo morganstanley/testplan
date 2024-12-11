@@ -175,6 +175,7 @@ def test_top_level_tests():
                     "utc_time",
                     "file_path",
                     "line_no",
+                    "code_context",
                 ],
             )[0]
             is True
@@ -210,6 +211,7 @@ def test_top_level_tests():
                     "utc_time",
                     "file_path",
                     "line_no",
+                    "code_context",
                 ],
             )[0]
             is True
@@ -233,6 +235,7 @@ def test_top_level_tests():
                     "utc_time",
                     "file_path",
                     "line_no",
+                    "code_context",
                 ],
             )[0]
             is True

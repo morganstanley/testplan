@@ -93,12 +93,14 @@ class ExceptionCapture:
             description=self.description,
         )
 
-        with MOD_LOCK:
-            # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
-            caller_frame = inspect.stack()[1]
+        if getattr(assertion_state, "collect_code_context", False):
+            with MOD_LOCK:
+                # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
+                caller_frame = inspect.stack()[1]
 
-        exc_assertion.file_path = os.path.abspath(caller_frame[1])
-        exc_assertion.line_no = caller_frame[2]
+            exc_assertion.file_path = os.path.abspath(caller_frame[1])
+            exc_assertion.line_no = caller_frame[2]
+            exc_assertion.code_context = caller_frame.code_context[0].strip()
 
         # We cannot use `bind_entry` here as this block will
         # be run when an exception is raised
@@ -111,6 +113,19 @@ class ExceptionCapture:
 
 
 assertion_state = threading.local()
+
+
+def collect_code_context(func: Callable) -> Callable:
+    """
+    Sets the decorated function to collect code context
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        assertion_state.collect_code_context = True
+        func(*args, **kwargs)
+
+    return wrapper
 
 
 def report_target(func: Callable, ref_func: Callable = None) -> Callable:
@@ -165,7 +180,10 @@ def assertion(func: Callable) -> Callable:
             custom_style = kwargs.pop("custom_style", None)
             dryrun = kwargs.pop("dryrun", False)
             entry = func(result, *args, **kwargs)
-            if top_assertion:
+            if not top_assertion:
+                return entry
+
+            if getattr(assertion_state, "collect_code_context", False):
                 with MOD_LOCK:
                     call_stack = inspect.stack()
                     try:
@@ -183,34 +201,35 @@ def assertion(func: Callable) -> Callable:
                                 frame = call_stack[1]
                         entry.file_path = os.path.abspath(frame.filename)
                         entry.line_no = frame.lineno
+                        entry.code_context = frame.code_context[0].strip()
                     finally:
                         # https://docs.python.org/3/library/inspect.html
                         del frame
                         del call_stack
 
-                if custom_style is not None:
-                    if not isinstance(custom_style, dict):
-                        raise TypeError(
-                            "Use `dict[str, str]` to specify custom CSS style"
-                        )
-                    entry.custom_style = custom_style
+            if custom_style is not None:
+                if not isinstance(custom_style, dict):
+                    raise TypeError(
+                        "Use `dict[str, str]` to specify custom CSS style"
+                    )
+                entry.custom_style = custom_style
 
-                assert isinstance(result, AssertionNamespace) or isinstance(
-                    result, Result
-                ), "Incorrect usage of assertion decorator"
+            assert isinstance(result, AssertionNamespace) or isinstance(
+                result, Result
+            ), "Incorrect usage of assertion decorator"
 
-                if isinstance(result, AssertionNamespace):
-                    result = result.result
+            if isinstance(result, AssertionNamespace):
+                result = result.result
 
-                if not dryrun:
-                    result.entries.append(entry)
+            if not dryrun:
+                result.entries.append(entry)
 
-                stdout_registry.log_entry(
-                    entry=entry, stdout_style=result.stdout_style
-                )
+            stdout_registry.log_entry(
+                entry=entry, stdout_style=result.stdout_style
+            )
 
-                if not entry and not result.continue_on_failure:
-                    raise AssertionError(entry)
+            if not entry and not result.continue_on_failure:
+                raise AssertionError(entry)
 
             return entry
         finally:
@@ -1371,10 +1390,13 @@ class LogfileExpect(ScopedLogfileMatch):
             return False
         super().__exit__(exc_type, exc_value, traceback)
 
-        with MOD_LOCK:
-            # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
-            # XXX: do we have concrete ideas about thread-safety here?
-            caller_frame = inspect.stack()[1]
+        if getattr(assertion_state, "collect_code_context", False):
+            with MOD_LOCK:
+                # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
+                # XXX: do we have concrete ideas about thread-safety here?
+                caller_frame = inspect.stack()[1]
+        else:
+            caller_frame = None
 
         assertion = assertions.LogfileMatch(
             self.timeout,
@@ -1383,8 +1405,11 @@ class LogfileExpect(ScopedLogfileMatch):
             self.description,
             self.category,
         )
-        assertion.file_path = os.path.abspath(caller_frame[1])
-        assertion.line_no = caller_frame[2]
+
+        if caller_frame:
+            assertion.file_path = os.path.abspath(caller_frame[1])
+            assertion.line_no = caller_frame[2]
+            # assertion.code_context = caller_frame.code_context[0].strip()
 
         stdout_registry.log_entry(
             entry=assertion, stdout_style=self.result.stdout_style

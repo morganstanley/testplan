@@ -1,0 +1,2 @@
+Added ``--code`` flag to collect code context for the assertions. Code context one-liner will be displayed on the web UI if enabled.
+Note that file path information is no longer collected by default. To collect file path information, enable code context.
