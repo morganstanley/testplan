@@ -580,10 +580,10 @@ def _validate_testcase(func):
         raise exc
 
     if len(func.name) > defaults.MAX_TEST_NAME_LENGTH:
-        warnings.warn(
-            'Name defined for testcase "{}" is too long,'
-            ' consider customizing testcase name with argument "name_func"'
-            " in @testcase decorator.".format(func.__name__)
+        raise ValueError(
+            f'Name defined for testcase "{func.name}" is longer than {defaults.MAX_TEST_NAME_LENGTH},'
+            ' consider customizing testcase name with argument "name"'
+            " in @testcase decorator."
         )
 
 
