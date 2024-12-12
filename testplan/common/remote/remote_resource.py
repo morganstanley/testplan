@@ -217,12 +217,12 @@ class RemoteResource(Entity):
             self._remote_plan_runpath,
         )
         self.logger.info(
-            "%s remote runpath = %s", self, self._remote_resource_runpath
+            "%s: remote runpath = %s", self, self._remote_resource_runpath
         )
         self._working_dirs.local = pwd()
         self._working_dirs.remote = self._remote_working_dir()
         self.logger.info(
-            "%s remote working path = %s", self, self._working_dirs.remote
+            "%s: remote working path = %s", self, self._working_dirs.remote
         )
 
     def _remote_working_dir(self) -> None:
@@ -590,7 +590,7 @@ class RemoteResource(Entity):
 
     def _clean_remote(self) -> None:
         if self.cfg.clean_remote:
-            self.logger.debug(
+            self.logger.user_info(
                 "Clean root runpath on remote host - %s", self.ssh_cfg["host"]
             )
 
