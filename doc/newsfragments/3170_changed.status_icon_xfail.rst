@@ -1,0 +1,1 @@
+Fixed an issue where enabling Status icons crashed the report when a test was marked as XFAIL.
