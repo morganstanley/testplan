@@ -907,7 +907,7 @@ class Test(Runnable):
         Collecting the file path, line number and code context of the assertions
         if enabled.
         """
-        return getattr(self.cfg, "collect_code_context", False)
+        return self.cfg.collect_code_context
 
 
 class ProcessRunnerTestConfig(TestConfig):

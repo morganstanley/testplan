@@ -1148,17 +1148,17 @@ class MultiTest(testing_base.Test):
             testcase_name=testcase.name, testcase_report=testcase_report
         )
 
-        if self.cfg.testcase_report_target:
-            testcase = report_target(
-                func=testcase,
-                ref_func=getattr(
-                    testsuite,
-                    getattr(testcase, "_parametrization_template", ""),
-                    None,
-                ),
-            )
-
         if getattr(self.cfg, "collect_code_context", False):
+            if self.cfg.testcase_report_target:
+                testcase = report_target(
+                    func=testcase,
+                    ref_func=getattr(
+                        testsuite,
+                        getattr(testcase, "_parametrization_template", ""),
+                        None,
+                    ),
+                )
+
             testcase = collect_code_context(func=testcase)
 
         # specially handle skipped testcases

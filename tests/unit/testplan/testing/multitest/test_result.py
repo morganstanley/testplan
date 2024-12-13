@@ -43,6 +43,17 @@ def intermediary(result, description=None):
     helper(result, description=description)
 
 
+def test_group_no_marking():
+    """
+    Tests, at result object level, when code context is not enabled.
+    """
+    result = result_mod.Result()
+    result.equal(1, 1)
+    result_entry = result.entries.pop()
+    assert result_entry.line_no == None
+    assert result_entry.code_context == None
+
+
 @result_mod.collect_code_context
 def test_group_marking():
     """
@@ -50,22 +61,22 @@ def test_group_marking():
     """
     result = result_mod.Result()
     result.equal(1, 1)
+    result_entry = result.entries.pop()
+    code_context = get_code_context(test_group_marking, 6)
+    assert result_entry.line_no == code_context[0]
+    assert result_entry.code_context == code_context[1]
 
-    # Functions to test marking, with relative position of the assertions
-    functions = [
-        (test_group_marking, 6),
-        (helper, 1),
-        (intermediary, 2),
-    ]
-    current_function = inspect.currentframe().f_code.co_name
-    for function, relative_position in functions:
-        # To prevent infinite recursion
-        if function.__name__ != current_function:
-            function(result)
-        result_entry = result.entries.pop()
-        code_context = get_code_context(function, relative_position)
-        assert result_entry.line_no == code_context[0]
-        assert result_entry.code_context == code_context[1]
+    helper(result)
+    result_entry = result.entries.pop()
+    code_context = get_code_context(helper, 1)
+    assert result_entry.line_no == code_context[0]
+    assert result_entry.code_context == code_context[1]
+
+    intermediary(result)
+    result_entry = result.entries.pop()
+    code_context = get_code_context(intermediary, 2)
+    assert result_entry.line_no == code_context[0]
+    assert result_entry.code_context == code_context[1]
 
 
 @testsuite
