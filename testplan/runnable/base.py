@@ -1054,7 +1054,10 @@ class TestRunner(Runnable):
             )
 
         self.logger.user_info(
-            "Testplan has runpath: %s and pid %s", self._runpath, os.getpid()
+            "Testplan[%s] has runpath: %s and pid %s",
+            self.cfg.name,
+            self._runpath,
+            os.getpid(),
         )
 
         self._scratch = os.path.join(self._runpath, "scratch")
