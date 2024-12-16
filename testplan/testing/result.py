@@ -93,7 +93,7 @@ class ExceptionCapture:
             description=self.description,
         )
 
-        if getattr(assertion_state, "collect_code_context", False):
+        if self.result._collect_code_context:
             with MOD_LOCK:
                 # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
                 caller_frame = inspect.stack()[1]
@@ -113,19 +113,6 @@ class ExceptionCapture:
 
 
 assertion_state = threading.local()
-
-
-def collect_code_context(func: Callable) -> Callable:
-    """
-    Sets the decorated function to collect code context
-    """
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        assertion_state.collect_code_context = True
-        func(*args, **kwargs)
-
-    return wrapper
 
 
 def report_target(func: Callable, ref_func: Callable = None) -> Callable:
@@ -183,7 +170,21 @@ def assertion(func: Callable) -> Callable:
             if not top_assertion:
                 return entry
 
-            if getattr(assertion_state, "collect_code_context", False):
+            if custom_style is not None:
+                if not isinstance(custom_style, dict):
+                    raise TypeError(
+                        "Use `dict[str, str]` to specify custom CSS style"
+                    )
+                entry.custom_style = custom_style
+
+            assert isinstance(result, AssertionNamespace) or isinstance(
+                result, Result
+            ), "Incorrect usage of assertion decorator"
+
+            if isinstance(result, AssertionNamespace):
+                result = result.result
+
+            if result._collect_code_context:
                 with MOD_LOCK:
                     call_stack = inspect.stack()
                     try:
@@ -206,20 +207,6 @@ def assertion(func: Callable) -> Callable:
                         # https://docs.python.org/3/library/inspect.html
                         del frame
                         del call_stack
-
-            if custom_style is not None:
-                if not isinstance(custom_style, dict):
-                    raise TypeError(
-                        "Use `dict[str, str]` to specify custom CSS style"
-                    )
-                entry.custom_style = custom_style
-
-            assert isinstance(result, AssertionNamespace) or isinstance(
-                result, Result
-            ), "Incorrect usage of assertion decorator"
-
-            if isinstance(result, AssertionNamespace):
-                result = result.result
 
             if not dryrun:
                 result.entries.append(entry)
@@ -1390,7 +1377,7 @@ class LogfileExpect(ScopedLogfileMatch):
             return False
         super().__exit__(exc_type, exc_value, traceback)
 
-        if getattr(assertion_state, "collect_code_context", False):
+        if self.result._collect_code_context:
             with MOD_LOCK:
                 # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
                 # XXX: do we have concrete ideas about thread-safety here?
@@ -1559,6 +1546,7 @@ class Result:
         _num_passing=defaults.SUMMARY_NUM_PASSING,
         _num_failing=defaults.SUMMARY_NUM_FAILING,
         _scratch=None,
+        _collect_code_context=False,
     ):
 
         self.entries = []
@@ -1580,6 +1568,7 @@ class Result:
         self._num_passing = _num_passing
         self._num_failing = _num_failing
         self._scratch = _scratch
+        self._collect_code_context = _collect_code_context
 
     def subresult(self):
         """Subresult object to append/prepend assertions on another."""

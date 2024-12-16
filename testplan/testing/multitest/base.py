@@ -30,7 +30,7 @@ from testplan.testing.common import (
 )
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
-from testplan.testing.result import report_target, collect_code_context
+from testplan.testing.result import report_target
 from testplan.testing.multitest.suite import (
     get_suite_metadata,
     get_testcase_metadata,
@@ -1045,7 +1045,9 @@ class MultiTest(testing_base.Test):
 
         method_report = self._suite_related_report(method_name)
         case_result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self._scratch
+            stdout_style=self.stdout_style,
+            _scratch=self._scratch,
+            _collect_code_context=self.collect_code_context,
         )
 
         resources = self._get_runtime_environment(
@@ -1137,7 +1139,9 @@ class MultiTest(testing_base.Test):
             testcase
         )
         case_result: result.Result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self.scratch
+            stdout_style=self.stdout_style,
+            _scratch=self.scratch,
+            _collect_code_context=self.collect_code_context,
         )
 
         # as the runtime info currently has only testcase name we create it here
@@ -1148,18 +1152,15 @@ class MultiTest(testing_base.Test):
             testcase_name=testcase.name, testcase_report=testcase_report
         )
 
-        if getattr(self.cfg, "collect_code_context", False):
-            if self.cfg.testcase_report_target:
-                testcase = report_target(
-                    func=testcase,
-                    ref_func=getattr(
-                        testsuite,
-                        getattr(testcase, "_parametrization_template", ""),
-                        None,
-                    ),
-                )
-
-            testcase = collect_code_context(func=testcase)
+        if self.cfg.testcase_report_target and self.collect_code_context:
+            testcase = report_target(
+                func=testcase,
+                ref_func=getattr(
+                    testsuite,
+                    getattr(testcase, "_parametrization_template", ""),
+                    None,
+                ),
+            )
 
         # specially handle skipped testcases
         if hasattr(testcase, "__should_skip__"):

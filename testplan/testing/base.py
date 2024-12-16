@@ -693,7 +693,9 @@ class Test(Runnable):
         )
 
         case_result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self.scratch
+            stdout_style=self.stdout_style,
+            _scratch=self.scratch,
+            _collect_code_context=self.collect_code_context,
         )
         runtime_env = self._get_runtime_environment(
             testcase_name=hook_name,
@@ -907,7 +909,7 @@ class Test(Runnable):
         Collecting the file path, line number and code context of the assertions
         if enabled.
         """
-        return self.cfg.collect_code_context
+        return getattr(self.cfg, "collect_code_context", False)
 
 
 class ProcessRunnerTestConfig(TestConfig):

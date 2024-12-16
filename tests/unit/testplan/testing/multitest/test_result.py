@@ -54,15 +54,14 @@ def test_group_no_marking():
     assert result_entry.code_context == None
 
 
-@result_mod.collect_code_context
 def test_group_marking():
     """
     Tests, at result object level, if marking works as expected.
     """
-    result = result_mod.Result()
+    result = result_mod.Result(_collect_code_context=True)
     result.equal(1, 1)
     result_entry = result.entries.pop()
-    code_context = get_code_context(test_group_marking, 6)
+    code_context = get_code_context(test_group_marking, 5)
     assert result_entry.line_no == code_context[0]
     assert result_entry.code_context == code_context[1]
 
