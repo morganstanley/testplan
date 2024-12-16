@@ -137,13 +137,6 @@ class LineDiffSchema(AssertionSchema):
     delta = fields.List(custom_fields.NativeOrPretty())
 
 
-class ProcessExitStatusSchema(AssertionSchema):
-
-    process = custom_fields.NativeOrPretty()
-    expected_retcode = fields.Integer()
-    core_file = fields.String()
-
-
 @registry.bind(asr.ColumnContain)
 class ColumnContainSchema(AssertionSchema):
 

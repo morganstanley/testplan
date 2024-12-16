@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 
 from testplan.common.config import Config, Configurable
 from testplan.common.utils import strings
-from testplan.common.utils.timing import utcnow
+from testplan.common.utils.timing import now
 from testplan.report import TestReport
 
 
@@ -17,7 +17,7 @@ class ExporterResult:
     result: Dict = None
     traceback: str = None
     uid: str = strings.uuid4()
-    start_time: datetime = utcnow()
+    start_time: datetime = now()
     end_time: datetime = None
 
     @property
@@ -153,7 +153,7 @@ def run_exporter(
     except Exception:
         exp_result.traceback = traceback.format_exc()
     finally:
-        exp_result.end_time = utcnow()
+        exp_result.end_time = now()
         if not exp_result.success:
             exporter.logger.error(exp_result.traceback)
         if result:

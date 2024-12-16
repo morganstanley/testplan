@@ -2,7 +2,8 @@
  * Report utility functions.
  */
 import React from "react";
-import format from "date-fns/format";
+import { format, formatISO } from "date-fns";
+import { TZDate } from "@date-fns/tz";
 import _ from "lodash";
 import AssertionPane from "../AssertionPane/AssertionPane";
 import ResourcePanel from "../AssertionPane/ResourcePanel";
@@ -272,6 +273,14 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
   };
 
   const createTimeInfoString = (entry, UTCTime) => {
+    // new entry structure
+    if (entry.timestamp) {
+      let d = new TZDate(entry.timestamp);
+      let rep = UTCTime ? formatISO(d.withTimeZone("UTC")) : formatISO(d);
+      return rep.split("T")[1];
+    }
+
+    // old entry structure
     let timestamp = UTCTime ? entry.utc_time : entry.machine_time;
     if (!timestamp) {
       return "";
@@ -279,6 +288,19 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
     let label = UTCTime ? "Z" : timestamp.substring(26, 32);
     timestamp = timestamp.substring(0, 26);
     return format(new Date(timestamp), "HH:mm:ss.SSS") + label;
+  };
+
+  const getTimeDelta = (prevEntry, currentEntry) => {
+    if (prevEntry.utc_time && currentEntry.utc_time) {
+      const previousEntryTime = new Date(prevEntry.utc_time).getTime();
+      const currentEntryTime = new Date(currentEntry.utc_time).getTime();
+      return formatMilliseconds(currentEntryTime - previousEntryTime);
+    } else if (prevEntry.timestamp && currentEntry.timestamp) {
+      const previousEntryTime = new Date(prevEntry.timestamp);
+      const currentEntryTime = new Date(currentEntry.timestamp);
+      return formatMilliseconds(currentEntryTime - previousEntryTime);
+    }
+    return "Unknown";
   };
 
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
@@ -295,14 +317,7 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
       }
       // calculate the time elapsed between assertions
       for (let i = links.length - 1; i > 0; --i) {
-        let duration = "Unknown";
-        if (links[i].utc_time && links[i - 1].utc_time) {
-          const previousEntryTime = new Date(links[i - 1].utc_time).getTime();
-          const currentEntryTime = new Date(links[i].utc_time).getTime();
-          const durationMilliseconds = currentEntryTime - previousEntryTime;
-          duration = formatMilliseconds(durationMilliseconds);
-        }
-        duration = "(+" + duration + ")";
+        let duration = `(+${getTimeDelta(links[i - 1], links[i])})`;
         links[i].timeInfoArray.push(duration);
       }
       if (links.length > 0) {
@@ -310,7 +325,7 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
         if (
           selectedEntry.timer &&
           selectedEntry.timer.run &&
-          links[0].utc_time
+          (links[0].utc_time || links[0].timestamp)
         ) {
           let previousEntryTime = null;
           // TODO: remove the else branch after Aug. 1 2024
@@ -320,14 +335,16 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
           ) {
             previousEntryTime = new Date(
               selectedEntry.timer.run.at(-1).start
-            ).getTime();
+            );
           } else {
             previousEntryTime = new Date(
               selectedEntry.timer.run.start
-            ).getTime();
+            );
           }
 
-          const currentEntryTime = new Date(links[0].utc_time).getTime();
+          const currentEntryTime = new Date(
+            links[0].utc_time || links[0].timestamp
+          );
           const durationInMilliseconds = currentEntryTime - previousEntryTime;
           duration = formatMilliseconds(durationInMilliseconds);
         }

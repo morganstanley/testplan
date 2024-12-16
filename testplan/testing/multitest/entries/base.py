@@ -12,7 +12,7 @@ import pathlib
 import plotly.io
 
 from testplan.common.utils.convert import nested_groups
-from testplan.common.utils.timing import utcnow
+from testplan.common.utils.timing import now
 from testplan.common.utils.table import TableEntry
 from testplan.common.utils.reporting import fmt
 from testplan.common.utils.convert import flatten_formatted_object
@@ -41,8 +41,7 @@ class BaseEntry:
     meta_type = "entry"
 
     def __init__(self, description, category=None, flag=None):
-        self.utc_time = utcnow()
-        self.machine_time = datetime.datetime.now()
+        self.timestamp = now()
         self.description = description
         self.category = category or DEFAULT_CATEGORY
         self.flag = flag or DEFAULT_FLAG
@@ -75,7 +74,7 @@ class Group:
     meta_type = "assertion"
 
     def __init__(self, entries, description=None):
-        self.utc_time = utcnow()
+        self.timestamp = now()
         self.description = description
         self.entries = entries
 

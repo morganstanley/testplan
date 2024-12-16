@@ -4,9 +4,10 @@ import functools
 import math
 
 from boltons.iterutils import is_scalar, remap
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, post_dump
 from marshmallow.utils import EXCLUDE
 
+from testplan.common.report.base import ReportCategories
 from testplan.common.report.schemas import (
     BaseReportGroupSchema,
     ReportLinkSchema,
@@ -88,7 +89,7 @@ class TestCaseReportSchema(ReportSchema):
     source_class = TestCaseReport
 
     entries = fields.List(EntriesField())
-    category = fields.String(dump_only=True)
+    category = fields.String()
     counter = fields.Dict(dump_only=True)
     tags = TagField()
 
@@ -116,9 +117,8 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     source_class = TestGroupReport
 
     part = fields.List(fields.Integer, allow_none=True)
-    fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
-    strict_order = fields.Bool()
+    strict_order = fields.Bool(allow_none=True)
     category = fields.String()
     tags = TagField()
 
@@ -129,7 +129,10 @@ class TestGroupReportSchema(BaseReportGroupSchema):
         },
         many=True,
     )
-    host = fields.String(allow_none=True)
+
+    # # abolished
+    # fix_spec_path = fields.String(allow_none=True, load_only=True)
+    # host = fields.String(allow_none=True, load_only=True)
 
     @post_load
     def make_report(self, data, **kwargs):
@@ -139,6 +142,15 @@ class TestGroupReportSchema(BaseReportGroupSchema):
         rep = super(TestGroupReportSchema, self).make_report(data)
         rep.propagate_tag_indices()
         return rep
+
+    @post_dump
+    def strip_none_by_category(self, data, **kwargs):
+        if not ReportCategories.is_test_level(data["category"]):
+            del data["part"]
+            del data["env_status"]
+        if data["category"] != ReportCategories.TESTSUITE:
+            del data["strict_order"]
+        return data
 
 
 class TestReportSchema(BaseReportGroupSchema):
@@ -153,7 +165,7 @@ class TestReportSchema(BaseReportGroupSchema):
     meta = fields.Dict()
     label = fields.String(allow_none=True)
     tags_index = TagField(dump_only=True)
-    information = fields.List(fields.List(fields.String()))
+    information = fields.List(fields.Tuple([fields.String(), fields.String()]))
     resource_meta_path = fields.String(dump_only=True, allow_none=True)
     counter = fields.Dict(dump_only=True)
 
@@ -194,7 +206,6 @@ class ShallowTestGroupReportSchema(Schema):
     category = fields.String()
     timer = TimerField(required=True)
     part = fields.List(fields.Integer, allow_none=True)
-    fix_spec_path = fields.String(allow_none=True)
 
     status_override = fields.Function(
         lambda x: x.status_override.to_json_compatible(), allow_none=True
@@ -213,6 +224,9 @@ class ShallowTestGroupReportSchema(Schema):
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
     children = fields.List(fields.Nested(ReportLinkSchema))
+
+    # # abolished
+    # fix_spec_path = fields.String(allow_none=True, load_only=True)
 
     @post_load
     def make_testgroup_report(self, data, **kwargs):

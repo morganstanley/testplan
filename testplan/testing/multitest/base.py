@@ -227,9 +227,6 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption("multi_part_uid", default=None): Or(
                 None, lambda x: callable(x)
             ),
-            config.ConfigOption("fix_spec_path", default=None): Or(
-                None, And(str, os.path.exists)
-            ),
             config.ConfigOption("testcase_report_target", default=True): bool,
         }
 
@@ -265,8 +262,6 @@ class MultiTest(testing_base.Test):
         if `part` attribute is defined, otherwise use default implementation.
     :type multi_part_uid: ``callable``
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
-    :param fix_spec_path: Path of fix specification file.
-    :type fix_spec_path: ``NoneType`` or ``str``.
     :param testcase_report_target: Whether to mark testcases as assertions for filepath
         and line number information
     :type testcase_report_target: ``bool``
@@ -304,7 +299,6 @@ class MultiTest(testing_base.Test):
         stdout_style=None,
         tags=None,
         result=result.Result,
-        fix_spec_path=None,
         testcase_report_target=True,
         **options,
     ):
@@ -733,7 +727,6 @@ class MultiTest(testing_base.Test):
             category=ReportCategories.MULTITEST,
             tags=self.cfg.tags,
             part=self.cfg.part,
-            fix_spec_path=self.cfg.fix_spec_path,
             env_status=entity.ResourceStatus.STOPPED,
         )
 
