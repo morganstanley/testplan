@@ -1396,7 +1396,7 @@ class LogfileExpect(ScopedLogfileMatch):
         if caller_frame:
             assertion.file_path = os.path.abspath(caller_frame[1])
             assertion.line_no = caller_frame[2]
-            # assertion.code_context = caller_frame.code_context[0].strip()
+            assertion.code_context = caller_frame.code_context[0].strip()
 
         stdout_registry.log_entry(
             entry=assertion, stdout_style=self.result.stdout_style
