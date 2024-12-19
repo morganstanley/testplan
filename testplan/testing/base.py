@@ -693,7 +693,9 @@ class Test(Runnable):
         )
 
         case_result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self.scratch
+            stdout_style=self.stdout_style,
+            _scratch=self.scratch,
+            _collect_code_context=self.collect_code_context,
         )
         runtime_env = self._get_runtime_environment(
             testcase_name=hook_name,
@@ -900,6 +902,14 @@ class Test(Runnable):
         if not hasattr(self.cfg, "driver_info"):
             return False
         return self.cfg.driver_info
+
+    @property
+    def collect_code_context(self) -> bool:
+        """
+        Collecting the file path, line number and code context of the assertions
+        if enabled.
+        """
+        return getattr(self.cfg, "collect_code_context", False)
 
 
 class ProcessRunnerTestConfig(TestConfig):

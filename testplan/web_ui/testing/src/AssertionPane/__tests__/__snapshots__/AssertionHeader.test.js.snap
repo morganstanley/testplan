@@ -16,6 +16,8 @@ exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
       className="button_13xlah4"
       style={
         Object {
+          "alignItems": "center",
+          "display": "flex",
           "flexGrow": 4,
           "order": 4,
           "padding": ".125rem 0.75rem",
@@ -58,6 +60,8 @@ exports[`AssertionHeader shallow renders the correct HTML structure with status 
       className="button_13xlah4"
       style={
         Object {
+          "alignItems": "center",
+          "display": "flex",
           "flexGrow": 4,
           "order": 4,
           "padding": ".125rem 0.75rem",

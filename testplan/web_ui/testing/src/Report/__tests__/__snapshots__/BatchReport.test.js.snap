@@ -26211,6 +26211,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         "write": [Function],
                                       }
                                     }
+                                    title="You need to specify --code command line argument to use this function."
                                   >
                                     <DropdownItem
                                       className="dropdownItem_1h5fos4"
@@ -26227,6 +26228,7 @@ ZeroDivisionError: integer division or modulo by zero
                                           check={true}
                                           className="filterLabel_1wpifct"
                                           tag="label"
+                                          title="You need to specify --code command line argument to use this function."
                                           widths={
                                             Array [
                                               "xs",
@@ -26239,6 +26241,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         >
                                           <label
                                             className="filterLabel_1wpifct form-check-label"
+                                            title="You need to specify --code command line argument to use this function."
                                           >
                                             <Input
                                               checked={false}
@@ -26253,7 +26256,7 @@ ZeroDivisionError: integer division or modulo by zero
                                               />
                                             </Input>
                                              
-                                            Display file path of assertions
+                                            Display file path and code context
                                           </label>
                                         </Label>
                                       </button>
