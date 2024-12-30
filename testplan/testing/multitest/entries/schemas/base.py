@@ -39,6 +39,7 @@ class BaseSchema(Schema):
     # optional
     line_no = fields.Integer(allow_none=True)
     file_path = fields.String(allow_none=True)
+    code_context = fields.String(allow_none=True)
 
     # # deprecated, but this is a dump_only schema
     # utc_time = custom_fields.UTCDateTime(allow_none=True, load_only=True)
@@ -54,6 +55,7 @@ class BaseSchema(Schema):
         if data["file_path"] is None:
             del data["line_no"]
             del data["file_path"]
+            del data["code_context"]
         if data["category"] == DEFAULT_CATEGORY:
             del data["category"]
         if data["flag"] == DEFAULT_FLAG:
