@@ -222,7 +222,7 @@ class ShallowTestGroupReportSchema(Schema):
     logs = fields.Nested(ReportLogSchema, many=True)
     hash = fields.Integer(dump_only=True)
     env_status = fields.String(allow_none=True)
-    strict_order = fields.Bool()
+    strict_order = fields.Bool(allow_none=True)
     children = fields.List(fields.Nested(ReportLinkSchema))
 
     # # abolished
@@ -242,6 +242,15 @@ class ShallowTestGroupReportSchema(Schema):
         group_report.children = children
 
         return group_report
+
+    @post_dump
+    def strip_none_by_category(self, data, **kwargs):
+        if not ReportCategories.is_test_level(data["category"]):
+            del data["part"]
+            del data["env_status"]
+        if data["category"] != ReportCategories.TESTSUITE:
+            del data["strict_order"]
+        return data
 
 
 class ShallowTestReportSchema(Schema):
