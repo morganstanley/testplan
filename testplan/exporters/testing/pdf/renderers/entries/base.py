@@ -8,8 +8,9 @@ from reportlab.platypus import Image
 
 from testplan.common.exporters.pdf import RowStyle, create_table
 from testplan.common.exporters.pdf import format_table_style
+from testplan.common.exporters.pdf import split_text
 from testplan.common.utils.registry import Registry
-from testplan.common.utils.strings import split_text
+
 from testplan.exporters.testing.pdf.renderers.base import SlicedParagraph
 from testplan.testing.multitest.entries import base
 from .baseUtils import get_matlib_plot, export_plot_to_image, format_image

@@ -2,8 +2,6 @@
 Interactive handler for TestRunner runnable class.
 """
 import numbers
-import re
-import socket
 import threading
 import warnings
 from concurrent import futures
@@ -16,8 +14,6 @@ from testplan.report import (
     ReportCategories,
     RuntimeStatus,
     Status,
-    TestGroupReport,
-    TestCaseReport,
     TestReport,
 )
 from testplan.runnable.interactive import http, reloader, resource_loader
