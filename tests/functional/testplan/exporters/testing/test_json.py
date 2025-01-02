@@ -6,6 +6,7 @@ import os
 import pathlib
 import tempfile
 
+import testplan
 from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
@@ -83,6 +84,9 @@ def test_split_and_merge(runpath):
         copy.deepcopy(report)
     )
     assert "information" in meta
+    assert (
+        dict(meta["information"])["testplan_version"] == testplan.__version__
+    )
     assert meta["entries"] == []
     assert (
         JSONExporter.merge_json_report(meta, structure, assertions) == report
