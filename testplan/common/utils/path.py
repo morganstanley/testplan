@@ -8,16 +8,16 @@ import getpass
 import contextlib
 import tempfile
 import hashlib
+from functools import lru_cache
 from io import TextIOWrapper
 
 from testplan.common.utils.context import render
-from memoization import cached
 from .strings import slugify
 
 VAR_TMP = os.path.join(os.sep, "var", "tmp")
 
 
-@cached
+@lru_cache(None)
 def fix_home_prefix(path):
     """
     Try to replace a real path (/a/path/user) with a symlink

@@ -1,37 +1,39 @@
 """Base classes for all Tests"""
 import functools
 import os
-import re
 import subprocess
 import sys
 import warnings
 from enum import Enum
-from schema import And, Or, Use
 from typing import (
+    Callable,
     Dict,
     Generator,
+    Iterable,
     List,
     Optional,
-    Union,
-    Callable,
-    Iterable,
-    Type,
     Tuple,
+    Type,
+    Union,
 )
+
 import plotly.express as px
+from schema import And, Or, Use
 
 from testplan import defaults
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common.entity import (
     Resource,
     ResourceStatus,
+    ResourceTimings,
     Runnable,
     RunnableConfig,
     RunnableResult,
-    ResourceTimings,
 )
 from testplan.common.remote.remote_driver import RemoteDriver
-from testplan.common.utils import strings, interface, validation
+from testplan.common.report import ReportCategories, RuntimeStatus
+from testplan.common.report import Status as ReportStatus
+from testplan.common.utils import interface, strings, validation
 from testplan.common.utils.composer import compose_contexts
 from testplan.common.utils.context import render
 from testplan.common.utils.process import (
@@ -40,24 +42,13 @@ from testplan.common.utils.process import (
     subprocess_popen,
 )
 from testplan.common.utils.timing import format_duration, parse_duration
-from testplan.common.report import (
-    Status as ReportStatus,
-    ReportCategories,
-    RuntimeStatus,
-)
-from testplan.report import (
-    TestCaseReport,
-    TestGroupReport,
-    test_styles,
-)
-from testplan.testing import common, filtering, ordering, tagging, result
+from testplan.report import TestCaseReport, TestGroupReport, test_styles
+from testplan.testing import common, filtering, ordering, result, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
+from testplan.testing.multitest.driver.connection import DriverConnectionGraph
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
-from testplan.testing.multitest.driver.connection import DriverConnectionGraph
-
-from testplan.testing.multitest import result
 
 TEST_INST_INDENT = 2
 SUITE_INDENT = 4
