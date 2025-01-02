@@ -292,9 +292,11 @@ class XMLExporter(Exporter):
         )
         xml_dir = pathlib.Path(self.cfg.xml_dir).resolve()
 
-        # TODO: what if xml_dir is a file?
         if xml_dir.exists():
-            shutil.rmtree(xml_dir)
+            if xml_dir.is_dir():
+                shutil.rmtree(xml_dir)
+            else:
+                xml_dir.unlink()
 
         xml_dir.mkdir(parents=True, exist_ok=True)
 

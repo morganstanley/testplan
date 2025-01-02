@@ -500,6 +500,10 @@
   "tags_index": {},
   "information": [
     [
+      "testplan_version",
+      "24.9.2.dev1735810598"
+    ],
+    [
       "user",
       "unknown"
     ],

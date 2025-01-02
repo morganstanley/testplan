@@ -9,7 +9,7 @@ from pytest_test_filters import skip_on_windows
 
 from testplan import TestplanMock
 from testplan.common import entity
-from testplan.common.utils.comparison import compare, ReportOptions
+from testplan.common.utils.comparison import compare
 from testplan.common.utils.context import context
 from testplan.common.utils.logger import USER_INFO
 from testplan.common.utils.timing import wait

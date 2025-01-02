@@ -283,7 +283,6 @@ EXPECTED_INITIAL_GET = [
                 ],
                 "name": "ExampleSuite",
                 "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
-                "part": None,
                 "status": "unknown",
                 "runtime_status": "ready",
                 "counter": {
@@ -312,7 +311,6 @@ EXPECTED_INITIAL_GET = [
             ],
             "name": "ExampleSuite",
             "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
-            "part": None,
             "status": "unknown",
             "runtime_status": "ready",
             "counter": {"failed": 0, "passed": 0, "total": 7, "unknown": 7},
@@ -440,7 +438,6 @@ EXPECTED_INITIAL_GET = [
                     "ExampleMTest",
                     "ExampleSuite",
                 ],
-                "part": None,
                 "runtime_status": "ready",
                 "status": "unknown",
                 "tags": {},
