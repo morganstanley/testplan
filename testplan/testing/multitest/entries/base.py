@@ -50,6 +50,7 @@ class BaseEntry:
         # Will be set explicitly via containers
         self.line_no = None
         self.file_path = None
+        self.code_context = None
 
     def __str__(self):
         return repr(self)

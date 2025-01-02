@@ -177,6 +177,11 @@ class RemoteResource(Entity):
         self.python_binary = (
             os.environ["PYTHON3_REMOTE_BINARY"] if IS_WIN else sys.executable
         )
+        self._error_exec = []
+
+    @property
+    def error_exec(self) -> list:
+        return self._error_exec
 
     def _prepare_remote(self) -> None:
 
@@ -584,7 +589,8 @@ class RemoteResource(Entity):
             if self.cfg.pull:
                 self._pull_files()
         except Exception as exc:
-            self.logger.debug(
+            self._error_exec.append(exc)
+            self.logger.warning(
                 "While fetching result from worker [%s]: %s", self, exc
             )
 
@@ -614,7 +620,8 @@ class RemoteResource(Entity):
                     exclude=self.cfg.pull_exclude,
                 )
             except Exception as exc:
-                self.logger.debug(
+                self._error_exec.append(exc)
+                self.logger.warning(
                     "While fetching result from worker [%s]: %s", self, exc
                 )
 
