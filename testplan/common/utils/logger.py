@@ -10,7 +10,6 @@ The logging facility is used for:
     - Test progress information (e.g. Pass / Fail status)
     - Exporter statuses
 """
-
 import logging
 import os
 import sys
@@ -114,7 +113,6 @@ def _initial_setup():
     :return: root logger object and stdout logging handler
     :type: ``tuple``
     """
-
     logging.setLoggerClass(TestplanLogger)
     root_logger = logging.getLogger(LOGGER_NAME)
 
@@ -141,7 +139,6 @@ def _initial_setup():
 # self.logger. However, for classes that don't inherit from Loggable or for
 # code outside of a class we provide the root testplan.common.utils.logger
 # object here as TESTPLAN_LOGGER.
-
 TESTPLAN_LOGGER, STDOUT_HANDLER = _initial_setup()
 
 

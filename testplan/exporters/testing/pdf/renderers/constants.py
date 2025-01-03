@@ -1,9 +1,8 @@
 """ TODO """
-from reportlab.lib.pagesizes import A3
-from reportlab.lib.units import cm
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import A3
 from reportlab.lib.styles import ParagraphStyle
-
+from reportlab.lib.units import cm
 from testplan.common.exporters.pdf import RowStyle, constants
 
 # Base layout table

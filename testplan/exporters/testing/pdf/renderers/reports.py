@@ -7,9 +7,7 @@ from typing import Optional, Tuple, Union
 
 from reportlab.lib import colors, styles
 from reportlab.platypus import Paragraph
-
-from testplan.common.exporters.pdf import RowStyle
-from testplan.common.exporters.pdf import split_text
+from testplan.common.exporters.pdf import RowStyle, split_text
 from testplan.common.utils.registry import Registry
 from testplan.common.utils.strings import format_description, wrap
 from testplan.report import (

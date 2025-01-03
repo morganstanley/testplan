@@ -12,6 +12,7 @@ from copy import copy
 from dataclasses import dataclass
 from itertools import zip_longest
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Collection,
@@ -22,11 +23,9 @@ from typing import (
     Pattern,
     Tuple,
     Union,
-    TYPE_CHECKING,
 )
 
 from schema import And, Or, Use
-
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
@@ -44,8 +43,8 @@ if TYPE_CHECKING:
         ResourceMonitorServer,
         ResourceMonitorClient,
     )
-from testplan.common.report import MergeError
 
+from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
@@ -1093,8 +1092,8 @@ class TestRunner(Runnable):
     def _start_resource_monitor(self):
         """Start resource monitor server and client"""
         from testplan.monitor.resource import (
-            ResourceMonitorServer,
             ResourceMonitorClient,
+            ResourceMonitorServer,
         )
 
         if self.cfg.resource_monitor:
