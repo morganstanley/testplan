@@ -23,7 +23,9 @@ DATA_DIR = Path(__file__).parent / "data"
 )
 def test_convert_roundtrip(from_cmd, input_file, to_cmd, ref_file):
     input_file = str(DATA_DIR / input_file)
-    with tempfile.NamedTemporaryFile() as f:
+    try:
+        f = tempfile.NamedTemporaryFile(delete=False)
+        f.close()
         subprocess.run(
             ["tpsreport", "convert", from_cmd, input_file, to_cmd, f.name],
             check=True,
@@ -31,3 +33,5 @@ def test_convert_roundtrip(from_cmd, input_file, to_cmd, ref_file):
         if ref_file:
             ref_file = str(DATA_DIR / ref_file)
             subprocess.run(["diff", f.name, ref_file], check=True)
+    finally:
+        Path(f.name).unlink()
