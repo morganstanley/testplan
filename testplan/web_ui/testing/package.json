@@ -83,7 +83,8 @@
     "test": "react-scripts --max_old_space_size=4096 test",
     "lint": "eslint --ext .js --ext .jsx src",
     "lint:fix": "eslint --ext .js --ext .jsx src --fix",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "format": "prettier --write"
   },
   "homepage": "/",
   "browserslist": {
