@@ -12,6 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Button from "@material-ui/core/Button";
 import Linkify from "linkify-react";
+import _ from "lodash";
 import { getWorkspacePath } from "../Common/utils";
 
 library.add(faLayerGroup);
@@ -75,7 +76,7 @@ function AssertionHeader({
 
   const timeInfoArray = assertion.timeInfoArray || [];
   let component =
-    assertion.machine_time === undefined ? (
+    _.isEmpty(assertion.utc_time) && _.isEmpty(assertion.timestamp) ? (
       <span className={css(styles.cardHeaderAlignRight)}>
         <FontAwesomeIcon // Should be a nested assertion group
           size="sm"
