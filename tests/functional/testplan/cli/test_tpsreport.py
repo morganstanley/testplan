@@ -23,7 +23,7 @@ DATA_DIR = Path(__file__).parent / "data"
 )
 def test_convert_roundtrip(from_cmd, input_file, to_cmd, ref_file):
     input_file = str(DATA_DIR / input_file)
-    with tempfile.NamedTemporaryFile() as f:
+    with tempfile.NamedTemporaryFile(delete_on_close=False) as f:
         subprocess.run(
             ["tpsreport", "convert", from_cmd, input_file, to_cmd, f.name],
             check=True,
