@@ -9,7 +9,7 @@ import pprint
 import shutil
 import hashlib
 import pathlib
-import plotly.io
+
 
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
@@ -387,6 +387,8 @@ class MatPlot(Attachment):
 
 class Plotly(Attachment):
     def __init__(self, fig, data_file_path, style=None, description=None):
+        import plotly.io
+
         fig_json = plotly.io.to_json(fig)
         pathlib.Path(data_file_path).resolve().parent.mkdir(
             parents=True, exist_ok=True

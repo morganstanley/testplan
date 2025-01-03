@@ -16,8 +16,6 @@ from typing import (
     Type,
     Union,
 )
-
-import plotly.express as px
 from schema import And, Or, Use
 
 from testplan import defaults
@@ -804,6 +802,8 @@ class Test(Runnable):
     def _record_driver_timing(
         self, setup_or_teardown: str, case_report: TestCaseReport
     ) -> None:
+        import plotly.express as px
+
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )

@@ -1,8 +1,52 @@
-from .base import Exporter
-from .tagfiltered import TagFilteredExporter
-from .coverage import CoveredTestsExporter
-from .http import HTTPExporter
-from .json import JSONExporter
-from .pdf import PDFExporter, TagFilteredPDFExporter
-from .webserver import WebServerExporter
-from .xml import XMLExporter
+# pylint: disable=undefined-all-variable
+__all__ = [
+    "Exporter",
+    "TagFilteredExporter",
+    "CoveredTestsExporter",
+    "HTTPExporter",
+    "JSONExporter",
+    "PDFExporter",
+    "TagFilteredPDFExporter",
+    "WebServerExporter",
+    "XMLExporter",
+]
+# pylint: enable=undefined-all-variable
+
+
+def __getattr__(name):
+    if name == "Exporter":
+        from .base import Exporter
+
+        return Exporter
+    elif name == "TagFilteredExporter":
+        from .tagfiltered import TagFilteredExporter
+
+        return TagFilteredExporter
+    elif name == "CoveredTestsExporter":
+        from .coverage import CoveredTestsExporter
+
+        return CoveredTestsExporter
+    elif name == "HTTPExporter":
+        from .http import HTTPExporter
+
+        return HTTPExporter
+    elif name == "JSONExporter":
+        from .json import JSONExporter
+
+        return JSONExporter
+    elif name == "PDFExporter":
+        from .pdf import PDFExporter
+
+        return PDFExporter
+    elif name == "TagFilteredPDFExporter":
+        from .pdf import TagFilteredPDFExporter
+
+        return TagFilteredPDFExporter
+    elif name == "WebServerExporter":
+        from .webserver import WebServerExporter
+
+        return WebServerExporter
+    elif name == "XMLExporter":
+        from .xml import XMLExporter
+
+        return XMLExporter

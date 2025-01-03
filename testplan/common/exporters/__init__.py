@@ -7,6 +7,7 @@ from typing import Dict, List, Optional
 
 from testplan.common.config import Config, Configurable
 from testplan.common.utils import strings
+from testplan.common.utils.comparison import is_regex
 from testplan.common.utils.timing import utcnow
 from testplan.report import TestReport
 
@@ -172,3 +173,41 @@ def run_exporter(
                 exp_result.result = result
         export_context.results.append(exp_result)
         return exp_result
+
+
+def format_cell_data(data, limit):
+    """
+    Change the str representation of values in data if they represent regex or
+    lambda functions. Also limit the length of these strings.
+
+    :param data: List of values to be formatted.
+    :type data: ``list``
+    :param limit: The number of characters allowed in each string.
+    :type limit: ``int``
+    :return: List of formatted and limited strings.
+    :rtype: ``list``
+    """
+    for i, value in enumerate(data):
+        if is_regex(value):
+            data[i] = "REGEX('{}')".format(value.pattern)
+        elif "lambda" in str(value):
+            data[i] = "<lambda>"
+
+    return _limit_cell_length(data, limit)
+
+
+def _limit_cell_length(iterable, limit):
+    """
+    Limit the length of each string in the iterable.
+
+    :param iterable: iterable object containing string values.
+    :type iterable: ``list`` or ``tuple`` etc.
+    :param limit: The number of characters allowed in each string
+    :type limit: ``int``
+    :return: The list of limited strings.
+    :rtype: ``list`` of ``str``
+    """
+    return [
+        val if len(str(val)) < limit else "{}...".format(str(val)[: limit - 3])
+        for val in iterable
+    ]

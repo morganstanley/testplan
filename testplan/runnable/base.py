@@ -12,6 +12,7 @@ from copy import copy
 from dataclasses import dataclass
 from itertools import zip_longest
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Collection,
@@ -25,7 +26,6 @@ from typing import (
 )
 
 from schema import And, Or, Use
-
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
@@ -36,12 +36,15 @@ from testplan.common.entity import (
     RunnableStatus,
 )
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
-from testplan.common.remote.remote_service import RemoteService
+
+if TYPE_CHECKING:
+    from testplan.common.remote.remote_service import RemoteService
+    from testplan.monitor.resource import (
+        ResourceMonitorServer,
+        ResourceMonitorClient,
+    )
+
 from testplan.common.report import MergeError
-from testplan.monitor.resource import (
-    ResourceMonitorServer,
-    ResourceMonitorClient,
-)
 from testplan.common.utils import logger, strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
@@ -59,7 +62,6 @@ from testplan.report import (
 )
 from testplan.report.filter import ReportingFilter
 from testplan.report.testing.styles import Style
-from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.tasks import Task, TaskResult
@@ -239,7 +241,8 @@ class TestRunnerConfig(RunnableConfig):
             # active_loop_sleep impacts cpu usage in interactive mode
             ConfigOption("active_loop_sleep", default=0.05): float,
             ConfigOption(
-                "interactive_handler", default=TestRunnerIHandler
+                "interactive_handler",
+                default=None,
             ): object,
             ConfigOption("extra_deps", default=[]): [
                 Or(str, lambda x: inspect.ismodule(x))
@@ -385,7 +388,7 @@ class TestRunner(Runnable):
     :type abort_wait_timeout: ``int``
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
-        `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
+        `TestRunnerIHandler <testplan.runnable.interactive.base.TestRunnerIHandler>`
     :param extra_deps: Extra module dependencies for interactive reload, or
         paths of these modules.
     :type extra_deps: ``list`` of ``module`` or ``str``
@@ -430,14 +433,14 @@ class TestRunner(Runnable):
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = not self._is_interactive_run()
         self.scheduled_modules = []  # For interactive reload
-        self.remote_services: Dict[str, RemoteService] = {}
+        self.remote_services: Dict[str, "RemoteService"] = {}
         self.runid_filename = uuid.uuid4().hex
         self.define_runpath()
         self._runnable_uids = set()
         self._verified_targets = {}  # target object id -> runnable uid
-        self.resource_monitor_server: Optional[ResourceMonitorServer] = None
+        self.resource_monitor_server: Optional["ResourceMonitorServer"] = None
         self.resource_monitor_server_file_path: Optional[str] = None
-        self.resource_monitor_client: Optional[ResourceMonitorClient] = None
+        self.resource_monitor_client: Optional["ResourceMonitorClient"] = None
 
     def __str__(self):
         return f"Testplan[{self.uid()}]"
@@ -561,7 +564,7 @@ class TestRunner(Runnable):
         """
         self.cfg.exporters.extend(get_exporters(exporters))
 
-    def add_remote_service(self, remote_service: RemoteService):
+    def add_remote_service(self, remote_service: "RemoteService"):
         """
         Adds a remote service
         :py:class:`~testplan.common.remote.remote_service.RemoteService`
@@ -1088,6 +1091,11 @@ class TestRunner(Runnable):
 
     def _start_resource_monitor(self):
         """Start resource monitor server and client"""
+        from testplan.monitor.resource import (
+            ResourceMonitorClient,
+            ResourceMonitorServer,
+        )
+
         if self.cfg.resource_monitor:
             self.resource_monitor_server = ResourceMonitorServer(
                 self.resource_monitor_server_file_path,

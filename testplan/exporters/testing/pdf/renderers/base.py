@@ -6,8 +6,8 @@ import functools
 from html import escape
 
 from reportlab.platypus import Paragraph
-
 from testplan.common.exporters.pdf import RowData
+
 from . import constants
 
 RowData = functools.partial(RowData, num_columns=constants.NUM_COLUMNS)
