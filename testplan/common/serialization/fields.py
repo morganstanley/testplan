@@ -11,7 +11,7 @@ from lxml import etree
 
 from marshmallow import fields
 from marshmallow import class_registry
-from marshmallow.base import SchemaABC
+from marshmallow.schema import Schema
 from marshmallow.utils import missing as missing_
 
 from testplan.common.utils import comparison
@@ -291,12 +291,12 @@ class GenericNested(fields.Field):
         if callable(schema_value) and not isinstance(schema_value, type):
             schema_value = schema_value()
 
-        if isinstance(schema_value, SchemaABC):
+        if isinstance(schema_value, Schema):
             schema_value.context.update(parent_ctx)
             return schema_value
 
         elif isinstance(schema_value, type) and issubclass(
-            schema_value, SchemaABC
+            schema_value, Schema
         ):
             return schema_value(many=self.many, context=parent_ctx)
 
