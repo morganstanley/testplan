@@ -7,7 +7,7 @@ from itertools import chain
 from terminaltables import AsciiTable
 
 import testplan.common.exporters.constants as constants
-from testplan.common.exporters.pdf import format_cell_data
+from testplan.common.exporters import format_cell_data
 from testplan.common.utils.strings import Color, map_to_str
 
 from .. import assertions

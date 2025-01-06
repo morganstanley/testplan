@@ -1225,13 +1225,21 @@ class Runnable(Entity):
         """
         try:
             if self.cfg.interactive_port is not None:
+
+                from testplan.runnable.interactive.base import (
+                    TestRunnerIHandler,
+                )
+
                 if self._ihandler is not None:
                     raise RuntimeError(
                         f"{self} already has an active {self._ihandler}"
                     )
 
                 self.logger.user_info("Starting %s in interactive mode", self)
-                self._ihandler = self.cfg.interactive_handler(
+                handler_class = (
+                    self.cfg.interactive_handler or TestRunnerIHandler
+                )
+                self._ihandler = handler_class(
                     target=self,
                     http_port=self.cfg.interactive_port,
                     pre_start_environments=self.cfg.pre_start_environments,
