@@ -50,3 +50,4 @@ def __getattr__(name):
         from .xml import XMLExporter
 
         return XMLExporter
+    raise AttributeError(f"module {__name__} has no attribute {name}")
