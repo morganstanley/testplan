@@ -1,0 +1,1 @@
+Update ``orjson`` dumping option to allow serializing ``numpy`` objects.
