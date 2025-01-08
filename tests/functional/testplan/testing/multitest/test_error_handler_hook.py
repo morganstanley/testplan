@@ -157,6 +157,7 @@ def test_multitest_hook_failure(mockplan):
             TestGroupReport(
                 name="MyMultitest",
                 category=ReportCategories.MULTITEST,
+                status_override=Status.ERROR,
                 entries=[
                     TestGroupReport(
                         name="Environment Start",

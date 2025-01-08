@@ -303,6 +303,14 @@ class MultiTest(testing_base.Test):
     ):
         self._tags_index = None
 
+        if "multi_part_uid" in options:
+            # might be replaced by multi_part_name_func
+            warnings.warn(
+                "MultiTest uid can no longer be customised, please remove ``multi_part_uid`` argument.",
+                DeprecationWarning,
+            )
+            del options["multi_part_uid"]
+
         options.update(self.filter_locals(locals()))
         super(MultiTest, self).__init__(**options)
 
