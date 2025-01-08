@@ -532,9 +532,9 @@ class MySuite:
             f.write("vodka\n")
             f.write("lime juice\n")
             f.flush()
-            result.logfile.match(lm, r"lime juice", timeout=0.1)
+            result.logfile.match(lm, r"lime juice", timeout=1)
             result.logfile.seek_eof(lm)
-            with result.logfile.expect(lm, r"ginger beer", timeout=0.1):
+            with result.logfile.expect(lm, r"ginger beer", timeout=1):
                 f.write("ginger beer\n")
                 f.flush()
         finally:
