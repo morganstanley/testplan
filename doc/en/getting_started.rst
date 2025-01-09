@@ -9,7 +9,7 @@ in your local environment!
 Supported Python Versions
 =========================
 
-Testplan is tested to work with Python 3.7 and 3.8, 3.10 and 3.11 so we recommend choosing one of those.
+Testplan is tested to work with Python 3.10 and 3.11 so we recommend choosing one of those.
 
 .. _install_testplan:
 
@@ -22,7 +22,7 @@ Install from archive:
   
     .. code-block:: bash
 
-      python3.7 -m pip install https://github.com/morganstanley/testplan/releases/download/latest/testplan-21.9.29-py3-none-any.whl
+      python3.10 -m pip install https://github.com/morganstanley/testplan/releases/download/24.9.2/testplan-24.9.2-py3-none-any.whl
       
 
 Run testplan
@@ -76,8 +76,8 @@ Also find all our downloadable examples :ref:`here <download>`.
 
 Working with the source
 -----------------------
-
-You will need a working python 3.7+ interrpreter preferably a venv, and for the interactive ui you need node installed. 
+ 
+You will need a working python 3.10+ interpreter preferably a venv, and for the interactive ui you need node installed. 
 We are using `doit <https://pydoit.org/contents.html>`_ as the taskrunner ``doit list`` can show all the commands.
 
   .. code-block:: text
