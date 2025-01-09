@@ -990,7 +990,7 @@ expected_report = TestReport(
                                     "type": "LogfileMatch",
                                     "description": None,
                                     "passed": True,
-                                    "timeout": 1,
+                                    "timeout": 0.1,
                                     "results": [
                                         {
                                             "matched": "lime juice",
@@ -1007,7 +1007,7 @@ expected_report = TestReport(
                                     "type": "LogfileMatch",
                                     "description": None,
                                     "passed": True,
-                                    "timeout": 1,
+                                    "timeout": 0.1,
                                     "results": [
                                         {
                                             "matched": "ginger beer",
