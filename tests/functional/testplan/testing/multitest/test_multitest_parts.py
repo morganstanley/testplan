@@ -1,5 +1,8 @@
+import re
 from itertools import chain, cycle, repeat
 from operator import eq
+
+import pytest
 
 from testplan import TestplanMock
 from testplan.report import Status
@@ -55,9 +58,7 @@ uid_gen = cycle([i for i in range(10)])
 
 
 def get_mtest_with_custom_uid(part_tuple=None):
-    # XXX: abolish multi_part_uid, may rename it to multi_part_report_name?
-    # XXX: or we may still accept customised uids, but we need to rewrite
-    # XXX: current filters
+    # NOTE: multi_part_uid is noop now
     return MultiTest(
         name="MTest",
         suites=[Suite1(), Suite2()],
@@ -159,11 +160,15 @@ def test_multi_parts_incorrect_schedule():
     )
 
 
-def test_multi_parts_duplicate_part():
+def test_multi_parts_duplicate_part(mocker):
     """
     Execute MultiTest parts with a part of MultiTest has been
     scheduled twice and automatically be filtered out.
+    ---
+    since multi_part_uid has no functional effect now, original test is invalid
+    preserved for simple backward compatibility test, i.e. no exception raised
     """
+    mock_warn = mocker.patch("warnings.warn")
     plan = TestplanMock(name="plan", merge_scheduled_parts=True)
     pool = ThreadPool(name="MyThreadPool", size=2)
     plan.add_resource(pool)
@@ -172,20 +177,14 @@ def test_multi_parts_duplicate_part():
         task = Task(target=get_mtest_with_custom_uid(part_tuple=(idx, 3)))
         plan.schedule(task, resource="MyThreadPool")
 
-    task = Task(target=get_mtest_with_custom_uid(part_tuple=(1, 3)))
-    plan.schedule(task, resource="MyThreadPool")
+    with pytest.raises(ValueError):
+        task = Task(target=get_mtest_with_custom_uid(part_tuple=(1, 3)))
+        plan.schedule(task, resource="MyThreadPool")
 
-    assert len(plan._tests) == 4
-
-    assert plan.run().run is False
-
-    assert len(plan.report.entries) == 5  # one placeholder report & 4 siblings
-    assert len(plan.report.entries[0].entries) == 0  # already cleared
-    assert plan.report.status == Status.ERROR  # Testplan result
-    assert (
-        "duplicate MultiTest parts had been scheduled"
-        in plan.report.entries[0].logs[0]["message"]
-    )
+    assert mock_warn.call_count == 4
+    assert re.search(r"remove.*multi_part_uid", mock_warn.call_args[0][0])
+    assert len(plan._tests) == 3
+    assert plan.run().run is True
 
 
 def test_multi_parts_missing_parts():
