@@ -289,23 +289,11 @@ class TestLogMatcher:
 
     def test_match_large_file(self, large_logfile):
         """
-        Test matching the last entry in a large logfile, as a more realistic
-        test. The LogMatcher should quickly iterate through lines in the
-        logfile and return the match without timing out.
+        Test matching the last entry in a large logfile, the LogMatcher
+        shall iterate through lines in the logfile regardless of too small a timeout.
+        This avoids false alert when log file reading is slow due to machine load.
         """
         matcher = LogMatcher(log_path=large_logfile)
-
-        # Check that the LogMatcher can find the last 'Match me!' line in a
-        # reasonable length of time. 10s is a very generous timeout, most
-        # of the time it should complete in <1s.
-        match = matcher.match(
-            regex=r"^Match me!$", timeout=10, raise_on_timeout=False
-        )
-
-        assert match is not None
-        assert match.group(0) == "Match me!"
-
-        matcher.seek()
 
         # Check that the LogMatcher can find the last 'Match me!' line with
         # a whole-file scan.
@@ -318,13 +306,13 @@ class TestLogMatcher:
 
         matcher.seek()
 
-        # Check that the LogMatcher will exit when timeout reaches while EOF
-        # not being met yet.
+        # Check that the LogMatcher will reach EOF regardless of timeout
         match = matcher.match(
             regex=r"^Match me!$", timeout=0.01, raise_on_timeout=False
         )
 
-        assert match is None
+        assert match is not None
+        assert match.group(0) == "Match me!"
 
     def test_scoped_match(self, rotating_logger, test_rotation):
         """unit test for expect api"""

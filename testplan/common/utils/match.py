@@ -196,6 +196,8 @@ class LogMatcher(logger.Loggable):
 
         if isinstance(regexp, (str, bytes)):
             regexp = re.compile(regexp)
+        elif isinstance(regexp, re.Pattern):
+            pass
         else:
             try:
                 import rpyc
@@ -278,7 +280,6 @@ class LogMatcher(logger.Loggable):
         match = None
         start_time = time.time()
         end_time = start_time + timeout
-        regex = self._prepare_regexp(regex)
 
         with closing(self.log_stream) as log:
             log.seek(self.position)
@@ -301,11 +302,10 @@ class LogMatcher(logger.Loggable):
                     if match:
                         break
                 elif timeout > 0:
+                    if time.time() > end_time:
+                        break
                     time.sleep(LOG_MATCHER_INTERVAL)
                 else:
-                    break
-
-                if timeout > 0 and time.time() > end_time:
                     break
 
             self.position = self.log_stream.position
