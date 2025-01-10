@@ -45,7 +45,7 @@ jobs:
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
       BLACK_VERSION: "22.10.0"
-      LINT_PYTHON_VERSION: "3.7"
+      LINT_PYTHON_VERSION: "3.10"
     steps:
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6

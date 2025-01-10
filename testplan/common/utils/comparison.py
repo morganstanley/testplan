@@ -14,7 +14,9 @@ def is_regex(obj):
     """
     Cannot do type check against SRE_Pattern, so we use duck typing.
     """
-    return hasattr(obj, "match") and hasattr(obj, "pattern")
+    import re
+
+    return isinstance(obj, re.Pattern)
 
 
 def basic_compare(first, second, strict=False):
