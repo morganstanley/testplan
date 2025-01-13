@@ -1,0 +1,1 @@
+Support for Python 3.7 and 3.8 is deprecated and will be removed soon.

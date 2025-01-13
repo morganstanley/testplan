@@ -20,6 +20,9 @@
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Testing",
@@ -41,9 +44,12 @@
         "pyzmq",
         "terminaltables",
         "requests>=2.4.3",
-        "Flask>2.0.0",
-        "Werkzeug>2.0.0",
-        "flask_restx",
+        "Flask>2.0.0,<2.3.0; python_version=='3.7'",
+        "Flask>2.0.0; python_version>='3.8'",
+        "Werkzeug>2.0.0,<2.3.0; python_version=='3.7'",
+        "Werkzeug>2.0.0; python_version>='3.8'",
+        "flask_restx<1.2.0; python_version=='3.7'",
+        "flask_restx; python_version>='3.8'",
         "cheroot",
         "boltons",
         "validators<=0.20.0",
@@ -60,7 +66,7 @@
         "orjson; python_version>='3.8'",
         "flask-orjson; python_version>='3.8'"
     ]
-    requires-python = ">=3.10"
+    requires-python = ">=3.7"
 
 [project.urls]
     homepage = "https://github.com/morganstanley/testplan"

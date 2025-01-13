@@ -35,7 +35,7 @@ class SampleTest:
         #
         # Note that on Python 3 you can use the Barrier class from the standard
         # library:
-        # https://docs.python.org/3.7/library/threading.html#barrier-objects .
+        # https://docs.python.org/3/library/threading.html#barrier-objects .
         # Here we use a backported Barrier provided by Testplan, which works
         # on both Python 2 and 3.
         self._barrier = thread_utils.Barrier(2)
