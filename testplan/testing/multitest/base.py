@@ -224,9 +224,6 @@ class MultiTestConfig(testing_base.TestConfig):
                     and tup[1] > 1,
                 ),
             ),
-            config.ConfigOption("multi_part_uid", default=None): Or(
-                None, lambda x: callable(x)
-            ),
             config.ConfigOption("testcase_report_target", default=True): bool,
         }
 
@@ -258,9 +255,6 @@ class MultiTest(testing_base.Test):
     :param part: Execute only a part of the total testcases. MultiTest needs to
         know which part of the total it is. Only works with Multitest.
     :type part: ``tuple`` of (``int``, ``int``)
-    :param multi_part_uid: Custom function to overwrite the uid of test entity
-        if `part` attribute is defined, otherwise use default implementation.
-    :type multi_part_uid: ``callable``
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
     :param testcase_report_target: Whether to mark testcases as assertions for filepath
         and line number information
@@ -291,7 +285,6 @@ class MultiTest(testing_base.Test):
         thread_pool_size=0,
         max_thread_pool_size=10,
         part=None,
-        multi_part_uid=None,
         before_start=None,
         after_start=None,
         before_stop=None,
@@ -303,6 +296,19 @@ class MultiTest(testing_base.Test):
         **options,
     ):
         self._tags_index = None
+
+        if "multi_part_uid" in options:
+            # might be replaced by multi_part_name_func
+            warnings.warn(
+                "MultiTest uid can no longer be customised, please remove ``multi_part_uid`` argument.",
+                DeprecationWarning,
+            )
+            del options["multi_part_uid"]
+        if "fix_spec_path" in options:
+            warnings.warn(
+                "``fix_spec_path`` no longer accepted, please remove it."
+            )
+            del options["fix_spec_path"]
 
         options.update(self.filter_locals(locals()))
         super(MultiTest, self).__init__(**options)
@@ -339,12 +345,8 @@ class MultiTest(testing_base.Test):
         A Multitest part instance should not have the same uid as its name.
         """
         if self.cfg.part:
-            return (
-                self.cfg.multi_part_uid(self.cfg.name, self.cfg.part)
-                if self.cfg.multi_part_uid
-                else TEST_PART_PATTERN_FORMAT_STRING.format(
-                    self.cfg.name, self.cfg.part[0], self.cfg.part[1]
-                )
+            return TEST_PART_PATTERN_FORMAT_STRING.format(
+                self.cfg.name, self.cfg.part[0], self.cfg.part[1]
             )
         else:
             return self.cfg.name
@@ -523,7 +525,7 @@ class MultiTest(testing_base.Test):
         self,
         testsuite_pattern: str = "*",
         testcase_pattern: str = "*",
-        shallow_report: Dict = None,
+        shallow_report: Optional[Dict] = None,
     ) -> Generator:
         """
         Run all testcases and yield testcase reports.

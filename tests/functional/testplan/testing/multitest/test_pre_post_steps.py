@@ -200,3 +200,20 @@ def test_no_pre_post_steps(mockplan):
     )
 
     check_report(expected_report, mockplan.report)
+
+
+def test_before_start_error_skip_remaining(mockplan):
+    multitest = MultiTest(
+        name="MyMultiTest",
+        suites=[MySuite()],
+        before_start=lambda env: 1 / 0,
+    )
+    mockplan.add(multitest)
+    mockplan.run()
+
+    mt_rpt = mockplan.report.entries[0]
+    # only before start report exists
+    assert len(mt_rpt.entries) == 1
+    assert mt_rpt.entries[0].entries[0].status == Status.ERROR
+    assert len(mt_rpt.entries[0].entries[0].logs) == 1
+    assert mt_rpt.entries[0].entries[0].logs[0]["levelname"] == "ERROR"
