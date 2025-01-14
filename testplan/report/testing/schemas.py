@@ -119,6 +119,8 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     part = fields.List(fields.Integer, allow_none=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool(allow_none=True)
+    timezone = fields.String(allow_none=True)
+
     category = fields.String()
     tags = TagField()
 
@@ -148,6 +150,7 @@ class TestGroupReportSchema(BaseReportGroupSchema):
         if not ReportCategories.is_test_level(data["category"]):
             del data["part"]
             del data["env_status"]
+            del data["timezone"]
         if data["category"] != ReportCategories.TESTSUITE:
             del data["strict_order"]
         return data
@@ -216,6 +219,7 @@ class ShallowTestGroupReportSchema(Schema):
     )
     counter = fields.Dict(dump_only=True)
     tags = TagField()
+    timezone = fields.String(allow_none=True)
 
     entry_uids = fields.List(fields.String(), dump_only=True)
     parent_uids = fields.List(fields.String())
@@ -248,6 +252,7 @@ class ShallowTestGroupReportSchema(Schema):
         if not ReportCategories.is_test_level(data["category"]):
             del data["part"]
             del data["env_status"]
+            del data["timezone"]
         if data["category"] != ReportCategories.TESTSUITE:
             del data["strict_order"]
         return data

@@ -247,6 +247,7 @@ class TestGroupReport(BaseReportGroup):
         part=None,
         env_status=None,
         strict_order=False,
+        timezone=None,
         **kwargs,
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -273,6 +274,9 @@ class TestGroupReport(BaseReportGroup):
 
         # Can be True For group report in category "testsuite"
         self.strict_order = strict_order
+
+        # Timezone of test's executor (Test-level only)
+        self.timezone: Optional[str] = timezone
 
         self.covered_lines: Optional[dict] = None
 
@@ -372,10 +376,16 @@ class TestGroupReport(BaseReportGroup):
             tags_index, self._collect_tag_indices()
         )
 
-    def merge(self, report, strict=True):
+    def merge(self, report: "TestGroupReport", strict: bool = True):
         """Propagate tag indices after merge operations."""
-        super(TestGroupReport, self).merge(report, strict=strict)
+        super().merge(report, strict=strict)
         self.propagate_tag_indices()
+
+        # XXX:
+        # merge report itself could be a bad idea, if for ui display purpose
+        # we'd rather do it in web-ui frontend instead
+        if self.timezone is None:
+            self.timezone = report.timezone
 
     @property
     def attachments(self):

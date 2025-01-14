@@ -22,8 +22,8 @@ __all__ = ["ReportLogSchema", "ReportSchema", "BaseReportGroupSchema"]
 class IntervalSchema(Schema):
     """Schema for ``timer.Interval``"""
 
-    start = fields.DateTime("iso")
-    end = fields.DateTime("iso", allow_none=True)
+    start = fields.DateTime("timestamp")
+    end = fields.DateTime("timestamp", allow_none=True)
 
     @post_load
     def make_interval(self, data, **kwargs):
@@ -68,7 +68,7 @@ class ReportLogSchema(Schema):
     message = fields.String()
     levelname = fields.String()
     levelno = fields.Integer()
-    created = fields.DateTime("iso")
+    created = fields.DateTime("timestamp")
     funcName = fields.String()
     lineno = fields.Integer()
     uid = fields.UUID()

@@ -80,10 +80,11 @@
                 {
                   "type": "Equal",
                   "meta_type": "assertion",
-                  "timestamp": "2024-12-24T17:34:25.189518+08:00",
+                  "timestamp": 1736736897.613295,
                   "description": "zhengshan xiaozhong == zhengshan xiaozhong",
                   "line_no": 17,
                   "file_path": "/dummy/examples/Driver/Dependency/suites.py",
+                  "code_context": "result.equal(\"zhengshan xiaozhong\", env.server_1.receive_text())",
                   "passed": true,
                   "first": "zhengshan xiaozhong",
                   "second": "zhengshan xiaozhong",
@@ -94,10 +95,11 @@
                 {
                   "type": "Equal",
                   "meta_type": "assertion",
-                  "timestamp": "2024-12-24T17:34:25.388451+08:00",
+                  "timestamp": 1736736897.692007,
                   "description": "good black tea == good black tea",
                   "line_no": 19,
                   "file_path": "/dummy/examples/Driver/Dependency/suites.py",
+                  "code_context": "result.equal(\"good black tea\", env.client_1.receive_text())",
                   "passed": true,
                   "first": "good black tea",
                   "second": "good black tea",
@@ -108,10 +110,11 @@
                 {
                   "type": "Equal",
                   "meta_type": "assertion",
-                  "timestamp": "2024-12-24T17:34:25.389568+08:00",
+                  "timestamp": 1736736897.693166,
                   "description": "whisky == whisky",
                   "line_no": 25,
                   "file_path": "/dummy/examples/Driver/Dependency/suites.py",
+                  "code_context": "result.equal(\"whisky\", env.server_2.receive_text(conn_idx=conn_2))",
                   "passed": true,
                   "first": "whisky",
                   "second": "whisky",
@@ -122,10 +125,11 @@
                 {
                   "type": "Equal",
                   "meta_type": "assertion",
-                  "timestamp": "2024-12-24T17:34:25.390629+08:00",
+                  "timestamp": 1736736897.69432,
                   "description": "soda water == soda water",
                   "line_no": 26,
                   "file_path": "/dummy/examples/Driver/Dependency/suites.py",
+                  "code_context": "result.equal(\"soda water\", env.server_2.receive_text(conn_idx=conn_3))",
                   "passed": true,
                   "first": "soda water",
                   "second": "soda water",
@@ -136,10 +140,11 @@
                 {
                   "type": "Equal",
                   "meta_type": "assertion",
-                  "timestamp": "2024-12-24T17:34:25.391621+08:00",
+                  "timestamp": 1736736897.69534,
                   "description": "good highball == good highball",
                   "line_no": 29,
                   "file_path": "/dummy/examples/Driver/Dependency/suites.py",
+                  "code_context": "result.equal(\"good highball\", env.client_2.receive_text())",
                   "passed": true,
                   "first": "good highball",
                   "second": "good highball",
@@ -150,10 +155,11 @@
                 {
                   "type": "Equal",
                   "meta_type": "assertion",
-                  "timestamp": "2024-12-24T17:34:25.392500+08:00",
+                  "timestamp": 1736736897.696329,
                   "description": "good highball == good highball",
                   "line_no": 30,
                   "file_path": "/dummy/examples/Driver/Dependency/suites.py",
+                  "code_context": "result.equal(\"good highball\", env.client_3.receive_text())",
                   "passed": true,
                   "first": "good highball",
                   "second": "good highball",
@@ -174,8 +180,8 @@
               "timer": {
                 "run": [
                   {
-                    "start": "2024-12-24T17:34:25.189215+08:00",
-                    "end": "2024-12-24T17:34:25.393465+08:00"
+                    "start": 1736736897.612973,
+                    "end": 1736736897.697323
                   }
                 ]
               },
@@ -199,8 +205,8 @@
           "timer": {
             "run": [
               {
-                "start": "2024-12-24T17:34:25.187996+08:00",
-                "end": "2024-12-24T17:34:25.396552+08:00"
+                "start": 1736736897.611596,
+                "end": 1736736897.700811
               }
             ]
           },
@@ -276,20 +282,20 @@
       "timer": {
         "setup": [
           {
-            "start": "2024-12-24T17:34:24.423370+08:00",
-            "end": "2024-12-24T17:34:25.182458+08:00"
+            "start": 1736736896.845939,
+            "end": 1736736897.606028
           }
         ],
         "run": [
           {
-            "start": "2024-12-24T17:34:25.187822+08:00",
-            "end": "2024-12-24T17:34:25.396940+08:00"
+            "start": 1736736897.611416,
+            "end": 1736736897.701144
           }
         ],
         "teardown": [
           {
-            "start": "2024-12-24T17:34:25.407673+08:00",
-            "end": "2024-12-24T17:34:26.056985+08:00"
+            "start": 1736736897.711823,
+            "end": 1736736898.362018
           }
         ]
       },
@@ -304,20 +310,20 @@
           "timer": {
             "lifespan": [
               {
-                "start": "2024-12-24T17:34:24.455992+08:00",
-                "end": "2024-12-24T17:34:25.724206+08:00"
+                "start": 1736736896.878906,
+                "end": 1736736898.028902
               }
             ],
             "setup": [
               {
-                "start": "2024-12-24T17:34:24.456220+08:00",
-                "end": "2024-12-24T17:34:24.659501+08:00"
+                "start": 1736736896.879103,
+                "end": 1736736897.082009
               }
             ],
             "teardown": [
               {
-                "start": "2024-12-24T17:34:25.720387+08:00",
-                "end": "2024-12-24T17:34:25.930181+08:00"
+                "start": 1736736898.02462,
+                "end": 1736736898.235131
               }
             ]
           },
@@ -328,20 +334,20 @@
           "timer": {
             "lifespan": [
               {
-                "start": "2024-12-24T17:34:24.507861+08:00",
-                "end": "2024-12-24T17:34:25.729348+08:00"
+                "start": 1736736896.930363,
+                "end": 1736736898.034356
               }
             ],
             "setup": [
               {
-                "start": "2024-12-24T17:34:24.507998+08:00",
-                "end": "2024-12-24T17:34:24.761620+08:00"
+                "start": 1736736896.930492,
+                "end": 1736736897.184318
               }
             ],
             "teardown": [
               {
-                "start": "2024-12-24T17:34:25.724411+08:00",
-                "end": "2024-12-24T17:34:25.929886+08:00"
+                "start": 1736736898.029126,
+                "end": 1736736898.23484
               }
             ]
           },
@@ -352,20 +358,20 @@
           "timer": {
             "lifespan": [
               {
-                "start": "2024-12-24T17:34:24.759989+08:00",
-                "end": "2024-12-24T17:34:25.418709+08:00"
+                "start": 1736736897.182565,
+                "end": 1736736897.722889
               }
             ],
             "setup": [
               {
-                "start": "2024-12-24T17:34:24.760417+08:00",
-                "end": "2024-12-24T17:34:24.965005+08:00"
+                "start": 1736736897.18294,
+                "end": 1736736897.388258
               }
             ],
             "teardown": [
               {
-                "start": "2024-12-24T17:34:25.418613+08:00",
-                "end": "2024-12-24T17:34:25.619464+08:00"
+                "start": 1736736897.722804,
+                "end": 1736736897.923932
               }
             ]
           },
@@ -376,20 +382,20 @@
           "timer": {
             "lifespan": [
               {
-                "start": "2024-12-24T17:34:24.862056+08:00",
-                "end": "2024-12-24T17:34:25.418891+08:00"
+                "start": 1736736897.284838,
+                "end": 1736736897.723041
               }
             ],
             "setup": [
               {
-                "start": "2024-12-24T17:34:24.862339+08:00",
-                "end": "2024-12-24T17:34:25.065558+08:00"
+                "start": 1736736897.285242,
+                "end": 1736736897.488901
               }
             ],
             "teardown": [
               {
-                "start": "2024-12-24T17:34:25.418835+08:00",
-                "end": "2024-12-24T17:34:25.619761+08:00"
+                "start": 1736736897.722988,
+                "end": 1736736897.923632
               }
             ]
           },
@@ -400,20 +406,20 @@
           "timer": {
             "lifespan": [
               {
-                "start": "2024-12-24T17:34:24.863464+08:00",
-                "end": "2024-12-24T17:34:25.419027+08:00"
+                "start": 1736736897.286663,
+                "end": 1736736897.723199
               }
             ],
             "setup": [
               {
-                "start": "2024-12-24T17:34:24.863673+08:00",
-                "end": "2024-12-24T17:34:25.065859+08:00"
+                "start": 1736736897.286906,
+                "end": 1736736897.489196
               }
             ],
             "teardown": [
               {
-                "start": "2024-12-24T17:34:25.418989+08:00",
-                "end": "2024-12-24T17:34:25.619851+08:00"
+                "start": 1736736897.723157,
+                "end": 1736736897.924026
               }
             ]
           },
@@ -422,6 +428,7 @@
       ],
       "part": null,
       "env_status": "STOPPED",
+      "timezone": "Asia/Hong_Kong",
       "category": "multitest",
       "tags": {}
     }
@@ -434,8 +441,8 @@
   "timer": {
     "run": [
       {
-        "start": "2024-12-24T17:34:24.145056+08:00",
-        "end": "2024-12-24T17:34:26.409960+08:00"
+        "start": 1736736896.537064,
+        "end": 1736736898.734016
       }
     ]
   },
@@ -450,19 +457,19 @@
       "timer": {
         "lifespan": [
           {
-            "start": "2024-12-24T17:34:24.399477+08:00",
-            "end": "2024-12-24T17:34:26.257489+08:00"
+            "start": 1736736896.823896,
+            "end": 1736736898.581659
           }
         ],
         "setup": [
           {
-            "start": "2024-12-24T17:34:24.399769+08:00",
-            "end": "2024-12-24T17:34:24.400866+08:00"
+            "start": 1736736896.824156,
+            "end": 1736736896.825299
           }
         ],
         "teardown": [
           {
-            "start": "2024-12-24T17:34:26.157209+08:00",
+            "start": 1736736898.481388,
             "end": null
           }
         ]
@@ -474,20 +481,20 @@
       "timer": {
         "lifespan": [
           {
-            "start": "2024-12-24T17:34:24.400534+08:00",
-            "end": "2024-12-24T17:34:26.157132+08:00"
+            "start": 1736736896.824983,
+            "end": 1736736898.481295
           }
         ],
         "setup": [
           {
-            "start": "2024-12-24T17:34:24.400826+08:00",
-            "end": "2024-12-24T17:34:24.400938+08:00"
+            "start": 1736736896.825253,
+            "end": 1736736896.825378
           }
         ],
         "teardown": [
           {
-            "start": "2024-12-24T17:34:26.157082+08:00",
-            "end": "2024-12-24T17:34:26.257591+08:00"
+            "start": 1736736898.481243,
+            "end": 1736736898.581742
           }
         ]
       },
@@ -501,7 +508,7 @@
   "information": [
     [
       "testplan_version",
-      "24.9.2.dev1735810598"
+      "24.9.2"
     ],
     [
       "user",
@@ -509,7 +516,7 @@
     ],
     [
       "command_line_string",
-      "./test_plan.py --json examples_driver_dependency.json"
+      "./test_plan.py --code --json examples_driver_dependency.json"
     ],
     [
       "python_version",

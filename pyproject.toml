@@ -36,6 +36,7 @@
         "pytest-mock",
         "psutil",
         "schema",
+        "tzlocal",
         "lxml",
         "reportlab",
         "marshmallow",

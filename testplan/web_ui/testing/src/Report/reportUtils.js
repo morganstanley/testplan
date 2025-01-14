@@ -224,12 +224,7 @@ const GetCenterPane = (
   }
 
   if (state.currentPanelView === VIEW_TYPE.RESOURCE) {
-    return (
-      <ResourcePanel
-        key="resourcePanel"
-        report={state.report}
-      />
-    );
+    return <ResourcePanel key="resourcePanel" report={state.report} />;
   }
 
   const assertions = getAssertions(selectedEntries, displayTime, UTCTime);
@@ -261,6 +256,15 @@ const GetCenterPane = (
 
 /** TODO */
 const getAssertions = (selectedEntries, displayTime, UTCTime) => {
+  // get timezone from nearest (test-level) report
+  let IANAtz = ""; // default to utc
+  for (let e of selectedEntries) {
+    if (e.timezone) {
+      IANAtz = e.timezone;
+      break;
+    }
+  }
+
   // get all assertions from groups and list them sequentially in an array
   const getAssertionsRecursively = (links, entries) => {
     for (let i = 0; i < entries.length; ++i) {
@@ -275,7 +279,7 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
   const createTimeInfoString = (entry, UTCTime) => {
     // new entry structure
     if (entry.timestamp) {
-      let d = new TZDate(entry.timestamp);
+      let d = new TZDate(entry.timestamp * 1000, IANAtz);
       let rep = UTCTime ? formatISO(d.withTimeZone("UTC")) : formatISO(d);
       return rep.split("T")[1];
     }
@@ -296,9 +300,9 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
       const currentEntryTime = new Date(currentEntry.utc_time).getTime();
       return formatMilliseconds(currentEntryTime - previousEntryTime);
     } else if (prevEntry.timestamp && currentEntry.timestamp) {
-      const previousEntryTime = new Date(prevEntry.timestamp);
-      const currentEntryTime = new Date(currentEntry.timestamp);
-      return formatMilliseconds(currentEntryTime - previousEntryTime);
+      return formatMilliseconds(
+        (currentEntry.timestamp - prevEntry.timestamp) * 1000
+      );
     }
     return "Unknown";
   };
@@ -322,31 +326,30 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
       }
       if (links.length > 0) {
         let duration = "Unknown";
-        if (
-          selectedEntry.timer &&
-          selectedEntry.timer.run &&
-          (links[0].utc_time || links[0].timestamp)
-        ) {
-          let previousEntryTime = null;
-          // TODO: remove the else branch after Aug. 1 2024
-          if (
-            Array.isArray(selectedEntry.timer.run) &&
-            !_.isEmpty(selectedEntry.timer.run)
-          ) {
-            previousEntryTime = new Date(
-              selectedEntry.timer.run.at(-1).start
-            );
-          } else {
-            previousEntryTime = new Date(
-              selectedEntry.timer.run.start
+        if (selectedEntry.timer && selectedEntry.timer.run) {
+          if (links[0].utc_time) {
+            let previousEntryTime = null;
+            // TODO: remove the else branch after Aug. 1 2024
+            if (
+              Array.isArray(selectedEntry.timer.run) &&
+              !_.isEmpty(selectedEntry.timer.run)
+            ) {
+              previousEntryTime = new Date(
+                selectedEntry.timer.run.at(-1).start
+              );
+            } else {
+              previousEntryTime = new Date(selectedEntry.timer.run.start);
+            }
+            const currentEntryTime = new Date(links[0].utc_time);
+            const durationInMilliseconds = currentEntryTime - previousEntryTime;
+            duration = formatMilliseconds(durationInMilliseconds);
+          } else if (links[0].timestamp) {
+            const previousEntryTime = selectedEntry.timer.run.at(-1).start;
+            const currentEntryTime = links[0].timestamp;
+            duration = formatMilliseconds(
+              (currentEntryTime - previousEntryTime) * 1000
             );
           }
-
-          const currentEntryTime = new Date(
-            links[0].utc_time || links[0].timestamp
-          );
-          const durationInMilliseconds = currentEntryTime - previousEntryTime;
-          duration = formatMilliseconds(durationInMilliseconds);
         }
         duration = "(+" + duration + ")";
         links[0].timeInfoArray.push(duration);
@@ -444,7 +447,6 @@ const getSelectedUIDsFromPath = ({ uid, selection }, uidDecoder) => {
   const uids = [uid, ...(selection ? selection.split("/") : [])];
   return uidDecoder ? uids.map((uid) => (uid ? uidDecoder(uid) : uid)) : uids;
 };
-
 
 export {
   isReportLeaf,

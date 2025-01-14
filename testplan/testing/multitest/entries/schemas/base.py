@@ -30,7 +30,7 @@ class GenericEntryList(fields.Field):
 class BaseSchema(Schema):
     type = custom_fields.ClassName()
     meta_type = fields.String()
-    timestamp = fields.DateTime("iso")
+    timestamp = fields.DateTime("timestamp")
     description = custom_fields.Unicode()
     category = fields.String()
     flag = fields.String()
@@ -66,7 +66,7 @@ class BaseSchema(Schema):
 @registry.bind(base.Group, base.Summary)
 class GroupSchema(Schema):
     type = custom_fields.ClassName()
-    timestamp = fields.DateTime("iso")
+    timestamp = fields.DateTime("timestamp")
     passed = fields.Boolean()
     meta_type = fields.String()
     description = custom_fields.Unicode(allow_none=True)
