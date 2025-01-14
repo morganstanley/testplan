@@ -12,9 +12,13 @@ from testplan.report import Status
 from testplan.runners.pools.remote import RemotePool
 from tests.functional.testplan.runners.pools.test_pool_base import (
     schedule_tests_to_pool,
+    schedule_tests_to_remote_pool_on_specific_worker
 )
 
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
+TESTPLAN_REMOTE_HOST1 = os.environ.get("TESTPLAN_REMOTE_HOST1")
+TESTPLAN_REMOTE_HOST2 = os.environ.get("TESTPLAN_REMOTE_HOST2")
+
 pytestmark = pytest.mark.skipif(
     not REMOTE_HOST,
     reason="Remote host not specified, skip remote pool test",
@@ -71,6 +75,41 @@ def test_pool_basic(mockplan, remote_pool_type):
             mockplan,
             RemotePool,
             hosts={REMOTE_HOST: 2},
+            workspace=workspace,
+            pool_type=remote_pool_type,
+            schedule_path=schedule_path,
+            restart_count=0,
+            clean_remote=True,
+        )
+    finally:
+        assert 0 == execute_cmd(
+            ssh_cmd({"host": REMOTE_HOST}, f"test -L {workspace}"),
+            label="workspace imitated on remote",
+            check=False,
+        )
+        os.chdir(orig_dir)
+        shutil.rmtree(workspace)
+
+
+@skip_on_windows(reason="Remote pool is skipped on Windows.")
+@pytest.mark.parametrize("remote_pool_type", ("thread", "process"))
+def test_run_task_with_specific_worker_on_remote_pool(mockplan, remote_pool_type):
+    """Schedule task for specific worker on remote pool."""
+    workspace, schedule_path = setup_workspace()
+
+    try:
+        # Make sure our current working directory is within the workspace -
+        # testplan requires this.
+        orig_dir = os.getcwd()
+        os.chdir(workspace)
+
+        schedule_tests_to_remote_pool_on_specific_worker(
+            mockplan,
+            RemotePool,
+            hosts={
+                TESTPLAN_REMOTE_HOST1: 2,
+                TESTPLAN_REMOTE_HOST2: 2,
+            },
             workspace=workspace,
             pool_type=remote_pool_type,
             schedule_path=schedule_path,
