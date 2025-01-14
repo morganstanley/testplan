@@ -26,12 +26,12 @@ from testplan.testing.multitest.suite import testcase, testsuite
 matplotlib.use("agg")
 
 
-def get_line_no(obj, rel_pos):
+def get_code_context(obj, rel_pos):
     """
-    Extracts absolute line number based on object and relative position.
+    Extracts code context based on object and relative position.
     """
-    _, start = inspect.getsourcelines(obj)
-    return start + rel_pos
+    lines, start = inspect.getsourcelines(obj)
+    return (start + rel_pos, lines[rel_pos].strip())
 
 
 def helper(result, description=None):
@@ -43,17 +43,39 @@ def intermediary(result, description=None):
     helper(result, description=description)
 
 
+def test_group_no_marking():
+    """
+    Tests, at result object level, when code context is not enabled.
+    """
+    result = result_mod.Result()
+    result.equal(1, 1)
+    result_entry = result.entries.pop()
+    assert result_entry.line_no == None
+    assert result_entry.code_context == None
+
+
 def test_group_marking():
     """
     Tests, at result object level, if marking works as expected.
     """
-    result = result_mod.Result()
+    result = result_mod.Result(_collect_code_context=True)
     result.equal(1, 1)
-    assert result.entries.pop().line_no == get_line_no(test_group_marking, 5)
+    result_entry = result.entries.pop()
+    code_context = get_code_context(test_group_marking, 5)
+    assert result_entry.line_no == code_context[0]
+    assert result_entry.code_context == code_context[1]
+
     helper(result)
-    assert result.entries.pop().line_no == get_line_no(helper, 1)
+    result_entry = result.entries.pop()
+    code_context = get_code_context(helper, 1)
+    assert result_entry.line_no == code_context[0]
+    assert result_entry.code_context == code_context[1]
+
     intermediary(result)
-    assert result.entries.pop().line_no == get_line_no(intermediary, 2)
+    result_entry = result.entries.pop()
+    code_context = get_code_context(intermediary, 2)
+    assert result_entry.line_no == code_context[0]
+    assert result_entry.code_context == code_context[1]
 
 
 @testsuite
@@ -102,6 +124,7 @@ def test_group_marking_multitest(mockplan, flag):
         testcase_report_target=flag,
     )
     test.cfg.parent = mockplan.cfg
+    test.cfg.collect_code_context = True
     test.run()
     assertions = {
         entry["description"]: entry
@@ -109,14 +132,15 @@ def test_group_marking_multitest(mockplan, flag):
         if isinstance(entry, dict) and entry["meta_type"] == "assertion"
     }
     expected = {
-        "A": get_line_no(GroupMarking.case, 2),
-        "B": get_line_no(GroupMarking.case, 3)
+        "A": get_code_context(GroupMarking.case, 2),
+        "B": get_code_context(GroupMarking.case, 3)
         if flag
-        else get_line_no(helper, 1),
-        "C": get_line_no(intermediary, 2),
+        else get_code_context(helper, 1),
+        "C": get_code_context(intermediary, 2),
     }
-    for desc, line_no in expected.items():
-        assert assertions[desc]["line_no"] == line_no
+    for desc, code_context in expected.items():
+        assert assertions[desc]["line_no"] == code_context[0]
+        assert assertions[desc]["code_context"] == code_context[1]
 
 
 @pytest.mark.parametrize("flag", [True, False])
@@ -131,6 +155,7 @@ def test_parametrized_group_marking_multitest(mockplan, flag):
         testcase_report_target=flag,
     )
     test.cfg.parent = mockplan.cfg
+    test.cfg.collect_code_context = True
     test.run()
     assertions = {
         entry["description"]: entry
@@ -138,11 +163,11 @@ def test_parametrized_group_marking_multitest(mockplan, flag):
         if isinstance(entry, dict) and entry["meta_type"] == "assertion"
     }
     expected = {
-        "A0": get_line_no(ParametrizedGroupMarking.case, 2),
-        "B0": get_line_no(ParametrizedGroupMarking.case, 3)
+        "A0": get_code_context(ParametrizedGroupMarking.case, 2),
+        "B0": get_code_context(ParametrizedGroupMarking.case, 3)
         if flag
-        else get_line_no(helper, 1),
-        "C0": get_line_no(intermediary, 2),
+        else get_code_context(helper, 1),
+        "C0": get_code_context(intermediary, 2),
     }
     expected.update(
         {
@@ -151,12 +176,13 @@ def test_parametrized_group_marking_multitest(mockplan, flag):
             "C1": expected["C0"],
         }
     )
-    for desc, line_no in expected.items():
-        assert assertions[desc]["line_no"] == line_no
+    for desc, code_context in expected.items():
+        assert assertions[desc]["line_no"] == code_context[0]
+        assert assertions[desc]["code_context"] == code_context[1]
 
 
 @pytest.mark.parametrize("flag", [True, False])
-def test_parametrized_group_marking_multitest(mockplan, flag):
+def test_decorated_testcase_marking_multitest(mockplan, flag):
     """
     Tests, at MultiTest-level, if marking works as expected
     for testcase which is decorated by other functions.
@@ -167,6 +193,7 @@ def test_parametrized_group_marking_multitest(mockplan, flag):
         testcase_report_target=flag,
     )
     test.cfg.parent = mockplan.cfg
+    test.cfg.collect_code_context = True
     test.run()
     assertions = {
         entry["description"]: entry
@@ -174,12 +201,13 @@ def test_parametrized_group_marking_multitest(mockplan, flag):
         if isinstance(entry, dict) and entry["meta_type"] == "assertion"
     }
     expected = {
-        "Pre": get_line_no(pre_fn, 1),
-        "Case": get_line_no(PrePostTestcaseMarking.case, 4),
-        "Post": get_line_no(post_fn, 1),
+        "Pre": get_code_context(pre_fn, 1),
+        "Case": get_code_context(PrePostTestcaseMarking.case, 4),
+        "Post": get_code_context(post_fn, 1),
     }
-    for desc, line_no in expected.items():
-        assert assertions[desc]["line_no"] == line_no
+    for desc, code_context in expected.items():
+        assert assertions[desc]["line_no"] == code_context[0]
+        assert assertions[desc]["code_context"] == code_context[1]
 
 
 @testsuite

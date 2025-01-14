@@ -8,14 +8,14 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     expandStatus="default"
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
         <RunAllButton
           filter={null}
           runAllCbk={[Function]}
           running={false}
-        />,
-        <ReloadButton
-          reloadCbk={[Function]}
-          reloading={false}
         />,
         <ResetButton
           resetStateCbk={[Function]}
@@ -340,14 +340,14 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     expandStatus="default"
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
         <RunAllButton
           filter={null}
           runAllCbk={[Function]}
           running={false}
-        />,
-        <ReloadButton
-          reloadCbk={[Function]}
-          reloading={false}
         />,
         <ResetButton
           resetStateCbk={[Function]}
@@ -573,14 +573,14 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     expandStatus="default"
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
         <RunAllButton
           filter={null}
           runAllCbk={[Function]}
           running={false}
-        />,
-        <ReloadButton
-          reloadCbk={[Function]}
-          reloading={false}
         />,
         <ResetButton
           resetStateCbk={[Function]}
@@ -1184,14 +1184,14 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     expandStatus="default"
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
         <RunAllButton
           filter={null}
           runAllCbk={[Function]}
           running={false}
-        />,
-        <ReloadButton
-          reloadCbk={[Function]}
-          reloading={false}
         />,
         <ResetButton
           resetStateCbk={[Function]}
@@ -1516,14 +1516,14 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     expandStatus="default"
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
         <RunAllButton
           filter={null}
           runAllCbk={[Function]}
           running={false}
-        />,
-        <ReloadButton
-          reloadCbk={[Function]}
-          reloading={false}
         />,
         <ResetButton
           resetStateCbk={[Function]}
@@ -1846,14 +1846,14 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     expandStatus="default"
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
         <RunAllButton
           filter={null}
           runAllCbk={[Function]}
           running={false}
-        />,
-        <ReloadButton
-          reloadCbk={[Function]}
-          reloading={false}
         />,
         <ResetButton
           resetStateCbk={[Function]}
@@ -2176,14 +2176,14 @@ exports[`InteractiveReport handles tests being run 1`] = `
     expandStatus="default"
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
         <RunAllButton
           filter={null}
           runAllCbk={[Function]}
           running={false}
-        />,
-        <ReloadButton
-          reloadCbk={[Function]}
-          reloading={false}
         />,
         <ResetButton
           resetStateCbk={[Function]}

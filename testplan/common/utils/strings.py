@@ -12,11 +12,6 @@ import colorama
 colorama.init()
 from termcolor import colored
 
-from reportlab.pdfbase.pdfmetrics import stringWidth
-
-
-_DESCRIPTION_CUTOFF_REGEX = re.compile(r"^(\s|\t)+")
-
 
 def map_to_str(value):
     """
@@ -91,8 +86,9 @@ def format_description(description):
         ..Foo bar
         1 2 3 4
     """
+    cutoff_regex = re.compile(r"^(\s|\t)+")
     lines = [line for line in description.split(os.linesep) if line.strip()]
-    matches = [_DESCRIPTION_CUTOFF_REGEX.match(line) for line in lines]
+    matches = [cutoff_regex.match(line) for line in lines]
     if matches:
         min_offset = min(
             match.end() if match is not None else 0 for match in matches
@@ -184,77 +180,6 @@ def wrap(text, width=150):
             )
         else:
             result.extend(line_list)
-    return os.linesep.join(result)
-
-
-def split_line(line, max_width, get_width_func=None):
-    """
-    Split `line` into multi-lines if width exceeds `max_width`.
-
-    :param line: Line to be split.
-    :param max_width: Maximum length of each line (unit: px).
-    :param get_width_func: A function which computes width of string
-                           according to font and font size.
-    :return: list of lines
-    """
-    result = []
-    total_width = 0
-    tmp_str = ""
-    get_text_width = (
-        get_width_func
-        if get_width_func
-        else lambda text: stringWidth(text, "Helvetica", 9)
-    )
-
-    for ch in line:
-        char_width = get_text_width(ch)
-        if total_width + char_width <= max_width or not tmp_str:
-            tmp_str += ch
-            total_width += char_width
-        else:
-            result.append(tmp_str)
-            tmp_str = ch
-            total_width = char_width
-
-    if tmp_str:
-        result.append(tmp_str)
-
-    return result
-
-
-def split_text(
-    text, font_name, font_size, max_width, keep_leading_whitespace=False
-):
-    """
-    Wraps `text` within given `max_width` limit (measured in px), keeping
-    initial indentation of each line (and generated lines) if
-    `keep_leading_whitespace` is True.
-
-    :param text: Text to be split.
-    :param font_name: Font name.
-    :param font_size: Font size.
-    :param max_width: Maximum length of each line (unit: px).
-    :param keep_leading_whitespace: each split line keeps the leading
-                                    whitespace.
-    :return: list of lines
-    """
-
-    def get_text_width(text, name=font_name, size=font_size):
-        return stringWidth(text, name, size)
-
-    result = []
-    lines = [line for line in re.split(r"[\r\n]+", text) if line]
-
-    for line in lines:
-        line_list = split_line(line, max_width, get_text_width)
-        if keep_leading_whitespace and len(line_list) > 1:
-            first, rest = line_list[0], line_list[1:]
-            indent_match = _DESCRIPTION_CUTOFF_REGEX.match(first)
-            if indent_match:
-                prefix = first[indent_match.start() : indent_match.end()]
-                line_list = [first] + ["{}{}".format(prefix, s) for s in rest]
-        result.extend(line_list)
-
     return os.linesep.join(result)
 
 

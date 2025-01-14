@@ -9,20 +9,24 @@ from itertools import chain
 html_escape = functools.partial(escape, quote=False)
 
 from reportlab.lib import colors
-from reportlab.platypus import Paragraph
 from reportlab.pdfbase.pdfmetrics import stringWidth
-
-from testplan.common.exporters.pdf import RowStyle, create_table
-from testplan.common.exporters.pdf import format_table_style, format_cell_data
-from testplan.common.utils.strings import split_line, split_text
+from reportlab.platypus import Paragraph
+from testplan.common.exporters import format_cell_data
+from testplan.common.exporters.pdf import (
+    RowStyle,
+    create_table,
+    format_table_style,
+    split_line,
+    split_text,
+)
 from testplan.common.utils.comparison import is_regex
 from testplan.exporters.testing.pdf.renderers.base import SlicedParagraph
 from testplan.report import Status
 from testplan.testing.multitest.entries import assertions
-from .base import SerializedEntryRenderer, registry
+
 from .. import constants as const
 from ..base import RowData
-
+from .base import SerializedEntryRenderer, registry
 
 MAX_LENGTH = 1000
 

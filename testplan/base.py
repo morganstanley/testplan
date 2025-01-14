@@ -8,7 +8,7 @@ import tempfile
 import traceback
 import threading
 
-from typing import Optional, Union, Type, List, Callable
+from typing import Optional, Union, Type, List, Callable, TYPE_CHECKING
 from types import ModuleType
 from schema import And
 
@@ -22,7 +22,7 @@ from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser
 from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
-from testplan.runnable.interactive import TestRunnerIHandler
+
 from testplan.runners.local import LocalRunner
 from testplan.runners.base import Executor
 from testplan.report.testing.styles import Style
@@ -31,6 +31,9 @@ from testplan.testing.filtering import BaseFilter
 from testplan.testing.listing import MetadataBasedLister
 from testplan.testing.multitest.test_metadata import TestPlanMetadata
 from testplan.testing.ordering import BaseSorter
+
+if TYPE_CHECKING:
+    from testplan.runnable.interactive.base import TestRunnerIHandler
 
 
 def pdb_drop_handler(sig, frame):
@@ -146,6 +149,8 @@ class Testplan(entity.RunnableManager):
         categorize or classify similar reports .
     :param driver_info: Display driver setup / teardown time and driver
         interconnection information in UI report.
+    :param collect_code_context: Collects the file path, line number and code
+        context of the assertions.
     """
 
     CONFIG = TestplanConfig
@@ -190,10 +195,11 @@ class Testplan(entity.RunnableManager):
         verbose: bool = False,
         debug: bool = False,
         timeout: int = defaults.TESTPLAN_TIMEOUT,
-        interactive_handler: Type[TestRunnerIHandler] = TestRunnerIHandler,
+        interactive_handler: Type["TestRunnerIHandler"] = None,
         extra_deps: Optional[List[Union[str, ModuleType]]] = None,
         label: Optional[str] = None,
         driver_info: bool = False,
+        collect_code_context: bool = False,
         auto_part_runtime_limit: int = defaults.AUTO_PART_RUNTIME_LIMIT,
         plan_runtime_target: int = defaults.PLAN_RUNTIME_TARGET,
         **options,
@@ -256,6 +262,7 @@ class Testplan(entity.RunnableManager):
             extra_deps=extra_deps,
             label=label,
             driver_info=driver_info,
+            collect_code_context=collect_code_context,
             auto_part_runtime_limit=auto_part_runtime_limit,
             plan_runtime_target=plan_runtime_target,
             **options,
@@ -397,10 +404,11 @@ class Testplan(entity.RunnableManager):
         verbose=False,
         debug=False,
         timeout=defaults.TESTPLAN_TIMEOUT,
-        interactive_handler=TestRunnerIHandler,
+        interactive_handler=None,
         extra_deps=None,
         label=None,
         driver_info=False,
+        collect_code_context=False,
         auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_LIMIT,
         plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         **options,
@@ -462,6 +470,7 @@ class Testplan(entity.RunnableManager):
                     extra_deps=extra_deps,
                     label=label,
                     driver_info=driver_info,
+                    collect_code_context=collect_code_context,
                     auto_part_runtime_limit=auto_part_runtime_limit,
                     plan_runtime_target=plan_runtime_target,
                     **options,

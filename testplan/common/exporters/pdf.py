@@ -1,15 +1,15 @@
 """
   Utilities for generating pdf files via Reportlab.
 """
-
+import re
+import os
 import itertools
 
 from reportlab.platypus import Table
 from reportlab.lib import colors
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
-from testplan.common.utils.comparison import is_regex
-from testplan.common.exporters import constants
-
+from testplan.common.exporters import constants, _limit_cell_length
 
 # If you increase this too much Reportlab starts having
 # performance issues and takes exponentially longer to render the PDF
@@ -109,44 +109,6 @@ def create_base_tables(data, style, col_widths, max_rows=MAX_TABLE_ROWS):
     return [
         Table(data=_data, colWidths=col_widths, style=_style)
         for _data, _style in zipped
-    ]
-
-
-def format_cell_data(data, limit):
-    """
-    Change the str representation of values in data if they represent regex or
-    lambda functions. Also limit the length of these strings.
-
-    :param data: List of values to be formatted.
-    :type data: ``list``
-    :param limit: The number of characters allowed in each string.
-    :type limit: ``int``
-    :return: List of formatted and limited strings.
-    :rtype: ``list``
-    """
-    for i, value in enumerate(data):
-        if is_regex(value):
-            data[i] = "REGEX('{}')".format(value.pattern)
-        elif "lambda" in str(value):
-            data[i] = "<lambda>"
-
-    return _limit_cell_length(data, limit)
-
-
-def _limit_cell_length(iterable, limit):
-    """
-    Limit the length of each string in the iterable.
-
-    :param iterable: iterable object containing string values.
-    :type iterable: ``list`` or ``tuple`` etc.
-    :param limit: The number of characters allowed in each string
-    :type limit: ``int``
-    :return: The list of limited strings.
-    :rtype: ``list`` of ``str``
-    """
-    return [
-        val if len(str(val)) < limit else "{}...".format(str(val)[: limit - 3])
-        for val in iterable
     ]
 
 
@@ -771,3 +733,74 @@ class RowData:
 
         # This changes `self.end`, so needs to happen last
         self.content.extend(content)
+
+
+def split_line(line, max_width, get_width_func=None):
+    """
+    Split `line` into multi-lines if width exceeds `max_width`.
+
+    :param line: Line to be split.
+    :param max_width: Maximum length of each line (unit: px).
+    :param get_width_func: A function which computes width of string
+                           according to font and font size.
+    :return: list of lines
+    """
+    result = []
+    total_width = 0
+    tmp_str = ""
+    get_text_width = (
+        get_width_func
+        if get_width_func
+        else lambda text: stringWidth(text, "Helvetica", 9)
+    )
+
+    for ch in line:
+        char_width = get_text_width(ch)
+        if total_width + char_width <= max_width or not tmp_str:
+            tmp_str += ch
+            total_width += char_width
+        else:
+            result.append(tmp_str)
+            tmp_str = ch
+            total_width = char_width
+
+    if tmp_str:
+        result.append(tmp_str)
+
+    return result
+
+
+def split_text(
+    text, font_name, font_size, max_width, keep_leading_whitespace=False
+):
+    """
+    Wraps `text` within given `max_width` limit (measured in px), keeping
+    initial indentation of each line (and generated lines) if
+    `keep_leading_whitespace` is True.
+
+    :param text: Text to be split.
+    :param font_name: Font name.
+    :param font_size: Font size.
+    :param max_width: Maximum length of each line (unit: px).
+    :param keep_leading_whitespace: each split line keeps the leading
+                                    whitespace.
+    :return: list of lines
+    """
+
+    def get_text_width(text, name=font_name, size=font_size):
+        return stringWidth(text, name, size)
+
+    result = []
+    lines = [line for line in re.split(r"[\r\n]+", text) if line]
+    cutoff_regex = re.compile(r"^(\s|\t)+")
+    for line in lines:
+        line_list = split_line(line, max_width, get_text_width)
+        if keep_leading_whitespace and len(line_list) > 1:
+            first, rest = line_list[0], line_list[1:]
+            indent_match = cutoff_regex.match(first)
+            if indent_match:
+                prefix = first[indent_match.start() : indent_match.end()]
+                line_list = [first] + ["{}{}".format(prefix, s) for s in rest]
+        result.extend(line_list)
+
+    return os.linesep.join(result)

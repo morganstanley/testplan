@@ -184,7 +184,7 @@ class WorkerBase(entity.Resource):
     def discard_running_tasks(self):
         self._discard_running.set()
 
-    def __str__(self):
+    def __repr__(self):
         return f"{self.__class__.__name__}[{self.cfg.index}]"
 
 

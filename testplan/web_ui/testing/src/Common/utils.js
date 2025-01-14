@@ -447,3 +447,17 @@ export const truncateString = (
   
   return `${startPortion}...${endPortion}`;
 };
+
+/**
+ * Extracts the "workspace" part of the path
+ * @param {String} path
+ */
+export const getWorkspacePath = (path) => {
+  const srcIndex = path.indexOf('/src/');
+
+  if (srcIndex !== -1) {
+    return path.slice(srcIndex + 1);
+  } else {
+    return path;
+  }
+};

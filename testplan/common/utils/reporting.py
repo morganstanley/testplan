@@ -26,7 +26,7 @@ class AbsentType:
             cls.__instance = object.__new__(cls)
         return cls.__instance
 
-    def __str__(self):
+    def __repr__(self):
         return self.descr
 
 

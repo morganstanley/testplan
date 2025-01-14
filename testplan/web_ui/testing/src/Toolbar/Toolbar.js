@@ -165,11 +165,11 @@ const PanelViewSwitch = ({ panel_types, switchPanelViewFunc }) => {
   );
 };
 
-const UserPreferenceCheckbox = ({ children, preferenceAtom }) => {
+const UserPreferenceCheckbox = ({ children, preferenceAtom, title }) => {
   const [preference, setPreference] = useAtom(preferenceAtom);
   return (
     <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-      <Label check className={css(styles.filterLabel)}>
+      <Label check className={css(styles.filterLabel)} title={title}>
         <Input
           type="checkbox"
           checked={preference}
@@ -240,8 +240,11 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
         </UserPreferenceCheckbox>
         <TimeInfoRadioButtons
           enabled={useAtomValue(displayTimeInfoPreference)}/>
-        <UserPreferenceCheckbox preferenceAtom={displayPathPreference}>
-          Display file path of assertions
+        <UserPreferenceCheckbox
+          preferenceAtom={displayPathPreference}
+          title="You need to specify --code command line argument to use this function."
+        >
+          Display file path and code context
         </UserPreferenceCheckbox>
         <UserPreferenceCheckbox preferenceAtom={showStatusIconsPreference}>
           Show status icons

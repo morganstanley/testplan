@@ -16,7 +16,6 @@ from testplan.report import (
 )
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
-from ..common.utils.strings import uuid4
 
 
 class JUnitImportedResult(SuitesResult):

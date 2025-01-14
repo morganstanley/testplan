@@ -1,37 +1,37 @@
 """Base classes for all Tests"""
 import functools
 import os
-import re
 import subprocess
 import sys
 import warnings
 from enum import Enum
-from schema import And, Or, Use
 from typing import (
+    Callable,
     Dict,
     Generator,
+    Iterable,
     List,
     Optional,
-    Union,
-    Callable,
-    Iterable,
-    Type,
     Tuple,
+    Type,
+    Union,
 )
-import plotly.express as px
+from schema import And, Or, Use
 
 from testplan import defaults
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common.entity import (
     Resource,
     ResourceStatus,
+    ResourceTimings,
     Runnable,
     RunnableConfig,
     RunnableResult,
-    ResourceTimings,
 )
 from testplan.common.remote.remote_driver import RemoteDriver
-from testplan.common.utils import strings, interface, validation
+from testplan.common.report import ReportCategories, RuntimeStatus
+from testplan.common.report import Status as ReportStatus
+from testplan.common.utils import interface, strings, validation
 from testplan.common.utils.composer import compose_contexts
 from testplan.common.utils.context import render
 from testplan.common.utils.process import (
@@ -40,24 +40,13 @@ from testplan.common.utils.process import (
     subprocess_popen,
 )
 from testplan.common.utils.timing import format_duration, parse_duration
-from testplan.common.report import (
-    Status as ReportStatus,
-    ReportCategories,
-    RuntimeStatus,
-)
-from testplan.report import (
-    TestCaseReport,
-    TestGroupReport,
-    test_styles,
-)
-from testplan.testing import common, filtering, ordering, tagging, result
+from testplan.report import TestCaseReport, TestGroupReport, test_styles
+from testplan.testing import common, filtering, ordering, result, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
+from testplan.testing.multitest.driver.connection import DriverConnectionGraph
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 from testplan.testing.multitest.test_metadata import TestMetadata
-from testplan.testing.multitest.driver.connection import DriverConnectionGraph
-
-from testplan.testing.multitest import result
 
 TEST_INST_INDENT = 2
 SUITE_INDENT = 4
@@ -673,7 +662,7 @@ class Test(Runnable):
         return case_report
 
     def _run_resource_hook(
-        self, hook: Callable, hook_name: str, suite_name: str
+        self, hook: Optional[Callable], hook_name: str, suite_name: str
     ) -> None:
         # TODO: env or env, result signature is mandatory not an "if"
         """
@@ -693,7 +682,9 @@ class Test(Runnable):
         )
 
         case_result = self.cfg.result(
-            stdout_style=self.stdout_style, _scratch=self.scratch
+            stdout_style=self.stdout_style,
+            _scratch=self.scratch,
+            _collect_code_context=self.collect_code_context,
         )
         runtime_env = self._get_runtime_environment(
             testcase_name=hook_name,
@@ -707,7 +698,11 @@ class Test(Runnable):
             interface.check_signature(hook, ["env"])
             hook_args = (runtime_env,)
         with compose_contexts(*self._get_hook_context(case_report)):
-            hook(*hook_args)
+            try:
+                res = hook(*hook_args)
+            except Exception as e:
+                res = e
+                raise
 
         case_report.extend(case_result.serialized_entries)
         case_report.attachments.extend(case_result.attachments)
@@ -719,8 +714,12 @@ class Test(Runnable):
         self._xfail(pattern, case_report)
         case_report.runtime_status = RuntimeStatus.FINISHED
 
+        if isinstance(res, Exception):
+            raise res
+        return res
+
     def _dry_run_resource_hook(
-        self, hook: Callable, hook_name: str, suite_name: str
+        self, hook: Optional[Callable], hook_name: str, suite_name: str
     ) -> None:
         if not hook:
             return
@@ -811,6 +810,8 @@ class Test(Runnable):
     def _record_driver_timing(
         self, setup_or_teardown: str, case_report: TestCaseReport
     ) -> None:
+        import plotly.express as px
+
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
@@ -900,6 +901,14 @@ class Test(Runnable):
         if not hasattr(self.cfg, "driver_info"):
             return False
         return self.cfg.driver_info
+
+    @property
+    def collect_code_context(self) -> bool:
+        """
+        Collecting the file path, line number and code context of the assertions
+        if enabled.
+        """
+        return getattr(self.cfg, "collect_code_context", False)
 
 
 class ProcessRunnerTestConfig(TestConfig):

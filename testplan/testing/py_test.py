@@ -27,7 +27,7 @@ from testplan.testing.multitest.entries.schemas.base import (
 from testplan.testing.multitest.entries.stdout.base import (
     registry as stdout_registry,
 )
-from testplan.testing.result import Result as MultiTestResult
+from testplan.testing.result import Result
 
 # Regex for parsing suite and case name and case parameters
 _CASE_REGEX = re.compile(
@@ -49,9 +49,9 @@ class PyTestConfig(testing.TestConfig):
             "target": Or(str, [str]),
             ConfigOption("select", default=""): str,
             ConfigOption("extra_args", default=None): Or([str], None),
-            ConfigOption(
-                "result", default=MultiTestResult
-            ): validation.is_subclass(MultiTestResult),
+            ConfigOption("result", default=Result): validation.is_subclass(
+                Result
+            ),
         }
 
 
@@ -85,7 +85,7 @@ class PyTest(testing.Test):
         description=None,
         select="",
         extra_args=None,
-        result=MultiTestResult,
+        result=Result,
         **options
     ):
         options.update(self.filter_locals(locals()))

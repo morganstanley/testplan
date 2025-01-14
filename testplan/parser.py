@@ -4,7 +4,6 @@ This module encodes the argument and option names, types, and behaviours.
 """
 import argparse
 import copy
-import json
 import sys
 import warnings
 from typing import Dict, List
@@ -13,6 +12,7 @@ import schema
 
 from testplan import defaults
 from testplan.common.utils import logger
+from testplan.common.utils.json import json_load_from_path
 from testplan.report.testing import (
     ReportFilterAction,
     ReportTagsAction,
@@ -137,7 +137,7 @@ class TestplanParser:
         general_group.add_argument(
             "--trace-tests",
             metavar="PATH",
-            type=_read_json_file,
+            type=json_load_from_path,
             dest="tracing_tests",
             help="Enable the tracing tests feature. A JSON file containing "
             "file names and line numbers to be watched by the tracer must be "
@@ -158,7 +158,7 @@ class TestplanParser:
         general_group.add_argument(
             "--xfail-tests",
             metavar="PATH",
-            type=_read_json_file,
+            type=json_load_from_path,
             help="""
 Read a list of testcase name patterns from a JSON files, and mark matching testcases as xfail.
 This feature works for MultiTest, GTest and CPPUnit.
@@ -499,6 +499,14 @@ that match ALL of the given tags.
             help="Display drivers setup / teardown timing and interconnection information in UI report.",
         )
 
+        report_group.add_argument(
+            "--code",
+            dest="collect_code_context",
+            action="store_true",
+            default=self._default_options["collect_code_context"],
+            help="Collects file path, line number and code context of the assertions.",
+        )
+
         self.add_arguments(parser)
         return parser
 
@@ -580,11 +588,6 @@ class LogLevelAction(argparse.Action):
         setattr(namespace, self.dest, self.LEVELS[values])
 
 
-def _read_json_file(file: str) -> dict:
-    with open(file, "r") as fp:
-        return json.load(fp)
-
-
 def _read_text_file(file: str) -> List[str]:
     with open(file, "r") as fp:
         return fp.read().splitlines()
@@ -602,8 +605,7 @@ runtime_schema = schema.Schema(
 
 
 def _runtime_json_file(file: str) -> dict:
-    with open(file) as fp:
-        runtime_info = json.load(fp)
-        if runtime_schema.is_valid(runtime_info):
-            return runtime_info
-        raise RuntimeError("Unexpected runtime file format!")
+    runtime_info = json_load_from_path(file)
+    if runtime_schema.is_valid(runtime_info):
+        return runtime_info
+    raise RuntimeError("Unexpected runtime file format!")

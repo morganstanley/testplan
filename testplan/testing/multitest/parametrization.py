@@ -9,6 +9,7 @@ import warnings
 from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import convert, interface
 from testplan.testing import tagging
+from typing import Callable, Optional
 
 # Although any string will be processed as normal, it's a good
 # approach to warn the user if the generated method name is not a
@@ -206,8 +207,11 @@ def _generate_func(
     )
     # Users request the feature that when `name_func` set to `None`,
     # then simply append integer suffixes to the names of testcases
-    _generated.name = (
-        name_func(name, kwargs) if name_func is not None else f"{name} {idx}"
+    _generated.name = _parametrization_report_name_func_wrapper(
+        name_func=name_func,
+        name=name,
+        kwargs=kwargs,
+        index=idx,
     )
 
     if hasattr(function, "__xfail__"):
@@ -267,10 +271,11 @@ def _check_tag_func(tag_func):
         )
 
 
-def _parametrization_name_func_wrapper(func_name, kwargs):
+def _parametrization_name_func_wrapper(func_name: str, kwargs: dict):
     """
     Make sure that name generation doesn't end up with invalid / unreadable
-    attribute names/types etc.
+    attribute names/types etc. The return value can be used as a
+    method __name__.
 
     If somehow a 'bad' function name is generated, will just return the
     original ``func_name`` instead (which will later on be suffixed with an
@@ -289,6 +294,32 @@ def _parametrization_name_func_wrapper(func_name, kwargs):
         return func_name
 
     return generated_name
+
+
+def _parametrization_report_name_func_wrapper(
+    name_func: Optional[Callable], name: str, kwargs: dict, index: int
+):
+    """
+    Make sure that generated name is not too long,
+    if it is, then use index suffixed names e.g. "{func_name} 1", "{func_name} 2", will be used.
+
+    The return value is used for reporting purposes, it is not used as a method __name__.
+    """
+    if name_func:
+        generated_name = name_func(name, kwargs)
+        if not isinstance(generated_name, str):
+            raise ValueError(
+                "The return value of name_func must be a string, "
+                f"it is of type: {type(generated_name)}, value: {generated_name}"
+            )
+        if len(generated_name) <= MAX_METHOD_NAME_LENGTH:
+            return generated_name
+        else:
+            warnings.warn(
+                f"The name name_func returned ({generated_name}) is too long, using index suffixed names."
+            )
+
+    return f"{name} {index}"
 
 
 def parametrization_name_func(func_name, kwargs):
@@ -321,7 +352,7 @@ def default_name_func(func_name, kwargs):
     >>> import collections
     >>> default_name_func('Test Method',
                           collections.OrderedDict(('foo', 5), ('bar', 10)))
-    'Test Method {foo:5, bar:10}'
+    'Test Method <foo:5, bar:10>'
 
     :param func_name: Name of the parametrization target function.
     :type func_name: ``str``
