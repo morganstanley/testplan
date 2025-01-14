@@ -17,7 +17,6 @@ import { getWorkspacePath } from "../Common/utils";
 
 library.add(faLayerGroup);
 
-
 const STATUS_ICONS = {
   false: faTimes,
   true: faCheck,
@@ -90,9 +89,11 @@ function AssertionHeader({
     ) : (
       <>
         <span
-          className={
-            css(styles.cardHeaderAlignRight, styles.timeInfo, styles.button)
-          }
+          className={css(
+            styles.cardHeaderAlignRight,
+            styles.timeInfo,
+            styles.button
+          )}
           onClick={toggleExpand}
           id={`tooltip_duration_${timeInfoArray[0]}`}
           style={{ order: 3, display: "inline-flex", alignItems: "center" }}
@@ -107,19 +108,18 @@ function AssertionHeader({
           &nbsp;&nbsp;
         </span>
         <span
-          className={
-            css(styles.cardHeaderAlignRight, styles.timeInfo, styles.button)
-          }
+          className={css(
+            styles.cardHeaderAlignRight,
+            styles.timeInfo,
+            styles.button
+          )}
           onClick={toggleExpand}
           id={`tooltip_utc_${timeInfoArray[0]}`}
           style={{ order: 1, display: "inline-flex", alignItems: "center" }}
         >
           {timeInfoArray[1]}
         </span>
-        <span
-          className={css(styles.cardHeaderAlignRight)}
-          style={{ order: 5 }}
-        >
+        <span className={css(styles.cardHeaderAlignRight)} style={{ order: 5 }}>
           &nbsp;&nbsp;
         </span>
         <Tooltip
@@ -141,38 +141,39 @@ function AssertionHeader({
       </>
     );
 
-  const pathButton = assertion.file_path && assertion.line_no ? (
-    <>
-      <Button
-        className={css(styles.pathButton)}
-        onClick={() => {
-          navigator.clipboard.writeText(getPath(assertion));
-        }}
-      >
-        <span
-          id={`tooltip_path_${uid}`}
-          className={css(cardHeaderColorStyle)}
+  const pathButton =
+    assertion.file_path && assertion.line_no ? (
+      <>
+        <Button
+          className={css(styles.pathButton)}
+          onClick={() => {
+            navigator.clipboard.writeText(getPath(assertion));
+          }}
         >
-          {renderPath(assertion)}
-        </span>
-      </Button>
-      <Tooltip
-        isOpen={isPathTooltipOpen}
-        target={`tooltip_path_${uid}`}
-        toggle={togglePathTooltip}
-        style={{maxWidth: "400px"}}
-      >
-        {getPath(assertion)}
-      </Tooltip>
-      <br></br>
-    </>
-  ) : (
-    <></>
-  );
+          <span
+            id={`tooltip_path_${uid}`}
+            className={css(cardHeaderColorStyle)}
+          >
+            {renderPath(assertion)}
+          </span>
+        </Button>
+        <Tooltip
+          isOpen={isPathTooltipOpen}
+          target={`tooltip_path_${uid}`}
+          toggle={togglePathTooltip}
+          style={{ maxWidth: "400px" }}
+        >
+          {getPath(assertion)}
+        </Tooltip>
+        <br></br>
+      </>
+    ) : (
+      <></>
+    );
 
   const oneLiner = assertion?.code_context ? (
     <>
-      <span 
+      <span
         id={`tooltip_1liner_${uid}`}
         className={css(styles.cardHeader1liner)}
       >
@@ -182,7 +183,7 @@ function AssertionHeader({
         isOpen={is1LinerTooltipOpen}
         target={`tooltip_1liner_${uid}`}
         toggle={toggle1LinerTooltip}
-        style={{maxWidth: "400px"}}
+        style={{ maxWidth: "400px" }}
       >
         {assertion.code_context}
       </Tooltip>
@@ -195,7 +196,9 @@ function AssertionHeader({
     <>
       <div
         className={css(
-          styles.cardHeaderCode, styles.cardHeaderAlignRight, styles.timeInfo
+          styles.cardHeaderCode,
+          styles.cardHeaderAlignRight,
+          styles.timeInfo
         )}
         style={{ order: 6, marginLeft: "10px" }}
       >
@@ -208,7 +211,6 @@ function AssertionHeader({
   ) : (
     <></>
   );
-
 
   const description = assertion.description ? (
     assertion.type === "Log" ? (
@@ -273,10 +275,14 @@ function AssertionHeader({
 AssertionHeader.propTypes = {
   /** Assertion being rendered */
   assertion: PropTypes.object,
-  /** Index of the assertion */
-  index: PropTypes.number,
-  /** Function when clicking header */
-  onClick: PropTypes.func,
+  /** whether to display code context info */
+  displayPath: PropTypes.bool,
+  /** parent's (testcase's) uid */
+  uid: PropTypes.string,
+  /** triggered callback when clicking header */
+  toggleExpand: PropTypes.func,
+  /** whether to display status icon */
+  showStatusIcons: PropTypes.bool,
 };
 
 const renderPath = (assertion) => {
