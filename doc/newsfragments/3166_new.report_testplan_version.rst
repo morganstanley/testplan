@@ -1,0 +1,1 @@
+Testplan now includes its own version in generated report.
