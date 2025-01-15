@@ -82,20 +82,26 @@ class TestReport(BaseReportGroup):
         self.label = label
         self.information = information or []
         self.resource_meta_path: Optional[str] = None
-        try:
-            user = getpass.getuser()
-        except (ImportError, OSError):
-            # if the USERNAME env variable is unset on Windows, this fails
-            # with ImportError
-            user = "unknown"
-        self.information.extend(
-            [
-                ("user", user),
-                ("command_line_string", " ".join(sys.argv)),
-                ("python_version", platform.python_version()),
-            ]
-        )
-        if self.label:
+
+        # reports coming from tpr already have certain info set
+        info_keys = [info[0] for info in self.information]
+        if "user" not in info_keys:
+            try:
+                user = getpass.getuser()
+            except (ImportError, OSError):
+                # if the USERNAME env variable is unset on Windows, this fails
+                # with ImportError
+                user = "unknown"
+            self.information.append(("user", user))
+        if "command_line_string" not in info_keys:
+            self.information.append(
+                ("command_line_string", " ".join(sys.argv))
+            )
+        if "python_version" not in info_keys:
+            self.information.append(
+                ("python_version", platform.python_version())
+            )
+        if self.label and "label" not in info_keys:
             self.information.append(("label", label))
 
         # Report attachments: Dict[dst: str, src: str].
@@ -145,20 +151,8 @@ class TestReport(BaseReportGroup):
         will be used by Exporters to export attachments as well as the report.
         """
         for child in self:
-            if getattr(child, "fix_spec_path", None):
-                self._bubble_up_fix_spec(child)
             for attachment in child.attachments:
                 self.attachments[attachment.dst_path] = attachment.source_path
-
-    def _bubble_up_fix_spec(self, child):
-        """Bubble up a "fix_spec_path" from a child report."""
-        real_path = child.fix_spec_path
-        hash_dir = hashlib.md5(real_path.encode("utf-8")).hexdigest()
-        hash_path = os.path.join(
-            hash_dir, os.path.basename(child.fix_spec_path)
-        )
-        child.fix_spec_path = hash_path
-        self.attachments[hash_path] = real_path
 
     def _get_comparison_attrs(self):
         return super(TestReport, self)._get_comparison_attrs() + [
@@ -251,9 +245,9 @@ class TestGroupReport(BaseReportGroup):
         category=ReportCategories.TESTGROUP,
         tags=None,
         part=None,
-        fix_spec_path=None,
         env_status=None,
         strict_order=False,
+        timezone=None,
         **kwargs,
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -272,8 +266,6 @@ class TestGroupReport(BaseReportGroup):
         self.part = part  # i.e. (m, n), while 0 <= m < n and n > 1
         self.part_report_lookup = {}
 
-        self.fix_spec_path = fix_spec_path
-
         if self.entries:
             self.propagate_tag_indices()
 
@@ -282,6 +274,9 @@ class TestGroupReport(BaseReportGroup):
 
         # Can be True For group report in category "testsuite"
         self.strict_order = strict_order
+
+        # Timezone of test's executor (Test-level only)
+        self.timezone: Optional[str] = timezone
 
         self.covered_lines: Optional[dict] = None
 
@@ -381,10 +376,16 @@ class TestGroupReport(BaseReportGroup):
             tags_index, self._collect_tag_indices()
         )
 
-    def merge(self, report, strict=True):
+    def merge(self, report: "TestGroupReport", strict: bool = True):
         """Propagate tag indices after merge operations."""
-        super(TestGroupReport, self).merge(report, strict=strict)
+        super().merge(report, strict=strict)
         self.propagate_tag_indices()
+
+        # XXX:
+        # merge report itself could be a bad idea, if for ui display purpose
+        # we'd rather do it in web-ui frontend instead
+        if self.timezone is None:
+            self.timezone = report.timezone
 
     @property
     def attachments(self):
