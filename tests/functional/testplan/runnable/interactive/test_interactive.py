@@ -151,7 +151,7 @@ def test_top_level_tests():
         res = compare(
             BTLReset,
             plan.interactive.report.serialize(),
-            ignore=["hash", "information"],
+            ignore=["hash", "information", "timezone"],
         )
         assert res[0] is True
 
@@ -169,6 +169,7 @@ def test_top_level_tests():
                 "information",
                 "timer",
                 "timestamp",
+                "timezone",
             ],
         )
         assert res[0] is True
@@ -178,12 +179,12 @@ def test_top_level_tests():
         res = compare(
             BTLReset,
             plan.interactive.report.serialize(),
-            ignore=["hash", "information"],
+            ignore=["hash", "information", "timezone"],
         )
         assert res[0] is True
 
         # RUN SINGLE TESTSUITE (CUSTOM NAME)
-        plan.interactive.run_test_suite("Test2", "TCPSuite - Custom_1")
+        plan.interactive.run_test_suite("Test2", "Custom_1")
 
         BRSTest2 = load_from_json(
             Path(__file__).parent / "reports" / "basic_run_suite_test2.data"
@@ -193,8 +194,9 @@ def test_top_level_tests():
             plan.interactive.test_report("Test2"),
             ignore=[
                 "hash",
-                "information",
                 "timer",
+                "timestamp",
+                "timezone",
             ],
         )
         assert res[0] is True
@@ -210,9 +212,9 @@ def test_top_level_tests():
             plan.interactive.test_report("Test1"),
             ignore=[
                 "hash",
-                "information",
                 "timer",
                 "timestamp",
+                "timezone",
             ],
         )
         assert res[0] is True

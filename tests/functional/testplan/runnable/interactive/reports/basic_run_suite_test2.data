@@ -3,9 +3,9 @@
     "children": [],
     "counter": {
         "failed": 0,
-        "passed": 0,
+        "passed": 1,
         "total": 5,
-        "unknown": 5
+        "unknown": 4
     },
     "definition_name": "Test2",
     "description": null,
@@ -22,29 +22,29 @@
             "description": null,
             "entries": [
                 {
-                    "name": "Starting",
-                    "definition_name": "Starting",
+                    "category": "synthesized",
                     "counter": {
-                        "passed": 1,
                         "failed": 0,
+                        "passed": 1,
                         "total": 1
                     },
-                    "category": "synthesized",
-                    "runtime_status": "finished",
-                    "status": "passed",
-                    "logs": [],
-                    "timer": {},
+                    "definition_name": "Starting",
                     "description": "",
-                    "type": "TestCaseReport",
+                    "entries": [],
+                    "hash": 0,
+                    "logs": [],
+                    "name": "Starting",
                     "parent_uids": [
                         "InteractivePlan",
                         "Test2",
                         "Environment Start"
                     ],
-                    "entries": [],
-                    "hash": 0,
-                    "uid": "Starting",
-                    "tags": {}
+                    "runtime_status": "finished",
+                    "status": "passed",
+                    "tags": {},
+                    "timer": {},
+                    "type": "TestCaseReport",
+                    "uid": "Starting"
                 },
                 {
                     "category": "synthesized",
@@ -282,9 +282,8 @@
             "children": [],
             "counter": {
                 "failed": 0,
-                "passed": 0,
-                "total": 1,
-                "unknown": 1
+                "passed": 1,
+                "total": 1
             },
             "definition_name": "Custom_1",
             "description": null,
@@ -293,13 +292,37 @@
                     "category": "testcase",
                     "counter": {
                         "failed": 0,
-                        "passed": 0,
-                        "total": 1,
-                        "unknown": 1
+                        "passed": 1,
+                        "total": 1
                     },
                     "definition_name": "send_and_receive_msg",
                     "description": "Client sends a message, server received and responds back.",
-                    "entries": [],
+                    "entries": [
+                        {
+                            "description": "Server received",
+                            "first": "hello",
+                            "label": "==",
+                            "meta_type": "assertion",
+                            "passed": true,
+                            "second": "hello",
+                            "timestamp": 0.0,
+                            "type": "Equal",
+                            "type_actual": "str",
+                            "type_expected": "str"
+                        },
+                        {
+                            "description": "Client received",
+                            "first": "world",
+                            "label": "==",
+                            "meta_type": "assertion",
+                            "passed": true,
+                            "second": "world",
+                            "timestamp": 0.0,
+                            "type": "Equal",
+                            "type_actual": "str",
+                            "type_expected": "str"
+                        }
+                    ],
                     "hash": 0,
                     "logs": [],
                     "name": "send_and_receive_msg",
@@ -308,8 +331,8 @@
                         "Test2",
                         "Custom_1"
                     ],
-                    "runtime_status": "ready",
-                    "status": "unknown",
+                    "runtime_status": "finished",
+                    "status": "passed",
                     "tags": {},
                     "timer": {},
                     "type": "TestCaseReport",
@@ -323,8 +346,8 @@
                 "InteractivePlan",
                 "Test2"
             ],
-            "runtime_status": "ready",
-            "status": "unknown",
+            "runtime_status": "finished",
+            "status": "passed",
             "strict_order": false,
             "tags": {},
             "timer": {},
@@ -332,56 +355,56 @@
             "uid": "Custom_1"
         },
         {
-            "type": "TestGroupReport",
-            "runtime_status": "ready",
-            "parent_uids": [
-                "InteractivePlan",
-                "Test2"
-            ],
             "category": "synthesized",
-            "hash": 0,
-            "tags": {},
-            "uid": "Environment Stop",
+            "children": [],
+            "counter": {
+                "failed": 0,
+                "passed": 0,
+                "total": 0
+            },
+            "definition_name": "Environment Stop",
+            "description": null,
             "entries": [
                 {
+                    "category": "synthesized",
+                    "counter": {
+                        "failed": 0,
+                        "passed": 0,
+                        "total": 1,
+                        "unknown": 1
+                    },
+                    "definition_name": "Stopping",
+                    "description": null,
                     "entries": [],
-                    "type": "TestCaseReport",
-                    "runtime_status": "ready",
+                    "hash": 0,
+                    "logs": [],
+                    "name": "Stopping",
                     "parent_uids": [
                         "InteractivePlan",
                         "Test2",
                         "Environment Stop"
                     ],
-                    "category": "synthesized",
-                    "timer": {},
-                    "hash": 0,
-                    "definition_name": "Stopping",
-                    "uid": "Stopping",
-                    "counter": {
-                        "passed": 0,
-                        "failed": 0,
-                        "total": 1,
-                        "unknown": 1
-                    },
-                    "tags": {},
-                    "name": "Stopping",
+                    "runtime_status": "ready",
                     "status": "unknown",
-                    "description": null,
-                    "logs": []
+                    "tags": {},
+                    "timer": {},
+                    "type": "TestCaseReport",
+                    "uid": "Stopping"
                 }
             ],
-            "counter": {
-                "passed": 0,
-                "failed": 0,
-                "total": 0
-            },
-            "children": [],
-            "status": "unknown",
-            "description": null,
+            "hash": 0,
+            "logs": [],
             "name": "Environment Stop",
+            "parent_uids": [
+                "InteractivePlan",
+                "Test2"
+            ],
+            "runtime_status": "ready",
+            "status": "unknown",
+            "tags": {},
             "timer": {},
-            "definition_name": "Environment Stop",
-            "logs": []
+            "type": "TestGroupReport",
+            "uid": "Environment Stop"
         }
     ],
     "env_status": "STARTED",
@@ -396,6 +419,7 @@
     "status": "unknown",
     "tags": {},
     "timer": {},
+    "timezone": "",
     "type": "TestGroupReport",
     "uid": "Test2"
 }

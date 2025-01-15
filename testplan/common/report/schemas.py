@@ -1,7 +1,9 @@
 """
   Base schemas for report serialization.
 """
-from marshmallow import Schema, fields, post_load, post_dump
+import datetime
+
+from marshmallow import Schema, fields, post_dump, post_load, pre_load
 from marshmallow.utils import EXCLUDE
 
 from testplan.common.report.base import (
@@ -24,6 +26,22 @@ class IntervalSchema(Schema):
 
     start = fields.DateTime("timestamp")
     end = fields.DateTime("timestamp", allow_none=True)
+
+    @pre_load
+    def accept_old_isoformat(self, data, **kwargs):
+        try:
+            if data.get("start", None) and isinstance(data["start"], str):
+                data["start"] = datetime.datetime.fromisoformat(
+                    data["start"]
+                ).timestamp()
+            if data.get("end", None) and isinstance(data["end"], str):
+                data["end"] = datetime.datetime.fromisoformat(
+                    data["end"]
+                ).timestamp()
+            return data
+        except ValueError as e:
+            # no need to defer
+            raise ValueError("Invalid value when loading Interval.") from e
 
     @post_load
     def make_interval(self, data, **kwargs):

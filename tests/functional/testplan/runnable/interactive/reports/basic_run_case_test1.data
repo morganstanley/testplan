@@ -408,6 +408,7 @@
     "status": "unknown",
     "tags": {},
     "timer": {},
+    "timezone": "",
     "type": "TestGroupReport",
     "uid": "Test1"
 }

@@ -411,6 +411,7 @@
             "status": "unknown",
             "tags": {},
             "timer": {},
+            "timezone": "",
             "type": "TestGroupReport",
             "uid": "Test1"
         },
@@ -814,6 +815,7 @@
             "status": "unknown",
             "tags": {},
             "timer": {},
+            "timezone": "",
             "type": "TestGroupReport",
             "uid": "Test2"
         }
