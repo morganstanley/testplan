@@ -42,22 +42,44 @@ class TaskQueue:
     """
 
     def __init__(self) -> None:
-        self.q = queue.PriorityQueue()
+        self.default_worker = "default"
+        self.queue_map = {self.default_worker: queue.PriorityQueue()}
+        self.q = self.queue_map[self.default_worker]
         self.count = 0
 
-    def size(self) -> int:
+    def size(self, worker_id: Optional[str] = None) -> int:
+        if worker_id is not None and worker_id in self.queue_map:
+            return self.queue_map[worker_id].qsize()
         return self.q.qsize()
 
-    def put(self, priority: int, item: str) -> None:
-        self.q.put((priority, self.count, item))
+    def put(self, priority: int, item: str, worker_id: Optional[str] = None) -> None:
+        if worker_id is None:
+            worker_id = self.default_worker
+        if worker_id not in self.queue_map:
+            self.queue_map[worker_id] = queue.PriorityQueue()
+        self.queue_map[worker_id].put((priority, self.count, item))
         self.count += 1
 
-    def get(self) -> Tuple:
-        entry = self.q.get_nowait()
+    def get(self, worker_id: Optional[str] = None) -> Tuple:
+        if worker_id is not None and worker_id in self.queue_map:
+            try:
+                entry = self.queue_map[worker_id].get_nowait()
+            except queue.Empty:
+                # No specific tasks to assign to worker & so delete specific queue of worker
+                self.remove_worker_queue(worker_id)
+                worker_id = self.default_worker # Trying to get task from default queue
+                entry = self.queue_map[worker_id].get_nowait()
+        else:
+            worker_id = self.default_worker
+            entry = self.queue_map[worker_id].get_nowait()
         return entry[0], entry[2]
 
     def __getattr__(self, name: str) -> None:
         return self.q.__getattribute__(name)
+
+    def remove_worker_queue(self, worker_id: str):
+        if worker_id in self.queue_map:
+            del self.queue_map[worker_id]
 
 
 class WorkerConfig(entity.ResourceConfig):
@@ -429,7 +451,11 @@ class Pool(Executor):
         if not isinstance(task, Task):
             raise ValueError(f"Task was expected, got {type(task)} instead.")
         super(Pool, self).add(task, uid)
-        self.unassigned.put(task.priority, uid)
+        if task.workers_name:
+            for worker_id in task.workers_name:
+                self.unassigned.put(task.priority, uid, worker_id)
+        else:
+            self.unassigned.put(task.priority, uid)
         self._task_retries_cnt[uid] = 0
 
     def _can_assign_task(self, task: Task) -> bool:
@@ -552,7 +578,7 @@ class Pool(Executor):
         if self.status == self.status.STARTED:
             for _ in range(request.data):
                 try:
-                    priority, uid = self.unassigned.get()
+                    priority, uid = self.unassigned.get(worker.uid())
                 except queue.Empty:
                     self.logger.debug("No tasks to assign to %s", worker)
                     if self._early_stop_worker(worker):
@@ -572,7 +598,7 @@ class Pool(Executor):
                         )
                         continue
                     else:
-                        if self._can_assign_task_to_worker(task, worker):
+                        if not task.is_picked_up and self._can_assign_task_to_worker(task, worker):
                             self.logger.user_info(
                                 "Scheduling %s to %s %s",
                                 task,
@@ -581,6 +607,7 @@ class Pool(Executor):
                                 if task.reassign_cnt > 0
                                 else "",
                             )
+                            self._input[uid].is_picked_up = True
                             worker.assigned.add(uid)
                             tasks.append(task)
                             task.executors.setdefault(self.cfg.name, set())
@@ -590,8 +617,12 @@ class Pool(Executor):
                             self.logger.user_info(
                                 "Cannot schedule %s to %s", task, worker
                             )
-                            self.unassigned.put(task.priority, uid)
+                            if task.workers_name and worker.uid() in task.workers_name:
+                                self.unassigned.put(task.priority, uid, worker.uid())
+                            else:
+                                self.unassigned.put(task.priority, uid)
                             self._task_retries_cnt[uid] += 1
+                            self._input[uid].is_picked_up = False
                 else:
                     # Later may create a default local pool as failover option
                     self._discard_task(
@@ -652,6 +683,7 @@ class Pool(Executor):
         agg_report_status = Status.NONE
         for task_result in request.data:
             uid = task_result.task.uid()
+            self._input[uid].is_picked_up = False
             worker.assigned.remove(uid)
             self.logger.user_info(
                 "De-assign %s from %s", task_result.task, worker
@@ -675,7 +707,11 @@ class Pool(Executor):
                         - task_result.task.reassign_cnt,
                     },
                 )
-                self.unassigned.put(task_result.task.priority, uid)
+                worker_uid = worker.uid()
+                if task_result.task.workers_name and worker_uid in task_result.task.workers_name:
+                    self.unassigned.put(task_result.task.priority, uid, worker_uid)
+                else:
+                    self.unassigned.put(task_result.task.priority, uid)
                 self._task_retries_cnt[uid] = 0
                 self._input[uid].reassign_cnt += 1
                 # Will rerun task, but still need to retain the result
@@ -742,8 +778,15 @@ class Pool(Executor):
             self.logger.user_info(
                 "Re-collect %s from %s to %s.", task, worker, self
             )
-            self.unassigned.put(task.priority, uid)
+            worker_uid = worker.uid()
+            if task.workers_name and worker_uid in task.workers_name:
+                task.workers_name.remove(worker_uid)
+                self.unassigned.remove_worker_queue(worker_uid)
+            else:
+                self.unassigned.put(task.priority, uid)
+
             self._task_retries_cnt[uid] += 1
+            self._input[uid].is_picked_up = False
 
     def _workers_monitoring(self) -> None:
         """
@@ -902,6 +945,7 @@ class Pool(Executor):
         self.logger.critical(
             "Discard task %s of %s - %s", self._input[uid], self, reason
         )
+        self._input[uid].is_picked_up = False
         self._results[uid] = TaskResult(
             task=self._input[uid],
             status=False,
@@ -951,6 +995,7 @@ class Pool(Executor):
                     self.logger.warning(
                         "Discarding %s %s.", task, report_reason
                     )
+                self._input[uid].is_picked_up = False
                 self.ongoing.pop(0)
             self.unassigned = TaskQueue()
 

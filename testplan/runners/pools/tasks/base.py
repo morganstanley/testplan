@@ -55,21 +55,23 @@ class Task(SelectiveSerializable):
         task will be assigned to a worker. Default weight is 0, tasks with the
         same weight will be scheduled in the order they are added.
     :param part: part param that will be propagate to MultiTest
+    :workers_name: set of worker uid by only task will be executed.
     """
 
     MAX_RERUN_LIMIT = 3
 
     def __init__(
-        self,
-        target: Optional[Union[str, Test]] = None,
-        module: Optional[str] = None,
-        path: Optional[str] = None,
-        args: Optional[tuple] = None,
-        kwargs: Optional[dict] = None,
-        uid: Optional[str] = None,
-        rerun: int = 0,
-        weight: int = 0,
-        part: Optional[Tuple[int, int]] = None,
+            self,
+            target: Optional[Union[str, Test]] = None,
+            module: Optional[str] = None,
+            path: Optional[str] = None,
+            args: Optional[tuple] = None,
+            kwargs: Optional[dict] = None,
+            uid: Optional[str] = None,
+            rerun: int = 0,
+            weight: int = 0,
+            part: Optional[Tuple[int, int]] = None,
+            workers_name: Optional[set] = None
     ) -> None:
         self._target = target
         self._module = module
@@ -82,6 +84,8 @@ class Task(SelectiveSerializable):
         self._assign_for_rerun = 0
         self._executors = OrderedDict()
         self.priority = -weight
+        self.workers_name = workers_name or set()
+        self.is_picked_up = False
 
         if rerun < 0:
             raise ValueError("Value of `rerun` cannot be negative.")
