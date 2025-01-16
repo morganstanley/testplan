@@ -1,7 +1,7 @@
 .. attention::
 
   Support for Python 3.7 and 3.8 is deprecated and will be removed soon.
-  Please upgrade to Python 3.10 or 3.11.
+  Please upgrade to newer versions.
 
 .. raw:: html
 

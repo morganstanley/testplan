@@ -22,7 +22,7 @@ Install from archive:
   
     .. code-block:: bash
 
-      python3.10 -m pip install https://github.com/morganstanley/testplan/releases/download/24.9.2/testplan-24.9.2-py3-none-any.whl
+      python3 -m pip install https://github.com/morganstanley/testplan/releases/download/24.9.2/testplan-24.9.2-py3-none-any.whl
       
 
 Run testplan
@@ -77,7 +77,7 @@ Also find all our downloadable examples :ref:`here <download>`.
 Working with the source
 -----------------------
  
-You will need a working python 3.10+ interpreter preferably a venv, and for the interactive ui you need node installed. 
+You will need a working Python 3 interpreter preferably a venv, and for the interactive ui you need Node.js installed. 
 We are using `doit <https://pydoit.org/contents.html>`_ as the taskrunner ``doit list`` can show all the commands.
 
   .. code-block:: text
