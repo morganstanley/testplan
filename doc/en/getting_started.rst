@@ -16,7 +16,14 @@ Testplan is tested to work with Python 3.10 and 3.11 so we recommend choosing on
 Install testplan
 ================
 
-Testplan is not yet available from pypi.org but one can still install it from the latest github package. A link for our lates package can be obtained from: https://github.com/morganstanley/testplan/releases/tag/latest
+Testplan is available from pypi.org: https://pypi.org/project/testplan/
+
+    .. code-block:: bash
+
+      python3 -m pip install testplan
+
+
+Alternatively, one can install it from the latest github package. A link for our lates package can be obtained from: https://github.com/morganstanley/testplan/releases/tag/latest
 
 Install from archive:
   
