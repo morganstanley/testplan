@@ -16,9 +16,9 @@ function defaultProps() {
       columns: ["age", "name"],
       indices: [0, 1, 2],
       table: [
-        { age: 32, name: "Bob" },
-        { age: 24, name: "Susan" },
-        { age: 67, name: "Rick" },
+        [32, "Bob"],
+        [24, "Susan"],
+        [67, "Rick"],
       ],
       type: "TableLog",
       utc_time: "2019-02-12T17:41:43.241777+00:00",

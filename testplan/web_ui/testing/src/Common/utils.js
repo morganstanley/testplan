@@ -9,20 +9,12 @@ import _ from "lodash";
  * Calculate execution time of an entry with timer field
  */
 function calcExecutionTime(entry) {
-  let elapsed = null;
+  let elapsed = 0;
   if (entry.timer && entry.timer.run) {
-    // TODO: remove the else branch after Aug. 1 2024
-    if (Array.isArray(entry.timer.run) && !_.isEmpty(entry.timer.run)) {
-      elapsed = 0;
-      entry.timer.run.forEach((interval) => {
-        elapsed +=
+    entry.timer.run.forEach((interval) => {
+      elapsed +=
         timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
-      });
-    } else {
-      elapsed =
-      timeToTimestamp(entry.timer.run.end) -
-      timeToTimestamp(entry.timer.run.start);
-    }
+    });
   }
   return elapsed;
 }
@@ -36,7 +28,7 @@ function calcElapsedTime(timerField) {
     elapsed = 0;
     timerField.forEach((interval) => {
       elapsed +=
-      timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
+        timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
     });
   }
   return elapsed < 0 ? null : elapsed;
@@ -168,12 +160,14 @@ function formatSeconds(durationInSeconds) {
  * @returns {string}
  */
 function formatMilliseconds(durationInMilliseconds) {
-  if (!_.isNumber(durationInMilliseconds)) { return "na"; };
+  if (!_.isNumber(durationInMilliseconds)) {
+    return "na";
+  }
 
   let secondsInMilliseconds = durationInMilliseconds % 60000;
   let seconds = secondsInMilliseconds / 1000;
-  let minutesInMilliseconds = (durationInMilliseconds - secondsInMilliseconds)
-  / 60000;
+  let minutesInMilliseconds =
+    (durationInMilliseconds - secondsInMilliseconds) / 60000;
   let minutes = minutesInMilliseconds % 60;
   let hours = (minutesInMilliseconds - minutes) / 60;
 
@@ -185,12 +179,10 @@ function formatMilliseconds(durationInMilliseconds) {
   let secondsDisplay = seconds.toFixed(3) + "s";
 
   return (
-    [hoursDisplay, minutesDisplay, secondsDisplay]
-      .filter(Boolean)
-      .join(" ") || "0s"
+    [hoursDisplay, minutesDisplay, secondsDisplay].filter(Boolean).join(" ") ||
+    "0s"
   );
 }
-
 
 /**
  * Formats the input number representing milliseconds into a string
@@ -200,14 +192,16 @@ function formatMilliseconds(durationInMilliseconds) {
  * @returns {string}
  */
 function formatShortDuration(durationInMilliseconds) {
-  if (!_.isNumber(durationInMilliseconds)) { return "na"; };
+  if (!_.isNumber(durationInMilliseconds)) {
+    return "na";
+  }
 
   durationInMilliseconds = _.round(durationInMilliseconds, -2);
 
   let secondsInMilliseconds = durationInMilliseconds % 60000;
   let seconds = secondsInMilliseconds / 1000;
-  let minutesInMilliseconds = (durationInMilliseconds - secondsInMilliseconds)
-  / 60000;
+  let minutesInMilliseconds =
+    (durationInMilliseconds - secondsInMilliseconds) / 60000;
   let minutes = minutesInMilliseconds % 60;
   let hours = (minutesInMilliseconds - minutes) / 60;
 
@@ -219,18 +213,16 @@ function formatShortDuration(durationInMilliseconds) {
   let hoursDisplay = isDisplayedHours ? hours + "h" : "";
   let minutesDisplay = isDisplayedMinutes ? minutes + "m" : "";
   let secondsDisplay = isDisplayedSeconds
-  ? isDisplayedMilliseconds
-    ? seconds.toFixed(1) + "s"
-    : seconds.toFixed(0) + "s"
-  : null;
+    ? isDisplayedMilliseconds
+      ? seconds.toFixed(1) + "s"
+      : seconds.toFixed(0) + "s"
+    : null;
 
   return (
-    [hoursDisplay, minutesDisplay, secondsDisplay]
-      .filter(Boolean)
-      .join(":") || "0s"
+    [hoursDisplay, minutesDisplay, secondsDisplay].filter(Boolean).join(":") ||
+    "0s"
   );
 }
-
 
 export {
   calcExecutionTime,
@@ -436,7 +428,7 @@ export const truncateString = (
   str,
   maxLength = 15,
   startLength = 7,
-   endLength = 7
+  endLength = 7
 ) => {
   if (str.length <= maxLength) {
     return str;
@@ -444,7 +436,7 @@ export const truncateString = (
 
   const startPortion = str.slice(0, startLength);
   const endPortion = str.slice(-1 * endLength);
-  
+
   return `${startPortion}...${endPortion}`;
 };
 
@@ -453,7 +445,7 @@ export const truncateString = (
  * @param {String} path
  */
 export const getWorkspacePath = (path) => {
-  const srcIndex = path.indexOf('/src/');
+  const srcIndex = path.indexOf("/src/");
 
   if (srcIndex !== -1) {
     return path.slice(srcIndex + 1);
