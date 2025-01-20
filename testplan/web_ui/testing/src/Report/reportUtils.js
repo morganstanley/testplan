@@ -257,13 +257,7 @@ const GetCenterPane = (
 /** TODO */
 const getAssertions = (selectedEntries, displayTime, UTCTime) => {
   // get timezone from nearest (test-level) report
-  let IANAtz = ""; // default to utc
-  for (let e of selectedEntries) {
-    if (e.timezone) {
-      IANAtz = e.timezone;
-      break;
-    }
-  }
+  const IANAtz = selectedEntries.find((e) => e.timezone)?.timezone || ""; // default to utc
 
   // get all assertions from groups and list them sequentially in an array
   const getAssertionsRecursively = (links, entries) => {
@@ -328,21 +322,11 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
         let duration = "Unknown";
         if (selectedEntry.timer && selectedEntry.timer.run) {
           if (links[0].utc_time) {
-            let previousEntryTime = null;
-            // TODO: remove the else branch after Aug. 1 2024
-            if (
-              Array.isArray(selectedEntry.timer.run) &&
-              !_.isEmpty(selectedEntry.timer.run)
-            ) {
-              previousEntryTime = new Date(
-                selectedEntry.timer.run.at(-1).start
-              );
-            } else {
-              previousEntryTime = new Date(selectedEntry.timer.run.start);
-            }
+            const previousEntryTime = new Date(
+              selectedEntry.timer.run.at(-1).start
+            );
             const currentEntryTime = new Date(links[0].utc_time);
-            const durationInMilliseconds = currentEntryTime - previousEntryTime;
-            duration = formatMilliseconds(durationInMilliseconds);
+            duration = formatMilliseconds(currentEntryTime - previousEntryTime);
           } else if (links[0].timestamp) {
             const previousEntryTime = selectedEntry.timer.run.at(-1).start;
             const currentEntryTime = links[0].timestamp;

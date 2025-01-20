@@ -8,9 +8,6 @@ from testplan import report
 from testplan.common import entity
 from testplan.runnable.interactive import base, http
 
-# XXX: tmp solution
-from testplan.common.utils.json import json_dumps, json_loads
-
 
 class TestRunnerIHandlerConfig(base.TestRunnerIHandlerConfig):
     """Only for testing."""
@@ -216,7 +213,7 @@ class TestReport:
         assert rsp.status_code == 200
 
         ihandler.run_all_tests.assert_called_once_with(
-            shallow_report=json_loads(json_dumps(json_report)),
+            shallow_report=json_report,
             await_results=False,
         )
 
