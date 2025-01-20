@@ -4,9 +4,10 @@ import functools
 import math
 
 from boltons.iterutils import is_scalar, remap
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, post_dump
 from marshmallow.utils import EXCLUDE
 
+from testplan.common.report.base import ReportCategories
 from testplan.common.report.schemas import (
     BaseReportGroupSchema,
     ReportLinkSchema,
@@ -88,7 +89,7 @@ class TestCaseReportSchema(ReportSchema):
     source_class = TestCaseReport
 
     entries = fields.List(EntriesField())
-    category = fields.String(dump_only=True)
+    category = fields.String()
     counter = fields.Dict(dump_only=True)
     tags = TagField()
 
@@ -116,9 +117,10 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     source_class = TestGroupReport
 
     part = fields.List(fields.Integer, allow_none=True)
-    fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
-    strict_order = fields.Bool()
+    strict_order = fields.Bool(allow_none=True)
+    timezone = fields.String(allow_none=True)
+
     category = fields.String()
     tags = TagField()
 
@@ -129,7 +131,10 @@ class TestGroupReportSchema(BaseReportGroupSchema):
         },
         many=True,
     )
-    host = fields.String(allow_none=True)
+
+    # # abolished
+    # fix_spec_path = fields.String(allow_none=True, load_only=True)
+    # host = fields.String(allow_none=True, load_only=True)
 
     @post_load
     def make_report(self, data, **kwargs):
@@ -139,6 +144,16 @@ class TestGroupReportSchema(BaseReportGroupSchema):
         rep = super(TestGroupReportSchema, self).make_report(data)
         rep.propagate_tag_indices()
         return rep
+
+    @post_dump
+    def strip_none_by_category(self, data, **kwargs):
+        if not ReportCategories.is_test_level(data["category"]):
+            del data["part"]
+            del data["env_status"]
+            del data["timezone"]
+        if data["category"] != ReportCategories.TESTSUITE:
+            del data["strict_order"]
+        return data
 
 
 class TestReportSchema(BaseReportGroupSchema):
@@ -194,7 +209,6 @@ class ShallowTestGroupReportSchema(Schema):
     category = fields.String()
     timer = TimerField(required=True)
     part = fields.List(fields.Integer, allow_none=True)
-    fix_spec_path = fields.String(allow_none=True)
 
     status_override = fields.Function(
         lambda x: x.status_override.to_json_compatible(), allow_none=True
@@ -205,14 +219,18 @@ class ShallowTestGroupReportSchema(Schema):
     )
     counter = fields.Dict(dump_only=True)
     tags = TagField()
+    timezone = fields.String(allow_none=True)
 
     entry_uids = fields.List(fields.String(), dump_only=True)
     parent_uids = fields.List(fields.String())
     logs = fields.Nested(ReportLogSchema, many=True)
     hash = fields.Integer(dump_only=True)
     env_status = fields.String(allow_none=True)
-    strict_order = fields.Bool()
+    strict_order = fields.Bool(allow_none=True)
     children = fields.List(fields.Nested(ReportLinkSchema))
+
+    # # abolished
+    # fix_spec_path = fields.String(allow_none=True, load_only=True)
 
     @post_load
     def make_testgroup_report(self, data, **kwargs):
@@ -228,6 +246,16 @@ class ShallowTestGroupReportSchema(Schema):
         group_report.children = children
 
         return group_report
+
+    @post_dump
+    def strip_none_by_category(self, data, **kwargs):
+        if not ReportCategories.is_test_level(data["category"]):
+            del data["part"]
+            del data["env_status"]
+            del data["timezone"]
+        if data["category"] != ReportCategories.TESTSUITE:
+            del data["strict_order"]
+        return data
 
 
 class ShallowTestReportSchema(Schema):
