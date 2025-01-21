@@ -39,6 +39,6 @@ def generate_news():
 
 
 def setup(app):
-    app.add_css_file("icon.css")
-    app.add_css_file("news.css")
+    app.add_stylesheet("icon.css")
+    app.add_stylesheet("news.css")
     generate_news()
