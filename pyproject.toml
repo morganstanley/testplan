@@ -29,6 +29,8 @@
         "Topic :: Software Development :: Testing :: Unit"        
         ]
     dependencies = [
+        "sphinx<2",
+        "sphinx_rtd_theme",
         "setuptools",
         "pytest",
         "pytest-mock",
