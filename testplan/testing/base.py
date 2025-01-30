@@ -16,6 +16,8 @@ from typing import (
     Type,
     Union,
 )
+
+import tzlocal
 from schema import And, Or, Use
 
 from testplan import defaults
@@ -242,6 +244,7 @@ class Test(Runnable):
             category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
             env_status=ResourceStatus.STOPPED,
+            timezone=str(tzlocal.get_localzone()),  # IANA tz identifier
         )
 
     def _init_test_report(self) -> None:
