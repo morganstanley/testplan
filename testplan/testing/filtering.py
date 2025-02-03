@@ -268,7 +268,7 @@ class Pattern(Filter):
     """
     Base class for name based, glob style filtering.
 
-    https://docs.python.org/3.4/library/fnmatch.html
+    https://docs.python.org/3/library/fnmatch.html
 
     Examples:
 

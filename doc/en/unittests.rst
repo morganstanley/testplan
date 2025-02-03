@@ -42,7 +42,7 @@ Python - unittest
 =================
 
 ``unittest`` is the unit-testing framework built into the Python standard library,
-see https://docs.python.org/3.7/library/unittest.html for more information.
+see https://docs.python.org/3/library/unittest.html for more information.
 ``unittest`` testcases may be integrated with Testplan via the :py:class:`~testplan.testing.pyunit.PyUnit`
 test runner. Example can be found :ref:`here <example_pyunit>`.
 
