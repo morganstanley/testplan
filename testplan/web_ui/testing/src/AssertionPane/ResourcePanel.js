@@ -24,7 +24,9 @@ import prettyBytes from "pretty-bytes";
 import { getResourceUrl, timeToTimestamp } from "../Common/utils";
 import {
   RED,
+  LIGHT_RED,
   GREEN,
+  LIGHT_GREEN,
   BLUE,
   DARK_BLUE,
   TEAL,
@@ -76,6 +78,12 @@ const prettySizeTicks = (options) => {
       return prettyBytes(val, options);
     },
   };
+};
+
+const normalizeStartEndTime = (timer) => {
+  const start = timer[0]?.setup?.start || timer[0]?.run?.start;
+  const end = timer[0]?.teardown?.end || timer[0]?.run?.end;
+  return start && end ? [start, end] : null;
 };
 
 const AnchorDiv = ({ elementIds }) => {
@@ -219,6 +227,10 @@ const TimerGraph = ({ timerEntries, startTime, endTime }) => {
     {
       data: [],
       backgroundColor: [],
+      borderColor: [],
+      borderWidth: 2,
+      borderRadius: Number.MAX_VALUE,
+      borderSkipped: false,
       barThickness: 6,
       minBarLength: 2,
     },
@@ -227,26 +239,13 @@ const TimerGraph = ({ timerEntries, startTime, endTime }) => {
   timerEntries.forEach((entity) => {
     labels.push(entity.name);
     datasets[0].backgroundColor.push(
-      // TODO: move color to a constant map
+      entity.status === STATUS_CATEGORY.passed ? LIGHT_GREEN : LIGHT_RED
+    );
+    datasets[0].borderColor.push(
       entity.status === STATUS_CATEGORY.passed ? GREEN : RED
     );
-    let start = null;
-    if (!_.isNil(entity.timer[0].setup?.start)) {
-      start = entity.timer[0].setup.start;
-    } else if (!_.isNil(entity.timer[0].run?.start)) {
-      start = entity.timer[0].run.start;
-    } else {
-      datasets[0].data.push(null);
-      return;
-    }
-
-    if (!_.isNil(entity.timer[0].teardown?.end)) {
-      datasets[0].data.push([start, entity.timer[0].teardown.end]);
-    } else if (!_.isNil(entity.timer[0].run?.end)) {
-      datasets[0].data.push([start, entity.timer[0].run.end]);
-    } else {
-      datasets[0].data.push(null);
-    }
+    const normalizedTime = normalizeStartEndTime(entity.timer);
+    datasets[0].data.push(normalizedTime);
   });
   const height = 10 + timerEntries.length * 5;
   return (
@@ -569,38 +568,65 @@ HostResource.propTypes = {
   endTime: PropTypes.number,
 };
 
-const TopUsageBanner = ({ maxCPU, maxMemory, maxDisk, maxIOPS }) => {
+const TopBanner = ({
+  maxCPU,
+  maxMemory,
+  maxDisk,
+  maxIOPS,
+  showSummary,
+  setShowSummary,
+}) => {
   const itemStyle = {
     padding: "8px",
-    border: "1px solid #0597ff",
-    backgroundColor: "#e5f0f9",
     borderRadius: "2px",
-    color: "#115598",
     fontSize: "14px",
     fontWeight: "500",
     cursor: "pointer",
   };
+  const itemBlueStyle = {
+    ...itemStyle,
+    border: "1px solid #0597ff",
+    backgroundColor: "#e5f0f9",
+    color: "#115598",
+  };
+  const itemGreenStyle = {
+    ...itemStyle,
+    border: "1px solid #00875a",
+    backgroundColor: "#bcefc8",
+    color: "#0a5b19",
+  };
+
   const cpuDiv = _.isNil(maxCPU?.value, true) ? null : (
-    <div style={itemStyle} title={maxCPU.uid}>
+    <div style={itemBlueStyle} title={maxCPU.uid}>
       Max CPU Usage: {maxCPU.value}%
     </div>
   );
 
   const memDiv = _.isNil(maxMemory?.value) ? null : (
-    <div style={itemStyle} title={maxMemory.uid}>
+    <div style={itemBlueStyle} title={maxMemory.uid}>
       Max Memory Usage: {prettyBytes(maxMemory.value, { binary: true })}
     </div>
   );
 
   const diskDiv = _.isNil(maxDisk?.value) ? null : (
-    <div style={itemStyle} title={maxDisk.uid}>
+    <div style={itemBlueStyle} title={maxDisk.uid}>
       Max Disk Usage: {prettyBytes(maxDisk.value)}
     </div>
   );
 
   const iopsDiv = _.isNil(maxIOPS?.value) ? null : (
-    <div style={itemStyle} title={maxIOPS.uid}>
+    <div style={itemBlueStyle} title={maxIOPS.uid}>
       Max IOPS: {maxIOPS.value.toFixed(2)}
+    </div>
+  );
+  const showSummaryDiv = (
+    <div
+      style={itemGreenStyle}
+      onClick={() => {
+        setShowSummary(!showSummary);
+      }}
+    >
+      {showSummary ? "Show Detail" : "Show Resource"}
     </div>
   );
   return (
@@ -609,12 +635,17 @@ const TopUsageBanner = ({ maxCPU, maxMemory, maxDisk, maxIOPS }) => {
         width: "100%",
         gap: "8px",
         display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
       }}
     >
-      {cpuDiv}
-      {memDiv}
-      {diskDiv}
-      {iopsDiv}
+      <div style={{ display: "flex", gap: "8px" }}>
+        {cpuDiv}
+        {memDiv}
+        {diskDiv}
+        {iopsDiv}
+      </div>
+      <div>{showSummaryDiv}</div>
     </div>
   );
 };
@@ -624,12 +655,14 @@ const TopResourceShap = {
   uid: PropTypes.string,
 };
 
-TopUsageBanner.propTypes = {
+TopBanner.propTypes = {
   maxCPU: PropTypes.shape(TopResourceShap),
   maxMemory: PropTypes.shape(TopResourceShap),
   maxDisk: PropTypes.shape(TopResourceShap),
   maxIOPS: PropTypes.shape(TopResourceShap),
   onClickCallBack: PropTypes.func,
+  showSummary: PropTypes.bool,
+  setShowSummary: PropTypes.func,
 };
 
 const maxVal = (meta, maxRef, hostTag) => {
@@ -654,12 +687,23 @@ const maxVal = (meta, maxRef, hostTag) => {
   }
 };
 
+const HeaderPanelMargin = () => {
+  return (
+    <div
+      key="panel-blank-header-margin"
+      style={{ height: "20px", width: "100%" }}
+    ></div>
+  );
+};
+
 const ResourceContainer = ({
   resourceMetaPath,
   resourceEntries,
   timerEntries,
   testStartTime,
   testEndTime,
+  showSummary,
+  setShowSummary,
 }) => {
   const routeMatch = useRouteMatch();
 
@@ -675,13 +719,11 @@ const ResourceContainer = ({
     }
   }, [routeMatch]);
 
-  let usageBanner;
   const hostContent = [];
   let hostIndex = 0;
+  const maxRes = {};
 
   if (!_.isEmpty(resourceEntries)) {
-    const maxRes = {};
-
     for (let host in resourceEntries) {
       hostIndex++;
       const hostMeta = resourceEntries[host].metaData;
@@ -703,10 +745,10 @@ const ResourceContainer = ({
         hostContent.push(hostDiv);
       }
     }
-    if (!_.isEmpty(maxRes)) {
-      usageBanner = <TopUsageBanner {...maxRes} />;
-    }
   }
+  const usageBanner = (
+    <TopBanner {...{ ...maxRes, showSummary, setShowSummary }} />
+  );
 
   const timerContent = [];
   if (!_.isEmpty(timerEntries)) {
@@ -732,10 +774,7 @@ const ResourceContainer = ({
   return (
     <>
       {usageBanner}
-      <div
-        key="panel-blank-header-margin"
-        style={{ height: "20px", width: "100%" }}
-      ></div>
+      <HeaderPanelMargin />
       {hostContent}
       {timerContent}
     </>
@@ -748,6 +787,155 @@ ResourceContainer.propTypes = {
   timerEntries: PropTypes.object,
   testStartTime: PropTypes.number,
   testEndTime: PropTypes.number,
+  showSummary: PropTypes.bool,
+  setShowSummary: PropTypes.func,
+};
+
+const SummaryContainer = ({
+  resourceEntries,
+  timerEntries,
+  testStartTime,
+  testEndTime,
+  showSummary,
+  setShowSummary,
+}) => {
+  const labels = [];
+  const datasets = [];
+  for (const hostId in resourceEntries) {
+    resourceEntries[hostId].timer.forEach((entity) => {
+      const timeInfo = normalizeStartEndTime(entity.timer);
+      if (timeInfo) {
+        datasets.push({
+          label: entity.name,
+          data: [...Array(labels.length).fill(null), timeInfo],
+          borderColor: entity.status === STATUS_CATEGORY.passed ? GREEN : RED,
+          borderWidth: 2,
+          borderRadius: Number.MAX_VALUE,
+          borderSkipped: false,
+          backgroundColor:
+            entity.status === STATUS_CATEGORY.passed ? LIGHT_GREEN : LIGHT_RED,
+          barThickness: 6,
+          minBarLength: 2,
+        });
+      }
+    });
+    labels.push(resourceEntries[hostId].metaData.hostname);
+  }
+  for (const hostName in timerEntries) {
+    timerEntries[hostName].forEach((entity) => {
+      const timeInfo = normalizeStartEndTime(entity.timer);
+      if (timeInfo) {
+        datasets.push({
+          label: entity.name,
+          data: [...Array(labels.length).fill(null), timeInfo],
+          borderColor: entity.status === STATUS_CATEGORY.passed ? GREEN : RED,
+          borderWidth: 2,
+          borderRadius: Number.MAX_VALUE,
+          borderSkipped: false,
+          backgroundColor:
+            entity.status === STATUS_CATEGORY.passed ? LIGHT_GREEN : LIGHT_RED,
+          barThickness: 6,
+          minBarLength: 2,
+        });
+      }
+    });
+    labels.push(hostName);
+  }
+
+  const height = 10 + labels.length * 5;
+  const timezoneOffset = new Date().getTimezoneOffset();
+  const summaryGraph = (
+    <Bar
+      height={height}
+      options={{
+        indexAxis: "y",
+        responsive: true,
+        animation: {
+          duration: 0, // disable animation
+        },
+        scales: {
+          x: {
+            type: "time",
+            beginAtZero: false,
+            min: testStartTime,
+            max: testEndTime,
+            time: {
+              unit: "second",
+            },
+            ticks: {
+              autoSkip: false,
+              maxTicksLimit: 10,
+              callback: (value, index) => {
+                return `${dateFormat(
+                  dateAddMinutes(value, timezoneOffset),
+                  "H:mm:ss"
+                )}Z`;
+              },
+            },
+          },
+          y: {
+            stacked: true,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return [
+                  context.dataset.label,
+                  `From: ${dateFormat(
+                    dateAddMinutes(context.raw[0], timezoneOffset),
+                    "H:mm:ss"
+                  )}Z To: ${dateFormat(
+                    dateAddMinutes(context.raw[1], timezoneOffset),
+                    "H:mm:ss"
+                  )}Z`,
+                  `Duration: ${(
+                    (context.raw[1] - context.raw[0]) /
+                    1000
+                  ).toFixed(2)}s`,
+                ];
+              },
+            },
+          },
+        },
+      }}
+      data={{
+        labels: labels,
+        datasets: datasets,
+      }}
+    />
+  );
+
+  return (
+    <>
+      <TopBanner {...{ showSummary, setShowSummary }} />
+      <HeaderPanelMargin />
+      <div
+        style={{
+          padding: "20px 40px",
+          marginBottom: "10px",
+          backgroundColor: "#f8f9fa",
+          borderRadius: "4px",
+          width: "100%",
+        }}
+      >
+        {summaryGraph}
+      </div>
+    </>
+  );
+};
+
+SummaryContainer.propTypes = {
+  resourceEntries: PropTypes.object,
+  timerEntries: PropTypes.object,
+  testStartTime: PropTypes.number,
+  testEndTime: PropTypes.number,
+  showSummary: PropTypes.bool,
+  setShowSummary: PropTypes.func,
 };
 
 const normalizeTimer = (timer) => {
@@ -816,6 +1004,7 @@ const extractTimeInfo = (report) => {
 const ResourcePanel = ({ report }) => {
   const [resourceMeta, setResourceMeta] = useState(null);
   const [errorInfo, setErrorInfo] = useState(null);
+  const [showSummary, setShowSummary] = useState(false);
 
   useEffect(() => {
     if (resourceMeta || errorInfo) {
@@ -880,16 +1069,31 @@ const ResourcePanel = ({ report }) => {
       ? new Date(report.timer.run[0].end).getTime()
       : new Date(report.timer.run.end).getTime();
 
-    content = (
-      <ResourceContainer
-        key={`resource-container`}
-        resourceMetaPath={report.resource_meta_path}
-        resourceEntries={resourceEntries}
-        timerEntries={timerEntries}
-        testStartTime={testStartTime}
-        testEndTime={testEndTime}
-      />
-    );
+    if (showSummary) {
+      content = (
+        <SummaryContainer
+          resourceEntries={resourceEntries}
+          timerEntries={timerEntries}
+          testStartTime={testStartTime}
+          testEndTime={testEndTime}
+          showSummary={showSummary}
+          setShowSummary={setShowSummary}
+        />
+      );
+    } else {
+      content = (
+        <ResourceContainer
+          key={`resource-container`}
+          resourceMetaPath={report.resource_meta_path}
+          resourceEntries={resourceEntries}
+          timerEntries={timerEntries}
+          testStartTime={testStartTime}
+          testEndTime={testEndTime}
+          showSummary={showSummary}
+          setShowSummary={setShowSummary}
+        />
+      );
+    }
   } else {
     content = <div>Loading</div>;
   }

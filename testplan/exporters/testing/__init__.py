@@ -50,4 +50,12 @@ def __getattr__(name):
         from .xml import XMLExporter
 
         return XMLExporter
+    else:
+        import importlib
+
+        try:
+            return importlib.import_module("." + name, __name__)
+        except ModuleNotFoundError:
+            pass
+
     raise AttributeError(f"module {__name__} has no attribute {name}")

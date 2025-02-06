@@ -1,3 +1,8 @@
+.. attention::
+
+  Support for Python 3.7 and 3.8 is deprecated and will be removed soon.
+  Please upgrade to newer versions.
+
 .. raw:: html
 
   <div style="font-size:80px;font-family:Arial;font-weight:bold;">
