@@ -108,6 +108,7 @@ class PluginConfig(BaseModel):
         """
         Generate command options from Annotated fields which can be returned directly from
         [get_command_options hook][releaseherald.plugins.hookspecs.get_command_options]
+
         Args:
             command: the command these command options are registered with
 
@@ -135,6 +136,7 @@ class PluginConfig(BaseModel):
         """
         Update itself from commandline options, can be used in
         [on_start_command hook][releaseherald.plugins.hookspecs.on_start_command]
+
         Args:
             command: the command
             kwargs: the commandline args for the command
