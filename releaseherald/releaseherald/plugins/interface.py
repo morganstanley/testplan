@@ -81,6 +81,7 @@ class CommitInfo:
 class News:
     """
     Represent a single newsfile
+
     Attributes:
         file_name: file name of the news fragment
         content: the content of the news file

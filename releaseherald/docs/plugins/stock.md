@@ -13,7 +13,7 @@ on the list). Other plugins can depend on this default behaviour and extend,alte
 This plugin responsible to render the news into an output based on a jinja2 template. This added automatically to 
 the list of plugins even if not mentioned in the config, though if a plugin implement their own rendering this can 
 be removed adding `-base_output` to the list of plugins.  
-[/configuration/](../configuration.md#base-output-plugin-configuration)
+[/configuration/](../configuration.md#base_output-plugin-configuration)
 
 ## latest
 This is a simple plugin, it adds the `--latest` commandline switch for generate and understand the 
