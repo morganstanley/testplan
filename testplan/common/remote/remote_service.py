@@ -240,9 +240,8 @@ class RemoteService(Resource, RemoteResource):
         """
         Stops remote rpyc process.
         """
-        remote_pid = self.rpyc_connection.modules.os.getpid()
         try:
-            self.rpyc_connection.modules.os.kill(remote_pid, signal.SIGTERM)
+            self.rpyc_connection.modules.os.kill(self.rpyc_pid, signal.SIGTERM)
         except EOFError:
             pass
 

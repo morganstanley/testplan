@@ -119,7 +119,7 @@ def parse_dependency(input: dict) -> DriverDepGraph:
             isinstance(k, (Driver, RemoteDriver))
             or (
                 isinstance(k, Iterable)
-                and all(isinstance(x, Driver) for x in k)
+                and all(isinstance(x, (Driver, RemoteDriver)) for x in k)
             )
         ):
             raise _type_err(

@@ -87,7 +87,7 @@ class WebServerExporter(Exporter):
             exporter=self, export_context=export_context
         )
         result = None
-        if len(source):
+        if not source.is_empty():
             exporter = JSONExporter(
                 json_path=self.cfg.json_path, split_json_report=False
             )

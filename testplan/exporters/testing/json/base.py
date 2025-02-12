@@ -113,7 +113,7 @@ class JSONExporter(Exporter):
         result = None
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 
-        if len(source):
+        if not source.is_empty():
             json_path.parent.mkdir(parents=True, exist_ok=True)
 
             test_plan_schema = TestReportSchema()

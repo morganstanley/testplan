@@ -62,7 +62,8 @@
         "gherkin-official==4.1.3",
         "parse",
         "orjson; python_version>='3.8'",
-        "flask-orjson; python_version>='3.8'"
+        "flask-orjson; python_version>='3.8'",
+        "exceptiongroup"
     ]
     requires-python = ">=3.7"
 

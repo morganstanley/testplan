@@ -70,6 +70,8 @@ class UnboundRemoteResourceConfig(EntityConfig):
             ConfigOption("remote_runpath", default=None): str,
             ConfigOption("testplan_path", default=None): str,
             ConfigOption("remote_workspace", default=None): str,
+            # proposing cfg clobber_remote_workspace,
+            # to overwrite what's in remote_workspace when set to True
             ConfigOption("clean_remote", default=False): bool,
             ConfigOption("push", default=[]): Or(list, None),
             ConfigOption("push_exclude", default=[]): Or(list, None),
@@ -152,13 +154,27 @@ class RemoteResource(Entity):
         status_wait_timeout: int = 60,
         **options,
     ) -> None:
+        if IS_WIN:
+            raise NotImplementedError(
+                "RemoteResource not supported on Windows hosts."
+            )
 
         if not worker_is_remote(remote_host):
+            # TODO: allow connecting to local for testing purpose?
             raise RuntimeError(
                 "Cannot create remote resource on the same host that Testplan runs."
             )
         options.update(self.filter_locals(locals()))
         super(RemoteResource, self).__init__(**options)
+
+        self.ssh_cfg = {
+            "host": self.cfg.remote_host,
+            "port": self.cfg.ssh_port,
+        }
+        if 0 != self._execute_cmd_remote("uname"):
+            raise NotImplementedError(
+                "RemoteResource not supported on Windows hosts."
+            )
 
         self._remote_plan_runpath = None
         self._remote_resource_runpath = None
@@ -167,17 +183,16 @@ class RemoteResource(Entity):
         self._workspace_paths = _LocationPaths()
         self._working_dirs = _LocationPaths()
 
-        self.ssh_cfg = {
-            "host": self.cfg.remote_host,
-            "port": self.cfg.ssh_port,
-        }
-
         self.setup_metadata = WorkerSetupMetadata()
         self._user = getpass.getuser()
-        self.python_binary = (
-            os.environ["PYTHON3_REMOTE_BINARY"] if IS_WIN else sys.executable
-        )
+        # TODO: allow specifying remote env
+        self.python_binary = sys.executable
         self._error_exec = []
+
+        # remote file system obj outside runpath that needs to be cleaned upon
+        # exit when clean_remote is True, otherwise it will break workspace
+        # detect etc. in next run
+        self._dangling_remote_fs_obj = None
 
     @property
     def error_exec(self) -> list:
@@ -198,10 +213,8 @@ class RemoteResource(Entity):
     def _define_remote_dirs(self) -> None:
         """Define mandatory directories in remote host."""
 
-        self._remote_plan_runpath = self.cfg.remote_runpath or (
-            f"/var/tmp/{getpass.getuser()}/testplan/{self._get_plan().cfg.name}"
-            if IS_WIN
-            else self._get_plan().runpath
+        self._remote_plan_runpath = (
+            self.cfg.remote_runpath or self._get_plan().runpath
         )
         self._workspace_paths.local = fix_home_prefix(
             os.path.abspath(self.cfg.workspace)
@@ -252,8 +265,6 @@ class RemoteResource(Entity):
     def _create_remote_dirs(self) -> None:
         """Create mandatory directories in remote host."""
 
-        exist_on_remote = self._check_workspace()
-
         if 0 != self._execute_cmd_remote(
             cmd=filepath_exist_cmd(self._remote_runid_file),
             label="runid file availability check",
@@ -275,8 +286,14 @@ class RemoteResource(Entity):
                 label="create remote runid file",
             )
 
-            self._prepare_workspace(exist_on_remote)
+            # TODO: remote venv setup
+            # NOTE: curr strategy is always do the copy/link, to handle the
+            # NOTE: case that testplan path under workspace, we deal with it
+            # NOTE: first
             self._copy_testplan_package()
+
+            exist_on_remote = self._check_workspace()
+            self._prepare_workspace(exist_on_remote)
 
         self._execute_cmd_remote(
             cmd=mkdir_cmd(self._remote_resource_runpath),
@@ -382,6 +399,7 @@ class RemoteResource(Entity):
                 self,
                 self.ssh_cfg["host"],
             )
+            # proposed: if clobber_remote_workspace set, overwrite remote
             self._execute_cmd_remote(
                 cmd=link_cmd(
                     path=self._workspace_paths.local,
@@ -400,7 +418,7 @@ class RemoteResource(Entity):
             )
             self._transfer_data(
                 # join with "" to add trailing "/" to source
-                # this will copy everything under local import path to to testplan_lib
+                # this will copy everything under local workspace path to fetched_workspace
                 source=os.path.join(self._workspace_paths.local, ""),
                 target=self._workspace_paths.remote,
                 remote_target=True,
@@ -412,19 +430,21 @@ class RemoteResource(Entity):
                 self,
                 self.ssh_cfg["host"],
             )
+            # TODO: possibly dangling dirs never get removed
             self._execute_cmd_remote(
                 cmd=mkdir_cmd(os.path.dirname(self._workspace_paths.local)),
                 label="imitate local workspace path on remote - mkdir",
                 check=False,  # just best effort
             )
-            self._execute_cmd_remote(
+            if 0 == self._execute_cmd_remote(
                 cmd=link_cmd(
                     path=self._workspace_paths.remote,
                     link=self._workspace_paths.local,
                 ),
                 label="imitate local workspace path on remote - ln",
                 check=False,  # just best effort
-            )
+            ):
+                self._dangling_remote_fs_obj = self._workspace_paths.local
 
     def _push_files(self) -> None:
         """Push files and directories to remote host."""
@@ -601,9 +621,20 @@ class RemoteResource(Entity):
             )
 
             self._execute_cmd_remote(
-                cmd=f"/bin/rm -rf {self._remote_plan_runpath}",
+                cmd=rm_cmd(self._remote_plan_runpath),
                 label="Clean remote root runpath",
             )
+
+            if self._dangling_remote_fs_obj:
+                self._execute_cmd_remote(
+                    cmd=rm_cmd(self._dangling_remote_fs_obj),
+                    label=f"Remove imitated workspace outside runpath",
+                )
+                self._dangling_remote_fs_obj = None
+
+        if self.cfg.delete_pushed:
+            # TODO
+            ...
 
     def _pull_files(self) -> None:
         """Pull custom files from remote host."""

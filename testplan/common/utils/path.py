@@ -254,7 +254,7 @@ def rebase_path(path, old_base, new_base):
     """
 
     rel_path = os.path.relpath(path, old_base).split(os.sep)
-    return "/".join([new_base] + rel_path)
+    return os.path.join(new_base, *rel_path)
 
 
 def is_subdir(child, parent):

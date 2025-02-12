@@ -250,7 +250,7 @@ class PDFExporter(Exporter):
             exporter=self, export_context=export_context
         )
         result = None
-        if len(source):
+        if not source.is_empty():
             pdf_path = self.create_pdf(source)
             self.logger.user_info("PDF generated at %s", pdf_path)
 
