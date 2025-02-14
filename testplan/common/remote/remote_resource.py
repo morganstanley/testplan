@@ -1,6 +1,7 @@
 import getpass
 import itertools
 import os
+import shlex
 import sys
 from typing import Callable, Iterator, List, Tuple, Union, Dict, Optional
 
@@ -154,11 +155,6 @@ class RemoteResource(Entity):
         status_wait_timeout: int = 60,
         **options,
     ) -> None:
-        if IS_WIN:
-            raise NotImplementedError(
-                "RemoteResource not supported on Windows hosts."
-            )
-
         if not worker_is_remote(remote_host):
             # TODO: allow connecting to local for testing purpose?
             raise RuntimeError(
@@ -186,7 +182,9 @@ class RemoteResource(Entity):
         self.setup_metadata = WorkerSetupMetadata()
         self._user = getpass.getuser()
         # TODO: allow specifying remote env
-        self.python_binary = sys.executable
+        self.python_binary = (
+            os.environ["PYTHON3_REMOTE_BINARY"] if IS_WIN else sys.executable
+        )
         self._error_exec = []
 
         # remote file system obj outside runpath that needs to be cleaned upon
@@ -213,8 +211,10 @@ class RemoteResource(Entity):
     def _define_remote_dirs(self) -> None:
         """Define mandatory directories in remote host."""
 
-        self._remote_plan_runpath = (
-            self.cfg.remote_runpath or self._get_plan().runpath
+        self._remote_plan_runpath = self.cfg.remote_runpath or (
+            f"/var/tmp/{getpass.getuser()}/testplan/{self._get_plan().cfg.name}"
+            if IS_WIN
+            else self._get_plan().runpath
         )
         self._workspace_paths.local = fix_home_prefix(
             os.path.abspath(self.cfg.workspace)
@@ -287,13 +287,18 @@ class RemoteResource(Entity):
             )
 
             # TODO: remote venv setup
-            # NOTE: curr strategy is always do the copy/link, to handle the
-            # NOTE: case that testplan path under workspace, we deal with it
-            # NOTE: first
-            self._copy_testplan_package()
+            # TODO: testplan_lib will resolved to site-packages under venv,
+            # TODO: while rpyc_classic.py under bin isn't included
 
             exist_on_remote = self._check_workspace()
             self._prepare_workspace(exist_on_remote)
+
+            # NOTE: if workspace under testplan_lib (testplan installed in
+            # NOTE: editable mode), actual testplan package will never be
+            # NOTE: transferred
+            # NOTE: nevertheless, this impl won't work with venv in the first
+            # NOTE: place
+            self._copy_testplan_package()
 
         self._execute_cmd_remote(
             cmd=mkdir_cmd(self._remote_resource_runpath),
@@ -424,19 +429,40 @@ class RemoteResource(Entity):
                 remote_target=True,
                 exclude=self.cfg.workspace_exclude,
             )
+
+            if IS_WIN:
+                return
+
             self.logger.info(
                 "%s: creating symlink to imitate local workspace path on %s, "
                 "pointing to runpath/fetched_workspace",
                 self,
                 self.ssh_cfg["host"],
             )
-            # TODO: possibly dangling dirs never get removed
-            self._execute_cmd_remote(
+            r, w = os.pipe()
+            rmt_non_existing = None
+            if 0 == self._execute_cmd_remote(
+                cmd="/bin/bash -c "
+                + shlex.quote(
+                    'e=""; for i in '
+                    + " ".join(
+                        map(
+                            shlex.quote,
+                            self._workspace_paths.local.split(os.sep)[1:],
+                        )
+                    )
+                    + '; do e+="/${i}"; if [ ! -e "$e" ]; then echo "$e"; break; fi; done'
+                ),
+                label="imitate local workspace path on remote - detect non-existing",
+                stdout=os.fdopen(w),
+                check=False,  # XXX: bash might not be there
+            ):
+                rmt_non_existing = os.fdopen(r).read().strip() or None
+            if 0 == self._execute_cmd_remote(
                 cmd=mkdir_cmd(os.path.dirname(self._workspace_paths.local)),
                 label="imitate local workspace path on remote - mkdir",
                 check=False,  # just best effort
-            )
-            if 0 == self._execute_cmd_remote(
+            ) and 0 == self._execute_cmd_remote(
                 cmd=link_cmd(
                     path=self._workspace_paths.remote,
                     link=self._workspace_paths.local,
@@ -444,7 +470,7 @@ class RemoteResource(Entity):
                 label="imitate local workspace path on remote - ln",
                 check=False,  # just best effort
             ):
-                self._dangling_remote_fs_obj = self._workspace_paths.local
+                self._dangling_remote_fs_obj = rmt_non_existing
 
     def _push_files(self) -> None:
         """Push files and directories to remote host."""
