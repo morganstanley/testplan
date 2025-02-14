@@ -471,6 +471,14 @@ class RemoteResource(Entity):
                 check=False,  # just best effort
             ):
                 self._dangling_remote_fs_obj = rmt_non_existing
+                if rmt_non_existing:
+                    self.logger.info(
+                        "%s: on %s, %s and its possible descendants are "
+                        "created to imitate local workspace path",
+                        self,
+                        self.ssh_cfg["host"],
+                        rmt_non_existing,
+                    )
 
     def _push_files(self) -> None:
         """Push files and directories to remote host."""

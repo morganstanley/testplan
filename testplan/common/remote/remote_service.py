@@ -244,10 +244,10 @@ class RemoteService(Resource, RemoteResource):
             self.rpyc_connection.modules.os.kill(self.rpyc_pid, signal.SIGTERM)
         except EOFError:
             pass
-
-        # actually if remote rpyc server is shutdown, ssh proc is also finished
-        # but calling kill_process just in case
-        if self.proc:
-            kill_process(self.proc, self.cfg.stop_timeout)
+        finally:
+            # if remote rpyc server is shutdown successfully, ssh proc is also finished
+            # otherwise we need to manual kill this orphaned ssh procc
+            if self.proc:
+                kill_process(self.proc, self.cfg.stop_timeout)
 
         self.status.change(self.STATUS.STOPPED)
