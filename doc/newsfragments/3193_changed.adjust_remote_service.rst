@@ -1,0 +1,1 @@
+Improve error logging for :py:class:`~testplan.common.remote.remote_service.RemoteService`; fix incorrect imitated workspace on remote due to leftover symlink from previous run.
