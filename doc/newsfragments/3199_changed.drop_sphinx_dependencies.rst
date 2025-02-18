@@ -1,0 +1,1 @@
+Remove Sphinx and other packages for building document from Testplan's dependencies.

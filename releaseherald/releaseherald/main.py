@@ -127,7 +127,7 @@ def generate(ctx: click.Context, **kwargs):
 @click.option(
     "--config",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Path to the config file, if not provided releaseherald.toml or pyproject.toml usde from git repo root.",
+    help="Path to the config file. If not provided, releaseherald.toml or pyproject.toml is used from git repo root.",
 )
 @click.pass_context
 def setup(

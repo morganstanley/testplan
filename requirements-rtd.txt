@@ -1,0 +1,5 @@
+sphinx
+sphinx-click
+sphinx-rtd-theme
+-r ./requirements.txt
+./releaseherald

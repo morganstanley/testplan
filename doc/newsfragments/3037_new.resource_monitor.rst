@@ -1,0 +1,1 @@
+Add a new summary page on resource view to show the task allocation per host.

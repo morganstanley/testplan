@@ -3,8 +3,7 @@
 `releaseherald` needs at least a known git repository to run. It can be provided as a command line
 parameter `--git-dir path/to/git/dir`
 or just simply running `releaseherlad` somewhere in a git repository. The root of the git repository is considered as
-the place of the config files. If no config files exists it will run with defaults, which will be detailed in the
-[Configurable Options](#configurable-options) section.
+the place of the config files. If no config files exists it will run with defaults, which will be detailed below.
 
 ## Config files
 
