@@ -439,25 +439,29 @@ class RemoteResource(Entity):
                 self,
                 self.ssh_cfg["host"],
             )
-            r, w = os.pipe()
             rmt_non_existing = None
-            if 0 == self._execute_cmd_remote(
-                cmd="/bin/bash -c "
-                + shlex.quote(
-                    'e=""; for i in '
-                    + " ".join(
-                        map(
-                            shlex.quote,
-                            self._workspace_paths.local.split(os.sep)[1:],
-                        )
-                    )
-                    + '; do e+="/${i}"; if [ ! -e "$e" ]; then echo "$e"; break; fi; done'
-                ),
-                label="imitate local workspace path on remote - detect non-existing",
-                stdout=os.fdopen(w),
-                check=False,  # XXX: bash might not be there
-            ):
-                rmt_non_existing = os.fdopen(r).read().strip() or None
+            # TODO: uncomment later
+            # TODO: there is another issue related to created dir cleanup
+            # TODO: if push given, pushed files under created dir and delete_pushed
+            # TODO: set to False, what to do?
+            # r, w = os.pipe()
+            # if 0 == self._execute_cmd_remote(
+            #     cmd="/bin/bash -c "
+            #     + shlex.quote(
+            #         'e=""; for i in '
+            #         + " ".join(
+            #             map(
+            #                 shlex.quote,
+            #                 self._workspace_paths.local.split(os.sep)[1:],
+            #             )
+            #         )
+            #         + '; do e+="/${i}"; if [ ! -e "$e" ]; then echo "$e"; break; fi; done'
+            #     ),
+            #     label="imitate local workspace path on remote - detect non-existing",
+            #     stdout=os.fdopen(w),
+            #     check=False,  # XXX: bash might not be there
+            # ):
+            #     rmt_non_existing = os.fdopen(r).read().strip() or None
             if 0 == self._execute_cmd_remote(
                 cmd=mkdir_cmd(os.path.dirname(self._workspace_paths.local)),
                 label="imitate local workspace path on remote - mkdir",
@@ -662,11 +666,10 @@ class RemoteResource(Entity):
             )
 
             if self._dangling_remote_fs_obj:
-                # TODO: uncomment later
-                # self._execute_cmd_remote(
-                #     cmd=rm_cmd(self._dangling_remote_fs_obj),
-                #     label=f"Remove imitated workspace outside runpath",
-                # )
+                self._execute_cmd_remote(
+                    cmd=rm_cmd(self._dangling_remote_fs_obj),
+                    label=f"Remove imitated workspace outside runpath",
+                )
                 self._dangling_remote_fs_obj = None
 
         if self.cfg.delete_pushed:

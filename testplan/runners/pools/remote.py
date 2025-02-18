@@ -16,7 +16,7 @@ from testplan.common.remote.remote_resource import (
     UnboundRemoteResourceConfig,
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.common.utils.path import rebase_path
+from testplan.common.utils.path import fix_home_prefix, rebase_path
 from testplan.common.utils.remote import copy_cmd, ssh_cmd
 from testplan.common.utils.timing import get_sleeper, wait
 
@@ -80,7 +80,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def _set_child_script(self) -> None:
         """Specify the remote worker executable file."""
-        self._child_paths.local = self._child_path()
+        self._child_paths.local = fix_home_prefix(self._child_path())
         self._child_paths.remote = rebase_path(
             self._child_paths.local,
             self._testplan_import_path.local,
