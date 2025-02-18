@@ -269,7 +269,12 @@ def retry_until_timeout(
 
 def utcnow() -> datetime.datetime:
     """Timezone aware UTC now."""
-    return datetime.datetime.utcnow().replace(tzinfo=timezone.utc)
+    return datetime.datetime.now(tz=timezone.utc)
+
+
+def now() -> datetime.datetime:
+    """Timezone aware local time."""
+    return datetime.datetime.now().astimezone()
 
 
 _Interval = collections.namedtuple("_Interval", "start end")
@@ -299,17 +304,15 @@ class TimerCtxManager:
         self.start_ts = None
 
     def __enter__(self):
-        self.start_ts = utcnow()
+        self.start_ts = now()
 
     def __exit__(self, exc_type, exc_value, _):
         if self.key in self.timer:
             self.timer[self.key].append(
-                Interval(start=self.start_ts, end=utcnow())
+                Interval(start=self.start_ts, end=now())
             )
         else:
-            self.timer[self.key] = [
-                Interval(start=self.start_ts, end=utcnow())
-            ]
+            self.timer[self.key] = [Interval(start=self.start_ts, end=now())]
 
 
 class Timer(dict):
@@ -333,9 +336,9 @@ class Timer(dict):
     def start(self, key):
         """Record the start timestamp for the given key."""
         if key in self:
-            self[key].append(Interval(utcnow(), None))
+            self[key].append(Interval(now(), None))
         else:
-            self[key] = [Interval(utcnow(), None)]
+            self[key] = [Interval(now(), None)]
 
     def end(self, key):
         """
@@ -344,7 +347,7 @@ class Timer(dict):
         if key not in self or self.last(key).end is not None:
             raise KeyError(f"`start` missing for {key}, cannot record end.")
 
-        self[key][-1] = Interval(self[key][-1].start, utcnow())
+        self[key][-1] = Interval(self[key][-1].start, now())
 
     def merge(self, timer):
         for key in timer:
