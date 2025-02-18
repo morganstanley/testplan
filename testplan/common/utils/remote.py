@@ -1,11 +1,12 @@
 """Remote execution utilities."""
 
+import getpass
 import os
 import platform
+import shlex
 import socket
-import sys
-import getpass
 import subprocess
+import sys
 
 IS_WIN = platform.system() == "Windows"
 USER = getpass.getuser()
@@ -119,19 +120,19 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
 
 def link_cmd(path, link):
     """Returns link creation command."""
-    return " ".join(["ln", "-sfn", path, link])
+    return " ".join(["/bin/ln", "-sfn", shlex.quote(path), shlex.quote(link)])
 
 
 def mkdir_cmd(path):
     """Return mkdir command"""
-    return " ".join(["/bin/mkdir", "-p", path])
+    return " ".join(["/bin/mkdir", "-p", shlex.quote(path)])
 
 
 def rm_cmd(path):
     """Return rm command"""
-    return " ".join(["/bin/rm", "-rf", path])
+    return " ".join(["/bin/rm", "-rf", shlex.quote(path)])
 
 
 def filepath_exist_cmd(path):
     """Checks if filepath exists."""
-    return " ".join(["test", "-e", path])
+    return " ".join(["/bin/test", "-e", shlex.quote(path)])
