@@ -167,10 +167,10 @@ class RemoteResource(Entity):
             "host": self.cfg.remote_host,
             "port": self.cfg.ssh_port,
         }
-        if 0 != self._execute_cmd_remote("uname"):
-            raise NotImplementedError(
-                "RemoteResource not supported on Windows remote hosts."
-            )
+        # if 0 != self._execute_cmd_remote("uname"):
+        #     raise NotImplementedError(
+        #         "RemoteResource not supported on Windows remote hosts."
+        #     )
 
         self._remote_plan_runpath = None
         self._remote_resource_runpath = None
