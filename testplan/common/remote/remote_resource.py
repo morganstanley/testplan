@@ -276,6 +276,10 @@ class RemoteResource(Entity):
                 label="remove remote plan runpath",
             )
 
+            # NOTE: corner case: runpath under workspace
+            # NOTE: should check existence before any mkdir call
+            exist_on_remote = self._check_workspace()
+
             self._execute_cmd_remote(
                 cmd=mkdir_cmd(self._remote_plan_runpath),
                 label="create remote plan runpath",
@@ -290,7 +294,6 @@ class RemoteResource(Entity):
             # TODO: testplan_lib will resolved to site-packages under venv,
             # TODO: while rpyc_classic.py under bin isn't included
 
-            exist_on_remote = self._check_workspace()
             self._prepare_workspace(exist_on_remote)
 
             # NOTE: if workspace under testplan_lib (testplan installed in
