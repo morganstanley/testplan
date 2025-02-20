@@ -71,6 +71,7 @@ from testplan.runners.pools.tasks.base import (
     is_task_target,
 )
 from testplan.testing import common, filtering, listing, ordering, tagging
+from testplan.testing.result import Result
 from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
@@ -1154,16 +1155,14 @@ class TestRunner(Runnable):
 
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
-                msg = (
-                    f"Timeout: Aborting execution after {self.cfg.timeout} seconds",
-                )
+                self._timed_out = True
+                msg = f"Timeout: Aborting execution after {self.cfg.timeout} seconds"
                 self.result.report.logger.error(msg)
                 self.logger.error(msg)
 
                 # Abort resources e.g pools
                 for dep in self.abort_dependencies():
                     self._abort_entity(dep)
-
                 break
 
             pending_work = False
@@ -1250,6 +1249,70 @@ class TestRunner(Runnable):
             step_result = step_result and run is True  # boolean or exception
 
         step_result = self._merge_reports(test_rep_lookup) and step_result
+
+        if getattr(self, "_timed_out", False):
+            msg = f"Testplan timed out after {self.cfg.timeout} seconds"
+            timeout_suite = TestGroupReport(
+                name="Testplan timeout",
+                description=msg,
+                category=ReportCategories.SYNTHESIZED,
+                # status_override=Status.ERROR,
+            )
+            timeout_case = TestCaseReport(
+                name="Testplan timeout",
+                description=msg,
+                status_override=Status.ERROR,
+            )
+            log_result = Result()
+            log_result.log(
+                message=f"".join(
+                    f"{log['created'].strftime('%Y-%m-%d %H:%M:%S')} {log['levelname']} {log['message']}\n"
+                    for log in self.report.flattened_logs
+                ),
+                description="Logs from testplan",
+            )
+            import sys
+            from traceback import format_stack
+
+            threads, processes = self._get_process_info(recursive=True)
+            threads_to_report = []
+            for thread in threads:
+                threads_to_report.append(
+                    os.linesep.join(
+                        [
+                            f"=====> {thread}:",
+                            os.linesep.join(
+                                format_stack(
+                                    sys._current_frames()[thread.ident]
+                                )
+                            ),
+                        ]
+                    )
+                )
+
+            log_result.log(
+                message=os.linesep.join(threads_to_report),
+                description="Stack trace from threads",
+            )
+
+            processes_to_report = []
+            for process in processes:
+                command = " ".join(process.cmdline()) or process
+                parent_pid = getattr(process, "ppid", lambda: None)()
+                processes_to_report.append(
+                    f"Pid: {process.pid}, Parent pid: {parent_pid}, {command}"
+                )
+
+            log_result.log(
+                message=os.linesep.join(processes_to_report)
+                if len(processes_to_report)
+                else "No child processes",
+                description="Running child processes",
+            )
+
+            timeout_case.extend(log_result.serialized_entries)
+            timeout_suite.append(timeout_case)
+            plan_report.append(timeout_suite)
 
         # Reset UIDs of the test report and all of its children in UUID4 format
         if self._reset_report_uid:
