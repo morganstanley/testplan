@@ -4,6 +4,7 @@ import math
 import os
 import random
 import re
+import sys
 import time
 import uuid
 import webbrowser
@@ -11,6 +12,7 @@ from collections import OrderedDict
 from copy import copy
 from dataclasses import dataclass
 from itertools import zip_longest
+from traceback import format_stack
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -1142,6 +1144,24 @@ class TestRunner(Runnable):
         super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._stop_resource_monitor)
 
+    def _collect_timeout_info(self):
+        threads, processes = self._get_process_info(recursive=True)
+        self._timeout_info = {"threads": [], "processes": []}
+        for thread in threads:
+            self._timeout_info["threads"].append(
+                os.linesep.join(
+                    [thread.name]
+                    + format_stack(sys._current_frames()[thread.ident])
+                )
+            )
+
+        for process in processes:
+            command = " ".join(process.cmdline()) or process
+            parent_pid = getattr(process, "ppid", lambda: None)()
+            self._timeout_info["processes"].append(
+                f"Pid: {process.pid}, Parent pid: {parent_pid}, {command}"
+            )
+
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
         if self.resources.start_exceptions:
@@ -1155,7 +1175,7 @@ class TestRunner(Runnable):
 
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
-                self._timed_out = True
+                self._collect_timeout_info()
                 msg = f"Timeout: Aborting execution after {self.cfg.timeout} seconds"
                 self.result.report.logger.error(msg)
                 self.logger.error(msg)
@@ -1250,9 +1270,9 @@ class TestRunner(Runnable):
 
         step_result = self._merge_reports(test_rep_lookup) and step_result
 
-        if getattr(self, "_timed_out", False):
+        if hasattr(self, "_timeout_info"):
             msg = f"Testplan timed out after {self.cfg.timeout} seconds"
-            timeout_suite = TestGroupReport(
+            timeout_entry = TestGroupReport(
                 name="Testplan timeout",
                 description=msg,
                 category=ReportCategories.SYNTHESIZED,
@@ -1271,48 +1291,22 @@ class TestRunner(Runnable):
                 ),
                 description="Logs from testplan",
             )
-            import sys
-            from traceback import format_stack
-
-            threads, processes = self._get_process_info(recursive=True)
-            threads_to_report = []
-            for thread in threads:
-                threads_to_report.append(
-                    os.linesep.join(
-                        [
-                            f"=====> {thread}:",
-                            os.linesep.join(
-                                format_stack(
-                                    sys._current_frames()[thread.ident]
-                                )
-                            ),
-                        ]
-                    )
-                )
 
             log_result.log(
-                message=os.linesep.join(threads_to_report),
+                message=os.linesep.join(self._timeout_info["threads"]),
                 description="Stack trace from threads",
             )
 
-            processes_to_report = []
-            for process in processes:
-                command = " ".join(process.cmdline()) or process
-                parent_pid = getattr(process, "ppid", lambda: None)()
-                processes_to_report.append(
-                    f"Pid: {process.pid}, Parent pid: {parent_pid}, {command}"
-                )
-
             log_result.log(
-                message=os.linesep.join(processes_to_report)
-                if len(processes_to_report)
+                message=os.linesep.join(self._timeout_info["processes"])
+                if len(self._timeout_info["processes"])
                 else "No child processes",
                 description="Running child processes",
             )
 
             timeout_case.extend(log_result.serialized_entries)
-            timeout_suite.append(timeout_case)
-            plan_report.append(timeout_suite)
+            timeout_entry.append(timeout_case)
+            plan_report.append(timeout_entry)
 
         # Reset UIDs of the test report and all of its children in UUID4 format
         if self._reset_report_uid:
