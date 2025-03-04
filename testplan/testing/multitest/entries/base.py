@@ -226,7 +226,9 @@ class TableLog(BaseEntry):
 
         as_list = TableEntry(table).as_list_of_list()
         self.columns, self.table = as_list[0], as_list[1:]
-        self.indices = range(len(self.table))
+        # NOTE: we don't allow custom indices up to now
+        # NOTE: we can add self.indices back if necessary
+        # self.indices = range(len(self.table))
         self.display_index = display_index
 
         super(TableLog, self).__init__(description=description)

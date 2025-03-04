@@ -29,37 +29,36 @@ const props = {
 };
 
 describe("AssertionHeader", () => {
-  let shallowComponent;
+  let component;
 
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
-    shallowComponent = undefined;
   });
 
-  it("shallow renders the correct HTML structure", () => {
-    shallowComponent = render(<AssertionHeader {...props} />);
-    expect(
-      shallowComponent.getByText(props.assertion.description)
-    ).toBeDefined();
-    expect(shallowComponent.baseElement).toMatchSnapshot();
+  it("renders the correct HTML structure", () => {
+    component = render(<AssertionHeader {...props} />);
+    expect(component.getByText(props.assertion.description)).toBeDefined();
+    expect(component.asFragment()).toMatchSnapshot();
   });
 
-  it("shallow renders the correct HTML structure with status icons enabled", () => {
-    shallowComponent = render(
+  it("renders the correct HTML structure with status icons enabled", () => {
+    component = render(
       <AssertionHeader {...{ ...props, showStatusIcons: true }} />
     );
-    expect(shallowComponent.container.querySelector("svg")).not.toBeNull();
-    expect(shallowComponent.baseElement).toMatchSnapshot();
+    expect(
+      component.container.querySelector("svg").getAttribute("data-icon")
+    ).toEqual("check");
+    expect(component.asFragment()).toMatchSnapshot();
   });
 
-  it("shallow renders the correct HTML structure with code context enabled", () => {
-    shallowComponent = render(
+  it("renders the correct HTML structure with code context enabled", () => {
+    component = render(
       <AssertionHeader {...{ ...props, displayPath: true }} />
     );
     expect(
-      shallowComponent.getByText(props.assertion.file_path, { exact: false })
+      component.getByText(props.assertion.file_path, { exact: false })
     ).toBeDefined();
-    expect(shallowComponent.baseElement).toMatchSnapshot();
+    expect(component.asFragment()).toMatchSnapshot();
   });
 });

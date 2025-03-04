@@ -32,7 +32,7 @@ exports[`DictLogAssertion shallow renders the dict value 1`] = `
         },
       }
     }
-    id="id_667_undefined_expected"
+    id="id_undefined_expected"
     tooltip={null}
     value={
       Object {

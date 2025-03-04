@@ -60,7 +60,6 @@ expected_report_with_failing_driver_and_driver_info_flag = TestReport(
                             entries=[
                                 {
                                     "type": "TableLog",
-                                    "indices": [0],
                                     "display_index": False,
                                     "columns": [
                                         "Driver Class",
@@ -125,7 +124,6 @@ expected_report_with_failing_driver_and_driver_info_flag = TestReport(
                             entries=[
                                 {
                                     "type": "TableLog",
-                                    "indices": [0],
                                     "display_index": False,
                                     "columns": [
                                         "Driver Class",

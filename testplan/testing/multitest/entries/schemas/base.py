@@ -2,14 +2,15 @@
 Base classes / logic for marshalling go here.
 """
 from marshmallow import Schema, fields, post_dump
+
 from testplan.common.serialization import fields as custom_fields
-
-
 from testplan.common.serialization.schemas import SchemaRegistry
+from testplan.common.utils.convert import delta_encode_level
 from testplan.testing.multitest.entries.base import (
     DEFAULT_CATEGORY,
     DEFAULT_FLAG,
 )
+
 from .. import base
 
 
@@ -99,7 +100,6 @@ class MarkdownSchema(BaseSchema):
 @registry.bind(base.TableLog)
 class TableLogSchema(BaseSchema):
     table = fields.List(fields.List(custom_fields.NativeOrPretty()))
-    indices = fields.List(fields.Integer(), allow_none=True)
     display_index = fields.Boolean()
     columns = fields.List(fields.String(), allow_none=False)
 
@@ -107,6 +107,11 @@ class TableLogSchema(BaseSchema):
 @registry.bind(base.DictLog, base.FixLog)
 class DictLogSchema(BaseSchema):
     flattened_dict = fields.Raw()
+
+    @post_dump
+    def compress_level(self, data, many, **kw):
+        data["flattened_dict"] = delta_encode_level(data["flattened_dict"])
+        return data
 
 
 @registry.bind(base.Graph)

@@ -102,7 +102,6 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
                             entries=[
                                 {
                                     "type": "TableLog",
-                                    "indices": [0],
                                     "display_index": False,
                                     "columns": [
                                         "Driver Class",
@@ -169,7 +168,6 @@ expected_report_with_driver_and_driver_info_flag = TestReport(
                             entries=[
                                 {
                                     "type": "TableLog",
-                                    "indices": [0],
                                     "display_index": False,
                                     "columns": [
                                         "Driver Class",
@@ -232,7 +230,6 @@ expected_report_with_driver_connections_and_driver_info_flag = TestReport(
                             entries=[
                                 {
                                     "type": "TableLog",
-                                    "indices": [0],
                                     "display_index": False,
                                     "columns": [
                                         "Driver Class",
@@ -338,7 +335,6 @@ expected_report_with_driver_connections_and_driver_info_flag = TestReport(
                             entries=[
                                 {
                                     "type": "TableLog",
-                                    "indices": [0],
                                     "display_index": False,
                                     "columns": [
                                         "Driver Class",
