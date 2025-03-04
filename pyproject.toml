@@ -29,8 +29,6 @@
         "Topic :: Software Development :: Testing :: Unit"        
         ]
     dependencies = [
-        "sphinx<2",
-        "sphinx_rtd_theme",
         "setuptools",
         "pytest",
         "pytest-mock",
@@ -65,7 +63,8 @@
         "gherkin-official==4.1.3",
         "parse",
         "orjson; python_version>='3.8'",
-        "flask-orjson; python_version>='3.8'"
+        "flask-orjson; python_version>='3.8'",
+        "exceptiongroup"
     ]
     requires-python = ">=3.7"
 
@@ -96,7 +95,7 @@
     extend-exclude = "testplan/vendor"
 
 [tool.bumpver]
-    current_version = "24.9.2"
+    current_version = "25.1.0"
     version_pattern = "YY.MM.INC0"
     commit_message = "bump version {old_version} -> {new_version}"
     commit = true
