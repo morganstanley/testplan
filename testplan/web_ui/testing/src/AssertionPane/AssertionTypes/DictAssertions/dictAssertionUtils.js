@@ -79,10 +79,13 @@ const expandStatus = (rows) => {
 export const preprocessDictRows = (rows, isMatchRows) => {
   // we have new format rows which have their level info delta encoded (rows
   // is now a heterogeneous array), we need to convert them to the old format
-  if (isMatchRows && rows.every(row => Array.isArray(row) && row.length === 5)) {
+  if (
+    isMatchRows &&
+    rows.every((row) => Array.isArray(row) && row.length === 5)
+  ) {
     return rows;
   }
-  if (rows.every(row => Array.isArray(row) && row.length === 3)) {
+  if (rows.every((row) => Array.isArray(row) && row.length === 3)) {
     return rows;
   }
   let level = 0;
