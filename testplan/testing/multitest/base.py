@@ -7,7 +7,6 @@ import itertools
 import warnings
 from typing import Callable, Dict, Generator, List, Optional, Tuple
 
-import tzlocal
 from schema import And, Or, Use
 
 from testplan.common import config, entity
@@ -730,7 +729,6 @@ class MultiTest(testing_base.Test):
             tags=self.cfg.tags,
             part=self.cfg.part,
             env_status=entity.ResourceStatus.STOPPED,
-            timezone=str(tzlocal.get_localzone()),  # IANA tz identifier
         )
 
     def _new_testsuite_report(self, testsuite):

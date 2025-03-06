@@ -31,7 +31,7 @@
               "status": "passed",
               "runtime_status": "finished",
               "logs": [],
-              "hash": "",
+              "hash": 0,
               "parent_uids": [
                 "TCPConnections",
                 "MultiTCPDrivers",
@@ -52,7 +52,7 @@
           "status": "passed",
           "runtime_status": "finished",
           "logs": [],
-          "hash": "",
+          "hash": 0,
           "parent_uids": [
             "TCPConnections",
             "MultiTCPDrivers"
@@ -194,7 +194,7 @@
               "status": "passed",
               "runtime_status": "finished",
               "logs": [],
-              "hash": "",
+              "hash": 0,
               "parent_uids": [
                 "TCPConnections",
                 "MultiTCPDrivers",
@@ -222,7 +222,7 @@
           "status": "passed",
           "runtime_status": "finished",
           "logs": [],
-          "hash": "",
+          "hash": 0,
           "parent_uids": [
             "TCPConnections",
             "MultiTCPDrivers"
@@ -268,7 +268,7 @@
               "status": "passed",
               "runtime_status": "ready",
               "logs": [],
-              "hash": "",
+              "hash": 0,
               "parent_uids": [
                 "TCPConnections",
                 "MultiTCPDrivers",
@@ -289,7 +289,7 @@
           "status": "passed",
           "runtime_status": "ready",
           "logs": [],
-          "hash": "",
+          "hash": 0,
           "parent_uids": [
             "TCPConnections",
             "MultiTCPDrivers"
@@ -315,7 +315,7 @@
       "status": "passed",
       "runtime_status": "ready",
       "logs": [],
-      "hash": "",
+      "hash": 0,
       "parent_uids": [
         "TCPConnections"
       ],
@@ -480,7 +480,7 @@
   "status": "passed",
   "runtime_status": "ready",
   "logs": [],
-  "hash": "",
+  "hash": 0,
   "parent_uids": [],
   "timer": {
     "run": [

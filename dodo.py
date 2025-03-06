@@ -133,11 +133,7 @@ def task_test():
 
 def task_build():
     return {
-        "actions": [
-            CmdAction(
-                "python -m build -w", env=updated_env({"DEV_BUILD": "0"})
-            )
-        ],
+        "actions": ["python -m build -w"],
         "task_dep": ["build_ui"],
         "doc": "Build a wheel package",
     }

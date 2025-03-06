@@ -1,5 +1,6 @@
 import subprocess
 import tempfile
+from itertools import count
 from pathlib import Path
 
 import pytest
@@ -20,6 +21,7 @@ DATA_DIR = Path(__file__).parent / "data"
         ("fromjson", "curr.data", "tojson", None),
         # ("fromjson", "curr.data", "tojson", "curr.data"),
     ],
+    ids=count(0),
 )
 def test_convert_roundtrip(from_cmd, input_file, to_cmd, ref_file):
     input_file = str(DATA_DIR / input_file)

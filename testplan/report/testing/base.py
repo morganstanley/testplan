@@ -57,6 +57,7 @@ from testplan.common.report import (
     RuntimeStatus,
     Status,
 )
+from testplan.common.utils.timing import iana_tz
 from testplan.testing import tagging
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
 
@@ -75,6 +76,7 @@ class TestReport(BaseReportGroup):
         information=None,
         timeout=None,
         label=None,
+        timezone=None,
         **kwargs,
     ):
         self._tags_index = None
@@ -110,6 +112,10 @@ class TestReport(BaseReportGroup):
         self.attachments = attachments or {}
         self.timeout = timeout
         self.category = ReportCategories.TESTPLAN
+
+        # Timezone of testplan's runner
+        # NOTE: caller within tpsreport should always have this field set
+        self.timezone: str = timezone or iana_tz()
 
         super(TestReport, self).__init__(name=name, **kwargs)
 
@@ -276,7 +282,8 @@ class TestGroupReport(BaseReportGroup):
         self.strict_order = strict_order
 
         # Timezone of test's executor (Test-level only)
-        self.timezone: Optional[str] = timezone
+        # NOTE: caller within tpsreport should always have this field set
+        self.timezone: str = timezone or iana_tz()
 
         self.covered_lines: Optional[dict] = None
 

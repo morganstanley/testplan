@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 import traceback
+from functools import lru_cache
 from typing import (
     Any,
     Callable,
@@ -22,6 +23,8 @@ from typing import (
 )
 
 from datetime import timezone
+
+import tzlocal
 
 PollInterval = Union[float, Tuple[float, float]]
 
@@ -275,6 +278,12 @@ def utcnow() -> datetime.datetime:
 def now() -> datetime.datetime:
     """Timezone aware local time."""
     return datetime.datetime.now().astimezone()
+
+
+@lru_cache(None)
+def iana_tz() -> str:
+    """IANA TZ identifier"""
+    return str(tzlocal.get_localzone())
 
 
 _Interval = collections.namedtuple("_Interval", "start end")

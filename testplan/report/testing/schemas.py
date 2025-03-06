@@ -4,7 +4,7 @@ import functools
 import math
 
 from boltons.iterutils import is_scalar, remap
-from marshmallow import Schema, fields, post_load, post_dump
+from marshmallow import Schema, fields, post_load, post_dump, pre_load
 from marshmallow.utils import EXCLUDE
 
 from testplan.common.report.base import ReportCategories
@@ -27,6 +27,13 @@ from testplan.report.testing.base import (
 __all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
 
 # pylint: disable=unused-argument
+
+
+# NOTE: old format data doesn't come with timezone attr, this info ought to be
+# NOTE: extracted from timer fields or maybe machine_time from serialized
+# NOTE: assertions, but unfortunately we use utc in timer fields back then, and
+# NOTE: the presentence of serialized assertions is not guaranteed
+_IANA_UTC = "Etc/UTC"
 
 
 class TagField(fields.Field):
@@ -119,7 +126,7 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     part = fields.List(fields.Integer, allow_none=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool(allow_none=True)
-    timezone = fields.String(allow_none=True)
+    timezone = fields.String(load_default=_IANA_UTC)
 
     category = fields.String()
     tags = TagField()
@@ -171,6 +178,7 @@ class TestReportSchema(BaseReportGroupSchema):
     information = fields.List(fields.Tuple([fields.String(), fields.String()]))
     resource_meta_path = fields.String(dump_only=True, allow_none=True)
     counter = fields.Dict(dump_only=True)
+    timezone = fields.String(load_default=_IANA_UTC)
 
     attachments = fields.Dict()
     timeout = fields.Integer(allow_none=True)
@@ -219,7 +227,7 @@ class ShallowTestGroupReportSchema(Schema):
     )
     counter = fields.Dict(dump_only=True)
     tags = TagField()
-    timezone = fields.String(allow_none=True)
+    timezone = fields.String(load_default=_IANA_UTC)
 
     entry_uids = fields.List(fields.String(), dump_only=True)
     parent_uids = fields.List(fields.String())
@@ -268,6 +276,7 @@ class ShallowTestReportSchema(Schema):
     description = fields.String(allow_none=True)
     uid = fields.String(required=True)
     category = fields.String(dump_only=True)
+    timezone = fields.String(load_default=_IANA_UTC)
     timer = TimerField(required=True)
     meta = fields.Dict()
     status = fields.Function(lambda x: x.status.to_json_compatible())

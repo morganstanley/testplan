@@ -9,8 +9,9 @@ import _ from "lodash";
  * Calculate execution time of an entry with timer field
  */
 function calcExecutionTime(entry) {
-  let elapsed = 0;
+  let elapsed = null;
   if (entry.timer && entry.timer.run) {
+    elapsed = 0;
     entry.timer.run.forEach((interval) => {
       elapsed +=
         timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
@@ -35,13 +36,17 @@ function calcElapsedTime(timerField) {
 }
 
 /**
- * Convert string to timestamp.
+ * Convert string (old) / float (new) to timestamp.
  *
  * @param {object|string} time
  * @returns {number}
  */
 function timeToTimestamp(time) {
-  return typeof time === "string" ? new Date(time).getTime() : time;
+  return typeof time === "string"
+    ? new Date(time).getTime()
+    : typeof time === "number"
+    ? time * 1000
+    : time;
 }
 
 /**
