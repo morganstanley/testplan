@@ -1,0 +1,1 @@
+Copy permission bits for the copied binary in App.
