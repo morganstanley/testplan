@@ -300,6 +300,7 @@ class App(Driver):
 
             if self.cfg.binary_strategy == "copy":
                 shutil.copyfile(self.resolved_bin, target)
+                shutil.copymode(self.resolved_bin, target)
                 self._binary = target
             elif self.cfg.binary_strategy == "link" and not IS_WIN:
                 os.symlink(os.path.abspath(self.resolved_bin), target)
