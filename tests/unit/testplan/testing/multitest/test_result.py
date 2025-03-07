@@ -528,6 +528,29 @@ class TestDictNamespace:
             value_cmp_func=cmp_with_tolerance,
         )
 
+    def test_nested_expand(self, dict_ns):
+        expected = {1: 2}
+        actual = {1: {"_": "_", 2: {"_": "_", 3: {"_": "_", 4: {5: None}}}}}
+
+        assert not dict_ns.match(
+            actual,
+            expected,
+            description="nested dict should be properly expanded",
+        )
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 8
+
+        expected = {1: 2}
+        actual = {1: [2, [3, [4, [5]]]]}
+
+        assert not dict_ns.match(
+            actual,
+            expected,
+            description="nested list should be properly expanded",
+        )
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 8
+
     def test_report_modes(self, dict_ns):
         """Test controlling report modes for a dict match."""
         expected = {"key{}".format(i): i for i in range(10)}
