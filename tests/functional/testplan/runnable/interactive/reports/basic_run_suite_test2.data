@@ -409,6 +409,7 @@
     ],
     "env_status": "STARTED",
     "hash": 0,
+    "host": null,
     "logs": [],
     "name": "Test2",
     "parent_uids": [

@@ -401,6 +401,7 @@
             ],
             "env_status": "STOPPED",
             "hash": 0,
+            "host": null,
             "logs": [],
             "name": "Test1",
             "parent_uids": [
@@ -805,6 +806,7 @@
             ],
             "env_status": "STOPPED",
             "hash": 0,
+            "host": null,
             "logs": [],
             "name": "Test2",
             "parent_uids": [
