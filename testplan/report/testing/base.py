@@ -285,6 +285,9 @@ class TestGroupReport(BaseReportGroup):
         # NOTE: caller within tpsreport should always have this field set
         self.timezone: str = timezone or iana_tz()
 
+        # Host of test's executor (Test-level only)
+        self.host: Optional[str] = None
+
         self.covered_lines: Optional[dict] = None
 
     def __str__(self):

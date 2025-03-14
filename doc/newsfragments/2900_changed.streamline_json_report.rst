@@ -1,10 +1,10 @@
 Change Testplan exported JSON report structure to reduce report size.
 
 * Remove unused report entry fields.
-    * ``fix_spec_path`` and ``host``.
+    * ``fix_spec_path``.
     * ``status_override`` and ``status_reason`` in case they are empty.
     * ``line_no``, ``code_context`` and ``file_path`` if ``--code`` is not enabled.
-    * ``env_status``, ``part`` and ``strict_order`` depending on report category.
+    * ``env_status``, ``part``, ``strict_order`` and ``host`` depending on report category.
 * Remove unused assertion entry fields ``category`` and ``flag`` if they are ``DEFAULT``.
 * Merge assertion entry fields ``utc_time`` and ``machine_time`` into a unix timestamp field ``timestamp``, and store timezone info in parent Test-level report under key ``timezone``.
 * Replace ISO 8601 time string with unix timestamp in all ``timer`` fields, and add a ``timezone`` field to Testplan-level report as well.

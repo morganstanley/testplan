@@ -127,6 +127,7 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool(allow_none=True)
     timezone = fields.String(load_default=_IANA_UTC)
+    host = fields.String(allow_none=True)
 
     category = fields.String()
     tags = TagField()
@@ -141,7 +142,6 @@ class TestGroupReportSchema(BaseReportGroupSchema):
 
     # # abolished
     # fix_spec_path = fields.String(allow_none=True, load_only=True)
-    # host = fields.String(allow_none=True, load_only=True)
 
     @post_load
     def make_report(self, data, **kwargs):
@@ -158,6 +158,7 @@ class TestGroupReportSchema(BaseReportGroupSchema):
             del data["part"]
             del data["env_status"]
             del data["timezone"]
+            del data["host"]
         if data["category"] != ReportCategories.TESTSUITE:
             del data["strict_order"]
         return data

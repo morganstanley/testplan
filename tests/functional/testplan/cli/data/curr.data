@@ -429,6 +429,7 @@
       "part": null,
       "env_status": "STOPPED",
       "timezone": "Asia/Hong_Kong",
+      "host": null,
       "category": "multitest",
       "tags": {}
     }
