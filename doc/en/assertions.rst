@@ -1812,7 +1812,7 @@ Checks if given tags / paths exist in the XML string, supports namespace lookups
 Logfile Assertions (``result.logfile``)
 =======================================
 Contains assertion methods that operates on log files equipped with
-:py:class:`~testplan.common.utils.match.LogMatcher`.
+:py:class:`~testplan.common.utils.match.LogMatcher` or :py:class:`~testplan.common.utils.match.RemoteLogMatcher`.
 
 :py:meth:`result.logfile.seek_eof <testplan.testing.result.LogfileNamespace.seek_eof>`
 --------------------------------------------------------------------------------------
@@ -1868,6 +1868,39 @@ Sample output:
         my logfile match assertion - Pass
           Pattern: `.*passed.*`
         ...
+
+Match patterns in remote logfiles using RemoteLogMatcher, with matching results logged to the report.
+
+    .. code-block:: python
+
+        from testplan.common.utils.match import RemoteLogMatcher
+
+        # Initialize a matcher for logs on a remote host
+        remote_log_matcher = RemoteLogMatcher(
+            host="remote-server.example.com",
+            log_path="/path/to/application.log"
+        )
+
+        @testcase
+        def sample_remote_log_testcase(self, env, result):
+            result.logfile.match(
+                remote_log_matcher,
+                r".*Application started successfully.*",
+                timeout=5.0,
+                description="verify application startup on remote host",
+            )
+
+Sample output:
+
+    .. code-block:: bash
+
+        $ ./test_plan.py --verbose
+        ...
+        verify application startup on remote host - Pass
+          Pattern: `.*Application started successfully.*`
+          File: `/path/to/application.log`
+        ...
+
 
 :py:meth:`result.logfile.expect <testplan.testing.result.LogfileNamespace.expect>`
 ----------------------------------------------------------------------------------
