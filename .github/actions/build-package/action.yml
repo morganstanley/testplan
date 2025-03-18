@@ -17,7 +17,8 @@ runs:
     - uses: pnpm/action-setup@v3
       with:
         version: 8.10.4
-    - run: |        
+    - run: |
+        sudo apt install libkrb5-dev -y
         pip install --upgrade pip
         pip install --upgrade -r requirements-build.txt        
       shell: bash

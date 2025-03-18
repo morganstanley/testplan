@@ -22,7 +22,7 @@ from testplan.common.utils.logfile import (
 class SimpleNameBasedStrategy(LogRotationStrategy):
     def get_files(self, path_info: Union[PathLike, str]) -> List[LogfileInfo]:
         return [
-            LogfileInfo(os.stat(path).st_ino, path)
+            LogfileInfo(os.stat(path).st_ino, path, os.stat(path).st_mtime_ns)
             for path in reversed(sorted(glob(path_info)))
         ]
 
