@@ -321,7 +321,16 @@ class DictLogRenderer(SerializedEntryRenderer):
         """
         header = self.get_header(source, depth, row_idx)
         row_idx += 1
-        flattened_dict = delta_decode_level(source["flattened_dict"])
+        flattened_dict = (
+            source["flattened_dict"]
+            if all(
+                map(
+                    lambda x: isinstance(x, list) and len(x) == 3,
+                    source["flattened_dict"],
+                )
+            )
+            else delta_decode_level(source["flattened_dict"])
+        )
 
         if len(flattened_dict) == 0:
             return header + RowData(

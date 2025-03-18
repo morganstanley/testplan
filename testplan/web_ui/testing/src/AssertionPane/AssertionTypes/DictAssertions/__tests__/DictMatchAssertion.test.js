@@ -33,10 +33,10 @@ const newSimpleProps = () => ({
   assertion: {
     actual_description: null,
     comparison: [
-      ["foo", "Passed", ["int", "1"], ["int", "1"]],
-      ["bar", "Failed", ["int", "2"], ["int", "5"]],
-      ["baz", "Ignored", ["int", "2"], ["int", "5"]],
-      ["extra-key", "Failed", [null, "ABSENT"], ["int", "10"]],
+      ["foo", "p", ["int", "1"], ["int", "1"]],
+      ["bar", "f", ["int", "2"], ["int", "5"]],
+      ["baz", "i", ["int", "2"], ["int", "5"]],
+      ["extra-key", "f", [null, "ABSENT"], ["int", "10"]],
     ],
     description: "simple dict match",
     exclude_keys: null,
