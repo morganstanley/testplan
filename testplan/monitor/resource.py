@@ -301,8 +301,11 @@ class ResourceMonitorClient:
 
     def stop(self):
         if self._monitor_worker:
-            self._monitor_worker.kill()
-            self._monitor_worker.join()
+            try:
+                self._monitor_worker.kill()
+                self._monitor_worker.join()
+            except:
+                pass
             self._monitor_worker = None
 
 
@@ -507,8 +510,11 @@ class ResourceMonitorServer:
 
     def stop(self):
         if self._server_process:
-            self._server_process.kill()
-            self._server_process.join()
+            try:
+                self._server_process.kill()
+                self._server_process.join()
+            except:  # Handle potential race condition during process termination
+                pass
             self._server_process = None
             self._address = ""
             self.collector_port = 0
