@@ -1,5 +1,5 @@
 {
-  "name": "testplan",
+  "name": "@morgan-stanley/testplan",
   "version": "0.2.0",
   "private": true,
   "pnpm": {
