@@ -102,7 +102,7 @@ def test_kill_one_worker(mockplan, tmp_path: Path):
 
 
 def test_kill_all_workers(mockplan):
-    """Kill all workers and create a failed report."""
+    """Kill all workers and create a failed report with incomplete status."""
     pool_name = ProcessPool.__name__
     pool_size = 4
     retries_limit = 3
@@ -144,7 +144,7 @@ def test_kill_all_workers(mockplan):
     assert res.success is False
     # scheduled X times and killed all workers
     assert pool._task_retries_cnt[uid] == retries_limit + 1
-    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.status == Status.INCOMPLETE
 
 
 def test_reassign_times_limit(mockplan):

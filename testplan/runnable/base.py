@@ -1175,10 +1175,10 @@ class TestRunner(Runnable):
 
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
-                self._collect_timeout_info()
                 msg = f"Timeout: Aborting execution after {self.cfg.timeout} seconds"
                 self.result.report.logger.error(msg)
                 self.logger.error(msg)
+                self._collect_timeout_info()
 
                 # Abort resources e.g pools
                 for dep in self.abort_dependencies():
@@ -1283,6 +1283,7 @@ class TestRunner(Runnable):
                 description=msg,
                 status_override=Status.ERROR,
             )
+
             log_result = Result()
             log_result.log(
                 message=f"".join(
@@ -1291,12 +1292,10 @@ class TestRunner(Runnable):
                 ),
                 description="Logs from testplan",
             )
-
             log_result.log(
                 message=os.linesep.join(self._timeout_info["threads"]),
                 description="Stack trace from threads",
             )
-
             log_result.log(
                 message=os.linesep.join(self._timeout_info["processes"])
                 if len(self._timeout_info["processes"])
@@ -1498,7 +1497,7 @@ class TestRunner(Runnable):
     def discard_pending_tasks(
         self,
         exec_selector: SExpr,
-        report_status: Status = Status.NONE,
+        report_status: Status = Status.INCOMPLETE,
         report_reason: str = "",
     ):
         for k, v in self.resources.items():
