@@ -1,0 +1,16 @@
+repos:
+- repo: local
+  hooks:
+  - id: black
+    name: black
+    language: system
+    entry: black --check
+    types: [python]
+  # NOTE: the hook below doesn't work quite well since some of our indirect dependencies doesn't have metadata well defined
+  # - id: uv-export
+  #   name: uv export
+  #   language: system
+  #   entry: uv export
+  #   args: ["--no-editable", "--no-emit-project", "--no-hashes", "--all-groups", "-o", "constraints.txt"]
+  #   pass_filenames: false
+  #   files: ^(pyproject\.toml|constraints\.txt)$

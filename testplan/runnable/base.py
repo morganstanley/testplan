@@ -26,8 +26,8 @@ from typing import (
     Union,
 )
 
-import exceptiongroup
 from schema import And, Or, Use
+
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
@@ -76,6 +76,13 @@ from testplan.testing import common, filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
+
+try:
+    ExceptionGroup = ExceptionGroup
+except NameError:
+    import exceptiongroup
+
+    ExceptionGroup = exceptiongroup.ExceptionGroup
 
 TestTask = Union[Test, Task, Callable]
 
@@ -626,7 +633,7 @@ class TestRunner(Runnable):
                 es.append(e)
         if es:
             if len(es) > 1:
-                return exceptiongroup.ExceptionGroup(
+                return ExceptionGroup(
                     "multiple remote services failed to stop", es
                 )
             return es[0]

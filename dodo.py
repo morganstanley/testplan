@@ -133,7 +133,7 @@ def task_test():
 
 def task_build():
     return {
-        "actions": ["python -m build -w"],
+        "actions": ["uv build --wheel"],
         "task_dep": ["build_ui"],
         "doc": "Build a wheel package",
     }
@@ -142,9 +142,7 @@ def task_build():
 def task_build_dev():
     return {
         "actions": [
-            CmdAction(
-                "python -m build -w", env=updated_env({"DEV_BUILD": "1"})
-            )
+            CmdAction("uv build --wheel", env=updated_env({"DEV_BUILD": "1"}))
         ],
         "task_dep": ["build_ui"],
         "doc": "Build a dev package (just a version number difference)",

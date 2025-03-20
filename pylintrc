@@ -110,10 +110,7 @@ enable=syntax-error,
        raising-non-exception,
        notimplemented-raised,
        catching-non-exception,
-       slots-on-old-class,
-       super-on-old-class,
        bad-super-call,
-       missing-super-argument,
        not-callable,
        assignment-from-no-return,
        no-value-for-parameter,
@@ -305,7 +302,7 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis. It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=testplan.exporters.testing
+ignored-modules=testplan.exporters.testing,exceptiongroup
 
 # Show a hint with possible names when a member name was not found. The aspect
 # of finding the hint is based on edit distance.
@@ -447,13 +444,6 @@ max-line-length=80
 
 # Maximum number of lines in a module
 max-module-lines=1000
-
-# List of optional constructs for which whitespace checking is disabled. `dict-
-# separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
-# `trailing-comma` allows a space between comma and closing bracket: (a, ).
-# `empty-line` allows space-only lines.
-no-space-check=trailing-comma,
-               dict-separator
 
 # Allow the body of a class to be on the same line as the declaration if body
 # contains single statement.
