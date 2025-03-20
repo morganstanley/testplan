@@ -91,6 +91,18 @@ class ReportLogSchema(Schema):
     lineno = fields.Integer()
     uid = fields.UUID()
 
+    @pre_load
+    def accept_old_isoformat(self, data, **kwargs):
+        try:
+            if data.get("created", None) and isinstance(data["created"], str):
+                data["created"] = datetime.datetime.fromisoformat(
+                    data["created"]
+                ).timestamp()
+            return data
+        except ValueError as e:
+            # no need to defer
+            raise ValueError("Invalid value when loading Interval.") from e
+
 
 class ReportSchema(schemas.TreeNodeSchema):
     """Schema for ``base.Report``."""
