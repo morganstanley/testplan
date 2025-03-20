@@ -4,6 +4,7 @@ Module of utility types and functions that perform matching.
 import os
 import re
 import time
+import getpass
 import warnings
 from contextlib import closing
 from typing import (
@@ -16,21 +17,23 @@ from typing import (
     Tuple,
     Union,
 )
-
+import paramiko
 from typing_extensions import TypeAlias
 
 from . import logger, timing
 from .logfile import (
     LogPosition,
-    LogStream,
-    FileLogStream,
-    BinaryFileLogStream,
-    TextFileLogStream,
     RotatedFileLogStream,
     RotatedBinaryFileLogStream,
+    RemoteRotatedBinaryFileLogStream,
     RotatedTextFileLogStream,
+    RemoteRotatedTextFileLogStream,
     MTimeBasedLogRotationStrategy,
+    RemoteMTimeBasedLogRotationStrategy,
 )
+
+
+DEFAULT_PARAMIKO_CONFIG = {"username": getpass.getuser()}
 
 LOG_MATCHER_INTERVAL = 0.25
 LOG_MATCHER_DEFAULT_TIMEOUT = 5.0
@@ -146,7 +149,7 @@ class LogMatcher(logger.Loggable):
         self.binary = binary
         self.marks = {}
         self.position: Optional[LogPosition] = None
-        self.log_stream: FileLogStream = self._create_log_stream()
+        self.log_stream: RotatedFileLogStream = self._create_log_stream()
 
         self._debug_info_s = ()
         self._debug_info_e = ()
@@ -156,32 +159,7 @@ class LogMatcher(logger.Loggable):
 
         super(LogMatcher, self).__init__()
 
-    def _create_log_stream(self) -> LogStream:
-
-        # as rotated logstream should be able to handle non-rotated streams
-        # without overhead we use that by default, but give an envvar to be
-        # able to turn it off. We not yet expose the possibility to select the
-        # logstream through the api.
-
-        if os.environ.get("TESTPLAN_NO_LOGROTATION_IN_LOGMATCHER") in (
-            "true",
-            "True",
-            "1",
-            "yes",
-            "Yes",
-        ):
-            return self._create_non_rotated_log_stream()
-
-        return self._create_rotated_log_stream()
-
-    def _create_non_rotated_log_stream(self) -> FileLogStream:
-        return (
-            BinaryFileLogStream(self.log_path)
-            if self.binary
-            else TextFileLogStream(self.log_path)
-        )
-
-    def _create_rotated_log_stream(self) -> RotatedFileLogStream:
+    def _create_log_stream(self) -> RotatedFileLogStream:
         return (
             RotatedBinaryFileLogStream(
                 self.log_path, MTimeBasedLogRotationStrategy()
@@ -564,3 +542,73 @@ class LogMatcher(logger.Loggable):
 
     def __str__(self) -> str:
         return f"LogMatcher[{self.log_path}]"
+
+
+class RemoteLogMatcher(LogMatcher):
+    """
+    Extension of LogMatcher for matching patterns in log files on remote hosts.
+    Establishes an SSH connection to the remote host and uses SFTP to access
+    log files for pattern matching operations.
+
+    Similar to LogMatcher, this class supports single line matching for text/binary
+    files on remote machines. It maintains file position state between operations
+    and supports log rotation.
+
+    :param host: Hostname or IP address of the remote server
+    :param log_path: Path to the log file on the remote server. Can be a glob pattern
+                     to support rotated log files
+    :param binary: If True, the log file is treated as a binary file and binary regexps
+                   must be used for matching
+    :param paramiko_config: Dictionary of configuration parameters for paramiko SSH client.
+                           Defaults to using the current user for authentication
+
+    Usage:
+        remote_matcher = RemoteLogMatcher(
+            host='remote-server',
+            log_path='/var/log/application.log',
+            paramiko_config={'username': 'user', 'password': 'pass'}
+        )
+
+        # Then use all the same methods as LogMatcher
+        match = remote_matcher.match(r'Error.*')
+    """
+
+    def __init__(
+        self,
+        host: str,
+        log_path: Union[os.PathLike, str],
+        binary: bool = False,
+        paramiko_config: Optional[dict] = None,
+    ):
+        self._host = host
+        self._paramiko_config: dict = (
+            paramiko_config or DEFAULT_PARAMIKO_CONFIG
+        )
+        self._ssh_client = paramiko.SSHClient()
+        self._ssh_client.set_missing_host_key_policy(
+            paramiko.MissingHostKeyPolicy()
+        )
+        self._ssh_client.connect(hostname=self._host, **self._paramiko_config)
+        self._sftp_client = self._ssh_client.open_sftp()
+        super().__init__(log_path, binary)
+
+    def _create_log_stream(self) -> RotatedFileLogStream:
+        return (
+            RemoteRotatedBinaryFileLogStream(
+                ssh_client=self._ssh_client,
+                sftp_client=self._sftp_client,
+                path_pattern=self.log_path,
+                rotation_strategy=RemoteMTimeBasedLogRotationStrategy(
+                    self._ssh_client, self._sftp_client
+                ),
+            )
+            if self.binary
+            else RemoteRotatedTextFileLogStream(
+                ssh_client=self._ssh_client,
+                sftp_client=self._sftp_client,
+                path_pattern=self.log_path,
+                rotation_strategy=RemoteMTimeBasedLogRotationStrategy(
+                    self._ssh_client, self._sftp_client
+                ),
+            )
+        )

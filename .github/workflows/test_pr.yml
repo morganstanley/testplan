@@ -57,6 +57,7 @@ jobs:
         uses: ./.github/actions/pip-cache
       - name: Setup
         run: |
+          sudo apt install libkrb5-dev -y
           pip install -r requirements.txt -U
       - name: Lint
         run: doit lint
@@ -87,6 +88,7 @@ jobs:
           version: 9
       - name: Setup
         run: |
+          sudo apt install libkrb5-dev -y
           pip install -r requirements-build.txt -U
       - name: Build
         run: |
@@ -127,6 +129,9 @@ jobs:
         with:
           name: ui_bundle
           path: testplan/web_ui/testing/build
+      - name: Set up Linux package for tests
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: sudo apt-get install -y libkrb5-dev
       - name: Set up Zookeeper for tests
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
@@ -137,7 +142,7 @@ jobs:
           sudo mkdir /opt/kafka
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: pip install -r requirements.txt -U
       - name: Test Python
         run: doit test
