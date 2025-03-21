@@ -44,10 +44,12 @@ def test_runner_timeout():
 
         # Check that the testplan exited with an error status.
         assert rc == 1
-        assert len(report["entries"]) == 2
+        # Check that the report contains 2 MultiTest + 1 Timeout entries
+        assert len(report["entries"]) == 3
+        assert report["entries"][2]["name"] == "Testplan timeout"
+        # Check that the timed out MultiTest is marked as incomplete.
+        assert report["entries"][1]["status"] == "incomplete"
         assert report["status"] == "error"
-        assert report["counter"]["error"] == 1
-
         # Check that the timeout is logged to stdout.
         if not re.search(
             r"Timeout: Aborting execution after 10 seconds",
