@@ -444,6 +444,7 @@ def generate_functions(
     _check_name_func(name_func)
     _check_tag_func(tag_func)
 
+    # TODO: refactor
     argspec = callable_utils.getargspec(function)
     args = argspec.args[3:]  # get rid of self, env, result
     defaults = argspec.defaults or []
