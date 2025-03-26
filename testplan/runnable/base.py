@@ -4,6 +4,7 @@ import math
 import os
 import random
 import re
+import sys
 import time
 import traceback
 import uuid
@@ -77,12 +78,8 @@ from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
 
-try:
-    ExceptionGroup = ExceptionGroup
-except NameError:
-    import exceptiongroup
-
-    ExceptionGroup = exceptiongroup.ExceptionGroup
+if sys.version_info < (3, 11):
+    from exceptiongroup import ExceptionGroup
 
 TestTask = Union[Test, Task, Callable]
 
