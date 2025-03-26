@@ -673,7 +673,6 @@ def _testcase_meta(
 
             # Register generated functions as testcases
             for func in functions:
-                _validate_testcase(func)
                 # this has to be called before wrappers otherwise wrappers can
                 # fail if they rely on ``__testcase__``
                 _mark_function_as_testcase(func)

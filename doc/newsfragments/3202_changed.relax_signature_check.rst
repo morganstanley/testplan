@@ -1,0 +1,1 @@
+Method signature check of testcases/test hooks has been relaxed to allow underscore-prefixed variants of parameters, so that linter wouldn't raise unused variable warnings on them.
