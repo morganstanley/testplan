@@ -1,0 +1,791 @@
+{
+  "type": "TestReport",
+  "name": "Dict Assertions Example",
+  "description": null,
+  "definition_name": "Dict Assertions Example",
+  "uid": "",
+  "entries": [
+    {
+      "type": "TestGroupReport",
+      "name": "Dict Assertions Test",
+      "description": null,
+      "definition_name": "Dict Assertions Test",
+      "uid": "",
+      "entries": [
+        {
+          "type": "TestGroupReport",
+          "name": "DictSuite",
+          "description": "`result.dict` namespace can be used for applying advanced\nassertion rules to dictionaries, which can be nested.",
+          "definition_name": "DictSuite",
+          "uid": "",
+          "entries": [
+            {
+              "type": "TestCaseReport",
+              "name": "test_dict_namespace",
+              "description": null,
+              "definition_name": "test_dict_namespace",
+              "uid": "",
+              "entries": [
+                {
+                  "utc_time": "2025-03-18T07:16:54.512319+00:00",
+                  "machine_time": "2025-03-18T15:16:54.512326+08:00",
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "description": "Simple dict match",
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": [
+                    "baz_excluded"
+                  ],
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      0,
+                      "foo",
+                      "Passed",
+                      [
+                        "int",
+                        "1"
+                      ],
+                      [
+                        "int",
+                        "1"
+                      ]
+                    ],
+                    [
+                      0,
+                      "bar",
+                      "Failed",
+                      [
+                        "int",
+                        "2"
+                      ],
+                      [
+                        "int",
+                        "5"
+                      ]
+                    ],
+                    [
+                      0,
+                      "baz_excluded",
+                      "Ignored",
+                      [
+                        "int",
+                        "2"
+                      ],
+                      [
+                        "int",
+                        "5"
+                      ]
+                    ],
+                    [
+                      0,
+                      "extra-key",
+                      "Failed",
+                      [
+                        null,
+                        "ABSENT"
+                      ],
+                      [
+                        "int",
+                        "10"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.513104+00:00",
+                  "machine_time": "2025-03-18T15:16:54.513114+08:00",
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "description": "Nested dict match",
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      0,
+                      "foo",
+                      "Failed",
+                      "",
+                      ""
+                    ],
+                    [
+                      1,
+                      "alpha",
+                      "Failed",
+                      "",
+                      ""
+                    ],
+                    [
+                      1,
+                      "",
+                      "Passed",
+                      [
+                        "int",
+                        "1"
+                      ],
+                      [
+                        "int",
+                        "1"
+                      ]
+                    ],
+                    [
+                      1,
+                      "",
+                      "Passed",
+                      [
+                        "int",
+                        "2"
+                      ],
+                      [
+                        "int",
+                        "2"
+                      ]
+                    ],
+                    [
+                      1,
+                      "",
+                      "Failed",
+                      [
+                        "int",
+                        "3"
+                      ],
+                      [
+                        null,
+                        null
+                      ]
+                    ],
+                    [
+                      1,
+                      "beta",
+                      "Failed",
+                      "",
+                      ""
+                    ],
+                    [
+                      2,
+                      "color",
+                      "Failed",
+                      [
+                        "str",
+                        "red"
+                      ],
+                      [
+                        "str",
+                        "blue"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.514033+00:00",
+                  "machine_time": "2025-03-18T15:16:54.514041+08:00",
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "description": "Dict match: Custom comparators",
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": true,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      0,
+                      "foo",
+                      "Passed",
+                      "",
+                      ""
+                    ],
+                    [
+                      0,
+                      "",
+                      "Passed",
+                      [
+                        "int",
+                        "1"
+                      ],
+                      [
+                        "int",
+                        "1"
+                      ]
+                    ],
+                    [
+                      0,
+                      "",
+                      "Passed",
+                      [
+                        "int",
+                        "2"
+                      ],
+                      [
+                        "int",
+                        "2"
+                      ]
+                    ],
+                    [
+                      0,
+                      "",
+                      "Passed",
+                      [
+                        "int",
+                        "3"
+                      ],
+                      [
+                        "func",
+                        "<lambda>"
+                      ]
+                    ],
+                    [
+                      0,
+                      "bar",
+                      "Passed",
+                      "",
+                      ""
+                    ],
+                    [
+                      1,
+                      "color",
+                      "Passed",
+                      [
+                        "str",
+                        "blue"
+                      ],
+                      [
+                        "func",
+                        "VAL in ['blue', 'red', 'yellow']"
+                      ]
+                    ],
+                    [
+                      0,
+                      "baz",
+                      "Passed",
+                      [
+                        "str",
+                        "hello world"
+                      ],
+                      [
+                        "REGEX",
+                        "\\w+ world"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.514557+00:00",
+                  "machine_time": "2025-03-18T15:16:54.514564+08:00",
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "description": "default assertion passes because the values are numerically equal",
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": true,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      0,
+                      "foo",
+                      "Passed",
+                      [
+                        "int",
+                        "1"
+                      ],
+                      [
+                        "float",
+                        1
+                      ]
+                    ],
+                    [
+                      0,
+                      "bar",
+                      "Passed",
+                      [
+                        "int",
+                        "2"
+                      ],
+                      [
+                        "float",
+                        2
+                      ]
+                    ],
+                    [
+                      0,
+                      "baz",
+                      "Passed",
+                      [
+                        "int",
+                        "3"
+                      ],
+                      [
+                        "float",
+                        3
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.514973+00:00",
+                  "machine_time": "2025-03-18T15:16:54.514979+08:00",
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "description": "when we check types the assertion will fail",
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      0,
+                      "foo",
+                      "Failed",
+                      [
+                        "int",
+                        "1"
+                      ],
+                      [
+                        "float",
+                        1
+                      ]
+                    ],
+                    [
+                      0,
+                      "bar",
+                      "Failed",
+                      [
+                        "int",
+                        "2"
+                      ],
+                      [
+                        "float",
+                        2
+                      ]
+                    ],
+                    [
+                      0,
+                      "baz",
+                      "Failed",
+                      [
+                        "int",
+                        "3"
+                      ],
+                      [
+                        "float",
+                        3
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.515314+00:00",
+                  "machine_time": "2025-03-18T15:16:54.515319+08:00",
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "description": "use a custom comparison function to check within a tolerance",
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": true,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      0,
+                      "foo",
+                      "Passed",
+                      [
+                        "float",
+                        1.02
+                      ],
+                      [
+                        "float",
+                        0.98
+                      ]
+                    ],
+                    [
+                      0,
+                      "bar",
+                      "Passed",
+                      [
+                        "float",
+                        2.28
+                      ],
+                      [
+                        "float",
+                        2.33
+                      ]
+                    ],
+                    [
+                      0,
+                      "baz",
+                      "Passed",
+                      [
+                        "float",
+                        3.5
+                      ],
+                      [
+                        "float",
+                        3.46
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.515681+00:00",
+                  "machine_time": "2025-03-18T15:16:54.515688+08:00",
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "description": "only report the failing comparison",
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      0,
+                      "bad_key",
+                      "Failed",
+                      [
+                        "str",
+                        "actual"
+                      ],
+                      [
+                        "str",
+                        "expected"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.516077+00:00",
+                  "machine_time": "2025-03-18T15:16:54.516086+08:00",
+                  "type": "DictCheck",
+                  "meta_type": "assertion",
+                  "description": null,
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": false,
+                  "has_keys": [
+                    "foo",
+                    "alpha"
+                  ],
+                  "has_keys_diff": [
+                    "alpha"
+                  ],
+                  "absent_keys": [
+                    "bar",
+                    "beta"
+                  ],
+                  "absent_keys_diff": [
+                    "bar"
+                  ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.516505+00:00",
+                  "machine_time": "2025-03-18T15:16:54.516512+08:00",
+                  "type": "DictLog",
+                  "meta_type": "entry",
+                  "description": null,
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "flattened_dict": [
+                    [
+                      0,
+                      "foo",
+                      ""
+                    ],
+                    [
+                      0,
+                      "",
+                      [
+                        "int",
+                        "1"
+                      ]
+                    ],
+                    [
+                      0,
+                      "",
+                      [
+                        "int",
+                        "2"
+                      ]
+                    ],
+                    [
+                      0,
+                      "",
+                      [
+                        "int",
+                        "3"
+                      ]
+                    ],
+                    [
+                      0,
+                      "bar",
+                      ""
+                    ],
+                    [
+                      1,
+                      "color",
+                      [
+                        "str",
+                        "blue"
+                      ]
+                    ],
+                    [
+                      0,
+                      "baz",
+                      [
+                        "str",
+                        "hello world"
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "status_override": null,
+              "status_reason": null,
+              "status": "failed",
+              "runtime_status": "finished",
+              "logs": [],
+              "hash": 0,
+              "parent_uids": [
+                "Dict Assertions Example",
+                "Dict Assertions Test",
+                "DictSuite"
+              ],
+              "timer": {
+                "run": [
+                  {
+                    "start": "2025-03-18T07:16:54.512227+00:00",
+                    "end": "2025-03-18T07:16:54.516854+00:00"
+                  }
+                ]
+              },
+              "category": "testcase",
+              "counter": {
+                "passed": 0,
+                "failed": 1,
+                "total": 1
+              },
+              "tags": {}
+            }
+          ],
+          "status_override": null,
+          "status_reason": null,
+          "status": "failed",
+          "runtime_status": "finished",
+          "logs": [],
+          "hash": 0,
+          "parent_uids": [
+            "Dict Assertions Example",
+            "Dict Assertions Test"
+          ],
+          "timer": {
+            "run": [
+              {
+                "start": "2025-03-18T07:16:54.512024+00:00",
+                "end": "2025-03-18T07:16:54.521610+00:00"
+              }
+            ]
+          },
+          "counter": {
+            "passed": 0,
+            "failed": 1,
+            "total": 1
+          },
+          "children": [],
+          "part": null,
+          "fix_spec_path": null,
+          "env_status": null,
+          "strict_order": false,
+          "category": "testsuite",
+          "tags": {},
+          "host": null
+        }
+      ],
+      "status_override": null,
+      "status_reason": null,
+      "status": "failed",
+      "runtime_status": "finished",
+      "logs": [],
+      "hash": 0,
+      "parent_uids": [
+        "Dict Assertions Example"
+      ],
+      "timer": {
+        "setup": [
+          {
+            "start": "2025-03-18T07:16:54.456764+00:00",
+            "end": "2025-03-18T07:16:54.506405+00:00"
+          }
+        ],
+        "run": [
+          {
+            "start": "2025-03-18T07:16:54.511840+00:00",
+            "end": "2025-03-18T07:16:54.521991+00:00"
+          }
+        ],
+        "teardown": [
+          {
+            "start": "2025-03-18T07:16:54.532773+00:00",
+            "end": "2025-03-18T07:16:54.569714+00:00"
+          }
+        ]
+      },
+      "counter": {
+        "passed": 0,
+        "failed": 1,
+        "total": 1
+      },
+      "children": [],
+      "part": null,
+      "fix_spec_path": null,
+      "env_status": "STOPPED",
+      "strict_order": false,
+      "category": "multitest",
+      "tags": {},
+      "host": null
+    }
+  ],
+  "status_override": null,
+  "status_reason": null,
+  "status": "failed",
+  "runtime_status": "finished",
+  "logs": [],
+  "hash": 0,
+  "parent_uids": [],
+  "timer": {
+    "run": [
+      {
+        "start": "2025-03-18T07:16:54.081509+00:00",
+        "end": "2025-03-18T07:16:54.935976+00:00"
+      }
+    ]
+  },
+  "counter": {
+    "passed": 0,
+    "failed": 1,
+    "total": 1
+  },
+  "children": [
+    {
+      "name": "LocalRunner[local_runner]",
+      "timer": {
+        "lifespan": [
+          {
+            "start": "2025-03-18T07:16:54.429888+00:00",
+            "end": "2025-03-18T07:16:54.783378+00:00"
+          }
+        ],
+        "setup": [
+          {
+            "start": "2025-03-18T07:16:54.430166+00:00",
+            "end": "2025-03-18T07:16:54.430869+00:00"
+          }
+        ],
+        "teardown": [
+          {
+            "start": "2025-03-18T07:16:54.683101+00:00",
+            "end": null
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "name": "Environments[environments]",
+      "timer": {
+        "lifespan": [
+          {
+            "start": "2025-03-18T07:16:54.430575+00:00",
+            "end": "2025-03-18T07:16:54.682939+00:00"
+          }
+        ],
+        "setup": [
+          {
+            "start": "2025-03-18T07:16:54.430827+00:00",
+            "end": "2025-03-18T07:16:54.430960+00:00"
+          }
+        ],
+        "teardown": [
+          {
+            "start": "2025-03-18T07:16:54.682875+00:00",
+            "end": "2025-03-18T07:16:54.783436+00:00"
+          }
+        ]
+      },
+      "children": []
+    }
+  ],
+  "category": "testplan",
+  "meta": {},
+  "label": null,
+  "tags_index": {},
+  "information": [
+    [
+      "testplan_version",
+      "25.1.0"
+    ],
+    [
+      "user",
+      "unknown"
+    ],
+    [
+      "command_line_string",
+      "./test_plan_dict.py --json examples_assertion_dict.json"
+    ],
+    [
+      "python_version",
+      "3.12.3"
+    ]
+  ],
+  "resource_meta_path": null,
+  "attachments": {},
+  "timeout": 14400,
+  "version": 1
+}

@@ -31,9 +31,9 @@
     dependencies = [
         "setuptools",
         "pytest",
-        "pytest-mock",
         "psutil",
         "schema",
+        "tzlocal",
         "lxml",
         "reportlab",
         "marshmallow",
@@ -41,13 +41,11 @@
         "colorama",
         "pyzmq",
         "terminaltables",
-        "requests>=2.4.3",
-        "Flask>2.0.0,<2.3.0; python_version=='3.7'",
-        "Flask>2.0.0; python_version>='3.8'",
-        "Werkzeug>2.0.0,<2.3.0; python_version=='3.7'",
-        "Werkzeug>2.0.0; python_version>='3.8'",
-        "flask_restx<1.2.0; python_version=='3.7'",
-        "flask_restx; python_version>='3.8'",
+        "requests>=2.31.0",
+        "flask>=2.2.5",
+        "werkzeug>=2.2.3",
+        "flask-restx>=1.1.0",
+        "flask-restx<1.2.0 ; python_full_version < '3.8'",
         "cheroot",
         "boltons",
         "validators<=0.20.0",
@@ -59,11 +57,13 @@
         "coverage",
         "typing_extensions",
         "dill",
-        "gherkin-official==4.1.3",
         "parse",
+        "paramiko[all]",
         "orjson; python_version>='3.8'",
-        "flask-orjson; python_version>='3.8'"
-    ]
+        "flask-orjson; python_version>='3.8'",
+        "exceptiongroup>=1.2.2 ; python_full_version < '3.11'",
+        "gherkin-official==4.1.3 ; python_full_version < '3.11'",
+]
     requires-python = ">=3.7"
 
 [project.urls]
@@ -92,8 +92,11 @@
     line-length = 79
     extend-exclude = "testplan/vendor"
 
+[tool.isort]
+    profile = "black"
+
 [tool.bumpver]
-    current_version = "25.1.0"
+    current_version = "25.3.0"
     version_pattern = "YY.MM.INC0"
     commit_message = "bump version {old_version} -> {new_version}"
     commit = true
@@ -109,7 +112,6 @@
     ]
 
 [tool.releaseherald]
-
     news_fragments_directory = 'doc/newsfragments'
     unreleased = true
     news_file = 'doc/news_template.rst'
@@ -120,3 +122,38 @@
 [tool.releaseherald.filename_metadata_extractor]
     type="re"
     pattern='''^(((?P<id>\d+)_?)?((?P<type>changed|new|deprecated|removed))?\.)?.*$'''
+
+[tool.pytest.ini_options]
+    filterwarnings = [
+        "ignore::pytest.PytestWarning",
+        "ignore:.*flask_restx.*:DeprecationWarning",
+        # jsonschema warning from flask_restx
+        "ignore:.*jsonschema.*:DeprecationWarning",
+        "ignore:.*load_module.*:DeprecationWarning",
+        "ignore:.*LogMatcher.*:UserWarning",
+        # under most cases, included files are not hit
+        "ignore:No data was collected:coverage.exceptions.CoverageWarning",
+    ]
+    norecursedirs = "tests/helpers"
+
+[dependency-groups]
+dev = [
+    "black~=22.0",
+    "doit>=0.34.2",
+    "isort>=5.11.5",
+    "pre-commit>=2.21.0",
+    "pylint>=2.13.9",
+    "pytest-dotenv>=0.5.2",
+    "pytest-mock>=3.11.1",
+]
+docs = [
+    "releaseherald>=0.1.0",
+    "sphinx>=5.3.0",
+    "sphinx-click>=4.4.0",
+    "sphinx-rtd-theme>=2.0.0",
+]
+test = [
+    { include-group = "dev" },
+    "kazoo>=2.10.0",
+    "numpy>=1.21.6",
+]

@@ -1,5 +1,5 @@
 import React from "react";
-import { shallow } from "enzyme";
+import { render } from "@testing-library/react";
 import { StyleSheetTestUtils } from "aphrodite";
 
 import DictMatchAssertion from "../DictMatchAssertion";
@@ -29,19 +29,41 @@ function defaultProps() {
   };
 }
 
+const newSimpleProps = () => ({
+  assertion: {
+    actual_description: null,
+    comparison: [
+      ["foo", "p", ["int", "1"], ["int", "1"]],
+      ["bar", "f", ["int", "2"], ["int", "5"]],
+      ["baz", "i", ["int", "2"], ["int", "5"]],
+      ["extra-key", "f", [null, "ABSENT"], ["int", "10"]],
+    ],
+    description: "simple dict match",
+    exclude_keys: null,
+    expected_description: null,
+    include_keys: null,
+    meta_type: "assertion",
+    passed: false,
+    timestamp: 1740990473.203493,
+    type: "DictMatch",
+  },
+});
+
 describe("DictMatchAssertion", () => {
-  let props;
-  let shallowComponent;
+  let component;
 
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
-    props = defaultProps();
-    shallowComponent = undefined;
   });
 
-  it("shallow renders the correct HTML structure", () => {
-    shallowComponent = shallow(<DictMatchAssertion {...props} />);
-    expect(shallowComponent).toMatchSnapshot();
+  it("renders the correct HTML structure", () => {
+    component = render(<DictMatchAssertion {...defaultProps()} />);
+    expect(component.asFragment()).toMatchSnapshot();
+  });
+
+  it("renders the correct HTML structure with simple comparison", () => {
+    component = render(<DictMatchAssertion {...newSimpleProps()} />);
+    expect(component.asFragment()).toMatchSnapshot();
   });
 });

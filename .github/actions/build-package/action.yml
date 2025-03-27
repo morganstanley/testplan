@@ -8,18 +8,18 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-python@v5
+    - uses: astral-sh/setup-uv@v5
       with:
+        enable-cache: true
+        cache-dependency-glob: "**/pyproject.toml"
         python-version: "3.11"
     - uses: actions/setup-node@v4
       with:
         node-version: "20"
-    - uses: pnpm/action-setup@v3
+    - uses: pnpm/action-setup@v4
       with:
-        version: 8.10.4
-    - run: |        
-        pip install --upgrade pip
-        pip install --upgrade -r requirements-build.txt        
+        version: 9
+    - run: uv pip install doit setuptools -c constraints.txt
       shell: bash
     - run: CI=false doit -v2 build${{ (inputs.is_dev_build == 'true' && '_dev') || '' }}
       shell: bash

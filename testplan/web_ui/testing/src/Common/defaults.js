@@ -259,7 +259,7 @@ const LOG_TYPE = {
 };
 
 
-const LOCALHOST = "Localhost";
+const LOCALHOST = "localhost";
 
 export {
   BLUE,

@@ -28,7 +28,7 @@ jobs:
       - run: bumpver update
       - run: bumpver show --env > new-version.txt
       - run: releaseherald generate --latest --no-update -t news.rst
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      - uses: actions/upload-artifact@v4
         with:
           name: new-version
           path: |
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       - run: git pull origin
       - uses: ./.github/actions/build-package
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      - uses: actions/upload-artifact@v4
         with:
           name: package
           path: dist/
@@ -57,10 +57,10 @@ jobs:
         with:
           sparse-checkout: |
             .github
-      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - uses: actions/download-artifact@v4
         with:
           name: new-version
-      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - uses: actions/download-artifact@v4
         with:
           name: package
           path: dist/
@@ -79,12 +79,12 @@ jobs:
 
       - name: Publish to Test PyPI
         if: ${{github.ref_name == 'test_pypi'}}
-        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0 # v1.9.0
+        uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository-url: https://test.pypi.org/legacy/
       - name: Publish to PyPI
         if: ${{github.ref_name != 'test_pypi'}}
-        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0 # v1.9.0
+        uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
