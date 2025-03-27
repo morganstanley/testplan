@@ -49,16 +49,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Set up Python ${{ env.LINT_PYTHON_VERSION }}
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Set up uv & Python
+        uses: astral-sh/setup-uv@v5
         with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
           python-version: ${{ env.LINT_PYTHON_VERSION }}
-      - name: Restore pip cache
-        uses: ./.github/actions/pip-cache
       - name: Setup
         run: |
-          sudo apt install libkrb5-dev -y
-          pip install -r requirements.txt -U
+          sudo apt-get install -y libkrb5-dev
+          uv pip install . --group dev -c constraints.txt
       - name: Lint
         run: doit lint
 
@@ -72,24 +72,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Set up Python
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Set up uv & Python
+        uses: astral-sh/setup-uv@v5
         with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
           python-version: 3.11
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 20
-      - name: Restore pip cache
-        uses: ./.github/actions/pip-cache
       - name: Set up PNPM
         uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 9
       - name: Setup
-        run: |
-          sudo apt install libkrb5-dev -y
-          pip install -r requirements-build.txt -U
+        run: uv pip install doit
       - name: Build
         run: |
             doit lint_ui
@@ -112,18 +110,21 @@ jobs:
       matrix:
         os: [ubuntu-22.04, windows-latest]
         python-version: [3.7, 3.8, '3.10', 3.11]
+        exclude:
+          - os: windows-latest
+            python-version: 3.7
       fail-fast: false
 
     steps:
       - run: echo "BUILD ${{ matrix.os }} ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Set up uv & Python
+        uses: astral-sh/setup-uv@v5
         with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
           python-version: ${{ matrix.python-version }}
-      - name: Restore pip cache
-        uses: ./.github/actions/pip-cache
       - name: Download ui bundle
         uses: actions/download-artifact@v4
         with:
@@ -143,6 +144,6 @@ jobs:
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
       - name: Install Python dependencies
-        run: pip install -r requirements.txt -U
+        run: uv pip install . --group test -c constraints.txt
       - name: Test Python
         run: doit test
