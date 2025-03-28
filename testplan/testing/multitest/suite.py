@@ -628,6 +628,15 @@ def _testcase_meta(
         global __PARAMETRIZATION_TEMPLATE__
 
         _validate_function_name(function)
+
+        try:
+            interface.check_signature_leading(
+                function, ["self", "env", "result"]
+            )
+        except:
+            _reset_globals()
+            raise
+
         function.name = name or function.__name__
 
         tag_dict = tagging.validate_tag_value(tags) if tags else {}
@@ -664,7 +673,6 @@ def _testcase_meta(
 
             # Register generated functions as testcases
             for func in functions:
-                _validate_testcase(func)
                 # this has to be called before wrappers otherwise wrappers can
                 # fail if they rely on ``__testcase__``
                 _mark_function_as_testcase(func)
