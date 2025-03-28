@@ -5,7 +5,7 @@ import pytest
 
 skip_on_windows = partial(pytest.mark.skipif, sys.platform == "win32")
 
-is_311: bool = sys.version_info[0:2] == (3, 11)
+is_311: bool = sys.version_info[0:2] >= (3, 11)
 
 
 def _skip_module_on(reason: str, predicate: bool):

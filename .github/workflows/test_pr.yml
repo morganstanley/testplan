@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   is_source_changed:
     name: Check if sources has changed
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       is_source_changed: ${{steps.check_source_change.outputs.changed}}
     steps:
@@ -32,7 +32,7 @@ jobs:
   success:
     name: PR Test Completed
     needs: [is_source_changed, test]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: always() && needs.is_source_changed.result == 'success' && (needs.is_source_changed.outputs.is_source_changed == 'false' || needs.Test.result == 'success')
     steps:
       - run: echo ${{needs.is_source_changed.result}} ${{needs.is_source_changed.outputs.is_source_changed}} ${{needs.Test.result}}
@@ -41,7 +41,7 @@ jobs:
   lint_python:
     name: Run lint on python code
     needs: [is_source_changed]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
       BLACK_VERSION: "22.10.0"
@@ -65,7 +65,7 @@ jobs:
   build_ui:
     name: Build UI (with test and lint)
     needs: [is_source_changed]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
       REACT_APP_API_BASE_URL: "/fake/api/endpoint"
@@ -77,7 +77,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "**/pyproject.toml"
-          python-version: 3.11
+          python-version: '3.11'
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
@@ -108,11 +108,8 @@ jobs:
       CI: ""
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-latest]
-        python-version: [3.7, 3.8, '3.10', 3.11]
-        exclude:
-          - os: windows-latest
-            python-version: 3.7
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
       fail-fast: false
 
     steps:
@@ -131,13 +128,13 @@ jobs:
           name: ui_bundle
           path: testplan/web_ui/testing/build
       - name: Set up Linux package for tests
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt-get install -y libkrb5-dev
       - name: Set up Zookeeper for tests
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
       - name: Set up Kafka for tests
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           wget https://dlcdn.apache.org/kafka/3.9.0/kafka_2.13-3.9.0.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
