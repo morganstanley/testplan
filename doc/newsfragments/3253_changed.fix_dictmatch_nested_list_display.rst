@@ -1,0 +1,1 @@
+Fix an issue where nested lists in ``dict.match`` and ``dict.match_all`` assertions were not fully shown in the result output.
