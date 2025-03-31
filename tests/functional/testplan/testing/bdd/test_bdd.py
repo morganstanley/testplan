@@ -1,6 +1,6 @@
-from pytest_test_filters import skip_module_on_311
+from pytest_test_filters import skip_module_on_ge_311
 
-skip_module_on_311("gherkin not available for 3.11")
+skip_module_on_ge_311("gherkin not available for 3.11")
 
 
 from multiprocessing.pool import ThreadPool
