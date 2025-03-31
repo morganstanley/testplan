@@ -628,15 +628,6 @@ def _testcase_meta(
         global __PARAMETRIZATION_TEMPLATE__
 
         _validate_function_name(function)
-
-        try:
-            interface.check_signature_leading(
-                function, ["self", "env", "result"]
-            )
-        except:
-            _reset_globals()
-            raise
-
         function.name = name or function.__name__
 
         tag_dict = tagging.validate_tag_value(tags) if tags else {}
@@ -644,6 +635,14 @@ def _testcase_meta(
         function.__tags_index__ = copy.deepcopy(tag_dict)
 
         if parameters is not None:  # Empty tuple / dict checks happen later
+            try:
+                interface.check_signature_leading(
+                    function, ["self", "env", "result"]
+                )
+            except:
+                _reset_globals()
+                raise
+
             function.__parametrization_template__ = True
             __PARAMETRIZATION_TEMPLATE__.append(function.__name__)
 
@@ -673,6 +672,14 @@ def _testcase_meta(
 
             # Register generated functions as testcases
             for func in functions:
+                try:
+                    if not func.name:
+                        raise ValueError(
+                            "Testcase name cannot be an empty string"
+                        )
+                except:
+                    _reset_globals()
+                    raise
                 # this has to be called before wrappers otherwise wrappers can
                 # fail if they rely on ``__testcase__``
                 _mark_function_as_testcase(func)
