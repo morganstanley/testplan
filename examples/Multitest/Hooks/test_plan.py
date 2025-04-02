@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -48,7 +48,7 @@ class SimpleTest:
         parameters=((3, 3, 6), (7, 8, 15)),
         custom_wrappers=[pre(pre_fn), post(post_fn)],
     )
-    def add_param(self, _env, result, a, b, expect, hoho=None):
+    def add_param(self, _env, result, a, b, expect):
         result.equal(a + b, expect)
 
 

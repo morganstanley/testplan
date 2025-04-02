@@ -312,6 +312,10 @@ def _parametrization_report_name_func_wrapper(
                 "The return value of name_func must be a string, "
                 f"it is of type: {type(generated_name)}, value: {generated_name}"
             )
+        if not generated_name:
+            raise ValueError(
+                "The return value of name_func must not be an empty string."
+            )
         if len(generated_name) <= MAX_METHOD_NAME_LENGTH:
             return generated_name
         else:
@@ -444,7 +448,8 @@ def generate_functions(
     _check_name_func(name_func)
     _check_tag_func(tag_func)
 
-    # TODO: refactor
+    # TODO: refactor: we don't really need our own version of ArgSpec now
+    # TODO: and our impl explicitly disallows kw-only args
     argspec = callable_utils.getargspec(function)
     args = argspec.args[3:]  # get rid of self, env, result
     defaults = argspec.defaults or []

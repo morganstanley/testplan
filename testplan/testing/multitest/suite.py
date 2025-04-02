@@ -636,6 +636,8 @@ def _testcase_meta(
 
         if parameters is not None:  # Empty tuple / dict checks happen later
             try:
+                # NOTE: check should be applied on original (user-defined)
+                # NOTE: function, not the generated ones
                 interface.check_signature_leading(
                     function, ["self", "env", "result"]
                 )
@@ -672,14 +674,6 @@ def _testcase_meta(
 
             # Register generated functions as testcases
             for func in functions:
-                try:
-                    if not func.name:
-                        raise ValueError(
-                            "Testcase name cannot be an empty string"
-                        )
-                except:
-                    _reset_globals()
-                    raise
                 # this has to be called before wrappers otherwise wrappers can
                 # fail if they rely on ``__testcase__``
                 _mark_function_as_testcase(func)

@@ -53,7 +53,13 @@ def check_signature(func: callable, args_list: List[str]) -> bool:
     return True
 
 
-def check_signature_leading(func: callable, exp_args: List[str]) -> bool:
+def check_signature_leading(func: callable, exp_params: List[str]) -> bool:
+    """
+    check if the leading (positional) parameters of the function signature
+    matches the expected parameters
+    this is for checking if parametrized testcases have been well defined
+    """
+
     # return value is not very useful in this case, just to keep it consistent
     # with ``check_signature``
 
@@ -64,11 +70,12 @@ def check_signature_leading(func: callable, exp_args: List[str]) -> bool:
     ]
 
     msg = (
-        f"First several expected arguments for {func.__name__} are {exp_args} "
-        f"or their underscore-prefixed variants, not {funcparams[:len(exp_args)]}"
+        f"First several expected arguments for {func.__name__} are "
+        f"{exp_params} or their underscore-prefixed variants, not "
+        f"{funcparams[:len(exp_params)]}"
     )
 
-    for exp in exp_args:
+    for exp in exp_params:
         if funcparams and funcparams[0] in _unused_variant(exp):
             funcparams.pop(0)
             continue
