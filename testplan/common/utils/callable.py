@@ -12,6 +12,8 @@ WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
     "summarize_num_failing",
 )
 
+# TODO: abolish ``ArgSpec``, ``arity`` and ``getargspec``
+
 # Local copy of inspect.ArgSpec namedtuple - see notes on inspect.getargspec()
 # deprecation within getargspec() below.
 ArgSpec = namedtuple("ArgSpec", ["args", "varargs", "keywords", "defaults"])

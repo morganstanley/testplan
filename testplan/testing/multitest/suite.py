@@ -635,6 +635,16 @@ def _testcase_meta(
         function.__tags_index__ = copy.deepcopy(tag_dict)
 
         if parameters is not None:  # Empty tuple / dict checks happen later
+            try:
+                # NOTE: check should be applied on original (user-defined)
+                # NOTE: function, not the generated ones
+                interface.check_signature_leading(
+                    function, ["self", "env", "result"]
+                )
+            except:
+                _reset_globals()
+                raise
+
             function.__parametrization_template__ = True
             __PARAMETRIZATION_TEMPLATE__.append(function.__name__)
 
@@ -664,7 +674,6 @@ def _testcase_meta(
 
             # Register generated functions as testcases
             for func in functions:
-                _validate_testcase(func)
                 # this has to be called before wrappers otherwise wrappers can
                 # fail if they rely on ``__testcase__``
                 _mark_function_as_testcase(func)
