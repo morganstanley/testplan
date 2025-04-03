@@ -4,7 +4,7 @@ from fnmatch import fnmatch
 import pytest
 
 import platform
-from pytest_test_filters import is_311
+from pytest_test_filters import ge_311
 from example_runner import run_example_in_process
 
 _FILE_DIR = os.path.dirname(__file__)
@@ -46,7 +46,7 @@ SKIP = [
     os.path.join("BDD", "known_to_fail", "test_plan.py"),
 ]
 
-if is_311:
+if ge_311:
     SKIP.extend((os.path.join("BDD", "*"),))
 
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
