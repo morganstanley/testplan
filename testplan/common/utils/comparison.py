@@ -424,6 +424,18 @@ class Match:
             return True
 
 
+def to_match_res(couple):
+    # so that we can tell match/_rec_compare result from fmt output in later
+    # expand steps
+    # NOTE: couple[0] should be either 1 or 2, other value is unexpected
+    return couple[0] + 10, couple[1]
+
+
+def is_match_res(type_num):
+    # see ``to_match_res``
+    return type_num in (11, 12)
+
+
 def _build_res(key, match, lhs, rhs):
     """
     Builds a result tuple object for CouchDB.
@@ -698,7 +710,10 @@ def _rec_compare(
         # list of objects with lhs/rhs attributes
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
-            key=key, match=match, lhs=(1, lhs_vals), rhs=(1, rhs_vals)
+            key=key,
+            match=match,
+            lhs=to_match_res((1, lhs_vals)),
+            rhs=to_match_res((1, rhs_vals)),
         )
 
     ## DICTS
@@ -714,7 +729,10 @@ def _rec_compare(
         )
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
-            key=key, match=match, lhs=(2, lhs_vals), rhs=(2, rhs_vals)
+            key=key,
+            match=match,
+            lhs=to_match_res((2, lhs_vals)),
+            rhs=to_match_res((2, rhs_vals)),
         )
 
     ## DIFF TYPES -- catch-all for unhandled
@@ -862,7 +880,7 @@ def compare(
         for key in include:
             if key not in keys_found:
                 comparisons.append(
-                    (key, Match.IGNORED, Absent.descr, Absent.descr)
+                    (key, Match.IGNORED, fmt(Absent), fmt(Absent))
                 )
 
     return Match.to_bool(match), comparisons
