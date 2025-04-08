@@ -8,6 +8,7 @@ from terminaltables import AsciiTable
 
 import testplan.common.exporters.constants as constants
 from testplan.common.exporters import format_cell_data
+from testplan.common.utils.comparison import Match
 from testplan.common.utils.strings import Color, map_to_str
 
 from .. import assertions
@@ -304,11 +305,11 @@ def add_printable_dict_comparison(result, row):
         left = ""
         right = ""
 
-    if status == "Passed":
-        coloured = Color.colored(status, "green")
+    if status == Match.PASS:
+        coloured = Color.colored("Passed", "green")
         operator = " == "
-    elif status == "Failed":
-        coloured = Color.colored(status, "red")
+    elif status == Match.FAIL:
+        coloured = Color.colored("Failed", "red")
         operator = " != "
     else:
         coloured = "Ignore"

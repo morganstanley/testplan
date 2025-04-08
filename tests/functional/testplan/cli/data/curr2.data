@@ -502,6 +502,155 @@
                       ]
                     ]
                   ]
+                },
+                {
+                  "type": "DictMatchAll",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.408649,
+                  "description": null,
+                  "passed": false,
+                  "key_weightings": null,
+                  "matches": [
+                    {
+                      "description": "unordered DictMatchAll 1/1: expected[0] vs values[0]",
+                      "comparison": [
+                        [
+                          "key0",
+                          "p",
+                          [
+                            "int",
+                            0
+                          ],
+                          [
+                            "int",
+                            0
+                          ]
+                        ],
+                        [
+                          "key1",
+                          "p",
+                          [
+                            "int",
+                            1
+                          ],
+                          [
+                            "int",
+                            1
+                          ]
+                        ],
+                        [
+                          "key2",
+                          "p",
+                          [
+                            "int",
+                            2
+                          ],
+                          [
+                            "int",
+                            2
+                          ]
+                        ],
+                        [
+                          "key3",
+                          "p",
+                          [
+                            "int",
+                            3
+                          ],
+                          [
+                            "int",
+                            3
+                          ]
+                        ],
+                        [
+                          "key4",
+                          "p",
+                          [
+                            "int",
+                            4
+                          ],
+                          [
+                            "int",
+                            4
+                          ]
+                        ],
+                        [
+                          "key5",
+                          "p",
+                          [
+                            "int",
+                            5
+                          ],
+                          [
+                            "int",
+                            5
+                          ]
+                        ],
+                        [
+                          "key6",
+                          "p",
+                          [
+                            "int",
+                            6
+                          ],
+                          [
+                            "int",
+                            6
+                          ]
+                        ],
+                        [
+                          "key7",
+                          "p",
+                          [
+                            "int",
+                            7
+                          ],
+                          [
+                            "int",
+                            7
+                          ]
+                        ],
+                        [
+                          "key8",
+                          "p",
+                          [
+                            "int",
+                            8
+                          ],
+                          [
+                            "int",
+                            8
+                          ]
+                        ],
+                        [
+                          "key9",
+                          "p",
+                          [
+                            "int",
+                            9
+                          ],
+                          [
+                            "int",
+                            9
+                          ]
+                        ],
+                        [
+                          "bad_key",
+                          "f",
+                          [
+                            "str",
+                            "expected"
+                          ],
+                          [
+                            "str",
+                            "actual"
+                          ]
+                        ]
+                      ],
+                      "passed": false,
+                      "comparison_index": 0
+                    }
+                  ]
                 }
               ],
               "status": "failed",

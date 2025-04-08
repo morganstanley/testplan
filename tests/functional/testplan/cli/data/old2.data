@@ -585,6 +585,174 @@
                       ]
                     ]
                   ]
+                },
+                {
+                  "utc_time": "2025-03-18T07:16:54.516905+00:00",
+                  "machine_time": "2025-03-18T15:16:54.516912+08:00",
+                  "type": "DictMatchAll",
+                  "meta_type": "assertion",
+                  "description": null,
+                  "line_no": null,
+                  "category": "DEFAULT",
+                  "flag": "DEFAULT",
+                  "file_path": null,
+                  "code_context": null,
+                  "passed": false,
+                  "key_weightings": null,
+                  "matches": {
+                    "matches": [
+                      {
+                        "description": "unordered DictMatchAll 1/1: expected[0] vs values[0]",
+                        "comparison": [
+                          [
+                            0,
+                            "key0",
+                            "Passed",
+                            [
+                              "int",
+                              "0"
+                            ],
+                            [
+                              "int",
+                              "0"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key1",
+                            "Passed",
+                            [
+                              "int",
+                              "1"
+                            ],
+                            [
+                              "int",
+                              "1"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key2",
+                            "Passed",
+                            [
+                              "int",
+                              "2"
+                            ],
+                            [
+                              "int",
+                              "2"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key3",
+                            "Passed",
+                            [
+                              "int",
+                              "3"
+                            ],
+                            [
+                              "int",
+                              "3"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key4",
+                            "Passed",
+                            [
+                              "int",
+                              "4"
+                            ],
+                            [
+                              "int",
+                              "4"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key5",
+                            "Passed",
+                            [
+                              "int",
+                              "5"
+                            ],
+                            [
+                              "int",
+                              "5"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key6",
+                            "Passed",
+                            [
+                              "int",
+                              "6"
+                            ],
+                            [
+                              "int",
+                              "6"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key7",
+                            "Passed",
+                            [
+                              "int",
+                              "7"
+                            ],
+                            [
+                              "int",
+                              "7"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key8",
+                            "Passed",
+                            [
+                              "int",
+                              "8"
+                            ],
+                            [
+                              "int",
+                              "8"
+                            ]
+                          ],
+                          [
+                            0,
+                            "key9",
+                            "Passed",
+                            [
+                              "int",
+                              "9"
+                            ],
+                            [
+                              "int",
+                              "9"
+                            ]
+                          ],
+                          [
+                            0,
+                            "bad_key",
+                            "Failed",
+                            [
+                              "str",
+                              "expected"
+                            ],
+                            [
+                              "str",
+                              "actual"
+                            ]
+                          ]
+                        ],
+                        "passed": false,
+                        "comparison_index": 0
+                      }
+                    ]
+                  }
                 }
               ],
               "status_override": null,
