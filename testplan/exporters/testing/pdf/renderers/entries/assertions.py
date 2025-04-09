@@ -512,7 +512,7 @@ class DictMatchAllRenderer(AssertionRenderer):
 
     def get_detail(self, source, depth, row_idx):
         # NOTE: for compatibility with old assertion structure
-        if source["matches"].get("matches"):
+        if isinstance(source["matches"], dict):
             matches = source["matches"]["matches"]
         else:
             matches = source["matches"]
