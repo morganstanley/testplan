@@ -42,7 +42,10 @@ import { encodeURIComponent2, parseToJson } from "../Common/utils";
 import { POLL_MS, CATEGORIES } from "../Common/defaults";
 import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
-import { displayTimeInfoPreference, timeInfoUTCPreference } from "../UserSettings/UserSettings";
+import {
+  displayTimeInfoPreference,
+  timeInfoUTCPreference,
+} from "../UserSettings/UserSettings";
 
 const api_prefix = "/api/v1/interactive";
 const pendingEnvRequestAtom = atom("");
@@ -78,6 +81,9 @@ class InteractiveReportComponent extends BaseReport {
     this.reloadCode = this.reloadCode.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.firstGet = props.firstGet !== undefined
+      ? props.firstGet
+      : true; // Initialize from props
 
     this.state = {
       ...this.state,
@@ -127,8 +133,11 @@ class InteractiveReportComponent extends BaseReport {
     if (this.props.match.params.uid === "_dev") {
       setTimeout(() => this.setReport(FakeInteractiveReport), 1500);
     } else {
+      const url = "/api/v1/interactive/report";
+      const params = this.firstGet ? { full: true } : {};
+
       axios
-        .get("/api/v1/interactive/report", { transformResponse: parseToJson })
+        .get(url, { params, transformResponse: parseToJson })
         .then((response) => {
           if (
             response.data.runtime_status === "ready" ||
@@ -142,7 +151,10 @@ class InteractiveReportComponent extends BaseReport {
               this.setState({ running: false });
             }
           }
-          if (
+          if (this.firstGet) {
+            this.setReport(response.data);
+            this.firstGet = false;
+          } else if (
             !this.state.report ||
             this.state.report.hash !== response.data.hash
           ) {
@@ -155,7 +167,10 @@ class InteractiveReportComponent extends BaseReport {
         .catch(this.setError)
         .finally(() => {
           // We poll for updates to the report every second.
-          setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);
+          setTimeout(
+            () => this.getReport(),
+            this.props.poll_intervall || POLL_MS
+          );
         });
     }
   }
@@ -491,9 +506,7 @@ class InteractiveReportComponent extends BaseReport {
     };
 
     if (!isReportLeaf(reportEntry) && !_.isEmpty(entries)) {
-      pruneEntry.entries = entries.map((entry) =>
-        this.pruneReportEntry(entry)
-      );
+      pruneEntry.entries = entries.map((entry) => this.pruneReportEntry(entry));
     }
 
     return pruneEntry;
