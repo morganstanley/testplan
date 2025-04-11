@@ -851,6 +851,9 @@ class MultiTest(testing_base.Test):
 
         testsuite_report.runtime_status = RuntimeStatus.FINISHED
 
+        if self.aborted:
+            testsuite_report.status_override = Status.INCOMPLETE
+
         return testsuite_report
 
     def _run_serial_testcases(self, testsuite, testcases):
@@ -862,11 +865,13 @@ class MultiTest(testing_base.Test):
 
         for testcase in testcases:
             if not self.active:
-                break
-
-            testcase_report = self._run_testcase(
-                testcase, testsuite, pre_testcase, post_testcase
-            )
+                testcase_report = self._new_testcase_report(testcase)
+                testcase_report.status_override = Status.INCOMPLETE
+                # break
+            else:
+                testcase_report = self._run_testcase(
+                    testcase, testsuite, pre_testcase, post_testcase
+                )
 
             param_template = getattr(
                 testcase, "_parametrization_template", None
