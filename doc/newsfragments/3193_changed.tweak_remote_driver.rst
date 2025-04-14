@@ -1,0 +1,1 @@
+The wrapped driver class within :py:class:`RemoteDriver <testplan.common.remote.remote_driver.RemoteDriver>` is now constructed only on remote host.

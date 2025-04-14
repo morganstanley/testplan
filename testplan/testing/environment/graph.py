@@ -25,8 +25,8 @@ class DriverDepGraph(DirectedGraph[str, D, bool]):
     An always acyclic directed graph, also bookkeeping driver starting status.
     """
 
-    processing: Set[D] = field(default_factory=set)
-    processed: List[D] = field(default_factory=list)
+    processing: Set[str] = field(default_factory=set)
+    processed: List[str] = field(default_factory=list)
 
     @classmethod
     def from_directed_graph(cls, g: DirectedGraph) -> "DriverDepGraph":
@@ -40,16 +40,16 @@ class DriverDepGraph(DirectedGraph[str, D, bool]):
         return cls(g_.vertices, g_.edges, g_.indegrees, g_.outdegrees)
 
     def mark_processing(self, driver: D):
-        self.processing.add(driver.uid())
+        self.processing.add(id(driver))
 
     def mark_processed(self, driver: D):
-        self.processing.remove(driver.uid())
-        self.remove_vertex(driver.uid())
-        self.processed.append(driver.uid())
+        self.processing.remove(id(driver))
+        self.remove_vertex(id(driver))
+        self.processed.append(id(driver))
 
     def mark_failed_to_process(self, driver: D):
-        self.processing.remove(driver.uid())
-        self.remove_vertex(driver.uid())
+        self.processing.remove(id(driver))
+        self.remove_vertex(id(driver))
 
     def drivers_to_process(self) -> List[D]:
         return [
@@ -143,11 +143,11 @@ def parse_dependency(input: dict) -> DriverDepGraph:
             v = (v,)
 
         for s, e in product(k, v):
-            if s.uid() not in g.vertices:
-                g.add_vertex(s.uid(), s)
-            if e.uid() not in g.vertices:
-                g.add_vertex(e.uid(), e)
-            if e.uid() not in g.edges[s.uid()]:
-                g.add_edge(s.uid(), e.uid(), None)
+            if id(s) not in g.vertices:
+                g.add_vertex(id(s), s)
+            if id(e) not in g.vertices:
+                g.add_vertex(id(e), e)
+            if id(e) not in g.edges[id(s)]:
+                g.add_edge(id(s), id(e), None)
 
     return DriverDepGraph.from_directed_graph(g)

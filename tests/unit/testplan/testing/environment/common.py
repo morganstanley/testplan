@@ -7,7 +7,7 @@ from testplan.testing.multitest.driver import Driver
 
 
 def assert_lhs_before_rhs(d_list, lhs, rhs):
-    assert d_list.index(lhs.name) < d_list.index(rhs.name)
+    assert d_list.index(id(lhs)) < d_list.index(id(rhs))
 
 
 def assert_lhs_call_before_rhs_call(mock_calls, l_call, r_call):

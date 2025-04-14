@@ -18,7 +18,7 @@ def test_basic_graph():
     assert set(g_.vertices.values()) == {a, b, c, d, e, f}
     for s, e in {(a, c), (b, c), (c, d), (e, d), (e, f)}:
         # if edge doesn't exist, KeyError will be thrown
-        assert g_.edges[s.name][e.name] is None
+        assert g_.edges[id(s)][id(e)] is None
 
 
 def test_empty_graph():
@@ -51,13 +51,13 @@ def test_graph_operation():
     g = parse_dependency({d1: d2, d2: d3})
     g.mark_processing(d1)
     g_ = copy(g)
-    assert "d1" in g_.processing
+    assert id(d1) in g_.processing
     g.mark_processed(d1)
     g_ = copy(g)
-    assert "d1" in g_.processed
-    assert "d1" not in g_.vertices
-    assert g_.edges["d2"]["d3"] is None
+    assert id(d1) in g_.processed
+    assert id(d1) not in g_.vertices
+    assert g_.edges[id(d2)][id(d3)] is None
 
     g_ = g.transpose()
     assert "d1" not in g_.processed
-    assert g_.edges["d3"]["d2"] is None
+    assert g_.edges[id(d3)][id(d2)] is None

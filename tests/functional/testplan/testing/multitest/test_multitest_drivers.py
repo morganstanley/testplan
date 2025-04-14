@@ -517,4 +517,6 @@ def test_env_builder(mockplan):
     assert mockplan.run().success is True
     assert len(mt.resources) == 2
     assert mt.resources["dummy_ctx"] == "dummy_value"
-    assert mt.resources._rt_dependency.processed == ["b", "a"]
+    assert mt.resources._rt_dependency.processed == list(
+        map(lambda x: id(mt.resources[x]), ["b", "a"])
+    )
