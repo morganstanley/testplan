@@ -80,8 +80,8 @@ class TestEnvironment(Environment):
             # we are in a (specially) managed environment, override
             # `async_start`
             d.async_start = True
-            if d.uid() not in dependency.vertices:
-                dependency.add_vertex(d.uid(), d)
+            if id(d) not in dependency.vertices:
+                dependency.add_vertex(id(d), d)
 
         self._orig_dependency = dependency
 
@@ -107,14 +107,14 @@ class TestEnvironment(Environment):
         self._rt_dependency = copy.copy(self._orig_dependency)
 
         # distribute pocketwatches
-        for k, v in self._rt_dependency.vertices.items():
+        for _, v in self._rt_dependency.vertices.items():
             if isinstance(v.started_check_interval, tuple):
                 curr_interval, interval_cap = v.started_check_interval
-                self._pocketwatches[k] = DriverPocketwatch(
+                self._pocketwatches[v.uid()] = DriverPocketwatch(
                     v.start_timeout, curr_interval, interval_cap
                 )
             else:
-                self._pocketwatches[k] = DriverPocketwatch(
+                self._pocketwatches[v.uid()] = DriverPocketwatch(
                     v.start_timeout, v.started_check_interval
                 )
 
@@ -184,17 +184,17 @@ class TestEnvironment(Environment):
         # filter drivers based on status
         for driver in self._resources.values():
             if driver.status == driver.status.NONE:
-                self._rt_dependency.remove_vertex(driver.uid())
+                self._rt_dependency.remove_vertex(id(driver))
 
         # distribute pocketwatches
-        for k, v in self._rt_dependency.vertices.items():
+        for _, v in self._rt_dependency.vertices.items():
             if isinstance(v.stopped_check_interval, tuple):
                 curr_interval, interval_cap = v.stopped_check_interval
-                self._pocketwatches[k] = DriverPocketwatch(
+                self._pocketwatches[v.uid()] = DriverPocketwatch(
                     v.stop_timeout, curr_interval, interval_cap
                 )
             else:
-                self._pocketwatches[k] = DriverPocketwatch(
+                self._pocketwatches[v.uid()] = DriverPocketwatch(
                     v.stop_timeout, v.stopped_check_interval
                 )
 
