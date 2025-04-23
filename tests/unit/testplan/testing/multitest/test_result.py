@@ -528,6 +528,29 @@ class TestDictNamespace:
             value_cmp_func=cmp_with_tolerance,
         )
 
+    def test_nested_expand(self, dict_ns):
+        expected = {1: 2}
+        actual = {1: {"_": "_", 2: {"_": "_", 3: {"_": "_", 4: {5: None}}}}}
+
+        assert not dict_ns.match(
+            actual,
+            expected,
+            description="nested dict should be properly expanded",
+        )
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 8
+
+        expected = {1: 2}
+        actual = {1: [2, [3, [4, [5]]]]}
+
+        assert not dict_ns.match(
+            actual,
+            expected,
+            description="nested list should be properly expanded",
+        )
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 8
+
     def test_report_modes(self, dict_ns):
         """Test controlling report modes for a dict match."""
         expected = {"key{}".format(i): i for i in range(10)}
@@ -852,7 +875,7 @@ class TestFIXNamespace:
         assert (
             _22[0] == 0
             and _22[2][0].lower() == comparison.Match.IGNORED
-            and _22[3][1] == "5"
+            and _22[3][1] == 5
             and _22[4][1] == "ABSENT"
         )
         _55_1, _55_2 = [item for item in comp_result if item[1] == 55]
@@ -860,14 +883,14 @@ class TestFIXNamespace:
         assert (
             _55_2[0] == 1
             and _55_2[2][0].lower() == comparison.Match.IGNORED
-            and _55_2[3][1] == "4"
+            and _55_2[3][1] == 4
             and _55_2[4][1] == "ABSENT"
         )
         _38 = [item for item in comp_result if item[1] == 38][0]
         assert (
             _38[0] == 0
             and _38[2][0].lower() == comparison.Match.IGNORED
-            and _38[3][1] == "5"
+            and _38[3][1] == 5
             and _38[4][1] == "ABSENT"
         )
         _555 = [item for item in comp_result if item[1] == 555][0]

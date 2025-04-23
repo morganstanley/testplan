@@ -23,7 +23,7 @@ class Passing(unittest.TestCase):
     """
     Minimal PyUnit testcase with a single trivial test method. For more
     information about the unittest library, see the [documentation](
-    http://docs.python.org/2/library/unittest.html).
+    http://docs.python.org/3/library/unittest.html).
     """
 
     def test_asserts(self):

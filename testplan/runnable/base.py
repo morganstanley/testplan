@@ -6,6 +6,7 @@ import random
 import re
 import sys
 import time
+import traceback
 import uuid
 import webbrowser
 from collections import OrderedDict
@@ -28,6 +29,7 @@ from typing import (
 )
 
 from schema import And, Or, Use
+
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
@@ -77,6 +79,9 @@ from testplan.testing.result import Result
 from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
+
+if sys.version_info < (3, 11):
+    from exceptiongroup import ExceptionGroup
 
 TestTask = Union[Test, Task, Callable]
 
@@ -584,11 +589,53 @@ class TestRunner(Runnable):
         remote_service.parent = self
         remote_service.cfg.parent = self.cfg
         self.remote_services[name] = remote_service
-        remote_service.start()
+
+    def skip_step(self, step):
+        if isinstance(
+            self.result.step_results.get("_start_remote_services", None),
+            Exception,
+        ):
+            if step in (
+                self._pre_exporters,
+                self._invoke_exporters,
+                self._post_exporters,
+                self._stop_remote_services,
+            ):
+                return False
+            return True
+        return False
+
+    def _start_remote_services(self):
+        for rmt_svc in self.remote_services.values():
+            try:
+                rmt_svc.start()
+            except Exception as e:
+                msg = traceback.format_exc()
+                self.logger.error(msg)
+                self.report.logger.error(msg)
+                self.report.status_override = Status.ERROR
+                # skip the rest, set step return value
+                return e
 
     def _stop_remote_services(self):
+        es = []
         for rmt_svc in self.remote_services.values():
-            rmt_svc.stop()
+            try:
+                rmt_svc.stop()
+            except Exception as e:
+                msg = traceback.format_exc()
+                self.logger.error(msg)
+                # NOTE: rmt svc cannot be closed before report export due to
+                # NOTE: rmt ref being used during report export, it's
+                # NOTE: meaningless to update report obj here
+                self.report.status_override = Status.ERROR
+                es.append(e)
+        if es:
+            if len(es) > 1:
+                return ExceptionGroup(
+                    "multiple remote services failed to stop", es
+                )
+            return es[0]
 
     def _clone_task_for_part(self, task_info, _task_arguments, part):
         _task_arguments["part"] = part
@@ -1123,6 +1170,7 @@ class TestRunner(Runnable):
         """Runnable steps to be executed before resources started."""
         self._add_step(self.timer.start, "run")
         super(TestRunner, self).add_pre_resource_steps()
+        self._add_step(self._start_remote_services)
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
         self._add_step(self.calculate_pool_size)
@@ -1516,6 +1564,8 @@ class TestRunner(Runnable):
         """Stop the web server if it is running."""
         if self._web_server_thread is not None:
             self._web_server_thread.stop()
+        # XXX: to be refactored after aborting logic implemented for rmt svcs
+        self._stop_remote_services()
         self._stop_resource_monitor()
         self._close_file_logger()
 

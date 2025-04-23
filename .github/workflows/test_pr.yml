@@ -49,15 +49,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Set up Python ${{ env.LINT_PYTHON_VERSION }}
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Set up uv & Python
+        uses: astral-sh/setup-uv@v5
         with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
           python-version: ${{ env.LINT_PYTHON_VERSION }}
-      - name: Restore pip cache
-        uses: ./.github/actions/pip-cache
       - name: Setup
         run: |
-          pip install -r requirements.txt -U
+          sudo apt-get install -y libkrb5-dev
+          uv pip install . --group dev -c constraints.txt
       - name: Lint
         run: doit lint
 
@@ -71,30 +72,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Set up Python
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Set up uv & Python
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.11
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+          python-version: '3.11'
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
-          node-version: "16.x"
-      - name: Restore pip cache
-        uses: ./.github/actions/pip-cache
+          node-version: 20
       - name: Set up PNPM
         uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
-          version: 8.10.4
+          version: 9
       - name: Setup
-        run: |
-          pip install -r requirements-build.txt -U
+        run: uv pip install doit
       - name: Build
         run: |
             doit lint_ui
             CI=false doit build_ui            
             doit test_ui
       - name: Archive ui artifacts
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@v4
         with:
           name: ui_bundle
           path: testplan/web_ui/testing/build
@@ -109,35 +109,38 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest]
-        python-version: [3.7, 3.8, '3.10', 3.11]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
       fail-fast: false
 
     steps:
       - run: echo "BUILD ${{ matrix.os }} ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Set up uv & Python
+        uses: astral-sh/setup-uv@v5
         with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
           python-version: ${{ matrix.python-version }}
-      - name: Restore pip cache
-        uses: ./.github/actions/pip-cache
       - name: Download ui bundle
-        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+        uses: actions/download-artifact@v4
         with:
           name: ui_bundle
           path: testplan/web_ui/testing/build
+      - name: Set up Linux package for tests
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: sudo apt-get install -y libkrb5-dev
       - name: Set up Zookeeper for tests
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
       - name: Set up Kafka for tests
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
-          wget https://archive.apache.org/dist/kafka/3.5.2/kafka_2.13-3.5.2.tgz -O kafka.tgz
+          wget https://dlcdn.apache.org/kafka/3.9.0/kafka_2.13-3.9.0.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
-      - name: Install dependencies
-        run: pip install -r requirements.txt -U
+      - name: Install Python dependencies
+        run: uv pip install . --group test -c constraints.txt
       - name: Test Python
         run: doit test

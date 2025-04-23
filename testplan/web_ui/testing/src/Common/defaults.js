@@ -12,8 +12,10 @@ const ROSE = "#fe064466";
 const DARK_ROSE = "#be0433";
 const GREEN = "#228F1D";
 const DARK_GREEN = "#1A721D";
+const LIGHT_GREEN = "#DFF0D8";
 const RED = "#A2000C";
 const DARK_RED = "#840008";
+const LIGHT_RED = "#F2DEDE";
 const ORANGE = "#D2691E";
 const DARK_ORANGE = "#DD8800";
 const LIGHT_GREY = "#F3F3F3";
@@ -257,7 +259,7 @@ const LOG_TYPE = {
 };
 
 
-const LOCALHOST = "Localhost";
+const LOCALHOST = "localhost";
 
 export {
   BLUE,
@@ -270,8 +272,10 @@ export {
   DARK_ROSE,
   GREEN,
   DARK_GREEN,
+  LIGHT_GREEN,
   RED,
   DARK_RED,
+  LIGHT_RED,
   ORANGE,
   DARK_ORANGE,
   LIGHT_GREY,

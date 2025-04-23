@@ -1,11 +1,14 @@
+import fnmatch
 import os
+import pathlib
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from glob import glob
 from io import TextIOWrapper
 from itertools import dropwhile
 from os import SEEK_END, PathLike
 from typing import Generic, List, Optional, TypeVar, Union
+import paramiko
 
 
 class LogPosition:
@@ -52,76 +55,11 @@ class LogStream(ABC, Generic[T]):
         return self.compare(self.position, position) >= 0
 
 
-class FileLogStream(LogStream[T]):
-    @dataclass
-    class FileLogPosition(LogPosition):
-        position: int = 0
-
-        def __str__(self) -> str:
-            return f"<position {self.position}>"
-
-    def __init__(self, path: Union[PathLike, str]) -> None:
-        self._path = path
-        self._file: Optional[TextIOWrapper] = None
-
-    @staticmethod
-    @abstractmethod
-    def _file_open_mode() -> str:
-        pass
-
-    @property
-    def file(self):
-        if self._file is None:
-            self._file = open(self._path, self._file_open_mode())
-        return self._file
-
-    def seek(self, position: Optional[FileLogPosition] = None) -> None:
-        pos = 0 if not position else position.position
-        self.file.seek(pos)
-
-    def read(self, size: int = -1) -> T:
-        return self.file.read(size)
-
-    def readline(self, size=-1) -> T:
-        return self.file.readline()
-
-    @property
-    def position(self) -> FileLogPosition:
-        return self.FileLogPosition(position=self.file.tell())
-
-    def compare(
-        self, position1: FileLogPosition, position2: FileLogPosition
-    ) -> int:
-        return position1.position - position2.position
-
-    def close(self) -> None:
-        if self._file is not None:
-            try:
-                self._file.close()
-            finally:
-                self._file = None
-
-    def flush(self) -> FileLogPosition:
-        self._file.seek(0, SEEK_END)
-        return self.position
-
-
-class BinaryFileLogStream(FileLogStream[bytes]):
-    @staticmethod
-    def _file_open_mode():
-        return "rb"
-
-
-class TextFileLogStream(FileLogStream[str]):
-    @staticmethod
-    def _file_open_mode():
-        return "rt"
-
-
 @dataclass
 class LogfileInfo:
     inode: int
     path: str
+    m_time: float
 
 
 class LogRotationStrategy(ABC):
@@ -131,18 +69,14 @@ class LogRotationStrategy(ABC):
 
 
 class MTimeBasedLogRotationStrategy(LogRotationStrategy):
-    @dataclass
-    class MTimeLogfileInfo(LogfileInfo):
-        m_time: float = field(init=False)
-
-        def __post_init__(self):
-            stat = os.stat(self.path)
-            self.m_time = stat.st_mtime_ns
-
     def get_files(self, path_info: Union[PathLike, str]) -> List[LogfileInfo]:
         path_string = os.fspath(path_info)
         files = [
-            self.MTimeLogfileInfo(os.stat(path).st_ino, path)
+            LogfileInfo(
+                inode=os.stat(path).st_ino,
+                path=path,
+                m_time=os.stat(path).st_mtime_ns,
+            )
             for path in reversed(glob(path_string))
         ]
 
@@ -304,7 +238,7 @@ class RotatedFileLogStream(LogStream[T]):
         pass
 
 
-class RotatedBinaryFileLogStream(RotatedFileLogStream[bytes]):
+class BinaryFileOpenMode:
     @staticmethod
     def _file_open_mode():
         return "rb"
@@ -314,7 +248,7 @@ class RotatedBinaryFileLogStream(RotatedFileLogStream[bytes]):
         return b""
 
 
-class RotatedTextFileLogStream(RotatedFileLogStream[str]):
+class TextFileOpenMode:
     @staticmethod
     def _file_open_mode():
         return "rt"
@@ -322,3 +256,101 @@ class RotatedTextFileLogStream(RotatedFileLogStream[str]):
     @staticmethod
     def _empty_string():
         return ""
+
+
+def get_remote_file_inode(
+    ssh_client: paramiko.SSHClient, path: Union[PathLike, str]
+):
+    path_string = os.fspath(path)
+    _, stdout, _ = ssh_client.exec_command(
+        f"/usr/bin/stat -c %i '{path_string}'"
+    )
+    inode_string = stdout.read().decode().strip()
+    if not inode_string:
+        raise RuntimeError(
+            f"Cannot get stat for file {path} on {ssh_client.get_transport().getpeername()}"
+        )
+    return int(inode_string)
+
+
+class RemoteMTimeBasedLogRotationStrategy(MTimeBasedLogRotationStrategy):
+    def __init__(
+        self, ssh_client: paramiko.SSHClient, sftp_client: paramiko.SFTPClient
+    ):
+        super().__init__()
+        self._ssh_client = ssh_client
+        self._sftp_client = sftp_client
+
+    def get_files(self, path_info: Union[PathLike, str]) -> List[LogfileInfo]:
+        path = pathlib.Path(path_info)
+        files = []
+
+        for file in self._sftp_client.listdir_iter(os.fspath(path.parent)):
+            # Due to the sftp client limitation. we can not use glob directly.
+            # Therefore, wildcards in the middle of the path are not supported.
+            if fnmatch.fnmatch(file.filename, path.name):
+                inode = get_remote_file_inode(
+                    self._ssh_client, path.parent / file.filename
+                )
+                files.append(
+                    LogfileInfo(
+                        inode=inode,
+                        path=os.fspath(path.parent / file.filename),
+                        m_time=file.st_mtime,
+                    )
+                )
+
+        return list(sorted(files, key=lambda file_info: file_info.m_time))
+
+
+class RemoteRotatedFileLogStream(RotatedFileLogStream[T]):
+    def __init__(
+        self,
+        ssh_client: paramiko.SSHClient,
+        sftp_client: paramiko.SFTPClient,
+        path_pattern: Union[PathLike, str],
+        rotation_strategy: LogRotationStrategy,
+        binary: bool = False,
+    ):
+        self._ssh_client = ssh_client
+        self._sftp_client = sftp_client
+        self._file_ino = 0
+        super().__init__(path_pattern, rotation_strategy, binary)
+
+    def _open_file(self, path):
+        self.close()
+        try:
+            self._file = self._sftp_client.open(path, self._file_open_mode())
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Unable to open remote file {path}")
+        self._file_ino = get_remote_file_inode(self._ssh_client, path)
+
+    @property
+    def position(self) -> LogPosition:
+        return self.FileLogPosition(self._file_ino, self.file.tell())
+
+    @property
+    def inode(self):
+        return self._file_ino
+
+
+class RotatedBinaryFileLogStream(
+    BinaryFileOpenMode, RotatedFileLogStream[bytes]
+):
+    pass
+
+
+class RotatedTextFileLogStream(TextFileOpenMode, RotatedFileLogStream[str]):
+    pass
+
+
+class RemoteRotatedBinaryFileLogStream(
+    BinaryFileOpenMode, RemoteRotatedFileLogStream[bytes]
+):
+    pass
+
+
+class RemoteRotatedTextFileLogStream(
+    TextFileOpenMode, RemoteRotatedFileLogStream[str]
+):
+    pass

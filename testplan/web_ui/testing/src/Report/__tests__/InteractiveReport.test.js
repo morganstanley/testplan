@@ -78,7 +78,7 @@ const initialReport = () => ({
               name: "setup",
               description: null,
               hash: 12345,
-              definition_name: "setup"
+              definition_name: "setup",
             },
             {
               category: "testcase",
@@ -141,7 +141,7 @@ const initialReport = () => ({
   ],
 });
 
-const renderInteractiveReport = () => {
+const renderInteractiveReport = (firstGet = false) => {
   // Mock the match object that would be passed down from react-router.
   // InteractiveReport uses this object to get the report UID.
   const routerContext = new ReactRouterEnzymeContext();
@@ -154,6 +154,7 @@ const renderInteractiveReport = () => {
       match={mockMatch}
       history={routerContext.props().history}
       poll_intervall="1000000"
+      firstGet={firstGet}
     />, //give time to call getReport as the testcase wants
     {
       ...routerContext.get(),
@@ -172,6 +173,28 @@ describe("InteractiveReport", () => {
     // Resume style injection once test is finished.
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
     moxios.uninstall();
+  });
+
+  it("Handles 'full' parameter for report serialization", (done) => {
+    const interactiveReport = renderInteractiveReport(true);
+    const report = initialReport();
+
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/interactive/report?full=true");
+      expect(request.config.method).toBe("get");
+
+      // Mock response for the full serialization
+      request
+        .respondWith({
+          status: 200,
+          response: report,
+        })
+        .then(() => {
+          expect(interactiveReport).toMatchSnapshot();
+          done();
+        });
+    });
   });
 
   it("Loads report skeleton when mounted", (done) => {
@@ -340,7 +363,7 @@ describe("InteractiveReport", () => {
                                   ],
                                 })
                                 .then(() => {
-                                  expect(InteractiveReport).toMatchSnapshot();
+                                  expect(interactiveReport).toMatchSnapshot();
                                   done();
                                 });
                             });
@@ -712,7 +735,7 @@ describe("InteractiveReport", () => {
     interactiveReport.setState({
       filteredReport: {
         report: report,
-        filter: {text: null}
+        filter: { text: null },
       },
     });
     interactiveReport.update();
@@ -756,7 +779,7 @@ describe("InteractiveReport", () => {
     interactiveReport.setState({
       filteredReport: {
         report: report,
-        filter: {text: "something"}
+        filter: { text: "something" },
       },
     });
     interactiveReport.update();

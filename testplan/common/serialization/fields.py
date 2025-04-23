@@ -214,6 +214,9 @@ class RowComparisonField(fields.Field):
 class SliceComparisonField(fields.Field):
     """Serialization logic for SliceComparison"""
 
+    # TODO: strip actual & expected to save more space, as these value could
+    # TODO: be retrieved from context
+
     def _serialize(self, value, attr, obj, **kwargs):
         def str_or_iterable(val):
             return val if isinstance(val, str) else native_or_pformat_list(val)

@@ -1,0 +1,1 @@
+Fix an issue where PDFs failed to render in certain cases. Fix console output of certain assertion details.

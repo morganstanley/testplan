@@ -1,9 +1,9 @@
 """Conversion utilities."""
 import itertools
-from typing import Union, Tuple, Iterable, Callable, List, Sequence
+from typing import Callable, Iterable, List, Optional, Sequence, Tuple, Union
 
+from .comparison import is_match_res
 from .reporting import Absent
-
 
 RecursiveListTuple = List[Union[Tuple, Tuple["RecursiveListTuple"]]]
 
@@ -77,28 +77,11 @@ def make_iterables(values: Iterable) -> List[Union[List, Tuple]]:
     return iterables
 
 
-def full_status(status: str) -> str:
-    """
-    Human readable status label.
-
-    :param status: status label
-    :return: human-readable status label
-    """
-    if status == "p":
-        return "Passed"
-    elif status == "f":
-        return "Failed"
-    elif status == "i":
-        return "Ignored"
-    return ""
-
-
-def expand_values(
+def expand_match_res(
     rows: List[Tuple],
     level: int = 0,
     ignore_key: bool = False,
     key_path: List = None,
-    match: str = "",
 ):
     """
     Recursively expands and yields all rows of items to display.
@@ -107,7 +90,6 @@ def expand_values(
     :param level: recursive parameter for level of nesting
     :param ignore_key: recursive parameter for ignoring a key
     :param key_path: recursive parameter to build the sequence of keys
-    :param match: recursive parameter for inheriting match result
     :return: rows used in building comparison result table
     """
     if key_path is None:
@@ -120,47 +102,68 @@ def expand_values(
         if key is not Absent:  # `None` or empty string can also be used as key
             key_path.append(key)
 
-        match = row[1] if len(row) == 3 else match
-        val = row[2] if len(row) == 3 else row[1]
+        match = row[1]
+        val = row[2]
 
-        if isinstance(val, tuple):
-            if val[0] == 0:  # value
-                yield (tuple(key_path), level, key, match, (val[1], val[2]))
-            elif val[0] in (1, 2, 3):  # container
-                yield (tuple(key_path), level, key, match, "")
-                yield from expand_values(
-                    val[1],
-                    level=level + 1,
-                    ignore_key=True if val[0] == 1 else False,
-                    key_path=key_path,
-                    match=match,
-                )
-        elif isinstance(val, list):
+        # val should be a tuple
+        if val[0] == 0:  # value
+            yield (tuple(key_path), level, key, match, (val[1], val[2]))
+        elif is_match_res(val[0]):  # ``_rec_compare``d container
             yield (tuple(key_path), level, key, match, "")
-            yield from expand_values(
-                val, level=level, key_path=key_path, match=match
+            yield from expand_match_res(
+                val[1],
+                level=level + 1,
+                ignore_key=True if val[0] == 11 else False,
+                key_path=key_path,
             )
+        elif val[0] in (1, 2):  # ``fmt``ed container
+            yield (tuple(key_path), level, key, match, "")
+            yield from expand_fmt_res(
+                val[1],
+                level=level + 1,
+                ignore_key=True if val[0] == 1 else False,
+                key_path=key_path,
+                match=match,
+            )
+        else:
+            raise ValueError(f"unknown type {val[0]}")
 
         if key is not Absent:
             key_path.pop()
 
 
-# TODO: position parameter is misleading and it allows extracting
-#             the key or match information as value
-#             "left" or "right" choices would be enough for clarity and
-#             would fail earlier upon any change to structure
-def extract_values(comparison: List[Tuple], position: int) -> List:
-    """
-    Extracts one-side of a comparison result based on value position.
+def expand_fmt_res(
+    rows: List[Tuple],
+    level: int,
+    ignore_key: bool,
+    key_path: List[str],
+    match: str,
+):
 
-    :param comparison: list of key, match, and value pair quadruples
-    :param position: index pointing to particular value
-    :return: list of key, match, and value triples
-    """
-    result = []
-    for item in comparison:
-        result.append((item[0], item[1], item[position]))
-    return result
+    for row in rows:
+        key = row[0] if ignore_key is False else Absent
+        if key is not Absent:  # `None` or empty string can also be used as key
+            key_path.append(key)
+
+        val = row if ignore_key else row[1]
+
+        # val should be a tuple
+        if val[0] == 0:  # value
+            yield (tuple(key_path), level, key, match, (val[1], val[2]))
+        elif val[0] in (1, 2):  # container
+            yield (tuple(key_path), level, key, match, "")
+            yield from expand_fmt_res(
+                val[1],
+                level=level + 1,
+                ignore_key=True if val[0] == 1 else False,
+                key_path=key_path,
+                match=match,
+            )
+        else:
+            raise ValueError(f"unknown type {val[0]}")
+
+        if key is not Absent:
+            key_path.pop()
 
 
 def flatten_formatted_object(formatted_obj):
@@ -232,10 +235,14 @@ def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
     :param comparison: list of comparison results
     :return: result table to be used in display
     """
-    result_table = []  # level, key, left, right, result
+    result_table = []  # level, key, result, left, right
 
-    left = list(expand_values(extract_values(comparison, 2)))
-    right = list(expand_values(extract_values(comparison, 3)))
+    left = list(
+        expand_match_res(map(lambda x: (x[0], x[1], x[2]), comparison))
+    )
+    right = list(
+        expand_match_res(map(lambda x: (x[0], x[1], x[3]), comparison))
+    )
 
     while left or right:
         lpart, rpart = None, None
@@ -271,7 +278,7 @@ def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
             level -= 1
             # key = '(group)'
 
-        status = full_status(lpart[3] if lpart else rpart[3])
+        status = lpart[3] if lpart else rpart[3]
         lval = lpart[4] if lpart else None
         rval = rpart[4] if rpart else None
         result_table.append(
@@ -295,3 +302,31 @@ def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
             break
 
     return result_table
+
+
+def delta_encode_level(homo):
+    prev = 0
+    hetero = []
+    for r in homo:
+        level = r[0]
+        res = r[1:]
+        diff = level - prev
+        if diff != 0:
+            hetero.append(diff)
+        prev = level
+        hetero.append(res)
+
+    return hetero
+
+
+def delta_decode_level(hetero):
+    level = 0
+    homo = []
+    for r in hetero:
+        if isinstance(r, int):
+            level += r
+            continue
+        else:
+            homo.append([level, *r])
+
+    return homo

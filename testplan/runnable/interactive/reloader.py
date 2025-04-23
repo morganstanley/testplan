@@ -663,14 +663,7 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
 
             path = self.path
 
-        if sys.version_info < (3, 8):
-            # upstream stops using imp.find_module in py38
-            # imp dropped from stdlib in py312
-            import imp
-
-            return imp.find_module(name, path)
-        else:
-            return _patched_find_module(name, path)
+        return _patched_find_module(name, path)
 
 
 class _ModuleNode:

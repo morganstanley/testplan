@@ -19,7 +19,7 @@ MODEL = TypeVar("MODEL", bound=BaseModel)
 class Configuration(BaseModel):
     """
     This class represent the configuration read from the config file.
-    See attribute details in [Configuration](/configuration)
+    See attribute details in [Configuration](../configuration.md)
     """
 
     config_path: Path
@@ -62,11 +62,13 @@ class Configuration(BaseModel):
         """
         Helper for plugin developers to parse a section of the config with the passed model, and replace the
         dictionary with the model object
+
         Args:
             attribute_name: the attribute holding the plugin config
             sub_config_model: the model describe the sub config
 
-        Returns: an instance of the parsed config
+        Returns:
+            an instance of the parsed config
 
         """
         config = getattr(self, attribute_name, None)
@@ -74,7 +76,7 @@ class Configuration(BaseModel):
         setattr(self, attribute_name, parsed_config)
         return parsed_config
 
-    def resolve_path(self, path: Path):
+    def resolve_path(self, path: Path) -> Path:
         """
         Helper function for plugin developers to resolve relative paths in config that supposed to be relative to this
         config file
@@ -82,7 +84,8 @@ class Configuration(BaseModel):
         Args:
             path: the path to resolve
 
-        Returns: an absolute path
+        Returns:
+            an absolute path
 
         """
         root = _config_root(self.config_path)

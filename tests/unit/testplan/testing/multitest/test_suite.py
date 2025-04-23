@@ -188,7 +188,8 @@ def incorrect_case_signature2():
 def test_testcase_signature():
     pattern = re.compile(
         (
-            r".*Expected arguments for case1 are \['self', 'env', 'result'\], "
+            r".*Expected arguments for case1 are \['self', 'env', 'result'\] "
+            r"or their underscore-prefixed variants, "
             r"not \['self', 'envs', 'result'\].*"
         )
     )
@@ -197,7 +198,8 @@ def test_testcase_signature():
     )
     pattern = re.compile(
         (
-            r".*Expected arguments for case1 are \['self', 'env', 'result'\], "
+            r".*Expected arguments for case1 are \['self', 'env', 'result'\] "
+            r"or their underscore-prefixed variants, "
             r"not \['self', 'env', 'results'\].*"
         )
     )
@@ -209,7 +211,7 @@ def test_testcase_signature():
 def incorrent_skip_if_signature1():
     @suite.testsuite
     class _:
-        @suite.skip_if(lambda _: True)
+        @suite.skip_if(lambda what: True)
         @suite.testcase
         def case1(self, env, result):
             pass
@@ -217,7 +219,8 @@ def incorrent_skip_if_signature1():
 
 def test_skip_if_signature():
     pattern = re.compile(
-        r".*Expected arguments for <lambda> are \['testsuite'\], not \['_'\].*"
+        r".*Expected arguments for <lambda> are \['testsuite'\] or their "
+        r"underscore-prefixed variants, not \['what'\].*"
     )
     try:
         should_raise(

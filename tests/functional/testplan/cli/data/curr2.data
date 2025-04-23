@@ -1,0 +1,845 @@
+{
+  "type": "TestReport",
+  "name": "Dict Assertions Example",
+  "description": null,
+  "definition_name": "Dict Assertions Example",
+  "uid": "",
+  "entries": [
+    {
+      "type": "TestGroupReport",
+      "name": "Dict Assertions Test",
+      "description": null,
+      "definition_name": "Dict Assertions Test",
+      "uid": "",
+      "entries": [
+        {
+          "type": "TestGroupReport",
+          "name": "DictSuite",
+          "description": "`result.dict` namespace can be used for applying advanced\nassertion rules to dictionaries, which can be nested.",
+          "definition_name": "DictSuite",
+          "uid": "",
+          "entries": [
+            {
+              "type": "TestCaseReport",
+              "name": "test_dict_namespace",
+              "description": null,
+              "definition_name": "test_dict_namespace",
+              "uid": "",
+              "entries": [
+                {
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.403672,
+                  "description": "Simple dict match",
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": [
+                    "baz_excluded"
+                  ],
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      "foo",
+                      "p",
+                      [
+                        "int",
+                        1
+                      ],
+                      [
+                        "int",
+                        1
+                      ]
+                    ],
+                    [
+                      "bar",
+                      "f",
+                      [
+                        "int",
+                        2
+                      ],
+                      [
+                        "int",
+                        5
+                      ]
+                    ],
+                    [
+                      "baz_excluded",
+                      "i",
+                      [
+                        "int",
+                        2
+                      ],
+                      [
+                        "int",
+                        5
+                      ]
+                    ],
+                    [
+                      "extra-key",
+                      "f",
+                      [
+                        null,
+                        "ABSENT"
+                      ],
+                      [
+                        "int",
+                        10
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.404407,
+                  "description": "Nested dict match",
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      "foo",
+                      "f",
+                      "",
+                      ""
+                    ],
+                    1,
+                    [
+                      "alpha",
+                      "f",
+                      "",
+                      ""
+                    ],
+                    [
+                      "",
+                      "p",
+                      [
+                        "int",
+                        1
+                      ],
+                      [
+                        "int",
+                        1
+                      ]
+                    ],
+                    [
+                      "",
+                      "p",
+                      [
+                        "int",
+                        2
+                      ],
+                      [
+                        "int",
+                        2
+                      ]
+                    ],
+                    [
+                      "",
+                      "f",
+                      [
+                        "int",
+                        3
+                      ],
+                      [
+                        null,
+                        null
+                      ]
+                    ],
+                    [
+                      "beta",
+                      "f",
+                      "",
+                      ""
+                    ],
+                    1,
+                    [
+                      "color",
+                      "f",
+                      [
+                        "str",
+                        "red"
+                      ],
+                      [
+                        "str",
+                        "blue"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.405666,
+                  "description": "Dict match: Custom comparators",
+                  "passed": true,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      "foo",
+                      "p",
+                      "",
+                      ""
+                    ],
+                    [
+                      "",
+                      "p",
+                      [
+                        "int",
+                        1
+                      ],
+                      [
+                        "int",
+                        1
+                      ]
+                    ],
+                    [
+                      "",
+                      "p",
+                      [
+                        "int",
+                        2
+                      ],
+                      [
+                        "int",
+                        2
+                      ]
+                    ],
+                    [
+                      "",
+                      "p",
+                      [
+                        "int",
+                        3
+                      ],
+                      [
+                        "func",
+                        "<lambda>"
+                      ]
+                    ],
+                    [
+                      "bar",
+                      "p",
+                      "",
+                      ""
+                    ],
+                    1,
+                    [
+                      "color",
+                      "p",
+                      [
+                        "str",
+                        "blue"
+                      ],
+                      [
+                        "func",
+                        "VAL in ['blue', 'red', 'yellow']"
+                      ]
+                    ],
+                    -1,
+                    [
+                      "baz",
+                      "p",
+                      [
+                        "str",
+                        "hello world"
+                      ],
+                      [
+                        "REGEX",
+                        "\\w+ world"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.406276,
+                  "description": "default assertion passes because the values are numerically equal",
+                  "passed": true,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      "foo",
+                      "p",
+                      [
+                        "int",
+                        1
+                      ],
+                      [
+                        "float",
+                        1
+                      ]
+                    ],
+                    [
+                      "bar",
+                      "p",
+                      [
+                        "int",
+                        2
+                      ],
+                      [
+                        "float",
+                        2
+                      ]
+                    ],
+                    [
+                      "baz",
+                      "p",
+                      [
+                        "int",
+                        3
+                      ],
+                      [
+                        "float",
+                        3
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.406727,
+                  "description": "when we check types the assertion will fail",
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      "foo",
+                      "f",
+                      [
+                        "int",
+                        1
+                      ],
+                      [
+                        "float",
+                        1
+                      ]
+                    ],
+                    [
+                      "bar",
+                      "f",
+                      [
+                        "int",
+                        2
+                      ],
+                      [
+                        "float",
+                        2
+                      ]
+                    ],
+                    [
+                      "baz",
+                      "f",
+                      [
+                        "int",
+                        3
+                      ],
+                      [
+                        "float",
+                        3
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.407155,
+                  "description": "use a custom comparison function to check within a tolerance",
+                  "passed": true,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      "foo",
+                      "p",
+                      [
+                        "float",
+                        1.02
+                      ],
+                      [
+                        "float",
+                        0.98
+                      ]
+                    ],
+                    [
+                      "bar",
+                      "p",
+                      [
+                        "float",
+                        2.28
+                      ],
+                      [
+                        "float",
+                        2.33
+                      ]
+                    ],
+                    [
+                      "baz",
+                      "p",
+                      [
+                        "float",
+                        3.5
+                      ],
+                      [
+                        "float",
+                        3.46
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictMatch",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.407574,
+                  "description": "only report the failing comparison",
+                  "passed": false,
+                  "include_keys": null,
+                  "exclude_keys": null,
+                  "actual_description": null,
+                  "expected_description": null,
+                  "comparison": [
+                    [
+                      "bad_key",
+                      "f",
+                      [
+                        "str",
+                        "actual"
+                      ],
+                      [
+                        "str",
+                        "expected"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictCheck",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.407989,
+                  "description": null,
+                  "passed": false,
+                  "has_keys": [
+                    "foo",
+                    "alpha"
+                  ],
+                  "has_keys_diff": [
+                    "alpha"
+                  ],
+                  "absent_keys": [
+                    "bar",
+                    "beta"
+                  ],
+                  "absent_keys_diff": [
+                    "bar"
+                  ]
+                },
+                {
+                  "type": "DictLog",
+                  "meta_type": "entry",
+                  "timestamp": 1742279752.408453,
+                  "description": null,
+                  "flattened_dict": [
+                    [
+                      "foo",
+                      ""
+                    ],
+                    [
+                      "",
+                      [
+                        "int",
+                        1
+                      ]
+                    ],
+                    [
+                      "",
+                      [
+                        "int",
+                        2
+                      ]
+                    ],
+                    [
+                      "",
+                      [
+                        "int",
+                        3
+                      ]
+                    ],
+                    [
+                      "bar",
+                      ""
+                    ],
+                    1,
+                    [
+                      "color",
+                      [
+                        "str",
+                        "blue"
+                      ]
+                    ],
+                    -1,
+                    [
+                      "baz",
+                      [
+                        "str",
+                        "hello world"
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "type": "DictMatchAll",
+                  "meta_type": "assertion",
+                  "timestamp": 1742279752.408649,
+                  "description": null,
+                  "passed": false,
+                  "key_weightings": null,
+                  "matches": [
+                    {
+                      "description": "unordered DictMatchAll 1/1: expected[0] vs values[0]",
+                      "comparison": [
+                        [
+                          "key0",
+                          "p",
+                          [
+                            "int",
+                            0
+                          ],
+                          [
+                            "int",
+                            0
+                          ]
+                        ],
+                        [
+                          "key1",
+                          "p",
+                          [
+                            "int",
+                            1
+                          ],
+                          [
+                            "int",
+                            1
+                          ]
+                        ],
+                        [
+                          "key2",
+                          "p",
+                          [
+                            "int",
+                            2
+                          ],
+                          [
+                            "int",
+                            2
+                          ]
+                        ],
+                        [
+                          "key3",
+                          "p",
+                          [
+                            "int",
+                            3
+                          ],
+                          [
+                            "int",
+                            3
+                          ]
+                        ],
+                        [
+                          "key4",
+                          "p",
+                          [
+                            "int",
+                            4
+                          ],
+                          [
+                            "int",
+                            4
+                          ]
+                        ],
+                        [
+                          "key5",
+                          "p",
+                          [
+                            "int",
+                            5
+                          ],
+                          [
+                            "int",
+                            5
+                          ]
+                        ],
+                        [
+                          "key6",
+                          "p",
+                          [
+                            "int",
+                            6
+                          ],
+                          [
+                            "int",
+                            6
+                          ]
+                        ],
+                        [
+                          "key7",
+                          "p",
+                          [
+                            "int",
+                            7
+                          ],
+                          [
+                            "int",
+                            7
+                          ]
+                        ],
+                        [
+                          "key8",
+                          "p",
+                          [
+                            "int",
+                            8
+                          ],
+                          [
+                            "int",
+                            8
+                          ]
+                        ],
+                        [
+                          "key9",
+                          "p",
+                          [
+                            "int",
+                            9
+                          ],
+                          [
+                            "int",
+                            9
+                          ]
+                        ],
+                        [
+                          "bad_key",
+                          "f",
+                          [
+                            "str",
+                            "expected"
+                          ],
+                          [
+                            "str",
+                            "actual"
+                          ]
+                        ]
+                      ],
+                      "passed": false,
+                      "comparison_index": 0
+                    }
+                  ]
+                }
+              ],
+              "status": "failed",
+              "runtime_status": "finished",
+              "logs": [],
+              "hash": 0,
+              "parent_uids": [
+                "Dict Assertions Example",
+                "Dict Assertions Test",
+                "DictSuite"
+              ],
+              "timer": {
+                "run": [
+                  {
+                    "start": 1742279752.403532,
+                    "end": 1742279752.408835
+                  }
+                ]
+              },
+              "category": "testcase",
+              "counter": {
+                "passed": 0,
+                "failed": 1,
+                "total": 1
+              },
+              "tags": {}
+            }
+          ],
+          "status": "failed",
+          "runtime_status": "finished",
+          "logs": [],
+          "hash": 0,
+          "parent_uids": [
+            "Dict Assertions Example",
+            "Dict Assertions Test"
+          ],
+          "timer": {
+            "run": [
+              {
+                "start": 1742279752.403301,
+                "end": 1742279752.414916
+              }
+            ]
+          },
+          "counter": {
+            "passed": 0,
+            "failed": 1,
+            "total": 1
+          },
+          "children": [],
+          "strict_order": false,
+          "category": "testsuite",
+          "tags": {}
+        }
+      ],
+      "status": "failed",
+      "runtime_status": "finished",
+      "logs": [],
+      "hash": 0,
+      "parent_uids": [
+        "Dict Assertions Example"
+      ],
+      "timer": {
+        "setup": [
+          {
+            "start": 1742279752.347652,
+            "end": 1742279752.397521
+          }
+        ],
+        "run": [
+          {
+            "start": 1742279752.403069,
+            "end": 1742279752.415244
+          }
+        ],
+        "teardown": [
+          {
+            "start": 1742279752.425912,
+            "end": 1742279752.462896
+          }
+        ]
+      },
+      "counter": {
+        "passed": 0,
+        "failed": 1,
+        "total": 1
+      },
+      "children": [],
+      "part": null,
+      "env_status": "STOPPED",
+      "timezone": "Asia/Hong_Kong",
+      "host": null,
+      "category": "multitest",
+      "tags": {}
+    }
+  ],
+  "status": "failed",
+  "runtime_status": "finished",
+  "logs": [],
+  "hash": 0,
+  "parent_uids": [],
+  "timer": {
+    "run": [
+      {
+        "start": 1742279751.978102,
+        "end": 1742279752.827802
+      }
+    ]
+  },
+  "counter": {
+    "passed": 0,
+    "failed": 1,
+    "total": 1
+  },
+  "children": [
+    {
+      "name": "LocalRunner[local_runner]",
+      "timer": {
+        "lifespan": [
+          {
+            "start": 1742279752.322121,
+            "end": 1742279752.675158
+          }
+        ],
+        "setup": [
+          {
+            "start": 1742279752.322386,
+            "end": 1742279752.323062
+          }
+        ],
+        "teardown": [
+          {
+            "start": 1742279752.574896,
+            "end": null
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "name": "Environments[environments]",
+      "timer": {
+        "lifespan": [
+          {
+            "start": 1742279752.322838,
+            "end": 1742279752.574817
+          }
+        ],
+        "setup": [
+          {
+            "start": 1742279752.323025,
+            "end": 1742279752.323136
+          }
+        ],
+        "teardown": [
+          {
+            "start": 1742279752.574768,
+            "end": 1742279752.675261
+          }
+        ]
+      },
+      "children": []
+    }
+  ],
+  "category": "testplan",
+  "meta": {},
+  "label": null,
+  "tags_index": {},
+  "information": [
+    [
+      "testplan_version",
+      "25.1.0"
+    ],
+    [
+      "user",
+      "unknown"
+    ],
+    [
+      "command_line_string",
+      "./test_plan_dict.py --json examples_assertion_dict.json"
+    ],
+    [
+      "python_version",
+      "3.12.3"
+    ]
+  ],
+  "resource_meta_path": null,
+  "timezone": "Asia/Hong_Kong",
+  "attachments": {},
+  "timeout": 14400,
+  "version": 1
+}
