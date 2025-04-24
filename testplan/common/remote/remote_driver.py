@@ -32,12 +32,6 @@ class RemoteDriver:
         )
         self.__dict__["_handle"] = rmt_driver_cls(**self._options)
 
-    def uid(self) -> str:
-        # driver uid needed in env constructing check
-        # whether remote or local, uid should be the same since it's cfg based
-        # XXX: would it be a bad idea to have it inited locally?
-        return self._driver_cls(**self._options).uid()
-
     def __getattr__(self, name):
         if self._handle is None:
             self._init_handle()
