@@ -35,7 +35,7 @@
         "tzlocal",
         "lxml",
         "reportlab",
-        "marshmallow",
+        "marshmallow<4.0.0",
         "termcolor",
         "colorama",
         "pyzmq",
