@@ -13,6 +13,7 @@ from collections import OrderedDict
 from copy import copy
 from dataclasses import dataclass
 from itertools import zip_longest
+from traceback import format_stack
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -74,6 +75,7 @@ from testplan.runners.pools.tasks.base import (
     is_task_target,
 )
 from testplan.testing import common, filtering, listing, ordering, tagging
+from testplan.testing.result import Result
 from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
@@ -1190,6 +1192,24 @@ class TestRunner(Runnable):
         super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._stop_resource_monitor)
 
+    def _collect_timeout_info(self):
+        threads, processes = self._get_process_info(recursive=True)
+        self._timeout_info = {"threads": [], "processes": []}
+        for thread in threads:
+            self._timeout_info["threads"].append(
+                os.linesep.join(
+                    [thread.name]
+                    + format_stack(sys._current_frames()[thread.ident])
+                )
+            )
+
+        for process in processes:
+            command = " ".join(process.cmdline()) or process
+            parent_pid = getattr(process, "ppid", lambda: None)()
+            self._timeout_info["processes"].append(
+                f"Pid: {process.pid}, Parent pid: {parent_pid}, {command}"
+            )
+
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
         if self.resources.start_exceptions:
@@ -1203,16 +1223,14 @@ class TestRunner(Runnable):
 
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
-                msg = (
-                    f"Timeout: Aborting execution after {self.cfg.timeout} seconds",
-                )
+                msg = f"Timeout: Aborting execution after {self.cfg.timeout} seconds"
                 self.result.report.logger.error(msg)
                 self.logger.error(msg)
+                self._collect_timeout_info()
 
                 # Abort resources e.g pools
                 for dep in self.abort_dependencies():
                     self._abort_entity(dep)
-
                 break
 
             pending_work = False
@@ -1299,6 +1317,43 @@ class TestRunner(Runnable):
             step_result = step_result and run is True  # boolean or exception
 
         step_result = self._merge_reports(test_rep_lookup) and step_result
+
+        if hasattr(self, "_timeout_info"):
+            msg = f"Testplan timed out after {self.cfg.timeout} seconds"
+            timeout_entry = TestGroupReport(
+                name="Testplan timeout",
+                description=msg,
+                category=ReportCategories.SYNTHESIZED,
+                # status_override=Status.ERROR,
+            )
+            timeout_case = TestCaseReport(
+                name="Testplan timeout",
+                description=msg,
+                status_override=Status.ERROR,
+            )
+
+            log_result = Result()
+            log_result.log(
+                message=f"".join(
+                    f"{log['created'].strftime('%Y-%m-%d %H:%M:%S')} {log['levelname']} {log['message']}\n"
+                    for log in self.report.flattened_logs
+                ),
+                description="Logs from testplan",
+            )
+            log_result.log(
+                message=os.linesep.join(self._timeout_info["threads"]),
+                description="Stack trace from threads",
+            )
+            log_result.log(
+                message=os.linesep.join(self._timeout_info["processes"])
+                if len(self._timeout_info["processes"])
+                else "No child processes",
+                description="Running child processes",
+            )
+
+            timeout_case.extend(log_result.serialized_entries)
+            timeout_entry.append(timeout_case)
+            plan_report.append(timeout_entry)
 
         # Reset UIDs of the test report and all of its children in UUID4 format
         if self._reset_report_uid:
@@ -1490,7 +1545,7 @@ class TestRunner(Runnable):
     def discard_pending_tasks(
         self,
         exec_selector: SExpr,
-        report_status: Status = Status.NONE,
+        report_status: Status = Status.INCOMPLETE,
         report_reason: str = "",
     ):
         for k, v in self.resources.items():

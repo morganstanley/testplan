@@ -1,0 +1,1 @@
+Added a timeout entry to the report to make testplan-level timeout events more visible to users. Fixed an issue where multitests incorrectly appeared as passed in stdout upon timeout. Updated the status of unfinished test suites and multitests to "incomplete".
