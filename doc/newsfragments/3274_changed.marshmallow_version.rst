@@ -1,0 +1,1 @@
+Temporarily restrict package dependency ``marshmallow`` to versions ``<4``.

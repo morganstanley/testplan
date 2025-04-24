@@ -105,9 +105,9 @@ class TestFastDrivers:
             env.add(d_)
         env.set_dependency(parse_dependency({a: c, c: b}))
         env.start()
-        assert env._rt_dependency.processed == ["a", "c", "b"]
+        assert env._rt_dependency.processed == [id(a), id(c), id(b)]
         env.stop()
-        assert env._rt_dependency.processed == ["b", "c", "a"]
+        assert env._rt_dependency.processed == [id(b), id(c), id(a)]
 
     def test_empty_dependency(self, mocker):
         m = mocker.Mock()
