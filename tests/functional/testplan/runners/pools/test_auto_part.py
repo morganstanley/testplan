@@ -21,6 +21,7 @@ def test_auto_parts_discover():
                 "Proj1-suite": {
                     "execution_time": 199.99,
                     "setup_time": 5,
+                    "teardown_time": 0,
                 }
             },
         )
@@ -51,6 +52,7 @@ def test_auto_parts_discover_interactive(runpath):
             "Proj1-suite": {
                 "execution_time": 199.99,
                 "setup_time": 5,
+                "teardown_time": 0,
             }
         },
     )
@@ -81,6 +83,7 @@ def test_auto_weight_discover():
                 "Proj1-suite": {
                     "execution_time": 199.99,
                     "setup_time": 39.99,
+                    "teardown_time": 0,
                 }
             },
         )
@@ -111,6 +114,7 @@ def test_auto_parts_zero_neg_parts():
                 "Proj1-suite": {
                     "execution_time": 50,
                     "setup_time": 50,  # setup_time > runtime_limit -> negtive num_of_parts
+                    "teardown_time": 0,
                 }
             },
         )
@@ -141,6 +145,7 @@ def test_auto_parts_cap_parts():
                 "Proj1-suite": {
                     "execution_time": 60,
                     "setup_time": 44,
+                    "teardown_time": 0,
                 }
             },
         )
@@ -312,3 +317,65 @@ def test_auto_parts_cap_parts_with_teardown_time():
             assert task.weight == 64
         mockplan.run()
         assert pool.size == 1
+
+
+def test_auto_part_runtime_limit():
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit="auto",
+            plan_runtime_target=2400,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 3600,
+                    "setup_time": 300,
+                    "teardown_time": 0,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        mockplan.schedule_all(
+            path=f"{current_folder}/discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+        assert len(pool.added_items) == 6
+        for task in pool.added_items.values():
+            assert task.weight == 900
+        mockplan.run()
+        assert pool.size == 3
+
+
+def test_auto_plan_runtime_target():
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit="auto",
+            plan_runtime_target="auto",
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 3600,
+                    "setup_time": 300,
+                    "teardown_time": 0,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        mockplan.schedule_all(
+            path=f"{current_folder}/discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+        assert len(pool.added_items) == 6
+        for task in pool.added_items.values():
+            assert task.weight == 900
+        mockplan.run()
+        assert pool.size == 6

@@ -8,7 +8,15 @@ import tempfile
 import traceback
 import threading
 
-from typing import Optional, Union, Type, List, Callable, TYPE_CHECKING
+from typing import (
+    Optional,
+    Union,
+    Type,
+    List,
+    Callable,
+    TYPE_CHECKING,
+    Literal,
+)
 from types import ModuleType
 from schema import And
 
@@ -200,8 +208,12 @@ class Testplan(entity.RunnableManager):
         label: Optional[str] = None,
         driver_info: bool = False,
         collect_code_context: bool = False,
-        auto_part_runtime_limit: int = defaults.AUTO_PART_RUNTIME_LIMIT,
-        plan_runtime_target: int = defaults.PLAN_RUNTIME_TARGET,
+        auto_part_runtime_limit: Union[
+            int, Literal["auto"]
+        ] = defaults.AUTO_PART_RUNTIME_MAX,
+        plan_runtime_target: Union[
+            int, Literal["auto"]
+        ] = defaults.PLAN_RUNTIME_TARGET,
         **options,
     ):
 
@@ -409,7 +421,7 @@ class Testplan(entity.RunnableManager):
         label=None,
         driver_info=False,
         collect_code_context=False,
-        auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_LIMIT,
+        auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_MAX,
         plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         **options,
     ):

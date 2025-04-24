@@ -36,8 +36,12 @@ INTERACTIVE_POOL_SIZE = 4
 # too long, or the UI will not be pleasant when they end up with long names
 MAX_TEST_NAME_LENGTH = 255
 
-# Default to using 30min for auto-parts task.
-AUTO_PART_RUNTIME_LIMIT = 1800  # 30min
+# Default to using 30 min for auto-parts task.
+AUTO_PART_RUNTIME_MAX = 30 * 60
+# Each part shall be at least 8 min
+AUTO_PART_RUNTIME_MIN = 8 * 60
+# Expect to finish within 3 times of the longest start+stop time
+START_STOP_FACTOR = 3
 
 # Default to using 30min for calculating pool size
 PLAN_RUNTIME_TARGET = 1800  # 30 min

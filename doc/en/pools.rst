@@ -390,6 +390,7 @@ enabled by providing runtime data like following via ``--runtime-data`` command 
         "<Multitest>": {
             "execution_time": 199.99,
             "setup_time": 39.99,
+            "teardown_time": 0
         },
         ......
     }
@@ -434,5 +435,8 @@ of pool size so that all tests finishes within ``plan_runtime_target`` - default
 
 To tune the smart scheduling behavior, override ``auto_part_runtime_limit`` and ``plan_runtime_target`` default
 in ``@test_plan`` decorator.
+
+``auto_part_runtime_limit`` and ``plan_runtime_target`` can also take "auto" as input, then it will try to derive a
+reasonable limit and finish testplan execution asap.
 
 For a complete and downloadable example, see :ref:`here <example_auto_part>`.
