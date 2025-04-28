@@ -10,7 +10,7 @@ import traceback
 import uuid
 import webbrowser
 from collections import OrderedDict
-from copy import copy
+from copy import copy, deepcopy
 from dataclasses import dataclass
 from itertools import zip_longest
 from traceback import format_stack
@@ -71,7 +71,6 @@ from testplan.runners.pools.base import Pool
 from testplan.runners.pools.tasks import Task, TaskResult
 from testplan.runners.pools.tasks.base import (
     TaskTargetInformation,
-    get_task_target_information,
     is_task_target,
 )
 from testplan.testing import common, filtering, listing, ordering, tagging
@@ -91,6 +90,8 @@ class TaskInformation:
     target: TestTask
     materialized_test: Test
     uid: str
+    task_arguments: dict
+    num_of_parts: int
 
 
 def get_exporters(values):
@@ -269,11 +270,11 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("runtime_data", default={}): Or(dict, None),
             ConfigOption(
                 "auto_part_runtime_limit",
-                default=defaults.AUTO_PART_RUNTIME_LIMIT,
-            ): Or(int, float),
+                default=defaults.AUTO_PART_RUNTIME_MAX,
+            ): Or(int, float, lambda s: s == "auto"),
             ConfigOption(
                 "plan_runtime_target", default=defaults.PLAN_RUNTIME_TARGET
-            ): Or(int, float),
+            ): Or(int, float, lambda s: s == "auto"),
             ConfigOption(
                 "skip_strategy", default=common.SkipStrategy.noop()
             ): Use(common.SkipStrategy.from_option_or_none),
@@ -315,10 +316,22 @@ class TestRunnerResult(RunnableResult):
 CACHED_TASK_INFO_ATTRIBUTE = "_cached_task_info"
 
 
-def _cache_task_info(task_info: TaskInformation):
+def _attach_task_info(task_info: TaskInformation) -> Task:
+    """
+    Attach task information (TaskInformation) to the task object
+    """
     task = task_info.target
     setattr(task, CACHED_TASK_INFO_ATTRIBUTE, task_info)
     return task
+
+
+def _detach_task_info(task: Task) -> Optional[TaskInformation]:
+    """
+    Detach task information (TaskInformation) from the task object
+    """
+    task_info = getattr(task, CACHED_TASK_INFO_ATTRIBUTE)
+    delattr(task, CACHED_TASK_INFO_ATTRIBUTE)
+    return task_info
 
 
 class TestRunner(Runnable):
@@ -407,9 +420,9 @@ class TestRunner(Runnable):
         Multitest auto-part and weight-based Task smart-scheduling
     :type runtime_data: ``dict``
     :param auto_part_runtime_limit: The runtime limitation for auto-part task
-    :type auto_part_runtime_limit: ``int`` or ``float``
+    :type auto_part_runtime_limit: ``int`` or ``float`` or literal "auto"
     :param plan_runtime_target: The testplan total runtime limitation for smart schedule
-    :type plan_runtime_target: ``int`` or ``float``
+    :type plan_runtime_target: ``int`` or ``float`` or literal "auto"
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -420,6 +433,8 @@ class TestRunner(Runnable):
     RESULT = TestRunnerResult
 
     def __init__(self, **options):
+
+        # TODO: check options sanity?
         super(TestRunner, self).__init__(**options)
         # uid to resource, in definition order
         self._test_metadata = []
@@ -637,11 +652,12 @@ class TestRunner(Runnable):
                 )
             return es[0]
 
-    def _clone_task_for_part(self, task_info, _task_arguments, part):
-        _task_arguments["part"] = part
+    def _clone_task_for_part(self, task_info, part_tuple):
+        task_arguments = task_info.task_arguments
+        task_arguments["part"] = part_tuple
         self.logger.debug(
             "Task re-created with arguments: %s",
-            _task_arguments,
+            task_arguments,
         )
 
         # unfortunately it is not easy to clone a Multitest with some parameters changed
@@ -649,126 +665,22 @@ class TestRunner(Runnable):
         # so it could not be recreated from its configuration as then more than one
         # Multitest would own the same drivers. So here we recreating it from the task
 
-        target = Task(**_task_arguments)
-        new_task = self._collect_task_info(target)
-        return new_task
+        target = Task(**task_arguments)
+        new_task_info = self._assemble_task_info(target)
+        return new_task_info
 
-    def _get_tasks(
-        self, _task_arguments, num_of_parts, runtime_data
-    ) -> List[TaskInformation]:
+    def _create_task_n_info(
+        self, task_arguments, num_of_parts=None
+    ) -> TaskInformation:
         self.logger.debug(
             "Task created with arguments: %s",
-            _task_arguments,
+            task_arguments,
         )
-        task = Task(**_task_arguments)
-        task_info = self._collect_task_info(task)
-
-        uid = task_info.uid
-
-        tasks: List[TaskInformation] = []
-        time_info = runtime_data.get(uid, None)
-        if time_info and "teardown_time" not in time_info:
-            time_info["teardown_time"] = 0
-        if num_of_parts:
-
-            if not isinstance(task_info.materialized_test, MultiTest):
-                raise TypeError(
-                    "multitest_parts specified in @task_target,"
-                    " but the Runnable is not a MultiTest"
-                )
-
-            if num_of_parts == "auto":
-                if not time_info:
-                    self.logger.warning(
-                        "%s parts is auto but cannot find it in runtime-data",
-                        uid,
-                    )
-                    num_of_parts = 1
-                else:
-                    # the setup time shall take no more than 50% of runtime
-                    cap = math.ceil(
-                        time_info["execution_time"]
-                        / self.cfg.auto_part_runtime_limit
-                        * 2
-                    )
-                    formula = f"""
-    num_of_parts = math.ceil(
-        time_info["execution_time"] {time_info["execution_time"]}
-        / (
-            self.cfg.auto_part_runtime_limit {self.cfg.auto_part_runtime_limit}
-            - time_info["setup_time"] {time_info["setup_time"]}
-            - time_info["teardown_time"] {time_info["teardown_time"]}
+        task = Task(**task_arguments)
+        task_info = self._assemble_task_info(
+            task, task_arguments, num_of_parts
         )
-    )
-"""
-                    try:
-                        num_of_parts = math.ceil(
-                            time_info["execution_time"]
-                            / (
-                                self.cfg.auto_part_runtime_limit
-                                - time_info["setup_time"]
-                                - time_info["teardown_time"]
-                            )
-                        )
-                    except ZeroDivisionError:
-                        self.logger.error(
-                            f"ZeroDivisionError occurred when calculating num_of_parts for {uid}, set to 1. {formula}"
-                        )
-                        num_of_parts = 1
-
-                    if num_of_parts < 1:
-                        self.logger.error(
-                            f"Calculated num_of_parts for {uid} is {num_of_parts}, set to 1. {formula}"
-                        )
-                        num_of_parts = 1
-
-                    if num_of_parts > cap:
-                        self.logger.error(
-                            f"Calculated num_of_parts for {uid} is {num_of_parts} > cap {cap}, set to {cap}. {formula}"
-                        )
-                        num_of_parts = cap
-            if "weight" not in _task_arguments:
-                _task_arguments["weight"] = (
-                    math.ceil(
-                        (time_info["execution_time"] / num_of_parts)
-                        + time_info["setup_time"]
-                        + time_info["teardown_time"]
-                    )
-                    if time_info
-                    else self.cfg.auto_part_runtime_limit
-                )
-            self.logger.user_info(
-                "%s: parts=%d, weight=%d",
-                uid,
-                num_of_parts,
-                _task_arguments["weight"],
-            )
-            if num_of_parts == 1:
-                task_info.target.weight = _task_arguments["weight"]
-                tasks.append(task_info)
-            else:
-                for i in range(num_of_parts):
-
-                    part = (i, num_of_parts)
-                    new_task = self._clone_task_for_part(
-                        task_info, _task_arguments, part
-                    )
-
-                    tasks.append(new_task)
-
-        else:
-            if time_info and not task.weight:
-                task_info.target.weight = math.ceil(
-                    time_info["execution_time"]
-                    + time_info["setup_time"]
-                    + time_info["teardown_time"]
-                )
-                self.logger.user_info(
-                    "%s: weight=%d", uid, task_info.target.weight
-                )
-            tasks.append(task_info)
-
-        return tasks
+        return task_info
 
     def discover(
         self,
@@ -791,9 +703,7 @@ class TestRunner(Runnable):
             path,
         )
         regex = re.compile(name_pattern)
-        tasks: List[TaskInformation] = []
-
-        runtime_data: dict = self.cfg.runtime_data or {}
+        discovered: List[TaskInformation] = []
 
         for root, dirs, files in os.walk(path or "."):
             for filename in files:
@@ -813,22 +723,19 @@ class TestRunner(Runnable):
                             "Discovered task target %s::%s", filepath, attr
                         )
 
-                        task_target_info = get_task_target_information(target)
+                        target_info: TaskTargetInformation = (
+                            target.__task_target_info__
+                        )  # what user specifies in @task_target
+
                         task_arguments = dict(
                             target=attr,
                             module=module,
                             path=root,
-                            **task_target_info.task_kwargs,
+                            **target_info.task_kwargs,
                         )
 
-                        multitest_parts = (
-                            None
-                            if self._is_interactive_run()
-                            else task_target_info.multitest_parts
-                        )
-
-                        if task_target_info.target_params:
-                            for param in task_target_info.target_params:
+                        if target_info.target_params:
+                            for param in target_info.target_params:
                                 if isinstance(param, dict):
                                     task_arguments["args"] = None
                                     task_arguments["kwargs"] = param
@@ -841,24 +748,20 @@ class TestRunner(Runnable):
                                         " contain dict/tuple/list, but"
                                         f" received: {param}"
                                     )
-                                task_arguments["part"] = None
-                                tasks.extend(
-                                    self._get_tasks(
-                                        task_arguments,
-                                        multitest_parts,
-                                        runtime_data,
+                                discovered.append(
+                                    self._create_task_n_info(
+                                        deepcopy(task_arguments),
+                                        target_info.multitest_parts,
                                     )
                                 )
                         else:
-                            tasks.extend(
-                                self._get_tasks(
-                                    task_arguments,
-                                    multitest_parts,
-                                    runtime_data,
+                            discovered.append(
+                                self._create_task_n_info(
+                                    task_arguments, target_info.multitest_parts
                                 )
                             )
 
-        return [_cache_task_info(task_info) for task_info in tasks]
+        return [_attach_task_info(task_info) for task_info in discovered]
 
     def calculate_pool_size(self) -> None:
         """
@@ -882,9 +785,16 @@ class TestRunner(Runnable):
         """
         if len(tasks) == 0:
             return 1
-        plan_runtime_target = self.cfg.plan_runtime_target
+
         _tasks = sorted(tasks, key=lambda task: task.weight, reverse=True)
-        if _tasks[0].weight > plan_runtime_target:
+        plan_runtime_target = self.cfg.plan_runtime_target
+
+        if plan_runtime_target == "auto":
+            self.logger.warning(
+                "Update plan_runtime_target to %d", _tasks[0].weight
+            )
+            plan_runtime_target = _tasks[0].weight
+        elif _tasks[0].weight > plan_runtime_target:
             for task in _tasks:
                 if task.weight > plan_runtime_target:
                     self.logger.warning(
@@ -894,7 +804,7 @@ class TestRunner(Runnable):
                         self.cfg.plan_runtime_target,
                     )
             self.logger.warning(
-                "Update plan_runtime_weight to %d", _tasks[0].weight
+                "Update plan_runtime_target to %d", _tasks[0].weight
             )
             plan_runtime_target = _tasks[0].weight
 
@@ -958,9 +868,222 @@ class TestRunner(Runnable):
         """
 
         tasks = self.discover(path=path, name_pattern=name_pattern)
-
+        tasks = self.auto_part(tasks)
         for task in tasks:
             self.add(task, resource=resource)
+
+    def auto_part(self, tasks: List[Task]) -> List[Task]:
+        """
+        Automatically partitions tasks into smaller parts based on runtime limits.
+        This method takes a list of tasks and partitions them into smaller tasks
+        if their runtime exceeds the configured `auto_part_runtime_limit`. The
+        partitioning is determined by analyzing runtime data and calculating
+        appropriate parts and weights for each task.
+
+        If the `auto_part_runtime_limit` is set to "auto", the method derives the
+        runtime limit based on historical runtime data or defaults to a predefined
+        maximum value if no runtime data is available.
+
+        :param tasks: List of tasks to be partitioned.
+        :type tasks: List[Task]
+        :return: List of partitioned tasks.
+        :rtype: List[Task]
+        """
+        partitioned: List[TaskInformation] = []
+
+        if self._is_interactive_run():
+            self.logger.debug("Auto part is not supported in interactive mode")
+            return tasks
+
+        discovered: List[TaskInformation] = [
+            _detach_task_info(task) for task in tasks
+        ]
+        auto_part_runtime_limit = self._calculate_part_runtime(discovered)
+
+        for task_info in discovered:
+            partitioned.extend(
+                self._calculate_parts_and_weights(
+                    task_info, auto_part_runtime_limit
+                )
+            )
+
+        return [_attach_task_info(task_info) for task_info in partitioned]
+
+    def _calculate_part_runtime(self, discovered: List[TaskInformation]):
+
+        if self.cfg.auto_part_runtime_limit != "auto":
+            return self.cfg.auto_part_runtime_limit
+
+        runtime_data = self.cfg.runtime_data or {}
+        if not runtime_data:
+            self.logger.warning(
+                "Cannot derive auto_part_runtime_limit without runtime data, "
+                "set to default %s",
+                defaults.AUTO_PART_RUNTIME_MAX,
+            )
+            return defaults.AUTO_PART_RUNTIME_MAX
+
+        max_mt_start_stop = 0  # multitest
+        max_ut_runtime = 0  # unit test
+
+        for task_info in discovered:
+
+            uid = task_info.uid
+            time_info = runtime_data.get(uid, None)
+
+            if time_info:
+                if isinstance(task_info.materialized_test, MultiTest):
+                    max_mt_start_stop = max(
+                        max_mt_start_stop,
+                        time_info["setup_time"] + time_info["teardown_time"],
+                    )
+                else:
+                    max_ut_runtime = (
+                        time_info["setup_time"]
+                        + time_info["execution_time"]
+                        + time_info["teardown_time"]
+                    )
+
+            else:
+                self.logger.warning(
+                    "Cannot find runtime data for %s, "
+                    "set auto_part_runtime_limit to default %d",
+                    uid,
+                    defaults.AUTO_PART_RUNTIME_MAX,
+                )
+                return defaults.AUTO_PART_RUNTIME_MAX
+
+        # by now we get all tasks setup/teardown time
+        auto_part_runtime_limit = (
+            max_mt_start_stop * defaults.START_STOP_FACTOR
+        )
+        auto_part_runtime_limit = min(
+            max(auto_part_runtime_limit, defaults.AUTO_PART_RUNTIME_MIN),
+            defaults.AUTO_PART_RUNTIME_MAX,
+        )
+        auto_part_runtime_limit = math.ceil(
+            max(auto_part_runtime_limit, max_ut_runtime)
+        )
+
+        self.logger.user_info(
+            "Set auto_part_runtime_limit to %s", auto_part_runtime_limit
+        )
+        return auto_part_runtime_limit
+
+    def _calculate_parts_and_weights(
+        self, task_info: TaskInformation, auto_part_runtime_limit: float
+    ):
+
+        num_of_parts = (
+            task_info.num_of_parts
+        )  # @task_target(multitest_parts=...)
+        uid = task_info.uid
+        runtime_data: dict = self.cfg.runtime_data or {}
+        time_info = runtime_data.get(uid, None)
+
+        partitioned: List[TaskInformation] = []
+
+        if num_of_parts:
+            if not isinstance(task_info.materialized_test, MultiTest):
+                raise TypeError(
+                    "multitest_parts specified in @task_target,"
+                    " but the Runnable is not a MultiTest"
+                )
+
+            if num_of_parts == "auto":
+                if not time_info:
+                    self.logger.warning(
+                        "%s parts is auto but cannot find it in runtime-data",
+                        uid,
+                    )
+                    num_of_parts = 1
+                else:
+                    # the setup time shall take no more than 50% of runtime
+                    cap = math.ceil(
+                        time_info["execution_time"]
+                        / auto_part_runtime_limit
+                        * 2
+                    )
+                    formula = f"""
+            num_of_parts = math.ceil(
+                time_info["execution_time"] {time_info["execution_time"]}
+                / (
+                    self.cfg.auto_part_runtime_limit {auto_part_runtime_limit}
+                    - time_info["setup_time"] {time_info["setup_time"]}
+                    - time_info["teardown_time"] {time_info["teardown_time"]}
+                )
+            )
+        """
+                    try:
+                        num_of_parts = math.ceil(
+                            time_info["execution_time"]
+                            / (
+                                auto_part_runtime_limit
+                                - time_info["setup_time"]
+                                - time_info["teardown_time"]
+                            )
+                        )
+                    except ZeroDivisionError:
+                        self.logger.error(
+                            f"ZeroDivisionError occurred when calculating num_of_parts for {uid}, set to 1. {formula}"
+                        )
+                        num_of_parts = 1
+
+                    if num_of_parts < 1:
+                        self.logger.error(
+                            f"Calculated num_of_parts for {uid} is {num_of_parts}, set to 1. {formula}"
+                        )
+                        num_of_parts = 1
+
+                    if num_of_parts > cap:
+                        self.logger.error(
+                            f"Calculated num_of_parts for {uid} is {num_of_parts} > cap {cap}, set to {cap}. {formula}"
+                        )
+                        num_of_parts = cap
+
+            # by now we shall have a valid num_of_part, user specified or auto derived
+            task_arguments = task_info.task_arguments
+            if "weight" not in task_arguments:
+                task_arguments["weight"] = (
+                    math.ceil(
+                        (time_info["execution_time"] / num_of_parts)
+                        + time_info["setup_time"]
+                        + time_info["teardown_time"]
+                    )
+                    if time_info
+                    else auto_part_runtime_limit
+                )
+            self.logger.user_info(
+                "%s: parts=%d, weight=%d",
+                uid,
+                num_of_parts,
+                task_arguments["weight"],
+            )
+            if num_of_parts == 1:
+                task_info.target.weight = task_arguments["weight"]
+                partitioned.append(task_info)
+            else:
+                for i in range(num_of_parts):
+                    part_tuple = (i, num_of_parts)
+                    new_task_info = self._clone_task_for_part(
+                        task_info, part_tuple
+                    )
+                    partitioned.append(new_task_info)
+
+        else:
+            if time_info and not task_info.target.weight:
+                task_info.target.weight = math.ceil(
+                    time_info["execution_time"]
+                    + time_info["setup_time"]
+                    + time_info["teardown_time"]
+                )
+            if task_info.target.weight:
+                self.logger.user_info(
+                    "%s: weight=%d", uid, task_info.target.weight
+                )
+            partitioned.append(task_info)
+
+        return partitioned
 
     def add(
         self,
@@ -984,7 +1107,7 @@ class TestRunner(Runnable):
         """
 
         # Get the real test entity and verify if it should be added
-        task_info = self._collect_task_info(target)
+        task_info = self._assemble_task_info(target)
         self._verify_task_info(task_info)
         uid = task_info.uid
 
@@ -1022,34 +1145,34 @@ class TestRunner(Runnable):
         self._test_metadata.append(metadata)
         self.resources[resource].add(target, uid)
 
-    def _collect_task_info(self, target: TestTask) -> TaskInformation:
-        if isinstance(target, Test):
-            target_test = target
-        elif isinstance(target, Task):
-            # First check if there is a cached task info
-            # that is an optimization flow where task info
-            # need to be created at discover, but the already defined api
-            # need to pass Task, so we attach task_info to the task itself
-            # and here we remove it
+    def _assemble_task_info(
+        self,
+        target: TestTask,
+        task_arguments: Optional[dict] = None,
+        num_of_parts: Optional[int] = None,
+    ) -> TaskInformation:
+
+        if isinstance(target, Task):
             if hasattr(target, CACHED_TASK_INFO_ATTRIBUTE):
-                task_info = getattr(target, CACHED_TASK_INFO_ATTRIBUTE)
-                setattr(target, CACHED_TASK_INFO_ATTRIBUTE, None)
+                task_info = _detach_task_info(target)
                 return task_info
             else:
-                target_test = target.materialize()
+                materialized_test = target.materialize()
+        elif isinstance(target, Test):
+            materialized_test = target
         elif callable(target):
-            target_test = target()
+            materialized_test = target()
         else:
             raise TypeError(
                 "Unrecognized test target of type {}".format(type(target))
             )
 
         # TODO: include executor in ancestor chain?
-        if isinstance(target_test, Runnable):
-            target_test.parent = self
-            target_test.cfg.parent = self.cfg
+        if isinstance(materialized_test, Runnable):
+            materialized_test.parent = self
+            materialized_test.cfg.parent = self.cfg
 
-        uid = target_test.uid()
+        uid = materialized_test.uid()
 
         # Reset the task uid which will be used for test result transport in
         # a pool executor, it makes logging or debugging easier.
@@ -1058,7 +1181,9 @@ class TestRunner(Runnable):
         if isinstance(target, Task):
             target._uid = uid
 
-        return TaskInformation(target, target_test, uid)
+        return TaskInformation(
+            target, materialized_test, uid, task_arguments, num_of_parts
+        )
 
     def _register_task_for_interactive(self, task_info: TaskInformation):
         target = task_info.target

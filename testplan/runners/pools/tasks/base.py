@@ -338,8 +338,8 @@ class TaskResult(SelectiveSerializable):
 @dataclass
 class TaskTargetInformation:
     target_params: Sequence[Union[Sequence, dict]]
-    task_kwargs: Dict[str, Any]
     multitest_parts: Union[int, str, None]
+    task_kwargs: Dict[str, Any]
 
 
 def task_target(
@@ -367,12 +367,24 @@ def task_target(
     #  real callable object (task target) to be decorated.
     if callable(parameters) and len(kwargs) == 0:
         func = parameters
-        set_task_target(func, TaskTargetInformation(None, {}, None))
+        set_task_target(
+            func,
+            TaskTargetInformation(
+                target_params=None,
+                multitest_parts=None,
+                task_kwargs={},
+            ),
+        )
         return func
 
     def inner(func):
         set_task_target(
-            func, TaskTargetInformation(parameters, kwargs, multitest_parts)
+            func,
+            TaskTargetInformation(
+                target_params=parameters,
+                multitest_parts=multitest_parts,
+                task_kwargs=kwargs,
+            ),
         )
 
         return func
@@ -391,7 +403,3 @@ def set_task_target(func: Callable, info: TaskTargetInformation):
 def is_task_target(func):
     """Check if a callable object is a task target."""
     return getattr(func, "__task_target_info__", False)
-
-
-def get_task_target_information(func) -> TaskTargetInformation:
-    return getattr(func, "__task_target_info__")

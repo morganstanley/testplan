@@ -200,7 +200,7 @@ A typical input JSON looks like below:
     "<Multitest>": {
         "execution_time": 199.99,
         "setup_time": 39.99,
-        "teardown_time": 39.99, // optional
+        "teardown_time": 39.99,
     },
     ......
 }""",
