@@ -32,6 +32,7 @@ function AssertionHeader({
   uid,
   toggleExpand,
   showStatusIcons,
+  hideType,
 }) {
   const [isUTCTooltipOpen, setIsUTCTooltipOpen] = useState(false);
   const [isPathTooltipOpen, setIsPathTooltipOpen] = useState(false);
@@ -259,7 +260,9 @@ function AssertionHeader({
         >
           {statusIcon}
           <span style={{ fontWeight: "bold" }}>{description}</span>
-          <span>({assertion.type})</span>
+          {
+            !hideType ? <span>({assertion.type})</span> : null
+          }
         </span>
         {component}
         {codeContext}
@@ -283,6 +286,8 @@ AssertionHeader.propTypes = {
   toggleExpand: PropTypes.func,
   /** whether to display status icon */
   showStatusIcons: PropTypes.bool,
+  /** whether to hide the assertion type */
+  hideType: PropTypes.bool,
 };
 
 const renderPath = (assertion) => {

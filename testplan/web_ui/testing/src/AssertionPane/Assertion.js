@@ -46,6 +46,7 @@ function Assertion({
   uid,
   reportUid,
   toggleExpand,
+  hideType,
 }) {
   /**
    * Get the component object of the assertion.
@@ -142,6 +143,7 @@ function Assertion({
         index={index}
         displayPath={displayPath}
         showStatusIcons={showStatusIcons}
+        hideType={hideType}
       />
       <Collapse
         isOpen={expand === EXPAND_STATUS.EXPAND}
@@ -175,6 +177,8 @@ Assertion.propTypes = {
   filter: PropTypes.string,
   /** Report Uid */
   reportUid: PropTypes.string,
+  /** Hide assertion type */
+  hideType: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
