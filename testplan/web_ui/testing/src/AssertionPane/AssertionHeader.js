@@ -264,9 +264,7 @@ function AssertionHeader({
         >
           {statusIcon}
           <span style={{ fontWeight: "bold" }}>{description}</span>
-          {
-            !hideType ? <span>({assertion.type})</span> : null
-          }
+          {!hideType ? <span>({assertion.type})</span> : null}
         </span>
         {component}
         {codeContext}
