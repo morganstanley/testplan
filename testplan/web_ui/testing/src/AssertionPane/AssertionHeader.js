@@ -76,7 +76,11 @@ function AssertionHeader({
 
   const timeInfoArray = assertion.timeInfoArray || [];
   let component =
-    _.isEmpty(assertion.utc_time) && !_.isNumber(assertion.timestamp) ? (
+    (
+      _.isEmpty(assertion.utc_time)
+      && !_.isNumber(assertion.timestamp)
+      && !assertion.inGroup
+    ) ? (
       <span className={css(styles.cardHeaderAlignRight)}>
         <FontAwesomeIcon // Should be a nested assertion group
           size="sm"

@@ -13,6 +13,7 @@ import ColumnContainAssertion from "./AssertionTypes/TableAssertions/ColumnConta
 import DictLogAssertion from "./AssertionTypes/DictAssertions/DictLogAssertion";
 import FixLogAssertion from "./AssertionTypes/DictAssertions/FixLogAssertion";
 import DictMatchAssertion from "./AssertionTypes/DictAssertions/DictMatchAssertion";
+import DictMatchAllAssertion from "./AssertionTypes/DictAssertions/DictMatchAllAssertion";
 import FixMatchAssertion from "./AssertionTypes/DictAssertions/FixMatchAssertion";
 import NotImplementedAssertion from "./AssertionTypes/NotImplementedAssertion";
 import AssertionHeader from "./AssertionHeader";
@@ -70,6 +71,7 @@ function Assertion({
       ColumnContain: ColumnContainAssertion,
       DictLog: DictLogAssertion,
       DictMatch: DictMatchAssertion,
+      DictMatchAll: DictMatchAllAssertion,
       FixLog: FixLogAssertion,
       FixMatch: FixMatchAssertion,
       Graph: graphAssertion,
@@ -125,7 +127,12 @@ function Assertion({
       const AssertionTypeComponent = assertionComponent(assertionType);
       if (AssertionTypeComponent) {
         assertionType = (
-          <AssertionTypeComponent assertion={assertion} reportUid={reportUid} />
+          <AssertionTypeComponent
+            assertion={assertion}
+            index={index}
+            filter={filter}
+            reportUid={reportUid}
+          />
         );
       } else {
         assertionType = <NotImplementedAssertion />;
