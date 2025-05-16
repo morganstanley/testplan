@@ -13,7 +13,9 @@ import ColumnContainAssertion from "./AssertionTypes/TableAssertions/ColumnConta
 import DictLogAssertion from "./AssertionTypes/DictAssertions/DictLogAssertion";
 import FixLogAssertion from "./AssertionTypes/DictAssertions/FixLogAssertion";
 import DictMatchAssertion from "./AssertionTypes/DictAssertions/DictMatchAssertion";
+import DictMatchAllAssertion from "./AssertionTypes/DictAssertions/DictMatchAllAssertion";
 import FixMatchAssertion from "./AssertionTypes/DictAssertions/FixMatchAssertion";
+import FixMatchAllAssertion from "./AssertionTypes/DictAssertions/FixMatchAllAssertion";
 import NotImplementedAssertion from "./AssertionTypes/NotImplementedAssertion";
 import AssertionHeader from "./AssertionHeader";
 import AssertionGroup from "./AssertionGroup";
@@ -46,6 +48,7 @@ function Assertion({
   uid,
   reportUid,
   toggleExpand,
+  hideType,
 }) {
   /**
    * Get the component object of the assertion.
@@ -69,8 +72,10 @@ function Assertion({
       ColumnContain: ColumnContainAssertion,
       DictLog: DictLogAssertion,
       DictMatch: DictMatchAssertion,
+      DictMatchAll: DictMatchAllAssertion,
       FixLog: FixLogAssertion,
       FixMatch: FixMatchAssertion,
+      FixMatchAll: FixMatchAllAssertion,
       Graph: graphAssertion,
       Attachment: AttachmentAssertion,
       MatPlot: AttachmentAssertion,
@@ -124,7 +129,12 @@ function Assertion({
       const AssertionTypeComponent = assertionComponent(assertionType);
       if (AssertionTypeComponent) {
         assertionType = (
-          <AssertionTypeComponent assertion={assertion} reportUid={reportUid} />
+          <AssertionTypeComponent
+            assertion={assertion}
+            index={index}
+            filter={filter}
+            reportUid={reportUid}
+          />
         );
       } else {
         assertionType = <NotImplementedAssertion />;
@@ -142,6 +152,7 @@ function Assertion({
         index={index}
         displayPath={displayPath}
         showStatusIcons={showStatusIcons}
+        hideType={hideType}
       />
       <Collapse
         isOpen={expand === EXPAND_STATUS.EXPAND}
@@ -175,6 +186,8 @@ Assertion.propTypes = {
   filter: PropTypes.string,
   /** Report Uid */
   reportUid: PropTypes.string,
+  /** Hide assertion type */
+  hideType: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
