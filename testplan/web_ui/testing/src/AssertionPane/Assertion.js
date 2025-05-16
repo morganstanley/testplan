@@ -15,6 +15,7 @@ import FixLogAssertion from "./AssertionTypes/DictAssertions/FixLogAssertion";
 import DictMatchAssertion from "./AssertionTypes/DictAssertions/DictMatchAssertion";
 import DictMatchAllAssertion from "./AssertionTypes/DictAssertions/DictMatchAllAssertion";
 import FixMatchAssertion from "./AssertionTypes/DictAssertions/FixMatchAssertion";
+import FixMatchAllAssertion from "./AssertionTypes/DictAssertions/FixMatchAllAssertion";
 import NotImplementedAssertion from "./AssertionTypes/NotImplementedAssertion";
 import AssertionHeader from "./AssertionHeader";
 import AssertionGroup from "./AssertionGroup";
@@ -74,6 +75,7 @@ function Assertion({
       DictMatchAll: DictMatchAllAssertion,
       FixLog: FixLogAssertion,
       FixMatch: FixMatchAssertion,
+      FixMatchAll: FixMatchAllAssertion,
       Graph: graphAssertion,
       Attachment: AttachmentAssertion,
       MatPlot: AttachmentAssertion,

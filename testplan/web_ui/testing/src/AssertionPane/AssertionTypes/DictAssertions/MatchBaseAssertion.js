@@ -13,6 +13,11 @@ import {
 } from "./dictAssertionUtils";
 import { SORT_TYPES, FILTER_OPTIONS } from "../../../Common/defaults";
 
+const CELL_RENDERER = Object.freeze({
+  fix: FixCellRenderer,
+  dict: DictCellRenderer,
+});
+
 /**
  * Base assertion used to render dict and fix match assertions.
  */
@@ -23,10 +28,11 @@ export default function MatchBaseAssertion(props) {
     false,
     true
   );
-  const cellRenderer = props.matchType === "fix"
-    ? FixCellRenderer
-    : DictCellRenderer;
-  const columns = prepareDictColumnDefs(dictCellStyle, cellRenderer, true);
+  const columns = prepareDictColumnDefs(
+    dictCellStyle,
+    CELL_RENDERER[props.matchType],
+    true
+  );
 
   const [rowData, setRowData] = useState(flattenedDict);
 

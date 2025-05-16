@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import MatchAllBaseAssertion from "./MatchAllBaseAssertion";
 
 /**
- * Component that renders DictMatchAll assertion.
+ * Component that renders FixMatchAll assertion.
  *
  * The expected list of      | The actual list of dictionaries matched
  * dictionaries of the test: | to the expected ones:
@@ -18,16 +18,16 @@ import MatchAllBaseAssertion from "./MatchAllBaseAssertion";
  *  ______________________________________
  * | Key        | Expected   | Value      |
  * |------------|------------|------------|
- * | foo        | 13         | 13         |
- * | bar        | 23         | 25         |
+ * | *foo       | 13         | 13         |
+ * | *bar       | 23         | 25         |
  * |____________|____________|____________|
  *
  * 2/2: expected[0] vs values[1]
  *  ______________________________________
  * | Key        | Expected   | Value      |
  * |------------|------------|------------|
- * | foo        | 12         | 12         |
- * | bar        | 22         | 22         |
+ * | *foo       | 12         | 12         |
+ * | *bar       | 22         | 22         |
  * |____________|____________|____________|
  *
  * For each comparison pair, the grid consists of three columns:
@@ -38,11 +38,11 @@ import MatchAllBaseAssertion from "./MatchAllBaseAssertion";
  *  - Value: Actual value for the given key.
  *
  */
-export default function DictMatchAllAssertion(props) {
-    return <MatchAllBaseAssertion matchType="dict" {...props} />;
+export default function FixMatchAllAssertion(props) {
+    return <MatchAllBaseAssertion matchType="fix" {...props} />;
 }
 
-DictMatchAllAssertion.propTypes = {
+FixMatchAllAssertion.propTypes = {
     /** Assertion being rendered */
     assertion: PropTypes.object.isRequired,
 };
