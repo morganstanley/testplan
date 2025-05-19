@@ -33,11 +33,13 @@ Dockerfile
 /testplan/web_ui/testing/node_modules
 /testplan/web_ui/testing/coverage
 /testplan/web_ui/testing/build
+/testplan/web_ui/testing/src/setupProxy.js
 !/testplan/web_ui/testing/package.json
 !/testplan/web_ui/testing/.eslintrc.json
 
 .DS_Store
 .env.local
+.env.development
 .env.development.local
 .env.test.local
 .eslintcache
