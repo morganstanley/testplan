@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DictMatchAllAssertion renders the correct HTML structure 1`] = `
+<DocumentFragment>
+  <div
+    class="card_10lpuz2 card"
+  >
+    <div
+      class="cardHeader_1s246z6-o_O-cardHeaderColorPassed_1nxwz58 card-header"
+    >
+      <div
+        style="display: flex;"
+      >
+        <span
+          class="button_13xlah4"
+          style="order: 4; flex-grow: 4; padding: .125rem 0.75rem; display: flex; align-items: center;"
+        >
+          <span
+            style="font-weight: bold;"
+          >
+            1/2: expected[1] vs values[0] 
+          </span>
+        </span>
+        <span
+          class="cardHeaderAlignRight_107ja4p"
+        />
+      </div>
+    </div>
+    <div
+      class="collapseDiv_1cips5t collapse"
+      style="padding-right: 1.25rem;"
+    >
+      <div
+        class="assertionCardBody_1t2a0td card-body"
+      />
+    </div>
+  </div>
+  <div
+    class="card_10lpuz2 card"
+  >
+    <div
+      class="cardHeader_1s246z6-o_O-cardHeaderColorPassed_1nxwz58 card-header"
+    >
+      <div
+        style="display: flex;"
+      >
+        <span
+          class="button_13xlah4"
+          style="order: 4; flex-grow: 4; padding: .125rem 0.75rem; display: flex; align-items: center;"
+        >
+          <span
+            style="font-weight: bold;"
+          >
+            2/2: expected[0] vs values[1] 
+          </span>
+        </span>
+        <span
+          class="cardHeaderAlignRight_107ja4p"
+        />
+      </div>
+    </div>
+    <div
+      class="collapseDiv_1cips5t collapse"
+      style="padding-right: 1.25rem;"
+    >
+      <div
+        class="assertionCardBody_1t2a0td card-body"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;
