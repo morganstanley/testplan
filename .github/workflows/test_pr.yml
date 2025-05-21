@@ -141,6 +141,6 @@ jobs:
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
       - name: Install Python dependencies
-        run: uv pip install . --group test -c constraints.txt
+        run: uv pip install .[all] --group test -c constraints.txt
       - name: Test Python
         run: doit test
