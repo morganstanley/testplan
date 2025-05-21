@@ -1,15 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import DictBaseAssertion from "./DictBaseAssertion";
-import DictButtonGroup from "./DictButtonGroup";
-import DictCellRenderer from "./DictCellRenderer";
-import {
-  prepareDictColumnDefs,
-  prepareDictRowData,
-  dictCellStyle,
-  preprocessDictRows,
-} from "./dictAssertionUtils";
-import { SORT_TYPES } from "./../../../Common/defaults";
+import LogBaseAssertion from "./LogBaseAssertion";
 
 /**
  * Component that renders DictLog assertion.
@@ -40,34 +31,7 @@ import { SORT_TYPES } from "./../../../Common/defaults";
  *
  */
 export default function DictLogAssertion(props) {
-  const flattenedDict = preprocessDictRows(
-    props.assertion.flattened_dict,
-    false
-  );
-  const columns = prepareDictColumnDefs(dictCellStyle, DictCellRenderer);
-
-  const [rowData, setRowData] = useState(flattenedDict);
-
-  const buttonGroup = (
-    <DictButtonGroup
-      sortTypeList={[
-        SORT_TYPES.ALPHABETICAL,
-        SORT_TYPES.REVERSE_ALPHABETICAL,
-        SORT_TYPES.NONE,
-      ]}
-      flattenedDict={flattenedDict}
-      setRowData={setRowData}
-      defaultSortType={SORT_TYPES.NONE}
-    />
-  );
-
-  return (
-    <DictBaseAssertion
-      buttons={buttonGroup}
-      columns={columns}
-      rows={prepareDictRowData(rowData)}
-    />
-  );
+  return <LogBaseAssertion logType="dict" {...props} />;
 }
 
 DictLogAssertion.propTypes = {

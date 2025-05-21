@@ -2,7 +2,7 @@
  * Report utility functions.
  */
 import React from "react";
-import { format, formatISO } from "date-fns";
+import { format } from "date-fns";
 import { TZDate } from "@date-fns/tz";
 import _ from "lodash";
 import AssertionPane from "../AssertionPane/AssertionPane";
@@ -256,8 +256,8 @@ const GetCenterPane = (
 
 /** TODO */
 const getAssertions = (selectedEntries, displayTime, UTCTime) => {
-  // get timezone from nearest (test-level) report
-  const IANAtz = selectedEntries.find((e) => e.timezone)?.timezone || ""; // default to utc
+  // get timezone from nearest (test-level) report (defaults to utc)
+  const IANAtz = selectedEntries.find((e) => e.timezone)?.timezone || "UTC";
 
   // get all assertions from groups and list them sequentially in an array
   const getAssertionsRecursively = (links, entries) => {
@@ -274,8 +274,9 @@ const getAssertions = (selectedEntries, displayTime, UTCTime) => {
     // new entry structure
     if (entry.timestamp) {
       let d = new TZDate(entry.timestamp * 1000, IANAtz);
-      let rep = UTCTime ? formatISO(d.withTimeZone("UTC")) : formatISO(d);
-      return rep.split("T")[1];
+      return UTCTime
+        ? format(d.withTimeZone("UTC"), "HH:mm:ss.SSSXXX")
+        : format(d, "HH:mm:ss.SSSxxx");
     }
 
     // old entry structure
