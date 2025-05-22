@@ -14,7 +14,6 @@ from testplan.base import TestplanMock
 from testplan.testing.multitest.driver import zookeeper
 from testplan.testing.multitest.driver import kafka
 
-pytest.importorskip("confluent_kafka")
 from confluent_kafka import Producer, Consumer
 
 pytestmark = pytest.mark.skipif(

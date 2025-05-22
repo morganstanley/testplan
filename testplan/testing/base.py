@@ -842,8 +842,21 @@ class Test(Runnable):
         ]
         table.sort(key=lambda entry: entry["Start Time (UTC)"])
 
+        def _format_start_stop_time(d):
+            # format tablelog entries to be human readable
+            if d["Start Time (UTC)"]:
+                d["Start Time (UTC)"] = d["Start Time (UTC)"].strftime(
+                    "%H:%M:%S.%f"
+                )
+            if d["Stop Time (UTC)"]:
+                d["Stop Time (UTC)"] = d["Stop Time (UTC)"].strftime(
+                    "%H:%M:%S.%f"
+                )
+            return d
+
         case_result.table.log(
-            table, description=f"Driver {setup_or_teardown.capitalize()} Info"
+            [_format_start_stop_time(d) for d in table],
+            description=f"Driver {setup_or_teardown.capitalize()} Info",
         )
 
         try:
@@ -870,16 +883,6 @@ class Test(Runnable):
                     px_input["Stop Time (UTC)"].append(
                         driver["Stop Time (UTC)"]
                     )
-
-                # format tablelog entries to be human readable
-                if driver["Start Time (UTC)"]:
-                    driver["Start Time (UTC)"] = driver[
-                        "Start Time (UTC)"
-                    ].strftime("%H:%M:%S.%f")
-                if driver["Stop Time (UTC)"]:
-                    driver["Stop Time (UTC)"] = driver[
-                        "Stop Time (UTC)"
-                    ].strftime("%H:%M:%S.%f")
 
             # empirical values
             padding = 150

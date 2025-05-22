@@ -152,6 +152,7 @@ docs = [
 ]
 test = [
     { include-group = "dev" },
+    "confluent-kafka>=2.10.0",
     "kazoo>=2.10.0",
     "numpy>=1.21.6",
 ]
