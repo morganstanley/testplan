@@ -53,8 +53,8 @@
         "paramiko[all]",
         "orjson",
         "exceptiongroup>=1.2.2 ; python_full_version < '3.11'",
-        "gherkin-official==4.1.3 ; python_full_version < '3.11'",
         "jinja2>=3.1.6",
+        "gherkin-official>=32.1.2",
 ]
     requires-python = ">=3.9"
 
