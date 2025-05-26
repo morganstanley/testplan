@@ -14,7 +14,6 @@ from testplan.common.utils import logger
 from testplan.exporters.testing import JSONExporter, PDFExporter, XMLExporter
 from testplan.report import TestReport
 from testplan.report.testing.styles import StyleArg
-from testplan.web_ui.server import WebUIServer
 
 
 writer_commands = CommandList()
@@ -165,6 +164,9 @@ class DisplayAction(ProcessResultAction):
         # which will be displayed it in browser. If the original input file is
         # a single JSON, this process might be optimized. But here, we stick to
         # the pipeline concept to make implementation consistent.
+
+        from testplan.web_ui.server import WebUIServer
+
         with tempfile.TemporaryDirectory() as tmpdir:
             json_path = os.path.join(tmpdir, "report.json")
             exporter = JSONExporter(

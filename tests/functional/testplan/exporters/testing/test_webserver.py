@@ -9,6 +9,8 @@ import queue
 import pytest
 import requests
 
+pytest.importorskip("flask")
+
 from pytest_test_filters import skip_on_windows
 
 pytestmark = skip_on_windows(

@@ -110,6 +110,16 @@ jobs:
       matrix:
         os: [ubuntu-22.04, windows-latest]
         python-version: ['3.9', '3.10', '3.11', '3.12']
+        package-extras: ['', '[all]']
+        exclude:
+          - os: windows-latest
+            package-extras: ''
+          - os: ubuntu-22.04
+            python-version: '3.10'
+            package-extras: '[all]'
+          - os: ubuntu-22.04
+            python-version: '3.11'
+            package-extras: '[all]'
       fail-fast: false
 
     steps:
@@ -141,6 +151,6 @@ jobs:
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
       - name: Install Python dependencies
-        run: uv pip install .[all] --group test -c constraints.txt
+        run: uv pip install .${{ matrix.package-extras }} --group test -c constraints.txt
       - name: Test Python
         run: doit test
