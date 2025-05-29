@@ -32,6 +32,7 @@ function AssertionHeader({
   uid,
   toggleExpand,
   showStatusIcons,
+  hideType,
 }) {
   const [isUTCTooltipOpen, setIsUTCTooltipOpen] = useState(false);
   const [isPathTooltipOpen, setIsPathTooltipOpen] = useState(false);
@@ -75,7 +76,11 @@ function AssertionHeader({
 
   const timeInfoArray = assertion.timeInfoArray || [];
   let component =
-    _.isEmpty(assertion.utc_time) && !_.isNumber(assertion.timestamp) ? (
+    (
+      _.isEmpty(assertion.utc_time)
+      && !_.isNumber(assertion.timestamp)
+      && !assertion.inGroup
+    ) ? (
       <span className={css(styles.cardHeaderAlignRight)}>
         <FontAwesomeIcon // Should be a nested assertion group
           size="sm"
@@ -259,7 +264,7 @@ function AssertionHeader({
         >
           {statusIcon}
           <span style={{ fontWeight: "bold" }}>{description}</span>
-          <span>({assertion.type})</span>
+          {!hideType ? <span>({assertion.type})</span> : null}
         </span>
         {component}
         {codeContext}
@@ -283,6 +288,8 @@ AssertionHeader.propTypes = {
   toggleExpand: PropTypes.func,
   /** whether to display status icon */
   showStatusIcons: PropTypes.bool,
+  /** whether to hide the assertion type */
+  hideType: PropTypes.bool,
 };
 
 const renderPath = (assertion) => {
