@@ -3193,7 +3193,88 @@ var fakeReportAssertions = {
                     "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
                   line_no: 620,
                 },
-              ],
+                {
+                  type: "DictMatchAll",
+                  meta_type: "assertion",
+                  timestamp: 1747749737.575262,
+                  description: "Dict match all with absent",
+                  passed: true,
+                  key_weightings: null,
+                  matches: [
+                    {
+                      description: "Dict match all: passing with absent 1/3: expected[2] vs values[0]",
+                      comparison: [
+                        ["foo", "p", ["int", 1], ["int", 1]],
+                        ["bar", "p", ["func", "absent_or_int"], [null, "ABSENT"]]
+                      ],
+                      passed: true,
+                      comparison_index: 2
+                    },
+                    {
+                      description: "Dict match all: passing with absent 2/3: expected[0] vs values[1]",
+                      comparison: [
+                        ["foo", "p", ["int", 2], ["int", 2]],
+                        ["bar", "p", ["func", "absent_or_int"], ["int", 5]]
+                      ],
+                      passed: true,
+                      comparison_index: 0
+                    },
+                    {
+                      description: "Dict match all: passing with absent 3/3: expected[1] vs values[2]",
+                      comparison: [
+                        ["foo", "p", ["int", 3], ["int", 3]],
+                        ["bar", "p", ["func", "absent_or_int"], [null, "ABSENT"]]
+                      ],
+                      passed: true,
+                      comparison_index: 1
+                    }
+                  ],
+                  file_path:
+                    "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                  line_no: 629,
+                },
+                {
+                  type: "DictMatchAll",
+                  meta_type: "assertion",
+                  timestamp: 1747749737.578132,
+                  description: "Dict match all: failing",
+                  passed: false,
+                  key_weightings: null,
+                  matches: [
+                    {
+                      description: "Dict match all: failing 1/3: expected[2] vs values[0]",
+                      comparison: [
+                        ["foo", "p", ["int", 2], ["int", 2]],
+                        ["bar", "p", ["int", 5], ["int", 5]]
+                      ],
+                      passed: true,
+                      comparison_index: 2
+                    },
+                    {
+                      description: "Dict match all: failing 2/3: expected[0] vs values[1]",
+                      comparison: [
+                        ["foo", "p", ["int", 3], ["int", 3]],
+                        ["bar", "p", ["int", 0], ["int", 0]]
+                      ],
+                      passed: true,
+                      comparison_index: 0
+                    },
+                    {
+                      description: "Dict match all: failing 3/3: expected[1] vs values[2]",
+                      comparison: [
+                        ["foo", "p", ["int", 1], ["int", 1]],
+                        ["bux", "f", ["int", 99], [null, "ABSENT"]],
+                        ["baz", "f", [null, "ABSENT"], ["int", -5]]
+                      ],
+                      passed: false,
+                      comparison_index: 1
+                    }
+                  ],
+                  file_path:
+                    "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                  line_no: 638,
+                }
+              ]
             },
             {
               category: "testcase",
@@ -3316,6 +3397,72 @@ var fakeReportAssertions = {
                     "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
                   line_no: 729,
                 },
+                {
+                  type: "FixMatchAll",
+                  meta_type: "assertion",
+                  timestamp: 1747820728.414533,
+                  description: "Fix match all: passing",
+                  passed: true,
+                  key_weightings: null,
+                  matches: [
+                    {
+                      description: "Fix match all: passing 1/2: expected[1] vs values[0]",
+                      comparison: [
+                        [10914, "p", ["str", "c1dec2c5"], ["str", "c1dec2c5"]],
+                        [38, "p", ["str", "500"], ["str", "500"]],
+                        [44, "p", ["float", 9.0], ["str", "9"]]
+                      ],
+                      passed: true,
+                      comparison_index: 1
+                    },
+                    {
+                      description: "Fix match all: passing 2/2: expected[0] vs values[1]",
+                      comparison: [
+                        [10914, "p", ["REGEX", ".+"], ["str", "f3ea6276"]],
+                        [38, "p", ["int", 501], ["int", 501]],
+                        [44, "p", ["float", 9.1], ["float", 9.1]]
+                      ],
+                      passed: true,
+                      comparison_index: 0
+                    }
+                  ],
+                  file_path:
+                    "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                  line_no: 738,
+                },
+                {
+                  type: "FixMatchAll",
+                  meta_type: "assertion",
+                  timestamp: 1747820728.414888,
+                  description: "Fix match all: failing",
+                  passed: false,
+                  key_weightings: null,
+                  matches: [
+                    {
+                      description: "Fix match all: failing 1/2: expected[1] vs values[0]",
+                      comparison: [
+                        [10914, "p", ["str", "c1dec2c5"], ["str", "c1dec2c5"]],
+                        [38, "p", ["str", "500"], ["str", "500"]],
+                        [44, "p", ["float", 9.0], ["str", "9"]]
+                      ],
+                      passed: true,
+                      comparison_index: 1
+                    },
+                    {
+                      description: "Fix match all: failing 2/2: expected[0] vs values[1]",
+                      comparison: [
+                        [10914, "p", ["REGEX", ".+"], ["str", "f3ea6276"]],
+                        [38, "f", ["int", 250], ["int", 501]],
+                        [44, "p", ["float", 9.1], ["float", 9.1]]
+                      ],
+                      passed: false,
+                      comparison_index: 0
+                    }
+                  ],
+                  file_path:
+                    "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
+                  line_no: 747,
+                }
               ],
             },
             {
