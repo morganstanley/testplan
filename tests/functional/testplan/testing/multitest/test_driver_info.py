@@ -1,5 +1,7 @@
 import pytest
 
+pytest.importorskip("plotly", reason="expected report generated with plotly")
+
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.driver.base import Driver
