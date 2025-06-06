@@ -200,8 +200,8 @@ def generate_dummy_testgroup():
     )
 
 
-@disable_log_propagation(report_logger)
 @pytest.fixture
+@disable_log_propagation(report_logger)
 def dummy_test_plan_report():
 
     tg_2 = generate_dummy_testgroup()
@@ -214,8 +214,8 @@ def dummy_test_plan_report():
     return rep
 
 
-@disable_log_propagation(report_logger)
 @pytest.fixture
+@disable_log_propagation(report_logger)
 def dummy_test_plan_report_with_binary_asserts():
 
     tg_2 = generate_dummy_testgroup()
