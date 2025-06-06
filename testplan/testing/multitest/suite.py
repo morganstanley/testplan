@@ -521,6 +521,9 @@ def testsuite(*args, **kwargs):
     )(*args, **kwargs)
 
 
+testsuite.__test__ = False
+
+
 def _validate_function_name(func):
     """Validate the function name is valid for a testcase."""
     reserved_words = (
@@ -827,6 +830,9 @@ def testcase(*args, **kwargs):
         meta_func=_testcase_meta,
         wrapper_func=testcase,
     )(*args, **kwargs)
+
+
+testcase.__test__ = False
 
 
 def _validate_skip_if_predicates(predicates):
