@@ -357,9 +357,10 @@ def main():
     # Create module files that contain test suite definition
     for module_info in TEST_SUITE_MODULES:
         if module_info.template_path and module_info.module_path:
-            with open(module_info.template_path, "r") as fp_r, open(
-                module_info.module_path, "w"
-            ) as fp_w:
+            with (
+                open(module_info.template_path, "r") as fp_r,
+                open(module_info.module_path, "w") as fp_w,
+            ):
                 fp_w.write(fp_r.read().format(**module_info.original_value))
             # module files will be removed after testing
             atexit.register(os.remove, module_info.module_path)
@@ -422,9 +423,10 @@ def main():
     # Apply code changes, two testcase changed and one newly added
     for module_info in TEST_SUITE_MODULES:
         if module_info.template_path and module_info.module_path:
-            with open(module_info.template_path, "r") as fp_r, open(
-                module_info.module_path, "w"
-            ) as fp_w:
+            with (
+                open(module_info.template_path, "r") as fp_r,
+                open(module_info.module_path, "w") as fp_w,
+            ):
                 fp_w.write(fp_r.read().format(**module_info.updated_value))
 
     # Reload code from changed files and update report

@@ -27,7 +27,7 @@ class DummyTest(Test):
         super(DummyTest, self).__init__(
             name=name,
             environment=[DummyDriver("drv1"), DummyDriver("drv2")],
-            **options
+            **options,
         )
 
     def run_tests(self):
@@ -76,7 +76,7 @@ class DummyTestWithFailingDriver(Test):
         super(DummyTestWithFailingDriver, self).__init__(
             name=name,
             environment=[DummyDriver("drv1"), DummyFailingDriver("drv2")],
-            **options
+            **options,
         )
 
     def add_pre_resource_steps(self):

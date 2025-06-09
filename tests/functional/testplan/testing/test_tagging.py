@@ -193,7 +193,6 @@ report_for_multitest_with_tags = TestGroupReport(
     ),
 )
 def test_multitest_tagging(mockplan, multitest_tags, expected_report):
-
     multitest = MultiTest(
         name="MyMultitest",
         suites=[AlphaSuite(), BetaSuite(), GammaSuite()],

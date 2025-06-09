@@ -123,7 +123,6 @@ def summarize_dict_match(category, class_name, passed, entries, limits):
     return Group(
         entries=sub_groups,
         description=(
-            "Displaying failures for {num_groups}"
-            " distinct {key_label} groups"
+            "Displaying failures for {num_groups} distinct {key_label} groups"
         ).format(key_label=key_label, num_groups=len(sub_groups)),
     )

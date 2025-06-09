@@ -8,6 +8,7 @@ This example shows:
 * How to configure the generated PDF report styles
   programmatically and via command line.
 """
+
 import os
 import sys
 
@@ -105,7 +106,6 @@ class BetaSuite:
     pdf_style=Style(passing="testcase", failing="assertion-detail"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[AlphaSuite()])
     multi_test_2 = MultiTest(name="Secondary", suites=[BetaSuite()])
     plan.add(multi_test_1)

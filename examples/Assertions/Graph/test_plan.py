@@ -2,6 +2,7 @@
 """
 These examples show usage of graphs
 """
+
 import sys
 import os
 
@@ -13,11 +14,9 @@ from testplan.report.testing.styles import Style, StyleEnum
 
 @testsuite
 class SampleSuite:
-
     # Basic graphing for singe series graphing:
     @testcase
     def graph_tests(self, env, result):
-
         # The last 3 arguments don't have to be keyword, however for clarity they are included.
         # A Basic single series line graph, where the line has been specified to be red,
         # and the axis have been labelled
@@ -162,7 +161,6 @@ class SampleSuite:
     # Some examples of multi series graphs:
     @testcase
     def multiseries_graph_tests(self, env, result):
-
         # This line graph has two data series 'graph 1' and 'graph 2' and will be plot on the same axis
         # NOTE: with multi series graphs you will often want the legend to be set to true
         # The series options have set the first data set to be red, and the second to be blue

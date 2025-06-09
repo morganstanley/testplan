@@ -450,7 +450,6 @@ def test_programmatic_filtering_with_parts_merged(
     ),
 )
 def test_command_line_filtering(cmdline_args, report_ctx):
-
     multitest_x = MultiTest(name="XXX", suites=[Alpha(), Beta()])
     multitest_y = MultiTest(name="YYY", suites=[Gamma()])
 

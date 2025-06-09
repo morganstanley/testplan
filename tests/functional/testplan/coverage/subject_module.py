@@ -5,7 +5,6 @@ While its content doesn't really matter, this module contains a lazily-
 evaluated version of Python list together with its related operations.
 """
 
-
 from dataclasses import dataclass
 from typing import Any, Callable, List, Type, Union
 

@@ -6,6 +6,7 @@ which is a thin wrapper around a `logging.Logger`.
 We can then use a global mapping and a custom handler to append log messages
 to the report object's `logs` list.
 """
+
 import logging
 import datetime
 import weakref

@@ -1,4 +1,5 @@
 """Unit tests for the JUnit test runner."""
+
 import os
 
 import testplan.report

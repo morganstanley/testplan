@@ -3,6 +3,7 @@
 """
 This example demonstrates the usage of the mark decorator for non-linear cases.
 """
+
 import sys
 
 from testplan import test_plan

@@ -1,10 +1,10 @@
 repos:
 - repo: local
   hooks:
-  - id: black
-    name: black
+  - id: ruff-fmt
+    name: ruff format
     language: system
-    entry: black --check
+    entry: ruff format --check
     types: [python]
   - id: uv-export
     name: uv export

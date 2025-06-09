@@ -1,4 +1,5 @@
 """Test the interactive test runner."""
+
 from copy import deepcopy
 from unittest import mock
 
@@ -83,11 +84,12 @@ def test_startup():
     target = runnable.TestRunner(name="TestRunner")
     mock_server = mock.MagicMock()
 
-    with mock.patch(
-        "cheroot.wsgi.Server", return_value=mock_server
-    ), mock.patch(
-        "testplan.runnable.interactive.reloader.ModuleReloader"
-    ) as MockReloader:
+    with (
+        mock.patch("cheroot.wsgi.Server", return_value=mock_server),
+        mock.patch(
+            "testplan.runnable.interactive.reloader.ModuleReloader"
+        ) as MockReloader,
+    ):
         MockReloader.return_value = None
 
         irunner = base.TestRunnerIHandler(target)
@@ -129,9 +131,12 @@ def irunner():
 
     target.resources.add(local_runner)
 
-    with mock.patch("cheroot.wsgi.Server"), mock.patch(
-        "testplan.runnable.interactive.reloader.ModuleReloader"
-    ) as MockReloader:
+    with (
+        mock.patch("cheroot.wsgi.Server"),
+        mock.patch(
+            "testplan.runnable.interactive.reloader.ModuleReloader"
+        ) as MockReloader,
+    ):
         MockReloader.return_value = None
 
         irunner = base.TestRunnerIHandler(target)
@@ -202,9 +207,12 @@ def test_run_suite_with_failed_setup():
     local_runner.add(test, test.uid())
     target.resources.add(local_runner)
 
-    with mock.patch("cheroot.wsgi.Server"), mock.patch(
-        "testplan.runnable.interactive.reloader.ModuleReloader"
-    ) as MockReloader:
+    with (
+        mock.patch("cheroot.wsgi.Server"),
+        mock.patch(
+            "testplan.runnable.interactive.reloader.ModuleReloader"
+        ) as MockReloader,
+    ):
         MockReloader.return_value = None
 
         irunner = base.TestRunnerIHandler(target)
@@ -324,9 +332,12 @@ def test_run_all_tagged_tests(tags, num_of_suite_entries):
 
     target.resources.add(local_runner)
 
-    with mock.patch("cheroot.wsgi.Server"), mock.patch(
-        "testplan.runnable.interactive.reloader.ModuleReloader"
-    ) as MockReloader:
+    with (
+        mock.patch("cheroot.wsgi.Server"),
+        mock.patch(
+            "testplan.runnable.interactive.reloader.ModuleReloader"
+        ) as MockReloader,
+    ):
         MockReloader.return_value = None
 
         irunner = base.TestRunnerIHandler(target)

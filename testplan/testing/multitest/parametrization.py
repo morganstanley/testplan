@@ -1,6 +1,7 @@
 """
 Parametrization support for test cases.
 """
+
 import collections
 import itertools
 import re
@@ -145,7 +146,6 @@ def _generate_kwarg_list(parameters, args, required_args, default_args):
     elif isinstance(parameters, collections.abc.Iterable):
         dicts = []
         for obj in parameters:
-
             if not isinstance(obj, (tuple, list, dict)):
                 if len(required_args) > 1:
                     raise ParametrizationError(

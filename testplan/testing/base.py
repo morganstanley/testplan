@@ -1,4 +1,5 @@
 """Base classes for all Tests"""
+
 import functools
 import os
 import subprocess
@@ -1201,10 +1202,11 @@ class ProcessRunnerTest(Test):
         :raises ValueError: upon invalid test command
         """
         with self.report.timer.record("run"):
-            with self.report.logged_exceptions(), open(
-                self.stderr, "w"
-            ) as stderr, open(self.stdout, "w") as stdout:
-
+            with (
+                self.report.logged_exceptions(),
+                open(self.stderr, "w") as stderr,
+                open(self.stdout, "w") as stdout,
+            ):
                 test_cmd = self.test_command()
                 if not test_cmd:
                     raise ValueError(
@@ -1390,7 +1392,6 @@ class ProcessRunnerTest(Test):
             self._test_process_killed = True
 
     def _dry_run_testsuites(self) -> None:
-
         super(ProcessRunnerTest, self)._dry_run_testsuites()
 
         testcase_report = TestCaseReport(
@@ -1441,35 +1442,45 @@ class ProcessRunnerTest(Test):
             if testcases:
                 for testcase in testcases:
                     testcase_report = self.report[testsuite][testcase]
-                    yield {"runtime_status": RuntimeStatus.RUNNING}, [
-                        self.uid(),
-                        testsuite,
-                        testcase,
-                    ]
+                    yield (
+                        {"runtime_status": RuntimeStatus.RUNNING},
+                        [
+                            self.uid(),
+                            testsuite,
+                            testcase,
+                        ],
+                    )
             else:
                 # Unlike `MultiTest`, `ProcessRunnerTest` may have some suites
                 # without any testcase after initializing test report, but will
                 # get result of testcases after run. So we should not filter
                 # them out, e.g. Hobbes-test can run in unit of test suite.
-                yield {"runtime_status": RuntimeStatus.RUNNING}, [
-                    self.uid(),
-                    testsuite,
-                ]
+                yield (
+                    {"runtime_status": RuntimeStatus.RUNNING},
+                    [
+                        self.uid(),
+                        testsuite,
+                    ],
+                )
 
-        yield {"runtime_status": RuntimeStatus.RUNNING}, [
-            self.uid(),
-            self._VERIFICATION_SUITE_NAME,
-            self._VERIFICATION_TESTCASE_NAME,
-        ]
+        yield (
+            {"runtime_status": RuntimeStatus.RUNNING},
+            [
+                self.uid(),
+                self._VERIFICATION_SUITE_NAME,
+                self._VERIFICATION_TESTCASE_NAME,
+            ],
+        )
 
         test_cmd = self.test_command_filter(
             testsuite_pattern, testcase_pattern
         )
         self.logger.debug("test_cmd = %s", test_cmd)
 
-        with open(self.stdout, mode="w+") as stdout, open(
-            self.stderr, mode="w+"
-        ) as stderr:
+        with (
+            open(self.stdout, mode="w+") as stdout,
+            open(self.stderr, mode="w+") as stderr,
+        ):
             exit_code = subprocess.call(
                 test_cmd,
                 stderr=stderr,

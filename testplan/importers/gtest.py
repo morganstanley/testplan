@@ -1,6 +1,7 @@
 """
 Implements three-phase importer for GoogleTest format.
 """
+
 from typing import List
 
 from lxml import objectify
@@ -56,7 +57,6 @@ class GTestResultImporter(ThreePhaseFileImporter[Element]):
             suite_has_run = False
 
             for testcase in suite.getchildren():
-
                 testcase_name = testcase.attrib["name"]
                 testcase_report = TestCaseReport(name=testcase_name)
 

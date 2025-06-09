@@ -1,4 +1,5 @@
 """Tests runner module."""
+
 import inspect
 import math
 import os
@@ -153,7 +154,7 @@ def validate_lines(d: dict) -> bool:
 
 
 def collate_for_merging(
-    es: List[Union[TestGroupReport, TestCaseReport]]
+    es: List[Union[TestGroupReport, TestCaseReport]],
 ) -> List[List[Union[TestGroupReport, TestCaseReport]]]:
     """
     Group report entries into buckets, where synthesized ones in the same
@@ -433,7 +434,6 @@ class TestRunner(Runnable):
     RESULT = TestRunnerResult
 
     def __init__(self, **options):
-
         # TODO: check options sanity?
         super(TestRunner, self).__init__(**options)
         # uid to resource, in definition order
@@ -812,9 +812,9 @@ class TestRunner(Runnable):
         for task in _tasks:
             if task.weight:
                 if min(containers) + task.weight <= plan_runtime_target:
-                    containers[
-                        containers.index(min(containers))
-                    ] += task.weight
+                    containers[containers.index(min(containers))] += (
+                        task.weight
+                    )
                 else:
                     containers.append(task.weight)
             else:
@@ -910,7 +910,6 @@ class TestRunner(Runnable):
         return [_attach_task_info(task_info) for task_info in partitioned]
 
     def _calculate_part_runtime(self, discovered: List[TaskInformation]):
-
         if self.cfg.auto_part_runtime_limit != "auto":
             return self.cfg.auto_part_runtime_limit
 
@@ -927,7 +926,6 @@ class TestRunner(Runnable):
         max_ut_runtime = 0  # unit test
 
         for task_info in discovered:
-
             uid = task_info.uid
             time_info = runtime_data.get(uid, None)
 
@@ -973,7 +971,6 @@ class TestRunner(Runnable):
     def _calculate_parts_and_weights(
         self, task_info: TaskInformation, auto_part_runtime_limit: float
     ):
-
         num_of_parts = (
             task_info.num_of_parts
         )  # @task_target(multitest_parts=...)
@@ -1151,7 +1148,6 @@ class TestRunner(Runnable):
         task_arguments: Optional[dict] = None,
         num_of_parts: Optional[int] = None,
     ) -> TaskInformation:
-
         if isinstance(target, Task):
             if hasattr(target, CACHED_TASK_INFO_ATTRIBUTE):
                 task_info = _detach_task_info(target)

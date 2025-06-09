@@ -3,6 +3,7 @@
 """
 This example shows usage of xml assertion namespaces.
 """
+
 import re
 import sys
 from testplan import test_plan
@@ -19,7 +20,6 @@ class XMLSuite:
 
     @testcase
     def test_xml_namespace(self, env, result):
-
         # `xml.check` can be used for checking if given tags & XML namespaces
         # contain the expected values
 

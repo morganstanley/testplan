@@ -10,6 +10,7 @@ from testplan.common.utils.context import context
 
 from my_tests.mtest import make_multitest
 
+
 # Hard coding interactive mode usage.
 @test_plan(
     name="MyPlan",

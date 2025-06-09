@@ -41,7 +41,6 @@ def check_func_4(env, result):
 
 
 def test_pre_post_steps(mockplan):
-
     multitest = MultiTest(
         name="MyMultitest",
         suites=[MySuite()],

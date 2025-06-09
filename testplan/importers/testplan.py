@@ -1,6 +1,7 @@
 """
 Implements one-phase importer for Testplan JSON format.
 """
+
 import os
 import pathlib
 from typing import List
@@ -27,7 +28,7 @@ class TestplanImportedResult(ImportedResult):
         """ """
         return ReportCategories.TESTPLAN
 
-    def results(self) -> (List[TestGroupReport]):
+    def results(self) -> List[TestGroupReport]:
         """ """
         return self.result.entries
 

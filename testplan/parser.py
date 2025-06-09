@@ -2,6 +2,7 @@
 Classes that parse command-line arguments used to control testplan behaviour.
 This module encodes the argument and option names, types, and behaviours.
 """
+
 import argparse
 import copy
 import sys
@@ -83,7 +84,7 @@ class TestplanParser:
             metavar="TEST_INFO",
             **listing.listing_registry.to_arg().get_parser_context(
                 default=self._default_options["test_lister"]
-            )
+            ),
         )
 
         parser.add_argument(
@@ -325,7 +326,7 @@ Test filter, runs tests that match ALL of the given tags.
             "--stdout-style",
             **styles.StyleArg.get_parser_context(
                 default=self._default_options["stdout_style"]
-            )
+            ),
         )
 
         report_filter_group = report_group.add_mutually_exclusive_group()
@@ -404,7 +405,7 @@ Test filter, runs tests that match ALL of the given tags.
             "--pdf-style",
             **styles.StyleArg.get_parser_context(
                 default=self._default_options["pdf_style"]
-            )
+            ),
         )
 
         report_group.add_argument(

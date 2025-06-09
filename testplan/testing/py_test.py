@@ -1,4 +1,5 @@
 """PyTest test runner."""
+
 import collections
 import inspect
 import os
@@ -86,7 +87,7 @@ class PyTest(testing.Test):
         select="",
         extra_args=None,
         result=Result,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(PyTest, self).__init__(**options)
@@ -174,7 +175,6 @@ class PyTest(testing.Test):
         ]
 
     def _dry_run_testsuites(self):
-
         self._nodeids = {
             "testsuites": {},
             "testcases": collections.defaultdict(dict),

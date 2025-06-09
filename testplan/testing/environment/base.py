@@ -119,7 +119,6 @@ class TestEnvironment(Environment):
                 )
 
         while not self._rt_dependency.all_drivers_processed():
-
             # schedule new drivers
             for driver in self._rt_dependency.drivers_to_process():
                 try:
@@ -199,7 +198,6 @@ class TestEnvironment(Environment):
                 )
 
         while not self._rt_dependency.all_drivers_processed():
-
             # schedule new drivers
             for driver in self._rt_dependency.drivers_to_process():
                 try:

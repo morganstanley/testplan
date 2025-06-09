@@ -2,7 +2,6 @@
 Place where we put a variety of higher-order stuffs.
 """
 
-
 from contextlib import ExitStack, contextmanager
 from typing import Any, ContextManager, Generator
 

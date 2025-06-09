@@ -82,7 +82,6 @@ class ComplicatedSuite:
 
 @test_plan(name="Name customization example")
 def main(plan):
-
     plan.add(
         MultiTest(
             "Name customization example",

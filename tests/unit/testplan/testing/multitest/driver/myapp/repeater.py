@@ -3,6 +3,7 @@
 Simple script that just mirrors stdin back to stdout, until either EOF signal
 is received or the string literal "EOF" is input.
 """
+
 import sys
 
 SENTINEL = "EOF"

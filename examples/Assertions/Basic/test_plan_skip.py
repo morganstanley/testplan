@@ -2,6 +2,7 @@
 """
 This example shows usage of skip assertion.
 """
+
 import sys
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase

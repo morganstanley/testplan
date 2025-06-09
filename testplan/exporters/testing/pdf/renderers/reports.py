@@ -1,6 +1,7 @@
 """
 PDF Renderer classes for test report objects.
 """
+
 import logging
 from collections import OrderedDict
 from typing import Optional, Tuple, Union

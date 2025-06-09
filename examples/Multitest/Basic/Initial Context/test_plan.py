@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
-    A Simple example to show how to access data from initial context passed
-    to MultiTest constructor.
+A Simple example to show how to access data from initial context passed
+to MultiTest constructor.
 
-    Initial context should be a dictionary, which will be available in
-      - Driver.context in driver instances, together with all the started drivers so far
-      - env in testcases together with all the drivers
+Initial context should be a dictionary, which will be available in
+  - Driver.context in driver instances, together with all the started drivers so far
+  - env in testcases together with all the drivers
 """
 
 from testplan import test_plan
@@ -54,7 +54,6 @@ class ContextUser(Driver):
 
 @test_plan(name="Initial context example")
 def main(plan):
-
     plan.add(
         MultiTest(
             "Initial Context example",

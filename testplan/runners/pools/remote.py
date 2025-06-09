@@ -88,7 +88,6 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         )
 
     def _proc_cmd_impl(self) -> List[str]:
-
         cmd = [
             self.python_binary,
             "-uB",
@@ -324,9 +323,9 @@ class RemotePool(Pool):
         options.update(self.filter_locals(locals()))
         super(RemotePool, self).__init__(**options)
         self._options = options  # pass to remote worker later
-        self._request_handlers[
-            Message.MetadataPull
-        ] = self._worker_setup_metadata
+        self._request_handlers[Message.MetadataPull] = (
+            self._worker_setup_metadata
+        )
 
         self._instances = {}
 

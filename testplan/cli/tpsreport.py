@@ -1,6 +1,7 @@
 """
 Entry point for TPS command line tool.
 """
+
 import click
 
 from testplan.cli.converter import convert

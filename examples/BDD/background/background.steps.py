@@ -1,5 +1,6 @@
 from testplan.testing.bdd.step_registry import step
 
+
 # This is the function to test
 def salute(format_str, first_name, last_name):
     return format_str.format(first_name=first_name, last_name=last_name)

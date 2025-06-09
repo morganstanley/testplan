@@ -1,6 +1,7 @@
 """
 Implements base action types.
 """
+
 from typing import Iterable
 
 from testplan.report import TestReport

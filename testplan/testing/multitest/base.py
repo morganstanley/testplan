@@ -112,9 +112,9 @@ def _extract_test_targets(shallow_report: Dict) -> Dict[str, List[str]]:
             shallow_report
         )
     elif category == ReportCategories.PARAMETRIZATION:
-        test_targets[
-            shallow_report["parent_uids"][2]
-        ] = _extract_parametrized_testcase_targets(shallow_report)
+        test_targets[shallow_report["parent_uids"][2]] = (
+            _extract_parametrized_testcase_targets(shallow_report)
+        )
     elif category == ReportCategories.TESTCASE:
         test_targets[shallow_report["parent_uids"][2]] = [
             shallow_report["name"]
@@ -632,7 +632,6 @@ class MultiTest(testing_base.Test):
         """Suppressing not implemented debug log from parent class."""
 
     def get_metadata(self) -> TestMetadata:
-
         suites = []
         for suite, testcases in self.test_context:
             suite_metadata = get_suite_metadata(suite, include_testcases=False)
@@ -1175,7 +1174,6 @@ class MultiTest(testing_base.Test):
             return testcase_report
 
         with testcase_report.timer.record("run"):
-
             with compose_contexts(
                 testcase_report.logged_exceptions(),
                 self.watcher.save_covered_lines_to(testcase_report),
@@ -1306,9 +1304,10 @@ class MultiTest(testing_base.Test):
 
             parent_uids = self._get_parent_uids(testsuite, testcase)
 
-            yield {"runtime_status": RuntimeStatus.NOT_RUN}, parent_uids + [
-                testcase.__name__
-            ]
+            yield (
+                {"runtime_status": RuntimeStatus.NOT_RUN},
+                parent_uids + [testcase.__name__],
+            )
 
     def _run_testcases_iter(self, testsuite, testcases):
         """
@@ -1328,9 +1327,10 @@ class MultiTest(testing_base.Test):
 
             # set the runtime status of testcase report to RUNNING so that
             # client UI can get the change and show testcase is running
-            yield {"runtime_status": RuntimeStatus.RUNNING}, parent_uids + [
-                testcase.__name__
-            ]
+            yield (
+                {"runtime_status": RuntimeStatus.RUNNING},
+                parent_uids + [testcase.__name__],
+            )
 
             testcase_report = self._run_testcase(
                 testcase, testsuite, pre_testcase, post_testcase

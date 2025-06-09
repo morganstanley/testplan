@@ -1,4 +1,5 @@
 """Discoverable task targets that will be instantiated to task objects"""
+
 from testplan.runners.pools.tasks.base import task_target
 from testplan.testing.multitest import MultiTest
 from sub_proj2.suites import Suite1, Suite2

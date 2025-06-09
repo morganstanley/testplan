@@ -2,6 +2,7 @@
 """
 This example shows how you can implement custom filtering logic for your tests.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -13,9 +14,9 @@ from testplan.testing.filtering import Filter, Pattern
 
 def check_priority(value):
     """Validator for priority values."""
-    assert (
-        isinstance(value, int) and value > 0
-    ), "Priority must be positive integer."
+    assert isinstance(value, int) and value > 0, (
+        "Priority must be positive integer."
+    )
 
 
 def priority(value):
@@ -117,10 +118,10 @@ class SubclassFilter(Filter):
     """
 
     def __init__(self, base_kls):
-        assert isinstance(
-            base_kls, type
-        ), "`base_kls` must be of type" " `type`, it was: {}".format(
-            type(base_kls)
+        assert isinstance(base_kls, type), (
+            "`base_kls` must be of type `type`, it was: {}".format(
+                type(base_kls)
+            )
         )
 
         self.base_kls = base_kls
@@ -170,7 +171,6 @@ composed_filter_3 = subclass_filter & Pattern("*:*:test_2")
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test = MultiTest(name="Sample", suites=[Alpha(), Beta(), Gamma()])
 
     plan.add(multi_test)

@@ -1,4 +1,5 @@
 """Conversion utilities."""
+
 import itertools
 from typing import Callable, Iterable, List, Optional, Sequence, Tuple, Union
 
@@ -139,7 +140,6 @@ def expand_fmt_res(
     key_path: List[str],
     match: str,
 ):
-
     for row in rows:
         key = row[0] if ignore_key is False else Absent
         if key is not Absent:  # `None` or empty string can also be used as key

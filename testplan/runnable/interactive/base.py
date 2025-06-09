@@ -1,6 +1,7 @@
 """
 Interactive handler for TestRunner runnable class.
 """
+
 import numbers
 import threading
 import warnings
@@ -901,9 +902,9 @@ class TestRunnerIHandler(entity.Entity):
                 parent_uids,
             )
             for attachment in report.attachments:
-                self.report.attachments[
-                    attachment.dst_path
-                ] = attachment.source_path
+                self.report.attachments[attachment.dst_path] = (
+                    attachment.source_path
+                )
             parent_entry[report.uid] = report
 
     def _merge_attributes(self, attribs, parent_uids):

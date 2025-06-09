@@ -66,7 +66,6 @@ class GherkinTestSuiteBase(LogCaptureMixin):
         self._teardown(env, result, self.__base_context)
 
     def run_testcase(self, env, result, context, testcase_name):
-
         scenario = next(
             scenario
             for scenario in self.feature.scenarios
@@ -75,7 +74,6 @@ class GherkinTestSuiteBase(LogCaptureMixin):
         resolver = self.resolver
 
         for step in scenario.steps:
-
             text = resolver.resolve(context, step.text)
             sentence = resolver.resolve(context, step.sentence)
             argument = resolve_argument(context, resolver, step.argument)
@@ -83,7 +81,6 @@ class GherkinTestSuiteBase(LogCaptureMixin):
             step_result = result.group(description=sentence)
 
             with step_result:
-
                 if argument and isinstance(argument, DataTable):
                     step_result.table.log(
                         argument.data, description="Argument"
@@ -140,7 +137,6 @@ class GherkinTestSuiteBase(LogCaptureMixin):
 
     @classmethod
     def create_testcase(cls, scenario):
-
         if not testplan_safe_name(scenario.name):
             raise NonTestplanSafeNameError(
                 'The scenario name "{}" contains non testplan safe chars "{}"'.format(

@@ -394,7 +394,6 @@ def test_programmatic_ordering(sorter, report_ctx):
     ),
 )
 def test_command_line_ordering(cmdline_args, report_ctx):
-
     multitest = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
 
     with argv_overridden(*cmdline_args):

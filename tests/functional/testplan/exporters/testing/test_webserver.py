@@ -88,9 +88,7 @@ def test_webserver_exporter(dummy_testplan):
     url = None
     timeout = time.time() + _TIMEOUT
 
-    while (
-        (url is None) and (proc.poll() is None) and ((time.time() < timeout))
-    ):
+    while (url is None) and (proc.poll() is None) and (time.time() < timeout):
         try:
             stdout_line = stdout_queue.get_nowait()
         except queue.Empty:

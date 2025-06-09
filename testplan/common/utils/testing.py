@@ -377,10 +377,10 @@ class XMLComparison:
         num_children = len(self.children)
         num_xml_children = len(xml_children)
 
-        assert (
-            num_children == num_xml_children
-        ), "Mismatching number of children ({} vs {})".format(
-            num_children, num_xml_children
+        assert num_children == num_xml_children, (
+            "Mismatching number of children ({} vs {})".format(
+                num_children, num_xml_children
+            )
         )
 
         for curr_child, xml_child in zip(self.children, xml_children):

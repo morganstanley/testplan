@@ -3,6 +3,7 @@
 This example shows how to use the parametrization
 feature of `@testcase` decorator.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -13,7 +14,6 @@ from testplan.report.testing.styles import Style
 
 @testsuite
 class SimpleTest:
-
     # This will generate 4 new testcase methods, using a tuple for each one.
     @testcase(
         parameters=((5, 5, 10), (3, 2, 5), (0, 0, 0), ("foo", "bar", "foobar"))
@@ -91,7 +91,6 @@ def custom_error_name_func(func_name, kwargs):
 
 @testsuite
 class ErrorTest:
-
     # The lambda functions in the parameters below try to
     # execute invalid Python code that raises certain errors.
     # The parametrized test method checks if the function
@@ -154,6 +153,7 @@ def kwargs_to_string(docstring, kwargs):
 
 # Use the original docstring, formatting
 # it using kwargs via string interpolation.
+
 
 # e.g. `foo: {foo}, bar: {bar}`.format(foo=2, bar=5)` -> 'foo: 2, bar: 5'
 def interpolate_docstring(docstring, kwargs):

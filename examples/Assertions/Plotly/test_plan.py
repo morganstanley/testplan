@@ -2,6 +2,7 @@
 """
 This example shows usage of chart assertions.
 """
+
 import os
 import re
 import sys

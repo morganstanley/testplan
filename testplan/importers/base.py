@@ -1,6 +1,7 @@
 """
 Implements base importer classes.
 """
+
 from typing import TypeVar, Generic, List
 
 from testplan.report import TestGroupReport, TestReport
@@ -17,7 +18,7 @@ class ImportedResult:
     def category(self) -> str:
         raise NotImplementedError
 
-    def results(self) -> (List[TestGroupReport]):
+    def results(self) -> List[TestGroupReport]:
         raise NotImplementedError
 
 

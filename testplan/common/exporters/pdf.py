@@ -1,6 +1,7 @@
 """
-  Utilities for generating pdf files via Reportlab.
+Utilities for generating pdf files via Reportlab.
 """
+
 import re
 import os
 import itertools
@@ -455,9 +456,8 @@ class RowStyle:
         end_column: int = -1,
         start_row: int = None,
         end_row: int = None,
-        **style_props
+        **style_props,
     ) -> None:
-
         if not style_props:
             raise ValueError(
                 "Cannot initialize `RowStyle` without any style properties."
@@ -489,9 +489,9 @@ class RowStyle:
     def start_row(self, value: int) -> None:
         if self._start_row is not None:
             raise ValueError(
-                (
-                    "Cannot override existing value " "for start row ({})"
-                ).format(self.start_row)
+                "Cannot override existing value for start row ({})".format(
+                    self.start_row
+                )
             )
         self._start_row = value
 
@@ -499,7 +499,7 @@ class RowStyle:
     def end_row(self, value: int) -> None:
         if self._end_row is not None:
             raise ValueError(
-                ("Cannot override existing value " "for end row ({})").format(
+                "Cannot override existing value for end row ({})".format(
                     self.end_row
                 )
             )
@@ -724,7 +724,6 @@ class RowData:
             style = [style]
 
         if style and content:
-
             # Reportlab styling uses inclusive indexes on both ends
             start_row, end_row = self.end, self.end + len(content) - 1
             for style_obj in style:

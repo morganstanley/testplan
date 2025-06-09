@@ -4,6 +4,7 @@ Classes for sorting test context before a test run.
 Warning: `sort_instances` functionality is not supported yet, but the
 API is available for future compatibility.
 """
+
 import operator
 import random
 from enum import Enum

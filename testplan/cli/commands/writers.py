@@ -1,6 +1,7 @@
 """
 Implements writer commands of the TPS command line tool.
 """
+
 import os
 import tempfile
 

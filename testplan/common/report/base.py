@@ -7,6 +7,7 @@ runners for a testplan, each of which would generate a partial report.
 Later on these reports would be merged together to
 build the final report as the testplan result.
 """
+
 import copy
 import traceback
 import itertools
@@ -523,7 +524,6 @@ class BaseReportGroup(Report):
     exception_logger = ExceptionLogger
 
     def __init__(self, name, **kwargs):
-
         super(BaseReportGroup, self).__init__(name=name, **kwargs)
 
         self._index: Dict = {}

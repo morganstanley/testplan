@@ -21,7 +21,6 @@ display.params = display_command.params
 
 @display.result_callback()
 def run_actions(parse_action, **kwargs):
-
     result = parse_action()
     # now we have the result just call the display writer
     click.get_current_context().invoke(display_command, **kwargs)(result)

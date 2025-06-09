@@ -333,8 +333,9 @@ class Pattern(Filter):
             test_ttl_part_p = m.group(3)
 
             try:
-                test_cur_part_p_, test_ttl_part_p_ = int(test_cur_part_p), int(
-                    test_ttl_part_p
+                test_cur_part_p_, test_ttl_part_p_ = (
+                    int(test_cur_part_p),
+                    int(test_ttl_part_p),
                 )
             except ValueError:
                 pass

@@ -115,8 +115,8 @@ class Watcher(Loggable):
                             report.covered_lines = common_lines
                         else:
                             for k, v in common_lines.items():
-                                report.covered_lines[
-                                    k
-                                ] = report.covered_lines.get(k, set()).union(
-                                    set(v)
+                                report.covered_lines[k] = (
+                                    report.covered_lines.get(k, set()).union(
+                                        set(v)
+                                    )
                                 )

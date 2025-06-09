@@ -97,7 +97,7 @@ class Cppunit(ProcessRunnerTest):
         cppunit_filter="",
         listing_flag=None,
         parse_test_context=None,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(Cppunit, self).__init__(**options)
@@ -124,7 +124,6 @@ class Cppunit(ProcessRunnerTest):
             return super(Cppunit, self)._list_command()
 
     def read_test_data(self):
-
         importer = CPPUnitResultImporter(
             self.report_path if self.cfg.file_output_flag else self.stdout
         )

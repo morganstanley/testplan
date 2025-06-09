@@ -1,6 +1,7 @@
 """
 Custom marshmallow fields.
 """
+
 import abc
 import pprint
 
@@ -236,7 +237,6 @@ class ColumnContainComparisonField(fields.Field):
     """Serialization logic for ColumnContainComparison"""
 
     def _serialize(self, value, attr, obj, **kwargs):
-
         return (value.idx, native_or_pformat(value.value), value.passed)
 
 
@@ -337,7 +337,6 @@ class GenericNested(fields.Field):
         return result
 
     def _serialize(self, nested_obj, attr, obj, **kwargs):
-
         if nested_obj is None:
             return None
 

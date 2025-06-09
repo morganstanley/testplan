@@ -37,8 +37,9 @@ class StdOutRegistry(Registry):
 
         if header is None:
             raise ValueError(
-                "Empty header returned by"
-                " {logger} for {entry}".format(logger=logger, entry=entry)
+                "Empty header returned by {logger} for {entry}".format(
+                    logger=logger, entry=entry
+                )
             )
 
         header_msg = self.indented_msg(header, ASSERTION_INDENT)

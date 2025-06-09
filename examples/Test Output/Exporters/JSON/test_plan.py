@@ -3,6 +3,7 @@
 """
 This example shows how to generate a JSON report of test results.
 """
+
 import os
 import sys
 
@@ -76,7 +77,6 @@ class BetaSuite:
     json_path=os.path.join(os.path.dirname(__file__), "report.json"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[AlphaSuite()])
     multi_test_2 = MultiTest(name="Secondary", suites=[BetaSuite()])
     plan.add(multi_test_1)

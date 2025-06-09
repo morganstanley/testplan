@@ -3,6 +3,7 @@
 """
 This example shows usage of fix assertion namespaces.
 """
+
 import re
 import sys
 from testplan import test_plan
@@ -23,7 +24,6 @@ class FixSuite:
 
     @testcase
     def test_fix_namespace(self, env, result):
-
         # `fix.match` can compare two fix messages, and
         # supports custom comparators (like `dict.match`)
 

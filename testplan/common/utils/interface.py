@@ -72,7 +72,7 @@ def check_signature_leading(func: callable, exp_params: List[str]) -> bool:
     msg = (
         f"First several expected arguments for {func.__name__} are "
         f"{exp_params} or their underscore-prefixed variants, not "
-        f"{funcparams[:len(exp_params)]}"
+        f"{funcparams[: len(exp_params)]}"
     )
 
     for exp in exp_params:

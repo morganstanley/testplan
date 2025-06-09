@@ -230,7 +230,8 @@ class App(Driver):
         if isinstance(self.cfg.env, dict):
             ctx = self.context_input(exclude=["env"])
             self._env = {
-                key: expand(val, self.context, str) if is_context(val)
+                key: expand(val, self.context, str)
+                if is_context(val)
                 # allowing None val for child class use case
                 else (render(val, ctx) if val is not None else None)
                 for key, val in self.cfg.env.items()
@@ -289,7 +290,6 @@ class App(Driver):
             return self._binary
 
         if os.path.isfile(self.resolved_bin):
-
             if self.cfg.path_cleanup is True:
                 name = os.path.basename(self.cfg.binary)
             else:

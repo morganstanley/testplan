@@ -72,7 +72,6 @@ __all__ = [
 
 
 class Assertion(BaseEntry):
-
     meta_type = "assertion"
 
     def __init__(self, description=None, category=None, flag=None):
@@ -149,7 +148,6 @@ class Fail(Assertion):
 
 
 class FuncAssertion(Assertion):
-
     func = None
 
     def __init__(self, first, second, description=None, category=None):
@@ -405,7 +403,6 @@ class RegexMatchLine(RegexAssertion):
 
 
 class ExceptionRaised(Assertion):
-
     """TODO"""
 
     def __init__(
@@ -419,16 +416,16 @@ class ExceptionRaised(Assertion):
     ):
         expected_exceptions = make_tuple(expected_exceptions)
         assert expected_exceptions, "`expected_exceptions` cannot be empty."
-        assert [
-            issubclass(exc, Exception) for exc in expected_exceptions
-        ], "items in `expected_exceptions` must be subclass of `Exception` ."
+        assert [issubclass(exc, Exception) for exc in expected_exceptions], (
+            "items in `expected_exceptions` must be subclass of `Exception` ."
+        )
         if func:
             assert callable(func), "`func` must be a callable."
         if pattern:
-            assert isinstance(
-                pattern, str
-            ), "`pattern` must be of string type, it was: {}".format(
-                type(pattern)
+            assert isinstance(pattern, str), (
+                "`pattern` must be of string type, it was: {}".format(
+                    type(pattern)
+                )
             )
 
         self.raised_exception = raised_exception
@@ -768,7 +765,6 @@ class ColumnContain(Assertion):
         passed = True
 
         for idx, row in enumerate(self.table):
-
             comp_obj = ColumnContainComparison(
                 idx=idx,
                 value=row[self.column],
@@ -873,13 +869,11 @@ def get_comparison_columns(
     comparison_columns = columns_1
 
     if include_columns:
-
         check_missing_columns(columns_1, lookup=include_columns)
         check_missing_columns(columns_2, lookup=include_columns)
         comparison_columns = [c for c in columns_1 if c in include_columns]
 
     elif exclude_columns:
-
         columns_1 = [c for c in columns_1 if c not in exclude_columns]
         columns_2 = [c for c in columns_2 if c not in exclude_columns]
 
@@ -1147,7 +1141,6 @@ class XMLCheck(Assertion):
         description=None,
         category=None,
     ):
-
         self.xpath = xpath
         self.tags = tags
 
@@ -1179,7 +1172,7 @@ class XMLCheck(Assertion):
 
         # xpath does not exist in XML
         if not results:
-            self.message = "xpath: `{}` does not" " exist in the XML.".format(
+            self.message = "xpath: `{}` does not exist in the XML.".format(
                 xpath
             )
             return False
@@ -1200,8 +1193,7 @@ class XMLCheck(Assertion):
                     xml_comp = XMLTagComparison(
                         tag=tag,
                         diff=None,
-                        error="No value is found,"
-                        " although the path exists.",
+                        error="No value is found, although the path exists.",
                         extra=None,
                     )
                 elif isinstance(tag, str) and re.match(tag, text):

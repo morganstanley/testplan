@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
-    This example shows how to implement a custom lister for
-    displaying test context of a test plan.
+This example shows how to implement a custom lister for
+displaying test context of a test plan.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -98,7 +99,6 @@ class ExampleLister(BaseLister):
 # custom test lister we defined above.
 @test_plan(name="Custom test lister example", test_lister=ExampleLister())
 def main(plan):
-
     test1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
     test2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(test1)

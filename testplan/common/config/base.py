@@ -14,6 +14,7 @@ from testplan.common.utils.interface import check_signature
 # handle arbitrary objects (including None).
 ABSENT = Optional._MARKER  # pylint: disable=protected-access
 
+
 # Another sentinel object indicating a default but falsy value.
 class UNSET_T:
     def __eq__(self, other):

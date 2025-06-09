@@ -1,6 +1,7 @@
 """
 Base classes go here.
 """
+
 import os
 import re
 import datetime
@@ -70,7 +71,6 @@ class BaseEntry:
 
 
 class Group:
-
     # we treat Groups as assertions so we can render them with pass/fail context
     meta_type = "assertion"
 
@@ -223,7 +223,6 @@ class TableLog(BaseEntry):
     """Log a table to the report."""
 
     def __init__(self, table, display_index=False, description=None):
-
         as_list = TableEntry(table).as_list_of_list()
         self.columns, self.table = as_list[0], as_list[1:]
         # NOTE: we don't allow custom indices up to now
@@ -303,7 +302,7 @@ class Graph(BaseEntry):
             self.discrete_chart = False
         else:
             raise ValueError(
-                "Graph of type {!r} cannot " "be rendered".format(graph_type)
+                "Graph of type {!r} cannot be rendered".format(graph_type)
             )
 
         super(Graph, self).__init__(description=description)
@@ -312,7 +311,7 @@ class Graph(BaseEntry):
         for option in graph_options:
             if option not in self.VALID_GRAPH_OPTIONS:
                 raise ValueError(
-                    "Graph option {!r} " "is not valid".format(option)
+                    "Graph option {!r} is not valid".format(option)
                 )
 
     def assert_valid_series_options(self, series_options, graph_data):
@@ -338,7 +337,6 @@ class Attachment(BaseEntry):
     def __init__(
         self, filepath, description=None, dst_path=None, scratch_path=None
     ):
-
         self.source_path = filepath
         self.orig_filename = os.path.basename(filepath)
         self.filesize = os.path.getsize(filepath)
@@ -370,7 +368,6 @@ class MatPlot(Attachment):
     def __init__(
         self, pyplot, image_file_path, width, height, description=None
     ):
-
         if width:
             pyplot.gcf().set_figwidth(float(width))
         if height:
@@ -419,7 +416,6 @@ class Directory(BaseEntry):
         dst_path=None,
         scratch_path=None,
     ):
-
         self.source_path = dirpath
         self.ignore = ignore
         self.only = only

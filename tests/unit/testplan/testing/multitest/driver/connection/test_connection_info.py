@@ -1,4 +1,5 @@
 """Unit tests for the connections."""
+
 import pytest
 
 from testplan.testing.multitest.driver.connection import (

@@ -87,7 +87,6 @@ def test_exception_logger_reraise():
     rep = DummyReport()
 
     with pytest.raises(KeyError):
-
         with rep.logged_exceptions(IndexError):
             raise IndexError("foo")  # suppressed
 
@@ -97,7 +96,6 @@ def test_exception_logger_reraise():
     rep = DummyReportGroup()
 
     with pytest.raises(KeyError):
-
         with rep.logged_exceptions(IndexError):
             raise IndexError("foo")  # suppressed
 
@@ -289,7 +287,6 @@ class TestBaseReportGroup:
 
         with mock.patch.object(child_orig_1, "merge"):
             with mock.patch.object(child_orig_2, "merge"):
-
                 parent_orig.merge(parent_clone, strict=True)
                 child_orig_1.merge.assert_called_once_with(
                     child_clone_1, strict=True

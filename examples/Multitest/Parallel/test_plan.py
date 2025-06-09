@@ -2,6 +2,7 @@
 """
 Example script to demonstrate parallel test execution of a MultiTest.
 """
+
 import sys
 
 from testplan import test_plan

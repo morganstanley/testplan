@@ -187,7 +187,11 @@ def test_suite_level(
 ):
     # Given
     plan = get_filtered_plan("*:*:testsuite_level")
-    with suite_logger_spy as suite_spy, testplan_logger_spy as testplan_spy, root_logger_spy as root_spy:
+    with (
+        suite_logger_spy as suite_spy,
+        testplan_logger_spy as testplan_spy,
+        root_logger_spy as root_spy,
+    ):
         # When
         plan_result = plan.run()
 
@@ -209,7 +213,11 @@ def test_plan_level(
 ):
     # Given
     plan = get_filtered_plan("*:*:testplan_level")
-    with suite_logger_spy as suite_spy, testplan_logger_spy as testplan_spy, root_logger_spy as root_spy:
+    with (
+        suite_logger_spy as suite_spy,
+        testplan_logger_spy as testplan_spy,
+        root_logger_spy as root_spy,
+    ):
         # When
         plan_result = plan.run()
 
@@ -236,7 +244,11 @@ def test_root_level(
 ):
     # Given
     plan = get_filtered_plan("*:*:root_level")
-    with suite_logger_spy as suite_spy, testplan_logger_spy as testplan_spy, root_logger_spy as root_spy:
+    with (
+        suite_logger_spy as suite_spy,
+        testplan_logger_spy as testplan_spy,
+        root_logger_spy as root_spy,
+    ):
         # When
         plan_result = plan.run()
 

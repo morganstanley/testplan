@@ -315,7 +315,6 @@ def test_task_rerun_with_more_times_2(mockplan):
 
 
 def test_task_rerun_with_parts():
-
     with tempfile.TemporaryDirectory() as runpath:
         mockplan = TestplanMock(
             "plan", runpath=runpath, merge_scheduled_parts=True

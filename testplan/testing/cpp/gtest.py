@@ -100,7 +100,7 @@ class GTest(ProcessRunnerTest):
         gtest_random_seed=0,
         gtest_stream_result_to="",
         gtest_death_test_style="fast",
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(GTest, self).__init__(**options)

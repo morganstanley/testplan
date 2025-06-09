@@ -3,6 +3,7 @@
 """
 This example shows usage of checking exception.
 """
+
 import sys
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -19,7 +20,6 @@ class RaisedSuite:
 
     @testcase
     def test_raised_exceptions(self, env, result):
-
         with result.raises(KeyError):
             {"foo": 3}["bar"]
 

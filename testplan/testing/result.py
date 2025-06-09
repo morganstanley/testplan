@@ -6,6 +6,7 @@ log data. Entries contained in the result are copied into the Report object
 after testcases have finished running.
 
 """
+
 import inspect
 import os
 import platform
@@ -1548,7 +1549,6 @@ class Result:
         _scratch=None,
         _collect_code_context=False,
     ):
-
         self.entries = []
         self.attachments = []
 

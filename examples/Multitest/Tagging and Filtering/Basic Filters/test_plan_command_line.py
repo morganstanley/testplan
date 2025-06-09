@@ -7,6 +7,7 @@ This example shows:
 * How tests / suites/ testcases can be filtered by
   patterns and tags via command line options.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -30,7 +31,6 @@ class Alpha:
 # A suite with testcase level tags only.
 @testsuite
 class Beta:
-
     # A testcase tagged with a simple tag: `server`
     # This is a shortcut notation for {'simple': 'server'}
     @testcase(tags="server")
@@ -125,7 +125,6 @@ class Gamma:
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(
         name="Primary", suites=[Alpha(), Beta()], tags={"color": "white"}
     )

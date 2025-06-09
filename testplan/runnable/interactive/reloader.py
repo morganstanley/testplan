@@ -516,9 +516,9 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
         if caller is None:
             caller_frame = inspect.stack()[2]
             self._curr_caller = caller_frame.frame.f_locals.get("m")
-            assert (
-                self._curr_caller is not None
-            ), "Source code of `modulefinder` library has changed !!"
+            assert self._curr_caller is not None, (
+                "Source code of `modulefinder` library has changed !!"
+            )
         else:
             self._curr_caller = caller
 

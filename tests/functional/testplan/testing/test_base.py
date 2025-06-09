@@ -85,7 +85,6 @@ fixture_root = os.path.join(os.path.dirname(__file__), "fixtures", "base")
     ),
 )
 def test_process_runner(mockplan, binary_path, expected_report, test_kwargs):
-
     process_test = DummyTest(name="MyTest", binary=binary_path, **test_kwargs)
     mockplan.add(process_test)
     assert mockplan.run().run is True

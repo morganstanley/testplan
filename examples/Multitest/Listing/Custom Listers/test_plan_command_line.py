@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
-    This example shows how to implement a custom lister for
-    displaying test context of a test plan.
+This example shows how to implement a custom lister for
+displaying test context of a test plan.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase

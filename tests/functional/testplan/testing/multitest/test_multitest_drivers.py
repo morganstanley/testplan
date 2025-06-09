@@ -283,7 +283,6 @@ def test_multitest_driver_fetch_error_log(mockplan):
 
 
 def test_multitest_driver_start_timeout():
-
     driver1 = BaseDriver(
         name="timeout_driver",
         timeout=1,

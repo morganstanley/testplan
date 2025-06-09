@@ -84,7 +84,6 @@ def get_testcase_execution_time(
 
 
 def test_execution_order(mockplan):
-
     multitest = MultiTest(
         name="MyMultitest", suites=[MySuite()], thread_pool_size=2
     )

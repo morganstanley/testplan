@@ -38,7 +38,6 @@ from testplan.testing.result import Result
 
 
 class DriverLogCollector:
-
     """
     Customizable file collector class used for collecting driver logs.
 

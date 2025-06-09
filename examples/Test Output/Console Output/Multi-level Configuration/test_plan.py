@@ -4,6 +4,7 @@
 This example shows how console output can be configured on different
 levels (e.g. plan, multitest).
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -64,7 +65,6 @@ class BetaSuite:
     stdout_style=Style(passing="testcase", failing="assertion-detail"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[AlphaSuite()])
     multi_test_2 = MultiTest(
         name="Secondary",

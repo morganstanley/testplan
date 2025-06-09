@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
-    This example shows how the suites / test cases
-    of a test plan can be listed via command line arguments.
+This example shows how the suites / test cases
+of a test plan can be listed via command line arguments.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -109,7 +110,6 @@ class Gamma:
 
 @test_plan(name="Command Line Listing Example")
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
     multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)

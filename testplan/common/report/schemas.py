@@ -1,6 +1,7 @@
 """
-  Base schemas for report serialization.
+Base schemas for report serialization.
 """
+
 import datetime
 
 from marshmallow import Schema, fields, post_dump, post_load, pre_load

@@ -1,4 +1,5 @@
 """Testplan base module."""
+
 import argparse
 import os
 import random
@@ -216,7 +217,6 @@ class Testplan(entity.RunnableManager):
         ] = defaults.PLAN_RUNTIME_TARGET,
         **options,
     ):
-
         # Set mutable defaults.
         if abort_signals is None:
             abort_signals = entity.DEFAULT_RUNNABLE_ABORT_SIGNALS[:]

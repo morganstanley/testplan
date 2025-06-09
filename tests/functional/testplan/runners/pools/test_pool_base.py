@@ -21,7 +21,6 @@ class MyLocalSuite:
 
 
 def get_mtest(name):
-
     # Nested function won't be serialized by pickle.
     def nested_before_start(env):
         pass

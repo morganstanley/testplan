@@ -87,5 +87,5 @@ class ArgMixin:
             type=cls.parse,
             default=default,
             help=cls.get_help_text(default=default),
-            **kwargs
+            **kwargs,
         )

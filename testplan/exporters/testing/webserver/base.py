@@ -2,6 +2,7 @@
 Web server exporter for test reports, it opens a local http web server
 which can display the test result.
 """
+
 from typing import Dict, Optional
 
 from testplan import defaults

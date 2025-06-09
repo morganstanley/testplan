@@ -307,7 +307,6 @@ class TimerCtxManager:
     """
 
     def __init__(self, timer, key):
-
         self.timer = timer
         self.key = key
         self.start_ts = None

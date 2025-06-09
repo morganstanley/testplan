@@ -6,6 +6,7 @@ data directly.
 The reason being some assertion classes may have attributes that
 cannot be deserialized (processes, exception objects etc).
 """
+
 from marshmallow import Schema, fields, post_dump
 
 from testplan.common.serialization import fields as custom_fields
@@ -35,7 +36,6 @@ class RawAssertionSchema(AssertionSchema):
     asr.GreaterEqual,
 )
 class FuncAssertionSchema(AssertionSchema):
-
     first = custom_fields.NativeOrPretty()
     second = custom_fields.NativeOrPretty()
     label = fields.String()
@@ -43,7 +43,6 @@ class FuncAssertionSchema(AssertionSchema):
 
 @registry.bind(asr.Equal)
 class EqualSchema(FuncAssertionSchema):
-
     type_actual = fields.String()
     type_expected = fields.String()
 
@@ -55,7 +54,6 @@ class FailSchema(AssertionSchema):
 
 @registry.bind(asr.IsClose)
 class ApproximateEqualitySchema(AssertionSchema):
-
     first = custom_fields.NativeOrPretty()
     second = custom_fields.NativeOrPretty()
     rel_tol = custom_fields.NativeOrPretty()
@@ -65,13 +63,11 @@ class ApproximateEqualitySchema(AssertionSchema):
 
 @registry.bind(asr.IsTrue, asr.IsFalse)
 class BooleanSchema(AssertionSchema):
-
     expr = custom_fields.NativeOrPretty()
 
 
 @registry.bind(asr.Contain, asr.NotContain)
 class MembershipSchema(AssertionSchema):
-
     member = custom_fields.NativeOrPretty()
     container = custom_fields.NativeOrPretty()
 
@@ -84,7 +80,6 @@ class MembershipSchema(AssertionSchema):
     asr.RegexMatchLine,
 )
 class RegexSchema(AssertionSchema):
-
     string = custom_fields.NativeOrPretty()
     pattern = custom_fields.NativeOrPretty()
     # flags = fields.Integer()  # NOTE: never set & used up to now
@@ -93,14 +88,12 @@ class RegexSchema(AssertionSchema):
 
 @registry.bind(asr.RegexFindIter)
 class RegexFindIterSchema(RegexSchema):
-
     condition_match = fields.Boolean()
     condition = custom_fields.NativeOrPretty()
 
 
 @registry.bind(asr.ExceptionRaised, asr.ExceptionNotRaised)
 class ExceptionRaisedSchema(AssertionSchema):
-
     raised_exception = custom_fields.ExceptionField()
     expected_exceptions = fields.List(custom_fields.NativeOrPretty())
 
@@ -124,7 +117,6 @@ class EqualSlicesSchema(AssertionSchema):
 
 @registry.bind(asr.LineDiff)
 class LineDiffSchema(AssertionSchema):
-
     first = fields.List(custom_fields.NativeOrPretty())
     second = fields.List(custom_fields.NativeOrPretty())
     ignore_space_change = custom_fields.NativeOrPretty()
@@ -167,7 +159,6 @@ class TableMatchSchema(AssertionSchema):
 
 @registry.bind(asr.XMLCheck)
 class XMLCheckSchema(AssertionSchema):
-
     xpath = fields.String()
     tags = fields.List(fields.String())
 
@@ -180,7 +171,6 @@ class XMLCheckSchema(AssertionSchema):
 
 @registry.bind(asr.DictCheck, asr.FixCheck)
 class DictCheckSchema(AssertionSchema):
-
     has_keys = fields.List(custom_fields.NativeOrPretty())
     has_keys_diff = fields.List(custom_fields.NativeOrPretty())
 
@@ -190,7 +180,6 @@ class DictCheckSchema(AssertionSchema):
 
 @registry.bind(asr.DictMatch, asr.FixMatch)
 class DictMatchSchema(AssertionSchema):
-
     include_keys = fields.List(custom_fields.NativeOrPretty())
     exclude_keys = fields.List(custom_fields.NativeOrPretty())
     actual_description = fields.String()
@@ -205,7 +194,6 @@ class DictMatchSchema(AssertionSchema):
 
 @registry.bind(asr.DictMatchAll, asr.FixMatchAll)
 class DictMatchAllSchema(AssertionSchema):
-
     key_weightings = fields.Raw()
     matches = fields.Raw()
 

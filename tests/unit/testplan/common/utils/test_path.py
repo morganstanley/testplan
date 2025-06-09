@@ -1,4 +1,5 @@
 """Unit tests for the path utilities."""
+
 import subprocess
 import re
 

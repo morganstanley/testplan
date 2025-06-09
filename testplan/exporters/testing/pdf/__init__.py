@@ -182,7 +182,6 @@ class PDFExporter(Exporter):
         row_idx = 0
 
         for depth, obj in data:
-
             registry = (
                 report_registry
                 if isinstance(obj, Report)

@@ -1,0 +1,17 @@
+line-length = 79
+exclude = ["testplan/vendor", "releaseherald"]
+
+[lint]
+select = [
+    # flake8-builtins
+    "A",
+    # isort
+    # "I",
+    # pyupgrade
+    # "UP",
+]
+ignore = [
+    "A001",
+    "A002",
+]
+

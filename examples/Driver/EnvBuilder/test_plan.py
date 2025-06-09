@@ -14,7 +14,6 @@ from suites import TestOneClient, TestTwoClients
 
 @test_plan(name="EnvBuilderExample")
 def main(plan):
-
     env_builder1 = EnvBuilder("One Client", ["client1", "server1"])
     env_builder2 = EnvBuilder("Two Clients", ["client1", "client2", "server1"])
     plan.add(

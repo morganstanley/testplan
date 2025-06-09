@@ -1,6 +1,7 @@
 """
 Test Matplotlib Assertion - separate to ensure test is skippable on windows.
 """
+
 import re
 
 from testplan.report import (

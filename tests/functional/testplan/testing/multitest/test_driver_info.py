@@ -32,9 +32,7 @@ def test_driver_info_flag(mockplan):
 
 
 def test_failing_driver_with_driver_info_flag(mockplan):
-    expected_report = (
-        base.failing.report.expected_report_with_failing_driver_and_driver_info_flag
-    )
+    expected_report = base.failing.report.expected_report_with_failing_driver_and_driver_info_flag
     multitest = MultiTest(
         name="MyTest",
         environment=[FailingDriver("driver")],
@@ -48,9 +46,7 @@ def test_failing_driver_with_driver_info_flag(mockplan):
 
 
 def test_multitest_drivers_connection_in_testplan(mockplan):
-    expected_report = (
-        base.passing.report.expected_report_with_driver_connections_and_driver_info_flag
-    )
+    expected_report = base.passing.report.expected_report_with_driver_connections_and_driver_info_flag
     server = TCPServer("server")
     client = TCPClient(
         name="client",

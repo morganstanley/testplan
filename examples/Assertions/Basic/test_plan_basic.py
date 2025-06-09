@@ -4,6 +4,7 @@
 This example shows usage of assertions,
 assertion groups and assertion namespaces.
 """
+
 import sys
 
 from testplan import test_plan

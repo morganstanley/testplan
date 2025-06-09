@@ -3,6 +3,7 @@
 This example shows how different sorting logic can be applied
 on different testing levels (e.g. plan, multitest)
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -78,7 +79,6 @@ class Gamma:
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(
         name="Primary",
         test_sorter=ShuffleSorter("all"),

@@ -1,6 +1,7 @@
 """
 Implements three-phase importer for JUnit format.
 """
+
 import os
 from typing import List
 

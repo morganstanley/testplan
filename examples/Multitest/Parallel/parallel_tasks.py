@@ -1,4 +1,5 @@
 """Example test suite to demonstrate grouped parallel MultiTest execution."""
+
 import threading
 
 from testplan.testing.multitest import MultiTest

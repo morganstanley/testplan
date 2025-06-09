@@ -38,6 +38,7 @@ We will have a report tree like:
                                                        after GTest is run
     ...
 """
+
 import copy
 import getpass
 import hashlib

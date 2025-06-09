@@ -17,7 +17,6 @@ from my_tests.mtest import make_multitest
     ),
 )
 def main(plan):
-
     # Adding two multitests, either using `add` or `schedule` method the
     # test target can be reloaded in interactive mode.
     plan.add(make_multitest(idx="1"))

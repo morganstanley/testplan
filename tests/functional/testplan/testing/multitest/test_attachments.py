@@ -1,4 +1,5 @@
 """Test storing of attachments in a report."""
+
 import re
 import os
 
@@ -36,7 +37,6 @@ def attachment_plan(tmpdir):
 
 @pytest.fixture(scope="function")
 def multi_attachments_plan(tmpdir):
-
     attachment_paths = [
         str(tmpdir.mkdir(f"{i}").join("attachment.txt")) for i in range(2)
     ]

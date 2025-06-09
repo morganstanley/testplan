@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Run the black check on python 3, do nothing on python 2."""
+
 import subprocess
 
 

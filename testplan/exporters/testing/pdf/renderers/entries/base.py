@@ -1,4 +1,5 @@
-""" TODO """
+"""TODO"""
+
 import pprint
 
 from PIL import Image as pil_image
@@ -91,7 +92,7 @@ class SerializedEntryRenderer(BaseRowRenderer):
         return RowStyle(
             font=(constants.FONT, constants.FONT_SIZE_SMALL),
             left_padding=constants.INDENT * depth,
-            **kwargs
+            **kwargs,
         )
 
     def get_style(self, source):

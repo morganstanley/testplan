@@ -158,7 +158,6 @@ class TestTestCaseReport:
 
 
 def generate_dummy_testgroup():
-
     tag_data_1 = {"tagname": {"tag1", "tag2"}}
     tag_data_2 = {"other_tagname": {"tag4", "tag5"}}
 
@@ -203,7 +202,6 @@ def generate_dummy_testgroup():
 @pytest.fixture
 @disable_log_propagation(report_logger)
 def dummy_test_plan_report():
-
     tg_2 = generate_dummy_testgroup()
 
     rep = TestReport(name="My Plan", entries=[tg_2], meta={"foo": "baz"})
@@ -217,21 +215,20 @@ def dummy_test_plan_report():
 @pytest.fixture
 @disable_log_propagation(report_logger)
 def dummy_test_plan_report_with_binary_asserts():
-
     tg_2 = generate_dummy_testgroup()
 
     res = Result()
     res.equal(1, 1, "IGNORE THIS")
-    res.equal(b"\xF2", b"\xf2", "IGNORE THIS")
-    res.equal(b"\x00\xb1\xC1", b"\x00\xB2\xc2", "IGNORE THIS")
+    res.equal(b"\xf2", b"\xf2", "IGNORE THIS")
+    res.equal(b"\x00\xb1\xc1", b"\x00\xb2\xc2", "IGNORE THIS")
 
     # dict match nicely produce tupples, list, maps within the serialized schema
     a_dict = OrderedDict(
         [
-            (b"binarykey\xB1", "string value"),
-            ("string_key", b"binary value\xB1"),
-            ("key3", [b"binary\xB1", "in", "list"]),
-            ("key4", (b"binary\xB1", "in", "tuple")),
+            (b"binarykey\xb1", "string value"),
+            ("string_key", b"binary value\xb1"),
+            ("key3", [b"binary\xb1", "in", "list"]),
+            ("key4", (b"binary\xb1", "in", "tuple")),
         ]
     )
     res.dict.match(a_dict, a_dict, "IGNORE THIS")
@@ -309,13 +306,13 @@ def test_report_json_binary_serialization(
     # passing assertion
     hx_1_1 = get_path(j, "entries.1.entries.0.entries.1.first")
     hx_1_2 = get_path(j, "entries.1.entries.0.entries.1.second")
-    assert str(b"\xF2") == hx_1_1 == hx_1_2
+    assert str(b"\xf2") == hx_1_1 == hx_1_2
 
     # failing assertion
     hx_2_1 = get_path(j, "entries.1.entries.0.entries.2.first")
     hx_2_2 = get_path(j, "entries.1.entries.0.entries.2.second")
-    assert str(b"\x00\xb1\xC1") == hx_2_1
-    assert str(b"\x00\xB2\xC2") == hx_2_2
+    assert str(b"\x00\xb1\xc1") == hx_2_1
+    assert str(b"\x00\xb2\xc2") == hx_2_2
 
     # dict.match the schema for that producing list of tuples
 
@@ -324,13 +321,13 @@ def test_report_json_binary_serialization(
     SECOND_INDEX = 3
 
     comps = get_path(j, "entries.1.entries.0.entries.3.comparison")
-    assert comps[0][KEY_INDEX] == str(b"binarykey\xB1")
-    assert comps[1][FIRST_INDEX][1] == str(b"binary value\xB1")
-    assert comps[1][SECOND_INDEX][1] == str(b"binary value\xB1")
-    assert comps[3][FIRST_INDEX][1] == str(b"binary\xB1")
-    assert comps[3][SECOND_INDEX][1] == str(b"binary\xB1")
-    assert comps[7][FIRST_INDEX][1] == str(b"binary\xB1")
-    assert comps[7][SECOND_INDEX][1] == str(b"binary\xB1")
+    assert comps[0][KEY_INDEX] == str(b"binarykey\xb1")
+    assert comps[1][FIRST_INDEX][1] == str(b"binary value\xb1")
+    assert comps[1][SECOND_INDEX][1] == str(b"binary value\xb1")
+    assert comps[3][FIRST_INDEX][1] == str(b"binary\xb1")
+    assert comps[3][SECOND_INDEX][1] == str(b"binary\xb1")
+    assert comps[7][FIRST_INDEX][1] == str(b"binary\xb1")
+    assert comps[7][SECOND_INDEX][1] == str(b"binary\xb1")
 
 
 class TestReportTags:

@@ -71,7 +71,6 @@ class BDDTestSuiteFactory:
         feature_linked_steps=False,
         common_step_dirs=None,
     ):
-
         self.features_path = features_path
         self.resolver = resolver
         self.default_step_parser_class = default_parser
@@ -91,7 +90,6 @@ class BDDTestSuiteFactory:
 
         suits = []
         for feature, step_registry in self.features:
-
             try:
                 suite = self._create_suite(feature, step_registry)
                 suits.append(suite)
@@ -102,14 +100,12 @@ class BDDTestSuiteFactory:
         return suits
 
     def _create_suite(self, feature, step_registry):
-
         suite = GherkinTestSuiteBase.get_suite_class(feature)(
             feature, step_registry, self.resolver
         )
         return suite
 
     def _load_steps(self, features):
-
         if self.feature_linked_steps:
             return [
                 (
