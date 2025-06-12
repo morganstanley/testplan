@@ -125,8 +125,7 @@
         # under most cases, included files are not hit
         "ignore:No data was collected:coverage.exceptions.CoverageWarning",
     ]
-    norecursedirs = "tests/helpers"
-
+    norecuredirs = "tests/helpers"
 [dependency-groups]
 dev = [
     "doit>=0.34.2",
@@ -146,4 +145,20 @@ test = [
     { include-group = "dev" },
     "kazoo>=2.10.0",
     "numpy>=1.21.6",
+]
+
+[tool.ruff]
+line-length = 79
+exclude = ["testplan/vendor", "releaseherald"]
+
+[tool.ruff.lint]
+select = [ 
+    "A", # flake8-builtins
+    # "I", # isort
+    # "UP", # pyupgrade
+]
+ignore = [ 
+    "A001",
+    "A002",
+    "A004",
 ]
