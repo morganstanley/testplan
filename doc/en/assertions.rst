@@ -687,8 +687,8 @@ matplot assertion and contain output sample images can be found
 ----------------------------------------------------------------------------
 
 .. note::
-    Testplan package should be installed with ``plotly`` extra in order to
-    use this assertion.
+    Testplan should be installed with ``plotly`` extra in order to use
+    this assertion.
 
 Displays a Plotly figure in the report. Downloadable examples that use
 plotly assertion can be found
