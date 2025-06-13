@@ -44,7 +44,6 @@ jobs:
     runs-on: ubuntu-22.04
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
-      BLACK_VERSION: "22.10.0"
       LINT_PYTHON_VERSION: "3.10"
     steps:
       - name: Checkout repository
