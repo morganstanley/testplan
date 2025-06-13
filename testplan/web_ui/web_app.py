@@ -8,10 +8,19 @@ import pathlib
 import argparse
 from threading import Thread
 
-import werkzeug.exceptions
-from flask import Flask, send_from_directory, redirect, jsonify
-from flask_restx import Resource, Api
-from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
+import orjson
+
+try:
+    import werkzeug.exceptions
+    from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
+    from flask import Flask, send_from_directory, redirect, jsonify
+    from flask_orjson import OrjsonProvider
+    from flask_restx import Resource, Api
+except ImportError as e:
+    raise RuntimeError(
+        "Certain packages failed to import, please consider installing Testplan "
+        "package with `interactive` extra to use this feature."
+    ) from e
 
 from testplan import defaults
 from testplan.common.utils.path import pwd
@@ -23,6 +32,9 @@ TESTPLAN_REPORT = os.path.basename(defaults.JSON_PATH)
 MONITOR_REPORT = "monitor_report.json"
 
 app = Flask(__name__)
+_provider = OrjsonProvider(app)
+_provider.option |= orjson.OPT_NON_STR_KEYS
+app.json = _provider
 _api = Api(app)
 
 

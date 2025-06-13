@@ -3,6 +3,10 @@
 Running Tests Interactively
 ***************************
 
+.. note::
+  Testplan should be installed with ``interactive`` extra in order to use
+  interactive mode feature.
+
 Introduction
 ============
 

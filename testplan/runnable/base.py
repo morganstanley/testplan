@@ -153,6 +153,19 @@ def validate_lines(d: dict) -> bool:
     return True
 
 
+def check_local_server(browse):
+    """
+    Early exit if local server (`interactive` extra) is not installed when user
+    asks for displaying report using local server feature.
+    """
+    if browse:
+        from testplan.web_ui.web_app import WebServer
+
+        del WebServer
+
+    return True
+
+
 def collate_for_merging(
     es: List[Union[TestGroupReport, TestCaseReport]],
 ) -> List[List[Union[TestGroupReport, TestCaseReport]]]:
@@ -226,7 +239,9 @@ class TestRunnerConfig(RunnableConfig):
             ],
             ConfigOption("merge_scheduled_parts", default=False): bool,
             ConfigOption("browse", default=False): bool,
-            ConfigOption("ui_port", default=None): Or(None, int),
+            ConfigOption("ui_port", default=None): Or(
+                None, And(int, check_local_server)
+            ),
             ConfigOption(
                 "web_server_startup_timeout",
                 default=defaults.WEB_SERVER_TIMEOUT,

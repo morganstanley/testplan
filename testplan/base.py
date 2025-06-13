@@ -87,7 +87,7 @@ class TestplanResult(TestRunnerResult):
     @property
     def exit_code(self) -> int:
         """System exit code based on successful run."""
-        return 0 if getattr(self, "run", False) and self.success else 1
+        return 0 if getattr(self, "run", False) is True and self.success else 1
 
     def __bool__(self):
         """
