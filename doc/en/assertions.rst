@@ -686,6 +686,10 @@ matplot assertion and contain output sample images can be found
 :py:meth:`result.plotly <testplan.testing.result.Result.plotly>`
 ----------------------------------------------------------------------------
 
+.. note::
+    Testplan package should be installed with ``plotly`` extra in order to
+    use this assertion.
+
 Displays a Plotly figure in the report. Downloadable examples that use
 plotly assertion can be found
 :ref:`here <example_assertions_plotly>`.

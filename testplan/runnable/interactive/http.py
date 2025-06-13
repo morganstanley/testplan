@@ -8,13 +8,20 @@ import os
 from typing import Dict, Optional
 from urllib.parse import unquote_plus
 
-import flask
-import flask_restx
-import flask_restx.fields
-import marshmallow.exceptions
-import werkzeug.exceptions
-from cheroot import wsgi
-from flask import request
+try:
+    import flask
+    import flask_restx
+    import flask_restx.fields
+    import marshmallow.exceptions
+    import werkzeug.exceptions
+    from cheroot import wsgi
+    from flask import request
+    from flask_orjson import OrjsonProvider
+except ImportError as e:
+    raise RuntimeError(
+        "Certain packages failed to import, please consider installing Testplan "
+        "package with `interactive` extra to use this feature."
+    ) from e
 
 import testplan
 from testplan import defaults
@@ -57,12 +64,7 @@ def generate_interactive_api(ihandler):
     api_blueprint = flask.Blueprint("api", "testplan")
     api = flask_restx.Api(api_blueprint)
     app = flask.Flask("testplan", static_folder=static_dir)
-    try:
-        from flask_orjson import OrjsonProvider
-    except ImportError:
-        pass
-    else:
-        app.json = OrjsonProvider(app)
+    app.json = OrjsonProvider(app)
     app.register_blueprint(api_blueprint, url_prefix=api_prefix)
 
     post_export_model = api.model(
