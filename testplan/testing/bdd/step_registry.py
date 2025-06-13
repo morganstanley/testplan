@@ -48,7 +48,6 @@ class StepRegistry:
 
     def register(self, sentence_or_parser, func):
         if isinstance(sentence_or_parser, str):
-
             parser_class = self.default_parser
             if self._actual_parser:
                 parser_class = self._actual_parser

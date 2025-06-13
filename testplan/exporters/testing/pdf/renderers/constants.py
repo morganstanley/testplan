@@ -1,4 +1,5 @@
-""" TODO """
+"""Constants used in renderers of Testplan PDF exporter."""
+
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A3
 from reportlab.lib.styles import ParagraphStyle

@@ -50,7 +50,7 @@ def pyunit_runner_inst():
         name="My PyUnit",
         description="PyUnit example test",
         testcases=[Passing, Failing],
-        **PYUNIT_DEFAULT_PARAMS
+        **PYUNIT_DEFAULT_PARAMS,
     )
 
 

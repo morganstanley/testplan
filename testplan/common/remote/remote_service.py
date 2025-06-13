@@ -1,6 +1,7 @@
 """
 Module implementing RemoteService class. Based on RPyC package.
 """
+
 import os
 import re
 import signal
@@ -217,9 +218,9 @@ class RemoteService(Resource, RemoteResource):
             self.rpyc_connection.modules.sys.path.append(path)
 
         self.rpyc_connection.modules.os.chdir(self._working_dirs.remote)
-        self.rpyc_connection.modules.os.environ[
-            "PWD"
-        ] = self._working_dirs.remote
+        self.rpyc_connection.modules.os.environ["PWD"] = (
+            self._working_dirs.remote
+        )
 
         if "" not in self.rpyc_connection.modules.sys.path:
             self.rpyc_connection.modules.sys.path.insert(0, "")

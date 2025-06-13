@@ -86,7 +86,6 @@ class ChildLoop:
             self.logger.debug("Pool %s aborted.", self._pool)
 
     def _setup_logfiles(self):
-
         from testplan.common.utils.logger import LOGFILE_FORMAT
 
         if not os.path.exists(self.runpath):

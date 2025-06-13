@@ -4,6 +4,7 @@
 This example shows how to configure console output for your tests
 programmatically and via command line options.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -119,7 +120,6 @@ style_4_b = Style(passing=StyleEnum.TEST, failing=StyleEnum.TESTSUITE)
     stdout_style=all_details_a,
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[AlphaSuite()])
     multi_test_2 = MultiTest(name="Secondary", suites=[BetaSuite()])
     plan.add(multi_test_1)

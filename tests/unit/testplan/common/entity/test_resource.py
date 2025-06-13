@@ -1,4 +1,5 @@
 """Unit tests for the resource base."""
+
 import time
 
 import pytest

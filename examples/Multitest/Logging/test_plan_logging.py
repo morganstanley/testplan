@@ -27,9 +27,9 @@ class LoggingSuite(LogCaptureMixin):
 
     @testcase
     def testsuite_level(self, env, result):
-        with self.capture_log(
-            result
-        ) as logger:  # as convenience the logger is returned but is is really the same as
+        with (
+            self.capture_log(result) as logger
+        ):  # as convenience the logger is returned but is is really the same as
             logger.info("Hello")
             self.logger.info("Logged as well")
             self.logger.parent.info("Not captured")

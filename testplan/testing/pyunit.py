@@ -72,7 +72,6 @@ class PyUnit(testing.Test):
         ]
 
     def _dry_run_testsuites(self):
-
         for pyunit_testcase in self.cfg.testcases:
             testsuite_report = TestGroupReport(
                 name=pyunit_testcase.__name__,
@@ -103,22 +102,31 @@ class PyUnit(testing.Test):
         if testsuite_pattern == "*":
             yield {"runtime_status": RuntimeStatus.RUNNING}, [self.uid()]
             for testsuite_report in self._run_tests():
-                yield testsuite_report[self._TESTCASE_NAME], [
-                    self.uid(),
-                    testsuite_report.uid,
-                ]
+                yield (
+                    testsuite_report[self._TESTCASE_NAME],
+                    [
+                        self.uid(),
+                        testsuite_report.uid,
+                    ],
+                )
         else:
-            yield {"runtime_status": RuntimeStatus.RUNNING}, [
-                self.uid(),
-                testsuite_pattern,
-            ]
+            yield (
+                {"runtime_status": RuntimeStatus.RUNNING},
+                [
+                    self.uid(),
+                    testsuite_pattern,
+                ],
+            )
             testsuite_report = self._run_testsuite(
                 self._pyunit_testcases[testsuite_pattern]
             )
-            yield testsuite_report[self._TESTCASE_NAME], [
-                self.uid(),
-                testsuite_report.uid,
-            ]
+            yield (
+                testsuite_report[self._TESTCASE_NAME],
+                [
+                    self.uid(),
+                    testsuite_report.uid,
+                ],
+            )
 
     def _run_tests(self):
         """Run tests and yield testsuite reports."""

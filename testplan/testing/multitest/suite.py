@@ -1,4 +1,5 @@
 """Multitest testsuite/testcase module."""
+
 import collections
 import copy
 import dataclasses
@@ -400,9 +401,9 @@ def _testsuite(klass):
     klass.__testcases__ = [None] * _number_of_testcases()
 
     for testcase_name in __TESTCASES__:
-        klass.__testcases__[
-            getattr(klass, testcase_name).__seq_number__
-        ] = testcase_name
+        klass.__testcases__[getattr(klass, testcase_name).__seq_number__] = (
+            testcase_name
+        )
 
     for func in __GENERATED_TESTCASES__:
         klass.__testcases__[func.__seq_number__] = func.__name__
@@ -595,7 +596,6 @@ def _mark_function_as_testcase(func):
 
 
 def _testcase(function):
-
     return _testcase_meta()(function)
 
 
@@ -703,7 +703,6 @@ def _testcase_meta(
             return function
 
         else:
-
             _validate_testcase(function)
             _mark_function_as_testcase(function)
 
@@ -925,9 +924,9 @@ def timeout(seconds):
     setup, teardown, pre_testcase and post_testcase.
     """
 
-    assert (
-        isinstance(seconds, int) and seconds > 0
-    ), "Invalid use of `suite.timeout`, argument must be a positive integer"
+    assert isinstance(seconds, int) and seconds > 0, (
+        "Invalid use of `suite.timeout`, argument must be a positive integer"
+    )
 
     def inner(function):
         function.timeout = seconds

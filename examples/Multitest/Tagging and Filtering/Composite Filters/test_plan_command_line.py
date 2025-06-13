@@ -2,6 +2,7 @@
 """
 This example shows how test filters can be composed via command line arguments.
 """
+
 import sys
 
 from testplan import test_plan
@@ -105,7 +106,6 @@ class Delta:
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
     multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     multi_test_3 = MultiTest(name="Other", suites=[Delta()])

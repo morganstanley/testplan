@@ -1,4 +1,5 @@
 """Loggers for assertion objects"""
+
 import os
 import pprint
 import re
@@ -88,7 +89,6 @@ class ApproximateEqualityAssertionRenderer(AssertionRenderer):
 
 @registry.bind(assertions.RegexMatch, assertions.RegexSearch)
 class RegexMatchRenderer(AssertionRenderer):
-
     highlight_color = "green"
 
     def get_assertion_details(self, entry):
@@ -274,7 +274,6 @@ class TableMatchRenderer(AssertionRenderer):
 @registry.bind(assertions.ColumnContain)
 class ColumnContainRenderer(AssertionRenderer):
     def get_assertion_details(self, entry):
-
         ascii_columns = [entry.column, "Passed"]
         if entry.report_fails_only:
             ascii_columns = ["row"] + ascii_columns
@@ -391,7 +390,6 @@ class DictMatchAllRenderer(AssertionRenderer):
 @registry.bind(assertions.ExceptionRaised, assertions.ExceptionNotRaised)
 class ExceptionRaisedRenderer(AssertionRenderer):
     def get_assertion_details(self, entry):
-
         raised_exc = entry.raised_exception
         expected_exceptions = ", ".join(
             [exc.__name__ for exc in entry.expected_exceptions]

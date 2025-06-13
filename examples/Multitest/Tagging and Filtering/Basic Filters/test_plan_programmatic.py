@@ -8,6 +8,7 @@ This example shows:
   by patterns and tags programmatically.
 
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -33,7 +34,6 @@ class Alpha:
 # A suite with testcase level tags only.
 @testsuite
 class Beta:
-
     # A testcase tagged with a simple tag: `server`
     # This is a shortcut notation for {'simple': 'server'}
     @testcase(tags="server")
@@ -115,6 +115,7 @@ tag_filter_5 = TagsAll(("server", "client"))
 # remain unchanged.
 tag_filter_6 = Tags({"color": "white"})
 
+
 # Replace the `test_filter` argument with the
 # filters declared above to see how they work.
 @test_plan(
@@ -124,7 +125,6 @@ tag_filter_6 = Tags({"color": "white"})
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(
         name="Primary", suites=[Alpha(), Beta()], tags={"color": "white"}
     )

@@ -2,6 +2,7 @@
 Test report browser which opens a local http web server and
 displays the test result.
 """
+
 import os
 import webbrowser
 

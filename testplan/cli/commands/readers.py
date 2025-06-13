@@ -1,6 +1,7 @@
 """
 Implements reader commands of the TPS command line tool.
 """
+
 from glob import glob
 from urllib.parse import urlparse, parse_qs
 from typing import Callable, Type, List

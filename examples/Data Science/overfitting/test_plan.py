@@ -8,6 +8,7 @@ associated statistics in Testplan. The models used are:
 * classification
 * clustering
 """
+
 import os
 import sys
 
@@ -41,6 +42,7 @@ def create_scatter_plot(title, x, y, label, c=None):
 
 # Use the original docstring, formatting
 # it using kwargs via string interpolation.
+
 
 # e.g. `foo: {foo}, bar: {bar}`.format(foo=2, bar=5)` -> 'foo: 2, bar: 5'
 def interpolate_docstring(docstring, kwargs):

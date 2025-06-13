@@ -1,4 +1,5 @@
-""" TODO """
+"""TODO"""
+
 import functools
 import operator
 import re
@@ -462,7 +463,6 @@ class DictCheckRenderer(AssertionRenderer):
         }
 
         for keys in ["has_keys", "absent_keys"]:
-
             if source[keys]:
                 check_style = RowStyle(
                     font=(const.FONT, const.FONT_SIZE_SMALL),
@@ -847,7 +847,6 @@ class ExceptionRaisedRenderer(AssertionRenderer):
     """ExceptionRaised renderer for serialized assertion entries."""
 
     def get_detail(self, source, depth, row_idx):
-
         raised_exc = source["raised_exception"]
         expected_exceptions = ", ".join(source["expected_exceptions"])
 

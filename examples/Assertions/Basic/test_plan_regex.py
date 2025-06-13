@@ -3,6 +3,7 @@
 """
 This example shows usage of regex assertion namespaces.
 """
+
 import os
 import re
 import sys
@@ -20,7 +21,6 @@ class RegexSuite:
 
     @testcase
     def test_regex_namespace(self, env, result):
-
         # `regex.match` applies `re.match` with the given `regexp` and `value`
         result.regex.match(
             regexp="foo", value="foobar", description="string pattern match"

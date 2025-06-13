@@ -85,9 +85,9 @@ class Client(logger.Loggable, metaclass=abc.ABCMeta):
                     f"Received None when {expect} was expected."
                 )
             if isinstance(expect, (tuple, list)):
-                assert (
-                    received.cmd in expect
-                ), f"{received.cmd} not in {expect}"
+                assert received.cmd in expect, (
+                    f"{received.cmd} not in {expect}"
+                )
             else:
                 assert received.cmd == expect, f"{received.cmd} != {expect}"
         return received

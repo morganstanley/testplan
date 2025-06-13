@@ -2,6 +2,7 @@
 Test Multitest - Test Suite - Result - Test Report - Exporter
 integration on local runner
 """
+
 import os
 
 import pytest

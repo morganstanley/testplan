@@ -1,6 +1,7 @@
 """
 Driver for Kafka server
 """
+
 import os
 import re
 import socket
@@ -56,7 +57,7 @@ class KafkaStandalone(app.App):
         binary: str = KAFKA_START,
         host: Optional[str] = None,
         port: int = 0,
-        **options
+        **options,
     ):
         stdout_regexps = [
             re.compile(
@@ -71,7 +72,7 @@ class KafkaStandalone(app.App):
             host=host,
             port=port,
             stdout_regexps=stdout_regexps,
-            **options
+            **options,
         )
 
         self.log_path = None

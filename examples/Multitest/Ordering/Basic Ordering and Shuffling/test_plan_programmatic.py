@@ -3,6 +3,7 @@
 This example shows how the run order for your tests / suites / testcases
 can be configured programmatically.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -106,7 +107,6 @@ suite_testcase_alphanumeric_sorter = AlphanumericSorter(
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
     multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)

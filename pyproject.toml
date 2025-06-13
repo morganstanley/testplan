@@ -86,13 +86,6 @@
 [tool.setuptools.exclude-package-data]
     "testplan.web_ui" = ["testing/build/**/*.map"]
 
-[tool.black]
-    line-length = 79
-    extend-exclude = "testplan/vendor"
-
-[tool.isort]
-    profile = "black"
-
 [tool.bumpver]
     current_version = "25.3.0"
     version_pattern = "YY.MM.INC0"
@@ -132,17 +125,15 @@
         # under most cases, included files are not hit
         "ignore:No data was collected:coverage.exceptions.CoverageWarning",
     ]
-    norecursedirs = "tests/helpers"
-
+    norecuredirs = "tests/helpers"
 [dependency-groups]
 dev = [
-    "black~=22.0",
     "doit>=0.34.2",
-    "isort>=5.11.5",
     "pre-commit>=2.21.0",
     "pylint>=2.13.9",
     "pytest-dotenv>=0.5.2",
     "pytest-mock>=3.11.1",
+    "ruff>=0.11.13",
 ]
 docs = [
     "releaseherald>=0.1.0",
@@ -154,4 +145,20 @@ test = [
     { include-group = "dev" },
     "kazoo>=2.10.0",
     "numpy>=1.21.6",
+]
+
+[tool.ruff]
+line-length = 79
+exclude = ["testplan/vendor", "releaseherald"]
+
+[tool.ruff.lint]
+select = [ 
+    "A", # flake8-builtins
+    # "I", # isort
+    # "UP", # pyupgrade
+]
+ignore = [ 
+    "A001",
+    "A002",
+    "A004",
 ]

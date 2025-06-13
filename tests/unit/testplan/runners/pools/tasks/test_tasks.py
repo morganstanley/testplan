@@ -350,7 +350,6 @@ class TestTaskSerialization:
         with pytest.raises(
             SerializationError, match=r".*(Cannot|Can't) pickle .*frame.*"
         ):
-
             t = Task(inspect.currentframe())
             t.dumps()
 

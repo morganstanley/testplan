@@ -276,7 +276,6 @@ REGEX_PARAM_NAMES = "regexp,string,flags,expected_match_indexes"
 
 
 class BaseRegexTest:
-
     assertion_class = None
 
     def _test_evaluate(
@@ -287,7 +286,7 @@ class BaseRegexTest:
         expected,
         flags=0,
         *args,
-        **kwargs
+        **kwargs,
     ):
         assertion = self.assertion_class(  # pylint: disable=not-callable
             regexp=regexp, string=string, flags=flags, *args, **kwargs
@@ -302,7 +301,6 @@ class BaseRegexTest:
 
 def generate_regex_test(assertion_kls, passing_params, failing_params):
     class RegexTest(BaseRegexTest):
-
         assertion_class = assertion_kls
 
         @pytest.mark.parametrize(REGEX_PARAM_NAMES, passing_params)
@@ -414,7 +412,7 @@ TestRegexMatchLine = generate_regex_test(
 
 
 REGEX_FIND_ITER_PARAM_NAMES = (
-    "regexp,string,flags," "condition,expected_match_indexes"
+    "regexp,string,flags,condition,expected_match_indexes"
 )
 
 REGEX_FIND_ITER_PASS_PARAMS = [
@@ -449,7 +447,6 @@ REGEX_FIND_ITER_FAIL_PARAMS = [
 
 
 class TestRegexFindIter(BaseRegexTest):
-
     assertion_class = assertions.RegexFindIter
 
     @pytest.mark.parametrize(
@@ -722,7 +719,7 @@ TestEqualExcludeSlices = generate_equal_slices_test(
 
 
 EXCEPTION_RAISED_PARAM_NAMES = (
-    "raised_exception," "expected_exceptions,pattern,func"
+    "raised_exception,expected_exceptions,pattern,func"
 )
 
 EXCEPTION_RAISED_PASS_PARAMS = [
@@ -917,7 +914,7 @@ TestDiff = generate_diff_assertion_test(
 
 
 COLUMN_CONTAIN_PARAM_NAMES = (
-    "table,expected_data,values," "column,limit,report_fails_only"
+    "table,expected_data,values,column,limit,report_fails_only"
 )
 
 COLUMN_CONTAIN_PASS_PARAMS = [
@@ -1001,7 +998,6 @@ class TestColumnContains:
         expected,
         expected_data,
     ):
-
         assertion = assertions.ColumnContain(
             table=table,
             values=values,
@@ -1052,7 +1048,7 @@ class TestColumnContains:
 
 
 GET_COMPARISON_COLUMNS_PARAM_NAMES = (
-    "table_1,table_2," "include_columns,exclude_columns,expected"
+    "table_1,table_2,include_columns,exclude_columns,expected"
 )
 GET_COMPARISON_COLUMNS_PARAMS = [
     # No inclusion/exclusion original table columns are used
@@ -1098,7 +1094,7 @@ def is_natural_number(value):
 
 
 GET_COMPARISON_COLUMNS_ERROR_PARAM_NAMES = (
-    "table_1,table_2," "include_columns,exclude_columns"
+    "table_1,table_2,include_columns,exclude_columns"
 )
 GET_COMPARISON_COLUMNS_ERROR_PARAMS = [
     # No inclusion/exclusion, columns do not match
@@ -1364,7 +1360,7 @@ COMPARE_ROWS_PARAMS = [
 
 
 TABLEMATCH_COLUMN_NAMES = (
-    "table,expected_table,include_columns," "exclude_columns,expected_message"
+    "table,expected_table,include_columns,exclude_columns,expected_message"
 )
 
 TABLEMATCH_PASS_PARAMS = [

@@ -3,6 +3,7 @@
 """
 This example shows usage of assertion group.
 """
+
 import sys
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -19,7 +20,6 @@ class GroupSuite:
 
     @testcase
     def test_assertion_group(self, env, result):
-
         result.equal(1, 1, description="Equality assertion outside the group")
 
         with result.group(description="Custom group description") as group:

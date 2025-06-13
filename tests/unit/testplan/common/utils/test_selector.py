@@ -19,7 +19,6 @@ def test_basic_op():
 
 
 def test_ext():
-
     X = TypeVar("X")
 
     @dataclass

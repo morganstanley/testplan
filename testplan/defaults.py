@@ -1,4 +1,5 @@
 """All default values that will be shared between config objects go here."""
+
 import os
 
 from testplan.report.testing.styles import StyleArg

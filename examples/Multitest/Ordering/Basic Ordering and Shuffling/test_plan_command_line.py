@@ -3,6 +3,7 @@
 This example shows how the run order for your suites / testcases
 can be configured via command line options.
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -71,7 +72,6 @@ class Gamma:
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
     multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)

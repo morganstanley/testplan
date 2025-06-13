@@ -1,4 +1,5 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
+
 import matplotlib
 
 matplotlib.use("agg")

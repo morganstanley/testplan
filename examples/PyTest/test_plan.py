@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # This plan contains tests that demonstrate failures as well.
 """Example to demonstrate PyTest integration with Testplan."""
+
 import os
 import sys
 

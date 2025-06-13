@@ -856,7 +856,6 @@ def _should_run(uid, curr_status, new_status):
         return False
 
     elif new_status == RuntimeStatus.RUNNING:
-
         if curr_status == RuntimeStatus.RESETTING:
             raise werkzeug.exceptions.BadRequest(
                 "Cannot update runtime status of entry"

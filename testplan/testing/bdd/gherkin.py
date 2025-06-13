@@ -57,7 +57,6 @@ class Feature(ParsedStore):
 
     @cachedproperty
     def scenarios(self):
-
         scenarios = []
 
         for scen in self._scenarios:
@@ -70,7 +69,6 @@ class Feature(ParsedStore):
 
     def parse_children(self, childrens):
         for child in childrens:
-
             child_type = child["type"]
 
             if child_type == "Scenario":

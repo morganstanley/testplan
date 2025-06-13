@@ -1,4 +1,5 @@
 """Functional tests for interactive HTTP API."""
+
 import functools
 from unittest import mock
 
@@ -877,9 +878,9 @@ def test_run_testcase(plan):
 
         # Trigger testcase to run by updating the report status to RUNNING
         # and PUTting back the data.
-        testcase_json[
-            "runtime_status"
-        ] = RuntimeStatus.RUNNING.to_json_compatible()
+        testcase_json["runtime_status"] = (
+            RuntimeStatus.RUNNING.to_json_compatible()
+        )
         if "entries" in testcase_json:
             del testcase_json["entries"]
         rsp = requests.put(testcase_url, json=testcase_json)
@@ -930,9 +931,9 @@ def test_run_param_testcase(plan):
 
         # Trigger testcase to run by updating the report status to RUNNING
         # and PUTting back the data.
-        testcase_json[
-            "runtime_status"
-        ] = RuntimeStatus.RUNNING.to_json_compatible()
+        testcase_json["runtime_status"] = (
+            RuntimeStatus.RUNNING.to_json_compatible()
+        )
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
@@ -1112,9 +1113,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json[
-            "runtime_status"
-        ] = RuntimeStatus.RUNNING.to_json_compatible()
+        testcase_json["runtime_status"] = (
+            RuntimeStatus.RUNNING.to_json_compatible()
+        )
         if "entries" in testcase_json:
             del testcase_json["entries"]
         rsp = requests.put(testcase_url, json=testcase_json)
@@ -1140,9 +1141,9 @@ def test_run_testcases_sequentially(plan3):
     rsp = requests.get(testcase_url)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
-    testcase_json[
-        "runtime_status"
-    ] = RuntimeStatus.RUNNING.to_json_compatible()
+    testcase_json["runtime_status"] = (
+        RuntimeStatus.RUNNING.to_json_compatible()
+    )
     rsp = requests.put(testcase_url, json=testcase_json)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
@@ -1161,9 +1162,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json[
-            "runtime_status"
-        ] = RuntimeStatus.RUNNING.to_json_compatible()
+        testcase_json["runtime_status"] = (
+            RuntimeStatus.RUNNING.to_json_compatible()
+        )
         if "entries" in testcase_json:
             del testcase_json["entries"]
         rsp = requests.put(testcase_url, json=testcase_json)
@@ -1193,9 +1194,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json[
-            "runtime_status"
-        ] = RuntimeStatus.RUNNING.to_json_compatible()
+        testcase_json["runtime_status"] = (
+            RuntimeStatus.RUNNING.to_json_compatible()
+        )
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
@@ -1223,9 +1224,9 @@ def test_run_testcases_sequentially(plan3):
     rsp = requests.get(testcase_url)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
-    testcase_json[
-        "runtime_status"
-    ] = RuntimeStatus.RUNNING.to_json_compatible()
+    testcase_json["runtime_status"] = (
+        RuntimeStatus.RUNNING.to_json_compatible()
+    )
     rsp = requests.put(testcase_url, json=testcase_json)
     assert rsp.status_code == 200
     testcase_json = rsp.json()
@@ -1244,9 +1245,9 @@ def test_run_testcases_sequentially(plan3):
         rsp = requests.get(testcase_url)
         assert rsp.status_code == 200
         testcase_json = rsp.json()
-        testcase_json[
-            "runtime_status"
-        ] = RuntimeStatus.RUNNING.to_json_compatible()
+        testcase_json["runtime_status"] = (
+            RuntimeStatus.RUNNING.to_json_compatible()
+        )
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()

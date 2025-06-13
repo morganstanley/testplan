@@ -7,7 +7,6 @@ LOCATION_METADATA_ATTRIBUTE = "__location_metadata__"
 
 @dataclass
 class LocationMetadata:
-
     object_name: str
     file: str
     line_no: int
@@ -47,13 +46,11 @@ class TestCaseMetadata(TestCaseStaticMetadata, BasicInfo):
 
 @dataclass
 class TestSuiteStaticMetadata:
-
     location: Optional[LocationMetadata]
 
 
 @dataclass
 class TestSuiteMetadata(TestSuiteStaticMetadata, BasicInfo):
-
     test_cases: List[TestCaseMetadata]
 
 

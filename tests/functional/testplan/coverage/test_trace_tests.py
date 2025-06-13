@@ -75,7 +75,6 @@ class BasicSuite:
 
 @mt.testsuite
 class ParallelSuite:
-
     name = "ContainingParallelSuite"
 
     @mt.testcase

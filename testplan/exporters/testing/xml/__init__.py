@@ -65,7 +65,7 @@ class BaseRenderer:
             *testsuites,
             tests=str(counter["total"]),
             errors=str(counter["error"]),
-            failures=str(counter["failed"])
+            failures=str(counter["failed"]),
         )
 
     def get_testcase_reports(
@@ -114,7 +114,7 @@ class BaseRenderer:
             name=testsuite_report.name,
             errors=str(testsuite_report.counter["error"]),
             failures=str(testsuite_report.counter["failed"]),
-            tests=str(testsuite_report.counter["total"])
+            tests=str(testsuite_report.counter["total"]),
         )
 
     def render_testcase(
@@ -147,7 +147,7 @@ class BaseRenderer:
             ),
             time=str(testcase_report.timer.last(key="run").elapsed)
             if "run" in testcase_report.timer
-            else "0"
+            else "0",
         )
 
     def render_testcase_errors(
@@ -183,7 +183,9 @@ class BaseRenderer:
             entry
             for entry in flat_dicts
             # Only get failing assertions
-            if entry["meta_type"] == "assertion" and not entry["passed"] and
+            if entry["meta_type"] == "assertion"
+            and not entry["passed"]
+            and
             # Groups have no use in XML output
             not entry["type"] in ("Group", "Summary")
         ]

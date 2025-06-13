@@ -57,7 +57,6 @@ class TCPTestsuite:
 
 @test_plan(name="RemoteDriverBasic", json_path="report.json")
 def main(plan):
-
     # remote_service represents the RPyC server that runs on remote host
     remote_service = RemoteService(
         "rmt_svc",

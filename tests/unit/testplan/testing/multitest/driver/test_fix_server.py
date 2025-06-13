@@ -79,7 +79,6 @@ def test_successive_send(fix_client, fix_server):
         (fix_client, fix_server),
         (fix_server, fix_client),
     ):
-
         sender.send(msg1)
         sender.send(msg2)
 

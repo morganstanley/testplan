@@ -2,6 +2,7 @@
 """
 This example shows how to implement a custom sorter class.
 """
+
 import operator
 import sys
 
@@ -101,7 +102,6 @@ custom_sorter_2 = ReverseNameLengthSorter(sort_type=("suites", "testcases"))
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(
         name="Primary", suites=[Alpha(), Beta(), Epsilon()]
     )

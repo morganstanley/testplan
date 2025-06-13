@@ -92,7 +92,6 @@ def _create_testcase_report(name, status_override=None):
 
 
 def test_execution_order(mockplan):
-
     multitest_1 = mt.MultiTest(
         name="Multitest_1",
         suites=[Suite1(), Suite2(), Suite3()],

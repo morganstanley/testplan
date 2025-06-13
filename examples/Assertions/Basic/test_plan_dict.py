@@ -3,6 +3,7 @@
 """
 This example shows usage of dict assertion namespaces.
 """
+
 import re
 import sys
 from testplan import test_plan
@@ -20,7 +21,6 @@ class DictSuite:
 
     @testcase
     def test_dict_namespace(self, env, result):
-
         actual = {"foo": 1, "bar": 2, "baz_excluded": 2}
 
         expected = {"foo": 1, "bar": 5, "baz_excluded": 5, "extra-key": 10}

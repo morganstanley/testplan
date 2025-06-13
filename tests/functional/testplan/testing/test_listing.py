@@ -260,7 +260,6 @@ def test_programmatic_listing(
 def test_command_line_listing(
     runpath, cmdline_args, prim_parts, expected_output
 ):
-
     with argv_overridden(*cmdline_args):
         plan = TestplanMock(name="plan", parse_cmdline=True, runpath=runpath)
 
@@ -391,7 +390,6 @@ def validate_json_result(result_json):
 
 
 def test_json_listing(runpath):
-
     main = TestplanMock.main_wrapper(
         name="plan",
         test_lister=SimpleJsonLister(),

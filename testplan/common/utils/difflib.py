@@ -56,7 +56,6 @@ def _calculate_ratio(matches, length):
 
 
 class SequenceMatcher:
-
     """
     SequenceMatcher is a flexible class for comparing pairs of sequences of
     any type, so long as the sequence elements are hashable.  The basic

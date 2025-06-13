@@ -6,6 +6,7 @@ from testplan.testing.multitest import MultiTest
 # need to use full path specification of the module
 import sub_proj1.suites
 
+
 # each entry in parameters will be used to create one task object
 @task_target(
     parameters=(

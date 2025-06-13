@@ -1,4 +1,3 @@
-""" TODO """
 """
 Implements base exporter objects.
 """

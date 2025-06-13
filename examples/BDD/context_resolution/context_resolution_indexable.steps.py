@@ -24,6 +24,5 @@ def step_definition(env, result, context, name):
 
 @step("{actual} == {expected}")
 def step_definition(env, result, context, actual, expected):
-
     # note that this is string comparision as coming from the feature file
     result.equal(actual, expected)

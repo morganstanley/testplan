@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # This plan contains tests that demonstrate failures as well.
 """This example shows how to generate XML reports in JUnit format."""
+
 import os
 import sys
 

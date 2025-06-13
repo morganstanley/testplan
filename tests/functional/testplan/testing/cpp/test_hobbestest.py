@@ -40,7 +40,6 @@ You can either use the mock test binary or replace it with a link to the actual 
     ),
 )
 def test_hobbestest(mockplan, binary_dir, expected_report):
-
     binary_path = os.path.join(binary_dir, "hobbes-test")
 
     if not os.path.exists(binary_path):
@@ -73,7 +72,6 @@ def test_hobbestest(mockplan, binary_dir, expected_report):
     ),
 )
 def test_hobbestest_listing(binary_dir, expected_output):
-
     binary_path = os.path.join(binary_dir, "hobbes-test")
     cmdline_args = ["--list"]
 

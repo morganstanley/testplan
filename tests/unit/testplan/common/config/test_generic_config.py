@@ -195,7 +195,6 @@ class TopConfig(Config):
 
 
 class Top(Entity):
-
     CONFIG = TopConfig
 
     def __init__(self, **options):
@@ -217,7 +216,6 @@ class MiddleConfig(TopConfig):
 
 
 class Middle(Top):
-
     CONFIG = MiddleConfig
 
     def __init__(self, **options):
@@ -231,7 +229,6 @@ class BottomConfig(MiddleConfig):
 
 
 class Bottom(Middle):
-
     CONFIG = BottomConfig
 
     def __init__(
@@ -297,7 +294,6 @@ class BaseConfig(Config):
 
 
 class Base(Entity):
-
     CONFIG = BaseConfig
 
     def __init__(self, name, **options):
@@ -311,7 +307,6 @@ class DerivedConfig(BaseConfig):
 
 
 class Derived(Base):
-
     CONFIG = DerivedConfig
 
     def __init__(self, name, **options):

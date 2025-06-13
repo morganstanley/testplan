@@ -54,9 +54,9 @@ class SubprocessPortConnectionExtractor(BaseConnectionExtractor):
         if not connections_to_ignore:
             connections_to_ignore = []
         # map the protocols to SocketKind
-        for (idx, protocol) in enumerate(connections_to_check):
+        for idx, protocol in enumerate(connections_to_check):
             connections_to_check[idx] = NETWORK_CONNECTION_MAP[protocol]
-        for (idx, protocol) in enumerate(connections_to_ignore):
+        for idx, protocol in enumerate(connections_to_ignore):
             connections_to_ignore[idx] = NETWORK_CONNECTION_MAP[protocol]
         connections_to_ignore.append(socket.SocketKind.SOCK_SEQPACKET)
         self.connections_to_check = connections_to_check

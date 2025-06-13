@@ -1,4 +1,5 @@
 """This file contains testsuite definition"""
+
 from testplan.testing.multitest import testsuite, testcase
 
 

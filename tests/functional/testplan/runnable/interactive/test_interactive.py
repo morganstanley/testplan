@@ -306,7 +306,6 @@ def test_env_operate():
         parse_cmdline=False,
         logger_level=USER_INFO,
     ) as plan:
-
         plan.add(make_multitest("1"))
         plan.add(make_multitest("2"))
 
@@ -441,12 +440,12 @@ def test_restart_multitest_w_dependencies():
 
         plan.interactive.start_test_resources("Test")
         plan.interactive.run_test("Test")
-        assert plan.interactive.test(
-            "Test"
-        ).run_result(), "no exceptions in steps"
-        assert plan.interactive.report[
-            "Test"
-        ].unknown, "env stop remain unknown"
+        assert plan.interactive.test("Test").run_result(), (
+            "no exceptions in steps"
+        )
+        assert plan.interactive.report["Test"].unknown, (
+            "env stop remain unknown"
+        )
         plan.interactive.stop_test_resources("Test")
         assert plan.interactive.report["Test"].passed, "env stop succeeded"
 
@@ -454,11 +453,11 @@ def test_restart_multitest_w_dependencies():
 
         plan.interactive.start_test_resources("Test")
         plan.interactive.run_test("Test")
-        assert plan.interactive.test(
-            "Test"
-        ).run_result(), "no exceptions in steps"
-        assert plan.interactive.report[
-            "Test"
-        ].unknown, "env stop remain unknown"
+        assert plan.interactive.test("Test").run_result(), (
+            "no exceptions in steps"
+        )
+        assert plan.interactive.report["Test"].unknown, (
+            "env stop remain unknown"
+        )
         plan.interactive.stop_test_resources("Test")
         assert plan.interactive.report["Test"].passed, "env stop succeeded"

@@ -1,6 +1,7 @@
 """
 Module of utility types and functions that perform matching.
 """
+
 import os
 import re
 import time
@@ -171,7 +172,6 @@ class LogMatcher(logger.Loggable):
         )
 
     def _prepare_regexp(self, regexp: Regex) -> Pattern[AnyStr]:
-
         if isinstance(regexp, (str, bytes)):
             regexp = re.compile(regexp)
         elif isinstance(regexp, re.Pattern):

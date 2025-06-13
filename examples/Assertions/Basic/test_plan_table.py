@@ -3,6 +3,7 @@
 """
 This example shows usage of table assertion namespaces.
 """
+
 import re
 import sys
 import random
@@ -27,7 +28,6 @@ class TableSuite:
 
     @testcase
     def test_table_namespace(self, env, result):
-
         list_of_dicts = [
             {"name": "Bob", "age": 32},
             {"name": "Susan", "age": 24},

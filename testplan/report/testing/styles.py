@@ -68,7 +68,6 @@ class StyleFlag:
     attrs = ["display_{}".format(enm.name.lower()) for enm in StyleEnum]
 
     def __init__(self, level):
-
         if isinstance(level, str):
             self.label = level
         elif isinstance(level, Enum):

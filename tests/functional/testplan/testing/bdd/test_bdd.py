@@ -52,7 +52,6 @@ def get_testcase_tags(suite):
 
 
 def test_labels(features_dir):
-
     factory = BDDTestSuiteFactory(features_dir / "labels")
     suite = factory.create_suites()[0]
 

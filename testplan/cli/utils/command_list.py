@@ -1,6 +1,7 @@
 """
 Implements command list type.
 """
+
 from typing import List, Callable
 
 import click

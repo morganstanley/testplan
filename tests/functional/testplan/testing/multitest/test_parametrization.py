@@ -466,7 +466,6 @@ def test_invalid_name_func(suite_reloaded, name_func, msg, err):
 def test_unwanted_testcase_name(mockplan):
     """Custom naming function should return a valid non-empty string."""
     with mock.patch("warnings.warn", return_value=None) as mock_warn:
-
         long_string = "c" * (MAX_TEST_NAME_LENGTH + 1)
 
         @testsuite

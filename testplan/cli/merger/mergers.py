@@ -1,6 +1,7 @@
 """
 Implements test report combiners.
 """
+
 from typing import Iterable
 
 from testplan.report import TestReport

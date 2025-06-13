@@ -6,7 +6,6 @@ from testplan.report import TestGroupReport, TestReport, ReportCategories
 
 
 class SuitesResult(ImportedResult):
-
     REPORT_CATEGORY = ReportCategories.UNITTEST
 
     def __init__(
@@ -47,5 +46,5 @@ class SuitesResult(ImportedResult):
     def category(self) -> str:
         return ReportCategories.TESTSUITE
 
-    def results(self) -> (List[TestGroupReport]):
+    def results(self) -> List[TestGroupReport]:
         return self._results

@@ -52,6 +52,7 @@ Displaying 3 failures on keys (35, 55) (out of 260):
 If 'category' flag is used on fixmatch, then the previous
 summary will be created for each category.
 """
+
 import random
 import sys
 

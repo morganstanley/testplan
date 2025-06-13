@@ -1227,7 +1227,6 @@ class Runnable(Entity):
         """
         try:
             if self.cfg.interactive_port is not None:
-
                 from testplan.runnable.interactive.base import (
                     TestRunnerIHandler,
                 )

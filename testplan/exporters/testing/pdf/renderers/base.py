@@ -1,6 +1,7 @@
 """
 Base classes for rendering.
 """
+
 import collections
 import functools
 from html import escape
@@ -35,7 +36,7 @@ class SlicedParagraph:
         width,
         height=constants.MAX_CELL_HEIGHT,
         style=constants.PARAGRAPH_STYLE,
-        **kwargs
+        **kwargs,
     ):
         self.width = width
         self.height = height

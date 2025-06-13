@@ -1,5 +1,5 @@
 """
-  Entry point for schema serialization bindings.
+Entry point for schema serialization bindings.
 """
 
 from .. import assertions as asr

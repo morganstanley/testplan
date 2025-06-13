@@ -1,4 +1,5 @@
 """Provides Registry mapping utility."""
+
 from testplan.common.utils import logger
 
 

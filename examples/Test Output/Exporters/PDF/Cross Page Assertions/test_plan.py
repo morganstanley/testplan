@@ -4,6 +4,7 @@
 This example generates a sample pdf that contains assertions that could cross
 multiple pages.
 """
+
 import os
 import sys
 
@@ -15,7 +16,6 @@ from testplan.report.testing.styles import Style
 
 @testsuite
 class AlphaSuite:
-
     msg = (
         "This is a super looooooooooog message with indents, extra spaces\n"
         "    and <Test>special</Test> characters,\n"
@@ -28,7 +28,6 @@ class AlphaSuite:
 
     @testcase
     def test_regex_assertions(self, env, result):
-
         result.regex.match(
             regexp=".*super",
             value=self.msg,
@@ -80,7 +79,6 @@ class AlphaSuite:
     pdf_style=Style(passing="assertion-detail", failing="assertion-detail"),
 )
 def main(plan):
-
     plan.add(MultiTest(name="Primary", suites=[AlphaSuite()]))
 
 

@@ -3,6 +3,7 @@ Example of a custom driver, that manages several resources. Only a single
 resource may be "acquired" at a time, however that same resource may be
 acquired multiple times. The manager enforces this logic.
 """
+
 import collections
 import functools
 import threading

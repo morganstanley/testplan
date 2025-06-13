@@ -1,4 +1,5 @@
 """Basic local executor."""
+
 import threading
 import time
 from typing import List

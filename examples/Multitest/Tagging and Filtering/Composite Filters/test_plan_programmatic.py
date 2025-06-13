@@ -8,6 +8,7 @@ This example shows:
 * How to build complex filtering logic with filter compositions.
 
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -146,7 +147,6 @@ composite_filter_6_b = Not(Or(Tags({"color": "blue"}), Pattern("*:*:test_1")))
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
     multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     multi_test_3 = MultiTest(name="Other", suites=[Delta()])

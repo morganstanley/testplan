@@ -1,6 +1,7 @@
 """
 Unit tests for the testplan.common.serialization.fields module.
 """
+
 import pytest
 
 from testplan.common.serialization import fields

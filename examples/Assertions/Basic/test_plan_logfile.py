@@ -2,6 +2,7 @@
 """
 This example shows usage of Logfile namespace assertions.
 """
+
 import os
 import sys
 import threading

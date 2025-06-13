@@ -114,7 +114,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         post_stop: Callable = None,
         **options,
     ):
-
         options.update(self.filter_locals(locals()))
         super(Driver, self).__init__(**options)
         self.extracts = {}
@@ -213,7 +212,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         return True
 
     def stopped_check_with_watch(self, watch) -> ActionResult:
-
         if time.time() >= watch.start_time + watch.total_wait:
             raise TimeoutException(
                 f"Timeout when stopping {self}. "
@@ -308,8 +306,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
             if unmatched:
                 err += (
-                    f"\tFile: {filepath}\n"
-                    f"\tUnmatched {name}: {unmatched}\n\n"
+                    f"\tFile: {filepath}\n\tUnmatched {name}: {unmatched}\n\n"
                 )
         if self.extracts:
             err += f"Extracted Values:\n"

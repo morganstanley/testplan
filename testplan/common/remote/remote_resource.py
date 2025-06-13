@@ -197,7 +197,6 @@ class RemoteResource(Entity):
         return self._error_exec
 
     def _prepare_remote(self) -> None:
-
         self._define_remote_dirs()
         self._create_remote_dirs()
 
@@ -700,7 +699,6 @@ class RemoteResource(Entity):
                 )
 
     def _remote_sys_path(self) -> List[str]:
-
         sys_path = [self._testplan_import_path.remote]
 
         for path in sys.path:

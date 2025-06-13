@@ -65,7 +65,7 @@ class HobbesTest(ProcessRunnerTest):
         tests=None,
         json="report.json",
         other_args=None,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options["binary"] = os.path.abspath(options["binary"])

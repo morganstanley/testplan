@@ -11,7 +11,6 @@ class RemoteDriver:
     """
 
     def __init__(self, remote_service, driver_cls, **options):
-
         self.__dict__["_remote_service"] = remote_service
         self.__dict__["_driver_cls"] = driver_cls
         self.__dict__["_options"] = options

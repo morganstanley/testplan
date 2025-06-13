@@ -71,7 +71,7 @@ class JUnit(ProcessRunnerTest):
         results_dir,
         junit_args=None,
         junit_filter=None,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(JUnit, self).__init__(**options)

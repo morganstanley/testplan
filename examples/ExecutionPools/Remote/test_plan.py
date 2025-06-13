@@ -53,6 +53,7 @@ def make_file(filename, dirname, content):
 # Using a custom parser to support `--tasks-num` and `--pool-size` command
 # line arguments so that users can experiment with remote pool test execution.
 
+
 # Hard-coding `pdf_path`, 'stdout_style' and 'pdf_style' so that the
 # downloadable example gives meaningful and presentable output.
 # NOTE: this programmatic arguments passing approach will cause Testplan

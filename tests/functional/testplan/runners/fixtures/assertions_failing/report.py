@@ -1,4 +1,5 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
+
 import os
 import re
 import sys
@@ -29,9 +30,9 @@ def check_row_comparison_data(expected_data):
                 idx_a, row_a, diff_a, error_a, extra_a = actual_row
                 idx_b, row_e, diff_e, error_e, extra_e = expected_row
 
-                assert (
-                    idx_a == idx_b
-                ), "Indexes do not" " match: {} != {}".format(idx_a, idx_b)
+                assert idx_a == idx_b, "Indexes do not match: {} != {}".format(
+                    idx_a, idx_b
+                )
 
                 check_iterable(expected=row_e, actual=row_a)
                 check_iterable(expected=diff_e, actual=diff_a)
@@ -52,9 +53,9 @@ def check_xml_tag_comparison_data(expected_data):
 
     def check(actual, expected):
         if callable(expected):
-            assert (
-                expected(actual) is True
-            ), "Custom callable match failed: {}, {}".format(actual, expected)
+            assert expected(actual) is True, (
+                "Custom callable match failed: {}, {}".format(actual, expected)
+            )
         else:
             assert expected == actual
 

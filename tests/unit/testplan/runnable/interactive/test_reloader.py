@@ -1,4 +1,5 @@
 """Unit tests for the reloader module."""
+
 import io
 import modulefinder
 import os
@@ -172,14 +173,15 @@ def mock_reload_env():
 
     mock_stat.modified_files = set()
 
-    with mock.patch("io.open", new=mock_open), mock.patch(
-        "os.stat", new=mock_stat
-    ), mock.patch("sys.modules", new=MOCK_SYSMODULES), mock.patch(
-        "modulefinder.ModuleFinder", new=MockModuleFinder
-    ), mock.patch(
-        "importlib.reload", side_effect=lambda module: module
-    ) as mock_reload:
-
+    with (
+        mock.patch("io.open", new=mock_open),
+        mock.patch("os.stat", new=mock_stat),
+        mock.patch("sys.modules", new=MOCK_SYSMODULES),
+        mock.patch("modulefinder.ModuleFinder", new=MockModuleFinder),
+        mock.patch(
+            "importlib.reload", side_effect=lambda module: module
+        ) as mock_reload,
+    ):
         # Despite mocking modulefinder.ModuleFinder above, we also need to
         # swap out the real ModuleFinder with our mock one in the list of
         # bases for the GraphModuleFinder.
@@ -307,6 +309,7 @@ def _check_dep_graph(dep_graph):
 
     # Check mod_d
     assert dep_graph.dependencies[0].dependencies[1].name == "mod_d"
-    assert dep_graph.dependencies[0].dependencies[1] is (
-        dep_graph.dependencies[1].dependencies[0]
+    assert (
+        dep_graph.dependencies[0].dependencies[1]
+        is (dep_graph.dependencies[1].dependencies[0])
     )

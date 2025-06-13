@@ -177,7 +177,6 @@ class TestPoolIsolated:
         pool._start_monitor_thread = False
 
         with pool:
-
             worker = pool._workers["0"]
             assert pool._query_worker_status(worker) == ("active", None)
 
@@ -191,7 +190,6 @@ class TestPoolIsolated:
             assert worker._restart_count == 1
 
     def test_restart_pool_stopping(self):
-
         pool = pools_base.Pool(
             name="MyPool", size=1, worker_type=ControllableWorker
         )

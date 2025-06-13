@@ -31,7 +31,6 @@ def after_stop(env, result):
 
 @test_plan(name="HobbesTest Example")
 def main(plan):
-
     if not os.path.exists(BINARY_PATH):
         raise RuntimeError("You need to compile test binary first.")
 

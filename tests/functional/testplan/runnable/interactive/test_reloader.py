@@ -646,7 +646,6 @@ def import_case_assertions(case_num):
 @skip_on_windows(reason="Reloader won't work with pytest on Windows.")
 @pytest.mark.parametrize("case_num", tuple(range(3)))
 def test_reload_testcase_change(case_num):
-
     prev_path, curr_path = get_case_paths(case_num)
     prev_assertions, curr_assertions = import_case_assertions(case_num)
 

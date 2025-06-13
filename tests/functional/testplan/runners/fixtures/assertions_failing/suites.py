@@ -1,4 +1,5 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
+
 import os
 import re
 import tempfile
@@ -366,7 +367,6 @@ class MySuite:
 
     @testcase
     def test_xml_check(self, env, result):
-
         # Passing assertions
         result.xml.check(
             element="<Root><Test>Foo</Test></Root>",
@@ -476,7 +476,6 @@ class MySuite:
 
     @testcase
     def test_dict_check(self, env, result):
-
         result.dict.check(
             dictionary={"foo": 1, "bar": 2},
             has_keys=["foo"],
@@ -575,7 +574,6 @@ class MySuite:
 
     @testcase
     def test_fix_check(self, env, result):
-
         result.fix.check(
             msg={"foo": 1, "bar": 2},
             has_tags=["foo"],
@@ -676,7 +674,6 @@ class MySuite:
 
     @testcase
     def test_logfile(self, env, result):
-
         from testplan.common.utils.match import LogMatcher
 
         f = tempfile.NamedTemporaryFile(delete=False)

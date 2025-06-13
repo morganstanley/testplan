@@ -151,9 +151,7 @@ def test_testplan_decorator():
             assert plan.cfg.pdf_path == pdf_path
             plan.add(DummyTest(name="bob"))
 
-        res = (
-            main2()
-        )  # pylint:disable=assignment-from-no-return,no-value-for-parameter
+        res = main2()  # pylint:disable=assignment-from-no-return,no-value-for-parameter
         assert isinstance(res, TestplanResult)
         assert res.decorated_value is None
         assert res.run is True

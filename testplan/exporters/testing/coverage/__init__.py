@@ -2,7 +2,6 @@
 Coverage data related exporter.
 """
 
-
 import pathlib
 import sys
 from collections import OrderedDict

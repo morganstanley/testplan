@@ -42,7 +42,6 @@ You need to compile the files at "{binary_dir}" to be able to run this test.
     ),
 )
 def test_cppunit(mockplan, binary_dir, expected_report, report_status):
-
     binary_path = os.path.join(binary_dir, "runTests")
 
     if not os.path.exists(binary_path):
@@ -62,7 +61,6 @@ def test_cppunit(mockplan, binary_dir, expected_report, report_status):
 
 @skip_on_windows(reason="Cppunit is skipped on Windows.")
 def test_cppunit_no_report(mockplan):
-
     binary_path = os.path.join(fixture_root, "error", "runTests.sh")
 
     mockplan.add(

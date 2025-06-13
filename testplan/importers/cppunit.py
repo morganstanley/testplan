@@ -1,6 +1,7 @@
 """
 Implements three-phase importer for CppUnit format.
 """
+
 import datetime
 import socket
 from typing import List

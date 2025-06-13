@@ -3,6 +3,7 @@
 This example shows how you can apply different test filters on different levels
 (e.g. plan, multitest level)
 """
+
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -68,7 +69,6 @@ class Gamma:
     stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
-
     multi_test_1 = MultiTest(
         name="Primary",
         suites=[Alpha(), Beta()],

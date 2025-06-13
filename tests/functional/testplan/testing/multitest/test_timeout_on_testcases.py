@@ -128,7 +128,6 @@ def _create_testcase_report(name, status_override=None, entries=None):
 
 
 def test_timeout_on_testcases(mockplan):
-
     pool = ThreadPool(name="MyPool", size=2)
     mockplan.add_resource(pool)
 
@@ -253,7 +252,6 @@ def test_timeout_on_testcases(mockplan):
 
 
 def test_timeout_on_suite_related_methods(mockplan):
-
     pool = ThreadPool(name="MyPool", size=1)
     mockplan.add_resource(pool)
 
@@ -334,7 +332,6 @@ def test_timeout_on_suite_related_methods(mockplan):
 
 
 def test_timeout_on_case_related_methods(mockplan):
-
     pool = ThreadPool(name="MyPool", size=1)
     mockplan.add_resource(pool)
 

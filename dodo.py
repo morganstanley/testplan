@@ -57,12 +57,12 @@ def task_build_ui():
     }
 
 
-def task_black():
-    def black_cmd(update):
-        return f'python -m black{" --check" if not update else ""} .'
+def task_ruff_fmt():
+    def ruff_fmt_cmd(update):
+        return f"ruff format{' --check' if not update else ''}"
 
     return {
-        "actions": [CmdAction(black_cmd)],
+        "actions": [CmdAction(ruff_fmt_cmd)],
         "params": [
             {"name": "update", "short": "u", "type": bool, "default": False}
         ],
@@ -103,7 +103,7 @@ def task_crlf_check():
 def task_lint():
     return {
         "actions": None,
-        "task_dep": ["black", "pylint", "crlf_check"],
+        "task_dep": ["ruff_fmt", "pylint", "crlf_check"],
         "doc": "Run lint on python and javascript code",
     }
 

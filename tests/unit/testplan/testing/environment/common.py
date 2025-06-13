@@ -29,7 +29,7 @@ class MockDriver(Driver):
         check_wait=0,
         check_interval=DEFAULT_INTERVAL,
         total_wait=0,
-        **options
+        **options,
     ):
         super().__init__(name, **options)
         self._mock = mock
@@ -73,7 +73,7 @@ class FlakyDriver(Driver):
         pass_started_check=True,
         pass_stopping=True,
         pass_stopped_check=True,
-        **options
+        **options,
     ):
         super().__init__(name, **options)
         self._mock = mock

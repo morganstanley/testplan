@@ -57,7 +57,6 @@ def workspace():
 
 @pytest.fixture(scope="module")
 def push_dir():
-
     push_dir = tempfile.mkdtemp()
     for filename in ("file1", "file2", "file3"):
         path = os.path.join(push_dir, filename)
@@ -75,7 +74,6 @@ def push_dir():
 
 @pytest.fixture(scope="function")
 def remote_resource(runpath_module, workspace, push_dir):
-
     mockplan = TestplanMock("plan", runpath=runpath_module)
 
     push = [
@@ -215,7 +213,6 @@ def test_fetch_results(remote_resource, push_dir):
 
 
 def test_runpath_in_ws(workspace):
-
     mockplan = TestplanMock(
         "plan", runpath=os.path.join(workspace, "runpath_in_ws")
     )
