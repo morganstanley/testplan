@@ -3,18 +3,21 @@
 This example shows usage of chart assertions.
 """
 
-import os
-import re
 import sys
-import random
 
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-import numpy as np
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+try:
+    import numpy as np
+    import pandas as pd
+    import plotly.express as px
+    import plotly.graph_objects as go
+except ImportError as e:
+    raise RuntimeError(
+        "Certain packages failed to import, please consider install Testplan "
+        "package with `plotly` extra to run this example."
+    ) from e
 
 
 @testsuite
@@ -207,4 +210,4 @@ def main(plan):
 
 
 if __name__ == "__main__":
-    sys.exit(not main())
+    sys.exit(main().exit_code)

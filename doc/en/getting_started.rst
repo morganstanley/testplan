@@ -23,13 +23,27 @@ Testplan is available from pypi.org: https://pypi.org/project/testplan/
       python3 -m pip install testplan
 
 
-Alternatively, one can install it from the latest github package. A link for our lates package can be obtained from: https://github.com/morganstanley/testplan/releases/tag/latest
+Additionally, one need to install Testplan with extras in order to use certain features.
+
+    .. code-block:: bash
+
+      # To use interactive mode feature.
+      python3 -m pip install testplan[interactive]
+
+      # To use plotly for plotting figures.
+      python3 -m pip install testplan[plotly]
+
+      # Install testplan with all the features.
+      python3 -m pip install testplan[all]
+
+
+Alternatively, one can install it from the latest github package. A link for our latest package can be obtained from: https://github.com/morganstanley/testplan/releases/tag/latest
 
 Install from archive:
   
     .. code-block:: bash
 
-      python3 -m pip install https://github.com/morganstanley/testplan/releases/download/24.9.2/testplan-24.9.2-py3-none-any.whl
+      python3 -m pip install https://github.com/morganstanley/testplan/releases/download/25.3.0/testplan-25.3.0-py3-none-any.whl
       
 
 Run testplan

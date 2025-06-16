@@ -30,6 +30,7 @@ KNOWN_EXCEPTIONS = [
     r"FATAL ERROR: Network error: Connection refused",  # We don't fail a pool test for connection incapability.
     r"lost connection",
     r"RuntimeError: Testcase raises",  # Expected error raised by PyUnit example.
+    r"Certain packages failed to import, please consider install Testplan package with `plotly` extra to run this example.",  # Missing plotly package. Will skip Plotly example.
 ]
 
 SKIP = [

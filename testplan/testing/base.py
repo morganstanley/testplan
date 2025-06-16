@@ -813,8 +813,6 @@ class Test(Runnable):
     def _record_driver_timing(
         self, setup_or_teardown: str, case_report: TestCaseReport
     ) -> None:
-        import plotly.express as px
-
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
@@ -844,51 +842,67 @@ class Test(Runnable):
         ]
         table.sort(key=lambda entry: entry["Start Time (UTC)"])
 
-        # input for plotly
-        px_input = {
-            "Start Time (UTC)": [],
-            "Stop Time (UTC)": [],
-            "Driver Name": [],
-        }
-        for driver in table:
-            if driver["Stop Time (UTC)"]:
-                px_input["Driver Name"].append(driver["Driver Name"])
-                px_input["Start Time (UTC)"].append(driver["Start Time (UTC)"])
-                px_input["Stop Time (UTC)"].append(driver["Stop Time (UTC)"])
-
+        def _format_start_stop_time(d):
             # format tablelog entries to be human readable
-            if driver["Start Time (UTC)"]:
-                driver["Start Time (UTC)"] = driver[
-                    "Start Time (UTC)"
-                ].strftime("%H:%M:%S.%f")
-            if driver["Stop Time (UTC)"]:
-                driver["Stop Time (UTC)"] = driver["Stop Time (UTC)"].strftime(
+            if d["Start Time (UTC)"]:
+                d["Start Time (UTC)"] = d["Start Time (UTC)"].strftime(
                     "%H:%M:%S.%f"
                 )
+            if d["Stop Time (UTC)"]:
+                d["Stop Time (UTC)"] = d["Stop Time (UTC)"].strftime(
+                    "%H:%M:%S.%f"
+                )
+            return d
 
         case_result.table.log(
-            table, description=f"Driver {setup_or_teardown.capitalize()} Info"
+            [_format_start_stop_time(d) for d in table],
+            description=f"Driver {setup_or_teardown.capitalize()} Info",
         )
 
-        # values are arbitary
-        padding = 150
-        row_size = 25
-        height = padding + row_size * len(px_input["Driver Name"])
-        if height == padding:
-            # min height
-            height = padding + row_size
-        fig = px.timeline(
-            px_input,
-            x_start="Start Time (UTC)",
-            x_end="Stop Time (UTC)",
-            y="Driver Name",
-            height=height,
-        )
-        fig.update_yaxes(autorange="reversed", automargin=True)
-        case_result.plotly(
-            fig,
-            description=f"Driver {setup_or_teardown.capitalize()} Timeline",
-        )
+        try:
+            import plotly.express as px
+        except ImportError:
+            case_result.log(
+                "Skip plotting timeline chart due to missing plotly package. "
+                "Please install Testplan package with `plotly` extra "
+                "if timeline chart is needed."
+            )
+        else:
+            # input for plotly
+            px_input = {
+                "Start Time (UTC)": [],
+                "Stop Time (UTC)": [],
+                "Driver Name": [],
+            }
+            for driver in table:
+                if driver["Stop Time (UTC)"]:
+                    px_input["Driver Name"].append(driver["Driver Name"])
+                    px_input["Start Time (UTC)"].append(
+                        driver["Start Time (UTC)"]
+                    )
+                    px_input["Stop Time (UTC)"].append(
+                        driver["Stop Time (UTC)"]
+                    )
+
+            # empirical values
+            padding = 150
+            row_size = 25
+            height = padding + row_size * len(px_input["Driver Name"])
+            if height == padding:
+                # min height
+                height = padding + row_size
+            fig = px.timeline(
+                px_input,
+                x_start="Start Time (UTC)",
+                x_end="Stop Time (UTC)",
+                y="Driver Name",
+                height=height,
+            )
+            fig.update_yaxes(autorange="reversed", automargin=True)
+            case_result.plotly(
+                fig,
+                description=f"Driver {setup_or_teardown.capitalize()} Timeline",
+            )
 
         case_report.extend(case_result.serialized_entries)
         case_report.attachments.extend(case_result.attachments)

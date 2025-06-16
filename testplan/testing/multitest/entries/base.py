@@ -385,7 +385,7 @@ class MatPlot(Attachment):
 
 class Plotly(Attachment):
     def __init__(self, fig, data_file_path, style=None, description=None):
-        import plotly.io
+        import plotly.io  # pylint: disable=import-error
 
         fig_json = plotly.io.to_json(fig)
         pathlib.Path(data_file_path).resolve().parent.mkdir(

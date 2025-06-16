@@ -2570,6 +2570,9 @@ class Result:
 
     @assertion
     def plotly(self, fig, description=None, style=None):
+        # NOTE: input ``fig`` should be a plotly(-related) object, thus
+        # NOTE: we skip plotly availablity check here
+
         filename = "{0}.json".format(strings.uuid4())
         data_file_path = os.path.join(self._scratch, filename)
         chart = base.Plotly(
