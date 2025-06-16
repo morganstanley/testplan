@@ -22,7 +22,8 @@ Testplan is available from pypi.org: https://pypi.org/project/testplan/
 
       python3 -m pip install testplan
 
-Certain features of Testplan require additional dependencies.
+
+Additionally, one need to install Testplan with extras in order to use certain features.
 
     .. code-block:: bash
 
@@ -34,6 +35,7 @@ Certain features of Testplan require additional dependencies.
 
       # Install testplan with all the features.
       python3 -m pip install testplan[all]
+
 
 Alternatively, one can install it from the latest github package. A link for our latest package can be obtained from: https://github.com/morganstanley/testplan/releases/tag/latest
 
