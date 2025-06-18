@@ -11,7 +11,7 @@ Feature: Parallel execution example
         When we sum the numbers
         Then the result is: <expected>
 
-        @TP_EXECUTION_GROUP: group1
+        @TP_EXECUTION_GROUP:group1
         Examples: when both positive
             | a   | b   | expected |
             | 1   | 1   | 2        |
@@ -25,7 +25,7 @@ Feature: Parallel execution example
             | -123 | 321 | 198      |
 
 
-    @TP_EXECUTION_GROUP: group3
+    @TP_EXECUTION_GROUP:group3
     Scenario: add two number
 
         Check if sum can add two number
