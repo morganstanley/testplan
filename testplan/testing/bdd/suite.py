@@ -231,7 +231,7 @@ SPECIAL_SCENARIOS = [
 
 
 class DataTable:
-    HEADEREXTRACTOR = re.compile("^\[(.*)]$")
+    HEADEREXTRACTOR = re.compile(r"^\[(.*)\]$")
 
     def __init__(self, data):
         self.data = data

@@ -28,7 +28,7 @@ class TagProcessor:
 
 class XFailTagProcessor(TagProcessor):
     KNOWN_TO_FAIL_REGEX = re.compile(
-        r"^KNOWN_TO_FAIL *(([^:/]+)/)?([^:]+)?:?(.*)$"
+        r"^KNOWN_TO_FAIL(([^:/]+)/)?([^:]+)?:?(.*)$"
     )
 
     def process_tag(self, tag: str) -> XFailAdapter:
@@ -53,7 +53,7 @@ class XFailTagProcessor(TagProcessor):
 
 
 class ExecutionGroupTagProcessor(TagProcessor):
-    REGEX = re.compile(r"^TP_EXECUTION_GROUP:\s*(\S*?)\s*$")
+    REGEX = re.compile(r"^TP_EXECUTION_GROUP:(\S*?)$")
 
     def process_tags(
         self, tags: List[str], tag_params: TagParams

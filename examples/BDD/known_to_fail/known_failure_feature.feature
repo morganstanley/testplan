@@ -1,4 +1,4 @@
-@KNOWN_TO_FAIL: All testcase of this feature is known to fail
+@KNOWN_TO_FAIL:All_testcase_of_this_feature_is_known_to_fail
 @unit
 Feature: sum adding two number The wrong way expected to fail
 
