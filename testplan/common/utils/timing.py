@@ -283,7 +283,17 @@ def now() -> datetime.datetime:
 @lru_cache(None)
 def iana_tz() -> str:
     """IANA TZ identifier"""
-    return str(tzlocal.get_localzone())
+    tz = str(tzlocal.get_localzone())
+    if tz == "local":
+        # tzlocal cannot determine the local timezone, raise warning
+        from testplan.common.utils.logger import TESTPLAN_LOGGER
+
+        TESTPLAN_LOGGER.warning(
+            "CANNOT DETERMINE LOCAL TIMEZONE ON MACHINE, please check your "
+            "system configuration. FORCE USING UTC HERE."
+        )
+        tz = "UTC"
+    return tz
 
 
 _Interval = collections.namedtuple("_Interval", "start end")

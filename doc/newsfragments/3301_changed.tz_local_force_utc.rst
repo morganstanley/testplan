@@ -1,0 +1,1 @@
+Set ``timezone`` entries in Testplan reports to ``UTC`` when local timezone detection fails.
