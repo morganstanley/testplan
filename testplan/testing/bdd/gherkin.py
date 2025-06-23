@@ -81,6 +81,10 @@ class Feature(ParsedStore):
                     self._scenarios.append(
                         ScenarioOutline(child["scenario"], self.background)
                     )
+            elif "rule" in child:
+                raise RuntimeError(
+                    "Rule keyword is not yet supported in Testplan BDD."
+                )
 
 
 class StepContainer:
