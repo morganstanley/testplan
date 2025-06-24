@@ -47,9 +47,6 @@ SKIP = [
     os.path.join("BDD", "known_to_fail", "test_plan.py"),
 ]
 
-if ge_311:
-    SKIP.extend((os.path.join("BDD", "*"),))
-
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
 if not REMOTE_HOST:
     SKIP.extend(

@@ -277,7 +277,7 @@ KNOWN_TO_FAIL
 
 This feature is a direct hook to the Testplan feature: :ref:`Xfail <Xfail>`
 
-One can mark a Feature or Scenario with the ``@KNOWN_TO_FAIL`` label when not possible to fix the code immediately and make the test pass. This make the test pass till it realy fails and make it failed when it start to pass to signify that the label can be removed from it. The handling of this tag is rather special it can carry some reasoning, why is it ok the test to fail. The format is `@KNOWN_TO_FAIL: reason`.
+One can mark a Feature or Scenario with the ``@KNOWN_TO_FAIL`` label when not possible to fix the code immediately and make the test pass. This make the test pass till it realy fails and make it failed when it start to pass to signify that the label can be removed from it. The handling of this tag is rather special it can carry some reasoning, why is it ok the test to fail. The format is ``@KNOWN_TO_FAIL:reason``.
 
 An example:
 
@@ -285,7 +285,7 @@ An example:
 
     Feature: sum adding two number The wrong way
 
-        @KNOWN_TO_FAIL: A simple Fail with Jira
+        @KNOWN_TO_FAIL:A_simple_Fail_with_Jira
         Scenario: add 1 and -2
 
             Check if 1-2 == 1
@@ -321,7 +321,7 @@ In the following example the positive cases will be running parallel:
             When we sum the numbers
             Then the result is: <expected>
 
-            @TP_EXECUTION_GROUP: group1
+            @TP_EXECUTION_GROUP:group1
             Examples: when both positive
                 | a   | b   | expected |
                 | 1   | 1   | 2        |
