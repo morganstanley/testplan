@@ -69,14 +69,22 @@ class Feature(ParsedStore):
 
     def parse_children(self, childrens):
         for child in childrens:
-            child_type = child["type"]
-
-            if child_type == "Scenario":
-                self._scenarios.append(Scenario(child, self.background))
-            elif child_type == "Background":
-                self.background = Background(child)
-            elif child_type == "ScenarioOutline":
-                self._scenarios.append(ScenarioOutline(child, self.background))
+            if "background" in child:
+                self.background = Background(child["background"])
+            elif "scenario" in child:
+                keyword = child["scenario"]["keyword"]
+                if keyword == "Scenario":
+                    self._scenarios.append(
+                        Scenario(child["scenario"], self.background)
+                    )
+                elif keyword == "Scenario Outline":
+                    self._scenarios.append(
+                        ScenarioOutline(child["scenario"], self.background)
+                    )
+            elif "rule" in child:
+                raise RuntimeError(
+                    "Rule keyword is not yet supported in Testplan BDD."
+                )
 
 
 class StepContainer:
@@ -200,7 +208,6 @@ class ScenarioOutline(ParsedStore, StepContainer):
                 scen_dict = {
                     "name": resolve("{} {}".format(name, index), data_dict),
                     "keyword:": "Scenario ",
-                    "type": "Scenario",
                     "steps": [
                         resolve(
                             step,
@@ -216,23 +223,16 @@ class ScenarioOutline(ParsedStore, StepContainer):
                     ),
                 }
                 compiled_scenarios.append(Scenario(scen_dict, self.background))
-
         return compiled_scenarios
 
 
 def get_argument(parsed):
-    argument = parsed.get("argument")
+    if "docString" in parsed:
+        return parsed["docString"]["content"]
 
-    if not argument:
-        return None
+    if "dataTable" in parsed:
+        return DataTable(parsed["dataTable"])
 
-    if argument.get("type") == "DataTable":
-        return DataTable(argument)
-
-    if argument.get("type") == "DocString":
-        return argument.get("content")
-
-    # TODO: Raise exception here
     return None
 
 

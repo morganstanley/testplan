@@ -10,7 +10,7 @@ Feature: sum adding two number The wrong way with xfail scenarios
         When we sum the numbers
         Then the result is: 1
 
-    @KNOWN_TO_FAIL: A simple Fail with comment
+    @KNOWN_TO_FAIL:A_simple_Fail_with_comment
     Scenario: add 1 and -1
 
 
@@ -29,7 +29,7 @@ Feature: sum adding two number The wrong way with xfail scenarios
         When we sum the numbers
         Then the result is: <expected>
 
-        @KNOWN_TO_FAIL: Failing scenario outline examples
+        @KNOWN_TO_FAIL:Failing_scenario_outline_examples
         Examples: Failing examples
             | num1 | num2 | expected |
             | 1    | -1   | 1        |

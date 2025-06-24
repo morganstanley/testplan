@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 from testplan.testing.multitest import xfail
 
@@ -28,10 +28,10 @@ class TagProcessor:
 
 class XFailTagProcessor(TagProcessor):
     KNOWN_TO_FAIL_REGEX = re.compile(
-        r"^KNOWN_TO_FAIL *(([^:/]+)/)?([^:]+)?:?(.*)$"
+        r"^KNOWN_TO_FAIL(([^:/]+)/)?([^:]+)?:?(.*)$"
     )
 
-    def process_tag(self, tag: str) -> XFailAdapter:
+    def process_tag(self, tag: str) -> Optional[XFailAdapter]:
         match = self.KNOWN_TO_FAIL_REGEX.match(tag)
         if match:
             return XFailAdapter(comment=match.group(4))
@@ -53,7 +53,7 @@ class XFailTagProcessor(TagProcessor):
 
 
 class ExecutionGroupTagProcessor(TagProcessor):
-    REGEX = re.compile(r"^TP_EXECUTION_GROUP:\s*(\S*?)\s*$")
+    REGEX = re.compile(r"^TP_EXECUTION_GROUP:(\S*?)$")
 
     def process_tags(
         self, tags: List[str], tag_params: TagParams
