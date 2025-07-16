@@ -845,11 +845,8 @@ class Test(Runnable):
 
         def _format_start_stop_time(d):
             # format tablelog entries to be human readable
-            st, et = None, None
-            if d[ST]:
-                st = d[ST].strftime("%H:%M:%S.%f")
-            if d[ET]:
-                et = d[ET].strftime("%H:%M:%S.%f")
+            st = d[ST].strftime("%H:%M:%S.%f") if d[ST] else None
+            et = d[ET].strftime("%H:%M:%S.%f") if d[ET] else None
             return {**d, ST: st, ET: et}
 
         case_result.table.log(
