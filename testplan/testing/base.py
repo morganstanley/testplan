@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 import warnings
-from datetime import timezone
+from datetime import datetime, timezone
 from enum import Enum
 from typing import (
     Callable,
@@ -817,42 +817,40 @@ class Test(Runnable):
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
 
-        def _try_asutc(dt_or_none):
+        def _try_asutc(dt_or_none: Optional[datetime]) -> Optional[datetime]:
             if dt_or_none:
                 return dt_or_none.astimezone(tz=timezone.utc)
             return None
 
+        # column names
+        DC = "Driver Class"
+        DN = "Driver Name"
+        ST = "Start Time (UTC)"
+        ET = "Stop Time (UTC)"
+        DU = "Duration(seconds)"
+
         # input for tablelog
         table = [
             {
-                "Driver Class": driver.__class__.__name__,
-                "Driver Name": driver.name,
-                "Start Time (UTC)": _try_asutc(
-                    driver.timer.last(setup_or_teardown).start
-                ),
-                "Stop Time (UTC)": _try_asutc(
-                    driver.timer.last(setup_or_teardown).end
-                ),
-                "Duration(seconds)": driver.timer.last(
-                    setup_or_teardown
-                ).elapsed,
+                DC: driver.__class__.__name__,
+                DN: driver.name,
+                ST: _try_asutc(driver.timer.last(setup_or_teardown).start),
+                ET: _try_asutc(driver.timer.last(setup_or_teardown).end),
+                DU: driver.timer.last(setup_or_teardown).elapsed,
             }
             for driver in self.resources
             if setup_or_teardown in driver.timer.keys()
         ]
-        table.sort(key=lambda entry: entry["Start Time (UTC)"])
+        table.sort(key=lambda entry: entry[ST])
 
         def _format_start_stop_time(d):
             # format tablelog entries to be human readable
-            if d["Start Time (UTC)"]:
-                d["Start Time (UTC)"] = d["Start Time (UTC)"].strftime(
-                    "%H:%M:%S.%f"
-                )
-            if d["Stop Time (UTC)"]:
-                d["Stop Time (UTC)"] = d["Stop Time (UTC)"].strftime(
-                    "%H:%M:%S.%f"
-                )
-            return d
+            st, et = None, None
+            if d[ST]:
+                st = d[ST].strftime("%H:%M:%S.%f")
+            if d[ET]:
+                et = d[ET].strftime("%H:%M:%S.%f")
+            return {**d, ST: st, ET: et}
 
         case_result.table.log(
             [_format_start_stop_time(d) for d in table],
@@ -870,32 +868,28 @@ class Test(Runnable):
         else:
             # input for plotly
             px_input = {
-                "Start Time (UTC)": [],
-                "Stop Time (UTC)": [],
-                "Driver Name": [],
+                DN: [],
+                ST: [],
+                ET: [],
             }
             for driver in table:
-                if driver["Stop Time (UTC)"]:
-                    px_input["Driver Name"].append(driver["Driver Name"])
-                    px_input["Start Time (UTC)"].append(
-                        driver["Start Time (UTC)"]
-                    )
-                    px_input["Stop Time (UTC)"].append(
-                        driver["Stop Time (UTC)"]
-                    )
+                if driver[ET]:
+                    px_input[DN].append(driver[DN])
+                    px_input[ST].append(driver[ST])
+                    px_input[ET].append(driver[ET])
 
             # empirical values
             padding = 150
             row_size = 25
-            height = padding + row_size * len(px_input["Driver Name"])
+            height = padding + row_size * len(px_input[DN])
             if height == padding:
                 # min height
                 height = padding + row_size
             fig = px.timeline(
                 px_input,
-                x_start="Start Time (UTC)",
-                x_end="Stop Time (UTC)",
-                y="Driver Name",
+                x_start=ST,
+                x_end=ET,
+                y=DN,
                 height=height,
             )
             fig.update_yaxes(autorange="reversed", automargin=True)
