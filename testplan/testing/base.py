@@ -823,31 +823,37 @@ class Test(Runnable):
             return None
 
         # column names
-        DC = "Driver Class"
-        DN = "Driver Name"
-        ST = "Start Time (UTC)"
-        ET = "Stop Time (UTC)"
-        DU = "Duration(seconds)"
+        D_CLASS = "Driver Class"
+        D_NAME = "Driver Name"
+        START_TIME = "Start Time (UTC)"
+        END_TIME = "Stop Time (UTC)"
+        DURATION = "Duration(seconds)"
 
         # input for tablelog
         table = [
             {
-                DC: driver.__class__.__name__,
-                DN: driver.name,
-                ST: _try_asutc(driver.timer.last(setup_or_teardown).start),
-                ET: _try_asutc(driver.timer.last(setup_or_teardown).end),
-                DU: driver.timer.last(setup_or_teardown).elapsed,
+                D_CLASS: driver.__class__.__name__,
+                D_NAME: driver.name,
+                START_TIME: _try_asutc(
+                    driver.timer.last(setup_or_teardown).start
+                ),
+                END_TIME: _try_asutc(driver.timer.last(setup_or_teardown).end),
+                DURATION: driver.timer.last(setup_or_teardown).elapsed,
             }
             for driver in self.resources
             if setup_or_teardown in driver.timer.keys()
         ]
-        table.sort(key=lambda entry: entry[ST])
+        table.sort(key=lambda entry: entry[START_TIME])
 
         def _format_start_stop_time(d):
             # format tablelog entries to be human readable
-            st = d[ST].strftime("%H:%M:%S.%f") if d[ST] else None
-            et = d[ET].strftime("%H:%M:%S.%f") if d[ET] else None
-            return {**d, ST: st, ET: et}
+            st = (
+                d[START_TIME].strftime("%H:%M:%S.%f")
+                if d[START_TIME]
+                else None
+            )
+            et = d[END_TIME].strftime("%H:%M:%S.%f") if d[END_TIME] else None
+            return {**d, START_TIME: st, END_TIME: et}
 
         case_result.table.log(
             [_format_start_stop_time(d) for d in table],
@@ -865,28 +871,28 @@ class Test(Runnable):
         else:
             # input for plotly
             px_input = {
-                DN: [],
-                ST: [],
-                ET: [],
+                D_NAME: [],
+                START_TIME: [],
+                END_TIME: [],
             }
             for driver in table:
-                if driver[ET]:
-                    px_input[DN].append(driver[DN])
-                    px_input[ST].append(driver[ST])
-                    px_input[ET].append(driver[ET])
+                if driver[END_TIME]:
+                    px_input[D_NAME].append(driver[D_NAME])
+                    px_input[START_TIME].append(driver[START_TIME])
+                    px_input[END_TIME].append(driver[END_TIME])
 
             # empirical values
             padding = 150
             row_size = 25
-            height = padding + row_size * len(px_input[DN])
+            height = padding + row_size * len(px_input[D_NAME])
             if height == padding:
                 # min height
                 height = padding + row_size
             fig = px.timeline(
                 px_input,
-                x_start=ST,
-                x_end=ET,
-                y=DN,
+                x_start=START_TIME,
+                x_end=END_TIME,
+                y=D_NAME,
                 height=height,
             )
             fig.update_yaxes(autorange="reversed", automargin=True)
