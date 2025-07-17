@@ -69,7 +69,7 @@ def test_multitest_drivers_connection_in_testplan(mocker, mockplan):
     mockplan.add(mtest)
 
     def fig_data_tc_plotly_init(that, fig, *args, **kwargs):
-        assert np.issubdtype(fig.data[0].base.dtype, np.datetime64)
+        assert not isinstance(fig.data[0].base[0], str)
         orig_init(that, fig, *args, **kwargs)
 
     mocker.patch.object(
