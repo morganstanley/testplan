@@ -600,6 +600,7 @@ runtime_schema = schema.Schema(
             "execution_time": schema.Or(int, float),
             "setup_time": schema.Or(int, float),
             schema.Optional("teardown_time"): schema.Or(int, float),
+            schema.Optional(str): object,  # allow other keys
         }
     }
 )
