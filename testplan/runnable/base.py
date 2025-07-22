@@ -991,9 +991,28 @@ class TestRunner(Runnable):
         )  # @task_target(multitest_parts=...)
         uid = task_info.uid
         runtime_data: dict = self.cfg.runtime_data or {}
-        time_info = runtime_data.get(uid, None)
+        time_info: Optional[dict] = runtime_data.get(uid, None)
 
         partitioned: List[TaskInformation] = []
+
+        adjusted_exec_time = prev_case_count = curr_case_count = 0
+        if time_info:
+            adjusted_exec_time = time_info["execution_time"]
+            if prev_case_count := time_info.get("testcase_count", 0):
+                # XXX: cache dry_run result to task_info?
+                if (
+                    curr_case_count
+                    := task_info.materialized_test.dry_run().report.counter[
+                        "total"
+                    ]
+                ):
+                    # testcase count factor caps at 2
+                    # XXX: declare const?
+                    # XXX: only apply on mt?
+                    adjusted_exec_time *= min(
+                        curr_case_count / prev_case_count, 2
+                    )
+                # XXX: shoutout if curr_case_count is 0?
 
         if num_of_parts:
             if not isinstance(task_info.materialized_test, MultiTest):
@@ -1010,25 +1029,33 @@ class TestRunner(Runnable):
                     )
                     num_of_parts = 1
                 else:
-                    # the setup time shall take no more than 50% of runtime
-                    cap = math.ceil(
-                        time_info["execution_time"]
-                        / auto_part_runtime_limit
-                        * 2
-                    )
+                    if prev_case_count and curr_case_count:
+                        adjust_formula_part = f"""
+                * min(
+                    curr_case_count {curr_case_count}
+                    / prev_case_count {prev_case_count},
+                    2
+                )"""
+                    else:
+                        adjust_formula_part = ""
                     formula = f"""
             num_of_parts = math.ceil(
-                time_info["execution_time"] {time_info["execution_time"]}
+                time_info["execution_time"] {time_info["execution_time"]}{adjust_formula_part}
                 / (
                     self.cfg.auto_part_runtime_limit {auto_part_runtime_limit}
                     - time_info["setup_time"] {time_info["setup_time"]}
                     - time_info["teardown_time"] {time_info["teardown_time"]}
                 )
             )
-        """
+"""
+
+                    # the setup time shall take no more than 50% of runtime
+                    cap = math.ceil(
+                        adjusted_exec_time / auto_part_runtime_limit * 2
+                    )
                     try:
                         num_of_parts = math.ceil(
-                            time_info["execution_time"]
+                            adjusted_exec_time
                             / (
                                 auto_part_runtime_limit
                                 - time_info["setup_time"]
@@ -1058,12 +1085,12 @@ class TestRunner(Runnable):
             if "weight" not in task_arguments:
                 task_arguments["weight"] = (
                     math.ceil(
-                        (time_info["execution_time"] / num_of_parts)
+                        (adjusted_exec_time / num_of_parts)
                         + time_info["setup_time"]
                         + time_info["teardown_time"]
                     )
                     if time_info
-                    else auto_part_runtime_limit
+                    else int(auto_part_runtime_limit)
                 )
             self.logger.user_info(
                 "%s: parts=%d, weight=%d",
@@ -1085,7 +1112,7 @@ class TestRunner(Runnable):
         else:
             if time_info and not task_info.target.weight:
                 task_info.target.weight = math.ceil(
-                    time_info["execution_time"]
+                    adjusted_exec_time
                     + time_info["setup_time"]
                     + time_info["teardown_time"]
                 )

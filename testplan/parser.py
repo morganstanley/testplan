@@ -202,6 +202,7 @@ A typical input JSON looks like below:
         "execution_time": 199.99,
         "setup_time": 39.99,
         "teardown_time": 39.99,
+        "testcase_count": 10
     },
     ......
 }""",
@@ -599,8 +600,8 @@ runtime_schema = schema.Schema(
         str: {
             "execution_time": schema.Or(int, float),
             "setup_time": schema.Or(int, float),
-            schema.Optional("teardown_time"): schema.Or(int, float),
-            schema.Optional(str): object,  # allow other keys
+            "teardown_time": schema.Or(int, float),
+            schema.Optional("testcase_count"): int,
         }
     }
 )
