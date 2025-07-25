@@ -1,7 +1,7 @@
 """MultiTest test execution framework."""
 
 import collections.abc
-import concurrent
+import concurrent.futures
 import functools
 import itertools
 import warnings

@@ -906,7 +906,7 @@ class RunnableResult:
 
     def __init__(self):
         self.step_results = OrderedDict()
-        self.run = False
+        self.run: Union[bool, Exception] = False
 
     def __repr__(self):
         return f"{self.__class__.__name__}[{vars(self)}]"

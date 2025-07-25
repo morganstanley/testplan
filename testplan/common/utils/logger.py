@@ -106,7 +106,7 @@ class TestplanLogger(logging.Logger):
             self._log(level, msg, args, **kwargs)
 
 
-def _initial_setup():
+def _initial_setup() -> tuple[TestplanLogger, logging.StreamHandler]:
     """
     Perform initial setup for the logger. Creates and adds a handler to log
     to stdout with default level USER_INFO.
