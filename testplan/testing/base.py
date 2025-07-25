@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 import warnings
-from datetime import timezone
+from datetime import datetime, timezone
 from enum import Enum
 from typing import (
     Callable,
@@ -817,42 +817,43 @@ class Test(Runnable):
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
 
-        def _try_asutc(dt_or_none):
+        def _try_asutc(dt_or_none: Optional[datetime]) -> Optional[datetime]:
             if dt_or_none:
                 return dt_or_none.astimezone(tz=timezone.utc)
             return None
 
+        # column names
+        D_CLASS = "Driver Class"
+        D_NAME = "Driver Name"
+        START_TIME = "Start Time (UTC)"
+        END_TIME = "Stop Time (UTC)"
+        DURATION = "Duration(seconds)"
+
         # input for tablelog
         table = [
             {
-                "Driver Class": driver.__class__.__name__,
-                "Driver Name": driver.name,
-                "Start Time (UTC)": _try_asutc(
+                D_CLASS: driver.__class__.__name__,
+                D_NAME: driver.name,
+                START_TIME: _try_asutc(
                     driver.timer.last(setup_or_teardown).start
                 ),
-                "Stop Time (UTC)": _try_asutc(
-                    driver.timer.last(setup_or_teardown).end
-                ),
-                "Duration(seconds)": driver.timer.last(
-                    setup_or_teardown
-                ).elapsed,
+                END_TIME: _try_asutc(driver.timer.last(setup_or_teardown).end),
+                DURATION: driver.timer.last(setup_or_teardown).elapsed,
             }
             for driver in self.resources
             if setup_or_teardown in driver.timer.keys()
         ]
-        table.sort(key=lambda entry: entry["Start Time (UTC)"])
+        table.sort(key=lambda entry: entry[START_TIME])
 
         def _format_start_stop_time(d):
             # format tablelog entries to be human readable
-            if d["Start Time (UTC)"]:
-                d["Start Time (UTC)"] = d["Start Time (UTC)"].strftime(
-                    "%H:%M:%S.%f"
-                )
-            if d["Stop Time (UTC)"]:
-                d["Stop Time (UTC)"] = d["Stop Time (UTC)"].strftime(
-                    "%H:%M:%S.%f"
-                )
-            return d
+            st = (
+                d[START_TIME].strftime("%H:%M:%S.%f")
+                if d[START_TIME]
+                else None
+            )
+            et = d[END_TIME].strftime("%H:%M:%S.%f") if d[END_TIME] else None
+            return {**d, START_TIME: st, END_TIME: et}
 
         case_result.table.log(
             [_format_start_stop_time(d) for d in table],
@@ -870,32 +871,28 @@ class Test(Runnable):
         else:
             # input for plotly
             px_input = {
-                "Start Time (UTC)": [],
-                "Stop Time (UTC)": [],
-                "Driver Name": [],
+                D_NAME: [],
+                START_TIME: [],
+                END_TIME: [],
             }
             for driver in table:
-                if driver["Stop Time (UTC)"]:
-                    px_input["Driver Name"].append(driver["Driver Name"])
-                    px_input["Start Time (UTC)"].append(
-                        driver["Start Time (UTC)"]
-                    )
-                    px_input["Stop Time (UTC)"].append(
-                        driver["Stop Time (UTC)"]
-                    )
+                if driver[END_TIME]:
+                    px_input[D_NAME].append(driver[D_NAME])
+                    px_input[START_TIME].append(driver[START_TIME])
+                    px_input[END_TIME].append(driver[END_TIME])
 
             # empirical values
             padding = 150
             row_size = 25
-            height = padding + row_size * len(px_input["Driver Name"])
+            height = padding + row_size * len(px_input[D_NAME])
             if height == padding:
                 # min height
                 height = padding + row_size
             fig = px.timeline(
                 px_input,
-                x_start="Start Time (UTC)",
-                x_end="Stop Time (UTC)",
-                y="Driver Name",
+                x_start=START_TIME,
+                x_end=END_TIME,
+                y=D_NAME,
                 height=height,
             )
             fig.update_yaxes(autorange="reversed", automargin=True)

@@ -1,0 +1,1 @@
+Fix an issue that generated incorrect figures of driver starting/stopping timeline inside the driver-info feature.
