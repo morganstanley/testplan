@@ -346,7 +346,8 @@ Command line
                                 "<Multitest>": {
                                     | "execution_time": 199.99,
                                     | "setup_time": 39.99,
-                                    | "teardown_time": 39.99, // optional
+                                    | "teardown_time": 39.99,
+                                    | "testcase_count": 10  // optional
                                 },
                             }
 

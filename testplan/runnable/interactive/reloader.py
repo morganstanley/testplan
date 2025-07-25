@@ -14,14 +14,18 @@ import warnings
 from testplan.common.utils import path as path_utils
 from testplan.common.utils import logger
 from testplan.common.utils import strings
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.package import import_tmp_module
 from testplan.testing.multitest import suite, MultiTest
 
 
-def _patched_find_module(name, path=None):
+def _patched_find_module(name, path=None, logger=None):
     """
     modified from <3.13 branches, to handle namespace packages
     """
+
+    if logger is None:
+        logger = TESTPLAN_LOGGER
 
     # Old imp constants:
     _SEARCH_ERROR = 0
@@ -64,6 +68,7 @@ def _patched_find_module(name, path=None):
         ):
             # ModuleFinder.find_module is designed to only return one package dir,
             # while namespace packages can have multiple
+            logger.debug("Skipping namespace package %s under %s", name, path)
             return None, None, ("", "", _NAMESPACE_IGNORED)
 
     if spec.loader is importlib.machinery.BuiltinImporter:
@@ -150,7 +155,7 @@ class ModuleReloader(logger.Loggable):
         ) = self._build_dependencies()
 
         # Last recorded reload time for watched modules.
-        self._last_reload_time = {}  # type: Dict[str, float]
+        self._last_reload_time: dict[str, float] = {}
         self._init_time = time.time()
 
     def reload(self, tests, rebuild_dependencies=False):
@@ -663,7 +668,7 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
 
             path = self.path
 
-        return _patched_find_module(name, path)
+        return _patched_find_module(name, path, logger=self.logger)
 
 
 class _ModuleNode:

@@ -1,2 +1,1 @@
 Runtime data JSON file specified through ``--runtime-data`` now accepts an optional ``testcase_count`` field, which should hold the total number of testcases from the previous run. If ``testcase_count`` is specified, estimated MultiTest execution time will be adjusted by the ratio of current run's testcase count to that of previous run, which should bring more accurate auto-partitioning and improved testing resource utilization.
-
