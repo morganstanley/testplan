@@ -7,6 +7,11 @@ import shlex
 import socket
 import subprocess
 import sys
+import time
+
+import paramiko
+
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 IS_WIN = platform.system() == "Windows"
 USER = getpass.getuser()
@@ -67,9 +72,11 @@ def ssh_cmd(ssh_cfg, command):
     return full_cmd
 
 
-def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
+def copy_cmd(
+    source: str, target: str, exclude=None, port=None, deref_links=False
+):
     """Returns remote copy command."""
-
+    # TODO: global rsync/scp selection
     try:
         binary = os.environ["RSYNC_BINARY"]
     except KeyError:
@@ -113,7 +120,11 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
 
         full_cmd = [binary, "-r"]
         if port is not None:
-            full_cmd.extend(["-P", port])
+            full_cmd.extend(["-P", str(port)])
+        if source.endswith(os.sep):
+            # scp behaviour differs from rsync
+            # TODO: test
+            target = target.rsplit(os.sep, 1)[0]
         full_cmd.extend([source, target])
         return full_cmd
 
@@ -136,3 +147,63 @@ def rm_cmd(path):
 def filepath_exist_cmd(path):
     """Checks if filepath exists."""
     return " ".join(["/bin/test", "-e", shlex.quote(path)])
+
+
+def paramiko_ssh_client(hostname, **paramiko_config):
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
+    client.connect(hostname=hostname, **paramiko_config)
+    return client
+
+
+def paramiko_execute_remote(
+    client,
+    cmd,
+    label=None,
+    check=True,
+    logger=None,
+    env=None,
+):
+    if not logger:
+        logger = TESTPLAN_LOGGER
+
+    if isinstance(cmd, list):
+        cmd = [str(a) for a in cmd]
+        # for logging, easy to copy and execute
+        cmd_string = " ".join(map(shlex.quote, cmd))
+    else:
+        cmd_string = cmd
+
+    if env:
+        # TODO: sshd usually doesn't accept most envs, we need to embed them in cmd str
+        env_str = " ".join(
+            f"{k}={shlex.quote(str(v))}" for k, v in env.items()
+        )
+        cmd_string = f"{env_str} {cmd_string}"
+
+    if not label:
+        label = hash(cmd_string) % 1000
+
+    logger.debug("Executing command [%s]: '%s'", label, cmd_string)
+    start_time = time.time()
+
+    _0, _1, _2 = client.exec_command(cmd_string)
+    retcode = _1.channel.recv_exit_status()
+    stdout = _1.read().decode()
+    stderr = _2.read().decode()
+    elapsed = time.time() - start_time
+
+    if retcode != 0:
+        logger.debug(
+            "Failed executing command [%s] after %.2f sec.", label, elapsed
+        )
+        if check:
+            raise RuntimeError(
+                f"Command '{cmd_string}' returned with non-zero exit code {retcode},\n"
+                f"stdout: {stdout}\n"
+                f"stderr: {stderr}\n"
+            )
+    else:
+        logger.debug("Command [%s] finished in %.2f sec", label, elapsed)
+
+    return retcode, stdout, stderr
