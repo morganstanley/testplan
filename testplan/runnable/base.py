@@ -915,19 +915,17 @@ class TestRunner(Runnable):
         ]
         runtime_data = self.cfg.runtime_data or {}
         self._adjust_runtime_data(discovered, runtime_data)
-        auto_part_runtime_limit = self._calculate_part_runtime(
-            discovered, runtime_data
-        )
+        # here we replace the original runtime data with adjusted values
+        # XXX: testcase_count are still sum-up value from previous run, what to do?
+        self.cfg.set_local("runtime_data", runtime_data)
+
+        auto_part_runtime_limit = self._calculate_part_runtime(discovered)
         for task_info in discovered:
             partitioned.extend(
                 self._calculate_parts_and_weights(
-                    task_info, auto_part_runtime_limit, runtime_data
+                    task_info, auto_part_runtime_limit
                 )
             )
-
-        # here we replace the original overall runtime data with "partitioned" values
-        # XXX: testcase_count are still sum-up value from previous run, what to do?
-        self.cfg.set_local("runtime_data", runtime_data)
 
         return [_attach_task_info(task_info) for task_info in partitioned]
 
@@ -959,7 +957,7 @@ class TestRunner(Runnable):
                             curr_case_count / prev_case_count, 0.25
                         )
                         self.logger.user_info(
-                            "%s: estimated total execution time %f -> %f "
+                            "%s: adjust estimated total execution time %.2f -> %.2f "
                             "(prev total testcase number: %d, curr total testcase number: %d)",
                             uid,
                             time_info["execution_time"],
@@ -971,11 +969,12 @@ class TestRunner(Runnable):
                     # XXX: shoutout if curr_case_count is 0?
 
     def _calculate_part_runtime(
-        self, discovered: List[TaskInformation], runtime_data: dict
+        self, discovered: List[TaskInformation]
     ) -> float:
         if self.cfg.auto_part_runtime_limit != "auto":
             return self.cfg.auto_part_runtime_limit
 
+        runtime_data = self.cfg.runtime_data or {}
         if not runtime_data:
             self.logger.warning(
                 "Cannot derive auto_part_runtime_limit without runtime data, "
@@ -1031,15 +1030,13 @@ class TestRunner(Runnable):
         return auto_part_runtime_limit
 
     def _calculate_parts_and_weights(
-        self,
-        task_info: TaskInformation,
-        auto_part_runtime_limit: float,
-        runtime_data: dict,
+        self, task_info: TaskInformation, auto_part_runtime_limit: float
     ):
         num_of_parts = (
             task_info.num_of_parts
         )  # @task_target(multitest_parts=...)
         uid = task_info.uid
+        runtime_data: dict = self.cfg.runtime_data or {}
         time_info: Optional[dict] = runtime_data.get(uid, None)
 
         partitioned: List[TaskInformation] = []
@@ -1059,6 +1056,12 @@ class TestRunner(Runnable):
                     )
                     num_of_parts = 1
                 else:
+                    # the setup time shall take no more than 50% of runtime
+                    cap = math.ceil(
+                        time_info["execution_time"]
+                        / auto_part_runtime_limit
+                        * 2
+                    )
                     formula = f"""
             num_of_parts = math.ceil(
                 time_info["execution_time"] {time_info["execution_time"]}
@@ -1069,13 +1072,6 @@ class TestRunner(Runnable):
                 )
             )
 """
-
-                    # the setup time shall take no more than 50% of runtime
-                    cap = math.ceil(
-                        time_info["execution_time"]
-                        / auto_part_runtime_limit
-                        * 2
-                    )
                     try:
                         num_of_parts = math.ceil(
                             time_info["execution_time"]
