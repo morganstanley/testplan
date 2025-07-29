@@ -914,6 +914,7 @@ class TestRunner(Runnable):
             _detach_task_info(task) for task in tasks
         ]
         runtime_data = self.cfg.runtime_data or {}
+        self._adjust_runtime_data(discovered, runtime_data)
         auto_part_runtime_limit = self._calculate_part_runtime(
             discovered, runtime_data
         )
@@ -929,6 +930,45 @@ class TestRunner(Runnable):
         self.cfg.set_local("runtime_data", runtime_data)
 
         return [_attach_task_info(task_info) for task_info in partitioned]
+
+    def _adjust_runtime_data(
+        self, discovered: List[TaskInformation], runtime_data: dict
+    ):
+        """
+        Adjust the runtime data to ensure that all discovered tasks have their
+        runtime data available. If a task's UID is not found in the runtime data,
+        it will be added with default values.
+        """
+        for task_info in discovered:
+            uid = task_info.uid
+            time_info = runtime_data.get(uid, None)
+            if time_info and isinstance(
+                task_info.materialized_test, MultiTest
+            ):
+                if prev_case_count := time_info.get("testcase_count", 0):
+                    # XXX: cache dry_run result somewhere?
+                    # NOTE: get_metadata won't work here since filters not applied
+                    if (
+                        curr_case_count
+                        := task_info.materialized_test.dry_run().report.counter[
+                            "total"
+                        ]
+                    ):
+                        # XXX: define lb & ub of testcase-count factor?
+                        adjusted_exec_time = time_info["execution_time"] * max(
+                            curr_case_count / prev_case_count, 0.25
+                        )
+                        self.logger.user_info(
+                            "%s: estimated total execution time %f -> %f "
+                            "(prev total testcase number: %d, curr total testcase number: %d)",
+                            uid,
+                            time_info["execution_time"],
+                            adjusted_exec_time,
+                            prev_case_count,
+                            curr_case_count,
+                        )
+                        time_info["execution_time"] = adjusted_exec_time
+                    # XXX: shoutout if curr_case_count is 0?
 
     def _calculate_part_runtime(
         self, discovered: List[TaskInformation], runtime_data: dict
@@ -1004,33 +1044,6 @@ class TestRunner(Runnable):
 
         partitioned: List[TaskInformation] = []
 
-        adjusted_exec_time = prev_case_count = curr_case_count = 0
-        if time_info:
-            adjusted_exec_time = time_info["execution_time"]
-            if isinstance(task_info.materialized_test, MultiTest):
-                if prev_case_count := time_info.get("testcase_count", 0):
-                    # XXX: cache dry_run result somewhere?
-                    # NOTE: get_metadata won't work here since filters not applied
-                    if (
-                        curr_case_count
-                        := task_info.materialized_test.dry_run().report.counter[
-                            "total"
-                        ]
-                    ):
-                        # XXX: define lb & ub of testcase-count factor?
-                        adjusted_exec_time *= curr_case_count / prev_case_count
-                        self.logger.user_info(
-                            "%s: estimated total execution time %f -> %f "
-                            "(prev total tc: %d, curr total tc: %d)",
-                            uid,
-                            time_info["execution_time"],
-                            adjusted_exec_time,
-                            prev_case_count,
-                            curr_case_count,
-                        )
-                        time_info["execution_time"] = adjusted_exec_time
-                    # XXX: shoutout if curr_case_count is 0?
-
         if num_of_parts:
             if not isinstance(task_info.materialized_test, MultiTest):
                 raise TypeError(
@@ -1046,15 +1059,9 @@ class TestRunner(Runnable):
                     )
                     num_of_parts = 1
                 else:
-                    if prev_case_count and curr_case_count:
-                        adjust_formula_part = f"""
-                * curr_case_count {curr_case_count}
-                / prev_case_count {prev_case_count}"""
-                    else:
-                        adjust_formula_part = ""
                     formula = f"""
             num_of_parts = math.ceil(
-                time_info["execution_time"] {time_info["execution_time"]}{adjust_formula_part}
+                time_info["execution_time"] {time_info["execution_time"]}
                 / (
                     self.cfg.auto_part_runtime_limit {auto_part_runtime_limit}
                     - time_info["setup_time"] {time_info["setup_time"]}
@@ -1065,11 +1072,13 @@ class TestRunner(Runnable):
 
                     # the setup time shall take no more than 50% of runtime
                     cap = math.ceil(
-                        adjusted_exec_time / auto_part_runtime_limit * 2
+                        time_info["execution_time"]
+                        / auto_part_runtime_limit
+                        * 2
                     )
                     try:
                         num_of_parts = math.ceil(
-                            adjusted_exec_time
+                            time_info["execution_time"]
                             / (
                                 auto_part_runtime_limit
                                 - time_info["setup_time"]
@@ -1099,7 +1108,7 @@ class TestRunner(Runnable):
             if "weight" not in task_arguments:
                 task_arguments["weight"] = (
                     math.ceil(
-                        (adjusted_exec_time / num_of_parts)
+                        (time_info["execution_time"] / num_of_parts)
                         + time_info["setup_time"]
                         + time_info["teardown_time"]
                     )
@@ -1126,7 +1135,7 @@ class TestRunner(Runnable):
         else:
             if time_info and not task_info.target.weight:
                 task_info.target.weight = math.ceil(
-                    adjusted_exec_time
+                    time_info["execution_time"]
                     + time_info["setup_time"]
                     + time_info["teardown_time"]
                 )
