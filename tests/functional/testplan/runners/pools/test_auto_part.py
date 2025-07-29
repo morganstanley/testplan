@@ -1,5 +1,7 @@
 import os
+import math
 import tempfile
+from itertools import count
 from pathlib import Path
 
 import pytest
@@ -379,3 +381,65 @@ def test_auto_plan_runtime_target():
             assert task.weight == 900
         mockplan.run()
         assert pool.size == 6
+
+
+@pytest.mark.parametrize(
+    "tc, adjusted_exec_t, exp_weight, exp_parts",
+    [
+        (10, 60, 35, 2),
+        (5, 120, 35, 4),
+        (20, 30, 35, 1),
+        (8, 75, 30, 3),
+        (100, 15, 20, 1),
+    ],
+    ids=count(0),
+)
+def test_multitest_weight_adjusted_by_relative_testcase_count(
+    tc, adjusted_exec_t, exp_weight, exp_parts
+):
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit=40,
+            plan_runtime_target=80,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 60,
+                    "setup_time": 5,
+                    "teardown_time": 0,
+                    "testcase_count": tc,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = Path(__file__).resolve().parent
+        assert pool.cfg.runtime_data == {
+            "Proj1-suite": {
+                "execution_time": 60,
+                "setup_time": 5,
+                "teardown_time": 0,
+                "testcase_count": tc,
+            }
+        }
+        # curr tc: 10
+        mockplan.schedule_all(
+            path=current_folder / "discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+        assert pool.cfg.runtime_data == {
+            "Proj1-suite": {
+                "execution_time": adjusted_exec_t,
+                "setup_time": 5,
+                "teardown_time": 0,
+                "testcase_count": 10,
+            }
+        }
+        assert len(pool.added_items) == exp_parts
+        for task in pool.added_items.values():
+            assert task.weight == exp_weight
+        mockplan.run()
+        assert pool.size == math.ceil(exp_weight * exp_parts / 80)

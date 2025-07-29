@@ -86,6 +86,9 @@ if sys.version_info < (3, 11):
 TestTask = Union[Test, Task, Callable]
 
 
+MULTITEST_EXEC_TIME_ADJUST_FACTOR_LB = 0.25
+
+
 @dataclass
 class TaskInformation:
     target: TestTask
@@ -913,8 +916,13 @@ class TestRunner(Runnable):
         discovered: List[TaskInformation] = [
             _detach_task_info(task) for task in tasks
         ]
-        auto_part_runtime_limit = self._calculate_part_runtime(discovered)
+        runtime_data = self.cfg.runtime_data or {}
+        self._adjust_runtime_data(discovered, runtime_data)
+        # here we replace the original runtime data with adjusted values
+        # and "previous" testcase count with current run count
+        self.cfg.set_local("runtime_data", runtime_data)
 
+        auto_part_runtime_limit = self._calculate_part_runtime(discovered)
         for task_info in discovered:
             partitioned.extend(
                 self._calculate_parts_and_weights(
@@ -924,7 +932,49 @@ class TestRunner(Runnable):
 
         return [_attach_task_info(task_info) for task_info in partitioned]
 
-    def _calculate_part_runtime(self, discovered: List[TaskInformation]):
+    def _adjust_runtime_data(
+        self, discovered: List[TaskInformation], runtime_data: dict
+    ):
+        """
+        Adjust the runtime data to ensure that all discovered tasks have their
+        runtime data available. If a task's UID is not found in the runtime data,
+        it will be added with default values.
+        """
+        for task_info in discovered:
+            uid = task_info.uid
+            time_info = runtime_data.get(uid, None)
+            if time_info and isinstance(
+                task_info.materialized_test, MultiTest
+            ):
+                if prev_case_count := time_info.get("testcase_count", 0):
+                    # XXX: cache dry_run result somewhere?
+                    # NOTE: get_metadata won't work here since filters not applied
+                    if (
+                        curr_case_count
+                        := task_info.materialized_test.dry_run().report.counter[
+                            "total"
+                        ]
+                    ):
+                        # XXX: lb defined, ub?
+                        adjusted_exec_time = time_info["execution_time"] * max(
+                            curr_case_count / prev_case_count,
+                            MULTITEST_EXEC_TIME_ADJUST_FACTOR_LB,
+                        )
+                        self.logger.user_info(
+                            "%s: adjust estimated total execution time %.2f -> %.2f "
+                            "(prev total testcase number: %d, curr total testcase number: %d)",
+                            uid,
+                            time_info["execution_time"],
+                            adjusted_exec_time,
+                            prev_case_count,
+                            curr_case_count,
+                        )
+                        time_info["execution_time"] = adjusted_exec_time
+                        time_info["testcase_count"] = curr_case_count
+
+    def _calculate_part_runtime(
+        self, discovered: List[TaskInformation]
+    ) -> float:
         if self.cfg.auto_part_runtime_limit != "auto":
             return self.cfg.auto_part_runtime_limit
 
@@ -991,7 +1041,7 @@ class TestRunner(Runnable):
         )  # @task_target(multitest_parts=...)
         uid = task_info.uid
         runtime_data: dict = self.cfg.runtime_data or {}
-        time_info = runtime_data.get(uid, None)
+        time_info: Optional[dict] = runtime_data.get(uid, None)
 
         partitioned: List[TaskInformation] = []
 
@@ -1025,7 +1075,7 @@ class TestRunner(Runnable):
                     - time_info["teardown_time"] {time_info["teardown_time"]}
                 )
             )
-        """
+"""
                     try:
                         num_of_parts = math.ceil(
                             time_info["execution_time"]
@@ -1063,7 +1113,7 @@ class TestRunner(Runnable):
                         + time_info["teardown_time"]
                     )
                     if time_info
-                    else auto_part_runtime_limit
+                    else int(auto_part_runtime_limit)
                 )
             self.logger.user_info(
                 "%s: parts=%d, weight=%d",
