@@ -435,7 +435,7 @@ def test_multitest_weight_adjusted_by_relative_testcase_count(
                 "execution_time": adjusted_exec_t,
                 "setup_time": 5,
                 "teardown_time": 0,
-                "testcase_count": tc,
+                "testcase_count": 10,
             }
         }
         assert len(pool.added_items) == exp_parts
