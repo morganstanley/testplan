@@ -86,6 +86,9 @@ if sys.version_info < (3, 11):
 TestTask = Union[Test, Task, Callable]
 
 
+MULTITEST_EXEC_TIME_ADJUST_FACTOR_LB = 0.25
+
+
 @dataclass
 class TaskInformation:
     target: TestTask
@@ -916,7 +919,7 @@ class TestRunner(Runnable):
         runtime_data = self.cfg.runtime_data or {}
         self._adjust_runtime_data(discovered, runtime_data)
         # here we replace the original runtime data with adjusted values
-        # XXX: testcase_count are still sum-up value from previous run, what to do?
+        # and "previous" testcase count with current run count
         self.cfg.set_local("runtime_data", runtime_data)
 
         auto_part_runtime_limit = self._calculate_part_runtime(discovered)
@@ -952,9 +955,10 @@ class TestRunner(Runnable):
                             "total"
                         ]
                     ):
-                        # XXX: define lb & ub of testcase-count factor?
+                        # XXX: lb defined, ub?
                         adjusted_exec_time = time_info["execution_time"] * max(
-                            curr_case_count / prev_case_count, 0.25
+                            curr_case_count / prev_case_count,
+                            MULTITEST_EXEC_TIME_ADJUST_FACTOR_LB,
                         )
                         self.logger.user_info(
                             "%s: adjust estimated total execution time %.2f -> %.2f "
@@ -966,7 +970,7 @@ class TestRunner(Runnable):
                             curr_case_count,
                         )
                         time_info["execution_time"] = adjusted_exec_time
-                    # XXX: shoutout if curr_case_count is 0?
+                        time_info["testcase_count"] = curr_case_count
 
     def _calculate_part_runtime(
         self, discovered: List[TaskInformation]
