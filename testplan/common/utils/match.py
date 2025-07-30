@@ -32,9 +32,8 @@ from .logfile import (
     MTimeBasedLogRotationStrategy,
     RemoteMTimeBasedLogRotationStrategy,
 )
+from testplan.common.remote.ssh_client import SSHClient
 
-
-DEFAULT_PARAMIKO_CONFIG = {"username": getpass.getuser()}
 
 LOG_MATCHER_INTERVAL = 0.25
 LOG_MATCHER_DEFAULT_TIMEOUT = 5.0
@@ -578,37 +577,27 @@ class RemoteLogMatcher(LogMatcher):
         host: str,
         log_path: Union[os.PathLike, str],
         binary: bool = False,
-        paramiko_config: Optional[dict] = None,
+        port: int = 22,
+        **args,
     ):
-        self._host = host
-        self._paramiko_config: dict = (
-            paramiko_config or DEFAULT_PARAMIKO_CONFIG
-        )
-        self._ssh_client = paramiko.SSHClient()
-        self._ssh_client.set_missing_host_key_policy(
-            paramiko.MissingHostKeyPolicy()
-        )
-        self._ssh_client.connect(hostname=self._host, **self._paramiko_config)
-        self._sftp_client = self._ssh_client.open_sftp()
+        self._ssh_client = SSHClient(host, port, **args)
         super().__init__(log_path, binary)
 
     def _create_log_stream(self) -> RotatedFileLogStream:
         return (
             RemoteRotatedBinaryFileLogStream(
                 ssh_client=self._ssh_client,
-                sftp_client=self._sftp_client,
                 path_pattern=self.log_path,
                 rotation_strategy=RemoteMTimeBasedLogRotationStrategy(
-                    self._ssh_client, self._sftp_client
+                    self._ssh_client,
                 ),
             )
             if self.binary
             else RemoteRotatedTextFileLogStream(
                 ssh_client=self._ssh_client,
-                sftp_client=self._sftp_client,
                 path_pattern=self.log_path,
                 rotation_strategy=RemoteMTimeBasedLogRotationStrategy(
-                    self._ssh_client, self._sftp_client
+                    self._ssh_client,
                 ),
             )
         )
