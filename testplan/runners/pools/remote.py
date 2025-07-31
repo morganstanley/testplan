@@ -80,6 +80,8 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def _set_child_script(self) -> None:
         """Specify the remote worker executable file."""
+        # TODO: we shouldn't always need full path of child.py,
+        # TODO: we could invoke child.py with -m instead
         self._child_paths.local = fix_home_prefix(self._child_path())
         self._child_paths.remote = rebase_path(
             self._child_paths.local,
@@ -89,7 +91,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def _proc_cmd_impl(self) -> List[str]:
         cmd = [
-            self.python_binary,
+            self._remote_python_bin_path,
             "-uB",
             self._child_paths.remote,
             "--index",

@@ -56,6 +56,7 @@
         "jinja2>=3.1.6",
         "click>=8.1.8",
         "gherkin-official>=32.1.2",
+        "uv>=0.7.18",
 ]
     requires-python = ">=3.9"
 
