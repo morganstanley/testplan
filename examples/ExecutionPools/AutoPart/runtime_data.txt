@@ -2,6 +2,7 @@
   "Proj1-suite": {
     "execution_time": 199.99,
     "setup_time": 5,
-    "teardown_time": 0
+    "teardown_time": 0,
+    "testcase_count": 8
   }
 }

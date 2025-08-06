@@ -390,7 +390,8 @@ enabled by providing runtime data like following via ``--runtime-data`` command 
         "<Multitest>": {
             "execution_time": 199.99,
             "setup_time": 39.99,
-            "teardown_time": 0
+            "teardown_time": 0,
+            "testcase_count": 10
         },
         ......
     }
