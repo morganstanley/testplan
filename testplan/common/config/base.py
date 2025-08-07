@@ -198,7 +198,7 @@ class Config:
         """Set the parent configuration relation."""
         if self._parent is not None:
             raise AttributeError(
-                "Cannot overwrite parent: {}".format(self._parent)
+                f"Cannot overwrite parent: {self._parent}\n self: {self}\n value: {value}"
             )
         self._parent = value
 
