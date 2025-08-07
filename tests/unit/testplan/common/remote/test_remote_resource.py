@@ -143,9 +143,12 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         "/".join([remote_resource._working_dirs.remote, "file1"]),
         "/".join([workspace, "file2"]),
     ]:
-        assert 0 == remote_resource._execute_cmd_remote(
-            cmd=filepath_exist_cmd(remote_path),
-            check=False,
+        assert (
+            0
+            == remote_resource._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(remote_path),
+                check=False,
+            )[0]
         )
 
     for remote_path in [
@@ -154,9 +157,12 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         ),
         "/".join([push_dir, "file3"]),
     ]:
-        assert 0 != remote_resource._execute_cmd_remote(
-            cmd=filepath_exist_cmd(remote_path),
-            check=False,
+        assert (
+            0
+            != remote_resource._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(remote_path),
+                check=False,
+            )[0]
         )
 
     # for now, these setting are used by child.py rather than remote_resource
@@ -181,7 +187,7 @@ def test_fetch_results(remote_resource, push_dir):
         [remote_resource._remote_resource_runpath, "remote.log"]
     )
 
-    remote_resource._execute_cmd_remote(
+    remote_resource._ssh_client.exec_command(
         cmd=f"/bin/touch {log_file}",
         label="create log file",
     )
@@ -234,15 +240,18 @@ def test_runpath_in_ws(workspace):
     remote_resource.make_runpath_dirs()
     remote_resource._prepare_remote()
 
-    assert 0 != remote_resource._execute_cmd_remote(
-        cmd=filepath_exist_cmd(
-            "/".join(
-                [
-                    remote_resource._workspace_paths.remote,
-                    "tests",
-                    "functional",
-                ]
-            )
-        ),
-        check=False,
+    assert (
+        0
+        != remote_resource._ssh_client.exec_command(
+            cmd=filepath_exist_cmd(
+                "/".join(
+                    [
+                        remote_resource._workspace_paths.remote,
+                        "tests",
+                        "functional",
+                    ]
+                )
+            ),
+            check=False,
+        )[0]
     )
