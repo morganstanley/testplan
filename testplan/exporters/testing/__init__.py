@@ -9,6 +9,7 @@ __all__ = [
     "TagFilteredPDFExporter",
     "WebServerExporter",
     "XMLExporter",
+    "FailedTestsExporter",
 ]
 # pylint: enable=undefined-all-variable
 
@@ -50,6 +51,10 @@ def __getattr__(name):
         from .xml import XMLExporter
 
         return XMLExporter
+    elif name == "FailedTestsExporter":
+        from .failed_tests import FailedTestsExporter
+
+        return FailedTestsExporter
     else:
         import importlib
 

@@ -29,7 +29,7 @@ from testplan.common.utils.callable import arity
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
-from testplan.parser import TestplanParser
+from testplan.parser import TestplanParser, FailedTestLevel
 from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
 
 from testplan.runners.local import LocalRunner
@@ -190,6 +190,8 @@ class Testplan(entity.RunnableManager):
         http_url: Optional[str] = None,
         pdf_path: Optional[str] = None,
         pdf_style: Style = defaults.PDF_STYLE,
+        dump_failed_tests: Optional[str] = None,
+        failed_tests_level: FailedTestLevel = defaults.FAILED_TESTS_LEVEL,
         report_tags: Optional[List] = None,
         report_tags_all: Optional[List] = None,
         resource_monitor: bool = False,
@@ -256,6 +258,8 @@ class Testplan(entity.RunnableManager):
             http_url=http_url,
             pdf_path=pdf_path,
             pdf_style=pdf_style,
+            dump_failed_tests=dump_failed_tests,
+            failed_tests_level=failed_tests_level,
             report_tags=report_tags,
             report_tags_all=report_tags_all,
             resource_monitor=resource_monitor,
@@ -402,6 +406,8 @@ class Testplan(entity.RunnableManager):
         http_url=None,
         pdf_path=None,
         pdf_style=defaults.PDF_STYLE,
+        dump_failed_tests=None,
+        failed_tests_level=defaults.FAILED_TESTS_LEVEL,
         report_tags=None,
         report_tags_all=None,
         resource_monitor=False,
@@ -464,6 +470,8 @@ class Testplan(entity.RunnableManager):
                     http_url=http_url,
                     pdf_path=pdf_path,
                     pdf_style=pdf_style,
+                    dump_failed_tests=dump_failed_tests,
+                    failed_tests_level=failed_tests_level,
                     report_tags=report_tags,
                     report_tags_all=report_tags_all,
                     resource_monitor=resource_monitor,
