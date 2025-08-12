@@ -19,7 +19,7 @@ jobs:
 
       - run: pip install --upgrade pip
       - run: pip install bumpver
-      - run: pip install ./releaseherald
+      - run: pip install git+https://github.com/morganstanley/releaseherald.git
       
       - name: git setup
         run: |
