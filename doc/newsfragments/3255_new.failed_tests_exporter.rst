@@ -1,0 +1,1 @@
+Introducing ``FailedTestsExporter``, a new exporter for dumping failed tests to a file. This file can be used with the ``--patterns-file`` option. Enable this exporter using the ``--dump-failed-tests`` command-line argument. It helps users track and manage failed tests efficiently during test runs.
