@@ -19,6 +19,7 @@ from testplan.report.testing import (
     ReportTagsAction,
     styles,
 )
+from testplan.exporters.testing.failed_tests import FailedTestLevel
 from testplan.testing import common, filtering, listing, ordering
 
 
@@ -99,9 +100,9 @@ class TestplanParser:
         general_group.add_argument(
             "--runpath",
             type=str,
-            metavar="PATH",
+            metavar="DIRECTORY",
             default=self._default_options["runpath"],
-            help="Path under which all temp files and logs will be created.",
+            help="Directory path under which all temp files and logs will be created.",
         )
 
         general_group.add_argument(
@@ -137,7 +138,7 @@ class TestplanParser:
 
         general_group.add_argument(
             "--trace-tests",
-            metavar="PATH",
+            metavar="FILE",
             type=json_load_from_path,
             dest="tracing_tests",
             help="Enable the tracing tests feature. A JSON file containing "
@@ -147,7 +148,7 @@ class TestplanParser:
 
         general_group.add_argument(
             "--trace-tests-output",
-            metavar="PATH",
+            metavar="FILE",
             default="-",
             type=str,
             dest="tracing_tests_output",
@@ -158,7 +159,7 @@ class TestplanParser:
 
         general_group.add_argument(
             "--xfail-tests",
-            metavar="PATH",
+            metavar="FILE",
             type=json_load_from_path,
             help="""
 Read a list of testcase name patterns from a JSON files, and mark matching testcases as xfail.
@@ -191,7 +192,7 @@ A typical input JSON looks like below:
 
         general_group.add_argument(
             "--runtime-data",
-            metavar="PATH",
+            metavar="FILE",
             type=_runtime_json_file,
             help="Historical runtime data which will be used for Multitest "
             "auto-part and weight-based Task smart-scheduling with "
@@ -367,16 +368,23 @@ Test filter, runs tests that match ALL of the given tags.
             "--pdf",
             dest="pdf_path",
             default=self._default_options["pdf_path"],
-            metavar="PATH",
-            help="Path for PDF report.",
+            metavar="FILE",
+            help="File path for PDF report.",
+        )
+
+        report_group.add_argument(
+            "--pdf-style",
+            **styles.StyleArg.get_parser_context(
+                default=self._default_options["pdf_style"]
+            ),
         )
 
         report_group.add_argument(
             "--json",
             dest="json_path",
             default=self._default_options["json_path"],
-            metavar="PATH",
-            help="Path for JSON report.",
+            metavar="FILE",
+            help="File path for JSON report.",
         )
 
         report_group.add_argument(
@@ -396,17 +404,26 @@ Test filter, runs tests that match ALL of the given tags.
         )
 
         report_group.add_argument(
-            "--report-dir",
-            default=self._default_options["report_dir"],
-            metavar="PATH",
-            help="Target directory for tag filtered report output.",
+            "--dump-failed-tests",
+            dest="dump_failed_tests",
+            default=self._default_options["dump_failed_tests"],
+            metavar="FILE",
+            help="File path for storing failed tests.",
         )
 
         report_group.add_argument(
-            "--pdf-style",
-            **styles.StyleArg.get_parser_context(
-                default=self._default_options["pdf_style"]
-            ),
+            "--failed-tests-level",
+            default=self._default_options["failed_tests_level"],
+            type=lambda s: FailedTestLevel[s.upper()],
+            choices=list(FailedTestLevel),
+            help="Level of failed tests to be exported.",
+        )
+
+        report_group.add_argument(
+            "--report-dir",
+            default=self._default_options["report_dir"],
+            metavar="DIRECTORY",
+            help="Target directory for tag filtered report output.",
         )
 
         report_group.add_argument(

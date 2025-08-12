@@ -3,6 +3,7 @@
 import os
 
 from testplan.report.testing.styles import StyleArg
+from testplan.exporters.testing.failed_tests import FailedTestLevel
 
 TESTPLAN_TIMEOUT = 14400  # 4h
 
@@ -15,6 +16,8 @@ SUMMARY_KEY_COMB_LIMIT = 10  # Number of failed key combinations to summary.
 # between cmdline and programmatic calls.
 PDF_STYLE = StyleArg.SUMMARY.value
 STDOUT_STYLE = StyleArg.EXTENDED_SUMMARY.value
+FAILED_TESTS_LEVEL = FailedTestLevel.MULTITEST
+
 
 REPORT_DIR = os.getcwd()
 XML_DIR = os.path.join(REPORT_DIR, "xml")

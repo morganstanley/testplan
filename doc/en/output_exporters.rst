@@ -373,6 +373,54 @@ A more explicit usage is to initialize a JSON exporter directly:
 Examples for JSON report generation can be seen :ref:`here <example_test_output_exporters_json>`.
 
 
+.. _Output_Failed_tests:
+
+Failed Tests
+============
+
+A text file lists the names of failed tests, which can be used with the ``--patterns-file`` command line option.
+
+Sample Failed Tests output:
+
+.. code-block:: python
+
+    failing_multitest_one:failing_testsuite_one
+    error_multitest_two
+
+Generate a Failed Tests report using the ``--dump-failed-tests`` argument:
+
+.. code-block:: bash
+
+  $ ./test_plan.py --dump-failed-tests /path/to/report.txt
+
+
+Alternatively, use programmatic declaration:
+
+.. code-block:: python
+
+    @test_plan(name='Sample Plan', dump_failed_tests='/path/to/report.txt')
+    def main(plan):
+        # Automatically creates a Failed Tests exporter when `dump_failed_tests` is provided.
+        ...
+
+For explicit usage, initialize a Failed Tests exporter directly:
+
+.. code-block:: python
+
+    from testplan.exporters.testing import FailedTestsExporter
+
+    @test_plan(
+        name='Sample Plan',
+        exporters=[
+            FailedTestsExporter(dump_failed_tests='/path/to/report.txt')
+        ]
+    )
+    def main(plan):
+        ...
+
+Examples for Failed Tests report generation can be seen :ref:`here <example_test_failed_tests_exporters>`.
+
+
 .. _Output_Browser:
 
 Browser
