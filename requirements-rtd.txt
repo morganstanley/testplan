@@ -1,3 +1,4 @@
+# used by readthedocs
 sphinx
 sphinx-click
 sphinx-rtd-theme
