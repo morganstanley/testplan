@@ -18,14 +18,20 @@ jobs:
           python-version: '3.11'
       - run: pip install -U pip
       - run: pip install bumpver git+https://github.com/morganstanley/releaseherald.git
-      - run: bumpver show --env > new-version.txt
+      - run: |
+          bumpver show --env > new-version.txt
+          cat new-versions.txt
       - name: check tag manually created & matched
         run: |
+          set -x
           eval $(cat new-version.txt)
+          echo "Current tag: $(git tag --points-at HEAD)"
+          echo "Expected tag: ${CURRENT_VERSION}"
           if [[ $(git tag --points-at HEAD) != "${CURRENT_VERSION}" ]]; then
             echo "Tag not properly set, aborting..."
             exit 1
           fi
+        shell: bash
       - run: releaseherald generate --latest --no-update -t news.rst
       - uses: actions/upload-artifact@v4
         with:
