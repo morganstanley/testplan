@@ -20,7 +20,7 @@ jobs:
       - run: pip install bumpver git+https://github.com/morganstanley/releaseherald.git
       - run: |
           bumpver show --env > new-version.txt
-          cat new-versions.txt
+          cat new-version.txt
       - name: check tag manually created & matched
         run: |
           set -x
