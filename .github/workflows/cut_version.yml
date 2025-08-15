@@ -25,9 +25,9 @@ jobs:
         run: |
           set -x
           eval $(cat new-version.txt)
-          echo "Current tag: $(git tag --points-at HEAD)"
+          echo -e "Current tag:\n$(git tag --points-at HEAD)"
           echo "Expected tag: ${CURRENT_VERSION}"
-          if [[ $(git tag --points-at HEAD) != "${CURRENT_VERSION}" ]]; then
+          if [[ ! $(git tag --points-at HEAD) =~ "${CURRENT_VERSION}" ]]; then
             echo "Tag not properly set, aborting..."
             exit 1
           fi
