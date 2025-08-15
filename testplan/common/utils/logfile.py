@@ -8,7 +8,7 @@ from io import TextIOWrapper
 from itertools import dropwhile
 from os import SEEK_END, PathLike
 from typing import Generic, List, Optional, TypeVar, Union
-import paramiko
+from testplan.common.remote.ssh_client import SSHClient
 
 
 class LogPosition:
@@ -258,34 +258,31 @@ class TextFileOpenMode:
         return ""
 
 
-def get_remote_file_inode(
-    ssh_client: paramiko.SSHClient, path: Union[PathLike, str]
-):
+def get_remote_file_inode(ssh_client: SSHClient, path: Union[PathLike, str]):
     path_string = os.fspath(path)
-    _, stdout, _ = ssh_client.exec_command(
+    _, inode_string, _ = ssh_client.exec_command(
         f"/usr/bin/stat -c %i '{path_string}'"
     )
-    inode_string = stdout.read().decode().strip()
     if not inode_string:
         raise RuntimeError(
-            f"Cannot get stat for file {path} on {ssh_client.get_transport().getpeername()}"
+            f"Cannot get stat for file {path} on {ssh_client.host}:{ssh_client.port}"
         )
     return int(inode_string)
 
 
 class RemoteMTimeBasedLogRotationStrategy(MTimeBasedLogRotationStrategy):
     def __init__(
-        self, ssh_client: paramiko.SSHClient, sftp_client: paramiko.SFTPClient
+        self,
+        ssh_client: SSHClient,
     ):
         super().__init__()
         self._ssh_client = ssh_client
-        self._sftp_client = sftp_client
 
     def get_files(self, path_info: Union[PathLike, str]) -> List[LogfileInfo]:
         path = pathlib.Path(path_info)
         files = []
 
-        for file in self._sftp_client.listdir_iter(os.fspath(path.parent)):
+        for file in self._ssh_client.listdir_iter(os.fspath(path.parent)):
             # Due to the sftp client limitation. we can not use glob directly.
             # Therefore, wildcards in the middle of the path are not supported.
             if fnmatch.fnmatch(file.filename, path.name):
@@ -306,21 +303,21 @@ class RemoteMTimeBasedLogRotationStrategy(MTimeBasedLogRotationStrategy):
 class RemoteRotatedFileLogStream(RotatedFileLogStream[T]):
     def __init__(
         self,
-        ssh_client: paramiko.SSHClient,
-        sftp_client: paramiko.SFTPClient,
+        ssh_client: SSHClient,
         path_pattern: Union[PathLike, str],
         rotation_strategy: LogRotationStrategy,
         binary: bool = False,
     ):
         self._ssh_client = ssh_client
-        self._sftp_client = sftp_client
         self._file_ino = 0
         super().__init__(path_pattern, rotation_strategy, binary)
 
     def _open_file(self, path):
         self.close()
         try:
-            self._file = self._sftp_client.open(path, self._file_open_mode())
+            self._file = self._ssh_client.open_file(
+                path, self._file_open_mode()
+            )
         except FileNotFoundError:
             raise FileNotFoundError(f"Unable to open remote file {path}")
         self._file_ino = get_remote_file_inode(self._ssh_client, path)
