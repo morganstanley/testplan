@@ -1,7 +1,0 @@
-nav:
-    - basics.md
-    - stock.md
-    - examples.md
-    - hooks.md
-    - dataclasses.md
-    - helpers.md

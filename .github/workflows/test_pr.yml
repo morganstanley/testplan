@@ -23,7 +23,6 @@ jobs:
             testplan/*
             tests/*
             scripts/*
-            releaseherald/releaseherald/*
             pytest.ini
             pyproject.toml
             setup.py
