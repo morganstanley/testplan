@@ -2,11 +2,12 @@
 
 import os
 import time
+import shlex
 import logging
 import paramiko
 import getpass
 from contextlib import contextmanager
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from testplan.common.utils.timing import retry_until_timeout
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -49,17 +50,39 @@ class SSHClient:
         self.port = port
         self.logger = logger or TESTPLAN_LOGGER
 
-        self.paramiko_args = DEFAULT_PARAMIKO_CONFIG
-        self.paramiko_args.update(
-            {
-                "hostname": self.host,
-                "port": self.port,
-            }
-        )
-        self.paramiko_args.update(args)
+        self.paramiko_args = {
+            **DEFAULT_PARAMIKO_CONFIG,
+            "hostname": self.host,
+            "port": self.port,
+            **args,
+        }
 
         self._ssh_client = None
         self._sftp_client = None
+
+    @property
+    def ssh_client(self):
+        """
+        Get the underlying paramiko SSH client.
+
+        :return: Paramiko SSH client instance
+        :rtype: ``paramiko.SSHClient``
+        """
+        if not self._ssh_client:
+            self.connect()
+        return self._ssh_client
+
+    @property
+    def sftp_client(self):
+        """
+        Get the underlying paramiko SFTP client.
+
+        :return: Paramiko SFTP client instance
+        :rtype: ``paramiko.sftp_client.SFTPClient``
+        """
+        if not self._sftp_client:
+            self.open_sftp()
+        return self._sftp_client
 
     def connect(self):
         """
@@ -88,7 +111,7 @@ class SSHClient:
 
     def exec_command(
         self,
-        cmd: str | List[str],
+        cmd: Union[str, List[str]],
         label: str = None,
         check: bool = True,
         env: Dict = None,
@@ -103,7 +126,7 @@ class SSHClient:
         :type label: ``str`` or ``NoneType``
         :param check: If True, raises exception when command fails
         :type check: ``bool``
-        :param env: Environment variables to set for the command
+        :param env: Environment variables to set for the command.
         :type env: ``Dict`` or ``NoneType``
         :param timeout: Timeout for command execution in seconds
         :type timeout: ``int``
@@ -111,8 +134,6 @@ class SSHClient:
         :rtype: ``tuple`` of (``int``, ``str``, ``str``)
         :raises: ``RuntimeError`` if command fails and check is True
         """
-        if not self._ssh_client:
-            self.connect()
 
         if isinstance(cmd, list):
             cmd = [str(a) for a in cmd]
@@ -124,6 +145,14 @@ class SSHClient:
         if not label:
             label = hash(cmd_string) % 1000
 
+        if env:
+            # Warning: paramiko exec_command may silently ignore some env var
+            # thus we prepend env to cmd string
+            env_str = " ".join(
+                f"{k}={shlex.quote(str(v))}" for k, v in env.items()
+            )
+            cmd_string = f"{env_str} {cmd_string}"
+
         self.logger.debug(
             "ssh_client executing command [%s]: '%s'",
             label,
@@ -131,7 +160,7 @@ class SSHClient:
         )
         start_time = time.time()
 
-        _, stdout, stderr = self._ssh_client.exec_command(
+        _, stdout, stderr = self.ssh_client.exec_command(
             command=cmd_string,
             timeout=timeout,
             environment=env,
@@ -174,10 +203,7 @@ class SSHClient:
             self.logger.warning("SFTP session already open")
             return self._sftp_client
 
-        if not self._ssh_client:
-            self.connect()
-
-        self._sftp_client = self._ssh_client.open_sftp()
+        self._sftp_client = self.ssh_client.open_sftp()
         self.logger.debug("Opened SFTP session to %s:%s", self.host, self.port)
         return self._sftp_client
 
@@ -190,11 +216,9 @@ class SSHClient:
         :return: Generator yielding file names in the directory
         :rtype: ``generator`` of ``str``
         """
-        if not self._sftp_client:
-            self.open_sftp()
 
         self.logger.debug("Listing directory: %s", path)
-        return self._sftp_client.listdir_iter(path)
+        return self.sftp_client.listdir_iter(path)
 
     def open_file(self, path, mode):
         """
@@ -207,11 +231,9 @@ class SSHClient:
         :return: File object for the remote file
         :rtype: ``paramiko.sftp_file.SFTPFile``
         """
-        if not self._sftp_client:
-            self.open_sftp()
 
         self.logger.debug("Opening remote file: %s in mode %s", path, mode)
-        return self._sftp_client.open(path, mode)
+        return self.sftp_client.open(path, mode)
 
     def close(self):
         """

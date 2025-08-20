@@ -815,8 +815,8 @@ class RemoteResource(Entity):
     def _check_remote_os(self):
         if "REMOTE_OS" not in os.environ:
             _, stdout, _ = self._ssh_client.exec_command(
-                cmd="cat /etc/redhat-release",
-                label="Check RHEL9",
+                cmd="cat /etc/os-release",
+                label="Check remote OS",
                 check=False,
             )
 
