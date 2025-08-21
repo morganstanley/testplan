@@ -1,9 +1,0 @@
-boltons
-click
-GitPython
-Jinja2
-toml
-parse
-pydantic<2.0
-pluggy
-typing_extensions

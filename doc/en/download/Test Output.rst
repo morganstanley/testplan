@@ -117,3 +117,16 @@ Required files:
 test_plan.py
 ````````````
 .. literalinclude:: ../../../examples/Test Output/Exporters/XML/test_plan.py
+
+
+.. _example_test_failed_tests_exporters:
+
+Failed Tests
+++++++++++++
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Test Output/Exporters/Failed Tests/test_plan.py>`
+
+test_plan.py
+````````````
+.. literalinclude:: ../../../examples/Test Output/Exporters/Failed Tests/test_plan.py

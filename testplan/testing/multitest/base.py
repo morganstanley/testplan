@@ -253,7 +253,7 @@ class MultiTest(testing_base.Test):
     :type stop_on_error: ``bool``
     :param part: Execute only a part of the total testcases. MultiTest needs to
         know which part of the total it is. Only works with Multitest.
-    :type part: ``tuple`` of (``int``, ``int``)
+    :type part: ``tuple[int, int]``
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
     :param testcase_report_target: Whether to mark testcases as assertions for filepath
         and line number information

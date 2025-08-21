@@ -1,5 +1,6 @@
+# used by readthedocs
 sphinx
 sphinx-click
 sphinx-rtd-theme
 -r ./requirements.txt
-./releaseherald
+git+https://github.com/morganstanley/releaseherald.git
