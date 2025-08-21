@@ -476,6 +476,10 @@ class MultiTest(testing_base.Test):
         testsuites = self.test_context
         report = self.report
 
+        self.logger.debug(
+            f"{' ' * testing_base.TEST_INST_INDENT}[MultiTest] [START] {self.name}-- {self}"
+        )
+
         with report.timer.record("run"):
             if _need_threadpool(testsuites):
                 self._thread_pool = concurrent.futures.ThreadPoolExecutor(
@@ -517,6 +521,10 @@ class MultiTest(testing_base.Test):
                 self._thread_pool = None
 
         report.runtime_status = RuntimeStatus.FINISHED
+
+        self.logger.debug(
+            f"{' ' * testing_base.TEST_INST_INDENT}[MultiTest] [END] {self.name}"
+        )
 
         return report
 
@@ -789,6 +797,11 @@ class MultiTest(testing_base.Test):
 
     def _run_suite(self, testsuite, testcases):
         """Runs a testsuite object and returns its report."""
+
+        self.logger.debug(
+            f"{' ' * testing_base.SUITE_INDENT}[TestSuite] [START]  {testsuite.name}"
+        )
+
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
 
@@ -802,6 +815,9 @@ class MultiTest(testing_base.Test):
                         teardown_report = self._teardown_testsuite(testsuite)
                     if teardown_report is not None:
                         testsuite_report.append(teardown_report)
+                    self.logger.debug(
+                        f"{' ' * testing_base.SUITE_INDENT}[TestSuite] [END]  {testsuite.name}"
+                    )
                     return testsuite_report
 
             serial_cases, parallel_cases = (
@@ -852,6 +868,10 @@ class MultiTest(testing_base.Test):
 
         if self.aborted:
             testsuite_report.status_override = Status.INCOMPLETE
+
+        self.logger.debug(
+            f"{' ' * testing_base.SUITE_INDENT}[TestSuite] [END]  {testsuite.name}"
+        )
 
         return testsuite_report
 
@@ -1133,6 +1153,10 @@ class MultiTest(testing_base.Test):
     ):
         """Runs a testcase method and returns its report."""
 
+        self.logger.debug(
+            f"{' ' * testing_base.TESTCASE_INDENT}[TestCase] [START]  {testsuite.name}::{testcase.__name__}"
+        )
+
         testcase_report = testcase_report or self._new_testcase_report(
             testcase
         )
@@ -1171,6 +1195,10 @@ class MultiTest(testing_base.Test):
             testcase_report.runtime_status = RuntimeStatus.FINISHED
             if self.get_stdout_style(testcase_report.passed).display_testcase:
                 self.log_testcase_status(testcase_report)
+
+            self.logger.debug(
+                f"{' ' * testing_base.TESTCASE_INDENT}[TestCase] [END] {testsuite.name}::{testcase.__name__}"
+            )
             return testcase_report
 
         with testcase_report.timer.record("run"):
@@ -1230,6 +1258,10 @@ class MultiTest(testing_base.Test):
 
         if self.get_stdout_style(testcase_report.passed).display_testcase:
             self.log_testcase_status(testcase_report)
+
+        self.logger.debug(
+            f"{' ' * testing_base.TESTCASE_INDENT}[TestCase] [END] {testsuite.name}::{testcase.__name__}"
+        )
 
         return testcase_report
 
