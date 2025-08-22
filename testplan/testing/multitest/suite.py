@@ -607,6 +607,7 @@ def _testcase_meta(
     name=None,
     tags=None,
     parameters=None,
+    sparse=False,
     name_func=parametrization.default_name_func,
     tag_func=None,
     docstring_func=None,
@@ -656,6 +657,7 @@ def _testcase_meta(
                     function=function,
                     name=function.name,
                     parameters=parameters,
+                    sparse=sparse,
                     name_func=name_func,
                     docstring_func=docstring_func,
                     tag_func=tag_func,
@@ -769,13 +771,17 @@ def testcase(*args, **kwargs):
         arguments to the testcase declaration.
 
         Note that the ``special_case`` must either be: a tuple or list with
-        positional values that correspond to the parametrized argument names
+        positional values that correspond to the parameterized argument names
         in the method definition OR a dict that has matching keys & values to
-        the parametrized argument names OR a single value (that is not a tuple,
+        the parameterized argument names OR a single value (that is not a tuple,
         or list) if and only if there is a single parametrization argument.
     :type parameters: ``list(object)`` or ``tuple(special_case)`` or
         ``dict(list(object)`` or ``tuple(object))`` or ``NoneType``
-    :param name_func: Custom name generation algorithm for parametrized
+    :param sparse: Set the sparse mode of generating testcases.
+        If ``True``, testplan generates sparse matrix of parameterized argument.
+        If ``False``, testplan generates product matrix of parameterized argument.
+    : type sparse: ``bool``
+    :param name_func: Custom name generation algorithm for parameterized
         testcases. The callable should has a signature like following:
 
         | name_func(func_name: ``str``, kwargs: ``collections.OrderedDict``) -> ``str``
@@ -789,7 +795,7 @@ def testcase(*args, **kwargs):
 
         | tag_func(kwargs: ``collections.OrderedDict``) -> ``dict`` or ``list``
 
-        Where ``kwargs`` is an ordered dictionary of parametrized arguments.
+        Where ``kwargs`` is an ordered dictionary of parameterized arguments.
 
         NOTE: If you use ``tag_func`` along with ``tags`` argument, Testplan
         will merge the dynamically generated tag context with the explicitly
@@ -801,9 +807,9 @@ def testcase(*args, **kwargs):
         | docstring_func(docstring: ``str`` or ``None``, kwargs: ``collections.OrderedDict``) -> ``str`` or ``None``
 
         Where ``docstring`` is document string of the parametrization target
-        function, ``kwargs`` is an ordered dictionary of parametrized arguments.
+        function, ``kwargs`` is an ordered dictionary of parameterized arguments.
     :type docstring_func: ``callable`` or ``NoneType``
-    :param custom_wrappers: Wrapper to decorate parametrized testcases (used
+    :param custom_wrappers: Wrapper to decorate parameterized testcases (used
         instead of @decorator syntax) that uses
         :py:func:`testplan.common.utils.callable.wraps`
     :type custom_wrappers: ``callable`` or ``NoneType``

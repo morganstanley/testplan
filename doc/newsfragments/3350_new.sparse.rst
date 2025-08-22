@@ -1,0 +1,1 @@
+Add a sparse mode to generate parameterized test cases. Pass ``sparse=True`` in ``@testcase`` to enable it.

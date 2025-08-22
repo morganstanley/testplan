@@ -172,6 +172,51 @@ def test_combinatorial_parametrization(mockplan):
     )
 
 
+def test_sparse_combinatorial_parametrization(mockplan):
+    @testsuite
+    class MySuite:
+        @testcase(
+            parameters={"a": [1, 2, 3, 4], "b": ("alpha", "beta"), "c": [3]},
+            sparse=True,
+        )
+        def test_sample(self, env, result, a, b, c):
+            result.true(True, f"{a} - {b} - {c}")
+
+    parametrization_group = TestGroupReport(
+        name="test_sample",
+        category=ReportCategories.PARAMETRIZATION,
+        entries=[
+            TestCaseReport(
+                name="test_sample <a=1, b='alpha', c=3>",
+                entries=[{"type": "IsTrue", "description": "1 - alpha - 3"}],
+            ),
+            TestCaseReport(
+                name="test_sample <a=2, b='beta', c=3>",
+                entries=[{"type": "IsTrue", "description": "2 - beta - 3"}],
+            ),
+            TestCaseReport(
+                name="test_sample <a=3, b='alpha', c=3>",
+                entries=[{"type": "IsTrue", "description": "3 - alpha - 3"}],
+            ),
+            TestCaseReport(
+                name="test_sample <a=4, b='beta', c=3>",
+                entries=[{"type": "IsTrue", "description": "4 - beta - 3"}],
+            ),
+        ],
+    )
+
+    testcase_uids = [
+        "test_sample__a_1__b_alpha__c_3",
+        "test_sample__a_2__b_beta__c_3",
+        "test_sample__a_3__b_alpha__c_3",
+        "test_sample__a_4__b_beta__c_3",
+    ]
+
+    check_parametrization(
+        mockplan, MySuite, [parametrization_group], testcase_uids
+    )
+
+
 @pytest.mark.parametrize(
     "val, msg",
     (
