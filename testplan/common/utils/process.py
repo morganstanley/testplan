@@ -374,7 +374,7 @@ def execute_cmd(
     start_time = time.time()
 
     handler = subprocess.Popen(
-        cmd, stdout=stdout, stderr=stderr, env=env, text=True
+        cmd, stdout=stdout, stderr=stderr, env=env, text=True, bufsize=0
     )
     output, error = handler.communicate()
     elapsed = time.time() - start_time
