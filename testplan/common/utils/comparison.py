@@ -600,11 +600,14 @@ def _rec_compare(
         and (lhs_cat != Category.CALLABLE)
         and (rhs_cat != Category.CALLABLE)
     ):
+        match = (
+            Match.IGNORED
+            if ignored
+            else (Match.PASS if lhs_cat == rhs_cat else Match.FAIL)
+        )
         return _build_res(
             key=key,
-            match=Match.IGNORED
-            if ignored
-            else (Match.PASS if lhs_cat == rhs_cat else Match.FAIL),
+            match=match,
             lhs=fmt(lhs),
             rhs=fmt(rhs),
         )
