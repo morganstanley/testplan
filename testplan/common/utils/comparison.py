@@ -740,7 +740,12 @@ def _rec_compare(
 
     ## DIFF TYPES -- catch-all for unhandled
     #  combinations, e.g. VALUE vs ITERABLE
-    return _build_res(key=key, match=Match.FAIL, lhs=fmt(lhs), rhs=fmt(rhs))
+    return _build_res(
+        key=key,
+        match=Match.IGNORED if ignored else Match.FAIL,
+        lhs=fmt(lhs),
+        rhs=fmt(rhs),
+    )
 
 
 def untyped_fixtag(x, y):
