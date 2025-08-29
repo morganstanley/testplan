@@ -279,8 +279,8 @@ def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
             # key = '(group)'
 
         status = lpart[3] if lpart else rpart[3]
-        lval = lpart[4] if lpart else None
-        rval = rpart[4] if rpart else None
+        lval = lpart[4] if lpart else (None, "")
+        rval = rpart[4] if rpart else (None, "")
         result_table.append(
             [level, "" if key is Absent else key, status, lval, rval]
         )
