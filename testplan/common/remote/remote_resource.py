@@ -30,6 +30,7 @@ from testplan.common.utils.remote import (
     IS_WIN,
     rm_cmd,
 )
+from testplan.common.remote.ssh_client import SSHClient
 
 
 class WorkerSetupMetadata:
@@ -192,11 +193,16 @@ class RemoteResource(Entity):
         # detect etc. in next run
         self._dangling_remote_fs_obj = None
 
+        # Initialize SSHClient instance for managing SSH connections
+        self._ssh_client = SSHClient(self.cfg.remote_host, self.cfg.ssh_port)
+
     @property
     def error_exec(self) -> list:
         return self._error_exec
 
     def _prepare_remote(self) -> None:
+        self._check_remote_os()
+
         self._define_remote_dirs()
         self._create_remote_dirs()
 
@@ -264,13 +270,16 @@ class RemoteResource(Entity):
     def _create_remote_dirs(self) -> None:
         """Create mandatory directories in remote host."""
 
-        if 0 != self._execute_cmd_remote(
-            cmd=filepath_exist_cmd(self._remote_runid_file),
-            label="runid file availability check",
-            check=False,
+        if (
+            0
+            != self._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(self._remote_runid_file),
+                label="runid file availability check",
+                check=False,
+            )[0]
         ):
             # clean up remote runpath
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=rm_cmd(self._remote_plan_runpath),
                 label="remove remote plan runpath",
             )
@@ -279,12 +288,12 @@ class RemoteResource(Entity):
             # NOTE: should check existence before any mkdir call
             exist_on_remote = self._check_workspace()
 
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=mkdir_cmd(self._remote_plan_runpath),
                 label="create remote plan runpath",
             )
 
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=f"/bin/touch {self._remote_runid_file}",
                 label="create remote runid file",
             )
@@ -302,7 +311,7 @@ class RemoteResource(Entity):
             # NOTE: place
             self._copy_testplan_package()
 
-        self._execute_cmd_remote(
+        self._ssh_client.exec_command(
             cmd=mkdir_cmd(self._remote_resource_runpath),
             label="create remote resource runpath",
         )
@@ -311,7 +320,7 @@ class RemoteResource(Entity):
         """Make testplan package available on remote host"""
 
         if self.cfg.testplan_path:
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=link_cmd(
                     path=self.cfg.testplan_path,
                     link=self._testplan_import_path.remote,
@@ -325,13 +334,16 @@ class RemoteResource(Entity):
         )
 
         # test if testplan package is available on remote host
-        if 0 == self._execute_cmd_remote(
-            cmd=filepath_exist_cmd(self._testplan_import_path.local),
-            label="testplan package availability check",
-            check=False,
+        if (
+            0
+            == self._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(self._testplan_import_path.local),
+                label="testplan package availability check",
+                check=False,
+            )[0]
         ):
             # exists on remote, make symlink
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=link_cmd(
                     path=self._testplan_import_path.local,
                     link=self._testplan_import_path.remote,
@@ -360,19 +372,25 @@ class RemoteResource(Entity):
         if self.cfg.remote_workspace:
             # User defined the remote workspace to be used
             # will raise if check fail
-            if 0 == self._execute_cmd_remote(
-                cmd=filepath_exist_cmd(
-                    fix_home_prefix(self.cfg.remote_workspace)
-                ),
-                label="workspace availability check (1)",
-                check=True,
+            if (
+                0
+                == self._ssh_client.exec_command(
+                    cmd=filepath_exist_cmd(
+                        fix_home_prefix(self.cfg.remote_workspace)
+                    ),
+                    label="workspace availability check (1)",
+                    check=True,
+                )[0]
             ):
                 return True
 
-        if 0 == self._execute_cmd_remote(
-            cmd=filepath_exist_cmd(self._workspace_paths.local),
-            label="workspace availability check (2)",
-            check=False,
+        if (
+            0
+            == self._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(self._workspace_paths.local),
+                label="workspace availability check (2)",
+                check=False,
+            )[0]
         ):
             # local workspace accessible on remote
             return True
@@ -389,7 +407,7 @@ class RemoteResource(Entity):
                 self,
             )
             # Make a soft link and return
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=link_cmd(
                     path=fix_home_prefix(self.cfg.remote_workspace),
                     link=self._workspace_paths.remote,
@@ -407,7 +425,7 @@ class RemoteResource(Entity):
                 self.ssh_cfg["host"],
             )
             # proposed: if clobber_remote_workspace set, overwrite remote
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=link_cmd(
                     path=self._workspace_paths.local,
                     link=self._workspace_paths.remote,
@@ -464,17 +482,24 @@ class RemoteResource(Entity):
             #     check=False,  # XXX: bash might not be there
             # ):
             #     rmt_non_existing = os.fdopen(r).read().strip() or None
-            if 0 == self._execute_cmd_remote(
-                cmd=mkdir_cmd(os.path.dirname(self._workspace_paths.local)),
-                label="imitate local workspace path on remote - mkdir",
-                check=False,  # just best effort
-            ) and 0 == self._execute_cmd_remote(
-                cmd=link_cmd(
-                    path=self._workspace_paths.remote,
-                    link=self._workspace_paths.local,
-                ),
-                label="imitate local workspace path on remote - ln",
-                check=False,  # just best effort
+            if (
+                0
+                == self._ssh_client.exec_command(
+                    cmd=mkdir_cmd(
+                        os.path.dirname(self._workspace_paths.local)
+                    ),
+                    label="imitate local workspace path on remote - mkdir",
+                    check=False,  # just best effort
+                )[0]
+                and 0
+                == self._ssh_client.exec_command(
+                    cmd=link_cmd(
+                        path=self._workspace_paths.remote,
+                        link=self._workspace_paths.local,
+                    ),
+                    label="imitate local workspace path on remote - ln",
+                    check=False,  # just best effort
+                )[0]
             ):
                 # NOTE: we shall always remove created symlink
                 self._dangling_remote_fs_obj = (
@@ -623,7 +648,7 @@ class RemoteResource(Entity):
         for source, dest in itertools.chain(push_files, push_dirs):
             remote_dir = dest.rpartition("/")[0]
             self.logger.debug("%s create remote dir: %s", self, remote_dir)
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=mkdir_cmd(remote_dir), label="create remote dir"
             )
             self._transfer_data(
@@ -662,21 +687,23 @@ class RemoteResource(Entity):
                 "Clean root runpath on remote host - %s", self.ssh_cfg["host"]
             )
 
-            self._execute_cmd_remote(
+            self._ssh_client.exec_command(
                 cmd=rm_cmd(self._remote_plan_runpath),
                 label="Clean remote root runpath",
             )
 
             if self._dangling_remote_fs_obj:
-                self._execute_cmd_remote(
+                self._ssh_client.exec_command(
                     cmd=rm_cmd(self._dangling_remote_fs_obj),
                     label=f"Remove imitated workspace outside runpath",
                 )
                 self._dangling_remote_fs_obj = None
 
         if self.cfg.delete_pushed:
-            # TODO
+            # TODO: refactor, currently delete_pushed is in child.py
             ...
+
+        self._ssh_client.close()
 
     def _pull_files(self) -> None:
         """Pull custom files from remote host."""
@@ -784,3 +811,15 @@ class RemoteResource(Entity):
                 stdout=devnull,
                 logger=self.logger,
             )
+
+    def _check_remote_os(self):
+        if "REMOTE_OS" not in os.environ:
+            _, stdout, _ = self._ssh_client.exec_command(
+                cmd="cat /etc/os-release",
+                label="Check remote OS",
+                check=False,
+            )
+
+            # for efficiency, we assume all remote resources are of same os
+            self.logger.debug("Setting REMOTE_OS = %s", stdout)
+            os.environ["REMOTE_OS"] = stdout

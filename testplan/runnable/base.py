@@ -58,6 +58,7 @@ from testplan.common.utils.selector import apply_single
 from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
+from testplan.exporters.testing.failed_tests import FailedTestLevel
 from testplan.report import (
     ReportCategories,
     Status,
@@ -233,6 +234,10 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("pdf_path", default=None): Or(str, None),
             ConfigOption("json_path", default=None): Or(str, None),
             ConfigOption("http_url", default=None): Or(str, None),
+            ConfigOption("dump_failed_tests", default=None): Or(str, None),
+            ConfigOption(
+                "failed_tests_level", default=defaults.FAILED_TESTS_LEVEL
+            ): FailedTestLevel,
             ConfigOption("pdf_style", default=defaults.PDF_STYLE): Style,
             ConfigOption("report_tags", default=[]): [
                 Use(tagging.validate_tag_value)
@@ -537,6 +542,8 @@ class TestRunner(Runnable):
             exporters.append(test_exporters.XMLExporter())
         if self.cfg.http_url:
             exporters.append(test_exporters.HTTPExporter())
+        if self.cfg.dump_failed_tests:
+            exporters.append(test_exporters.FailedTestsExporter())
         if self.cfg.ui_port is not None:
             exporters.append(
                 test_exporters.WebServerExporter(ui_port=self.cfg.ui_port)

@@ -332,7 +332,7 @@ Command line
                             "name" - List tests in readable format. Max 25 testcases per suite will be displayed.
 
     General:
-      --runpath             Path under which all temp files and logs will be created.
+      --runpath             Directory path under which all temp files and logs will be created.
       --timeout             Expiry timeout on test execution.
       -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
       --pre-start-environments     Enable pre-start of environments in interactive mode. MultiTest names are to be passed as whitespace separated list of strings. Defaults to no pre-start.
@@ -418,10 +418,7 @@ Command line
                             is not allowed due to potential ambiguity.
       --omit-passed         Equivalent to "--report-filter=p", cannot be used with "--report-filter" together.
       --omit-skipped        Equivalent to "--report-filter=s", cannot be used with "--report-filter" together.
-      --pdf                 Path for PDF report.
-      --json                Path for JSON report.
-      --xml                 Directory path for XML reports.
-      --report-dir          Target directory for tag filtered report output.
+      --pdf                 File path for PDF report.
       --pdf-style           (default: extended-summary)
 
                             "result-only" - Display only root level pass/fail status.
@@ -431,7 +428,13 @@ Command line
                             "extended-summary" - Display assertion details for failing tests, testcase level statuses for the rest.
 
                             "detailed" - Display details of all tests & assertions.
+      --json                File path for JSON report.
+      --xml                 Directory path for XML reports.
+      --dump-failed-tests   File path for storing failed tests.
+      --failed-tests-level  {multitest,testsuite,testcase}
 
+                            Level of failed tests to be exported.
+      --report-dir          Target directory for tag filtered report output.
       -v, --verbose         Enable verbose mode that will also set the stdout-style option to "detailed".
       -d, --debug           Enable debug mode.
       -b, --browser         Automatically open report in browser.
