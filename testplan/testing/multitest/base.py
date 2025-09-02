@@ -477,7 +477,7 @@ class MultiTest(testing_base.Test):
         report = self.report
 
         self.logger.debug(
-            f"{' ' * testing_base.TEST_INST_INDENT}[MultiTest] [START] {self.name}-- {self}"
+            f"{' ' * testing_base.TEST_INST_INDENT}[{self.name}] [START]"
         )
 
         with report.timer.record("run"):
@@ -523,7 +523,7 @@ class MultiTest(testing_base.Test):
         report.runtime_status = RuntimeStatus.FINISHED
 
         self.logger.debug(
-            f"{' ' * testing_base.TEST_INST_INDENT}[MultiTest] [END] {self.name}"
+            f"{' ' * testing_base.TEST_INST_INDENT}[{self.name}] [END]"
         )
 
         return report
@@ -617,6 +617,9 @@ class MultiTest(testing_base.Test):
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
 
+        self.logger.debug(
+            f"{' ' * testing_base.TESTCASE_INDENT}  [{self.name}] [BEFORE_START]"
+        )
         super(MultiTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
 
@@ -624,6 +627,13 @@ class MultiTest(testing_base.Test):
         """Runnable steps to run after environment stopped."""
         self._add_step(self.apply_xfail_tests)
         super(MultiTest, self).add_post_resource_steps()
+
+        def log_after_stop_finished():
+            self.logger.debug(
+                f"{' ' * testing_base.TESTCASE_INDENT} [{self.name}] [AFTER_STOP_END]"
+            )
+
+        self._add_step(log_after_stop_finished)
 
     def add_main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
@@ -799,7 +809,7 @@ class MultiTest(testing_base.Test):
         """Runs a testsuite object and returns its report."""
 
         self.logger.debug(
-            f"{' ' * testing_base.SUITE_INDENT}[TestSuite] [START]  {testsuite.name}"
+            f"{' ' * testing_base.SUITE_INDENT}[{testsuite.name}] [START]"
         )
 
         _check_testcases(testcases)
@@ -816,7 +826,7 @@ class MultiTest(testing_base.Test):
                     if teardown_report is not None:
                         testsuite_report.append(teardown_report)
                     self.logger.debug(
-                        f"{' ' * testing_base.SUITE_INDENT}[TestSuite] [END]  {testsuite.name}"
+                        f"{' ' * testing_base.SUITE_INDENT}[{testsuite.name}] [END]"
                     )
                     return testsuite_report
 
@@ -870,7 +880,7 @@ class MultiTest(testing_base.Test):
             testsuite_report.status_override = Status.INCOMPLETE
 
         self.logger.debug(
-            f"{' ' * testing_base.SUITE_INDENT}[TestSuite] [END]  {testsuite.name}"
+            f"{' ' * testing_base.SUITE_INDENT}[{testsuite.name}] [END]"
         )
 
         return testsuite_report
@@ -1041,6 +1051,7 @@ class MultiTest(testing_base.Test):
         Run the setup for a testsuite, logging any exceptions.
         Return Testcase report for setup, or None if no setup is required.
         """
+        self.logger.debug(f"{' ' * testing_base.SUITE_INDENT} [{self.name}] [SETUP]")
         return self._run_suite_related(testsuite, "setup")
 
     def _teardown_testsuite(self, testsuite):
@@ -1048,6 +1059,9 @@ class MultiTest(testing_base.Test):
         Run the teardown for a testsuite, logging any exceptions.
         Return Testcase report for teardown, or None if no setup is required.
         """
+        self.logger.debug(
+            f"{' ' * testing_base.SUITE_INDENT} [{self.name}] [TEARDOWN]"
+        )
         return self._run_suite_related(testsuite, "teardown")
 
     def _run_suite_related(self, testsuite, method_name):
@@ -1154,7 +1168,7 @@ class MultiTest(testing_base.Test):
         """Runs a testcase method and returns its report."""
 
         self.logger.debug(
-            f"{' ' * testing_base.TESTCASE_INDENT}[TestCase] [START]  {testsuite.name}::{testcase.__name__}"
+            f"{' ' * testing_base.TESTCASE_INDENT}[{testcase.__name__}] [START]"
         )
 
         testcase_report = testcase_report or self._new_testcase_report(
@@ -1197,7 +1211,7 @@ class MultiTest(testing_base.Test):
                 self.log_testcase_status(testcase_report)
 
             self.logger.debug(
-                f"{' ' * testing_base.TESTCASE_INDENT}[TestCase] [END] {testsuite.name}::{testcase.__name__}"
+                f"{' ' * testing_base.TESTCASE_INDENT}[{testcase.__name__}] [END]"
             )
             return testcase_report
 
@@ -1207,8 +1221,14 @@ class MultiTest(testing_base.Test):
                 self.watcher.save_covered_lines_to(testcase_report),
             ):
                 if pre_testcase and callable(pre_testcase):
+                    self.logger.debug(
+                        f"{' ' * testing_base.TESTCASE_INDENT}[{testcase.__name__}] [PRE_TESTCASE_START]"
+                    )
                     self._run_case_related(
                         pre_testcase, testcase, resources, case_result
+                    )
+                    self.logger.debug(
+                        f"{' ' * testing_base.TESTCASE_INDENT}[{testcase.__name__}] [PRE_TESTCASE_END]"
                     )
 
                 time_restriction = getattr(testcase, "timeout", None)
@@ -1230,8 +1250,14 @@ class MultiTest(testing_base.Test):
                 self.watcher.save_covered_lines_to(testcase_report),
             ):
                 if post_testcase and callable(post_testcase):
+                    self.logger.debug(
+                        f"{' ' * testing_base.TESTCASE_INDENT}[{testcase.__name__}] [POST_TESTCASE_START]"
+                    )
                     self._run_case_related(
                         post_testcase, testcase, resources, case_result
+                    )
+                    self.logger.debug(
+                        f"{' ' * testing_base.TESTCASE_INDENT}[{testcase.__name__}] [POST_TESTCASE_END]"
                     )
 
         # Apply testcase level summarization
@@ -1260,7 +1286,7 @@ class MultiTest(testing_base.Test):
             self.log_testcase_status(testcase_report)
 
         self.logger.debug(
-            f"{' ' * testing_base.TESTCASE_INDENT}[TestCase] [END] {testsuite.name}::{testcase.__name__}"
+            f"{' ' * testing_base.TESTCASE_INDENT}[{testcase.__name__}] [END]"
         )
 
         return testcase_report
