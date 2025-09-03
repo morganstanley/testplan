@@ -10,7 +10,7 @@ import warnings
 from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import convert, interface
 from testplan.testing import tagging
-from typing import Callable, Optional
+from typing import Callable, Optional, Iterable
 
 # Although any string will be processed as normal, it's a good
 # approach to warn the user if the generated method name is not a
@@ -54,7 +54,9 @@ def _check_dict_keys(dictionary, args, required_args):
     return dictionary
 
 
-def _product_of_param_dict(param_dict, args):
+def _product_of_param_dict(
+    param_dict: dict[str, list], args: Iterable[str]
+) -> list[collections.OrderedDict]:
     """
     Generate a ``list`` of ``OrderedDict`` using
     the cartesian product of the values in ``param_dict``.
@@ -82,15 +84,47 @@ def _product_of_param_dict(param_dict, args):
         if not isinstance(val, collections.abc.Iterable) or isinstance(
             val, dict
         ):
-            msg = (
-                "Dictionary values must be tuple or list of items, {value} "
-                "is of type: {type}"
-            ).format(value=val, type=type(val))
+            msg = f"Dictionary values must be tuple or list of items, {val} is of type: {type(val)}"
             raise ParametrizationError(msg)
 
     keys, values = args, [param_dict[arg] for arg in args]
     product = list(itertools.product(*values))
     return [collections.OrderedDict(zip(keys, vals)) for vals in product]
+
+
+def _sparse_matrix_of_param_dict(
+    param_dict: dict[str, list], args: Iterable[str]
+) -> list[collections.OrderedDict]:
+    """
+    Generate a ``list`` of ``OrderedDict`` using
+    the sparse matrix of the values in ``param_dict``.
+
+    >>> _product_of_param_dict(
+    ...   param_dict={
+    ...     'bar': [1, 2],
+    ...     'baz': [True, False],
+    ...     'foo': ['alpha', 'beta'],
+    ...   },
+    ...   args=('foo', 'bar', 'baz')
+    ... )
+    [
+      OrderedDict([('foo', 'alpha'), ('bar', 1), ('baz', True)]),
+      OrderedDict([('foo', 'beta'), ('bar', 2), ('baz', False)])
+    ]
+    """
+    _max_val_len = 0
+    for val in param_dict.values():
+        if not isinstance(val, collections.abc.Iterable) or isinstance(
+            val, dict
+        ):
+            msg = f"Dictionary values must be tuple or list of items, {val} is of type: {type(val)}"
+            raise ParametrizationError(msg)
+        _max_val_len = max(_max_val_len, len(val))
+    cycle_param = {k: itertools.cycle(v) for k, v in param_dict.items()}
+    return [
+        collections.OrderedDict((arg, next(cycle_param[arg])) for arg in args)
+        for _ in range(_max_val_len)
+    ]
 
 
 def _dict_from_arg_tuple(tup, args, required_args, default_args):
@@ -128,7 +162,9 @@ def _dict_from_arg_tuple(tup, args, required_args, default_args):
     return ordered_dict
 
 
-def _generate_kwarg_list(parameters, args, required_args, default_args):
+def _generate_kwarg_list(
+    parameters, sparse: bool, args: tuple, required_args, default_args: dict
+) -> list:
     """
     Given the 'raw' parameter context, generate the ``list`` of ``kwargs``
     that will be used for method generation.
@@ -140,7 +176,11 @@ def _generate_kwarg_list(parameters, args, required_args, default_args):
         _check_dict_keys(parameters, args, required_args)
         default_args = {k: [v] for k, v in default_args.items()}
         parameters = dict(default_args, **parameters)
-        return _product_of_param_dict(parameters, args)
+        return (
+            _sparse_matrix_of_param_dict(parameters, args)
+            if sparse
+            else _product_of_param_dict(parameters, args)
+        )
 
     # Normal parametrization
     elif isinstance(parameters, collections.abc.Iterable):
@@ -377,6 +417,7 @@ def default_name_func(func_name, kwargs):
 def generate_functions(
     function,
     parameters,
+    sparse,
     name,
     name_func,
     tag_dict,
@@ -406,9 +447,13 @@ def generate_functions(
     :param parameters: Parametrization context for the test case method.
     :type parameters: ``list`` or ``tuple`` of ``dict`` or ``tuple`` / ``list``
                       OR a ``dict`` of ``tuple`` / ``list``.
+    :param sparse: Set the sparse mode of generating testcases.
+        If ``True``, testplan generates sparse matrix of parameterized argument.
+        If ``False``, testplan generates product matrix of parameterized argument.
+    :type sparse: ``bool``
     :param name: Customized readable name for testcase.
     :type name: ``str``
-    :param name_func: Function for generating names of parametrized testcases,
+    :param name_func: Function for generating names of parameterized testcases,
                       should accept ``func_name`` and ``kwargs`` as parameters.
     :type name_func: ``callable``
     :param docstring_func: Function that will generate docstring,
@@ -458,7 +503,7 @@ def generate_functions(
     default_args = dict(zip(args[len(required_args) :], defaults))
 
     kwarg_list = _generate_kwarg_list(
-        parameters, args, required_args, default_args
+        parameters, sparse, args, required_args, default_args
     )
 
     functions = []
