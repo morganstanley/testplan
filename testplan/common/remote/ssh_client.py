@@ -138,7 +138,7 @@ class SSHClient:
         if isinstance(cmd, list):
             cmd = [str(a) for a in cmd]
             # for logging, easy to copy and execute
-            cmd_string = " ".join(map(shlex.quote, cmd))
+            cmd_string = shlex.join(cmd)
         else:
             cmd_string = cmd
 

@@ -22,7 +22,7 @@ boltons==25.0.0
     # via
     #   releaseherald
     #   testplan
-certifi==2025.7.14
+certifi==2025.8.3
     # via requests
 cffi==1.17.1
     # via
@@ -31,7 +31,7 @@ cffi==1.17.1
     #   pyzmq
 cfgv==3.4.0
     # via pre-commit
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via
     #   reportlab
     #   requests
@@ -58,14 +58,16 @@ colorama==0.4.6
     #   pytest
     #   sphinx
     #   testplan
-confluent-kafka==2.11.0
+confluent-kafka==2.11.1
 contourpy==1.3.0 ; python_full_version < '3.10'
     # via matplotlib
-contourpy==1.3.2 ; python_full_version >= '3.10'
+contourpy==1.3.2 ; python_full_version == '3.10.*'
     # via matplotlib
-coverage==7.9.2
+contourpy==1.3.3 ; python_full_version >= '3.11'
+    # via matplotlib
+coverage==7.10.6
     # via testplan
-cryptography==45.0.5
+cryptography==45.0.7
     # via paramiko
 cycler==0.12.1
     # via matplotlib
@@ -89,9 +91,9 @@ exceptiongroup==1.3.0 ; python_full_version < '3.11'
     # via
     #   pytest
     #   testplan
-filelock==3.18.0
+filelock==3.19.1
     # via virtualenv
-flask==3.1.1
+flask==3.1.2
     # via
     #   flask-orjson
     #   flask-restx
@@ -100,17 +102,17 @@ flask-orjson==2.0.0
     # via testplan
 flask-restx==1.3.0
     # via testplan
-fonttools==4.59.0
+fonttools==4.59.2
     # via matplotlib
-gherkin-official==33.0.0
+gherkin-official==34.0.0
     # via testplan
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.44
+gitpython==3.1.45
     # via releaseherald
-gssapi==1.9.0 ; sys_platform != 'win32'
+gssapi==1.10.0 ; sys_platform != 'win32'
     # via paramiko
-identify==2.6.12
+identify==2.6.13
     # via pre-commit
 idna==3.10
     # via requests
@@ -133,7 +135,7 @@ isort==6.0.1
     # via pylint
 itsdangerous==2.2.0
     # via flask
-jaraco-functools==4.2.1
+jaraco-functools==4.3.0
     # via cheroot
 jinja2==3.1.6
     # via
@@ -141,16 +143,16 @@ jinja2==3.1.6
     #   releaseherald
     #   sphinx
     #   testplan
-jsonschema==4.25.0
+jsonschema==4.25.1
     # via flask-restx
 jsonschema-specifications==2025.4.1
     # via jsonschema
 kazoo==2.10.0
 kiwisolver==1.4.7 ; python_full_version < '3.10'
     # via matplotlib
-kiwisolver==1.4.8 ; python_full_version >= '3.10'
+kiwisolver==1.4.9 ; python_full_version >= '3.10'
     # via matplotlib
-lxml==6.0.0
+lxml==6.0.1
     # via testplan
 markupsafe==3.0.2
     # via
@@ -161,15 +163,15 @@ marshmallow==3.26.1
     # via testplan
 matplotlib==3.9.4 ; python_full_version < '3.10'
     # via testplan
-matplotlib==3.10.3 ; python_full_version >= '3.10'
+matplotlib==3.10.6 ; python_full_version >= '3.10'
     # via testplan
 mccabe==0.7.0
     # via pylint
-more-itertools==10.7.0
+more-itertools==10.8.0
     # via
     #   cheroot
     #   jaraco-functools
-narwhals==1.48.0
+narwhals==2.3.0
     # via plotly
 nodeenv==1.9.1
     # via pre-commit
@@ -183,12 +185,12 @@ numpy==2.2.6 ; python_full_version == '3.10.*'
     #   contourpy
     #   matplotlib
     #   pandas
-numpy==2.3.1 ; python_full_version >= '3.11'
+numpy==2.3.2 ; python_full_version >= '3.11'
     # via
     #   contourpy
     #   matplotlib
     #   pandas
-orjson==3.11.0
+orjson==3.11.3
     # via
     #   flask-orjson
     #   testplan
@@ -199,9 +201,9 @@ packaging==25.0
     #   plotly
     #   pytest
     #   sphinx
-pandas==2.3.1
+pandas==2.3.2
     # via testplan
-paramiko==3.5.1
+paramiko==4.0.0
     # via testplan
 parse==1.20.2
     # via
@@ -212,11 +214,11 @@ pillow==11.3.0
     #   matplotlib
     #   reportlab
     #   testplan
-platformdirs==4.3.8
+platformdirs==4.4.0
     # via
     #   pylint
     #   virtualenv
-plotly==6.2.0
+plotly==6.3.0
     # via testplan
 pluggy==1.6.0
     # via
@@ -224,7 +226,7 @@ pluggy==1.6.0
     #   releaseherald
 plumbum==1.9.0
     # via rpyc
-pre-commit==4.2.0
+pre-commit==4.3.0
 psutil==7.0.0
     # via testplan
 pyasn1==0.6.1
@@ -237,7 +239,7 @@ pygments==2.19.2
     # via
     #   pytest
     #   sphinx
-pylint==3.3.7
+pylint==3.3.8
 pynacl==1.5.0
     # via paramiko
 pyparsing==3.2.3
@@ -265,28 +267,28 @@ pywin32==311 ; sys_platform == 'win32'
     #   plumbum
 pyyaml==6.0.2
     # via pre-commit
-pyzmq==27.0.0
+pyzmq==27.0.2
     # via testplan
 referencing==0.36.2
     # via
     #   jsonschema
     #   jsonschema-specifications
 releaseherald @ git+https://github.com/morganstanley/releaseherald.git@b403c944bb6136d666b0f0cb965d76bcbabaf317
-reportlab==4.4.2
+reportlab==4.4.3
     # via testplan
-requests==2.32.4
+requests==2.32.5
     # via
     #   sphinx
     #   testplan
 roman-numerals-py==3.1.0 ; python_full_version >= '3.11'
     # via sphinx
-rpds-py==0.26.0
+rpds-py==0.27.1
     # via
     #   jsonschema
     #   referencing
 rpyc==6.0.2
     # via testplan
-ruff==0.12.4
+ruff==0.12.11
 schema==0.7.7
     # via testplan
 setuptools==80.9.0
@@ -340,16 +342,18 @@ tomli==2.2.1
     #   sphinx
 tomlkit==0.13.3
     # via pylint
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   astroid
     #   exceptiongroup
     #   gherkin-official
+    #   gitpython
     #   pydantic
     #   pylint
     #   referencing
     #   releaseherald
     #   testplan
+    #   virtualenv
 tzdata==2025.2
     # via
     #   pandas
@@ -358,9 +362,11 @@ tzlocal==5.3.1
     # via testplan
 urllib3==2.5.0
     # via requests
+uv==0.8.15
+    # via testplan
 validators==0.20.0
     # via testplan
-virtualenv==20.32.0
+virtualenv==20.34.0
     # via pre-commit
 werkzeug==3.1.3
     # via
