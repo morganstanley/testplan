@@ -1,0 +1,1 @@
+Fix empty rows appearing and ignored keys rendered as failing in DictMatch assertions on the UI.
