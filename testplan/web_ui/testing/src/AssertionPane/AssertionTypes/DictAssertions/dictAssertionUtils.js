@@ -299,8 +299,12 @@ export function prepareDictRowData(data) {
       [level, key, status, actualValue, expectedValue] = line;
     }
     actualValue = actualValue || [];
+    expectedValue = expectedValue || [];
     const isEmptyLine =
-      key !== null && key.length === 0 && actualValue.length === 0;
+      key !== null
+      && key.length === 0
+      && actualValue.length === 0
+      && expectedValue.length === 0;
     const hasAcutalValue = Array.isArray(actualValue);
     const hasExpectedValue = Array.isArray(expectedValue);
 
