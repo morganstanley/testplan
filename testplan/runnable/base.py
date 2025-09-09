@@ -1795,6 +1795,13 @@ class TestRunner(Runnable):
             logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
             self._file_log_handler = None
 
+    def _run_batch_steps(self):
+        if not self._tests:
+            self.logger.warning("No tests were added, skipping execution!")
+            self.result.run = True
+        else:
+            super()._run_batch_steps()
+
     def run(self):
         """
         Executes the defined steps and populates the result object.
@@ -1803,4 +1810,4 @@ class TestRunner(Runnable):
             self.result.run = True
             return self.result
 
-        return super(TestRunner, self).run()
+        return super().run()

@@ -1,0 +1,1 @@
+Early stop testplan if no test is scheduled
