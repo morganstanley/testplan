@@ -711,7 +711,10 @@ class Test(Runnable):
         case_report.attachments.extend(case_result.attachments)
 
         if self.get_stdout_style(case_report.passed).display_testcase:
-            self.log_testcase_status(case_report)
+            if hasattr(self, "log_multitest_status"):
+                self.log_multitest_status(case_report)
+            else:
+                self.log_testcase_status(case_report)
 
         pattern = ":".join([self.name, suite_name, hook_name])
         self._xfail(pattern, case_report)
