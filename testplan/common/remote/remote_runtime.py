@@ -1,46 +1,43 @@
+# XXX: pathlib?
+
 import os.path
 import shlex
 import sys
 from abc import ABC, abstractmethod
-from enum import Enum
 from typing import Callable
+
+import uv  # so that usage of uv noticed by linter
 from typing_extensions import TypeAlias  # available in Python 3.10+
 
+from testplan.common.config import Config, ConfigOption
+from testplan.common.entity import Entity
 from testplan.common.utils.path import module_abspath
-from testplan.common.utils.remote import filepath_exist_cmd, link_cmd
+from testplan.common.utils.remote import filepath_exist_cmd, link_cmd, rm_cmd
 
 CmdExecF: TypeAlias = Callable[..., tuple[int, str, str]]
 
 
-class RuntimeSetupMethod(Enum):
-    PIP_BASED = "pip"
-    SIMPLE_SYSPATH = "syspath"
-    # OCI_CONTAINER = "container"
+class RuntimeBuilder(Entity, ABC):
+    def __init__(self, **options):
+        super().__init__(**options)
+        self._l_runpath: str
+        self._r_runpath: str
+        self._lcmd_exec: CmdExecF
+        self._rcmd_exec: CmdExecF
 
-    @property
-    def implementation(self) -> type["RuntimeSetup"]:
-        if self == RuntimeSetupMethod.PIP_BASED:
-            return PipBasedSetup
-        # elif self == RuntimeSetupMethod.SIMPLE_SYSPATH:
-        else:
-            return SimpleSyspathSetup
-        # elif self == RuntimeSetupMethod.OCI_CONTAINER:
-        # else:
-        #     return OCIContainerBasedSetup
-
-
-class RuntimeSetup(ABC):
-    def __init__(
+    def bootstrap(
         self,
+        local_runpath: str,
         remote_runpath: str,
         local_cmd_exec: CmdExecF,
         remote_cmd_exec: CmdExecF,
-        parent_cfg,
+        parent_cfg: Config,  # TestRunnerConfig
     ):
-        self._remote_runpath = remote_runpath
+        self._l_runpath = local_runpath
+        self._r_runpath = remote_runpath
         self._lcmd_exec = local_cmd_exec
         self._rcmd_exec = remote_cmd_exec
-        self._cfg = parent_cfg
+        self.cfg.parent = parent_cfg
 
     @abstractmethod
     def remote_python_detect(self) -> str: ...
@@ -58,31 +55,54 @@ class RuntimeSetup(ABC):
     def remote_env_teardown(self): ...
 
 
-class PipBasedSetup(RuntimeSetup):
-    VENV_UNDER_RUNPATH = "venv"
+class RuntimeBuilderConfig(Config):
+    # TODO: python ver check flag & local ver info?
+    @classmethod
+    def get_options(cls):
+        return {}
 
-    def __init__(
-        self, remote_runpath, local_cmd_exec, remote_cmd_exec, parent_cfg
-    ):
-        super().__init__(
-            remote_runpath, local_cmd_exec, remote_cmd_exec, parent_cfg
-        )
-        self._upstream_pkgs = None
-        self._remote_python_bin = None
+
+class PipBasedBuilderConfig(RuntimeBuilderConfig):
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption("remote_python_base_bin", default="python3"): str,
+            ConfigOption("remote_use_sys_env", default=False): bool,
+            ConfigOption(
+                "remote_venv_dest", default=None
+            ): str,  # validation postponed to py detect
+            ConfigOption("remote_reuse_venv_if_exists", default=False): bool,
+            ConfigOption("_remote_runpath_venv_name", default="venv"): str,
+            ConfigOption(
+                "_remote_runpath_package_dir", default="local_packages"
+            ): str,
+        }
+
+
+class PipBasedBuilder(RuntimeBuilder):
+    CONFIG = PipBasedBuilderConfig
+
+    def __init__(self, **options):
+        super().__init__(**options)
+        self._upstream_pkgs: list[str]
+        self._local_pkgs: list[str]  # local from the perspective of remote
+        self._remote_python_bin: str
 
     @staticmethod
     def group_freezed(packages: list):
-        # NOTE: only uv will return local dirs instead of vcs path
-        # TODO: uv behaviour to be verified
+        # NOTE: impl relies on behaviour of "uv pip freeze"
         upstream = []
         local = []
         for p in packages:
-            if p.startswith("-e "):
-                local.append(p[3:])
+            # "uv pip freeze"-exported editable must be local dirs
+            # (``pip install -e`` will create ``src`` under ``sys.prefix``)
+            if p.startswith("-e file://"):
+                local.append(p[10:])
             elif " @ " in p:
+                # TODO: are svn/hg/... still valid?
                 p_ = p.split(" @ ")[1]
                 if p_.startswith("file://"):
-                    local.append(p_)
+                    local.append(p_[7:])
                 else:
                     # assuming package index reachable from remote
                     upstream.append(p_)
@@ -91,15 +111,21 @@ class PipBasedSetup(RuntimeSetup):
 
         return upstream, local
 
-    def remote_python_detect(self):
-        local_use_sys_env = sys.base_prefix == sys.prefix
-        remote_base_bin = self._cfg.remote_python_bin
+    @staticmethod
+    def deduce_python_bin(env_prefix: str) -> str:
+        # TODO: windows
+        return os.path.join(env_prefix, "bin", "python3")
 
-        if self._cfg.remote_use_sys_env:
+    def remote_python_detect(self):
+        remote_base_bin = self.cfg.remote_python_bin  # from parent cfg
+
+        if self.cfg.remote_use_sys_env:
             return remote_base_bin
+
+        local_use_sys_env = sys.base_prefix == sys.prefix
         if not local_use_sys_env:
-            # test if local venv accessible on remote
-            # NOTE: this is obviously a quite rough test
+            # test if local venv accessible on remote, e.g. via nfs, reuse it
+            # XXX: shall we allow this behaviour? we don't have proper arch test
             if (
                 self._rcmd_exec(
                     filepath_exist_cmd(sys.prefix),
@@ -110,8 +136,31 @@ class PipBasedSetup(RuntimeSetup):
             ):
                 self._remote_python_bin = sys.executable
                 return self._remote_python_bin
-        venv_path = os.path.join(self._remote_runpath, self.VENV_UNDER_RUNPATH)
-        # FIXME: tmp workaround for &&, since shlex.quote only applied on list
+
+        if self.cfg.remote_venv_dest:
+            if (
+                self._rcmd_exec(
+                    filepath_exist_cmd(self.cfg.remote_venv_dest),
+                    label="test if remote_venv_dest exists",
+                    check=False,
+                )[0]
+                == 0
+            ):
+                if self.cfg.remote_reuse_venv_if_exists:
+                    self._remote_python_bin = self.deduce_python_bin(
+                        self.cfg.remote_venv_dest
+                    )
+                    return self._remote_python_bin
+                self._rcmd_exec(
+                    rm_cmd(self.cfg.remote_venv_dest),
+                    label="remove existing remote_venv_dest",
+                )
+            venv_path = self.cfg.remote_venv_dest
+        else:
+            venv_path = os.path.join(
+                self._r_runpath, self.cfg._remote_runpath_venv_name
+            )
+        # XXX: tmp workaround, since shlex.quote only applied on list
         self._rcmd_exec(
             " ".join(
                 [
@@ -127,56 +176,58 @@ class PipBasedSetup(RuntimeSetup):
             ),
             label="create remote venv",
         )
-        # TODO: if IS_WIN
-        self._remote_python_bin = os.path.join(venv_path, "bin", "python3")
+        self._remote_python_bin = self.deduce_python_bin(venv_path)
         return self._remote_python_bin
 
     def local_env_export(self):
-        import uv  # so that usage of uv noticed by linter
-
         _, stdout, _ = self._lcmd_exec(
             [sys.executable, "-m", uv.__name__, "pip", "freeze"],
             label="execute uv pip freeze locally",
         )
-        upstream, local = PipBasedSetup.group_freezed(stdout.splitlines())
-        self._upstream_pkgs = upstream
-        # TODO: remove assertion
-        assert all(
-            map(lambda x: "file://" == x[:7] and x[-1] != os.sep, local)
-        ), f"FIXME: unexpected value in {local}"
-        local_paths = [x[7:] for x in local]
+        self._upstream_pkgs, local = self.group_freezed(stdout.splitlines())
+
+        self.logger.info("local packages to transfer: %s", local)
+        self._local_pkgs = [
+            os.path.join(
+                self._r_runpath,
+                self.cfg._remote_runpath_package_dir,
+                x.rsplit(os.sep, 1)[1],
+            )
+            for x in local
+        ]
         return list(
             map(
                 lambda x: (
                     x,
                     os.path.join(
-                        self._remote_runpath,
-                        "local_package",
-                        x.rsplit(os.sep, 1)[1],
+                        self._r_runpath,
+                        self.cfg._remote_runpath_package_dir,
+                        "*",  # force creation of parent package dir
                     ),
                 ),
-                local_paths,
+                local,
             )
         )
 
     def remote_env_setup(self, remote_paths):
-        import uv  # so that usage of uv noticed by linter
-
-        assert self._upstream_pkgs  # FIXME: remove assertion
         self._rcmd_exec(
             [self._remote_python_bin, "-m", "pip", "install", uv.__name__],
             label="install uv on remote",
         )
+        # XXX: tmp workaround, since shlex.quote only applied on list
+        # XXX: self._upstream_pkgs to requirements.txt?
         self._rcmd_exec(
-            [
-                self._remote_python_bin,
-                "-m",
-                uv.__name__,
-                "pip",
-                "install",
-                *self._upstream_pkgs,
-                *remote_paths,
-            ],
+            shlex.join(
+                [
+                    self._remote_python_bin,
+                    "-m",
+                    uv.__name__,
+                    "pip",
+                    "install",
+                    *self._upstream_pkgs,
+                ]
+            )
+            + f" {shlex.quote(os.path.join(self._r_runpath, self.cfg._remote_runpath_package_dir))}/*",
             label="install packages on remote",
         )
         _, r_testplan_parent, _ = self._rcmd_exec(
@@ -188,7 +239,7 @@ class PipBasedSetup(RuntimeSetup):
             ],
             label="get remote testplan parent dir",
         )
-        # TODO: should return None once child.py is invoked with -m instead full path
+        # XXX: should return None once child.py is invoked with -m instead full path
         return r_testplan_parent
 
     def remote_env_teardown(self):
@@ -196,30 +247,39 @@ class PipBasedSetup(RuntimeSetup):
         pass
 
 
-class SimpleSyspathSetup(RuntimeSetup):
-    DIR_UNDER_RUNPATH = "testplan_lib"
+class SimpleSyspathBuilderConfig(RuntimeBuilderConfig):
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption("runpath_testplan_dir", default="testplan_lib"): str,
+        }
 
-    def __init__(
-        self, remote_runpath, local_cmd_exec, remote_cmd_exec, parent_cfg
-    ):
-        super().__init__(
-            remote_runpath, local_cmd_exec, remote_cmd_exec, parent_cfg
-        )
+
+class SimpleSyspathBuilder(RuntimeBuilder):
+    CONFIG = SimpleSyspathBuilderConfig
+
+    def __init__(self, **options):
+        super().__init__(**options)
+        self._l_testplan_path: str
+        self._r_testplan_path: str
+
+    def bootstrap(self, *args, **kwargs):
+        super().bootstrap(*args, **kwargs)
         import testplan
 
         self._l_testplan_path = os.path.dirname(
             os.path.dirname(module_abspath(testplan))
         )
         self._r_testplan_path = os.path.join(
-            self._remote_runpath, self.DIR_UNDER_RUNPATH
+            self._r_runpath, self.cfg.runpath_testplan_dir
         )
 
     def remote_python_detect(self) -> str:
-        return self._cfg.remote_python_bin
+        return self.cfg.remote_python_bin
 
     def local_env_export(self) -> list:
         if (
-            self._cfg.testplan_path
+            self.cfg.testplan_path
         ):  # remote path specified, no need to transfer files
             return []
 
@@ -241,16 +301,14 @@ class SimpleSyspathSetup(RuntimeSetup):
         ]
 
     def remote_env_setup(self, remote_paths):
-        if self._cfg.testplan_path:
-            remote_src = self._cfg.testplan_path
+        if self.cfg.testplan_path:
+            remote_src = self.cfg.testplan_path
             self._rcmd_exec(
                 link_cmd(remote_src, self._r_testplan_path),
                 label=f"link user-specified testplan path {remote_src} to testplan_lib under runpath",
             )
         elif remote_paths:
-            remote_src = remote_paths[0]
-            # TODO: remove assertion
-            assert remote_src == self._r_testplan_path
+            remote_src = self._r_testplan_path
             # no need to make symlink
         else:
             remote_src = self._l_testplan_path
@@ -266,4 +324,4 @@ class SimpleSyspathSetup(RuntimeSetup):
 
 
 # TODO
-# class OCIContainerBasedSetup(RuntimeSetup): ...
+# class OCIContainerBasedBuilder(RuntimeBuilder): ...

@@ -153,7 +153,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         )
 
     def pre_start(self) -> None:
-        self.define_runpath()
+        self.make_runpath_dirs()
         with self.timer.record("prepare remote"):
             self._prepare_remote()
         self._set_child_script()

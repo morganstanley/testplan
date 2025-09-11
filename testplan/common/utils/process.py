@@ -370,7 +370,7 @@ def execute_cmd(
     if stderr is None:
         stderr = subprocess.PIPE
 
-    logger.debug("Executing command [%s]: '%s'", label, cmd_string)
+    logger.info("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
     handler = subprocess.Popen(
@@ -380,7 +380,7 @@ def execute_cmd(
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.debug(
+        logger.warning(
             "Failed executing command [%s] after %.2f sec.", label, elapsed
         )
         if detailed_log is not LogDetailsOption.NEVER_LOG:
@@ -448,7 +448,7 @@ def execute_cmd_2(
     if stderr is None:
         stderr = subprocess.PIPE
 
-    logger.debug("Executing command [%s]: '%s'", label, cmd_string)
+    logger.info("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
     handler = subprocess.Popen(
@@ -458,7 +458,7 @@ def execute_cmd_2(
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.debug(
+        logger.warning(
             "Failed executing command [%s] after %.2f sec.", label, elapsed
         )
         if detailed_log is not LogDetailsOption.NEVER_LOG:

@@ -2,22 +2,22 @@ import getpass
 import itertools
 import os
 import re
-import shlex
 import sys
 from collections.abc import Iterable, Iterator
 from functools import partial
-from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union, cast
 
-from schema import And, Or, Use
+from schema import And, Or
 
 import testplan
 import testplan.runnable
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Entity, EntityConfig
 from testplan.common.remote.remote_runtime import (
-    RuntimeSetup,
-    RuntimeSetupMethod,
+    RuntimeBuilder,
+    SimpleSyspathBuilder,
 )
+from testplan.common.remote.ssh_client import SSHClient
 from testplan.common.utils.path import (
     fix_home_prefix,
     is_subdir,
@@ -38,10 +38,9 @@ from testplan.common.utils.remote import (
     link_cmd,
     mkdir_cmd,
     rm_cmd,
-    ssh_cmd,
+    ssh_cmd,  # deprecated
     worker_is_remote,
 )
-from testplan.common.remote.ssh_client import SSHClient
 
 
 class WorkerSetupMetadata:
@@ -104,13 +103,13 @@ class UnboundRemoteResourceConfig(EntityConfig):
             ConfigOption("env", default=None): Or(dict, None),
             ConfigOption("setup_script", default=None): Or(list, None),
             ConfigOption("paramiko_config", default=None): Or(dict, None),
-            # do we really need this?
+            # XXX: do we really need this? can it accept a constraint?
             ConfigOption("remote_python_ver_check", default=True): bool,
-            ConfigOption("remote_setup_method", default="syspath"): Use(
-                RuntimeSetupMethod
-            ),
+            # TODO: merge into runtime_builder? better default value?
             ConfigOption("remote_python_bin", default="python3"): str,
-            ConfigOption("remote_use_sys_env", default=False): bool,
+            ConfigOption(
+                "remote_runtime_builder", default=None
+            ): lambda x: isinstance(x, RuntimeBuilder),
         }
 
 
@@ -203,8 +202,8 @@ class RemoteResource(Entity):
         #         "RemoteResource not supported on Windows remote hosts."
         #     )
 
-        self._remote_plan_runpath = None
-        self._remote_resource_runpath = None
+        self._remote_plan_runpath: str
+        self._remote_resource_runpath: str
         self._child_paths = _LocationPaths()
         self._testplan_import_path = _LocationPaths()
         self._testplan_import_path.local = os.path.dirname(
@@ -226,13 +225,17 @@ class RemoteResource(Entity):
             self.cfg.remote_host, self.cfg.ssh_port, **extra_paramiko_cfg
         )
 
+        # allow env override only if default value, TODO: distinct default value
         if self.cfg.remote_python_bin == "python3" and (
             env_python_remote_bin := os.environ.get("PYTHON3_REMOTE_BINARY")
         ):
             self.cfg.set_local("remote_python_bin", env_python_remote_bin)
 
+        # used in subclasses, XXX: convert to property?
         self._remote_python_bin_path = self.cfg.remote_python_bin
-        self._remote_python_setup_impl: RuntimeSetup
+        self._remote_runtime_builder: RuntimeBuilder = (
+            self.cfg.remote_runtime_builder or SimpleSyspathBuilder()
+        )
 
     @property
     def error_exec(self) -> list:
@@ -323,7 +326,7 @@ class RemoteResource(Entity):
             # TODO: corner cases to be checked
             self._setup_remote_env()
 
-            # NOTE: corner case: runpath under workspace
+            # TODO: corner case: runpath under workspace
             # NOTE: should check existence before any mkdir call
             exist_on_remote = self._check_workspace()
 
@@ -345,32 +348,33 @@ class RemoteResource(Entity):
         )
 
     def _setup_remote_env(self):
-        self._remote_python_setup_impl: RuntimeSetup = (
-            self.cfg.remote_setup_method.implementation(
-                remote_runpath=self._remote_plan_runpath,
-                local_cmd_exec=partial(execute_cmd_2, logger=self.logger),
-                remote_cmd_exec=self._ssh_client.exec_command,
-                parent_cfg=self.cfg,
-            )
+        self._remote_runtime_builder.bootstrap(
+            local_runpath=self.runpath,
+            remote_runpath=self._remote_plan_runpath,
+            local_cmd_exec=partial(execute_cmd_2, logger=self.logger),
+            remote_cmd_exec=self._ssh_client.exec_command,
+            parent_cfg=self.cfg,
         )
-
         self._remote_python_bin_path = (
-            self._remote_python_setup_impl.remote_python_detect()
+            self._remote_runtime_builder.remote_python_detect()
         )
-        # TODO: swap check_remote_python_ver & remote_python_detect?
+        self.logger.info(
+            "picking remote python: %s", self._remote_python_bin_path
+        )
+        # XXX: embed ver check into detect?
         if self.cfg.remote_python_ver_check:
-            self._check_remote_python_ver()
-        paths_to_transfer = self._remote_python_setup_impl.local_env_export()
-        remote_paths = self._push_files(
-            paths_to_transfer, self.cfg.push_exclude
+            self._check_remote_python_ver(self._remote_python_bin_path)
+        paths_to_transfer = self._remote_runtime_builder.local_env_export()
+        remote_paths = self._push_files_to_dst(
+            paths_to_transfer, self.cfg.push_exclude, as_is=True
         )
         self._testplan_import_path.remote = (
-            self._remote_python_setup_impl.remote_env_setup(remote_paths)
+            self._remote_runtime_builder.remote_env_setup(remote_paths)
         )
 
-    def _check_remote_python_ver(self):
+    def _check_remote_python_ver(self, remote_python_bin: str):
         _, stdout, _ = self._ssh_client.exec_command(
-            cmd=f'{self._remote_python_bin_path} -c "import sys; print(tuple(sys.version_info))"',
+            cmd=f'{remote_python_bin} -c "import sys; print(tuple(sys.version_info))"',
             label="detect remote python version",
         )
         _m = re.match(
@@ -572,6 +576,7 @@ class RemoteResource(Entity):
 
     def _push_files(self, paths, exclude_patterns=None):
         """Push files and directories to remote host."""
+        # TODO: merge files & dirs
 
         # First enumerate the files and directories to be pushed, including
         # both their local source and remote destinations.
@@ -630,7 +635,6 @@ class RemoteResource(Entity):
                     source,
                 )
 
-        # TODO: consider remote when dedup?
         # Eliminate push duplications
         # FIXME: wrong direction & remote matters
         # if push_dirs and len(push_dirs) > 1:
@@ -697,7 +701,10 @@ class RemoteResource(Entity):
         return push_locations
 
     def _push_files_to_dst(
-        self, loc_paths: Iterable[_LocationPaths], exclude: Optional[list[str]]
+        self,
+        loc_paths: Iterable[Union[_LocationPaths, tuple[str, str]]],
+        exclude: Optional[list[str]],
+        as_is: bool = False,
     ) -> list[str]:
         """
         Push files and directories to the remote host. Both the source and
@@ -710,7 +717,7 @@ class RemoteResource(Entity):
         for source, dest in loc_paths:
             remote_dir = dest.rpartition("/")[0]
             self.logger.debug("%s create remote dir: %s", self, remote_dir)
-            # TODO: exc handling
+            # XXX: exc handling?
             self._ssh_client.exec_command(
                 cmd=mkdir_cmd(remote_dir), label="create remote dir"
             )
@@ -719,9 +726,10 @@ class RemoteResource(Entity):
                 target=dest,
                 remote_target=True,
                 exclude=exclude,
+                as_is=as_is,
             )
             remotes.append(dest)
-        return remotes
+        return list(set(remotes))
 
     def _fetch_results(self) -> None:
         """Fetch back to local host the results generated remotely."""
@@ -764,7 +772,7 @@ class RemoteResource(Entity):
                 )
                 self._dangling_remote_fs_obj = None
 
-            self._remote_python_setup_impl.remote_env_teardown()
+            self._remote_runtime_builder.remote_env_teardown()
 
         if self.cfg.delete_pushed:
             # TODO: refactor, currently delete_pushed is in child.py
@@ -863,6 +871,7 @@ class RemoteResource(Entity):
         target,
         remote_source=False,
         remote_target=False,
+        as_is=False,
         **copy_args,
     ):
         if remote_source:
@@ -873,6 +882,8 @@ class RemoteResource(Entity):
         cmd = self.cfg.copy_cmd(
             source, target, port=self.ssh_cfg["port"], **copy_args
         )
+        if as_is:
+            cmd = " ".join(cmd)  # special chars not escaped
         with open(os.devnull, "w") as devnull:
             execute_cmd(
                 cmd,
