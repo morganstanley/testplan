@@ -29,6 +29,7 @@ from testplan.testing.common import (
 )
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
+from testplan.testing.ordering import TypedSorter
 from testplan.testing.result import report_target
 from testplan.testing.multitest.suite import (
     get_suite_metadata,
@@ -385,6 +386,11 @@ class MultiTest(testing_base.Test):
         :rtype: ``list`` of ``tuple``
         """
         ctx = []
+
+        if isinstance(self.cfg.test_sorter, TypedSorter):
+            self.logger.user_info(
+                "%s: %s", self, self.cfg.test_sorter.user_info()
+            )
         sorted_suites = self.cfg.test_sorter.sorted_testsuites(self.cfg.suites)
 
         if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:

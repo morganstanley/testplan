@@ -218,11 +218,18 @@ class Beta:
         ),
     ),
 )
-def test_programmatic_ordering(sorter, report_ctx):
+def test_programmatic_ordering(sorter, report_ctx, mocker):
+    mocked_user_info = mocker.patch(
+        "testplan.common.utils.logger.TestplanLogger.user_info"
+    )
     multitest = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
     plan = TestplanMock(name="plan", test_sorter=sorter)
     plan.add(multitest)
     plan.run()
+    if isinstance(sorter, ordering.TypedSorter):
+        mocked_user_info.assert_any_call(
+            "%s: %s", multitest, sorter.user_info()
+        )
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
