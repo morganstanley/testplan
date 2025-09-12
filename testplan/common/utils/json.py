@@ -25,7 +25,8 @@ def json_dumps(data, indent_2=False, default=None) -> str:
             data,
             default=default,
             option=(orjson.OPT_INDENT_2 if indent_2 else 0)
-            | orjson.OPT_SERIALIZE_NUMPY,
+            | orjson.OPT_SERIALIZE_NUMPY
+            | orjson.OPT_NON_STR_KEYS,
         ).decode()
     else:
         if default:
