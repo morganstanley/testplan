@@ -387,7 +387,10 @@ class MultiTest(testing_base.Test):
         """
         ctx = []
 
-        if isinstance(self.cfg.test_sorter, TypedSorter):
+        if (
+            isinstance(self.cfg.test_sorter, TypedSorter)
+            and self.cfg.test_lister is None
+        ):
             self.logger.user_info(
                 "%s: %s", self, self.cfg.test_sorter.user_info()
             )
