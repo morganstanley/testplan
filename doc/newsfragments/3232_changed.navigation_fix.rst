@@ -1,0 +1,1 @@
+Fix navigation to update selection in interactive mode, when clicking the run icon
