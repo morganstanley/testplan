@@ -80,10 +80,15 @@ class ReverseNameLengthSorter(TypedSorter):
             testsuites, operator.attrgetter("name")
         )
 
-    def sort_testcases(self, testcases):
+    def sort_testcases(self, testcases, param_groups):
         return self.reverse_sort_by_name(
             testcases, operator.attrgetter("name")
-        )
+        ), {
+            param_template: self.reverse_sort_by_name(
+                testcases, operator.attrgetter("name")
+            )
+            for param_template, testcases in param_groups.items()
+        }
 
 
 noop_sorter = NoopSorter()
@@ -97,7 +102,7 @@ custom_sorter_2 = ReverseNameLengthSorter(sort_type=("suites", "testcases"))
 # custom sorters declared above to see how they work.
 @test_plan(
     name="Custom Sorter Example",
-    test_sorter=noop_sorter,
+    test_sorter=custom_sorter_2,
     # Using testcase level stdout so we can see sorted testcases
     stdout_style=Style("testcase", "testcase"),
 )
@@ -110,4 +115,4 @@ def main(plan):
 
 
 if __name__ == "__main__":
-    sys.exit(not main())
+    sys.exit(main().exit_code)

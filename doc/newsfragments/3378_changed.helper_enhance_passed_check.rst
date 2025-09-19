@@ -1,0 +1,1 @@
+Update :py:func:`~testplan.common.utils.helper.clean_runpath_if_passed` and :py:class:`~testplan.common.utils.helper.DriverLogCollector` for the use case of invoking them inside an existing :py:class:`~testplan.testing.base.Test` resource hook.

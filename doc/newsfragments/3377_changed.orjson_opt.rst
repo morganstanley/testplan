@@ -1,0 +1,1 @@
+Update ``orjson`` dumping option to allow certain non-string dictionary keys (see `this section<https://github.com/ijl/orjson?tab=readme-ov-file#opt_non_str_keys>`_ for details).
