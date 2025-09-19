@@ -35,6 +35,7 @@ from testplan.testing.multitest.suite import (
     get_testcase_metadata,
 )
 from testplan.testing.multitest.test_metadata import TestMetadata
+from testplan.testing.base import TestLifecycle
 
 
 def iterable_suites(obj):
@@ -324,6 +325,9 @@ class MultiTest(testing_base.Test):
         # if they are marked with an execution group.
         self._thread_pool = None
 
+        self.log_suite_lifecycle = functools.partial(
+            self._log_lifecycle, indent=testing_base.SUITE_INDENT
+        )
         self.log_suite_status = functools.partial(
             self._log_status, indent=testing_base.SUITE_INDENT
         )
@@ -507,6 +511,8 @@ class MultiTest(testing_base.Test):
                         self.cfg.skip_strategy.to_option(),
                     )
                     break
+
+                self.log_suite_lifecycle(testsuite, TestLifecycle.SUITE_END)
 
             style = self.get_stdout_style(report.passed)
             if style.display_test:
@@ -789,6 +795,9 @@ class MultiTest(testing_base.Test):
 
     def _run_suite(self, testsuite, testcases):
         """Runs a testsuite object and returns its report."""
+
+        self.log_suite_lifecycle(testsuite, TestLifecycle.SUITE_START)
+
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
 
@@ -1041,6 +1050,11 @@ class MultiTest(testing_base.Test):
         if not self.active:
             return None
 
+        if method_name == "setup":
+            self.log_suite_lifecycle(testsuite, TestLifecycle.SETUP_START)
+        elif method_name == "teardown":
+            self.log_suite_lifecycle(testsuite, TestLifecycle.TEARDOWN_START)
+
         method_report = self._suite_related_report(method_name)
         case_result = self.cfg.result(
             stdout_style=self.stdout_style,
@@ -1086,6 +1100,11 @@ class MultiTest(testing_base.Test):
         )
         self._xfail(pattern, method_report)
         method_report.runtime_status = RuntimeStatus.FINISHED
+
+        if method_name == "setup":
+            self.log_suite_lifecycle(testsuite, TestLifecycle.SETUP_END)
+        elif method_name == "teardown":
+            self.log_suite_lifecycle(testsuite, TestLifecycle.TEARDOWN_END)
 
         return method_report
 
@@ -1133,6 +1152,8 @@ class MultiTest(testing_base.Test):
     ):
         """Runs a testcase method and returns its report."""
 
+        self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_START)
+
         testcase_report = testcase_report or self._new_testcase_report(
             testcase
         )
@@ -1171,6 +1192,8 @@ class MultiTest(testing_base.Test):
             testcase_report.runtime_status = RuntimeStatus.FINISHED
             if self.get_stdout_style(testcase_report.passed).display_testcase:
                 self.log_testcase_status(testcase_report)
+
+            self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_END)
             return testcase_report
 
         with testcase_report.timer.record("run"):
@@ -1179,8 +1202,14 @@ class MultiTest(testing_base.Test):
                 self.watcher.save_covered_lines_to(testcase_report),
             ):
                 if pre_testcase and callable(pre_testcase):
+                    self.log_testcase_lifecycle(
+                        testcase, TestLifecycle.PRE_TESTCASE_START
+                    )
                     self._run_case_related(
                         pre_testcase, testcase, resources, case_result
+                    )
+                    self.log_testcase_lifecycle(
+                        testcase, TestLifecycle.PRE_TESTCASE_END
                     )
 
                 time_restriction = getattr(testcase, "timeout", None)
@@ -1202,8 +1231,14 @@ class MultiTest(testing_base.Test):
                 self.watcher.save_covered_lines_to(testcase_report),
             ):
                 if post_testcase and callable(post_testcase):
+                    self.log_testcase_lifecycle(
+                        testcase, TestLifecycle.POST_TESTCASE_START
+                    )
                     self._run_case_related(
                         post_testcase, testcase, resources, case_result
+                    )
+                    self.log_testcase_lifecycle(
+                        testcase, TestLifecycle.POST_TESTCASE_END
                     )
 
         # Apply testcase level summarization
@@ -1230,6 +1265,8 @@ class MultiTest(testing_base.Test):
 
         if self.get_stdout_style(testcase_report.passed).display_testcase:
             self.log_testcase_status(testcase_report)
+
+        self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_END)
 
         return testcase_report
 
