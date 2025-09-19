@@ -1798,7 +1798,8 @@ class TestRunner(Runnable):
     def _run_batch_steps(self):
         if not self._tests:
             self.logger.warning("No tests were added, skipping execution!")
-            self.result.run = True
+            self.status.change(self.STATUS.RUNNING)
+            self.status.change(self.STATUS.FINISHED)
         else:
             super()._run_batch_steps()
 
