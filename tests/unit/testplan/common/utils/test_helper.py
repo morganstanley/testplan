@@ -7,6 +7,7 @@ from testplan.common.utils.helper import clean_runpath_if_passed
 import testplan.testing.multitest as mt
 from testplan.testing.multitest.driver.app import App
 
+from tests.helpers.pytest_test_filters import skip_on_windows
 
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
@@ -34,6 +35,7 @@ def _wrapped_failing_clean_runpath_if_passed(env, result):
     clean_runpath_if_passed(env, result)
 
 
+@skip_on_windows(reason="tests doesn't run on windows")
 @pytest.mark.parametrize(
     "suite, after_stop_hook, should_remove",
     [
@@ -56,7 +58,7 @@ def test_clean_runpath_if_passed(
     t.run()
 
     if should_remove:
-        assert m_rmtree.call_count > 0
+        assert m_rmtree.call_count == 1
     else:
         assert m_rmtree.call_count == 0
 
