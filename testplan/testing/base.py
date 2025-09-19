@@ -246,8 +246,8 @@ class Test(Runnable):
         self._init_test_report()
         self._env_built = False
 
-        self.log_testcase_message = functools.partial(
-            self._log_msg, indent=TESTCASE_INDENT
+        self.log_testcase_lifecycle = functools.partial(
+            self._log_lifecycle, indent=TESTCASE_INDENT
         )
         self.log_testcase_status = functools.partial(
             self._log_status, indent=TESTCASE_INDENT
@@ -256,10 +256,11 @@ class Test(Runnable):
     def __str__(self) -> str:
         return f"{self.__class__.__name__}[{self.name}]"
 
-    def _log_msg(
+    def _log_lifecycle(
         self, report: TestGroupReport, message: str, indent: int
     ) -> None:
         """Log a message for a report at the given indent level."""
+        message = f" {message} ".center(48, "-")
         self.logger.log_test_message(
             name=report.name, message=message, indent=indent
         )
