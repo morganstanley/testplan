@@ -1,0 +1,1 @@
+Enhance logging for :py:class:`~testplan.testing.multitest.MultiTest` to provide extra information when testcases execution order changed during runtime.
