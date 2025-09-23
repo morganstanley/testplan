@@ -16,12 +16,12 @@ from schema import Use
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.remote.remote_resource import (
-    RemoteResourceConfig,
     RemoteResource,
+    RemoteResourceConfig,
 )
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import StdFiles
-from testplan.common.utils.process import subprocess_popen, kill_process
+from testplan.common.utils.process import kill_process, subprocess_popen
 from testplan.common.utils.timing import get_sleeper
 
 RPYC_BIN = os.path.join(
@@ -128,7 +128,7 @@ class RemoteService(Resource, RemoteResource):
             self.ssh_cfg,
             " ".join(
                 [
-                    self.python_binary,
+                    self._remote_python_bin_path,
                     "-uB",
                     self.cfg.rpyc_bin,
                     "--host",

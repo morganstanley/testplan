@@ -89,6 +89,7 @@ class ProcessWorker(Worker):
             self._syspath_file = f.name
 
     def pre_start(self) -> None:
+        super().pre_start()
         self._write_syspath()
 
     def starting(self) -> None:

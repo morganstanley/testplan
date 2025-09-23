@@ -193,9 +193,11 @@ class Worker(WorkerBase):
     def handler(self):
         return self._handler
 
+    def pre_start(self):
+        self.make_runpath_dirs()
+
     def starting(self) -> None:
         """Starts the daemonic worker loop."""
-        self.make_runpath_dirs()
         self._handler = threading.Thread(
             target=self._loop, args=(self._transport,)
         )

@@ -8,6 +8,7 @@ import socket
 import subprocess
 import sys
 
+
 IS_WIN = platform.system() == "Windows"
 USER = getpass.getuser()
 DEFAULT_SSH_OPT = "-p {port} {user}@{host}"
@@ -67,9 +68,11 @@ def ssh_cmd(ssh_cfg, command):
     return full_cmd
 
 
-def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
+def copy_cmd(
+    source: str, target: str, exclude=None, port=None, deref_links=False
+):
     """Returns remote copy command."""
-
+    # TODO: global rsync/scp selection
     try:
         binary = os.environ["RSYNC_BINARY"]
     except KeyError:
@@ -113,7 +116,11 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
 
         full_cmd = [binary, "-r"]
         if port is not None:
-            full_cmd.extend(["-P", port])
+            full_cmd.extend(["-P", str(port)])
+        if source.endswith(os.sep):
+            # scp behaviour differs from rsync
+            # TODO: test
+            target = target.rsplit(os.sep, 1)[0]
         full_cmd.extend([source, target])
         return full_cmd
 
