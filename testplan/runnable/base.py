@@ -290,6 +290,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("reporting_filter", default=None): Or(
                 And(str, Use(ReportingFilter.parse)), None
             ),
+            ConfigOption(
+                "reporting_filter_preserve_structure", default=False
+            ): bool,
             ConfigOption("xfail_tests", default=None): Or(dict, None),
             ConfigOption("runtime_data", default={}): Or(dict, None),
             ConfigOption(
@@ -1666,7 +1669,10 @@ class TestRunner(Runnable):
     def _pre_exporters(self):
         # Apply report filter if one exists
         if self.cfg.reporting_filter is not None:
-            self.result.report = self.cfg.reporting_filter(self.result.report)
+            self.result.report = self.cfg.reporting_filter(
+                self.result.report,
+                self.cfg.reporting_filter_preserve_structure,
+            )
 
         # Attach resource monitor data
         if self.resource_monitor_server:

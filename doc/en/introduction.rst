@@ -416,8 +416,12 @@ Command line
                             to exclude certain testcases from the report. Use "PS" will select passed and skipped testcases only, and use "ps" will
                             select all the testcases that are not passed and not skipped. Note using upper-case and lower-case letters together
                             is not allowed due to potential ambiguity.
-      --omit-passed         Equivalent to "--report-filter=p", cannot be used with "--report-filter" together.
-      --omit-skipped        Equivalent to "--report-filter=s", cannot be used with "--report-filter" together.
+      --only-drop-assertions
+                            Only drop assertions of filtered out report entries while preserve the hierarchical testcase entries when
+                            "report-filter" is set, useful when need to see which testcases were executed but don't care about their
+                            detailed assertions.
+      --omit-passed         Equivalent to "--report-filter=p --only-drop-assertions", cannot be used with "--report-filter" together.
+      --omit-skipped        Equivalent to "--report-filter=s --only-drop-assertions", cannot be used with "--report-filter" together.
       --pdf                 File path for PDF report.
       --pdf-style           (default: extended-summary)
 

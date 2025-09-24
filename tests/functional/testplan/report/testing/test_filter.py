@@ -3,6 +3,7 @@ import sys
 
 import testplan.testing.multitest.suite as suite
 from testplan import TestplanMock
+from testplan.common.utils.testing import argv_overridden
 from testplan.testing.multitest import MultiTest
 from tests.unit.testplan.testing.test_pytest import pytest_test_inst
 
@@ -15,11 +16,13 @@ class OneSuite:
 
     @suite.testcase
     def failing(self, env, result):
+        result.true(True)
         result.true(False)
 
     @suite.testcase
     @suite.xfail(reason="coding after drinking")
     def expect_to_fail(self, env, result):
+        result.true(True)
         result.true(False)
 
 
@@ -139,3 +142,85 @@ def test_pytest_report_filter_not_skipped(pytest_test_inst):
         pt_report["pytest_tests.py::TestPytestMarks"].entries[0].name
         != "test_skipped"
     )
+
+
+def _do_assert(exp_structure, mt_report):
+    for i, i_ in exp_structure.items():
+        assert len(mt_report[i]) == len(i_)
+        for j, j_ in i_.items():
+            if isinstance(j_, int):
+                assert len(mt_report[i][j]) == j_
+            else:
+                assert len(mt_report[i][j]) == len(j_)
+                for k, k_ in j_.items():
+                    assert len(mt_report[i][j][k]) == k_
+
+
+def test_mt_omit_passed():
+    with argv_overridden("--omit-passed"):
+        plan = TestplanMock(
+            name=f"{inspect.currentframe().f_code.co_name}_test",
+            parse_cmdline=True,
+        )
+        plan.add(
+            MultiTest(
+                name="TestMT",
+                suites=[OneSuite(), AnotherSuite(), SkippedSuite()],
+            )
+        )
+        mt_report = plan.run().report["TestMT"]
+
+    exp_structure = {
+        "OneSuite": {"passing": 0, "failing": 2, "expect_to_fail": 2},
+        "AnotherSuite": {
+            "with_param": {
+                "with_param__b_True": 0,
+                "with_param__b_False": 1,
+            },
+            "should_skip": 1,
+            "result_skip_should_skip": 2,
+            "strictly_expect_to_fail": {
+                "strictly_expect_to_fail__b_True": 1,
+                "strictly_expect_to_fail__b_False": 1,
+                "strictly_expect_to_fail__b_None": 1,
+            },
+        },
+        "SkippedSuite": {"should_skip_jr": 1},
+    }
+
+    _do_assert(exp_structure, mt_report)
+
+
+def test_mt_preserve_structure():
+    with argv_overridden("--report-filter=SAB", "--only-drop-assertions"):
+        plan = TestplanMock(
+            name=f"{inspect.currentframe().f_code.co_name}_test",
+            parse_cmdline=True,
+        )
+        plan.add(
+            MultiTest(
+                name="TestMT",
+                suites=[OneSuite(), AnotherSuite(), SkippedSuite()],
+            )
+        )
+        mt_report = plan.run().report["TestMT"]
+
+    exp_structure = {
+        "OneSuite": {"passing": 0, "failing": 0, "expect_to_fail": 2},
+        "AnotherSuite": {
+            "with_param": {
+                "with_param__b_True": 0,
+                "with_param__b_False": 0,
+            },
+            "should_skip": 1,
+            "result_skip_should_skip": 2,
+            "strictly_expect_to_fail": {
+                "strictly_expect_to_fail__b_True": 0,
+                "strictly_expect_to_fail__b_False": 1,
+                "strictly_expect_to_fail__b_None": 1,
+            },
+        },
+        "SkippedSuite": {"should_skip_jr": 1},
+    }
+
+    _do_assert(exp_structure, mt_report)

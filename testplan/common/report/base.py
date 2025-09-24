@@ -932,7 +932,8 @@ class BaseReportGroup(Report):
 
     def filter_cases(
         self,
-        predicate: Callable[["BaseReportGroup"], bool],
+        predicate: Callable[[Report], bool],
+        preserve_structure: bool,
         is_root: bool = False,
     ) -> Self:
         """
@@ -945,12 +946,17 @@ class BaseReportGroup(Report):
         for entry in report_obj.entries:
             if hasattr(entry, "filter_cases"):
                 statuses.append(entry.status)
-                entry = entry.filter_cases(predicate)
+                entry = entry.filter_cases(predicate, preserve_structure)
                 if len(entry):
                     entries.append(entry)
             else:
                 statuses.append(entry.status)
                 if predicate(entry):
+                    entries.append(entry)
+                elif preserve_structure:
+                    # entry.counter not cleared here
+                    entry.entries.clear()
+                    entry.logs.clear()
                     entries.append(entry)
 
         report_obj.entries = entries
