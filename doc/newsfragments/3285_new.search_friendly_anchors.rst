@@ -1,0 +1,1 @@
+Print search-friendly anchor in testplan log for test/suite/case start/stop.
