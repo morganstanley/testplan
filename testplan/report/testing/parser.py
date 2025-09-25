@@ -43,7 +43,7 @@ class ReportTagsAction(argparse.Action):
 
 class ReportFilterAction(argparse.Action):
     """
-    Argparse action serving higher-precedence shortcuts for report filters.
+    Argparse action serving as shortcuts for report filters.
     """
 
     def __init__(self, filter_rep: str, *args, **kwargs):
@@ -51,7 +51,7 @@ class ReportFilterAction(argparse.Action):
         super().__init__(*args, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, "reporting_filter", self.filter_rep)
+        setattr(namespace, "reporting_exclude_filter", self.filter_rep)
 
     @staticmethod
     def use_filter(filter_rep: str):
