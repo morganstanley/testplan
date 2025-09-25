@@ -50,17 +50,12 @@ class ReportingFilter(Entity):
         "C": Status.XPASS_STRICT,
     }
 
-    def __call__(
-        self, report: TestReport, preserve_structure: bool
-    ) -> TestReport:
+    def __call__(self, report: TestReport) -> TestReport:
         """
         Execute self on TestReport.
         """
-        if self.cfg.sign:
-            func = lambda x: any(f == x.status for f in self.cfg.flags)
-        else:
-            func = lambda x: all(f != x.status for f in self.cfg.flags)
-        return report.filter_cases(func, preserve_structure, is_root=True)
+        func = lambda x: all(f != x.status for f in self.cfg.flags)
+        return report.filter_cases(func, not self.cfg.sign, is_root=True)
 
     @classmethod
     def parse(cls, cli_options: str) -> Self:

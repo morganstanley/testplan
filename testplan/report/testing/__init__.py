@@ -6,4 +6,4 @@ from .base import (
     TestGroupReport,
     TestReport,
 )
-from .parser import CustomReportFilterAction, ReportTagsAction
+from .parser import ReportFilterAction, ReportTagsAction

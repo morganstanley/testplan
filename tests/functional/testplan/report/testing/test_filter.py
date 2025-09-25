@@ -61,7 +61,7 @@ class SkippedSuite:
 def test_multitest_report_filter_passed():
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
-        reporting_filter="P",
+        reporting_exclude_filter="EFIUXSABC",
     )
     plan.add(MultiTest(name="TestMT", suites=[OneSuite(), AnotherSuite()]))
     mt_report = plan.run().report["TestMT"]
@@ -76,7 +76,7 @@ def test_multitest_report_filter_passed():
 def test_multitest_report_filter_passed_or_xfail():
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
-        reporting_filter="PA",
+        reporting_exclude_filter="EFIUXSBC",
     )
     plan.add(
         MultiTest(
@@ -101,7 +101,7 @@ def test_multitest_report_filter_passed_or_xfail():
 def test_multitest_report_filter_not_passed_and_not_failed():
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
-        reporting_filter="pf",
+        reporting_exclude_filter="PF",
     )
     plan.add(
         MultiTest(
@@ -133,7 +133,7 @@ def test_multitest_report_filter_not_passed_and_not_failed():
 def test_pytest_report_filter_not_skipped(pytest_test_inst):
     plan = TestplanMock(
         name=f"{inspect.currentframe().f_code.co_name}_test",
-        reporting_filter="s",
+        reporting_exclude_filter="S",
     )
     plan.schedule(pytest_test_inst)
     pt_report = plan.run().report["My PyTest"]
@@ -192,7 +192,7 @@ def test_mt_omit_passed():
 
 
 def test_mt_preserve_structure():
-    with argv_overridden("--report-filter=SAB", "--only-drop-assertions"):
+    with argv_overridden("--report-exclude=efpiuxc"):
         plan = TestplanMock(
             name=f"{inspect.currentframe().f_code.co_name}_test",
             parse_cmdline=True,

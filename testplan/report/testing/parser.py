@@ -41,32 +41,20 @@ class ReportTagsAction(argparse.Action):
         setattr(namespace, self.dest, items)
 
 
-class CustomReportFilterAction(argparse.Action):
+class ReportFilterAction(argparse.Action):
     """
-    Argparse action serving higher-precedence shortcuts for report filters.
+    Argparse action serving as shortcuts for report filters.
     """
-
-    MUTEX_DESTS = ["reporting_filter", "omit_passed", "omit_skipped"]
 
     def __init__(self, filter_rep: str, *args, **kwargs):
         self.filter_rep = filter_rep
         super().__init__(*args, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        if any(
-            getattr(namespace, dest)
-            for dest in self.MUTEX_DESTS
-            if dest != self.dest
-        ):
-            parser.error(
-                f'argument "{option_string}" not allowed with other report '
-                f'filter argument "{self.option_strings[0]}"'
-            )
-        setattr(namespace, "reporting_filter", self.filter_rep)
-        setattr(namespace, "reporting_filter_preserve_structure", True)
+        setattr(namespace, "reporting_exclude_filter", self.filter_rep)
 
     @staticmethod
     def use_filter(filter_rep: str):
-        return lambda *args, **kwargs: CustomReportFilterAction(
+        return lambda *args, **kwargs: ReportFilterAction(
             filter_rep, *args, **kwargs
         )

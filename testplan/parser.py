@@ -15,7 +15,7 @@ from testplan import defaults
 from testplan.common.utils import logger
 from testplan.common.utils.json import json_load_from_path
 from testplan.report.testing import (
-    CustomReportFilterAction,
+    ReportFilterAction,
     ReportTagsAction,
     styles,
 )
@@ -331,47 +331,28 @@ Test filter, runs tests that match ALL of the given tags.
             ),
         )
 
-        report_group.add_argument(
-            "--report-filter",
-            metavar="{E,F,I,P,S,U,X,A,B,C,...}",
-            dest="reporting_filter",
+        mutex_report_group = report_group.add_mutually_exclusive_group()
+
+        mutex_report_group.add_argument(
+            "--report-exclude",
+            metavar="{E,F,I,P,S,U,X,A,B,C,e,f,i,p,s,u,x,a,b,c...}",
+            dest="reporting_exclude_filter",
             type=str,
-            help="Only include testcases with execution result Error (E), "
+            help="Filter out testcases with result status Error (E), "
             "Failed (F), Incomplete (I), Passed (P), Skipped (S), "
             "Unstable (U), Unknown (X), XFail (A), XPass (B) and "
             "XPass-Strict (C) in Testplan report. Use lower-case characters "
-            'to exclude certain testcases from the report. Use "PS" will '
-            'select passed and skipped testcases only, and use "ps" will '
-            "select all the testcases that are not passed and not skipped. "
-            "Note using upper-case and lower-case letters together is not "
-            "allowed due to potential ambiguity.",
+            "to only remove assertions while preserving testcase report "
+            'entries. E.g. "PS" will remove both passed and skipped testcases, '
+            '"ps" will remove assertions of passed and skipped testcases.',
         )
 
-        report_group.add_argument(
-            "--only-drop-assertions",
-            action="store_true",
-            dest="reporting_filter_preserve_structure",
-            default=False,
-            help="Only drop assertions of filtered out report entries while "
-            'preserve the hierarchical testcase entries when "report-filter" '
-            "is set, useful when need to see which testcases were executed "
-            "but don't care about their detailed assertions.",
-        )
-
-        report_group.add_argument(
+        mutex_report_group.add_argument(
             "--omit-passed",
             nargs=0,
-            action=CustomReportFilterAction.use_filter("p"),
-            help='Equivalent to "--report-filter=p --only-drop-assertions", '
-            'cannot be used with "--report-filter" together.',
-        )
-
-        report_group.add_argument(
-            "--omit-skipped",
-            nargs=0,
-            action=CustomReportFilterAction.use_filter("s"),
-            help='Equivalent to "--report-filter=s --only-drop-assertions", '
-            'cannot be used with "--report-filter" together.',
+            action=ReportFilterAction.use_filter("p"),
+            help='Equivalent to "--report-exclude=p", '
+            'cannot be used with "--report-exclude" together.',
         )
 
         report_group.add_argument(
