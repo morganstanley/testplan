@@ -600,11 +600,14 @@ def _rec_compare(
         and (lhs_cat != Category.CALLABLE)
         and (rhs_cat != Category.CALLABLE)
     ):
+        match = (
+            Match.IGNORED
+            if ignored
+            else (Match.PASS if lhs_cat == rhs_cat else Match.FAIL)
+        )
         return _build_res(
             key=key,
-            match=Match.IGNORED
-            if ignored
-            else (Match.PASS if lhs_cat == rhs_cat else Match.FAIL),
+            match=match,
             lhs=fmt(lhs),
             rhs=fmt(rhs),
         )
@@ -716,6 +719,33 @@ def _rec_compare(
             rhs=to_match_res((1, rhs_vals)),
         )
 
+    if (
+        (lhs_cat == Category.ITERABLE and rhs_cat == Category.DICT)
+        or (lhs_cat == Category.DICT and rhs_cat == Category.ITERABLE)
+    ):  # fmt: skip
+        match = Match.IGNORED if ignored else Match.FAIL
+        result = _rec_compare(
+            lhs=lhs if lhs_cat == Category.DICT else str(lhs),
+            rhs=rhs if rhs_cat == Category.DICT else str(rhs),
+            ignore=ignore,
+            include=include,
+            key=key,
+            report_mode=report_mode,
+            value_cmp_func=value_cmp_func,
+            include_only_rhs=include_only_rhs,
+        )
+        fmt_lhs = (
+            result[2]
+            if lhs_cat == Category.DICT
+            else (result[2][0], lhs.__class__.__name__, result[2][2])
+        )
+        fmt_rhs = (
+            result[3]
+            if rhs_cat == Category.DICT
+            else (result[3][0], rhs.__class__.__name__, result[3][2])
+        )
+        return (result[0], result[1], fmt_lhs, fmt_rhs)
+
     ## DICTS
     if lhs_cat == rhs_cat == Category.DICT:
         match, results = _cmp_dicts(
@@ -737,7 +767,12 @@ def _rec_compare(
 
     ## DIFF TYPES -- catch-all for unhandled
     #  combinations, e.g. VALUE vs ITERABLE
-    return _build_res(key=key, match=Match.FAIL, lhs=fmt(lhs), rhs=fmt(rhs))
+    return _build_res(
+        key=key,
+        match=Match.IGNORED if ignored else Match.FAIL,
+        lhs=fmt(lhs),
+        rhs=fmt(rhs),
+    )
 
 
 def untyped_fixtag(x, y):

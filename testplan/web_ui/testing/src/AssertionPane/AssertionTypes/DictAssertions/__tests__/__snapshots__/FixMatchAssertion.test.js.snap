@@ -1346,7 +1346,14 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                         role="gridcell"
                         style="left: 0px; width: 200px; color: red; font-weight: bold; background-color: rgba(189, 195, 199, 0.314);"
                         tabindex="-1"
-                      />
+                      >
+                        <div>
+                          <span
+                            style="user-select: all;"
+                          />
+                          <sub />
+                        </div>
+                      </div>
                       <div
                         aria-colindex="4"
                         class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
@@ -1501,7 +1508,14 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
                         tabindex="-1"
-                      />
+                      >
+                        <div>
+                          <span
+                            style="user-select: all;"
+                          />
+                          <sub />
+                        </div>
+                      </div>
                       <div
                         aria-colindex="4"
                         class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
@@ -1900,7 +1914,14 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
                         tabindex="-1"
-                      />
+                      >
+                        <div>
+                          <span
+                            style="user-select: all;"
+                          />
+                          <sub />
+                        </div>
+                      </div>
                       <div
                         aria-colindex="4"
                         class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"

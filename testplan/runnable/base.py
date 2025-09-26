@@ -287,7 +287,7 @@ class TestRunnerConfig(RunnableConfig):
             ),
             ConfigOption("tracing_tests_output", default="-"): str,
             ConfigOption("resource_monitor", default=False): bool,
-            ConfigOption("reporting_filter", default=None): Or(
+            ConfigOption("reporting_exclude_filter", default=None): Or(
                 And(str, Use(ReportingFilter.parse)), None
             ),
             ConfigOption("xfail_tests", default=None): Or(dict, None),
@@ -1665,8 +1665,10 @@ class TestRunner(Runnable):
 
     def _pre_exporters(self):
         # Apply report filter if one exists
-        if self.cfg.reporting_filter is not None:
-            self.result.report = self.cfg.reporting_filter(self.result.report)
+        if self.cfg.reporting_exclude_filter is not None:
+            self.result.report = self.cfg.reporting_exclude_filter(
+                self.result.report
+            )
 
         # Attach resource monitor data
         if self.resource_monitor_server:
@@ -1795,6 +1797,14 @@ class TestRunner(Runnable):
             logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
             self._file_log_handler = None
 
+    def _run_batch_steps(self):
+        if not self._tests:
+            self.logger.warning("No tests were added, skipping execution!")
+            self.status.change(self.STATUS.RUNNING)
+            self.status.change(self.STATUS.FINISHED)
+        else:
+            super()._run_batch_steps()
+
     def run(self):
         """
         Executes the defined steps and populates the result object.
@@ -1803,4 +1813,4 @@ class TestRunner(Runnable):
             self.result.run = True
             return self.result
 
-        return super(TestRunner, self).run()
+        return super().run()
