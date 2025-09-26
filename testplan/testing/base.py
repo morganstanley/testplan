@@ -75,6 +75,27 @@ class ResourceHooks(str, Enum):
         return self.value
 
 
+class TestLifecycle(str, Enum):
+    # suite names
+    SUITE_START = "testsuite start"
+    SETUP_START = "setup start"
+    SETUP_END = "setup end"
+    TEARDOWN_START = "teardown start"
+    TEARDOWN_END = "teardown end"
+    SUITE_END = "testsuite end"
+
+    # case names
+    TESTCASE_START = "testcase start"
+    PRE_TESTCASE_START = "pre_testcase start"
+    PRE_TESTCASE_END = "pre_testcase end"
+    POST_TESTCASE_START = "post_testcase start"
+    POST_TESTCASE_END = "post_testcase end"
+    TESTCASE_END = "testcase end"
+
+    def __str__(self) -> str:
+        return self.value
+
+
 def _test_name_sanity_check(name: str) -> bool:
     """
     Checks whether some of the reserved name components are used.
@@ -225,12 +246,24 @@ class Test(Runnable):
         self._init_test_report()
         self._env_built = False
 
+        self.log_testcase_lifecycle = functools.partial(
+            self._log_lifecycle, indent=TESTCASE_INDENT
+        )
         self.log_testcase_status = functools.partial(
             self._log_status, indent=TESTCASE_INDENT
         )
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}[{self.name}]"
+
+    def _log_lifecycle(
+        self, report: TestGroupReport, message: str, indent: int
+    ) -> None:
+        """Log a message for a report at the given indent level."""
+        message = f" {message} ".center(48, "-")
+        self.logger.log_test_message(
+            name=report.name, message=message, indent=indent
+        )
 
     def _log_status(self, report: TestGroupReport, indent: int) -> None:
         """Log the test status for a report at the given indent level."""
@@ -711,7 +744,10 @@ class Test(Runnable):
         case_report.attachments.extend(case_result.attachments)
 
         if self.get_stdout_style(case_report.passed).display_testcase:
-            self.log_testcase_status(case_report)
+            if hasattr(self, "log_multitest_status"):
+                self.log_multitest_status(case_report)
+            else:
+                self.log_testcase_status(case_report)
 
         pattern = ":".join([self.name, suite_name, hook_name])
         self._xfail(pattern, case_report)

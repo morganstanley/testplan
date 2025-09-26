@@ -1,0 +1,43 @@
+Running Testplan[SamplePlan]
+Running MultiTest[MyMultiTest]
+    [Suite] --------------- testsuite start ----------------
+    [Suite] ----------------- setup start ------------------
+        TS setup
+          TS setup
+    [Suite] ------------------ setup end -------------------
+      [passing] ---------------- testcase start ----------------
+      [passing] -------------- pre_testcase start --------------
+        pre_testcase
+          name = passing
+      [passing] --------------- pre_testcase end ---------------
+        passing assertion - Pass
+          1 == 1
+      [passing] ------------- post_testcase start --------------
+        post_testcase
+          name = passing
+      [passing] -------------- post_testcase end ---------------
+      [passing] -> Passed
+      [passing] ----------------- testcase end -----------------
+      [failing] ---------------- testcase start ----------------
+      [failing] -------------- pre_testcase start --------------
+        pre_testcase
+          name = failing
+      [failing] --------------- pre_testcase end ---------------
+        failing assertion - Fail
+          File: None
+          Line: None
+          {'a': 1, 'b': 2} == {'b': 2}
+      [failing] ------------- post_testcase start --------------
+        post_testcase
+          name = failing
+      [failing] -------------- post_testcase end ---------------
+      [failing] -> Failed
+      [failing] ----------------- testcase end -----------------
+    [Suite] ---------------- teardown start ----------------
+        TS teardown
+          TS teardown
+    [Suite] ----------------- teardown end -----------------
+    [Suite] -> Failed
+    [Suite] ---------------- testsuite end -----------------
+  [MyMultiTest] -> Failed
+[SamplePlan] -> Failed
