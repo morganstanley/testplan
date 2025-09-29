@@ -148,6 +148,27 @@ class TypedSorter(BaseSorter):
     def should_sort_testcases(self):
         return self.check_sort_type(SortType.TEST_CASES)
 
+    def sort_type_info(self):
+        # TODO: test_sorter currently only invoked inside multitests
+        if self.sort_all:
+            return "multitests, testsuites and testcases"
+
+        def _(t):
+            if t == SortType.INSTANCES.value:
+                return "multitests"
+            elif t == SortType.SUITES.value:
+                return "testsuites"
+            elif t == SortType.TEST_CASES.value:
+                return "testcases"
+            raise NotImplementedError
+
+        return ", ".join(_(t) for t in self.sort_types)
+
+    def user_info(self):
+        return (
+            f"sorting {self.sort_type_info()} using {self.__class__.__name__}"
+        )
+
 
 class ShuffleSorter(TypedSorter):
     """
@@ -182,6 +203,9 @@ class ShuffleSorter(TypedSorter):
             for param_template, testcases in param_groups.items()
         }
 
+    def user_info(self):
+        return f"shuffling {self.sort_type_info()} with seed {self.seed}"
+
 
 class AlphanumericSorter(TypedSorter):
     """Sorter that uses basic alphanumeric ordering."""
@@ -198,3 +222,6 @@ class AlphanumericSorter(TypedSorter):
             param_template: sorted(testcases, key=operator.attrgetter("name"))
             for param_template, testcases in param_groups.items()
         }
+
+    def user_info(self):
+        return f"alphanumeric sorting {self.sort_type_info()}"
