@@ -447,8 +447,6 @@ class InteractiveReportComponent extends BaseReport {
    * Handle the play/reset buttons being clicked on a Nav entry.
    */
   handleClick(e, reportEntry, action) {
-    e.preventDefault();
-    e.stopPropagation();
     const updatedReportEntry = {
       ...this.shallowReportEntry(reportEntry),
       runtime_status: action,
