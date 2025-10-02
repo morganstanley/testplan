@@ -944,6 +944,11 @@ class BaseReportGroup(Report):
         entries = []
 
         for entry in report_obj.entries:
+            if entry.category == ReportCategories.SYNTHESIZED:
+                # synthesized entries preserved
+                entries.append(entry)
+                continue
+
             if hasattr(entry, "filter_cases"):
                 statuses.append(entry.status)
                 entry = entry.filter_cases(predicate, preserve_structure)
