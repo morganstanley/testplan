@@ -1343,6 +1343,35 @@ Similarly, ``setup`` and ``teardown`` methods in a test suite can be limited to 
 
 It's useful when ``setup`` has much initialization work that takes long, e.g. connects to a server but has no response and makes program hanging. Note that this ``@timeout`` decorator can also be used for ``pre_testcase`` and ``post_testcase``, but that is not suggested because pre/post testcase methods are called everytime before/after each testcase runs, they should be written as simple as possible.
 
+Default Testcase Timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can set a default timeout for all testcases in a MultiTest that don't have an explicit timeout. This is useful when you want to apply a timeout policy across all testcases without modifying each individual testcase decorator.
+
+There are two ways to set a default testcase timeout:
+
+**1. Programmatically via MultiTest parameter:**
+
+.. code-block:: python
+
+    from testplan.testing.multitest import MultiTest
+
+    multitest = MultiTest(
+        name="MyTest",
+        suites=[MySuite()],
+        testcase_timeout=300  # 5 minutes default timeout for all testcases
+    )
+
+**2. Via command-line argument:**
+
+.. code-block:: bash
+
+    python my_test.py --testcase-timeout 300
+
+When using the command-line option, the default timeout will be applied to all MultiTest instances in the Testplan unless they explicitly override it with their own ``testcase_timeout`` parameter.
+
+If a testcase has an explicit ``timeout`` parameter in its ``@testcase`` decorator, that explicit timeout will always take precedence over the default timeout.
+
 Hooks
 -----
 
