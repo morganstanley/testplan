@@ -2,11 +2,32 @@
 """
 Example demonstrating the --testcase-timeout CLI option.
 
-This script can be run with:
-    python test_cli_timeout_example.py
-    python test_cli_timeout_example.py --testcase-timeout 2
+Usage:
+------
+Run without timeout (all tests pass):
+    python cli_timeout_example.py
 
-When run with --testcase-timeout 2, the slow_test will timeout and fail.
+Run with 2-second default timeout (slow_test will timeout):
+    python cli_timeout_example.py --testcase-timeout 2
+
+Run with 10-second default timeout (all tests pass):
+    python cli_timeout_example.py --testcase-timeout 10
+
+Description:
+------------
+This example demonstrates how to use the --testcase-timeout CLI option to set
+a default timeout for all testcases in a MultiTest. Testcases that don't
+complete within the timeout will be marked as ERROR.
+
+The example contains three tests:
+1. fast_test: Completes quickly (< 1 second)
+2. slow_test: Takes 5 seconds to complete
+3. test_with_explicit_timeout: Has an explicit 10-second timeout set
+
+When run with --testcase-timeout 2:
+- fast_test passes (completes in < 2 seconds)
+- slow_test times out and fails (takes 5 seconds > 2 second default)
+- test_with_explicit_timeout passes (explicit 10s timeout overrides the 2s default)
 """
 import time
 import sys
@@ -56,5 +77,4 @@ def main(plan):
 
 
 if __name__ == "__main__":
-    # Run with: python test_cli_timeout_example.py --testcase-timeout 2
     sys.exit(not main())
