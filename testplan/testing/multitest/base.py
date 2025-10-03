@@ -227,7 +227,7 @@ class MultiTestConfig(testing_base.TestConfig):
             ),
             config.ConfigOption("testcase_report_target", default=True): bool,
             config.ConfigOption("testcase_timeout"): Or(
-                None, And(int, lambda t: t > 0)
+                None, And(int, lambda t: t >= 0)
             ),
         }
 
