@@ -15,7 +15,7 @@ from testplan.report import (
 
 @testsuite
 class SuiteWithoutTimeout:
-    """Test suite with testcases that don't have explicit timeout."""
+    """Testsuite with testcases that don't have explicit timeout."""
 
     @testcase
     def test_passes_quickly(self, env, result):
@@ -31,7 +31,7 @@ class SuiteWithoutTimeout:
 
 @testsuite
 class SuiteWithExplicitTimeout:
-    """Test suite with testcases that have explicit timeout."""
+    """Testsuite with testcases that have explicit timeout."""
 
     @testcase(timeout=5)
     def test_with_explicit_timeout(self, env, result):
