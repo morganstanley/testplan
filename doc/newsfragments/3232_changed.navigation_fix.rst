@@ -1,0 +1,1 @@
+Prevent unexpected scrolling on navigation pane during interactive mode
