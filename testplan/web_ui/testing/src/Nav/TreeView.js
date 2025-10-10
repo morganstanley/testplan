@@ -43,6 +43,7 @@ const TreeViewNav = (props) => {
   const [lastSelection, setLastSelection] = React.useState([]);
   const [selectedElement, setSelectedElement] = React.useState(null);
   const [transitionFinished, setTransitionFinished] = React.useState(true);
+  const [hasInitialized, setHasInitialized] = React.useState(false);
 
   React.useEffect(() => {
     const newSelection = !_.isEqualWith(
@@ -72,10 +73,11 @@ const TreeViewNav = (props) => {
   };
 
   React.useEffect(() => {
-    if (selectedElement && transitionFinished) {
+    if (!hasInitialized && selectedElement && transitionFinished) {
       selectedElement.scrollIntoView({ block: "nearest" });
+      setHasInitialized(true);
     }
-  }, [selectedElement, transitionFinished]);
+  }, [selectedElement, transitionFinished, hasInitialized]);
 
   const handleToggle = (event, nodeIds) => {
     setExpanded(nodeIds);
@@ -110,9 +112,13 @@ const TreeViewNav = (props) => {
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
             onNodeToggle={handleToggle}
+            {...(props.interactive
+              ? { onScroll: () => setHasInitialized(true) }
+              : {})}
           >
             {
               <Tree
+                {...(props.interactive ? { key: props.selectedUid } : {})}
                 interactive={props.interactive}
                 entries={props.entries}
                 displayEmpty={props.displayEmpty}
