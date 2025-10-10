@@ -77,7 +77,7 @@ const TreeViewNav = (props) => {
       selectedElement.scrollIntoView({ block: "nearest" });
       setHasInitialized(true);
     }
-  }, [selectedElement, transitionFinished]);
+  }, [selectedElement, transitionFinished, hasInitialized]);
 
   const handleToggle = (event, nodeIds) => {
     setExpanded(nodeIds);
@@ -111,12 +111,14 @@ const TreeViewNav = (props) => {
             disableSelection={true}
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
-            onScroll={() => setHasInitialized(true)}
             onNodeToggle={handleToggle}
+            {...(props.interactive
+              ? { onScroll: () => setHasInitialized(true) }
+              : {})}
           >
             {
               <Tree
-                key={props.selectedUid}
+                {...(props.interactive ? { key: props.selectedUid } : {})}
                 interactive={props.interactive}
                 entries={props.entries}
                 displayEmpty={props.displayEmpty}
