@@ -61,7 +61,7 @@ class SSHClient:
         self._sftp_client = None
 
     @property
-    def ssh_client(self):
+    def ssh_client(self) -> paramiko.SSHClient:
         """
         Get the underlying paramiko SSH client.
 
@@ -138,12 +138,12 @@ class SSHClient:
         if isinstance(cmd, list):
             cmd = [str(a) for a in cmd]
             # for logging, easy to copy and execute
-            cmd_string = " ".join(map(shlex.quote, cmd))
+            cmd_string = shlex.join(cmd)
         else:
             cmd_string = cmd
 
         if not label:
-            label = hash(cmd_string) % 1000
+            label = str(hash(cmd_string) % 1000)
 
         if env:
             # Warning: paramiko exec_command may silently ignore some env var
@@ -153,7 +153,7 @@ class SSHClient:
             )
             cmd_string = f"{env_str} {cmd_string}"
 
-        self.logger.debug(
+        self.logger.info(
             "ssh_client executing command [%s]: '%s'",
             label,
             cmd_string,
@@ -175,12 +175,13 @@ class SSHClient:
                 "Failed executing command [%s] after %.2f sec.", label, elapsed
             )
             if stdout_str:
-                self.logger.debug("Stdout:\n%s", stdout_str)
+                self.logger.warning("Stdout:\n%s", stdout_str)
             if stderr_str:
-                self.logger.debug("Stderr:\n%s", stderr_str)
+                self.logger.warning("Stderr:\n%s", stderr_str)
             if check:
                 raise RuntimeError(
-                    f"Command '{cmd_string}' failed with exit code {exit_code}."
+                    f"Command '{cmd_string}' failed with exit code {exit_code}.\n"
+                    f"Stdout:\n{stdout_str}\nStderr:\n{stderr_str}"
                 )
         else:
             self.logger.debug(

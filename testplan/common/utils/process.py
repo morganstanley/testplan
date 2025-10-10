@@ -333,6 +333,43 @@ def execute_cmd(
 ):
     """
     Execute a subprocess command.
+    Deprecated, use execute_cmd_impl instead.
+
+    :param cmd: Command to execute - list of parameters.
+    :param label: Optional label for debugging
+    :param check: When True, check that the return code of the command is 0 to
+            ensure success - raises a RuntimeError otherwise. Defaults to
+            True - should be explicitly disabled for commands that may
+            legitimately return non-zero return codes.
+    :param stdout: Optional file-like object to redirect stdout to.
+    :param stderr: Optional file-like object to redirect stderr to.
+    :param logger: Optional logger object as logging destination.
+    :param env: Optional dict object as environment variables.
+    :param detailed_log: Enum to determine when stdout and stderr outputs should
+           be logged.
+           LOG_ALWAYS - Outputs are logged on success and failure.
+           LOG_ON_ERROR - Outputs are logged on failure.
+           NEVER_LOG - Outputs are never logged.
+    :return: Return code of the command.
+    """
+
+    return execute_cmd_2(
+        cmd, label, check, stdout, stderr, logger, env, detailed_log
+    )[0]
+
+
+def execute_cmd_2(
+    cmd,
+    label=None,
+    check=True,
+    stdout=None,
+    stderr=None,
+    logger=None,
+    env=None,
+    detailed_log: LogDetailsOption = LogDetailsOption.LOG_ON_ERROR,
+):
+    """
+    Execute a subprocess command.
 
     :param cmd: Command to execute - list of parameters.
     :param label: Optional label for debugging
@@ -357,12 +394,15 @@ def execute_cmd(
     if isinstance(cmd, list):
         cmd = [str(a) for a in cmd]
         # for logging, easy to copy and execute
-        cmd_string = " ".join(map(shlex.quote, cmd))
+        shell = False
+        cmd_string = shlex.join(cmd)
     else:
+        # cmd should be str
+        shell = True
         cmd_string = cmd
 
     if not label:
-        label = hash(cmd_string) % 1000
+        label = str(hash(cmd_string) % 1000)
 
     if stdout is None:
         stdout = subprocess.PIPE
@@ -370,33 +410,41 @@ def execute_cmd(
     if stderr is None:
         stderr = subprocess.PIPE
 
-    logger.debug("Executing command [%s]: '%s'", label, cmd_string)
+    logger.info("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
     handler = subprocess.Popen(
-        cmd, stdout=stdout, stderr=stderr, env=env, text=True, bufsize=0
+        cmd,
+        stdout=stdout,
+        stderr=stderr,
+        shell=shell,
+        env=env,
+        text=True,
+        bufsize=0,
     )
     output, error = handler.communicate()
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.debug(
+        logger.warning(
             "Failed executing command [%s] after %.2f sec.", label, elapsed
         )
+        output_s = output if output is not None else ""
+        error_s = error if error is not None else ""
         if detailed_log is not LogDetailsOption.NEVER_LOG:
-            _log_subprocess_output(logger, output, error)
+            _log_subprocess_output(logger, output_s, error_s)
         if check:
             raise RuntimeError(
-                "Command '{}' returned with non-zero exit code {}".format(
-                    cmd_string, handler.returncode
-                )
+                f"Command '{cmd_string}' returned with non-zero exit code {handler.returncode},\n"
+                f"stdout: {output_s}\n"
+                f"stderr: {error_s}"
             )
     else:
         logger.debug("Command [%s] finished in %.2f sec", label, elapsed)
         if detailed_log is LogDetailsOption.LOG_ALWAYS:
             _log_subprocess_output(logger, output, error)
 
-    return handler.returncode
+    return handler.returncode, output, error
 
 
 def enforce_timeout(process, timeout=1, callback=None, output=None):
