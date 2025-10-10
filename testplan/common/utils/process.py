@@ -333,43 +333,6 @@ def execute_cmd(
 ):
     """
     Execute a subprocess command.
-    Deprecated, use execute_cmd_impl instead.
-
-    :param cmd: Command to execute - list of parameters.
-    :param label: Optional label for debugging
-    :param check: When True, check that the return code of the command is 0 to
-            ensure success - raises a RuntimeError otherwise. Defaults to
-            True - should be explicitly disabled for commands that may
-            legitimately return non-zero return codes.
-    :param stdout: Optional file-like object to redirect stdout to.
-    :param stderr: Optional file-like object to redirect stderr to.
-    :param logger: Optional logger object as logging destination.
-    :param env: Optional dict object as environment variables.
-    :param detailed_log: Enum to determine when stdout and stderr outputs should
-           be logged.
-           LOG_ALWAYS - Outputs are logged on success and failure.
-           LOG_ON_ERROR - Outputs are logged on failure.
-           NEVER_LOG - Outputs are never logged.
-    :return: Return code of the command.
-    """
-
-    return execute_cmd_2(
-        cmd, label, check, stdout, stderr, logger, env, detailed_log
-    )[0]
-
-
-def execute_cmd_2(
-    cmd,
-    label=None,
-    check=True,
-    stdout=None,
-    stderr=None,
-    logger=None,
-    env=None,
-    detailed_log: LogDetailsOption = LogDetailsOption.LOG_ON_ERROR,
-):
-    """
-    Execute a subprocess command.
 
     :param cmd: Command to execute - list of parameters.
     :param label: Optional label for debugging

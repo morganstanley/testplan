@@ -16,7 +16,7 @@ from testplan.common.utils.path import (
     makedirs,
     makeemptydirs,
 )
-from testplan.common.utils.process import execute_cmd_2
+from testplan.common.utils.process import execute_cmd
 
 from .base import (
     Driver,
@@ -170,7 +170,7 @@ class ZookeeperStandalone(Driver):
         start_cmd = [self.cfg.binary, "start", self.config]
         self.std = StdFiles(self.runpath)
 
-        execute_cmd_2(
+        execute_cmd(
             start_cmd,
             label=self.uid(),
             check=True,
@@ -188,7 +188,7 @@ class ZookeeperStandalone(Driver):
         """Stops the Zookeeper instance."""
         stop_cmd = [self.cfg.binary, "stop", self.config]
         try:
-            execute_cmd_2(
+            execute_cmd(
                 stop_cmd,
                 label=self.uid(),
                 check=True,

@@ -29,7 +29,7 @@ from testplan.common.utils.path import (
 )
 from testplan.common.utils.process import (
     LogDetailsOption,
-    execute_cmd_2,
+    execute_cmd,
 )
 from testplan.common.utils.remote import (
     IS_WIN,
@@ -388,7 +388,7 @@ class RemoteResource(Entity):
             local_runpath=self.runpath,
             remote_runpath=self._remote_plan_runpath,
             local_cmd_exec=partial(
-                execute_cmd_2, logger=self._remote_runtime_builder.logger
+                execute_cmd, logger=self._remote_runtime_builder.logger
             ),
             remote_cmd_exec=self._ssh_client.exec_command,
             parent_cfg=self.cfg,
@@ -889,7 +889,7 @@ class RemoteResource(Entity):
         :param check: Whether to check command return-code - defaults to True.
                       See self._execute_cmd for more detail.
         """
-        return execute_cmd_2(
+        return execute_cmd(
             self.cfg.ssh_cmd(self.ssh_cfg, cmd),
             label=label,
             check=check,
@@ -926,7 +926,7 @@ class RemoteResource(Entity):
             source, target, port=self.ssh_cfg["port"], as_is=as_is, **copy_args
         )
         with open(os.devnull, "w") as devnull:
-            execute_cmd_2(
+            execute_cmd(
                 cmd,
                 "transfer data [..{}]".format(os.path.basename(source)),
                 stdout=devnull,

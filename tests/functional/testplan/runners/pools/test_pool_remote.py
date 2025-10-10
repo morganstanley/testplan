@@ -9,7 +9,7 @@ import pytest
 from testplan.common.remote.remote_runtime import (
     PipBasedBuilder,
 )
-from testplan.common.utils.process import execute_cmd_2
+from testplan.common.utils.process import execute_cmd
 from testplan.common.utils.remote import ssh_cmd
 from testplan.report import Status
 from testplan.runners.pools.remote import RemotePool
@@ -87,7 +87,7 @@ def test_pool_basic(mockplan, remote_pool_type):
     finally:
         assert (
             0
-            == execute_cmd_2(
+            == execute_cmd(
                 ssh_cmd({"host": REMOTE_HOST}, f"test -L {workspace}"),
                 label="workspace imitated on remote",
                 check=False,
