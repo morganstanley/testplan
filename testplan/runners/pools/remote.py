@@ -91,7 +91,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def _proc_cmd_impl(self) -> List[str]:
         cmd = [
-            self._remote_python_bin_path,
+            self.remote_python_bin,
             "-uB",
             self._child_paths.remote,
             "--index",
@@ -265,8 +265,6 @@ class RemotePool(Pool):
     :param workspace_exclude: Patterns to exclude files when pushing workspace.
     :param remote_runpath: Root runpath on remote host, default is same as local (Linux->Linux)
       or /var/tmp/$USER/testplan/$plan_name (Window->Linux).
-    :param testplan_path: Path to import testplan from on remote host,
-      default is testplan_lib under remote_runpath
     :param remote_workspace: The path of the workspace on remote host,
       default is fetched_workspace under remote_runpath
     :param clean_remote: Deleted root runpath on remote at exit.

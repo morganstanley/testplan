@@ -7,6 +7,7 @@ import shlex
 import socket
 import subprocess
 import sys
+from typing import Optional
 
 
 IS_WIN = platform.system() == "Windows"
@@ -69,7 +70,12 @@ def ssh_cmd(ssh_cfg, command):
 
 
 def copy_cmd(
-    source: str, target: str, exclude=None, port=None, deref_links=False
+    source: str,
+    target: str,
+    exclude: Optional[list[str]] = None,
+    port: Optional[int] = None,
+    deref_links: bool = False,
+    as_is: bool = False,
 ):
     """Returns remote copy command."""
     # TODO: global rsync/scp selection
@@ -97,10 +103,13 @@ def copy_cmd(
             ssh = "{} -p {}".format(ssh_bin(), port)
             full_cmd.extend(["-e", ssh])
 
+        if as_is:
+            return " ".join([shlex.join(full_cmd), source, target])
         full_cmd.extend([source, target])
         return full_cmd
 
     else:
+        # TODO: impl exclude
         # Proceed with SCP
         try:
             binary = os.environ["SCP_BINARY"]
@@ -117,10 +126,8 @@ def copy_cmd(
         full_cmd = [binary, "-r"]
         if port is not None:
             full_cmd.extend(["-P", str(port)])
-        if source.endswith(os.sep):
-            # scp behaviour differs from rsync
-            # TODO: test
-            target = target.rsplit(os.sep, 1)[0]
+        if as_is:
+            return " ".join([shlex.join(full_cmd), source, target])
         full_cmd.extend([source, target])
         return full_cmd
 

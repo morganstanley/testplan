@@ -61,7 +61,7 @@ class SSHClient:
         self._sftp_client = None
 
     @property
-    def ssh_client(self):
+    def ssh_client(self) -> paramiko.SSHClient:
         """
         Get the underlying paramiko SSH client.
 
@@ -180,7 +180,8 @@ class SSHClient:
                 self.logger.warning("Stderr:\n%s", stderr_str)
             if check:
                 raise RuntimeError(
-                    f"Command '{cmd_string}' failed with exit code {exit_code}."
+                    f"Command '{cmd_string}' failed with exit code {exit_code}.\n"
+                    f"Stdout:\n{stdout_str}\nStderr:\n{stderr_str}"
                 )
         else:
             self.logger.debug(

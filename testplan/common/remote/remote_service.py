@@ -4,9 +4,11 @@ Module implementing RemoteService class. Based on RPyC package.
 
 import os
 import re
+import shlex
 import signal
 import subprocess
 import warnings
+from functools import cache
 from typing import Optional
 
 import rpyc
@@ -24,13 +26,16 @@ from testplan.common.utils.path import StdFiles
 from testplan.common.utils.process import kill_process, subprocess_popen
 from testplan.common.utils.timing import get_sleeper
 
-RPYC_BIN = os.path.join(
-    os.path.dirname(rpyc.__file__),
-    os.pardir,
-    os.pardir,
-    "bin",
-    "rpyc_classic.py",
-)
+
+@cache
+def deduce_rpyc_bin(rmt_svc) -> str:
+    """
+    deducing rpyc_classic.py location on remote host
+
+    in practice this function might be monkey-patched for custom logic
+    """
+    remote_prefix = rmt_svc.remote_python_bin.rsplit(os.sep, 2)[0]
+    return os.path.join(remote_prefix, "bin", "rpyc_classic.py")
 
 
 class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
@@ -44,7 +49,7 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
         """Resource specific config options."""
         return {
             "name": str,
-            ConfigOption("rpyc_bin", default=RPYC_BIN): str,
+            ConfigOption("rpyc_bin", default=None): str,
             ConfigOption("rpyc_port", default=0): int,
             ConfigOption("stop_timeout", default=5): Use(float),
         }
@@ -73,8 +78,8 @@ class RemoteService(Resource, RemoteResource):
         self,
         name: str,
         remote_host: str,
-        rpyc_bin: str = RPYC_BIN,
-        rpyc_port: str = 0,
+        rpyc_bin: Optional[str] = None,
+        rpyc_port: int = 0,
         stop_timeout: float = 5,
         **options,
     ) -> None:
@@ -124,13 +129,17 @@ class RemoteService(Resource, RemoteResource):
         """
         Starting the rpyc service on remote host.
         """
+        rpyc_bin = self.cfg.rpyc_bin or deduce_rpyc_bin(self)
+
+        # TODO: refactor, use self._ssh_client instead
+        # TODO: make use of paramiko Channel, add apis to our wrapper class
         cmd = self.cfg.ssh_cmd(
             self.ssh_cfg,
-            " ".join(
+            shlex.join(
                 [
-                    self._remote_python_bin_path,
+                    self.remote_python_bin,
                     "-uB",
-                    self.cfg.rpyc_bin,
+                    rpyc_bin,
                     "--host",
                     "0.0.0.0",
                     "-p",

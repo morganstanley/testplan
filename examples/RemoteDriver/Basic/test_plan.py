@@ -15,6 +15,7 @@ if not REMOTE_HOST:
 from testplan import test_plan
 from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.remote.remote_service import RemoteService
+from testplan.common.remote.remote_runtime import PipBasedBuilder
 from testplan.common.utils.context import context
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 from testplan.testing.multitest import testsuite, testcase, MultiTest
@@ -60,8 +61,11 @@ def main(plan):
     # remote_service represents the RPyC server that runs on remote host
     remote_service = RemoteService(
         "rmt_svc",
-        REMOTE_HOST,
+        REMOTE_HOST,  # pyright: ignore
         clean_remote=True,
+        remote_runtime_builder=PipBasedBuilder(
+            transfer_exclude=[".venv*/", "*node_modules*", ".git/"],
+        ),
     )
 
     # add the remote_service to plan so that it gets started,
@@ -104,4 +108,4 @@ def main(plan):
 # set the return status. Note that it has to be inverted because it's
 # a boolean value.
 if __name__ == "__main__":
-    sys.exit(not main())
+    sys.exit(main().exit_code)
