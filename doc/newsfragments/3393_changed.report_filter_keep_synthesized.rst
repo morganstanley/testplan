@@ -1,0 +1,1 @@
+Report filters (command line argument ``--omit-passed`` and ``--report-exclude``) now preserve generated report entries like driver start timing information.

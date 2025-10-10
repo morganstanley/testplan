@@ -28,6 +28,7 @@ import psutil
 import shutil
 import socket
 import sys
+from functools import reduce
 from typing import Dict, List
 
 from testplan.common.entity import Environment
@@ -35,6 +36,14 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import pwd
 from testplan.testing.multitest import testsuite, testcase
 from testplan.testing.result import Result
+
+
+def _prev_all_green(env, result) -> bool:
+    return env.parent.report.passed and reduce(
+        lambda x, y: x and y.get("passed", True),
+        result.serialized_entries,
+        True,
+    )
 
 
 class DriverLogCollector:
@@ -77,7 +86,7 @@ class DriverLogCollector:
         Attaches log files to the report for each driver.
         """
 
-        if not env.parent.report.passed or not self.failure_only:
+        if not _prev_all_green(env, result) or not self.failure_only:
             for driver in env:
                 result.attach(
                     path=driver.runpath,
@@ -208,7 +217,7 @@ def clean_runpath_if_passed(
     :param result: result object
     """
     multitest = env.parent
-    if multitest.report.passed:
+    if _prev_all_green(env, result) and multitest.report.passed:
         for subfile in os.listdir(multitest.runpath):
             # TODO: Define scratch as a constant
             if subfile != "scratch":
