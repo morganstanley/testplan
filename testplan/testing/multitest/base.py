@@ -226,6 +226,9 @@ class MultiTestConfig(testing_base.TestConfig):
                 ),
             ),
             config.ConfigOption("testcase_report_target", default=True): bool,
+            config.ConfigOption("testcase_timeout"): Or(
+                None, And(int, lambda t: t >= 0)
+            ),
         }
 
 
@@ -260,6 +263,10 @@ class MultiTest(testing_base.Test):
     :param testcase_report_target: Whether to mark testcases as assertions for filepath
         and line number information
     :type testcase_report_target: ``bool``
+    :param testcase_timeout: Default timeout value in seconds for testcases that don't
+        have an explicit timeout set. If not specified, testcases will have no timeout
+        by default.
+    :type testcase_timeout: ``int`` or ``NoneType``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -294,6 +301,7 @@ class MultiTest(testing_base.Test):
         tags=None,
         result=result.Result,
         testcase_report_target=True,
+        testcase_timeout=None,
         **options,
     ):
         self._tags_index = None
@@ -1222,6 +1230,9 @@ class MultiTest(testing_base.Test):
                     )
 
                 time_restriction = getattr(testcase, "timeout", None)
+                # Use default testcase timeout from config if no explicit timeout is set
+                if time_restriction is None and self.cfg.testcase_timeout:
+                    time_restriction = self.cfg.testcase_timeout
                 if time_restriction:
                     # pylint: disable=unbalanced-tuple-unpacking
                     executed, execution_result = timing.timeout(

@@ -1343,6 +1343,23 @@ Similarly, ``setup`` and ``teardown`` methods in a test suite can be limited to 
 
 It's useful when ``setup`` has much initialization work that takes long, e.g. connects to a server but has no response and makes program hanging. Note that this ``@timeout`` decorator can also be used for ``pre_testcase`` and ``post_testcase``, but that is not suggested because pre/post testcase methods are called everytime before/after each testcase runs, they should be written as simple as possible.
 
+Default Testcase Timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Set a default timeout for testcases without explicit timeouts:
+
+.. code-block:: python
+
+    # Programmatically
+    MultiTest(name="MyTest", suites=[MySuite()], testcase_timeout=300)
+
+.. code-block:: bash
+
+    # Via CLI
+    python my_test.py --testcase-timeout 300
+
+Explicit ``@testcase(timeout=...)`` values always override the default.
+
 Hooks
 -----
 
