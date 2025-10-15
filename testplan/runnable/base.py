@@ -271,9 +271,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
                 None, And(int, lambda t: t >= 0)
             ),
-            ConfigOption("testcase_timeout", default=defaults.TESTCASE_TIMEOUT): Or(
-                None, And(int, lambda t: t >= 0)
-            ),
+            ConfigOption(
+                "testcase_timeout", default=defaults.TESTCASE_TIMEOUT
+            ): Or(None, And(int, lambda t: t >= 0)),
             # active_loop_sleep impacts cpu usage in interactive mode
             ConfigOption("active_loop_sleep", default=0.05): float,
             ConfigOption(

@@ -71,7 +71,9 @@ def test_explicit_timeout_overrides_default(mockplan):
 
     # Test should pass because explicit timeout (5s) overrides default (1s)
     assert mockplan.report.status == Status.PASSED
-    test_report = mockplan.report["TestExplicitOverride"]["SuiteWithExplicitTimeout"]
+    test_report = mockplan.report["TestExplicitOverride"][
+        "SuiteWithExplicitTimeout"
+    ]
     assert test_report["test_with_explicit_timeout"].status == Status.PASSED
 
 
@@ -96,7 +98,7 @@ def test_testcase_timeout_inheritance_from_parent(mockplan):
     """Test that testcase_timeout is inherited from parent config."""
     # Set testcase_timeout in parent (mockplan) config
     mockplan.cfg.set_local("testcase_timeout", 2)
-    
+
     # Create MultiTest without explicit testcase_timeout
     multitest = MultiTest(
         name="TestInheritance",

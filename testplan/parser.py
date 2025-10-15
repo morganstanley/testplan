@@ -117,7 +117,9 @@ class TestplanParser:
         general_group.add_argument(
             "--testcase-timeout",
             metavar="TESTCASE_TIMEOUT",
-            default=self._default_options.get("testcase_timeout", defaults.TESTCASE_TIMEOUT),
+            default=self._default_options.get(
+                "testcase_timeout", defaults.TESTCASE_TIMEOUT
+            ),
             type=int,
             help="Default timeout value in seconds for testcases that don't "
             "have an explicit timeout set. Set to 0 or omit to disable default timeout.",
