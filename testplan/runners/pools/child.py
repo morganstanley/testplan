@@ -300,17 +300,6 @@ class RemoteChildLoop(ChildLoop):
             ):
                 raise RuntimeError("Setup script exited with non 0 code.")
 
-    def exit_loop(self):
-        if self._setup_metadata.delete_pushed:
-            for item in self._setup_metadata.push_dirs:
-                self.logger.user_info("Removing directory: %s", item)
-                shutil.rmtree(item, ignore_errors=True)
-            for item in self._setup_metadata.push_files:
-                self.logger.user_info("Removing file: %s", item)
-                os.remove(item)
-
-        super(RemoteChildLoop, self).exit_loop()
-
 
 def child_logic(args):
     """Able to be imported child logic."""

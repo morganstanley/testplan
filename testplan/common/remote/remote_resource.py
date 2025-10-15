@@ -50,9 +50,6 @@ class WorkerSetupMetadata:
     """
 
     def __init__(self) -> None:
-        self.delete_pushed = False
-        self.push_dirs = []
-        self.push_files = []
         self.setup_script = None
         self.env = None
 
@@ -232,7 +229,9 @@ class RemoteResource(Entity):
         # remote file system obj outside runpath that needs to be cleaned upon
         # exit when clean_remote is True, otherwise it will break workspace
         # detect etc. in next run
-        self._dangling_remote_fs_obj = None  # TODO: merge into setup_metadata
+        self._dangling_remote_fs_obj = (
+            None  # TODO: merge into _pushed_remote_paths
+        )
 
         # Initialize SSHClient instance for managing SSH connections
         extra_paramiko_cfg = self.cfg.paramiko_config or {}
@@ -245,6 +244,8 @@ class RemoteResource(Entity):
         self._remote_runtime_builder: RuntimeBuilder = (
             self.cfg.remote_runtime_builder or SourceTransferBuilder()
         )
+
+        self._pushed_remote_paths = []
 
     @property
     def error_exec(self) -> list:
@@ -267,7 +268,6 @@ class RemoteResource(Entity):
         if self.cfg.push:
             self._push_files(self.cfg.push, self.cfg.push_exclude)
 
-        self.setup_metadata.delete_pushed = self.cfg.delete_pushed
         self.setup_metadata.setup_script = self.cfg.setup_script
         self.setup_metadata.env = self.cfg.env
 
@@ -617,28 +617,17 @@ class RemoteResource(Entity):
 
     def _push_files(self, paths, exclude_patterns=None):
         """Push files and directories to remote host."""
-        # TODO: merge files & dirs
 
-        # First enumerate the files and directories to be pushed, including
+        # First enumerate the paths to be pushed, including
         # both their local source and remote destinations.
-        push_files, push_dirs = self._build_push_lists(paths)
+        push_pairs = self._build_push_lists(paths)
 
-        # Add the remote paths to the setup metadata.
-        self.setup_metadata.push_files.extend(
-            [path.remote for path in push_files]
-        )
-        self.setup_metadata.push_dirs.extend(
-            [path.remote for path in push_dirs]
-        )
+        self._pushed_remote_paths.extend([path.remote for path in push_pairs])
 
         # Now actually push the files to the remote host.
-        return self._push_files_to_dst(
-            itertools.chain(push_files, push_dirs), exclude_patterns
-        )
+        return self._push_files_to_dst(push_pairs, exclude_patterns)
 
-    def _build_push_lists(
-        self, push_sources
-    ) -> Tuple[List[_LocationPaths], List[_LocationPaths]]:
+    def _build_push_lists(self, push_sources) -> List[_LocationPaths]:
         """
         Create lists of the source and destination paths of files and
         directories to be pushed. Eliminate duplication of sub-directories.
@@ -678,7 +667,7 @@ class RemoteResource(Entity):
 
         # TODO: eliminate push duplications, remote matters
 
-        return push_files, push_dirs
+        return push_files + push_dirs
 
     def _build_push_dests(
         self, push_sources: Union[List[str], List[Tuple[str, str]]]
@@ -814,8 +803,10 @@ class RemoteResource(Entity):
             self._remote_runtime_builder.remote_teardown_pyenv()
 
         if self.cfg.delete_pushed:
-            # TODO: refactor, currently delete_pushed is in child.py
-            ...
+            self._ssh_client.exec_command(
+                cmd=["/bin/rm", "-rf"] + self._pushed_remote_paths,
+                label="Delete pushed files as requested",
+            )
 
         self._ssh_client.close()
 

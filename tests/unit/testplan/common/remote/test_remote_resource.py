@@ -137,6 +137,12 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         remote_resource._workspace_paths.remote,
     )
 
+    assert set(remote_resource._pushed_remote_paths) == {
+        push_dir,
+        "/".join([remote_resource._working_dirs.remote, "file1"]),
+        "/".join([workspace, "file2"]),
+    }
+
     for remote_path in [
         remote_resource._remote_runid_file,
         "/".join([remote_resource._workspace_paths.remote, "tests", "unit"]),
@@ -181,13 +187,22 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         "LOCAL_USER": getpass.getuser()
     }
     assert remote_resource.setup_metadata.setup_script == ["remote_setup.py"]
-    assert remote_resource.setup_metadata.push_dirs == [push_dir]
-    assert remote_resource.setup_metadata.push_files == [
-        "/".join([remote_resource._working_dirs.remote, "file1"]),
-        "/".join([workspace, "file2"]),
-    ]
 
     remote_resource._clean_remote()
+
+    # pushed files deleted after clean-up
+    for remote_path in [
+        "/".join([remote_resource._working_dirs.remote, "file1"]),
+        "/".join([workspace, "file2"]),
+        push_dir,
+    ]:
+        assert (
+            0
+            != remote_resource._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(remote_path),
+                check=False,
+            )[0]
+        )
 
 
 def test_fetch_results(remote_resource, push_dir):
@@ -229,7 +244,6 @@ def test_fetch_results(remote_resource, push_dir):
     )
 
     remote_resource._clean_remote()
-    # TODO: test delete_pushed
 
 
 def test_runpath_in_ws(workspace):
