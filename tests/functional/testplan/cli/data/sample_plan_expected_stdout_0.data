@@ -1,4 +1,8 @@
 Running Testplan[SamplePlan]
+Starting LocalRunner[local_runner]
+Starting Environments[environments]
+LocalRunner[local_runner] started
+Environments[environments] started
 Running MultiTest[MyMultiTest]
     [Suite] --------------- testsuite start ----------------
       [passing] ---------------- testcase start ----------------
@@ -16,4 +20,7 @@ Running MultiTest[MyMultiTest]
     [Suite] -> Failed
     [Suite] ---------------- testsuite end -----------------
   [MyMultiTest] -> Failed
+Stopping Environments[environments]
+Stopping LocalRunner[local_runner]
+Environments[environments] stopped
 [SamplePlan] -> Failed

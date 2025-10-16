@@ -81,7 +81,7 @@ class TestplanLogger(logging.Logger):
         name: str,
         message: str,
         indent: int = 0,
-        level: int = USER_INFO,
+        level: int = DEBUG,
     ):
         indent_str = indent * " "
         msg = self._TEST_MESSAGE_FORMAT

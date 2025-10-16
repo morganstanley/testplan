@@ -11,7 +11,10 @@ SAMPLE_PLAN = DATA_DIR / "sample_plan.py"
 
 IGNORED_PATTERNS = [
     r"^Testplan\[.+\] has runpath: .+ and pid \d+$",
+    r"^Enabled logging to file: .+$",
+    r"^MultiTest\[.+\] has .+ runpath and pid \d+$",
     r"^TestplanResult\[.+\]$",
+    r"^(Executing|Finished|Skipping) step of .+\[.+\] - .+$",
 ]
 IGNORED_PATTERNS = [re.compile(p) for p in IGNORED_PATTERNS]
 
@@ -24,7 +27,7 @@ def test_sample_plan_stdout(add_hooks):
         env["ADD_HOOKS"] = "1"
     env["NO_COLOR"] = "1"  # disable colors in output
 
-    cmd = [sys.executable, str(SAMPLE_PLAN)]
+    cmd = [sys.executable, str(SAMPLE_PLAN), "-d"]
     proc = subprocess.run(
         cmd,
         env=env,
