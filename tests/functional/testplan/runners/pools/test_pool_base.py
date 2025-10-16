@@ -117,9 +117,9 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
     assert list(pool._executed_tests) == uids[::-1]
 
     # All tasks assigned once
-    for uid in pool._task_retries_cnt:
-        assert pool._task_retries_cnt[uid] == 0
-        assert pool.added_item(uid).reassign_cnt == 0
+    for uid in pool._task_reassign_cnt:
+        assert pool._task_reassign_cnt[uid] == 0
+        assert pool.added_item(uid).rerun_cnt == 0
 
     # Check attachment exists in local
     assert os.path.exists(

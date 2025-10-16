@@ -940,7 +940,7 @@ class BaseReportGroup(Report):
         Case-level filter with status retained
         """
         report_obj = copy.deepcopy(self) if is_root else self
-        statuses = []
+        orig_status = report_obj.status
         entries = []
 
         for entry in report_obj.entries:
@@ -950,12 +950,10 @@ class BaseReportGroup(Report):
                 continue
 
             if hasattr(entry, "filter_cases"):
-                statuses.append(entry.status)
                 entry = entry.filter_cases(predicate, preserve_structure)
-                if len(entry):
+                if len(entry) or predicate(entry):
                     entries.append(entry)
             else:
-                statuses.append(entry.status)
                 if predicate(entry):
                     entries.append(entry)
                 elif preserve_structure:
@@ -965,7 +963,7 @@ class BaseReportGroup(Report):
                     entries.append(entry)
 
         report_obj.entries = entries
-        report_obj.status_override = Status.precedent(statuses)
+        report_obj.status_override = orig_status
         if is_root:
             report_obj.build_index(recursive=True)
 
