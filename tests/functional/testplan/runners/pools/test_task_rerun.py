@@ -210,7 +210,7 @@ def test_task_rerun_in_thread_pool(mockplan):
     assert mockplan.report.entries[-1].category == ReportCategories.TASK_RERUN
     assert mockplan.report.entries[-2].category == ReportCategories.TASK_RERUN
 
-    assert task.reassign_cnt == 2
+    assert task.rerun_cnt == 2
     _remove_existing_tmp_file(tmp_file)
 
 
@@ -251,9 +251,9 @@ def test_task_rerun_in_process_pool(mockplan):
     assert mockplan.report.entries[-1].category == ReportCategories.TASK_RERUN
     assert mockplan.report.entries[-2].category == ReportCategories.TASK_RERUN
 
-    assert task1.reassign_cnt == 2
-    assert task2.reassign_cnt == 0  # 1st run: assigned but not executed
-    assert pool._task_retries_cnt[uid2] == 1
+    assert task1.rerun_cnt == 2
+    assert task2.rerun_cnt == 0  # 1st run: assigned but not executed
+    assert pool._task_reassign_cnt[uid2] == 1
     _remove_existing_tmp_file(tmp_file_1)
     _remove_existing_tmp_file(tmp_file_2)
 
@@ -281,7 +281,7 @@ def test_task_rerun_with_more_times(mockplan):
     assert mockplan.report.counter == {"passed": 0, "total": 1, "failed": 1}
     assert mockplan.result.test_results[uid].report.name == "Unstable MTest3"
 
-    assert task.reassign_cnt == 2
+    assert task.rerun_cnt == 2
     # test fails, should manually remove it
     _remove_existing_tmp_file(tmp_file)
 
@@ -310,7 +310,7 @@ def test_task_rerun_with_more_times_2(mockplan):
     assert mockplan.report.counter == {"passed": 1, "total": 1, "failed": 0}
     assert mockplan.result.test_results[uid].report.name == "Unstable MTest3"
 
-    assert task.reassign_cnt == 3
+    assert task.rerun_cnt == 3
     _remove_existing_tmp_file(tmp_file)
 
 

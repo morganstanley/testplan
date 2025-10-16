@@ -151,22 +151,22 @@ class Task(SelectiveSerializable):
             return self._module
 
     @property
-    def rerun(self) -> int:
+    def rerun_limit(self) -> int:
         """how many times the task is allowed to rerun."""
         return self._max_rerun_limit
 
     @property
-    def reassign_cnt(self) -> int:
-        """how many times the task is reassigned for rerun."""
+    def rerun_cnt(self) -> int:
+        """how many times the task has been reruned."""
         return self._assign_for_rerun
 
-    @reassign_cnt.setter
-    def reassign_cnt(self, value: int):
+    @rerun_cnt.setter
+    def rerun_cnt(self, value: int):
         if value < 0:
-            raise ValueError("Value of `reassign_cnt` cannot be negative")
+            raise ValueError("Value of `rerun_cnt` cannot be negative")
         elif value > self._max_rerun_limit:
             raise ValueError(
-                f"Value of `reassign_cnt` cannot exceed {self._max_rerun_limit}"
+                f"Value of `rerun_cnt` cannot exceed {self._max_rerun_limit}"
             )
         self._assign_for_rerun = value
 
@@ -303,7 +303,7 @@ class TaskResult(SelectiveSerializable):
         return self._uid
 
     @property
-    def task(self) -> Optional[Task]:
+    def task(self) -> Task:
         """Original task."""
         return self._task
 
