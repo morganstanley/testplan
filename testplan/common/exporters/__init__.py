@@ -18,8 +18,8 @@ class ExporterResult:
     exporter: "BaseExporter"
     result: Dict = None
     traceback: str = None
-    uid: str = strings.uuid4()
-    start_time: datetime = now()
+    uid: str = field(default_factory=strings.uuid4)
+    start_time: datetime = field(default_factory=now)
     end_time: datetime = None
 
     @property

@@ -181,7 +181,7 @@ class Testplan(entity.RunnableManager):
         path_cleanup: bool = True,
         all_tasks_local: bool = False,
         shuffle: Optional[List[str]] = None,
-        shuffle_seed: float = float(random.randint(1, 9999)),
+        shuffle_seed: Optional[float] = None,
         exporters: Optional[List] = None,
         stdout_style: Style = defaults.STDOUT_STYLE,
         report_dir: str = defaults.REPORT_DIR,
@@ -224,6 +224,8 @@ class Testplan(entity.RunnableManager):
             abort_signals = entity.DEFAULT_RUNNABLE_ABORT_SIGNALS[:]
         if shuffle is None:
             shuffle = []
+        if shuffle_seed is None:
+            shuffle_seed = float(random.randint(1, 9999))
         if extra_deps is None:
             extra_deps = []
         if report_tags is None:
@@ -397,7 +399,7 @@ class Testplan(entity.RunnableManager):
         path_cleanup=True,
         all_tasks_local=False,
         shuffle=None,
-        shuffle_seed=float(random.randint(1, 9999)),
+        shuffle_seed=None,
         exporters=None,
         stdout_style=defaults.STDOUT_STYLE,
         report_dir=defaults.REPORT_DIR,
