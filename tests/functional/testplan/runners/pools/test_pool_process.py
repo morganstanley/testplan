@@ -98,7 +98,7 @@ def test_kill_one_worker(mockplan, tmp_path: Path):
     # All tasks scheduled once except the killed one
     for idx in range(1, 25):
         if uids[idx - 1] == kill_uid:
-            assert pool._task_retries_cnt[uids[idx - 1]] == 1
+            assert pool._task_reassign_cnt[uids[idx - 1]] == 1
 
 
 def test_kill_all_workers(mockplan):
@@ -114,7 +114,7 @@ def test_kill_all_workers(mockplan):
         max_active_loop_sleep=1,
         restart_count=0,
     )
-    pool._task_retries_limit = retries_limit
+    pool._task_reassign_limit = retries_limit
     pool_uid = mockplan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -143,7 +143,7 @@ def test_kill_all_workers(mockplan):
 
     assert res.success is False
     # scheduled X times and killed all workers
-    assert pool._task_retries_cnt[uid] == retries_limit + 1
+    assert pool._task_reassign_cnt[uid] == retries_limit + 1
     assert mockplan.report.status == Status.INCOMPLETE
 
 
@@ -160,7 +160,7 @@ def test_reassign_times_limit(mockplan):
         max_active_loop_sleep=1,
         restart_count=0,
     )
-    pool._task_retries_limit = retries_limit
+    pool._task_reassign_limit = retries_limit
     pool_uid = mockplan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -188,7 +188,7 @@ def test_reassign_times_limit(mockplan):
     )
 
     assert res.success is False
-    assert pool._task_retries_cnt[uid] == retries_limit + 1
+    assert pool._task_reassign_cnt[uid] == retries_limit + 1
     assert mockplan.report.status == Status.ERROR
     assert mockplan.report.counter["error"] == 1
 
@@ -237,7 +237,7 @@ def test_disable_rerun_in_pool(mockplan):
 
     assert res.success is True
     assert mockplan.report.status == Status.PASSED
-    assert pool.added_item(uid).reassign_cnt == 0
+    assert pool.added_item(uid).rerun_cnt == 0
 
 
 def test_schedule_from_main(mockplan):
@@ -317,7 +317,7 @@ def test_restart_worker(mockplan):
         heartbeats_miss_limit=3,
         max_active_loop_sleep=1,
     )
-    pool._task_retries_limit = retries_limit
+    pool._task_reassign_limit = retries_limit
     pool_uid = mockplan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
