@@ -46,7 +46,7 @@ Remote pool
 Required files:
   - :download:`test_plan.py <../../../examples/ExecutionPools/Remote/test_plan.py>`
   - :download:`tasks.py <../../../examples/ExecutionPools/Remote/tasks.py>`
-  - :download:`setup_script.ksh <../../../examples/ExecutionPools/Remote/setup_script.ksh>`
+  - :download:`setup_script.sh <../../../examples/ExecutionPools/Remote/setup_script.sh>`
 
 test_plan.py
 ++++++++++++
@@ -56,9 +56,9 @@ tasks.py
 +++++++++
 .. literalinclude:: ../../../examples/ExecutionPools/Remote/tasks.py
 
-setup_script.ksh
+setup_script.sh
 ++++++++++++++++
-.. literalinclude:: ../../../examples/ExecutionPools/Remote/setup_script.ksh
+.. literalinclude:: ../../../examples/ExecutionPools/Remote/setup_script.sh
 
 .. _example_task_rerun:
 
