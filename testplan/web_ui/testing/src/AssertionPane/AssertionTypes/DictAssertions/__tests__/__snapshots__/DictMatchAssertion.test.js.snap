@@ -97,6 +97,65 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
         role="presentation"
       >
         <div
+          class="ag-column-drop-wrapper"
+          role="presentation"
+        >
+          <div
+            aria-hidden="true"
+            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
+            role="presentation"
+          >
+            <div
+              aria-hidden="true"
+              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
+            >
+              <span
+                class="ag-icon ag-icon-group ag-column-drop-icon ag-column-drop-horizontal-icon"
+                role="presentation"
+                unselectable="on"
+              />
+            </div>
+            <div
+              aria-label="Row Groups"
+              class="ag-column-drop-list ag-column-drop-horizontal-list"
+              role="listbox"
+            >
+              <span
+                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
+              >
+                Drag here to set row groups
+              </span>
+            </div>
+          </div>
+          <div
+            aria-hidden="true"
+            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
+            role="presentation"
+          >
+            <div
+              aria-hidden="true"
+              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
+            >
+              <span
+                class="ag-icon ag-icon-pivot ag-column-drop-icon ag-column-drop-horizontal-icon"
+                role="presentation"
+                unselectable="on"
+              />
+            </div>
+            <div
+              aria-label="Column Labels"
+              class="ag-column-drop-list ag-column-drop-horizontal-list"
+              role="listbox"
+            >
+              <span
+                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
+              >
+                Drag here to set column labels
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
           class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
           role="presentation"
         >
@@ -153,7 +212,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                         aria-hidden="true"
                         class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                         data-ref="eLabel"
-                        id="ag-5-label"
+                        id="ag-6-label"
                         role="presentation"
                       />
                       
@@ -169,7 +228,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                           aria-label="Column with Header Selection"
                           class="ag-input-field-input ag-checkbox-input"
                           data-ref="eInput"
-                          id="ag-5-input"
+                          id="ag-6-input"
                           tabindex="-1"
                           type="checkbox"
                         />
@@ -189,6 +248,18 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                       >
                         
         
+                        <span
+                          aria-hidden="true"
+                          class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
+                          data-ref="eMenu"
+                        >
+                          <span
+                            class="ag-icon ag-icon-menu-alt"
+                            role="presentation"
+                            unselectable="on"
+                          />
+                        </span>
+                        
         
                         <span
                           aria-hidden="true"
@@ -317,7 +388,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-6-label"
+                          id="ag-7-label"
                           role="presentation"
                         />
                         
@@ -333,7 +404,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                             aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-6-input"
+                            id="ag-7-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -353,6 +424,18 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                         >
                           
         
+                          <span
+                            aria-hidden="true"
+                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
+                            data-ref="eMenu"
+                          >
+                            <span
+                              class="ag-icon ag-icon-menu-alt"
+                              role="presentation"
+                              unselectable="on"
+                            />
+                          </span>
+                          
         
                           <span
                             aria-hidden="true"
@@ -464,7 +547,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-7-label"
+                          id="ag-8-label"
                           role="presentation"
                         />
                         
@@ -480,7 +563,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                             aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-7-input"
+                            id="ag-8-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -500,6 +583,18 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                         >
                           
         
+                          <span
+                            aria-hidden="true"
+                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
+                            data-ref="eMenu"
+                          >
+                            <span
+                              class="ag-icon ag-icon-menu-alt"
+                              role="presentation"
+                              unselectable="on"
+                            />
+                          </span>
+                          
         
                           <span
                             aria-hidden="true"
@@ -597,6 +692,11 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                 style="width: 0px; min-width: 0px; max-width: 0px;"
               />
             </div>
+            <div
+              aria-hidden="true"
+              class="ag-advanced-filter-header ag-hidden"
+              role="row"
+            />
             <!-- AG Pinned Top -->
             <div
               class="ag-floating-top"
@@ -661,7 +761,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px; color: red; font-weight: bold;"
@@ -688,7 +788,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px; color: red; font-weight: bold;"
@@ -715,7 +815,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -742,7 +842,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px; color: grey; font-style: italic;"
@@ -800,7 +900,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; color: red; font-weight: bold; background-color: rgba(189, 195, 199, 0.314);"
@@ -848,7 +948,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; color: red; font-weight: bold; background-color: rgba(189, 195, 199, 0.314);"
@@ -894,7 +994,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -942,7 +1042,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; color: grey; font-style: italic; background-color: rgba(189, 195, 199, 0.314);"
@@ -1176,6 +1276,21 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
             </div>
           </div>
           <div
+            aria-hidden="true"
+            class="ag-side-bar ag-unselectable ag-hidden ag-focus-managed"
+          >
+            
+            
+            <!--AG-SIDE-BAR-BUTTONS-->
+            <div
+              class="ag-side-buttons"
+              data-ref="sideBarButtons"
+              role="tablist"
+            />
+            
+        
+          </div>
+          <div
             class="ag-tab-guard ag-tab-guard-bottom"
             role="presentation"
             tabindex="0"
@@ -1183,8 +1298,36 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
         </div>
         <div
           aria-hidden="true"
+          class="ag-status-bar ag-hidden"
+        >
+          
+            
+          <div
+            class="ag-status-bar-left"
+            data-ref="eStatusBarLeft"
+            role="status"
+          />
+          
+            
+          <div
+            class="ag-status-bar-center"
+            data-ref="eStatusBarCenter"
+            role="status"
+          />
+          
+            
+          <div
+            class="ag-status-bar-right"
+            data-ref="eStatusBarRight"
+            role="status"
+          />
+          
+        
+        </div>
+        <div
+          aria-hidden="true"
           class="ag-paging-panel ag-unselectable ag-focus-managed ag-hidden"
-          id="ag-8"
+          id="ag-15"
         >
           <div
             class="ag-tab-guard ag-tab-guard-top"
@@ -1208,12 +1351,12 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbFirstRowOnPage"
-              id="ag-8-first-row"
+              id="ag-15-first-row"
             />
             
                     
             <span
-              id="ag-8-to"
+              id="ag-15-to"
             >
               to
             </span>
@@ -1222,12 +1365,12 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbLastRowOnPage"
-              id="ag-8-last-row"
+              id="ag-15-last-row"
             />
             
                     
             <span
-              id="ag-8-of"
+              id="ag-15-of"
             >
               of
             </span>
@@ -1236,7 +1379,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbRecordCount"
-              id="ag-8-row-count"
+              id="ag-15-row-count"
             />
             
                 
@@ -1285,7 +1428,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
               
                         
               <span
-                id="ag-8-start-page"
+                id="ag-15-start-page"
               >
                 Page
               </span>
@@ -1294,12 +1437,12 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbCurrent"
-                id="ag-8-start-page-number"
+                id="ag-15-start-page-number"
               />
               
                         
               <span
-                id="ag-8-of-page"
+                id="ag-15-of-page"
               >
                 of
               </span>
@@ -1308,7 +1451,7 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbTotal"
-                id="ag-8-of-page-number"
+                id="ag-15-of-page-number"
               />
               
                     
@@ -1353,6 +1496,19 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
             role="presentation"
             tabindex="0"
           />
+        </div>
+        <div
+          aria-hidden="true"
+          class="ag-watermark ag-hidden"
+        >
+          
+                
+          <div
+            class="ag-watermark-text"
+            data-ref="eLicenseTextRef"
+          />
+          
+            
         </div>
       </div>
     </div>
@@ -1457,6 +1613,65 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
         role="presentation"
       >
         <div
+          class="ag-column-drop-wrapper"
+          role="presentation"
+        >
+          <div
+            aria-hidden="true"
+            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
+            role="presentation"
+          >
+            <div
+              aria-hidden="true"
+              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
+            >
+              <span
+                class="ag-icon ag-icon-group ag-column-drop-icon ag-column-drop-horizontal-icon"
+                role="presentation"
+                unselectable="on"
+              />
+            </div>
+            <div
+              aria-label="Row Groups"
+              class="ag-column-drop-list ag-column-drop-horizontal-list"
+              role="listbox"
+            >
+              <span
+                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
+              >
+                Drag here to set row groups
+              </span>
+            </div>
+          </div>
+          <div
+            aria-hidden="true"
+            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
+            role="presentation"
+          >
+            <div
+              aria-hidden="true"
+              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
+            >
+              <span
+                class="ag-icon ag-icon-pivot ag-column-drop-icon ag-column-drop-horizontal-icon"
+                role="presentation"
+                unselectable="on"
+              />
+            </div>
+            <div
+              aria-label="Column Labels"
+              class="ag-column-drop-list ag-column-drop-horizontal-list"
+              role="listbox"
+            >
+              <span
+                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
+              >
+                Drag here to set column labels
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
           class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
           role="presentation"
         >
@@ -1513,7 +1728,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                         aria-hidden="true"
                         class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                         data-ref="eLabel"
-                        id="ag-21-label"
+                        id="ag-30-label"
                         role="presentation"
                       />
                       
@@ -1529,7 +1744,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                           aria-label="Column with Header Selection"
                           class="ag-input-field-input ag-checkbox-input"
                           data-ref="eInput"
-                          id="ag-21-input"
+                          id="ag-30-input"
                           tabindex="-1"
                           type="checkbox"
                         />
@@ -1549,6 +1764,18 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                       >
                         
         
+                        <span
+                          aria-hidden="true"
+                          class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
+                          data-ref="eMenu"
+                        >
+                          <span
+                            class="ag-icon ag-icon-menu-alt"
+                            role="presentation"
+                            unselectable="on"
+                          />
+                        </span>
+                        
         
                         <span
                           aria-hidden="true"
@@ -1677,7 +1904,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-22-label"
+                          id="ag-31-label"
                           role="presentation"
                         />
                         
@@ -1693,7 +1920,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                             aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-22-input"
+                            id="ag-31-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -1713,6 +1940,18 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                         >
                           
         
+                          <span
+                            aria-hidden="true"
+                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
+                            data-ref="eMenu"
+                          >
+                            <span
+                              class="ag-icon ag-icon-menu-alt"
+                              role="presentation"
+                              unselectable="on"
+                            />
+                          </span>
+                          
         
                           <span
                             aria-hidden="true"
@@ -1824,7 +2063,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-23-label"
+                          id="ag-32-label"
                           role="presentation"
                         />
                         
@@ -1840,7 +2079,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                             aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-23-input"
+                            id="ag-32-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -1860,6 +2099,18 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                         >
                           
         
+                          <span
+                            aria-hidden="true"
+                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
+                            data-ref="eMenu"
+                          >
+                            <span
+                              class="ag-icon ag-icon-menu-alt"
+                              role="presentation"
+                              unselectable="on"
+                            />
+                          </span>
+                          
         
                           <span
                             aria-hidden="true"
@@ -1957,6 +2208,11 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                 style="width: 0px; min-width: 0px; max-width: 0px;"
               />
             </div>
+            <div
+              aria-hidden="true"
+              class="ag-advanced-filter-header ag-hidden"
+              role="row"
+            />
             <!-- AG Pinned Top -->
             <div
               class="ag-floating-top"
@@ -2021,7 +2277,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px; color: red; font-weight: bold;"
@@ -2048,7 +2304,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px; color: red; font-weight: bold;"
@@ -2075,7 +2331,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -2102,7 +2358,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px; color: grey; font-style: italic;"
@@ -2160,7 +2416,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; color: red; font-weight: bold; background-color: rgba(189, 195, 199, 0.314);"
@@ -2208,7 +2464,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; color: red; font-weight: bold; background-color: rgba(189, 195, 199, 0.314);"
@@ -2254,7 +2510,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -2302,7 +2558,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
                       </div>
                       <div
                         aria-colindex="4"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 200px; width: 200px; color: grey; font-style: italic; background-color: rgba(189, 195, 199, 0.314);"
@@ -2536,6 +2792,21 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
             </div>
           </div>
           <div
+            aria-hidden="true"
+            class="ag-side-bar ag-unselectable ag-hidden ag-focus-managed"
+          >
+            
+            
+            <!--AG-SIDE-BAR-BUTTONS-->
+            <div
+              class="ag-side-buttons"
+              data-ref="sideBarButtons"
+              role="tablist"
+            />
+            
+        
+          </div>
+          <div
             class="ag-tab-guard ag-tab-guard-bottom"
             role="presentation"
             tabindex="0"
@@ -2543,8 +2814,36 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
         </div>
         <div
           aria-hidden="true"
+          class="ag-status-bar ag-hidden"
+        >
+          
+            
+          <div
+            class="ag-status-bar-left"
+            data-ref="eStatusBarLeft"
+            role="status"
+          />
+          
+            
+          <div
+            class="ag-status-bar-center"
+            data-ref="eStatusBarCenter"
+            role="status"
+          />
+          
+            
+          <div
+            class="ag-status-bar-right"
+            data-ref="eStatusBarRight"
+            role="status"
+          />
+          
+        
+        </div>
+        <div
+          aria-hidden="true"
           class="ag-paging-panel ag-unselectable ag-focus-managed ag-hidden"
-          id="ag-24"
+          id="ag-39"
         >
           <div
             class="ag-tab-guard ag-tab-guard-top"
@@ -2568,12 +2867,12 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbFirstRowOnPage"
-              id="ag-24-first-row"
+              id="ag-39-first-row"
             />
             
                     
             <span
-              id="ag-24-to"
+              id="ag-39-to"
             >
               to
             </span>
@@ -2582,12 +2881,12 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbLastRowOnPage"
-              id="ag-24-last-row"
+              id="ag-39-last-row"
             />
             
                     
             <span
-              id="ag-24-of"
+              id="ag-39-of"
             >
               of
             </span>
@@ -2596,7 +2895,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbRecordCount"
-              id="ag-24-row-count"
+              id="ag-39-row-count"
             />
             
                 
@@ -2645,7 +2944,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
               
                         
               <span
-                id="ag-24-start-page"
+                id="ag-39-start-page"
               >
                 Page
               </span>
@@ -2654,12 +2953,12 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
               <span
                 class="ag-paging-number"
                 data-ref="lbCurrent"
-                id="ag-24-start-page-number"
+                id="ag-39-start-page-number"
               />
               
                         
               <span
-                id="ag-24-of-page"
+                id="ag-39-of-page"
               >
                 of
               </span>
@@ -2668,7 +2967,7 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
               <span
                 class="ag-paging-number"
                 data-ref="lbTotal"
-                id="ag-24-of-page-number"
+                id="ag-39-of-page-number"
               />
               
                     
@@ -2713,6 +3012,19 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
             role="presentation"
             tabindex="0"
           />
+        </div>
+        <div
+          aria-hidden="true"
+          class="ag-watermark ag-hidden"
+        >
+          
+                
+          <div
+            class="ag-watermark-text"
+            data-ref="eLicenseTextRef"
+          />
+          
+            
         </div>
       </div>
     </div>
