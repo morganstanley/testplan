@@ -12,9 +12,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
 >
   <Badge
     className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2-o_O-badge_1nusemj"
-    color="secondary"
     pill={true}
-    tag="span"
     title="testplan"
   >
     TP
@@ -63,9 +61,7 @@ exports[`NavEntry shallow renders the correct HTML structure with status icons e
 >
   <Badge
     className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2-o_O-badge_1nusemj"
-    color="secondary"
     pill={true}
-    tag="span"
     title="testplan"
   >
     TP
@@ -78,14 +74,7 @@ exports[`NavEntry shallow renders the correct HTML structure with status icons e
       className="statusIcon_15gxpoi"
     >
       <FontAwesomeIcon
-        beat={false}
-        beatFade={false}
-        border={false}
-        bounce={false}
         className=""
-        fade={false}
-        fixedWidth={false}
-        flip={false}
         icon={
           Object {
             "icon": Array [
@@ -99,23 +88,8 @@ exports[`NavEntry shallow renders the correct HTML structure with status icons e
             "prefix": "fas",
           }
         }
-        inverse={false}
-        listItem={false}
-        mask={null}
-        maskId={null}
-        pull={null}
-        pulse={false}
-        rotation={null}
-        shake={false}
         size="sm"
-        spin={false}
-        spinPulse={false}
-        spinReverse={false}
-        swapOpacity={false}
-        symbol={false}
         title="passed"
-        titleId={null}
-        transform={null}
       />
     </span>
     entry name
@@ -158,9 +132,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
 >
   <Badge
     className="entryIcon_9gb3m5-o_O-failedBadge_1i8mqax-o_O-badge_1nusemj"
-    color="secondary"
     pill={true}
-    tag="span"
     title="testplan"
   >
     TP
@@ -209,9 +181,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
 >
   <Badge
     className="entryIcon_9gb3m5-o_O-unstableBadge_1e6avok-o_O-badge_1nusemj"
-    color="secondary"
     pill={true}
-    tag="span"
     title="testplan"
   >
     TP

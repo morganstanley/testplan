@@ -32,65 +32,6 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
         role="presentation"
       >
         <div
-          class="ag-column-drop-wrapper"
-          role="presentation"
-        >
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-group ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Row Groups"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set row groups
-              </span>
-            </div>
-          </div>
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-pivot ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Column Labels"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set column labels
-              </span>
-            </div>
-          </div>
-        </div>
-        <div
           class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
           role="presentation"
         >
@@ -103,7 +44,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
           <div
             aria-colcount="2"
             aria-rowcount="5"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -135,7 +76,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     <div
                       aria-colindex="1"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-first ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-first ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="Description"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -157,7 +98,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-27-label"
+                          id="ag-18-label"
                           role="presentation"
                         />
                         
@@ -170,10 +111,10 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-27-input"
+                            id="ag-18-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -193,18 +134,6 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                         >
                           
         
-                          <span
-                            aria-hidden="true"
-                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                            data-ref="eMenu"
-                          >
-                            <span
-                              class="ag-icon ag-icon-menu-alt"
-                              role="presentation"
-                              unselectable="on"
-                            />
-                          </span>
-                          
         
                           <span
                             aria-hidden="true"
@@ -313,7 +242,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     <div
                       aria-colindex="2"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-last ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="Data"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 200px;"
@@ -335,7 +264,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-28-label"
+                          id="ag-19-label"
                           role="presentation"
                         />
                         
@@ -348,10 +277,10 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-28-input"
+                            id="ag-19-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -371,18 +300,6 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                         >
                           
         
-                          <span
-                            aria-hidden="true"
-                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                            data-ref="eMenu"
-                          >
-                            <span
-                              class="ag-icon ag-icon-menu-alt"
-                              role="presentation"
-                              unselectable="on"
-                            />
-                          </span>
-                          
         
                           <span
                             aria-hidden="true"
@@ -498,11 +415,6 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                 style="width: 0px; min-width: 0px; max-width: 0px;"
               />
             </div>
-            <div
-              aria-hidden="true"
-              class="ag-advanced-filter-header ag-hidden"
-              role="row"
-            />
             <!-- AG Pinned Top -->
             <div
               class="ag-floating-top"
@@ -578,7 +490,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="1"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-range-left ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-value"
                         col-id="Description"
                         role="gridcell"
                         style="left: 0px; width: 200px;"
@@ -588,7 +500,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="2"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="Data"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -614,7 +526,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="1"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-range-left ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-value"
                         col-id="Description"
                         role="gridcell"
                         style="left: 0px; width: 200px;"
@@ -624,7 +536,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="2"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="Data"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -648,7 +560,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="1"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-range-left ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-value"
                         col-id="Description"
                         role="gridcell"
                         style="left: 0px; width: 200px;"
@@ -658,7 +570,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="2"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="Data"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -678,7 +590,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="1"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-range-left ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-value"
                         col-id="Description"
                         role="gridcell"
                         style="left: 0px; width: 200px;"
@@ -688,7 +600,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="2"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="Data"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -913,21 +825,6 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
             </div>
           </div>
           <div
-            aria-hidden="true"
-            class="ag-side-bar ag-unselectable ag-hidden ag-focus-managed"
-          >
-            
-            
-            <!--AG-SIDE-BAR-BUTTONS-->
-            <div
-              class="ag-side-buttons"
-              data-ref="sideBarButtons"
-              role="tablist"
-            />
-            
-        
-          </div>
-          <div
             class="ag-tab-guard ag-tab-guard-bottom"
             role="presentation"
             tabindex="0"
@@ -935,36 +832,8 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="ag-status-bar ag-hidden"
-        >
-          
-            
-          <div
-            class="ag-status-bar-left"
-            data-ref="eStatusBarLeft"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-center"
-            data-ref="eStatusBarCenter"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-right"
-            data-ref="eStatusBarRight"
-            role="status"
-          />
-          
-        
-        </div>
-        <div
-          aria-hidden="true"
           class="ag-paging-panel ag-unselectable ag-focus-managed ag-hidden"
-          id="ag-35"
+          id="ag-20"
         >
           <div
             class="ag-tab-guard ag-tab-guard-top"
@@ -988,12 +857,12 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbFirstRowOnPage"
-              id="ag-35-first-row"
+              id="ag-20-first-row"
             />
             
                     
             <span
-              id="ag-35-to"
+              id="ag-20-to"
             >
               to
             </span>
@@ -1002,12 +871,12 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbLastRowOnPage"
-              id="ag-35-last-row"
+              id="ag-20-last-row"
             />
             
                     
             <span
-              id="ag-35-of"
+              id="ag-20-of"
             >
               of
             </span>
@@ -1016,7 +885,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbRecordCount"
-              id="ag-35-row-count"
+              id="ag-20-row-count"
             />
             
                 
@@ -1065,7 +934,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
               
                         
               <span
-                id="ag-35-start-page"
+                id="ag-20-start-page"
               >
                 Page
               </span>
@@ -1074,12 +943,12 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbCurrent"
-                id="ag-35-start-page-number"
+                id="ag-20-start-page-number"
               />
               
                         
               <span
-                id="ag-35-of-page"
+                id="ag-20-of-page"
               >
                 of
               </span>
@@ -1088,7 +957,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbTotal"
-                id="ag-35-of-page-number"
+                id="ag-20-of-page-number"
               />
               
                     
@@ -1134,19 +1003,6 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
             tabindex="0"
           />
         </div>
-        <div
-          aria-hidden="true"
-          class="ag-watermark ag-hidden"
-        >
-          
-                
-          <div
-            class="ag-watermark-text"
-            data-ref="eLicenseTextRef"
-          />
-          
-            
-        </div>
       </div>
     </div>
   </div>
@@ -1185,65 +1041,6 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
         role="presentation"
       >
         <div
-          class="ag-column-drop-wrapper"
-          role="presentation"
-        >
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-group ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Row Groups"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set row groups
-              </span>
-            </div>
-          </div>
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-pivot ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Column Labels"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set column labels
-              </span>
-            </div>
-          </div>
-        </div>
-        <div
           class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
           role="presentation"
         >
@@ -1256,7 +1053,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
           <div
             aria-colcount="2"
             aria-rowcount="4"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -1288,7 +1085,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                     <div
                       aria-colindex="1"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-first ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-first ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="age"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -1310,7 +1107,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-6-label"
+                          id="ag-5-label"
                           role="presentation"
                         />
                         
@@ -1323,10 +1120,10 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-6-input"
+                            id="ag-5-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -1346,18 +1143,6 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                         >
                           
         
-                          <span
-                            aria-hidden="true"
-                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                            data-ref="eMenu"
-                          >
-                            <span
-                              class="ag-icon ag-icon-menu-alt"
-                              role="presentation"
-                              unselectable="on"
-                            />
-                          </span>
-                          
         
                           <span
                             aria-hidden="true"
@@ -1466,7 +1251,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                     <div
                       aria-colindex="2"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-last ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="name"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 200px;"
@@ -1488,7 +1273,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-7-label"
+                          id="ag-6-label"
                           role="presentation"
                         />
                         
@@ -1501,10 +1286,10 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-7-input"
+                            id="ag-6-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -1524,18 +1309,6 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                         >
                           
         
-                          <span
-                            aria-hidden="true"
-                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                            data-ref="eMenu"
-                          >
-                            <span
-                              class="ag-icon ag-icon-menu-alt"
-                              role="presentation"
-                              unselectable="on"
-                            />
-                          </span>
-                          
         
                           <span
                             aria-hidden="true"
@@ -1651,11 +1424,6 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                 style="width: 0px; min-width: 0px; max-width: 0px;"
               />
             </div>
-            <div
-              aria-hidden="true"
-              class="ag-advanced-filter-header ag-hidden"
-              role="row"
-            />
             <!-- AG Pinned Top -->
             <div
               class="ag-floating-top"
@@ -1731,7 +1499,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="1"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-range-left ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-value"
                         col-id="age"
                         role="gridcell"
                         style="left: 0px; width: 200px;"
@@ -1741,7 +1509,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="2"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="name"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -1761,7 +1529,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="1"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-range-left ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-value"
                         col-id="age"
                         role="gridcell"
                         style="left: 0px; width: 200px;"
@@ -1771,7 +1539,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="2"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="name"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -1791,7 +1559,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="1"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-range-left ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-first ag-cell-value"
                         col-id="age"
                         role="gridcell"
                         style="left: 0px; width: 200px;"
@@ -1801,7 +1569,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                       </div>
                       <div
                         aria-colindex="2"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="name"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -2026,21 +1794,6 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
             </div>
           </div>
           <div
-            aria-hidden="true"
-            class="ag-side-bar ag-unselectable ag-hidden ag-focus-managed"
-          >
-            
-            
-            <!--AG-SIDE-BAR-BUTTONS-->
-            <div
-              class="ag-side-buttons"
-              data-ref="sideBarButtons"
-              role="tablist"
-            />
-            
-        
-          </div>
-          <div
             class="ag-tab-guard ag-tab-guard-bottom"
             role="presentation"
             tabindex="0"
@@ -2048,36 +1801,8 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="ag-status-bar ag-hidden"
-        >
-          
-            
-          <div
-            class="ag-status-bar-left"
-            data-ref="eStatusBarLeft"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-center"
-            data-ref="eStatusBarCenter"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-right"
-            data-ref="eStatusBarRight"
-            role="status"
-          />
-          
-        
-        </div>
-        <div
-          aria-hidden="true"
           class="ag-paging-panel ag-unselectable ag-focus-managed ag-hidden"
-          id="ag-14"
+          id="ag-7"
         >
           <div
             class="ag-tab-guard ag-tab-guard-top"
@@ -2101,12 +1826,12 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbFirstRowOnPage"
-              id="ag-14-first-row"
+              id="ag-7-first-row"
             />
             
                     
             <span
-              id="ag-14-to"
+              id="ag-7-to"
             >
               to
             </span>
@@ -2115,12 +1840,12 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbLastRowOnPage"
-              id="ag-14-last-row"
+              id="ag-7-last-row"
             />
             
                     
             <span
-              id="ag-14-of"
+              id="ag-7-of"
             >
               of
             </span>
@@ -2129,7 +1854,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbRecordCount"
-              id="ag-14-row-count"
+              id="ag-7-row-count"
             />
             
                 
@@ -2178,7 +1903,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
               
                         
               <span
-                id="ag-14-start-page"
+                id="ag-7-start-page"
               >
                 Page
               </span>
@@ -2187,12 +1912,12 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbCurrent"
-                id="ag-14-start-page-number"
+                id="ag-7-start-page-number"
               />
               
                         
               <span
-                id="ag-14-of-page"
+                id="ag-7-of-page"
               >
                 of
               </span>
@@ -2201,7 +1926,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbTotal"
-                id="ag-14-of-page-number"
+                id="ag-7-of-page-number"
               />
               
                     
@@ -2247,19 +1972,6 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
             tabindex="0"
           />
         </div>
-        <div
-          aria-hidden="true"
-          class="ag-watermark ag-hidden"
-        >
-          
-                
-          <div
-            class="ag-watermark-text"
-            data-ref="eLicenseTextRef"
-          />
-          
-            
-        </div>
       </div>
     </div>
   </div>
@@ -2298,65 +2010,6 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
         role="presentation"
       >
         <div
-          class="ag-column-drop-wrapper"
-          role="presentation"
-        >
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-group ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Row Groups"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set row groups
-              </span>
-            </div>
-          </div>
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-pivot ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Column Labels"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set column labels
-              </span>
-            </div>
-          </div>
-        </div>
-        <div
           class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
           role="presentation"
         >
@@ -2369,7 +2022,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
           <div
             aria-colcount="3"
             aria-rowcount="4"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -2392,7 +2045,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                   <div
                     aria-colindex="1"
                     aria-sort="none"
-                    class="ag-header-cell ag-column-first ag-header-cell-sortable ag-focus-managed"
+                    class="ag-header-cell ag-column-first ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                     col-id="id"
                     role="columnheader"
                     style="top: 0px; height: 48px; width: 75px; left: 0px;"
@@ -2414,7 +2067,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                         aria-hidden="true"
                         class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                         data-ref="eLabel"
-                        id="ag-48-label"
+                        id="ag-31-label"
                         role="presentation"
                       />
                       
@@ -2427,10 +2080,10 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                         
                     
                         <input
-                          aria-label="Press Space to toggle all rows selection (unchecked)"
+                          aria-label="Column with Header Selection"
                           class="ag-input-field-input ag-checkbox-input"
                           data-ref="eInput"
-                          id="ag-48-input"
+                          id="ag-31-input"
                           tabindex="-1"
                           type="checkbox"
                         />
@@ -2450,18 +2103,6 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                       >
                         
         
-                        <span
-                          aria-hidden="true"
-                          class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                          data-ref="eMenu"
-                        >
-                          <span
-                            class="ag-icon ag-icon-menu-alt"
-                            role="presentation"
-                            unselectable="on"
-                          />
-                        </span>
-                        
         
                         <span
                           aria-hidden="true"
@@ -2587,7 +2228,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                     <div
                       aria-colindex="2"
                       aria-sort="none"
-                      class="ag-header-cell ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="name"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -2609,7 +2250,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-49-label"
+                          id="ag-32-label"
                           role="presentation"
                         />
                         
@@ -2622,10 +2263,10 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-49-input"
+                            id="ag-32-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -2645,18 +2286,6 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                         >
                           
         
-                          <span
-                            aria-hidden="true"
-                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                            data-ref="eMenu"
-                          >
-                            <span
-                              class="ag-icon ag-icon-menu-alt"
-                              role="presentation"
-                              unselectable="on"
-                            />
-                          </span>
-                          
         
                           <span
                             aria-hidden="true"
@@ -2765,7 +2394,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                     <div
                       aria-colindex="3"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-last ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="age"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 200px;"
@@ -2787,7 +2416,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-50-label"
+                          id="ag-33-label"
                           role="presentation"
                         />
                         
@@ -2800,10 +2429,10 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-50-input"
+                            id="ag-33-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -2823,18 +2452,6 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                         >
                           
         
-                          <span
-                            aria-hidden="true"
-                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                            data-ref="eMenu"
-                          >
-                            <span
-                              class="ag-icon ag-icon-menu-alt"
-                              role="presentation"
-                              unselectable="on"
-                            />
-                          </span>
-                          
         
                           <span
                             aria-hidden="true"
@@ -2950,11 +2567,6 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                 style="width: 0px; min-width: 0px; max-width: 0px;"
               />
             </div>
-            <div
-              aria-hidden="true"
-              class="ag-advanced-filter-header ag-hidden"
-              role="row"
-            />
             <!-- AG Pinned Top -->
             <div
               class="ag-floating-top"
@@ -3019,7 +2631,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="id"
                       role="gridcell"
                       style="left: 0px; width: 75px;"
@@ -3039,7 +2651,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="id"
                       role="gridcell"
                       style="left: 0px; width: 75px;"
@@ -3059,7 +2671,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="id"
                       role="gridcell"
                       style="left: 0px; width: 75px;"
@@ -3101,7 +2713,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                       </div>
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="age"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -3131,7 +2743,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                       </div>
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="age"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -3161,7 +2773,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                       </div>
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="age"
                         role="gridcell"
                         style="left: 200px; width: 200px;"
@@ -3386,21 +2998,6 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
             </div>
           </div>
           <div
-            aria-hidden="true"
-            class="ag-side-bar ag-unselectable ag-hidden ag-focus-managed"
-          >
-            
-            
-            <!--AG-SIDE-BAR-BUTTONS-->
-            <div
-              class="ag-side-buttons"
-              data-ref="sideBarButtons"
-              role="tablist"
-            />
-            
-        
-          </div>
-          <div
             class="ag-tab-guard ag-tab-guard-bottom"
             role="presentation"
             tabindex="0"
@@ -3408,36 +3005,8 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
         </div>
         <div
           aria-hidden="true"
-          class="ag-status-bar ag-hidden"
-        >
-          
-            
-          <div
-            class="ag-status-bar-left"
-            data-ref="eStatusBarLeft"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-center"
-            data-ref="eStatusBarCenter"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-right"
-            data-ref="eStatusBarRight"
-            role="status"
-          />
-          
-        
-        </div>
-        <div
-          aria-hidden="true"
           class="ag-paging-panel ag-unselectable ag-focus-managed ag-hidden"
-          id="ag-57"
+          id="ag-34"
         >
           <div
             class="ag-tab-guard ag-tab-guard-top"
@@ -3461,12 +3030,12 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbFirstRowOnPage"
-              id="ag-57-first-row"
+              id="ag-34-first-row"
             />
             
                     
             <span
-              id="ag-57-to"
+              id="ag-34-to"
             >
               to
             </span>
@@ -3475,12 +3044,12 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbLastRowOnPage"
-              id="ag-57-last-row"
+              id="ag-34-last-row"
             />
             
                     
             <span
-              id="ag-57-of"
+              id="ag-34-of"
             >
               of
             </span>
@@ -3489,7 +3058,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbRecordCount"
-              id="ag-57-row-count"
+              id="ag-34-row-count"
             />
             
                 
@@ -3538,7 +3107,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
               
                         
               <span
-                id="ag-57-start-page"
+                id="ag-34-start-page"
               >
                 Page
               </span>
@@ -3547,12 +3116,12 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
               <span
                 class="ag-paging-number"
                 data-ref="lbCurrent"
-                id="ag-57-start-page-number"
+                id="ag-34-start-page-number"
               />
               
                         
               <span
-                id="ag-57-of-page"
+                id="ag-34-of-page"
               >
                 of
               </span>
@@ -3561,7 +3130,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
               <span
                 class="ag-paging-number"
                 data-ref="lbTotal"
-                id="ag-57-of-page-number"
+                id="ag-34-of-page-number"
               />
               
                     
@@ -3606,19 +3175,6 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
             role="presentation"
             tabindex="0"
           />
-        </div>
-        <div
-          aria-hidden="true"
-          class="ag-watermark ag-hidden"
-        >
-          
-                
-          <div
-            class="ag-watermark-text"
-            data-ref="eLicenseTextRef"
-          />
-          
-            
         </div>
       </div>
     </div>

@@ -2,85 +2,22 @@
 
 exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -88,47 +25,16 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -140,16 +46,6 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -158,59 +54,17 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -218,59 +72,17 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         Existence check: [
@@ -323,147 +135,43 @@ exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -471,59 +179,17 @@ exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the DictCheck assertion which has no absent key 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         Existence check: [
@@ -555,147 +221,43 @@ exports[`BasicAssertion shallow renders the DictCheck assertion which has no abs
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -703,85 +265,22 @@ exports[`BasicAssertion shallow renders the DictCheck assertion which has no abs
 
 exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -789,47 +288,16 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <pre>
@@ -840,16 +308,6 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <pre>
@@ -858,59 +316,17 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -918,30 +334,9 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the EqualExcludeSlices assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -950,31 +345,10 @@ exports[`BasicAssertion shallow renders the EqualExcludeSlices assertion 1`] = `
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span
         style={
@@ -989,30 +363,9 @@ slice(4, 8, None)
       <hr />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -1022,16 +375,6 @@ slice(4, 8, None)
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -1040,31 +383,10 @@ slice(4, 8, None)
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -1163,16 +485,6 @@ slice(4, 8, None)
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -1269,59 +581,17 @@ slice(4, 8, None)
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -1329,30 +599,9 @@ slice(4, 8, None)
 
 exports[`BasicAssertion shallow renders the EqualSlices assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -1361,31 +610,10 @@ exports[`BasicAssertion shallow renders the EqualSlices assertion 1`] = `
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span
         style={
@@ -1400,30 +628,9 @@ slice(6, 8, None)
       <hr />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -1433,16 +640,6 @@ slice(6, 8, None)
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -1451,31 +648,10 @@ slice(6, 8, None)
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -1574,16 +750,6 @@ slice(6, 8, None)
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -1680,59 +846,17 @@ slice(6, 8, None)
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -1740,85 +864,22 @@ slice(6, 8, None)
 
 exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -1828,16 +889,6 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -1846,31 +897,10 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -1881,16 +911,6 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -1902,59 +922,17 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -1962,85 +940,22 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -2050,16 +965,6 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -2068,31 +973,10 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -2103,16 +987,6 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -2124,59 +998,17 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -2184,204 +1016,58 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <pre />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -2389,59 +1075,17 @@ exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         Existence check: [
@@ -2505,147 +1149,43 @@ exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -2653,85 +1193,22 @@ exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -2739,47 +1216,16 @@ exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -2793,75 +1239,23 @@ exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         5
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -2869,85 +1263,22 @@ exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -2955,47 +1286,16 @@ exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -3009,75 +1309,23 @@ exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         2
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -3085,85 +1333,22 @@ exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -3171,47 +1356,16 @@ exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -3229,75 +1383,23 @@ exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         100
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -3305,85 +1407,22 @@ exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -3391,47 +1430,16 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -3442,16 +1450,6 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -3460,59 +1458,17 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -3520,85 +1476,22 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -3606,47 +1499,16 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -3657,16 +1519,6 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -3675,59 +1527,17 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -3735,85 +1545,22 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the Less assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -3821,47 +1568,16 @@ exports[`BasicAssertion shallow renders the Less assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -3875,75 +1591,23 @@ exports[`BasicAssertion shallow renders the Less assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         10
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -3951,85 +1615,22 @@ exports[`BasicAssertion shallow renders the Less assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -4037,47 +1638,16 @@ exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -4091,75 +1661,23 @@ exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         10
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -4167,85 +1685,22 @@ exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         <span>
@@ -4255,45 +1710,14 @@ exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span />
@@ -4302,73 +1726,21 @@ exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -4376,59 +1748,17 @@ exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the Log assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <pre>
         <Linkify
@@ -4446,147 +1776,43 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
       </pre>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -4594,85 +1820,22 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -4680,47 +1843,16 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -4732,16 +1864,6 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <span>
@@ -4750,59 +1872,17 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -4810,85 +1890,22 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -4896,47 +1913,16 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <pre>
@@ -4950,16 +1936,6 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <pre>
@@ -4968,59 +1944,17 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>
@@ -5028,85 +1962,22 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
 
 exports[`BasicAssertion shallow renders the highlight Equal assertion 1`] = `
 <Fragment>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Expected:
@@ -5114,47 +1985,16 @@ exports[`BasicAssertion shallow renders the highlight Equal assertion 1`] = `
     </Col>
     <Col
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong>
         Value:
       </strong>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <pre>
@@ -5186,16 +2026,6 @@ exports[`BasicAssertion shallow renders the highlight Equal assertion 1`] = `
     <Col
       className="contentSpan_11nzg99"
       lg="6"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <span>
         <pre>
@@ -5225,59 +2055,17 @@ exports[`BasicAssertion shallow renders the highlight Equal assertion 1`] = `
       </span>
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     >
       <strong />
     </Col>
   </Row>
-  <Row
-    tag="div"
-    widths={
-      Array [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-      ]
-    }
-  >
+  <Row>
     <Col
       className="contentSpan_11nzg99"
       lg="12"
-      tag="div"
-      widths={
-        Array [
-          "xs",
-          "sm",
-          "md",
-          "lg",
-          "xl",
-        ]
-      }
     />
   </Row>
 </Fragment>

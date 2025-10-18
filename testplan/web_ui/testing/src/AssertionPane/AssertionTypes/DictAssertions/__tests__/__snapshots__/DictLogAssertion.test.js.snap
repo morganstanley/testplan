@@ -85,65 +85,6 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
         role="presentation"
       >
         <div
-          class="ag-column-drop-wrapper"
-          role="presentation"
-        >
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-group ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Row Groups"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set row groups
-              </span>
-            </div>
-          </div>
-          <div
-            aria-hidden="true"
-            class="ag-unselectable ag-column-drop ag-column-drop-horizontal ag-focus-managed ag-column-drop-empty ag-hidden"
-            role="presentation"
-          >
-            <div
-              aria-hidden="true"
-              class="ag-column-drop-title-bar ag-column-drop-horizontal-title-bar"
-            >
-              <span
-                class="ag-icon ag-icon-pivot ag-column-drop-icon ag-column-drop-horizontal-icon"
-                role="presentation"
-                unselectable="on"
-              />
-            </div>
-            <div
-              aria-label="Column Labels"
-              class="ag-column-drop-list ag-column-drop-horizontal-list"
-              role="listbox"
-            >
-              <span
-                class="ag-column-drop-empty-message ag-column-drop-horizontal-empty-message"
-              >
-                Drag here to set column labels
-              </span>
-            </div>
-          </div>
-        </div>
-        <div
           class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
           role="presentation"
         >
@@ -156,7 +97,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
           <div
             aria-colcount="3"
             aria-rowcount="8"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -178,7 +119,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                 >
                   <div
                     aria-colindex="1"
-                    class="ag-header-cell ag-column-first ag-focus-managed"
+                    class="ag-header-cell ag-column-first ag-header-parent-hidden ag-focus-managed"
                     col-id="key"
                     role="columnheader"
                     style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -200,7 +141,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                         aria-hidden="true"
                         class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                         data-ref="eLabel"
-                        id="ag-6-label"
+                        id="ag-5-label"
                         role="presentation"
                       />
                       
@@ -213,10 +154,10 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                         
                     
                         <input
-                          aria-label="Press Space to toggle all rows selection (unchecked)"
+                          aria-label="Column with Header Selection"
                           class="ag-input-field-input ag-checkbox-input"
                           data-ref="eInput"
-                          id="ag-6-input"
+                          id="ag-5-input"
                           tabindex="-1"
                           type="checkbox"
                         />
@@ -236,18 +177,6 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                       >
                         
         
-                        <span
-                          aria-hidden="true"
-                          class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                          data-ref="eMenu"
-                        >
-                          <span
-                            class="ag-icon ag-icon-menu-alt"
-                            role="presentation"
-                            unselectable="on"
-                          />
-                        </span>
-                        
         
                         <span
                           aria-hidden="true"
@@ -354,7 +283,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="3"
-                      class="ag-header-cell ag-column-last ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-focus-managed"
                       col-id="value"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -376,7 +305,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                           aria-hidden="true"
                           class="ag-input-field-label ag-label ag-hidden ag-checkbox-label"
                           data-ref="eLabel"
-                          id="ag-7-label"
+                          id="ag-6-label"
                           role="presentation"
                         />
                         
@@ -389,10 +318,10 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
-                            id="ag-7-input"
+                            id="ag-6-input"
                             tabindex="-1"
                             type="checkbox"
                           />
@@ -412,18 +341,6 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                         >
                           
         
-                          <span
-                            aria-hidden="true"
-                            class="ag-header-icon ag-header-cell-menu-button ag-header-menu-icon ag-header-menu-always-show"
-                            data-ref="eMenu"
-                          >
-                            <span
-                              class="ag-icon ag-icon-menu-alt"
-                              role="presentation"
-                              unselectable="on"
-                            />
-                          </span>
-                          
         
                           <span
                             aria-hidden="true"
@@ -521,11 +438,6 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                 style="width: 0px; min-width: 0px; max-width: 0px;"
               />
             </div>
-            <div
-              aria-hidden="true"
-              class="ag-advanced-filter-header ag-hidden"
-              role="row"
-            />
             <!-- AG Pinned Top -->
             <div
               class="ag-floating-top"
@@ -590,7 +502,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -617,7 +529,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -646,7 +558,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -671,7 +583,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -696,7 +608,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -721,7 +633,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -748,7 +660,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="1"
-                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-range-left ag-cell-value"
+                      class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-cell-last-left-pinned ag-column-first ag-cell-value"
                       col-id="key"
                       role="gridcell"
                       style="left: 0px; width: 200px;"
@@ -789,7 +701,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -818,7 +730,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -843,7 +755,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -872,7 +784,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -901,7 +813,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -930,7 +842,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -955,7 +867,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
                     >
                       <div
                         aria-colindex="3"
-                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-range-right ag-cell-value"
+                        class="ag-cell ag-cell-not-inline-editing ag-cell-normal-height ag-column-last ag-cell-value"
                         col-id="value"
                         role="gridcell"
                         style="left: 0px; width: 200px; background-color: rgba(189, 195, 199, 0.314);"
@@ -1189,21 +1101,6 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
             </div>
           </div>
           <div
-            aria-hidden="true"
-            class="ag-side-bar ag-unselectable ag-hidden ag-focus-managed"
-          >
-            
-            
-            <!--AG-SIDE-BAR-BUTTONS-->
-            <div
-              class="ag-side-buttons"
-              data-ref="sideBarButtons"
-              role="tablist"
-            />
-            
-        
-          </div>
-          <div
             class="ag-tab-guard ag-tab-guard-bottom"
             role="presentation"
             tabindex="0"
@@ -1211,36 +1108,8 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="ag-status-bar ag-hidden"
-        >
-          
-            
-          <div
-            class="ag-status-bar-left"
-            data-ref="eStatusBarLeft"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-center"
-            data-ref="eStatusBarCenter"
-            role="status"
-          />
-          
-            
-          <div
-            class="ag-status-bar-right"
-            data-ref="eStatusBarRight"
-            role="status"
-          />
-          
-        
-        </div>
-        <div
-          aria-hidden="true"
           class="ag-paging-panel ag-unselectable ag-focus-managed ag-hidden"
-          id="ag-14"
+          id="ag-7"
         >
           <div
             class="ag-tab-guard ag-tab-guard-top"
@@ -1264,12 +1133,12 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbFirstRowOnPage"
-              id="ag-14-first-row"
+              id="ag-7-first-row"
             />
             
                     
             <span
-              id="ag-14-to"
+              id="ag-7-to"
             >
               to
             </span>
@@ -1278,12 +1147,12 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbLastRowOnPage"
-              id="ag-14-last-row"
+              id="ag-7-last-row"
             />
             
                     
             <span
-              id="ag-14-of"
+              id="ag-7-of"
             >
               of
             </span>
@@ -1292,7 +1161,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
             <span
               class="ag-paging-row-summary-panel-number"
               data-ref="lbRecordCount"
-              id="ag-14-row-count"
+              id="ag-7-row-count"
             />
             
                 
@@ -1341,7 +1210,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
               
                         
               <span
-                id="ag-14-start-page"
+                id="ag-7-start-page"
               >
                 Page
               </span>
@@ -1350,12 +1219,12 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbCurrent"
-                id="ag-14-start-page-number"
+                id="ag-7-start-page-number"
               />
               
                         
               <span
-                id="ag-14-of-page"
+                id="ag-7-of-page"
               >
                 of
               </span>
@@ -1364,7 +1233,7 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
               <span
                 class="ag-paging-number"
                 data-ref="lbTotal"
-                id="ag-14-of-page-number"
+                id="ag-7-of-page-number"
               />
               
                     
@@ -1409,19 +1278,6 @@ exports[`DictLogAssertion renders the correct HTML structure 1`] = `
             role="presentation"
             tabindex="0"
           />
-        </div>
-        <div
-          aria-hidden="true"
-          class="ag-watermark ag-hidden"
-        >
-          
-                
-          <div
-            class="ag-watermark-text"
-            data-ref="eLicenseTextRef"
-          />
-          
-            
         </div>
       </div>
     </div>

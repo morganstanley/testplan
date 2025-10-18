@@ -5,14 +5,15 @@
   "pnpm": {
     "overrides": {
       "react": "^17.0.2",
-      "@types/react": "^17.0.2"
+      "@types/react": "^17.0.2",
+      "cheerio": "1.0.0-rc.12"
     }
   },
   "dependencies": {
-    "@babel/core": "7.21.8",
-    "@babel/eslint-parser": "^7.21.8",
-    "@babel/preset-env": "7.21.5",
-    "@babel/preset-react": "^7.18.6",
+    "@babel/core": "^7.22.0",
+    "@babel/eslint-parser": "^7.22.0",
+    "@babel/preset-env": "^7.22.0",
+    "@babel/preset-react": "^7.22.0",
     "@dagrejs/dagre": "1.1.2",
     "@date-fns/tz": "^1.2.0",
     "@fortawesome/fontawesome-svg-core": "1.2.2",
@@ -28,7 +29,7 @@
     "aphrodite": "2.2.3",
     "axios": "^1.12.0",
     "base64url": "^3.0.1",
-    "bootstrap": "^5.0.0",
+    "bootstrap": "^5.1.0",
     "buffer": "^6.0.3",
     "chart.js": "^4.4.2",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -60,7 +61,7 @@
     "react-test-renderer": "17",
     "react-vis": "^1.11.12",
     "reactflow": "^11.11.4",
-    "reactstrap": "^8.10.1",
+    "reactstrap": "^9.0.0",
     "rehype-raw": "^6.1.1"
   },
   "devDependencies": {
