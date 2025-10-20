@@ -103,7 +103,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
           <div
             aria-colcount="2"
             aria-rowcount="5"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -135,7 +135,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     <div
                       aria-colindex="1"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-first ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-first ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="Description"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -170,7 +170,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-27-input"
@@ -313,7 +313,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                     <div
                       aria-colindex="2"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-last ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="Data"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 200px;"
@@ -348,7 +348,7 @@ exports[`TableLogAssertion renders the advanced table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-28-input"
@@ -1256,7 +1256,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
           <div
             aria-colcount="2"
             aria-rowcount="4"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -1288,7 +1288,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                     <div
                       aria-colindex="1"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-first ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-first ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="age"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -1323,7 +1323,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-6-input"
@@ -1466,7 +1466,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                     <div
                       aria-colindex="2"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-last ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="name"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 200px;"
@@ -1501,7 +1501,7 @@ exports[`TableLogAssertion renders the table log HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-7-input"
@@ -2369,7 +2369,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
           <div
             aria-colcount="3"
             aria-rowcount="4"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -2392,7 +2392,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                   <div
                     aria-colindex="1"
                     aria-sort="none"
-                    class="ag-header-cell ag-column-first ag-header-cell-sortable ag-focus-managed"
+                    class="ag-header-cell ag-column-first ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                     col-id="id"
                     role="columnheader"
                     style="top: 0px; height: 48px; width: 75px; left: 0px;"
@@ -2427,7 +2427,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                         
                     
                         <input
-                          aria-label="Press Space to toggle all rows selection (unchecked)"
+                          aria-label="Column with Header Selection"
                           class="ag-input-field-input ag-checkbox-input"
                           data-ref="eInput"
                           id="ag-48-input"
@@ -2587,7 +2587,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                     <div
                       aria-colindex="2"
                       aria-sort="none"
-                      class="ag-header-cell ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="name"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -2622,7 +2622,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-49-input"
@@ -2765,7 +2765,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                     <div
                       aria-colindex="3"
                       aria-sort="none"
-                      class="ag-header-cell ag-column-last ag-header-cell-sortable ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-header-cell-sortable ag-focus-managed"
                       col-id="age"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 200px;"
@@ -2800,7 +2800,7 @@ exports[`TableLogAssertion renders the table log HTML structure given new format
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-50-input"

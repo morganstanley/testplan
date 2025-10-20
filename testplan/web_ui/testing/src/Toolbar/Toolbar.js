@@ -240,7 +240,7 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
           />
         </DropdownToggle>
       </div>
-      <DropdownMenu right className={css(styles.dropdown)}>
+      <DropdownMenu end className={css(styles.dropdown)}>
         <DropdownItem header>Display preferences</DropdownItem>
         <UserPreferenceCheckbox preferenceAtom={displayTimeInfoPreference}>
           Display time information
@@ -439,14 +439,14 @@ const Toolbar = function (props) {
   ) : null;
 
   return (
-    <Navbar light expand="md" className={css(styles.toolbar)}>
+    <Navbar light expand="md" container={false} className={css(styles.toolbar)}>
       <ToolbarFilterBox
         filterBoxWidth={props.filterBoxWidth}
         handleNavFilter={props.handleNavFilter}
         filterText={props.filterText}
       />
       <Collapse isOpen={false} navbar className={toolbarStyle}>
-        <Nav navbar className="ml-auto">
+        <Nav navbar className="ms-auto">
           {panelViewSwitch}
           <ToolbarExpandButtons
             expandStatus={props.expandStatus}

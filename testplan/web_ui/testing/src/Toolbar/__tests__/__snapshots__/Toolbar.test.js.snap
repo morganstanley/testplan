@@ -3,9 +3,9 @@
 exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
 <Navbar
   className="toolbar_l6n5rs"
+  container={false}
   expand="md"
   light={true}
-  tag="nav"
 >
   <ToolbarFilterBox
     filterBoxWidth="22em"
@@ -16,6 +16,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
     className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
     enter={true}
     exit={true}
+    horizontal={false}
     in={false}
     isOpen={false}
     mountOnEnter={false}
@@ -31,30 +32,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
     unmountOnExit={false}
   >
     <Nav
-      className="ml-auto"
+      className="ms-auto"
       navbar={true}
-      tag="ul"
-      vertical={false}
     >
       <ToolbarExpandButtons
         status="passed"
       />
       <NavItem
         key="runall-button"
-        tag="li"
       >
         <div
           className="buttonsBar_6zsntc"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon={
               Object {
                 "icon": Array [
@@ -68,44 +59,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
                 "prefix": "fas",
               }
             }
-            inverse={false}
             key="toolbar-runall"
-            listItem={false}
-            mask={null}
-            maskId={null}
             onClick={[MockFunction]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Run all tests"
-            titleId={null}
-            transform={null}
           />
         </div>
       </NavItem>
       <NavItem
         key="reload-button"
-        tag="li"
       >
         <div
           className="buttonsBar_6zsntc"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon={
               Object {
                 "icon": Array [
@@ -119,44 +86,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
                 "prefix": "fas",
               }
             }
-            inverse={false}
             key="toolbar-reload"
-            listItem={false}
-            mask={null}
-            maskId={null}
             onClick={[MockFunction]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Reload code"
-            titleId={null}
-            transform={null}
           />
         </div>
       </NavItem>
       <NavItem
         key="reset-button"
-        tag="li"
       >
         <div
           className="buttonsBar_6zsntc"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon={
               Object {
                 "icon": Array [
@@ -170,44 +113,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
                 "prefix": "fas",
               }
             }
-            inverse={false}
             key="toolbar-reset"
-            listItem={false}
-            mask={null}
-            maskId={null}
             onClick={[MockFunction]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Reset all MultiTest environments and reports"
-            titleId={null}
-            transform={null}
           />
         </div>
       </NavItem>
       <NavItem
         key="abort-button"
-        tag="li"
       >
         <div
           className="buttonsBar_6zsntc"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon={
               Object {
                 "icon": Array [
@@ -221,25 +140,9 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
                 "prefix": "fas",
               }
             }
-            inverse={false}
             key="toolbar-abort"
-            listItem={false}
-            mask={null}
-            maskId={null}
             onClick={[MockFunction]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Abort Testplan"
-            titleId={null}
-            transform={null}
           />
         </div>
       </NavItem>
@@ -253,47 +156,20 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
         status="passed"
       />
       <ToolbarInfoButton />
-      <NavItem
-        tag="li"
-      >
+      <NavItem>
         <div
           className="buttonsBar_6zsntc"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon="print"
-            inverse={false}
             key="toolbar-print"
-            listItem={false}
-            mask={null}
-            maskId={null}
             onClick={[Function]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Print page"
-            titleId={null}
-            transform={null}
           />
         </div>
       </NavItem>
-      <NavItem
-        tag="li"
-      >
+      <NavItem>
         <a
           className="buttonsBar_6zsntc"
           href="http://testplan.readthedocs.io"
@@ -301,33 +177,10 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           target="_blank"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon="book"
-            inverse={false}
             key="toolbar-document"
-            listItem={false}
-            mask={null}
-            maskId={null}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Documentation"
-            titleId={null}
-            transform={null}
           />
         </a>
       </NavItem>
@@ -339,9 +192,9 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
 exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] = `
 <Navbar
   className="toolbar_l6n5rs"
+  container={false}
   expand="md"
   light={true}
-  tag="nav"
 >
   <ToolbarFilterBox
     filterBoxWidth="22em"
@@ -352,6 +205,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
     className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
     enter={true}
     exit={true}
+    horizontal={false}
     in={false}
     isOpen={false}
     mountOnEnter={false}
@@ -367,10 +221,8 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
     unmountOnExit={false}
   >
     <Nav
-      className="ml-auto"
+      className="ms-auto"
       navbar={true}
-      tag="ul"
-      vertical={false}
     >
       <ToolbarExpandButtons
         status="passed"
@@ -385,47 +237,20 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
         status="passed"
       />
       <ToolbarInfoButton />
-      <NavItem
-        tag="li"
-      >
+      <NavItem>
         <div
           className="buttonsBar_6zsntc"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon="print"
-            inverse={false}
             key="toolbar-print"
-            listItem={false}
-            mask={null}
-            maskId={null}
             onClick={[Function]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Print page"
-            titleId={null}
-            transform={null}
           />
         </div>
       </NavItem>
-      <NavItem
-        tag="li"
-      >
+      <NavItem>
         <a
           className="buttonsBar_6zsntc"
           href="http://testplan.readthedocs.io"
@@ -433,33 +258,10 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           target="_blank"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon="book"
-            inverse={false}
             key="toolbar-document"
-            listItem={false}
-            mask={null}
-            maskId={null}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Documentation"
-            titleId={null}
-            transform={null}
           />
         </a>
       </NavItem>
@@ -471,9 +273,9 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
 exports[`Toolbar shallow renders the correct HTML structure for interactive mode 1`] = `
 <Navbar
   className="toolbar_l6n5rs"
+  container={false}
   expand="md"
   light={true}
-  tag="nav"
 >
   <ToolbarFilterBox
     filterBoxWidth="22em"
@@ -484,6 +286,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
     enter={true}
     exit={true}
+    horizontal={false}
     in={false}
     isOpen={false}
     mountOnEnter={false}
@@ -499,10 +302,8 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     unmountOnExit={false}
   >
     <Nav
-      className="ml-auto"
+      className="ms-auto"
       navbar={true}
-      tag="ul"
-      vertical={false}
     >
       <ToolbarExpandButtons
         status="passed"
@@ -517,47 +318,20 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
         status="passed"
       />
       <ToolbarInfoButton />
-      <NavItem
-        tag="li"
-      >
+      <NavItem>
         <div
           className="buttonsBar_6zsntc"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon="print"
-            inverse={false}
             key="toolbar-print"
-            listItem={false}
-            mask={null}
-            maskId={null}
             onClick={[Function]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Print page"
-            titleId={null}
-            transform={null}
           />
         </div>
       </NavItem>
-      <NavItem
-        tag="li"
-      >
+      <NavItem>
         <a
           className="buttonsBar_6zsntc"
           href="http://testplan.readthedocs.io"
@@ -565,33 +339,10 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           target="_blank"
         >
           <FontAwesomeIcon
-            beat={false}
-            beatFade={false}
-            border={false}
-            bounce={false}
             className="toolbarButton_1ueb7gu"
-            fade={false}
-            fixedWidth={false}
-            flip={false}
             icon="book"
-            inverse={false}
             key="toolbar-document"
-            listItem={false}
-            mask={null}
-            maskId={null}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            shake={false}
-            size={null}
-            spin={false}
-            spinPulse={false}
-            spinReverse={false}
-            swapOpacity={false}
-            symbol={false}
             title="Documentation"
-            titleId={null}
-            transform={null}
           />
         </a>
       </NavItem>

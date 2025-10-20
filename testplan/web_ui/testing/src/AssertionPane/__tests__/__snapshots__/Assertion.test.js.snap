@@ -3,7 +3,6 @@
 exports[`Assertion shallow renders the correct HTML structure 1`] = `
 <Card
   className="card_10lpuz2"
-  tag="div"
 >
   <AssertionHeader
     assertion={
@@ -29,6 +28,7 @@ exports[`Assertion shallow renders the correct HTML structure 1`] = `
     className="collapseDiv_1cips5t"
     enter={true}
     exit={true}
+    horizontal={false}
     in={false}
     isOpen={false}
     mountOnEnter={false}
@@ -50,7 +50,6 @@ exports[`Assertion shallow renders the correct HTML structure 1`] = `
     <ErrorBoundary>
       <CardBody
         className="assertionCardBody_1t2a0td"
-        tag="div"
       />
     </ErrorBoundary>
   </Collapse>
