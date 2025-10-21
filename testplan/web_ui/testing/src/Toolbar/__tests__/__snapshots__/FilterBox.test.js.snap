@@ -9,14 +9,6 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
       className="searchBoxIcon_ncmdki"
     >
       <FontAwesomeIcon
-        beat={false}
-        beatFade={false}
-        border={false}
-        bounce={false}
-        className=""
-        fade={false}
-        fixedWidth={false}
-        flip={false}
         icon={
           Object {
             "icon": Array [
@@ -30,24 +22,8 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
             "prefix": "fas",
           }
         }
-        inverse={false}
         key="search"
-        listItem={false}
-        mask={null}
-        maskId={null}
-        pull={null}
-        pulse={false}
-        rotation={null}
-        shake={false}
-        size={null}
-        spin={false}
-        spinPulse={false}
-        spinReverse={false}
-        swapOpacity={false}
-        symbol={false}
         title="Search"
-        titleId={null}
-        transform={null}
       />
     </span>
     <span
@@ -55,14 +31,6 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
       onClick={[Function]}
     >
       <FontAwesomeIcon
-        beat={false}
-        beatFade={false}
-        border={false}
-        bounce={false}
-        className=""
-        fade={false}
-        fixedWidth={false}
-        flip={false}
         icon={
           Object {
             "icon": Array [
@@ -76,30 +44,20 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
             "prefix": "fas",
           }
         }
-        inverse={false}
         key="toolbar-info"
-        listItem={false}
-        mask={null}
-        maskId={null}
-        pull={null}
-        pulse={false}
-        rotation={null}
-        shake={false}
-        size={null}
-        spin={false}
-        spinPulse={false}
-        spinReverse={false}
-        swapOpacity={false}
-        symbol={false}
         title="Click for help"
-        titleId={null}
-        transform={null}
       />
     </span>
     <Popover
       className="widePopover_16mkpl5"
       fade={false}
       isOpen={false}
+      offset={
+        Array [
+          0,
+          8,
+        ]
+      }
       placement="bottom"
       placementPrefix="bs-popover"
       target={
@@ -110,14 +68,11 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
       toggle={[Function]}
       trigger="click"
     >
-      <PopoverHeader
-        tag="h3"
-      >
+      <PopoverHeader>
         How to search
       </PopoverHeader>
       <PopoverBody
         className="scrollablePopover_1vdkswo"
-        tag="div"
       >
         <p>
           Just start typing in the search bar. The test items are filtered automatically. The current selection if available in the search are maintained. All searches are 
@@ -142,9 +97,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
         </p>
         <Table
           bordered={true}
-          responsiveTag="div"
           striped={true}
-          tag="table"
         >
           <thead>
             <tr>
