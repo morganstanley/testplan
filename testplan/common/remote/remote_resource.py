@@ -1,9 +1,7 @@
 import getpass
-import itertools
 import os
 import re
 import sys
-import warnings
 from collections.abc import Iterable, Iterator
 from functools import partial
 from typing import Callable, Dict, List, Optional, Tuple, Union, cast
@@ -28,7 +26,6 @@ from testplan.common.utils.path import (
     rebase_path,
 )
 from testplan.common.utils.process import (
-    LogDetailsOption,
     execute_cmd,
 )
 from testplan.common.utils.remote import (
@@ -77,8 +74,6 @@ class UnboundRemoteResourceConfig(EntityConfig):
             ConfigOption("workspace", default=pwd()): str,
             ConfigOption("workspace_exclude", default=[]): Or(list, None),
             ConfigOption("remote_runpath", default=None): str,
-            # no-op now, will be removed soon
-            ConfigOption("testplan_path", default=None): str,
             ConfigOption("remote_workspace", default=None): str,
             # proposing cfg clobber_remote_workspace,
             # to overwrite what's in remote_workspace when set to True
@@ -135,8 +130,6 @@ class RemoteResource(Entity):
     :param workspace_exclude: Patterns to exclude files when pushing workspace.
     :param remote_runpath: Root runpath on remote host, default is same as local (Linux->Linux)
       or /var/tmp/$USER/testplan/$plan_name (Window->Linux).
-    :param testplan_path: Path to import testplan from on remote host,
-      default is testplan_lib under remote_runpath
     :param remote_workspace: The path of the workspace on remote host,
       default is fetched_workspace under remote_runpath
     :param clean_remote: Deleted root runpath on remote at exit.
@@ -168,7 +161,6 @@ class RemoteResource(Entity):
         workspace: str = None,
         workspace_exclude: List[str] = None,
         remote_runpath: str = None,
-        testplan_path: str = None,
         remote_workspace: str = None,
         clean_remote: bool = False,
         push: List[Union[str, Tuple]] = None,
@@ -192,14 +184,6 @@ class RemoteResource(Entity):
                 "Cannot create remote resource on the same host that Testplan runs."
             )
         options.update(self.filter_locals(locals()))
-        if "testplan_path" in options:
-            warnings.warn(
-                "``testplan_path`` is no-op now and will be removed soon. "
-                "Please use ``existing_testplan_parent`` inside "
-                "``SourceTransferBuilder`` to be passed to "
-                "``remote_runtime_builder`` instead."
-            )
-
         super(RemoteResource, self).__init__(**options)
 
         self.setup_metadata = WorkerSetupMetadata()
@@ -239,7 +223,7 @@ class RemoteResource(Entity):
             self.cfg.remote_host, self.cfg.ssh_port, **extra_paramiko_cfg
         )
 
-        # used in subclasses, XXX: convert to property?
+        # used in subclasses, see remote_python_bin
         self._remote_pybin = None
         self._remote_runtime_builder: RuntimeBuilder = (
             self.cfg.remote_runtime_builder or SourceTransferBuilder()
@@ -305,12 +289,8 @@ class RemoteResource(Entity):
         )
 
         # here we apply checks for corner cases:
-        # if self._remote_plan_runpath.startswith(self._workspace_paths.local):
-        #     # why?: fail to imitate local dir structure in curr impl
-        #     raise RuntimeError(
-        #         f"Remote runpath '{self._remote_plan_runpath}' cannot be "
-        #         f"subdirectory of local workspace '{self._workspace_paths.local}'."
-        #     )
+        # NOTE: if remote runpath under local workspace,
+        # NOTE: it would fail to imitate local dir structure in curr impl
         if self._workspace_paths.local.startswith(self._remote_plan_runpath):
             # why?: possible name clash, e.g. 'venv'
             raise RuntimeError(
@@ -368,9 +348,8 @@ class RemoteResource(Entity):
             )
 
             # corner cases:
-            # - remote runpath under local workspace
             # - local workspace under remote runpath
-            # XXX: more?
+            # more?
             self._prepare_workspace(exist_on_remote)
             self._setup_remote_pyenv()
 
@@ -836,6 +815,10 @@ class RemoteResource(Entity):
         sys_path = [self._testplan_import_path.remote]
 
         for path in sys.path:
+            if path.startswith(sys.base_prefix):
+                # remote python ver could be different, skip stdlib
+                continue
+
             path = fix_home_prefix(path)
 
             if is_subdir(path, self._workspace_paths.local):
@@ -861,34 +844,6 @@ class RemoteResource(Entity):
         raise RuntimeError(
             "impossible: no TestRunner ancestor, caller side bug"
         )
-
-    def _execute_cmd_remote(
-        self,
-        cmd,
-        label=None,
-        check=True,
-        stdout=None,
-        stderr=None,
-        detailed_log: LogDetailsOption = LogDetailsOption.LOG_ON_ERROR,
-    ):
-        # deprecated
-        """
-        Execute a command on the remote host.
-
-        :param cmd: Remote command to execute - list of parameters.
-        :param label: Optional label for debugging.
-        :param check: Whether to check command return-code - defaults to True.
-                      See self._execute_cmd for more detail.
-        """
-        return execute_cmd(
-            self.cfg.ssh_cmd(self.ssh_cfg, cmd),
-            label=label,
-            check=check,
-            logger=self.logger,
-            stdout=stdout,
-            stderr=stderr,
-            detailed_log=detailed_log,
-        )[0]
 
     def _remote_copy_path(self, path):
         """

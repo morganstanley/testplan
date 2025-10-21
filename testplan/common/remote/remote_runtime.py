@@ -4,7 +4,7 @@ python runtime environment builder for remote test execution
 pybin refers to the path to python binary
 pyenv refers to the python environment, e.g. venv or system env
 
-XXX: pathlib?
+XXX: support pathlib
 """
 
 import os.path
@@ -88,7 +88,6 @@ class RuntimeBuilder(Entity, ABC):
         self,
         remote_paths: list[str],
     ) -> str:
-        # FIXME: change to optional once child.py invokable through module name
         """
         setup pyenv on remote side
 
@@ -97,11 +96,19 @@ class RuntimeBuilder(Entity, ABC):
         :return: path to testplan parent dir on remote, for ``sys.path``
             alteration
         """
+        # NOTE: since syspath alteration on remote cannot be merged into
+        # NOTE: builder now, this method cannot return None
 
     @abstractmethod
     def remote_teardown_pyenv(self):
         """
         teardown pyenv on remote side
+        """
+
+    @abstractmethod
+    def get_remote_rpyc_bin(self) -> str:
+        """
+        return rpyc binary path on remote side
         """
 
 
@@ -338,13 +345,17 @@ class PipBasedBuilder(RuntimeBuilder):
             ],
             label="get remote testplan parent dir",
         )
-        # XXX: should return None once child.py is invokable with -m instead
-        # XXX: of full path
         return r_testplan_parent
 
     def remote_teardown_pyenv(self):
         # everything under runpath, should be auto removed
         pass
+
+    def get_remote_rpyc_bin(self) -> str:
+        return os.path.join(
+            os.path.dirname(self._remote_python_bin),
+            "rpyc_classic.py",
+        )
 
 
 class SourceTransferBuilderConfig(RuntimeBuilderConfig):
@@ -355,7 +366,7 @@ class SourceTransferBuilderConfig(RuntimeBuilderConfig):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption("python_bin", default="python3"): str,
+            ConfigOption("python_bin", default=sys.executable): str,
             ConfigOption("existing_testplan_parent", default=None): str,
             ConfigOption("_runpath_testplan_dir", default="testplan_lib"): str,
         }
@@ -447,6 +458,17 @@ class SourceTransferBuilder(RuntimeBuilder):
     def remote_teardown_pyenv(self):
         # everything under runpath, should be auto removed
         pass
+
+    def get_remote_rpyc_bin(self) -> str:
+        import rpyc
+
+        return os.path.join(
+            os.path.dirname(rpyc.__file__),
+            os.pardir,
+            os.pardir,
+            "bin",
+            "rpyc_classic.py",
+        )
 
 
 # TODO

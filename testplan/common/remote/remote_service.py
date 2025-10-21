@@ -2,16 +2,15 @@
 Module implementing RemoteService class. Based on RPyC package.
 """
 
-import os
 import re
 import shlex
 import signal
 import subprocess
 import warnings
-from functools import cache
 from typing import Optional
 
 import rpyc
+import rpyc.core.protocol
 from rpyc import Connection
 from schema import Use
 
@@ -27,17 +26,6 @@ from testplan.common.utils.process import kill_process, subprocess_popen
 from testplan.common.utils.timing import get_sleeper
 
 
-@cache
-def deduce_rpyc_bin(rmt_svc) -> str:
-    """
-    deducing rpyc_classic.py location on remote host
-
-    in practice this function might be monkey-patched for custom logic
-    """
-    remote_prefix = rmt_svc.remote_python_bin.rsplit(os.sep, 2)[0]
-    return os.path.join(remote_prefix, "bin", "rpyc_classic.py")
-
-
 class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
     """
     Configuration object for
@@ -49,6 +37,8 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
         """Resource specific config options."""
         return {
             "name": str,
+            # NOTE: currently we have ``get_remote_rpyc_bin`` in ``RuntimeBuilder``,
+            # NOTE: do we still need this config option here?
             ConfigOption("rpyc_bin", default=None): str,
             ConfigOption("rpyc_port", default=0): int,
             ConfigOption("stop_timeout", default=5): Use(float),
@@ -129,7 +119,10 @@ class RemoteService(Resource, RemoteResource):
         """
         Starting the rpyc service on remote host.
         """
-        rpyc_bin = self.cfg.rpyc_bin or deduce_rpyc_bin(self)
+        rpyc_bin = (
+            self.cfg.rpyc_bin
+            or self._remote_runtime_builder.get_remote_rpyc_bin()
+        )
 
         # TODO: refactor, use self._ssh_client instead
         # TODO: make use of paramiko Channel, add apis to our wrapper class
@@ -170,13 +163,16 @@ class RemoteService(Resource, RemoteResource):
             self.std.err_path,
         )
 
-    def _wait_started(self, timeout: float = None) -> None:
+    def _wait_started(self, timeout: Optional[float] = None) -> None:
         """
         Waits for RPyC server start, changes status to STARTED.
 
         :param timeout: timeout in seconds
         :raises RuntimeError: if server startup fails
         """
+        timeout: float = (
+            timeout if timeout is not None else self.cfg.status_wait_timeout
+        )
         sleeper = get_sleeper(
             interval=0.2,
             timeout=timeout,

@@ -50,6 +50,8 @@ def ssh_cmd(ssh_cfg, command):
     """
     Prefix command with ssh binary and option.
 
+    Deprecated, use ``RemoteResource.ssh_client.exec_command`` instead.
+
     :param ssh_cfg: dict with "host" and "port" (optional) keys
     :param command: command to execute on remote host
     :return: full cmd list

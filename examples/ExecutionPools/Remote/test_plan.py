@@ -105,6 +105,7 @@ def main(plan):
         # explicit source and destination locations defined above.
         push=push_files,
         workspace=workspace,
+        clean_remote=True,
         remote_runtime_builder=PipBasedBuilder(
             transfer_exclude=[".venv*/", "*node_modules*", ".git/"]
         ),

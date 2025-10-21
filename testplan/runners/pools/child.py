@@ -399,13 +399,16 @@ def process_syspath_file(filename, working_dir=None):
     """
     with open(filename) as f:
         new_syspath = f.read().split("\n")
-    new_syspath = list(filter(os.path.exists, new_syspath))
+    new_syspath = list(
+        filter(lambda p: p.startswith(sys.base_prefix), sys.path)
+    ) + list(filter(os.path.exists, new_syspath))
 
     if working_dir is not None:
         new_syspath.insert(0, working_dir)
 
     with open(filename, "w") as f:
         f.write("\n".join(new_syspath))
+        f.write("\n")
 
     return new_syspath
 

@@ -80,8 +80,8 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def _set_child_script(self) -> None:
         """Specify the remote worker executable file."""
-        # TODO: we shouldn't always need full path of child.py,
-        # TODO: we could invoke child.py with -m instead
+        # XXX: we shouldn't always need full path of child.py
+        # XXX: child_via_mod
         self._child_paths.local = fix_home_prefix(self._child_path())
         self._child_paths.remote = rebase_path(
             self._child_paths.local,
