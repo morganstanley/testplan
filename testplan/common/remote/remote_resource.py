@@ -382,6 +382,7 @@ class RemoteResource(Entity):
         remote_paths = self._push_files_to_dst(
             paths_to_transfer,
             self._remote_runtime_builder.cfg.transfer_exclude,
+            deref_links=True,
             as_is=True,
         )
         self._testplan_import_path.remote = (
@@ -706,7 +707,7 @@ class RemoteResource(Entity):
         self,
         loc_paths: Iterable[Union[_LocationPaths, tuple[str, str]]],
         exclude: Optional[list[str]],
-        as_is: bool = False,
+        **copy_args,
     ) -> list[str]:
         """
         Push files and directories to the remote host. Both the source and
@@ -727,7 +728,7 @@ class RemoteResource(Entity):
                 target=dest,
                 remote_target=True,
                 exclude=exclude,
-                as_is=as_is,
+                **copy_args,
             )
             remotes.append(dest)
         return list(set(remotes))
@@ -860,7 +861,6 @@ class RemoteResource(Entity):
         target,
         remote_source=False,
         remote_target=False,
-        as_is=False,
         **copy_args,
     ):
         if remote_source:
@@ -869,7 +869,7 @@ class RemoteResource(Entity):
             target = self._remote_copy_path(target)
         self.logger.debug("Copying %(source)s to %(target)s", locals())
         cmd = self.cfg.copy_cmd(
-            source, target, port=self.ssh_cfg["port"], as_is=as_is, **copy_args
+            source, target, port=self.ssh_cfg["port"], **copy_args
         )
         with open(os.devnull, "w") as devnull:
             execute_cmd(

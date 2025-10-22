@@ -13,7 +13,6 @@ import sys
 from abc import ABC, abstractmethod
 from typing import Callable
 
-import uv  # so that usage of uv noticed by linter
 from schema import Or, And
 from typing_extensions import TypeAlias  # available in Python 3.10+
 
@@ -271,6 +270,8 @@ class PipBasedBuilder(RuntimeBuilder):
         return self._remote_python_bin
 
     def local_export_pyenv(self):
+        import uv  # so that usage of uv noticed by linter
+
         _, stdout, _ = self._lcmd_exec(
             [sys.executable, "-m", uv.__name__, "pip", "freeze"],
             label="execute uv pip freeze on local",
@@ -302,6 +303,8 @@ class PipBasedBuilder(RuntimeBuilder):
         )
 
     def remote_setup_pyenv(self, remote_paths):
+        import uv
+
         if not self._skip_install_deps:
             self._rcmd_exec(
                 [self._remote_python_bin, "-m", "pip", "install", uv.__name__],
