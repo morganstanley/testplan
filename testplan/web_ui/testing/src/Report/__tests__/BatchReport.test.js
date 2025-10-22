@@ -93,16 +93,17 @@ describe("BatchReport", () => {
   });
 
   it("renders loading message when fetching report", () => {
-    const batchReport = renderBatchReport();
+    const batchReport = renderBatchReportFull();
     batchReport.setState({ loading: true });
     batchReport.update();
+    expect(batchReport).toMatchSnapshot();
     const message = batchReport.find(Message);
     const expectedMessage = "Fetching Testplan report...";
     expect(message.props().message).toEqual(expectedMessage);
   });
 
   it("renders waiting message when waiting to start fetch", () => {
-    const batchReport = renderBatchReport();
+    const batchReport = renderBatchReportFull();
     batchReport.setState({ loading: false, error: null });
     batchReport.update();
     const message = batchReport.find(Message);
@@ -344,7 +345,7 @@ describe("BatchReport", () => {
   });
 
   it("renders an error message when Testplan report cannot be found.", (done) => {
-    const batchReport = renderBatchReport();
+    const batchReport = renderBatchReportFull();
     moxios.wait(function () {
       let request = moxios.requests.mostRecent();
       request

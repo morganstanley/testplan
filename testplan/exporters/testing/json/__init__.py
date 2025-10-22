@@ -1,2 +1,2 @@
 from .base import JSONExporter
-from .base import gen_attached_report_names
+from .base import get_structure_file_name

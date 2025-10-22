@@ -43,19 +43,16 @@ def save_resource_data(
     return meta_path
 
 
-def gen_attached_report_names(json_path):
+def get_structure_file_name(json_path) -> str:
     """
     Generate file names of structure JSON report and assertions JSON report.
     """
-    basename, _ = os.path.splitext(os.path.basename(json_path))
+    basename = os.path.splitext(os.path.basename(json_path))[0]
     digest = hashlib.md5(
         os.path.normcase(os.path.realpath(json_path)).encode("utf-8")
     ).hexdigest()
 
-    return (
-        "{}-structure-{}.json".format(basename, digest),
-        "{}-assertions-{}.json".format(basename, digest),
-    )
+    return f"{basename}-structure-{digest}.json"
 
 
 class JSONExporterConfig(ExporterConfig):
@@ -130,34 +127,33 @@ class JSONExporter(Exporter):
                 data["resource_meta_path"] = "local"
             # Save the Testplan report.
             if self.cfg.split_json_report:
-                (
-                    structure_filename,
-                    assertions_filename,
-                ) = gen_attached_report_names(json_path)
+                structure_filename = get_structure_file_name(json_path)
                 structure_filepath = attachments_dir / structure_filename
-                assertions_filepath = attachments_dir / assertions_filename
 
-                meta, structure, assertions = self.split_json_report(data)
+                meta, structure, assertions_map = self.split_json_report(data)
                 attachments_dir.mkdir(parents=True, exist_ok=True)
 
-                with open(structure_filepath, "w") as json_file:
+                with structure_filepath.open("w") as json_file:
                     json_file.write(json_dumps(structure))
-                with open(assertions_filepath, "w") as json_file:
-                    json_file.write(json_dumps(assertions))
 
                 meta["attachments"] = self.save_attachments(
                     report=source,
                     directory=attachments_dir,
                 )
-                meta["version"] = 2
+                meta["version"] = 3
                 meta["attachments"][structure_filename] = str(
                     structure_filepath
                 )
-                meta["attachments"][assertions_filename] = str(
-                    assertions_filepath
-                )
+
+                for test_key, assertions in assertions_map.items():
+                    meta["attachments"][test_key] = str(
+                        attachments_dir / test_key
+                    )
+                    with (attachments_dir / test_key).open("w") as json_file:
+                        json_file.write(json_dumps(assertions))
+
                 meta["structure_file"] = structure_filename
-                meta["assertions_file"] = assertions_filename
+                meta["assertions_files"] = list(assertions_map.keys())
 
                 with open(json_path, "w") as json_file:
                     json_file.write(json_dumps(meta))
@@ -180,7 +176,7 @@ class JSONExporter(Exporter):
         return result
 
     def save_attachments(
-        self, report: TestReport, directory: str
+        self, report: TestReport, directory: pathlib.Path
     ) -> Dict[str, str]:
         """
         Saves the report attachments to the given directory.
@@ -215,42 +211,54 @@ class JSONExporter(Exporter):
         return moved_attachments
 
     @staticmethod
-    def split_json_report(data):
-        """Split a single Json into several parts."""
-
-        def split_assertions(entries, assertions):
-            """Remove assertions from report and place them in a dictionary."""
-            for entry in entries:
-                if entry["type"] == TestCaseReport.__name__:
-                    assertions[entry["uid"]] = entry["entries"]
-                    entry["entries"] = []
-                elif "entries" in entry:
-                    split_assertions(entry["entries"], assertions)
-
-        meta, structure, assertions = data, data["entries"], {}
-        meta["entries"] = []
-        split_assertions(structure, assertions)
-        return meta, structure, assertions
+    def split_assertions(entries, assertions):
+        """Remove assertions from report and place them in a dictionary."""
+        for entry in entries:
+            if entry["type"] == TestCaseReport.__name__:
+                assertions[entry["uid"]] = entry["entries"]
+                entry["entries"] = []
+            elif "entries" in entry:
+                JSONExporter.split_assertions(entry["entries"], assertions)
 
     @staticmethod
-    def merge_json_report(meta, structure, assertions, strict=True):
+    def split_json_report(data):
+        """Split a single Json into several parts."""
+        (
+            meta,
+            structure,
+            assertions_map,
+        ) = data, data["entries"], {}
+        meta["entries"] = []
+        for test in structure:
+            test_key = f"assertions_{test['uid']}"
+            assertions_map[test_key] = {}
+            JSONExporter.split_assertions(
+                test["entries"], assertions_map[test_key]
+            )
+        return meta, structure, assertions_map
+
+    @staticmethod
+    def merge_assertions(entries, assertions, strict=True):
+        """Fill assertions into report by the unique id."""
+        for entry in entries:
+            if entry["type"] == TestCaseReport.__name__:
+                if entry["uid"] in assertions:
+                    entry["entries"] = assertions[entry["uid"]]
+                elif strict:
+                    raise RuntimeError(
+                        "Testcase report uid missing: {}".format(entry["uid"])
+                    )
+            elif "entries" in entry:
+                JSONExporter.merge_assertions(
+                    entry["entries"], assertions, strict
+                )
+
+    @staticmethod
+    def merge_json_report(meta, structure, assertions_map, strict=True):
         """Merge parts of json report into a single one."""
-
-        def merge_assertions(entries, assertions, strict=True):
-            """Fill assertions into report by the unique id."""
-            for entry in entries:
-                if entry["type"] == TestCaseReport.__name__:
-                    if entry["uid"] in assertions:
-                        entry["entries"] = assertions[entry["uid"]]
-                    elif strict:
-                        raise RuntimeError(
-                            "Testcase report uid missing: {}".format(
-                                entry["uid"]
-                            )
-                        )
-                elif "entries" in entry:
-                    merge_assertions(entry["entries"], assertions, strict)
-
-        merge_assertions(structure, assertions, strict)
+        for test in structure:
+            test_key = f"assertions_{test['uid']}"
+            assertions = assertions_map.get(test_key, {})
+            JSONExporter.merge_assertions(test["entries"], assertions, strict)
         meta["entries"] = structure
         return meta
