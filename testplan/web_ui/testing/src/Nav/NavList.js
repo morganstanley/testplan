@@ -45,6 +45,7 @@ const NavList = (props) => {
     navButtons = CreateNavButtons(props, (entry) => {
       return (
         <NavEntry
+          key={entry.uid}
           name={entry.name}
           description={entry.description}
           status={entry.status}
