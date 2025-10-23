@@ -64,7 +64,9 @@ def main(plan):
         REMOTE_HOST,  # pyright: ignore
         clean_remote=True,
         remote_runtime_builder=PipBasedBuilder(
-            transfer_exclude=[".venv*/", "*node_modules*", ".git/"],
+            # here we pick the same base binary as the one running this script
+            python_base_bin=sys.base_prefix + "/bin/python3",
+            transfer_exclude=["*.venv*", "*node_modules*", "*.git*", "*doc/*"],
         ),
     )
 

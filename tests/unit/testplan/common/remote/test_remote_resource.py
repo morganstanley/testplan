@@ -6,6 +6,7 @@ import tempfile
 import pytest
 
 from testplan import TestplanMock
+from testplan.common.remote.remote_runtime import SourceTransferBuilder
 from testplan.common.utils.path import rebase_path
 from testplan.common.utils.remote import filepath_exist_cmd
 
@@ -104,6 +105,16 @@ def remote_resource(runpath_module, workspace, push_dir):
         pull_exclude=["file2"],
         env={"LOCAL_USER": getpass.getuser()},
         setup_script=["remote_setup.py"],
+        remote_runtime_builder=SourceTransferBuilder(
+            # TODO: including what's inside gitignore
+            transfer_exclude=[
+                "*.venv*",
+                "*node_modules*",
+                "*.git*",
+                "*doc/*",
+                "*parser.py",
+            ],
+        ),
         check_remote_python_ver=False,
         clean_remote=True,
     )
@@ -173,6 +184,15 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
             [remote_resource._workspace_paths.remote, "tests", "functional"]
         ),
         "/".join([push_dir, "file3"]),
+        # so that we know transfer_exclude inside SourceTransferBuilder worked
+        "/".join(
+            [
+                remote_resource._remote_plan_runpath,
+                remote_resource._remote_runtime_builder.cfg._runpath_testplan_dir,
+                "testplan",
+                "parser.py",
+            ]
+        ),
     ]:
         assert (
             0
@@ -262,6 +282,16 @@ def test_runpath_in_ws(workspace):
             "*.pyc",
         ],
         check_remote_python_ver=False,
+        remote_runtime_builder=SourceTransferBuilder(
+            # TODO: including what's inside gitignore
+            transfer_exclude=[
+                "*.venv*",
+                "*node_modules*",
+                "*.git*",
+                "*doc/*",
+                "*parser.py",
+            ],
+        ),
         clean_remote=True,
     )
     remote_resource.parent = mockplan.runnable
