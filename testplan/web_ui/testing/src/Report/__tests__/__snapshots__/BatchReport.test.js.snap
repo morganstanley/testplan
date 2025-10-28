@@ -26149,9 +26149,9 @@ ZeroDivisionError: integer division or modulo by zero
     >
       <Navbar
         className="toolbar_l6n5rs"
+        container={false}
         expand="md"
         light={true}
-        tag="nav"
       >
         <nav
           className="toolbar_l6n5rs navbar navbar-expand-md navbar-light"
@@ -26181,14 +26181,6 @@ ZeroDivisionError: integer division or modulo by zero
                       className="searchBoxIcon_ncmdki"
                     >
                       <FontAwesomeIcon
-                        beat={false}
-                        beatFade={false}
-                        border={false}
-                        bounce={false}
-                        className=""
-                        fade={false}
-                        fixedWidth={false}
-                        flip={false}
                         icon={
                           Object {
                             "icon": Array [
@@ -26202,24 +26194,8 @@ ZeroDivisionError: integer division or modulo by zero
                             "prefix": "fas",
                           }
                         }
-                        inverse={false}
                         key="search"
-                        listItem={false}
-                        mask={null}
-                        maskId={null}
-                        pull={null}
-                        pulse={false}
-                        rotation={null}
-                        shake={false}
-                        size={null}
-                        spin={false}
-                        spinPulse={false}
-                        spinReverse={false}
-                        swapOpacity={false}
-                        symbol={false}
                         title="Search"
-                        titleId={null}
-                        transform={null}
                       >
                         <svg
                           aria-labelledby="svg-inline--fa-title-23"
@@ -26250,14 +26226,6 @@ ZeroDivisionError: integer division or modulo by zero
                       onClick={[Function]}
                     >
                       <FontAwesomeIcon
-                        beat={false}
-                        beatFade={false}
-                        border={false}
-                        bounce={false}
-                        className=""
-                        fade={false}
-                        fixedWidth={false}
-                        flip={false}
                         icon={
                           Object {
                             "icon": Array [
@@ -26271,24 +26239,8 @@ ZeroDivisionError: integer division or modulo by zero
                             "prefix": "fas",
                           }
                         }
-                        inverse={false}
                         key="toolbar-info"
-                        listItem={false}
-                        mask={null}
-                        maskId={null}
-                        pull={null}
-                        pulse={false}
-                        rotation={null}
-                        shake={false}
-                        size={null}
-                        spin={false}
-                        spinPulse={false}
-                        spinReverse={false}
-                        swapOpacity={false}
-                        symbol={false}
                         title="Click for help"
-                        titleId={null}
-                        transform={null}
                       >
                         <svg
                           aria-labelledby="svg-inline--fa-title-24"
@@ -26318,6 +26270,12 @@ ZeroDivisionError: integer division or modulo by zero
                       className="widePopover_16mkpl5"
                       fade={false}
                       isOpen={false}
+                      offset={
+                        Array [
+                          0,
+                          8,
+                        ]
+                      }
                       placement="bottom"
                       placementPrefix="bs-popover"
                       target={
@@ -26351,6 +26309,7 @@ ZeroDivisionError: integer division or modulo by zero
                       trigger="click"
                     >
                       <TooltipPopoverWrapper
+                        arrowClassName="popover-arrow"
                         autohide={false}
                         className="widePopover_16mkpl5"
                         delay={
@@ -26363,6 +26322,12 @@ ZeroDivisionError: integer division or modulo by zero
                         hideArrow={false}
                         innerClassName="popover-inner"
                         isOpen={false}
+                        offset={
+                          Array [
+                            0,
+                            8,
+                          ]
+                        }
                         placement="bottom"
                         placementPrefix="bs-popover"
                         popperClassName="popover show"
@@ -26397,16 +26362,21 @@ ZeroDivisionError: integer division or modulo by zero
                         trigger="click"
                       >
                         <PopperContent
+                          arrowClassName="popover-arrow"
                           boundariesElement="scrollParent"
                           className="widePopover_16mkpl5"
                           container="body"
                           fade={false}
-                          fallbackPlacement="flip"
                           flip={true}
                           hideArrow={false}
                           isOpen={false}
-                          modifiers={Object {}}
-                          offset={0}
+                          modifiers={Array []}
+                          offset={
+                            Array [
+                              0,
+                              8,
+                            ]
+                          }
                           onClosed={[Function]}
                           placement="bottom"
                           placementPrefix="bs-popover"
@@ -26436,26 +26406,7 @@ ZeroDivisionError: integer division or modulo by zero
                               </svg>
                             </span>
                           }
-                          transition={
-                            Object {
-                              "appear": true,
-                              "baseClass": "fade",
-                              "baseClassActive": "show",
-                              "enter": true,
-                              "exit": true,
-                              "in": true,
-                              "mountOnEnter": false,
-                              "onEnter": [Function],
-                              "onEntered": [Function],
-                              "onEntering": [Function],
-                              "onExit": [Function],
-                              "onExited": [Function],
-                              "onExiting": [Function],
-                              "tag": "div",
-                              "timeout": 150,
-                              "unmountOnExit": false,
-                            }
-                          }
+                          transition={Object {}}
                         />
                       </TooltipPopoverWrapper>
                     </Popover>
@@ -26495,6 +26446,7 @@ ZeroDivisionError: integer division or modulo by zero
             className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
             enter={true}
             exit={true}
+            horizontal={false}
             in={false}
             isOpen={false}
             mountOnEnter={false}
@@ -26515,6 +26467,464 @@ ZeroDivisionError: integer division or modulo by zero
               exit={true}
               in={false}
               mountOnEnter={false}
+              nodeRef={
+                Object {
+                  "current": <div
+                    class="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx collapse navbar-collapse"
+                  >
+                    <ul
+                      class="ms-auto navbar-nav"
+                    >
+                      <li
+                        class="nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <svg
+                            aria-labelledby="svg-inline--fa-title-25"
+                            class="svg-inline--fa fa-chart-bar fa-w-16 toolbarButton_1ueb7gu"
+                            data-icon="chart-bar"
+                            data-prefix="fas"
+                            role="img"
+                            viewBox="0 0 512 512"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <title
+                              id="svg-inline--fa-title-25"
+                            >
+                              Switch Panel View
+                            </title>
+                            <path
+                              d="M500 384c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12V76c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v308h436zm-308-44v-72c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v72c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0V204c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v136c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 0V140c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v200c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0V108c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v232c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </div>
+                      </li>
+                      <li
+                        class="nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <svg
+                            aria-labelledby="svg-inline--fa-title-26"
+                            class="svg-inline--fa fa-angle-double-down fa-w-10 toolbarButton_1ueb7gu"
+                            data-icon="angle-double-down"
+                            data-prefix="fas"
+                            role="img"
+                            viewBox="0 0 320 512"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <title
+                              id="svg-inline--fa-title-26"
+                            >
+                              Expand all assertions
+                            </title>
+                            <path
+                              d="M143 256.3L7 120.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0L313 86.3c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.4 9.5-24.6 9.5-34 .1zm34 192l136-136c9.4-9.4 9.4-24.6 0-33.9l-22.6-22.6c-9.4-9.4-24.6-9.4-33.9 0L160 352.1l-96.4-96.4c-9.4-9.4-24.6-9.4-33.9 0L7 278.3c-9.4 9.4-9.4 24.6 0 33.9l136 136c9.4 9.5 24.6 9.5 34 .1z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </div>
+                      </li>
+                      <li
+                        class="nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <svg
+                            aria-labelledby="svg-inline--fa-title-27"
+                            class="svg-inline--fa fa-angle-double-up fa-w-10 toolbarButton_1ueb7gu"
+                            data-icon="angle-double-up"
+                            data-prefix="fas"
+                            role="img"
+                            viewBox="0 0 320 512"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <title
+                              id="svg-inline--fa-title-27"
+                            >
+                              Collapse all assertions
+                            </title>
+                            <path
+                              d="M177 255.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 351.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 425.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1zm-34-192L7 199.7c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l96.4-96.4 96.4 96.4c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9l-136-136c-9.2-9.4-24.4-9.4-33.8 0z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </div>
+                      </li>
+                      <li
+                        class="dropdown nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <a
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            class="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx nav-link"
+                            href="#"
+                          >
+                            <svg
+                              aria-labelledby="svg-inline--fa-title-28"
+                              class="svg-inline--fa fa-tasks fa-w-16 toolbarButton_1ueb7gu"
+                              data-icon="tasks"
+                              data-prefix="fas"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <title
+                                id="svg-inline--fa-title-28"
+                              >
+                                Preferences
+                              </title>
+                              <path
+                                d="M208 132h288c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h288c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h288c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zM64 368c-26.5 0-48.6 21.5-48.6 48s22.1 48 48.6 48 48-21.5 48-48-21.5-48-48-48zm92.5-299l-72.2 72.2-15.6 15.6c-4.7 4.7-12.9 4.7-17.6 0L3.5 109.4c-4.7-4.7-4.7-12.3 0-17l15.7-15.7c4.7-4.7 12.3-4.7 17 0l22.7 22.1 63.7-63.3c4.7-4.7 12.3-4.7 17 0l17 16.5c4.6 4.7 4.6 12.3-.1 17zm0 159.6l-72.2 72.2-15.7 15.7c-4.7 4.7-12.9 4.7-17.6 0L3.5 269c-4.7-4.7-4.7-12.3 0-17l15.7-15.7c4.7-4.7 12.3-4.7 17 0l22.7 22.1 63.7-63.7c4.7-4.7 12.3-4.7 17 0l17 17c4.6 4.6 4.6 12.2-.1 16.9z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </a>
+                        </div>
+                        <div
+                          aria-hidden="true"
+                          class="dropdown_biw13d dropdown-menu dropdown-menu-end"
+                          data-bs-popper="static"
+                          role="menu"
+                          tabindex="-1"
+                        >
+                          <h6
+                            class="dropdown-header"
+                            tabindex="-1"
+                          >
+                            Display preferences
+                          </h6>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Display time information
+                            </label>
+                          </button>
+                          
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                              title="You need to specify --code command line argument to use this function."
+                            >
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Display file path and code context
+                            </label>
+                          </button>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Show status icons
+                            </label>
+                          </button>
+                          <div
+                            class="dropdown-divider"
+                            tabindex="-1"
+                          />
+                          <h6
+                            class="dropdown-header"
+                            tabindex="-1"
+                          >
+                            Navigation preferences
+                          </h6>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                checked=""
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Treeview navigation
+                            </label>
+                          </button>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Hide empty testcases
+                            </label>
+                          </button>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Hide skipped testcases
+                            </label>
+                          </button>
+                        </div>
+                      </li>
+                      <li
+                        class="dropdown nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <a
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            class="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx nav-link"
+                            href="#"
+                          >
+                            <svg
+                              aria-labelledby="svg-inline--fa-title-29"
+                              class="svg-inline--fa fa-filter fa-w-16 toolbarButton_1ueb7gu"
+                              data-icon="filter"
+                              data-prefix="fas"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <title
+                                id="svg-inline--fa-title-29"
+                              >
+                                Choose filter
+                              </title>
+                              <path
+                                d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </a>
+                        </div>
+                        <div
+                          aria-hidden="true"
+                          class="dropdown_biw13d dropdown-menu"
+                          data-bs-popper="static"
+                          role="menu"
+                          tabindex="-1"
+                        >
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                checked=""
+                                class="form-check-input"
+                                name="filter"
+                                type="radio"
+                                value="all"
+                              />
+                               
+                              All
+                            </label>
+                          </button>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                name="filter"
+                                type="radio"
+                                value="fail"
+                              />
+                               
+                              Failed only
+                            </label>
+                          </button>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                name="filter"
+                                type="radio"
+                                value="pass"
+                              />
+                               
+                              Passed only
+                            </label>
+                          </button>
+                        </div>
+                      </li>
+                      <li
+                        class="nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <svg
+                            aria-labelledby="svg-inline--fa-title-30"
+                            class="svg-inline--fa fa-tags fa-w-20 toolbarButton_1ueb7gu"
+                            data-icon="tags"
+                            data-prefix="fas"
+                            role="img"
+                            viewBox="0 0 640 512"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <title
+                              id="svg-inline--fa-title-30"
+                            >
+                              Display tags
+                            </title>
+                            <path
+                              d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </div>
+                      </li>
+                      <li
+                        class="nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <svg
+                            aria-labelledby="svg-inline--fa-title-31"
+                            class="svg-inline--fa fa-info fa-w-6 toolbarButton_1ueb7gu"
+                            data-icon="info"
+                            data-prefix="fas"
+                            role="img"
+                            viewBox="0 0 192 512"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <title
+                              id="svg-inline--fa-title-31"
+                            >
+                              Info
+                            </title>
+                            <path
+                              d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </div>
+                      </li>
+                      <li
+                        class="nav-item"
+                      >
+                        <div
+                          class="buttonsBar_6zsntc"
+                        >
+                          <svg
+                            aria-labelledby="svg-inline--fa-title-32"
+                            class="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
+                            data-icon="print"
+                            data-prefix="fas"
+                            role="img"
+                            viewBox="0 0 512 512"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <title
+                              id="svg-inline--fa-title-32"
+                            >
+                              Print page
+                            </title>
+                            <path
+                              d="M464 192h-16V81.941a24 24 0 0 0-7.029-16.97L383.029 7.029A24 24 0 0 0 366.059 0H88C74.745 0 64 10.745 64 24v168H48c-26.51 0-48 21.49-48 48v132c0 6.627 5.373 12 12 12h52v104c0 13.255 10.745 24 24 24h336c13.255 0 24-10.745 24-24V384h52c6.627 0 12-5.373 12-12V240c0-26.51-21.49-48-48-48zm-80 256H128v-96h256v96zM128 224V64h192v40c0 13.2 10.8 24 24 24h40v96H128zm304 72c-13.254 0-24-10.746-24-24s10.746-24 24-24 24 10.746 24 24-10.746 24-24 24z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </div>
+                      </li>
+                      <li
+                        class="nav-item"
+                      >
+                        <a
+                          class="buttonsBar_6zsntc"
+                          href="http://testplan.readthedocs.io"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          <svg
+                            aria-labelledby="svg-inline--fa-title-33"
+                            class="svg-inline--fa fa-book fa-w-14 toolbarButton_1ueb7gu"
+                            data-icon="book"
+                            data-prefix="fas"
+                            role="img"
+                            viewBox="0 0 448 512"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <title
+                              id="svg-inline--fa-title-33"
+                            >
+                              Documentation
+                            </title>
+                            <path
+                              d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>,
+                }
+              }
               onEnter={[Function]}
               onEntered={[Function]}
               onEntering={[Function]}
@@ -26529,13 +26939,11 @@ ZeroDivisionError: integer division or modulo by zero
                 style={Object {}}
               >
                 <Nav
-                  className="ml-auto"
+                  className="ms-auto"
                   navbar={true}
-                  tag="ul"
-                  vertical={false}
                 >
                   <ul
-                    className="ml-auto navbar-nav"
+                    className="ms-auto navbar-nav"
                   >
                     <PanelViewSwitch
                       panel_types="assertion"
@@ -26543,7 +26951,6 @@ ZeroDivisionError: integer division or modulo by zero
                     >
                       <NavItem
                         key="panel-swicth-icon-item"
-                        tag="li"
                       >
                         <li
                           className="nav-item"
@@ -26552,34 +26959,11 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
                               className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
                               icon="chart-bar"
-                              inverse={false}
                               key="panel-switch-icon"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
                               onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
                               title="Switch Panel View"
-                              titleId={null}
-                              transform={null}
                             >
                               <svg
                                 aria-labelledby="svg-inline--fa-title-25"
@@ -26616,7 +27000,6 @@ ZeroDivisionError: integer division or modulo by zero
                     >
                       <NavItem
                         key="expand-icon-item"
-                        tag="li"
                       >
                         <li
                           className="nav-item"
@@ -26625,34 +27008,11 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
                               className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
                               icon="angle-double-down"
-                              inverse={false}
                               key="expand-icon"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
                               onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
                               title="Expand all assertions"
-                              titleId={null}
-                              transform={null}
                             >
                               <svg
                                 aria-labelledby="svg-inline--fa-title-26"
@@ -26683,7 +27043,6 @@ ZeroDivisionError: integer division or modulo by zero
                       </NavItem>
                       <NavItem
                         key="collapse-icon-item"
-                        tag="li"
                       >
                         <li
                           className="nav-item"
@@ -26692,34 +27051,11 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
                               className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
                               icon="angle-double-up"
-                              inverse={false}
                               key="collapse-icon"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
                               onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
                               title="Collapse all assertions"
-                              titleId={null}
-                              transform={null}
                             >
                               <svg
                                 aria-labelledby="svg-inline--fa-title-27"
@@ -26759,7 +27095,6 @@ ZeroDivisionError: integer division or modulo by zero
                         <Dropdown
                           a11y={true}
                           active={false}
-                          addonType={false}
                           direction="down"
                           inNavbar={true}
                           isOpen={false}
@@ -26789,33 +27124,10 @@ ZeroDivisionError: integer division or modulo by zero
                                     onClick={[Function]}
                                   >
                                     <FontAwesomeIcon
-                                      beat={false}
-                                      beatFade={false}
-                                      border={false}
-                                      bounce={false}
                                       className="toolbarButton_1ueb7gu"
-                                      fade={false}
-                                      fixedWidth={false}
-                                      flip={false}
                                       icon="tasks"
-                                      inverse={false}
                                       key="toolbar-details"
-                                      listItem={false}
-                                      mask={null}
-                                      maskId={null}
-                                      pull={null}
-                                      pulse={false}
-                                      rotation={null}
-                                      shake={false}
-                                      size={null}
-                                      spin={false}
-                                      spinPulse={false}
-                                      spinReverse={false}
-                                      swapOpacity={false}
-                                      symbol={false}
                                       title="Preferences"
-                                      titleId={null}
-                                      transform={null}
                                     >
                                       <svg
                                         aria-labelledby="svg-inline--fa-title-28"
@@ -26845,20 +27157,17 @@ ZeroDivisionError: integer division or modulo by zero
                               </div>
                               <DropdownMenu
                                 className="dropdown_biw13d"
-                                flip={true}
-                                right={true}
-                                tag="div"
+                                end={true}
                               >
                                 <div
                                   aria-hidden={true}
-                                  className="dropdown_biw13d dropdown-menu dropdown-menu-right"
+                                  className="dropdown_biw13d dropdown-menu dropdown-menu-end"
+                                  data-bs-popper="static"
                                   role="menu"
                                   tabIndex="-1"
                                 >
                                   <DropdownItem
                                     header={true}
-                                    tag="button"
-                                    toggle={true}
                                   >
                                     <h6
                                       className="dropdown-header"
@@ -26879,7 +27188,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   >
                                     <DropdownItem
                                       className="dropdownItem_1h5fos4"
-                                      tag="button"
                                       toggle={false}
                                     >
                                       <button
@@ -26891,16 +27199,6 @@ ZeroDivisionError: integer division or modulo by zero
                                         <Label
                                           check={true}
                                           className="filterLabel_1wpifct"
-                                          tag="label"
-                                          widths={
-                                            Array [
-                                              "xs",
-                                              "sm",
-                                              "md",
-                                              "lg",
-                                              "xl",
-                                            ]
-                                          }
                                         >
                                           <label
                                             className="filterLabel_1wpifct form-check-label"
@@ -26939,7 +27237,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   >
                                     <DropdownItem
                                       className="dropdownItem_1h5fos4"
-                                      tag="button"
                                       toggle={false}
                                     >
                                       <button
@@ -26951,17 +27248,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         <Label
                                           check={true}
                                           className="filterLabel_1wpifct"
-                                          tag="label"
                                           title="You need to specify --code command line argument to use this function."
-                                          widths={
-                                            Array [
-                                              "xs",
-                                              "sm",
-                                              "md",
-                                              "lg",
-                                              "xl",
-                                            ]
-                                          }
                                         >
                                           <label
                                             className="filterLabel_1wpifct form-check-label"
@@ -26997,7 +27284,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   >
                                     <DropdownItem
                                       className="dropdownItem_1h5fos4"
-                                      tag="button"
                                       toggle={false}
                                     >
                                       <button
@@ -27009,16 +27295,6 @@ ZeroDivisionError: integer division or modulo by zero
                                         <Label
                                           check={true}
                                           className="filterLabel_1wpifct"
-                                          tag="label"
-                                          widths={
-                                            Array [
-                                              "xs",
-                                              "sm",
-                                              "md",
-                                              "lg",
-                                              "xl",
-                                            ]
-                                          }
                                         >
                                           <label
                                             className="filterLabel_1wpifct form-check-label"
@@ -27044,8 +27320,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   </UserPreferenceCheckbox>
                                   <DropdownItem
                                     divider={true}
-                                    tag="button"
-                                    toggle={true}
                                   >
                                     <div
                                       className="dropdown-divider"
@@ -27055,8 +27329,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   </DropdownItem>
                                   <DropdownItem
                                     header={true}
-                                    tag="button"
-                                    toggle={true}
                                   >
                                     <h6
                                       className="dropdown-header"
@@ -27077,7 +27349,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   >
                                     <DropdownItem
                                       className="dropdownItem_1h5fos4"
-                                      tag="button"
                                       toggle={false}
                                     >
                                       <button
@@ -27089,16 +27360,6 @@ ZeroDivisionError: integer division or modulo by zero
                                         <Label
                                           check={true}
                                           className="filterLabel_1wpifct"
-                                          tag="label"
-                                          widths={
-                                            Array [
-                                              "xs",
-                                              "sm",
-                                              "md",
-                                              "lg",
-                                              "xl",
-                                            ]
-                                          }
                                         >
                                           <label
                                             className="filterLabel_1wpifct form-check-label"
@@ -27133,7 +27394,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   >
                                     <DropdownItem
                                       className="dropdownItem_1h5fos4"
-                                      tag="button"
                                       toggle={false}
                                     >
                                       <button
@@ -27145,16 +27405,6 @@ ZeroDivisionError: integer division or modulo by zero
                                         <Label
                                           check={true}
                                           className="filterLabel_1wpifct"
-                                          tag="label"
-                                          widths={
-                                            Array [
-                                              "xs",
-                                              "sm",
-                                              "md",
-                                              "lg",
-                                              "xl",
-                                            ]
-                                          }
                                         >
                                           <label
                                             className="filterLabel_1wpifct form-check-label"
@@ -27189,7 +27439,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   >
                                     <DropdownItem
                                       className="dropdownItem_1h5fos4"
-                                      tag="button"
                                       toggle={false}
                                     >
                                       <button
@@ -27201,16 +27450,6 @@ ZeroDivisionError: integer division or modulo by zero
                                         <Label
                                           check={true}
                                           className="filterLabel_1wpifct"
-                                          tag="label"
-                                          widths={
-                                            Array [
-                                              "xs",
-                                              "sm",
-                                              "md",
-                                              "lg",
-                                              "xl",
-                                            ]
-                                          }
                                         >
                                           <label
                                             className="filterLabel_1wpifct form-check-label"
@@ -27252,7 +27491,6 @@ ZeroDivisionError: integer division or modulo by zero
                         <Dropdown
                           a11y={true}
                           active={false}
-                          addonType={false}
                           direction="down"
                           inNavbar={true}
                           isOpen={false}
@@ -27282,33 +27520,10 @@ ZeroDivisionError: integer division or modulo by zero
                                     onClick={[Function]}
                                   >
                                     <FontAwesomeIcon
-                                      beat={false}
-                                      beatFade={false}
-                                      border={false}
-                                      bounce={false}
                                       className="toolbarButton_1ueb7gu"
-                                      fade={false}
-                                      fixedWidth={false}
-                                      flip={false}
                                       icon="filter"
-                                      inverse={false}
                                       key="toolbar-filter"
-                                      listItem={false}
-                                      mask={null}
-                                      maskId={null}
-                                      pull={null}
-                                      pulse={false}
-                                      rotation={null}
-                                      shake={false}
-                                      size={null}
-                                      spin={false}
-                                      spinPulse={false}
-                                      spinReverse={false}
-                                      swapOpacity={false}
-                                      symbol={false}
                                       title="Choose filter"
-                                      titleId={null}
-                                      transform={null}
                                     >
                                       <svg
                                         aria-labelledby="svg-inline--fa-title-29"
@@ -27338,18 +27553,16 @@ ZeroDivisionError: integer division or modulo by zero
                               </div>
                               <DropdownMenu
                                 className="dropdown_biw13d"
-                                flip={true}
-                                tag="div"
                               >
                                 <div
                                   aria-hidden={true}
                                   className="dropdown_biw13d dropdown-menu"
+                                  data-bs-popper="static"
                                   role="menu"
                                   tabIndex="-1"
                                 >
                                   <DropdownItem
                                     className="dropdownItem_1h5fos4"
-                                    tag="button"
                                     toggle={false}
                                   >
                                     <button
@@ -27361,16 +27574,6 @@ ZeroDivisionError: integer division or modulo by zero
                                       <Label
                                         check={true}
                                         className="filterLabel_1wpifct"
-                                        tag="label"
-                                        widths={
-                                          Array [
-                                            "xs",
-                                            "sm",
-                                            "md",
-                                            "lg",
-                                            "xl",
-                                          ]
-                                        }
                                       >
                                         <label
                                           className="filterLabel_1wpifct form-check-label"
@@ -27399,7 +27602,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   </DropdownItem>
                                   <DropdownItem
                                     className="dropdownItem_1h5fos4"
-                                    tag="button"
                                     toggle={false}
                                   >
                                     <button
@@ -27411,16 +27613,6 @@ ZeroDivisionError: integer division or modulo by zero
                                       <Label
                                         check={true}
                                         className="filterLabel_1wpifct"
-                                        tag="label"
-                                        widths={
-                                          Array [
-                                            "xs",
-                                            "sm",
-                                            "md",
-                                            "lg",
-                                            "xl",
-                                          ]
-                                        }
                                       >
                                         <label
                                           className="filterLabel_1wpifct form-check-label"
@@ -27449,7 +27641,6 @@ ZeroDivisionError: integer division or modulo by zero
                                   </DropdownItem>
                                   <DropdownItem
                                     className="dropdownItem_1h5fos4"
-                                    tag="button"
                                     toggle={false}
                                   >
                                     <button
@@ -27461,16 +27652,6 @@ ZeroDivisionError: integer division or modulo by zero
                                       <Label
                                         check={true}
                                         className="filterLabel_1wpifct"
-                                        tag="label"
-                                        widths={
-                                          Array [
-                                            "xs",
-                                            "sm",
-                                            "md",
-                                            "lg",
-                                            "xl",
-                                          ]
-                                        }
                                       >
                                         <label
                                           className="filterLabel_1wpifct form-check-label"
@@ -27508,9 +27689,7 @@ ZeroDivisionError: integer division or modulo by zero
                       status="error"
                       updateTagsDisplayFunc={[Function]}
                     >
-                      <NavItem
-                        tag="li"
-                      >
+                      <NavItem>
                         <li
                           className="nav-item"
                         >
@@ -27518,34 +27697,11 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
                               className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
                               icon="tags"
-                              inverse={false}
                               key="toolbar-tags"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
                               onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
                               title="Display tags"
-                              titleId={null}
-                              transform={null}
                             >
                               <svg
                                 aria-labelledby="svg-inline--fa-title-30"
@@ -27623,9 +27779,7 @@ ZeroDivisionError: integer division or modulo by zero
                         }
                       }
                     >
-                      <NavItem
-                        tag="li"
-                      >
+                      <NavItem>
                         <li
                           className="nav-item"
                         >
@@ -27633,34 +27787,11 @@ ZeroDivisionError: integer division or modulo by zero
                             className="buttonsBar_6zsntc"
                           >
                             <FontAwesomeIcon
-                              beat={false}
-                              beatFade={false}
-                              border={false}
-                              bounce={false}
                               className="toolbarButton_1ueb7gu"
-                              fade={false}
-                              fixedWidth={false}
-                              flip={false}
                               icon="info"
-                              inverse={false}
                               key="toolbar-info"
-                              listItem={false}
-                              mask={null}
-                              maskId={null}
                               onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              shake={false}
-                              size={null}
-                              spin={false}
-                              spinPulse={false}
-                              spinReverse={false}
-                              swapOpacity={false}
-                              symbol={false}
                               title="Info"
-                              titleId={null}
-                              transform={null}
                             >
                               <svg
                                 aria-labelledby="svg-inline--fa-title-31"
@@ -27721,9 +27852,7 @@ ZeroDivisionError: integer division or modulo by zero
                         zIndex={1050}
                       />
                     </ToolbarInfoButton>
-                    <NavItem
-                      tag="li"
-                    >
+                    <NavItem>
                       <li
                         className="nav-item"
                       >
@@ -27731,34 +27860,11 @@ ZeroDivisionError: integer division or modulo by zero
                           className="buttonsBar_6zsntc"
                         >
                           <FontAwesomeIcon
-                            beat={false}
-                            beatFade={false}
-                            border={false}
-                            bounce={false}
                             className="toolbarButton_1ueb7gu"
-                            fade={false}
-                            fixedWidth={false}
-                            flip={false}
                             icon="print"
-                            inverse={false}
                             key="toolbar-print"
-                            listItem={false}
-                            mask={null}
-                            maskId={null}
                             onClick={[Function]}
-                            pull={null}
-                            pulse={false}
-                            rotation={null}
-                            shake={false}
-                            size={null}
-                            spin={false}
-                            spinPulse={false}
-                            spinReverse={false}
-                            swapOpacity={false}
-                            symbol={false}
                             title="Print page"
-                            titleId={null}
-                            transform={null}
                           >
                             <svg
                               aria-labelledby="svg-inline--fa-title-32"
@@ -27787,9 +27893,7 @@ ZeroDivisionError: integer division or modulo by zero
                         </div>
                       </li>
                     </NavItem>
-                    <NavItem
-                      tag="li"
-                    >
+                    <NavItem>
                       <li
                         className="nav-item"
                       >
@@ -27800,33 +27904,10 @@ ZeroDivisionError: integer division or modulo by zero
                           target="_blank"
                         >
                           <FontAwesomeIcon
-                            beat={false}
-                            beatFade={false}
-                            border={false}
-                            bounce={false}
                             className="toolbarButton_1ueb7gu"
-                            fade={false}
-                            fixedWidth={false}
-                            flip={false}
                             icon="book"
-                            inverse={false}
                             key="toolbar-document"
-                            listItem={false}
-                            mask={null}
-                            maskId={null}
-                            pull={null}
-                            pulse={false}
-                            rotation={null}
-                            shake={false}
-                            size={null}
-                            spin={false}
-                            spinPulse={false}
-                            spinReverse={false}
-                            swapOpacity={false}
-                            symbol={false}
                             title="Documentation"
-                            titleId={null}
-                            transform={null}
                           >
                             <svg
                               aria-labelledby="svg-inline--fa-title-33"

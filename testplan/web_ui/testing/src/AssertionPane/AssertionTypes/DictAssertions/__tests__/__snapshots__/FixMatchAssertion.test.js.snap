@@ -168,7 +168,7 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
           <div
             aria-colcount="4"
             aria-rowcount="26"
-            class="ag-root ag-unselectable ag-layout-normal"
+            class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
             role="treegrid"
           >
             <div
@@ -190,7 +190,7 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                 >
                   <div
                     aria-colindex="1"
-                    class="ag-header-cell ag-column-first ag-focus-managed"
+                    class="ag-header-cell ag-column-first ag-header-parent-hidden ag-focus-managed"
                     col-id="key"
                     role="columnheader"
                     style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -225,7 +225,7 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                         
                     
                         <input
-                          aria-label="Press Space to toggle all rows selection (unchecked)"
+                          aria-label="Column with Header Selection"
                           class="ag-input-field-input ag-checkbox-input"
                           data-ref="eInput"
                           id="ag-6-input"
@@ -366,7 +366,7 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                   >
                     <div
                       aria-colindex="3"
-                      class="ag-header-cell ag-focus-managed"
+                      class="ag-header-cell ag-header-parent-hidden ag-focus-managed"
                       col-id="expected"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 0px;"
@@ -401,7 +401,7 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-7-input"
@@ -525,7 +525,7 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                     </div>
                     <div
                       aria-colindex="4"
-                      class="ag-header-cell ag-column-last ag-focus-managed"
+                      class="ag-header-cell ag-column-last ag-header-parent-hidden ag-focus-managed"
                       col-id="value"
                       role="columnheader"
                       style="top: 0px; height: 48px; width: 200px; left: 200px;"
@@ -560,7 +560,7 @@ exports[`FixMatchAssertion renders the correct HTML structure 1`] = `
                           
                     
                           <input
-                            aria-label="Press Space to toggle all rows selection (unchecked)"
+                            aria-label="Column with Header Selection"
                             class="ag-input-field-input ag-checkbox-input"
                             data-ref="eInput"
                             id="ag-8-input"
