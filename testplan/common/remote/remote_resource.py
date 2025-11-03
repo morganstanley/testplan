@@ -204,6 +204,7 @@ class RemoteResource(Entity):
         self._check_remote_os()
 
         self._define_remote_dirs()
+        self._check_remote_pidfile()
         self._create_remote_dirs()
 
         if self.cfg.push:
@@ -232,6 +233,9 @@ class RemoteResource(Entity):
         )
         self._remote_runid_file = os.path.join(
             self._remote_plan_runpath, self._get_plan().runid_filename
+        )
+        self._remote_pid_file = os.path.join(
+            self._remote_plan_runpath, "testplan.pid"
         )
 
         self._remote_resource_runpath = rebase_path(
@@ -267,6 +271,41 @@ class RemoteResource(Entity):
             self._workspace_paths.remote,
         )
 
+    def _check_remote_pidfile(self) -> None:
+        """Check remote PID file and block if another testplan process is running on the same runpath."""
+
+        status, stdout, _ = self._ssh_client.exec_command(
+            cmd=f"/bin/cat {self._remote_pid_file}",
+            label="read remote pid file",
+            check=False,
+        )
+
+        if status:
+            # No PID file found, no other process is using the runpath
+            return
+
+        hostname, pid = (
+            stdout.strip().split(";")
+            if ";" in stdout
+            else (None, stdout.strip())
+        )
+        if pid and pid.isdigit():
+            if hostname:
+                ssh_client = SSHClient(hostname)
+            else:
+                ssh_client = self._ssh_client
+
+            check_status, _, _ = ssh_client.exec_command(
+                cmd=f"/bin/ps -p {pid}",
+                label="check remote pid running",
+                check=False,
+            )
+
+            if check_status == 0:
+                raise RuntimeError(
+                    f"Another testplan instance (hostname: {hostname or self.cfg.remote_host}, pid: {pid}) is already using the same runpath"
+                )
+
     def _create_remote_dirs(self) -> None:
         """Create mandatory directories in remote host."""
 
@@ -296,6 +335,11 @@ class RemoteResource(Entity):
             self._ssh_client.exec_command(
                 cmd=f"/bin/touch {self._remote_runid_file}",
                 label="create remote runid file",
+            )
+
+            self._ssh_client.exec_command(
+                cmd=f'/bin/echo "{os.uname()[1]};{os.getpid()}" > {self._remote_pid_file}',
+                label="create initial pid file",
             )
 
             # TODO: remote venv setup

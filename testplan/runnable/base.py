@@ -1316,6 +1316,10 @@ class TestRunner(Runnable):
             makeemptydirs(self._runpath)
             makeemptydirs(self._scratch)
 
+        self.pidfile_path = os.path.join(self._runpath, "testplan.pid")
+        with open(self.pidfile_path, "w") as pid_file:
+            pid_file.write(str(os.getpid()))
+
         with open(
             os.path.join(self._runpath, self.runid_filename), "wb"
         ) as fp:
