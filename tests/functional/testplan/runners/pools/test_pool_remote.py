@@ -6,6 +6,9 @@ import tempfile
 
 import pytest
 
+from testplan.common.remote.remote_runtime import (
+    PipBasedBuilder,
+)
 from testplan.common.utils.process import execute_cmd
 from testplan.common.utils.remote import ssh_cmd
 from testplan.report import Status
@@ -76,12 +79,19 @@ def test_pool_basic(mockplan, remote_pool_type):
             schedule_path=schedule_path,
             restart_count=0,
             clean_remote=True,
+            remote_runtime_builder=PipBasedBuilder(
+                venv_path="/var/tmp/venv",
+                transfer_exclude=[".venv*", "*node_modules*", ".git"],
+            ),
         )
     finally:
-        assert 0 == execute_cmd(
-            ssh_cmd({"host": REMOTE_HOST}, f"test -L {workspace}"),
-            label="workspace imitated on remote",
-            check=False,
+        assert (
+            0
+            == execute_cmd(
+                ssh_cmd({"host": REMOTE_HOST}, f"test -L {workspace}"),
+                label="workspace imitated on remote",
+                check=False,
+            )[0]
         )
         os.chdir(orig_dir)
         shutil.rmtree(workspace)
@@ -95,6 +105,12 @@ def test_materialization_fail(mockplan):
         hosts={REMOTE_HOST: 1},
         workspace_exclude=["*"],  # effectively not copy anything
         clean_remote=True,
+        remote_runtime_builder=PipBasedBuilder(
+            venv_path="/var/tmp/venv",
+            reuse_venv_if_exist=True,
+            skip_install_deps_if_exist=True,
+            transfer_exclude=[".venv*", "*node_modules*", ".git"],
+        ),
     )
     mockplan.add_resource(pool)
 

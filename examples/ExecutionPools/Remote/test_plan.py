@@ -24,7 +24,7 @@ from testplan import Task
 from testplan.runners.pools.remote import RemotePool
 
 from testplan.common.utils.path import pwd
-
+from testplan.common.remote.remote_runtime import PipBasedBuilder
 from testplan.parser import TestplanParser
 from testplan.report.testing.styles import Style, StyleEnum
 
@@ -97,7 +97,8 @@ def main(plan):
         # environment. Default to 0, which will make testplan use
         # the default SSH port for connections.
         port=int(os.environ.get("TESTPLAN_REMOTE_PORT", 0)),
-        setup_script=["/bin/bash", "setup_script.ksh"],
+        size=plan.args.pool_size,
+        setup_script=["/bin/bash", "setup_script.sh"],
         env={"LOCAL_USER": getpass.getuser(), "LOCAL_WORKSPACE": workspace},
         workspace_exclude=[".git/", ".cache/", "doc/", "test/"],
         # We push local files to the remote worker using the
@@ -105,6 +106,11 @@ def main(plan):
         push=push_files,
         workspace=workspace,
         clean_remote=True,
+        remote_runtime_builder=PipBasedBuilder(
+            # here we pick the same base binary as the one running this script
+            python_base_bin=sys.base_prefix + "/bin/python3",
+            transfer_exclude=["*.venv*", "*node_modules*", "*.git*", "*doc/*"],
+        ),
     )
 
     plan.add_resource(pool)
