@@ -80,6 +80,8 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def _set_child_script(self) -> None:
         """Specify the remote worker executable file."""
+        # XXX: we shouldn't always need full path of child.py
+        # XXX: child_via_mod
         self._child_paths.local = fix_home_prefix(self._child_path())
         self._child_paths.remote = rebase_path(
             self._child_paths.local,
@@ -89,7 +91,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     def _proc_cmd_impl(self) -> List[str]:
         cmd = [
-            self.python_binary,
+            self.remote_python_bin,
             "-uB",
             self._child_paths.remote,
             "--index",
@@ -151,7 +153,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         )
 
     def pre_start(self) -> None:
-        self.define_runpath()
+        self.make_runpath_dirs()
         with self.timer.record("prepare remote"):
             self._prepare_remote()
         self._set_child_script()
@@ -263,8 +265,6 @@ class RemotePool(Pool):
     :param workspace_exclude: Patterns to exclude files when pushing workspace.
     :param remote_runpath: Root runpath on remote host, default is same as local (Linux->Linux)
       or /var/tmp/$USER/testplan/$plan_name (Window->Linux).
-    :param testplan_path: Path to import testplan from on remote host,
-      default is testplan_lib under remote_runpath
     :param remote_workspace: The path of the workspace on remote host,
       default is fetched_workspace under remote_runpath
     :param clean_remote: Deleted root runpath on remote at exit.

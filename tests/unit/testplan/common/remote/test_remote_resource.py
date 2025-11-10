@@ -6,6 +6,7 @@ import tempfile
 import pytest
 
 from testplan import TestplanMock
+from testplan.common.remote.remote_runtime import SourceTransferBuilder
 from testplan.common.utils.path import rebase_path
 from testplan.common.utils.remote import filepath_exist_cmd
 
@@ -34,6 +35,7 @@ def workspace():
     # rely "import tests" here - instead navigate up to find the tests dir.
     script_dir = os.path.dirname(__file__)
 
+    # get GIT_ROOT/tests
     orig_tests_dir = script_dir
     while os.path.basename(orig_tests_dir) != "tests":
         orig_tests_dir = os.path.abspath(
@@ -103,6 +105,17 @@ def remote_resource(runpath_module, workspace, push_dir):
         pull_exclude=["file2"],
         env={"LOCAL_USER": getpass.getuser()},
         setup_script=["remote_setup.py"],
+        remote_runtime_builder=SourceTransferBuilder(
+            # TODO: including what's inside gitignore
+            transfer_exclude=[
+                "*.venv*",
+                "*node_modules*",
+                "*.git*",
+                "*doc/*",
+                "*parser.py",
+            ],
+        ),
+        check_remote_python_ver=False,
         clean_remote=True,
     )
     remote_resource.parent = mockplan.runnable
@@ -135,6 +148,12 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         remote_resource._workspace_paths.remote,
     )
 
+    assert set(remote_resource._pushed_remote_paths) == {
+        push_dir,
+        "/".join([remote_resource._working_dirs.remote, "file1"]),
+        "/".join([workspace, "file2"]),
+    }
+
     for remote_path in [
         remote_resource._remote_runid_file,
         "/".join([remote_resource._workspace_paths.remote, "tests", "unit"]),
@@ -142,6 +161,15 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         "/".join([push_dir, "file1_ln"]),
         "/".join([remote_resource._working_dirs.remote, "file1"]),
         "/".join([workspace, "file2"]),
+        # so that we know the default SourceTransferBuilder has done its job
+        "/".join(
+            [
+                remote_resource._remote_plan_runpath,
+                remote_resource._remote_runtime_builder.cfg._runpath_testplan_dir,
+                "testplan",
+                "version.py",
+            ]
+        ),
     ]:
         assert (
             0
@@ -156,6 +184,15 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
             [remote_resource._workspace_paths.remote, "tests", "functional"]
         ),
         "/".join([push_dir, "file3"]),
+        # so that we know transfer_exclude inside SourceTransferBuilder worked
+        "/".join(
+            [
+                remote_resource._remote_plan_runpath,
+                remote_resource._remote_runtime_builder.cfg._runpath_testplan_dir,
+                "testplan",
+                "parser.py",
+            ]
+        ),
     ]:
         assert (
             0
@@ -170,13 +207,22 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         "LOCAL_USER": getpass.getuser()
     }
     assert remote_resource.setup_metadata.setup_script == ["remote_setup.py"]
-    assert remote_resource.setup_metadata.push_dirs == [push_dir]
-    assert remote_resource.setup_metadata.push_files == [
-        "/".join([remote_resource._working_dirs.remote, "file1"]),
-        "/".join([workspace, "file2"]),
-    ]
 
     remote_resource._clean_remote()
+
+    # pushed files deleted after clean-up
+    for remote_path in [
+        "/".join([remote_resource._working_dirs.remote, "file1"]),
+        "/".join([workspace, "file2"]),
+        push_dir,
+    ]:
+        assert (
+            0
+            != remote_resource._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(remote_path),
+                check=False,
+            )[0]
+        )
 
 
 def test_fetch_results(remote_resource, push_dir):
@@ -217,6 +263,8 @@ def test_fetch_results(remote_resource, push_dir):
         )
     )
 
+    remote_resource._clean_remote()
+
 
 def test_runpath_in_ws(workspace):
     mockplan = TestplanMock(
@@ -233,12 +281,43 @@ def test_runpath_in_ws(workspace):
             "__pycache__",
             "*.pyc",
         ],
+        check_remote_python_ver=False,
+        remote_runtime_builder=SourceTransferBuilder(
+            # TODO: including what's inside gitignore
+            transfer_exclude=[
+                "*.venv*",
+                "*node_modules*",
+                "*.git*",
+                "*doc/*",
+                "*parser.py",
+            ],
+        ),
+        clean_remote=True,
     )
     remote_resource.parent = mockplan.runnable
     remote_resource.cfg.parent = mockplan.runnable.cfg
 
-    remote_resource.make_runpath_dirs()
-    remote_resource._prepare_remote()
+    try:
+        remote_resource.make_runpath_dirs()
+        remote_resource._prepare_remote()
+
+        assert (
+            0
+            != remote_resource._ssh_client.exec_command(
+                cmd=filepath_exist_cmd(
+                    "/".join(
+                        [
+                            remote_resource._workspace_paths.remote,
+                            "tests",
+                            "functional",
+                        ]
+                    )
+                ),
+                check=False,
+            )[0]
+        )
+    finally:
+        remote_resource._clean_remote()
 
     assert (
         0
@@ -248,7 +327,6 @@ def test_runpath_in_ws(workspace):
                     [
                         remote_resource._workspace_paths.remote,
                         "tests",
-                        "functional",
                     ]
                 )
             ),

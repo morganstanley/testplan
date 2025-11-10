@@ -51,7 +51,7 @@ def _format_logline(s):
 
 
 def match_regexps_in_file(
-    logpath: os.PathLike, log_extracts: List[Pattern]
+    logpath: Union[str, bytes, os.PathLike], log_extracts: List[Pattern]
 ) -> Tuple[bool, Dict[str, str], List[Pattern]]:
     """
     Return a boolean, dict pair indicating whether all log extracts matches,

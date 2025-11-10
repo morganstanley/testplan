@@ -2,6 +2,7 @@ class RemoteDriver:
     """
     A proxy object that forwards access of itself to the actual driver that
     runs on remote host via the remote_service's rpyc connection.
+
     :param remote_service: the remote_service object to use
     :type remote_service: ``RemoteService``
     :param driver_class: the class of the driver to instantiate on remote host
