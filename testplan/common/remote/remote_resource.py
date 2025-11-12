@@ -273,9 +273,6 @@ class RemoteResource(Entity):
         self._remote_runid_file = os.path.join(
             self._remote_plan_runpath, self._get_plan().runid_filename
         )
-        self._remote_pid_file = os.path.join(
-            self._remote_plan_runpath, "testplan.pid"
-        )
 
         self._remote_resource_runpath = rebase_path(
             self.runpath,
