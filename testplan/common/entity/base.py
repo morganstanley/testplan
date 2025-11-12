@@ -1125,6 +1125,8 @@ class Runnable(Entity):
         res = None
         try:
             res = step(*args, **kwargs)
+        except RuntimeError as exc:
+            raise exc
         except Exception as exc:
             self.logger.error(
                 "Exception on %s, step %s - %s",

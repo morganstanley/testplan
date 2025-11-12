@@ -1,1 +1,1 @@
-Prevent parallel remote testplan executions on same runpath.
+Prevent parallel testplan executions on same runpath.
