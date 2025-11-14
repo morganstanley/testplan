@@ -3,6 +3,7 @@
 import inspect
 import math
 import os
+import psutil
 import random
 import re
 import sys
@@ -1298,27 +1299,19 @@ class TestRunner(Runnable):
         """
 
         if not os.path.exists(self._pidfile_path):
-            self.logger.debug(f"PID file does not exist: {self._pidfile_path}")
             return
 
         with open(self._pidfile_path, "r") as pid_file:
             pid_content = pid_file.read().strip()
 
         if not pid_content or not pid_content.isdigit():
-            self.logger.debug(f"Invalid PID format in file: {pid_content}")
             return
 
         pid = int(pid_content)
 
-        try:
-            # Signal 0 doesn't kill, just checks if process exists
-            os.kill(pid, 0)
+        if psutil.pid_exists(pid):
             raise RuntimeError(
                 f"Another testplan instance with PID {pid} is already using runpath: {self._runpath}"
-            )
-        except OSError:
-            self.logger.debug(
-                f"Stale PID file found with PID {pid}, continuing"
             )
 
     def make_runpath_dirs(self):
