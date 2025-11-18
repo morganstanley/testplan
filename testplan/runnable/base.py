@@ -1309,7 +1309,7 @@ class TestRunner(Runnable):
 
         pid = int(pid_content)
 
-        if psutil.pid_exists(pid):
+        if psutil.pid_exists(pid) and pid != os.getpid():
             raise RuntimeError(
                 f"Another testplan instance with PID {pid} is already using runpath: {self._runpath}"
             )
