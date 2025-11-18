@@ -1,5 +1,6 @@
 """Remote worker pool module."""
 
+import copy
 import os
 import signal
 import socket
@@ -15,6 +16,7 @@ from testplan.common.remote.remote_resource import (
     RemoteResourceConfig,
     UnboundRemoteResourceConfig,
 )
+from testplan.common.remote.remote_runtime import RuntimeBuilder
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import fix_home_prefix, rebase_path
 from testplan.common.utils.remote import copy_cmd, ssh_cmd
@@ -167,19 +169,6 @@ class RemoteWorker(ProcessWorker, RemoteResource):
     def post_stop(self) -> None:
         self._clean_remote()
 
-    def _wait_stopped(self, timeout: float = None) -> None:
-        sleeper = get_sleeper(1, timeout)
-        while next(sleeper):
-            if self.status != self.status.STOPPED:
-                self.logger.info("Waiting for workers to stop")
-            else:
-                self.post_stop()
-                break
-        else:
-            msg = f"Not able to stop worker {self} after {timeout}s"
-            self.logger.error(msg)
-            raise RuntimeError(msg)
-
     def _rebase_assertion(self, result) -> None:
         if isinstance(result, dict) and "source_path" in result:
             result["source_path"] = rebase_path(
@@ -280,6 +269,9 @@ class RemotePool(Pool):
     :param pull_exclude: Patterns to exclude files on pull stage..
     :param env: Environment variables to be propagated.
     :param setup_script: Script to be executed on remote as very first thing.
+    :param paramiko_config: Paramiko SSH client extra configuration.
+    :param remote_runtime_builder: RuntimeBuilder instance to prepare remote python env.
+        Default is ``SourceTransferBuilder()``.
 
     Also inherits all :py:class:`~testplan.runner.pools.base.Pool` options.
     """
@@ -305,7 +297,6 @@ class RemotePool(Pool):
         workspace: str = None,
         workspace_exclude: List[str] = None,
         remote_runpath: str = None,
-        testplan_path: str = None,
         remote_workspace: str = None,
         clean_remote: bool = False,
         push: List[Union[str, Tuple[str, str]]] = None,
@@ -317,6 +308,8 @@ class RemotePool(Pool):
         pull_exclude: List[str] = None,
         env: Dict[str, str] = None,
         setup_script: List[str] = None,
+        paramiko_config: Optional[dict] = None,
+        remote_runtime_builder: Optional[RuntimeBuilder] = None,
         **options,
     ) -> None:
         self.pool = None
@@ -350,12 +343,16 @@ class RemotePool(Pool):
 
     def _add_workers(self) -> None:
         """TODO."""
+        rtb = self._options.get("remote_runtime_builder")
         for instance in self._instances.values():
             worker = self.cfg.worker_type(
                 index=instance["host"],
                 remote_host=instance["host"],
                 workers=instance["number_of_workers"],
-                **self._options,
+                **{
+                    **self._options,
+                    "remote_runtime_builder": copy.deepcopy(rtb),
+                },
             )
             self.logger.debug("Created %s", worker)
             worker.parent = self

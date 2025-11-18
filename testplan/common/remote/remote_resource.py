@@ -96,11 +96,9 @@ class UnboundRemoteResourceConfig(EntityConfig):
             ConfigOption("env", default=None): Or(dict, None),
             ConfigOption("setup_script", default=None): Or(list, None),
             ConfigOption("paramiko_config", default=None): Or(dict, None),
-            ConfigOption(
-                "remote_runtime_builder", default=None
-            ): lambda x: isinstance(x, RuntimeBuilder),
-            # XXX: could be enhanced to accept an expression
-            ConfigOption("check_remote_python_ver", default=True): bool,
+            ConfigOption("remote_runtime_builder", default=None): Or(
+                lambda x: isinstance(x, RuntimeBuilder), None
+            ),
         }
 
 
@@ -145,8 +143,6 @@ class RemoteResource(Entity):
     :param paramiko_config: Paramiko SSH client extra configuration.
     :param remote_runtime_builder: RuntimeBuilder instance to prepare remote python env.
         Default is ``SourceTransferBuilder()``.
-    :param check_remote_python_ver: Check if remote python version is newer than local
-        if set to true. Default is True.
     :param status_wait_timeout: remote resource start/stop timeout, default is 60.
     """
 
@@ -174,7 +170,6 @@ class RemoteResource(Entity):
         setup_script: List[str] = None,
         paramiko_config: Optional[dict] = None,
         remote_runtime_builder: Optional[RuntimeBuilder] = None,
-        check_remote_python_ver: bool = True,
         status_wait_timeout: int = 60,
         **options,
     ) -> None:
@@ -375,9 +370,10 @@ class RemoteResource(Entity):
         self._remote_pybin = (
             self._remote_runtime_builder.remote_prepare_pybin()
         )
-        self.logger.info("picking remote python: %s", self._remote_pybin)
-        if self.cfg.check_remote_python_ver:
-            self._check_remote_python_ver(self._remote_pybin)
+        self.logger.info(
+            "%s: picking remote python %s", self, self._remote_pybin
+        )
+        self._log_remote_python_ver(self._remote_pybin)
         paths_to_transfer = self._remote_runtime_builder.local_export_pyenv()
         remote_paths = self._push_files_to_dst(
             paths_to_transfer,
@@ -389,11 +385,7 @@ class RemoteResource(Entity):
             self._remote_runtime_builder.remote_setup_pyenv(remote_paths)
         )
 
-    def _check_remote_python_ver(self, remote_python_bin: str):
-        """
-        check if remote python version is newer than local, raise if not
-        """
-
+    def _log_remote_python_ver(self, remote_python_bin: str):
         _, stdout, _ = self._ssh_client.exec_command(
             cmd=f'{remote_python_bin} -c "import sys; print(tuple(sys.version_info))"',
             label="detect remote python version",
@@ -413,36 +405,12 @@ class RemoteResource(Entity):
             else None
         )
 
-        if not remote_python_ver:
-            self.logger.error(
-                "%s: failed to detect remote python version, exiting...",
-                self,
-            )
-            raise RuntimeError("failed to detect remote python version")
-        if sys.version_info == remote_python_ver:
-            self.logger.info(
-                "%s: remote python version matches local",
-                self,
-            )
-        elif sys.version_info < remote_python_ver:
-            self.logger.info(
-                "%s: remote python version %s is newer than local %s, "
-                "this should generally work",
-                self,
-                remote_python_ver,
-                tuple(sys.version_info),
-            )
-        else:
-            self.logger.error(
-                "%s: remote python version %s is older than local %s, "
-                "exiting...",
-                self,
-                remote_python_ver,
-                tuple(sys.version_info),
-            )
-            raise RuntimeError(
-                "remote python version is older than local, refuse to continue"
-            )
+        self.logger.info(
+            "%s: remote python version %s; local python version %s",
+            self,
+            remote_python_ver,
+            tuple(sys.version_info),
+        )
 
     def _check_workspace(self) -> bool:
         """

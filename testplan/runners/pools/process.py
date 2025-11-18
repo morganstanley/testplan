@@ -148,7 +148,6 @@ class ProcessWorker(Worker):
         """Stop child process worker."""
         if self._handler:
             kill_process(self._handler, self.cfg.stop_timeout)
-        self.status.change(self.STATUS.STOPPED)
 
     def aborting(self) -> None:
         """Process worker abort logic."""
