@@ -273,7 +273,7 @@ class PipBasedBuilder(RuntimeBuilder):
         import uv  # so that usage of uv noticed by linter
 
         _, stdout, _ = self._lcmd_exec(
-            [sys.executable, "-m", uv.__name__, "pip", "freeze"],
+            [sys.executable, "-m", uv.__name__, "--no-cache", "pip", "freeze"],
             label="execute uv pip freeze on local",
         )
         self._upstream_pkgs, local_paths = self.group_freezed(
@@ -329,6 +329,7 @@ class PipBasedBuilder(RuntimeBuilder):
                         self._remote_python_bin,
                         "-m",
                         uv.__name__,
+                        "--no-cache",
                         "pip",
                         "install",
                         *self._upstream_pkgs,
