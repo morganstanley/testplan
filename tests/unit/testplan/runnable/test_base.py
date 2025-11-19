@@ -3,6 +3,7 @@ import os
 import psutil
 
 from testplan.common.report import ReportCategories
+from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.report.testing import TestGroupReport
 from testplan.runnable.base import collate_for_merging, TestRunner
 
@@ -105,7 +106,7 @@ class TestPidFileCheck:
             f.write(str(other_pid))
 
         with pytest.raises(
-            RuntimeError,
+            RunpathInUseError,
             match=f"Another testplan instance with PID {other_pid}",
         ):
             plan._check_pidfile()

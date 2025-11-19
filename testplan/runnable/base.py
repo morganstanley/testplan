@@ -52,6 +52,7 @@ if TYPE_CHECKING:
 
 from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
+from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.selector import Expr as SExpr
@@ -1310,7 +1311,7 @@ class TestRunner(Runnable):
         pid = int(pid_content)
 
         if psutil.pid_exists(pid) and pid != os.getpid():
-            raise RuntimeError(
+            raise RunpathInUseError(
                 f"Another testplan instance with PID {pid} is already using runpath: {self._runpath}"
             )
 
