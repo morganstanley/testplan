@@ -7,6 +7,14 @@ import inspect
 LOGGER = logging.getLogger(__name__)
 
 
+class RunpathInUseError(RuntimeError):
+    """
+    Exception raised when a runpath is already in use by another testplan instance.
+    """
+
+    pass
+
+
 def should_raise(exception, item, args=None, kwargs=None, pattern=None):
     """
     "Utility that validates callable should raise specific exception.
