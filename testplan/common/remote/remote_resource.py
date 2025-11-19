@@ -556,7 +556,7 @@ class RemoteResource(Entity):
                     rmt_non_existing or self._workspace_paths.local
                 )
                 self.logger.info(
-                    "%s: on %s, %s and its possible descendants are "
+                    "%s: on %s, %s and its possible parents are "
                     "created to imitate local workspace path",
                     self,
                     self.ssh_cfg["host"],
