@@ -2,6 +2,7 @@
 
 import os
 import sys
+import subprocess
 
 # Check if the remote host has been specified in the environment. Remote
 # hosts can only be Linux systems.
@@ -66,6 +67,16 @@ def main(plan):
         remote_runtime_builder=PipBasedBuilder(
             # here we pick the same base binary as the one running this script
             python_base_bin=sys.base_prefix + "/bin/python3",
+            # here we manually exclude certain doc related deps
+            overridden_deps=[
+                p
+                for p in subprocess.check_output(
+                    [sys.executable, "-m", "uv", "pip", "freeze"]
+                )
+                .decode()
+                .splitlines()
+                if "sphinx" not in p
+            ],
             transfer_exclude=["*.venv*", "*node_modules*", "*.git*", "*doc/*"],
         ),
     )

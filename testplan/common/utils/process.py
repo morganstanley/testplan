@@ -373,7 +373,7 @@ def execute_cmd(
     if stderr is None:
         stderr = subprocess.PIPE
 
-    logger.info("Executing command [%s]: '%s'", label, cmd_string)
+    logger.debug("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
     handler = subprocess.Popen(

@@ -139,10 +139,10 @@ class PipBasedBuilderConfig(RuntimeBuilderConfig):
             ConfigOption("reuse_venv_if_exist", default=False): bool,
             ConfigOption("skip_install_deps_if_exist", default=False): bool,
             ConfigOption("use_sys_env", default=False): bool,
-            # TODO: allow user to override dependencies
-            # ConfigOption("overridden_deps", default=None): And(
-            #     list, lambda x: all(isinstance(i, str) for i in x)
-            # ),
+            ConfigOption("extra_install_env_vars", default=None): dict,
+            ConfigOption("overridden_deps", default=None): And(
+                list, lambda x: all(isinstance(i, str) for i in x)
+            ),
             # internal option, venv path under runpath on remote
             ConfigOption("_runpath_venv_path", default="venv"): str,
             # internal option, local packages dir under runpath on remote
@@ -174,6 +174,13 @@ class PipBasedBuilder(RuntimeBuilder):
         check is performed, use with caution.
     :param use_sys_env: use system python environment directly without venv
         creation
+    :param extra_install_env_vars: dict of extra environment variables to set
+        during ``uv pip install`` on remote
+    :param overridden_deps: list of package requirement strings to override
+        (replace) the dependencies detected from local venv, should be alike
+        the format of ``uv pip freeze`` output, e.g.
+        ``["packageA==1.2.3", "packageB @ file:///path/to/packageB",
+        "packageC", "packageA!=1.2.3+local", ...]``
     """
 
     CONFIG = PipBasedBuilderConfig
@@ -270,15 +277,21 @@ class PipBasedBuilder(RuntimeBuilder):
         return self._remote_python_bin
 
     def local_export_pyenv(self):
-        import uv  # so that usage of uv noticed by linter
+        if self.cfg.overridden_deps:
+            # NOTE: here we don't perform any check upon user input
+            self._upstream_pkgs, local_paths = self.group_freezed(
+                self.cfg.overridden_deps
+            )
+        else:
+            import uv  # so that usage of uv noticed by linter
 
-        _, stdout, _ = self._lcmd_exec(
-            [sys.executable, "-m", uv.__name__, "--no-cache", "pip", "freeze"],
-            label="execute uv pip freeze on local",
-        )
-        self._upstream_pkgs, local_paths = self.group_freezed(
-            stdout.splitlines()
-        )
+            _, stdout, _ = self._lcmd_exec(
+                [sys.executable, "-m", uv.__name__, "pip", "freeze"],
+                label="execute uv pip freeze on local",
+            )
+            self._upstream_pkgs, local_paths = self.group_freezed(
+                stdout.splitlines()
+            )
         self.logger.info("local packages to transfer: %s", local_paths)
         self._local_pkgs = [
             os.path.join(
@@ -329,7 +342,6 @@ class PipBasedBuilder(RuntimeBuilder):
                         self._remote_python_bin,
                         "-m",
                         uv.__name__,
-                        "--no-cache",
                         "pip",
                         "install",
                         *self._upstream_pkgs,
@@ -338,6 +350,7 @@ class PipBasedBuilder(RuntimeBuilder):
                 + " "
                 + local_pkgs_pattern,
                 label="install packages on remote",
+                env=self.cfg.extra_install_env_vars or None,
             )
         _, r_testplan_parent, _ = self._rcmd_exec(
             [
@@ -423,7 +436,9 @@ class SourceTransferBuilder(RuntimeBuilder):
         # NOTE: this is obviously a quite rough test
         if (
             self._rcmd_exec(
-                filepath_exist_cmd(self._l_testplan_ppath),
+                filepath_exist_cmd(
+                    os.path.join(self._l_testplan_ppath, "testplan", "base.py")
+                ),
                 label="test if testplan accessible on remote",
                 check=False,
             )[0]

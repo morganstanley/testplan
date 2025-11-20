@@ -153,7 +153,7 @@ class SSHClient:
             )
             cmd_string = f"{env_str} {cmd_string}"
 
-        self.logger.info(
+        self.logger.debug(
             "ssh_client executing command [%s]: '%s'",
             label,
             cmd_string,

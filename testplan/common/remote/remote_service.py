@@ -255,5 +255,3 @@ class RemoteService(Resource, RemoteResource):
             # otherwise we need to manual kill this orphaned ssh procc
             if self.proc:
                 kill_process(self.proc, self.cfg.stop_timeout)
-
-        self.status.change(self.STATUS.STOPPED)
