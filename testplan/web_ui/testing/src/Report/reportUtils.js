@@ -1,21 +1,16 @@
 /**
  * Report utility functions.
  */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { format } from "date-fns";
 import { TZDate } from "@date-fns/tz";
 import _ from "lodash";
-import axios from "axios";
 import AssertionPane from "../AssertionPane/AssertionPane";
 import ResourcePanel from "../AssertionPane/ResourcePanel";
 import Message from "../Common/Message";
-import {
-  formatMilliseconds,
-  getAttachmentUrl,
-  getAssertionsFileName,
-} from "./../Common/utils";
+import { formatMilliseconds } from "./../Common/utils";
 import { VIEW_TYPE } from "../Common/defaults";
-import { parseToJson } from "../Common/utils";
+
 import { filterEntries } from "./reportFilter";
 
 /**
@@ -82,9 +77,7 @@ const MergeSplittedReport = (mainReport, assertions, structure) => {
       }
     });
   };
-  if (assertions) {
-    _mergeStructure(structure, assertions);
-  }
+  _mergeStructure(structure, assertions);
   mainReport.entries = structure;
   return mainReport;
 };
@@ -200,86 +193,18 @@ const GetReportState = (state) => {
   }
 };
 
-// TODO: use TanStack Query
-let assertionsCache = {};
-
 /**
  * Get the component to display in the centre pane.
  */
-const CenterPane = ({
-  reportState,
+const GetCenterPane = (
+  state,
   reportFetchMessage,
   reportUid,
   selectedEntries,
   displayTime,
-  UTCTime,
-}) => {
-  const [assertions, setAssertions] = useState(null);
+  UTCTime
+) => {
   const selectedEntry = _.last(selectedEntries);
-  useEffect(() => {
-    if (selectedEntries.length === 0 || reportFetchMessage) {
-      return;
-    }
-
-    if (assertions === null) {
-      if (
-        selectedEntry.entries.length === 0 &&
-        selectedEntry.counter.total > 0
-      ) {
-        // version 3 report structure
-        const assertionFileName = getAssertionsFileName(selectedEntries[1].uid);
-        if (assertionsCache.hasOwnProperty(assertionFileName)) {
-          const _assertions = getAssertions(
-            selectedEntries,
-            assertionsCache[assertionFileName][selectedEntry.uid],
-            displayTime,
-            UTCTime
-          );
-          setAssertions(_assertions);
-        } else {
-          const fetchUrl = getAttachmentUrl(assertionFileName, reportUid);
-          axios
-            .get(fetchUrl, { transformResponse: parseToJson })
-            .then((response) => {
-              const _assertions = getAssertions(
-                selectedEntries,
-                response.data[selectedEntry.uid],
-                displayTime,
-                UTCTime
-              );
-
-              // TODO: Improve caching strategy. Currently only one assertion file is cached.
-              assertionsCache = {
-                [assertionFileName]: response.data,
-              };
-              setAssertions(_assertions);
-            })
-            .catch((error) => {
-              console.error("Error fetching assertions:", error);
-              setAssertions([]);
-            });
-        }
-      } else {
-        // version 1&2 report structure
-        const _assertions = getAssertions(
-          selectedEntries,
-          _.last(selectedEntries).entries,
-          displayTime,
-          UTCTime
-        );
-        setAssertions(_assertions);
-      }
-    }
-  }, [
-    selectedEntry,
-    reportFetchMessage,
-    reportUid,
-    selectedEntries,
-    displayTime,
-    UTCTime,
-    assertions,
-  ]);
-
   const logs = selectedEntry?.logs || [];
   const selectedDescription = selectedEntries
     .slice(-1)
@@ -290,22 +215,19 @@ const CenterPane = ({
       return element; // filter empty description
     });
 
-  if (reportState.error) {
-    return <Message message={`Error: ${reportState.error.message}`} />;
+  if (state.error) {
+    return <Message message={`Error: ${state.error.message}`} />;
   }
 
   if (reportFetchMessage !== null) {
     return <Message message={reportFetchMessage} />;
   }
 
-  if (reportState.currentPanelView === VIEW_TYPE.RESOURCE) {
-    return <ResourcePanel key="resourcePanel" report={reportState.report} />;
+  if (state.currentPanelView === VIEW_TYPE.RESOURCE) {
+    return <ResourcePanel key="resourcePanel" report={state.report} />;
   }
 
-  if (assertions === null) {
-    return <Message message="Loading assertions" />;
-  }
-
+  const assertions = getAssertions(selectedEntries, displayTime, UTCTime);
   if (
     assertions.length > 0 ||
     logs.length > 0 ||
@@ -317,10 +239,10 @@ const CenterPane = ({
         assertions={assertions}
         logs={logs}
         descriptionEntries={selectedDescription}
-        left={reportState.navWidth}
+        left={state.navWidth}
         testcaseUid={selectedEntry.uid}
-        filter={reportState.filter}
-        displayPath={reportState.displayPath}
+        filter={state.filter}
+        displayPath={state.displayPath}
         reportUid={reportUid}
       />
     );
@@ -333,7 +255,7 @@ const CenterPane = ({
 };
 
 /** TODO */
-const getAssertions = (selectedEntries, assertions, displayTime, UTCTime) => {
+const getAssertions = (selectedEntries, displayTime, UTCTime) => {
   // get timezone from nearest (test-level) report (defaults to utc)
   const IANAtz = selectedEntries.find((e) => e.timezone)?.timezone || "UTC";
 
@@ -383,7 +305,7 @@ const getAssertions = (selectedEntries, assertions, displayTime, UTCTime) => {
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
   if (selectedEntry && isReportLeaf(selectedEntry)) {
     let links = [];
-    getAssertionsRecursively(links, assertions);
+    getAssertionsRecursively(links, selectedEntry.entries);
 
     // get time information of each assertion if needed
     if (displayTime) {
@@ -422,7 +344,7 @@ const getAssertions = (selectedEntries, assertions, displayTime, UTCTime) => {
         links[i].timeInfoArray = [];
       }
     }
-    return assertions;
+    return selectedEntry.entries;
   } else {
     return [];
   }
@@ -515,7 +437,7 @@ export {
   isReportLeaf,
   PropagateIndices,
   GetReportState,
-  CenterPane,
+  GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
   findFirstFailure,

@@ -314,38 +314,45 @@ const GetStatusIcon = (status) => (
 const generateNavTimeInfo = (
   setupTimeProp,
   teardownTimeProp,
-  executionTimeProp
+  executionTimeProp,
 ) => {
   let totalTime = null;
   if (_.isNumber(executionTimeProp)) {
     totalTime = executionTimeProp;
     totalTime += _.isNumber(setupTimeProp) ? setupTimeProp : 0;
     totalTime += _.isNumber(teardownTimeProp) ? teardownTimeProp : 0;
-  }
+  };
 
   const detailedTimeElement =
-    _.isNumber(setupTimeProp) || _.isNumber(teardownTimeProp) ? (
-      <span
-        key={`nav-time-detailed-${setupTimeProp}-${executionTimeProp}-${teardownTimeProp}`}
-        className={css(navStyles.entryIcon)}
-        title="Setup / Execution / Teardown duration"
-      >
-        ({formatShortDuration(setupTimeProp)}/
-        {formatShortDuration(executionTimeProp)}/
-        {formatShortDuration(teardownTimeProp)})
+    (_.isNumber(setupTimeProp) || _.isNumber(teardownTimeProp))
+    ? (
+      <span className={css(navStyles.entryIcon)}
+      title="Setup / Execution / Teardown duration">
+          (
+            {
+              formatShortDuration(setupTimeProp)
+            }/{
+              formatShortDuration(executionTimeProp)
+            }/{
+              formatShortDuration(teardownTimeProp)
+            }
+          )
       </span>
-    ) : null;
-  const totalTimeElement = _.isNumber(totalTime) ? (
-    <span
-      key={`nav-time-total-${totalTime}`}
-      className={css(navStyles.entryIcon)}
-      title="Total runtime"
-    >
-      {formatShortDuration(totalTime)}
-    </span>
-  ) : null;
+    )
+    : null;
+  const totalTimeElement = 
+    _.isNumber(totalTime)
+    ? (
+      <span className={css(navStyles.entryIcon)} title="Total runtime">
+          {formatShortDuration(totalTime)}
+      </span>
+    )
+    : null;
 
-  return [totalTimeElement, detailedTimeElement];
+    return [
+      totalTimeElement,
+      detailedTimeElement
+    ];
 };
 
 export {
