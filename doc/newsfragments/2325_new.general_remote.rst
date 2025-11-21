@@ -1,6 +1,7 @@
-Add support for Pip-based Python runtime environment to remote features, i.e. :py:class:`~testplan.runners.pools.remote.RemotePool` and :py:class:`~testplan.common.remote.remote_driver.RemoteDriver`. Introduce :py:class:`~testplan.common.remote.remote_runtime.RuntimeBuilder` and its descendant classes encapsulating remote runtime environment related operations. Revamp certain internal implementations to align with the new remote runtime setup design. Below are details of possible **breaking changes** which should affect small group of users:
+Remote features, i.e. :py:class:`~testplan.runners.pools.remote.RemotePool` and :py:class:`~testplan.common.remote.remote_driver.RemoteDriver`, are now capable of setting up Python virtual environment on remote
+via newly introduced :py:class:`~testplan.common.remote.remote_runtime.PipBasedBuilder`. Please check out :ref:`this updated example <example_pool_remote>` for its usage.
+Revamp certain internal implementation to align with the new remote setup design. Below are details of possible **breaking changes** which should only affect a small group of users:
 
 * ``testplan_path`` parameter in :py:class:`~testplan.common.remote.remote_resource.RemoteResource` has been removed. Users are advised to use ``existing_testplan_parent`` within :py:class:`~testplan.common.remote.remote_runtime.SourceTransferBuilder` for specifying the Testplan import path on remote hosts.
 * ``_execute_cmd_remote`` method in :py:class:`~testplan.common.utils.remote.RemoteResource` has been removed, many other methods also have interface and implementation changed.
 * Function signature of certain utilities in :py:mod:`~testplan.common.utils.process` has been changed.
-* Default value of ``rpyc_bin`` parameter in :py:class:`~testplan.common.remote.remote_driver.RemoteDriver` has been updated to adapt to Pip-based Python runtime environments.

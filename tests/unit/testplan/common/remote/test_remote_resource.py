@@ -115,7 +115,6 @@ def remote_resource(runpath_module, workspace, push_dir):
                 "*parser.py",
             ],
         ),
-        check_remote_python_ver=False,
         clean_remote=True,
     )
     remote_resource.parent = mockplan.runnable
@@ -281,7 +280,6 @@ def test_runpath_in_ws(workspace):
             "__pycache__",
             "*.pyc",
         ],
-        check_remote_python_ver=False,
         remote_runtime_builder=SourceTransferBuilder(
             # TODO: including what's inside gitignore
             transfer_exclude=[
