@@ -352,20 +352,6 @@ export const getAttachmentUrl = (filePath, reportUid, prefix) => {
 };
 
 /**
- * Generates a standardized assertions file name based on the multitest uid.
- *
- * @param {string} mtUid - Multitest uid
- * @returns {string} The formatted assertions file name in the format "assertions_{mtUid}.json"
- *
- * @example
- * // Returns "assertions_myTest.json"
- * getAssertionsFileName("myTest");
- */
-export const getAssertionsFileName = (mtUid) => {
-  return `assertions_${mtUid}`;
-};
-
-/**
  * Get the URL to retrieve the resource data from API.
  * @param {string} resourceUid
  * @param {string} attachment

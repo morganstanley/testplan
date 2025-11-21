@@ -44,7 +44,6 @@ exports[`NavList shallow renders and matches snapshot 1`] = `
         description="desc"
         displayTime={false}
         executionTime={null}
-        key="123"
         name="test"
         setupTime={null}
         status="passed"

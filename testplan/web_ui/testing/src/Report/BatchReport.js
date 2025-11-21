@@ -13,7 +13,7 @@ import Nav from "../Nav/Nav";
 import {
   PropagateIndices,
   GetReportState,
-  CenterPane,
+  GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
   findFirstFailure,
@@ -168,25 +168,6 @@ class BatchReportComponent extends BaseReport {
                   })
                 )
                 .catch(this.setError);
-            } else if (rawReport.version === 3) {
-                axios.get(
-                  `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
-                  { transformResponse: parseToJson }
-                ).then(structureRes => {
-                  if (!structureRes.data) {
-                    console.error(structureRes);
-                    alert(
-                      "Failed to parse report structure!\n" +
-                        "Please report this issue to the Testplan team."
-                    );
-                  }
-                  const mergedReport = MergeSplittedReport(
-                      rawReport,
-                      null,
-                      structureRes.data,
-                    );
-                  this.setReport(this.updateReportUID(mergedReport, uid));
-                });
             } else {
               this.setReport(this.updateReportUID(rawReport, uid));
             }
@@ -274,15 +255,14 @@ class BatchReportComponent extends BaseReport {
                                  .join(" > ")}`;
     }
 
-    const centerPane = <CenterPane
-      key={`center-pane-${this.props.match.params.selection}`}
-      reportState={this.state}
-      reportFetchMessage={reportFetchMessage}
-      reportUid={this.props.match.params.uid}
-      selectedEntries={selectedEntries}
-      displayTime={this.props.displayTime}
-      UTCTime={this.props.UTCTime}
-    />;
+    const centerPane = GetCenterPane(
+      this.state,
+      reportFetchMessage,
+      this.props.match.params.uid,
+      selectedEntries,
+      this.props.displayTime,
+      this.props.UTCTime
+    );
 
     return (
       <div className={css(styles.batchReport)}>

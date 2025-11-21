@@ -10,7 +10,7 @@ import testplan
 from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
-from testplan.exporters.testing.json import get_structure_file_name
+from testplan.exporters.testing.json import gen_attached_report_names
 from testplan.testing import multitest
 
 
@@ -158,44 +158,30 @@ def test_json_exporter_generating_split_report(runpath):
     with open(json_path) as json_file:
         report = json.load(json_file)
 
-    assert report["version"] == 3
+    assert report["version"] == 2
 
     # Check that the expected text file is attached correctly.
     attachments_dir = os.path.join(os.path.dirname(json_path), "_attachments")
     assert os.path.isdir(attachments_dir)
     assert len(report["entries"]) == 0
-    assert len(report["attachments"]) == 4
+    assert len(report["attachments"]) == 3
 
-    structure_filename = get_structure_file_name(
+    structure_filename, assertions_filename = gen_attached_report_names(
         pathlib.Path(json_path).resolve()
     )
     assert structure_filename in report["attachments"]
-    multitest_1_assertions_name = f"assertions_{multitest_1.uid()}"
-    multitest_2_assertions_name = f"assertions_{multitest_2.uid()}"
-    assert multitest_1_assertions_name in report["attachments"]
-    assert multitest_2_assertions_name in report["attachments"]
+    assert assertions_filename in report["attachments"]
     assert report["structure_file"] == structure_filename
+    assert report["assertions_file"] == assertions_filename
 
     structure_filepath = os.path.join(attachments_dir, structure_filename)
-    multitest_1_assertions_path = os.path.join(
-        attachments_dir, multitest_1_assertions_name
-    )
-    multitest_2_assertions_path = os.path.join(
-        attachments_dir, multitest_2_assertions_name
-    )
+    assertions_filepath = os.path.join(attachments_dir, assertions_filename)
     assert os.path.isfile(structure_filepath)
-    assert os.path.isfile(multitest_1_assertions_path)
-    assert os.path.isfile(multitest_2_assertions_path)
+    assert os.path.isfile(assertions_filepath)
 
-    with open(structure_filepath) as f:
-        structure = json.loads(f.read())
-    assertions_map = {}
-    with (
-        open(multitest_1_assertions_path) as f1,
-        open(multitest_2_assertions_path) as f2,
-    ):
-        assertions_map[multitest_1_assertions_name] = json.loads(f1.read())
-        assertions_map[multitest_2_assertions_name] = json.loads(f2.read())
+    with open(structure_filepath) as f1, open(assertions_filepath) as f2:
+        structure = json.loads(f1.read())
+        assertions = json.loads(f2.read())
 
     assert len(structure) == 2  # 2 multitests
     assert structure[0]["name"] == "Primary"  # 1st multitest name
@@ -218,80 +204,28 @@ def test_json_exporter_generating_split_report(runpath):
     assert structure[1]["entries"][1]["name"] == "Beta"  # 1st suite name
     assert len(structure[1]["entries"][1]["entries"]) == 2  # 2 testcases
 
-    # 10 cases in total
-    assert len(assertions_map[multitest_1_assertions_name]) == 7
-    assert len(assertions_map[multitest_2_assertions_name]) == 3
+    assert len(assertions) == 10  # 10 cases in total
     # only one assertion in each testcase in suite `Alpha`
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_comparison"][0][
-            "type"
-        ]
-        == "Equal"
-    )
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_membership__arg_1"][
-            0
-        ]["type"]
-        == "Contain"
-    )
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_membership__arg_2"][
-            0
-        ]["type"]
-        == "Contain"
-    )
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_membership__arg_3"][
-            0
-        ]["type"]
-        == "Contain"
-    )
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_attach"][0]["type"]
-        == "Attachment"
-    )
+    assert assertions["test_comparison"][0]["type"] == "Equal"
+    assert assertions["test_membership__arg_1"][0]["type"] == "Contain"
+    assert assertions["test_membership__arg_2"][0]["type"] == "Contain"
+    assert assertions["test_membership__arg_3"][0]["type"] == "Contain"
+    assert assertions["test_attach"][0]["type"] == "Attachment"
     # 2 assertions in testcase `test_failure`
-    assert (
-        assertions_map[multitest_2_assertions_name]["test_failure"][0]["type"]
-        == "Equal"
-    )
-    assert (
-        assertions_map[multitest_2_assertions_name]["test_failure"][1]["type"]
-        == "NotEqual"
-    )
+    assert assertions["test_failure"][0]["type"] == "Equal"
+    assert assertions["test_failure"][1]["type"] == "NotEqual"
     # no assertion in testcase `test_error`
-    assert len(assertions_map[multitest_2_assertions_name]["test_error"]) == 0
+    assert len(assertions["test_error"]) == 0
     # 2 assertions in synthesized cases, i.e. custom hooks
-    assert (
-        assertions_map[multitest_1_assertions_name]["setup"][0]["type"]
-        == "Log"
-    )
-    assert (
-        assertions_map[multitest_2_assertions_name]["After Start"][0]["type"]
-        == "Log"
-    )
+    assert assertions["setup"][0]["type"] == "Log"
+    assert assertions["After Start"][0]["type"] == "Log"
 
     # special values representation preserved
     # NOTE: these values are of type float in old impl,
     # NOTE: converted to js repr in cope with json lib change
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_special_values"][0][
-            "first"
-        ]
-        == "NaN"
-    )
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_special_values"][1][
-            "first"
-        ]
-        == "-Infinity"
-    )
-    assert (
-        assertions_map[multitest_1_assertions_name]["test_special_values"][1][
-            "second"
-        ]
-        == "Infinity"
-    )
+    assert assertions["test_special_values"][0]["first"] == "NaN"
+    assert assertions["test_special_values"][1]["first"] == "-Infinity"
+    assert assertions["test_special_values"][1]["second"] == "Infinity"
 
 
 def test_implicit_exporter_initialization(runpath):

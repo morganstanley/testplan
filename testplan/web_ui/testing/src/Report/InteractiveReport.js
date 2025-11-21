@@ -29,7 +29,7 @@ import { FakeInteractiveReport } from "../Common/sampleReports.js";
 import {
   PropagateIndices,
   GetReportState,
-  CenterPane,
+  GetCenterPane,
   GetSelectedEntries,
   filterReport,
   getSelectedUIDsFromPath,
@@ -714,14 +714,14 @@ class InteractiveReportComponent extends BaseReport {
       getSelectedUIDsFromPath(this.props.match.params, base64url.decode),
       this.state.filteredReport.report
     );
-    const centerPane = <CenterPane
-      reportState={this.state}
-      reportFetchMessage={reportFetchMessage}
-      loading={null}
-      selectedEntries={selectedEntries}
-      displayTime={this.props.displayTime}
-      UTCTime={this.props.UTCTime}
-    />;
+    const centerPane = GetCenterPane(
+      this.state,
+      reportFetchMessage,
+      null,
+      selectedEntries,
+      this.props.displayTime,
+      this.props.UTCTime
+    );
 
     return (
       <div className={css(styles.interactiveReport)}>
