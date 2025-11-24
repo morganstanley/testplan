@@ -1409,6 +1409,9 @@ Hooks
     def post_testcase(self, name, env, result):
         pass
 
+
+.. _Xfail:
+
 Xfail
 -----
 

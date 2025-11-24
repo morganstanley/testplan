@@ -29,6 +29,7 @@ from schema import Or
 from testplan.common.config import Config, ConfigOption
 from testplan.common.report import Status
 from testplan.common.utils import logger
+from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
@@ -1125,6 +1126,8 @@ class Runnable(Entity):
         res = None
         try:
             res = step(*args, **kwargs)
+        except RunpathInUseError as exc:
+            raise exc
         except Exception as exc:
             self.logger.error(
                 "Exception on %s, step %s - %s",

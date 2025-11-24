@@ -1,0 +1,1 @@
+Prevent parallel testplan executions on same runpath.

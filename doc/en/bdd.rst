@@ -12,15 +12,15 @@ Create the following files in your project, or get started using the :ref:`downl
 
 ``features/first.feature``
 
-.. literalinclude:: ../../../examples/BDD/quickstart/features/first.feature
+.. literalinclude:: ../../examples/BDD/quickstart/features/first.feature
 
 ``features/steps/steps.py``
 
-.. literalinclude:: ../../../examples/BDD/quickstart/features/steps/steps.py
+.. literalinclude:: ../../examples/BDD/quickstart/features/steps/steps.py
 
 ``test_plan.py``
 
-.. literalinclude:: ../../../examples/BDD/quickstart/test_plan.py
+.. literalinclude:: ../../examples/BDD/quickstart/test_plan.py
 
 Now you should have a project structure like below::
 
@@ -454,7 +454,7 @@ Bits and pieces from the sentence can be captured as parameter to the function
     Scenario: 
         When salute to John
 
-With SimpleParser one can just enclose a name to {} and the captured string get passed to the step definition in *kwargs* with the same name. Deataild description of parsers see: :ref:`Parsers <bdd_parsers>`
+With SimpleParser one can just enclose a name to {} and the captured string get passed to the step definition in *kwargs* with the same name. Detailed description of parsers see: :ref:`Parsers <bdd_parsers>`
 
 .. code:: python
 
@@ -482,7 +482,7 @@ Downloadable example is in :ref:`parsers example <example_bdd_parsers>`
         result.log(arg + " " + name)
 
 
-.. _bddd_parsers:
+.. _bdd_parsers:
 
 Parsers
 -------

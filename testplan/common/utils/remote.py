@@ -7,6 +7,8 @@ import shlex
 import socket
 import subprocess
 import sys
+from typing import Optional
+
 
 IS_WIN = platform.system() == "Windows"
 USER = getpass.getuser()
@@ -48,6 +50,8 @@ def ssh_cmd(ssh_cfg, command):
     """
     Prefix command with ssh binary and option.
 
+    Deprecated, use ``RemoteResource.ssh_client.exec_command`` instead.
+
     :param ssh_cfg: dict with "host" and "port" (optional) keys
     :param command: command to execute on remote host
     :return: full cmd list
@@ -67,9 +71,16 @@ def ssh_cmd(ssh_cfg, command):
     return full_cmd
 
 
-def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
+def copy_cmd(
+    source: str,
+    target: str,
+    exclude: Optional[list[str]] = None,
+    port: Optional[int] = None,
+    deref_links: bool = False,
+    as_is: bool = False,
+):
     """Returns remote copy command."""
-
+    # TODO: global rsync/scp selection
     try:
         binary = os.environ["RSYNC_BINARY"]
     except KeyError:
@@ -94,10 +105,13 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
             ssh = "{} -p {}".format(ssh_bin(), port)
             full_cmd.extend(["-e", ssh])
 
+        if as_is:
+            return " ".join([shlex.join(full_cmd), source, target])
         full_cmd.extend([source, target])
         return full_cmd
 
     else:
+        # TODO: impl exclude
         # Proceed with SCP
         try:
             binary = os.environ["SCP_BINARY"]
@@ -113,7 +127,9 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
 
         full_cmd = [binary, "-r"]
         if port is not None:
-            full_cmd.extend(["-P", port])
+            full_cmd.extend(["-P", str(port)])
+        if as_is:
+            return " ".join([shlex.join(full_cmd), source, target])
         full_cmd.extend([source, target])
         return full_cmd
 

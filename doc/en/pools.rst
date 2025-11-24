@@ -223,20 +223,25 @@ Remote pool is using ssh to start remote worker interpreters that are
 communicating with the local pool with the
 :py:class:`ZMQ <testplan.runners.pools.child.ZMQTransport>` transport as well.
 During this process, the local workspace will be transferred to the remote
-workers (if needed) and the workers will start local 'thread' or 'process'
-pools, based on their configuration.
+workers (if needed), a Python runtime will be setup on the remote workers, and
+the workers will start local 'thread' or 'process' pools, based on their
+configuration.
 
 .. code-block:: python
 
+    from testplan.common.remote.remote_runtime import PipBasedBuilder
     from testplan.runners.pools.remote import RemotePool
 
     @test_plan(name='RemotePoolPlan')
     def main(plan):
         # A pool with 2 remote workers.
         # One with 2 local workers and the other with 1.
+        # Remote runtime will be setup via pip, i.e. export locally installed
+        # packages and install them on remote host.
         pool = RemotePool(name='MyPool',
                           hosts={'hostname1': 2,
-                                 'hostname2': 1})
+                                 'hostname2': 1},
+                          remote_runtime_builder=PipBasedBuilder())
         plan.add_resource(pool)
 
         # Schedule 10 tasks to the remote pool to execute them 3 in parallel.
