@@ -12,6 +12,7 @@ import time
 import traceback
 from collections import OrderedDict, deque
 from contextlib import suppress
+from multiprocessing import TimeoutError
 from typing import (
     Any,
     Callable,
@@ -34,7 +35,7 @@ from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
-from testplan.common.utils.timing import wait, Timer
+from testplan.common.utils.timing import Timer, wait
 from testplan.common.utils.validation import is_subclass
 
 
@@ -239,32 +240,32 @@ class Environment:
             else:
                 resource.logger.info("%s started", resource)
 
-    def start_in_pool(self, pool: mp.ThreadPool):
+    def start_in_pool(
+        self, pool: mp.ThreadPool, timeout: Optional[float] = None
+    ):
         """
         Start all resources concurrently in thread pool and log exceptions.
 
         :param pool: thread pool
         """
-
-        for resource in self._resources.values():
-            if not resource.async_start:
-                raise RuntimeError(
-                    f"Cannot start resource {resource} in thread pool,"
-                    " its `async_start` attribute is set to False"
-                )
-
-        def start_in_thread(resource):
-            resource.start()
-            resource.wait(resource.STATUS.STARTED)
-            resource.logger.info("%s started", resource)
+        # async_start is meaningless here...
+        for r in self._resources.values():
+            if r.auto_start:
+                r.cfg.set_local("async_start", False)
 
         async_r = pool.map_async(
             self._apply_resource_exception_logged(
-                self.start_exceptions, start_in_thread
+                self.start_exceptions, lambda r: r.start()
             ),
             (r for r in self._resources.values() if r.auto_start),
         )
-        async_r.wait()
+        try:
+            async_r.get(timeout)
+        except TimeoutError:
+            raise RuntimeError(
+                f"timeout after {timeout}s when starting resources "
+                f"{self._resources.values()} in internal threading pool."
+            )
 
     def sync_stop_resource(self, resource: "Resource"):
         """
@@ -346,42 +347,33 @@ class Environment:
                 resource.force_stop()
             resource.logger.info("%s stopped", resource)
 
-    def stop_in_pool(self, pool: mp.ThreadPool):
+    def stop_in_pool(
+        self, pool: mp.ThreadPool, timeout: Optional[float] = None
+    ):
         """
         Stop all resources concurrently in thread pool and log exceptions.
 
         :param pool: thread pool
         """
-        for resource in self._resources.values():
-            if not resource.async_start:
-                raise RuntimeError(
-                    f"Cannot stop resource {resource} in thread pool,"
-                    " its `async_start` attribute is set to False"
-                )
-
-        def stop_in_thread(resource: "Resource"):
-            try:
-                if resource.status not in (
-                    resource.STATUS.STOPPING,
-                    resource.STATUS.STOPPED,
-                ):
-                    resource.stop()
-                if resource.status == resource.STATUS.STOPPING:
-                    resource.wait(resource.STATUS.STOPPED)
-            except:
-                # Resource status should be STOPPED even it failed to stop
-                resource.force_stop()
-                raise
-            finally:
-                resource.logger.info("%s stopped", resource)
+        # async_start is meaningless here...
+        # in practice, stop_in_pool must be called in pair of start_in_pool
+        for r in self._resources.values():
+            if r.auto_start:
+                r.cfg.set_local("async_start", False)
 
         async_r = pool.map_async(
             self._apply_resource_exception_logged(
-                self.stop_exceptions, stop_in_thread
+                self.stop_exceptions, lambda r: r.stop()
             ),
             self._resources.values(),
         )
-        async_r.wait()
+        try:
+            async_r.get(timeout)
+        except TimeoutError:
+            raise RuntimeError(
+                f"timeout after {timeout}s when stopping resources "
+                f"{self._resources.values()} in internal threading pool."
+            )
 
     def _apply_resource_exception_logged(
         self, exception_record, func: Callable[["Resource"], None]
