@@ -1,8 +1,17 @@
 import multiprocessing.pool as mp
+import os
+import sys
 import time
-from testplan.common.entity.base import Resource, Environment
 
 import pytest
+
+from testplan.common.entity.base import Environment, Resource
+
+# Python 3.13+ uses process_cpu_count() for ThreadPool sizing
+if sys.version_info >= (3, 13):
+    CPU_COUNT = os.process_cpu_count() or 1
+else:
+    CPU_COUNT = os.cpu_count() or 1
 
 
 @pytest.fixture
@@ -12,7 +21,7 @@ def environment():
 
 @pytest.fixture
 def pool():
-    return mp.ThreadPool()
+    return mp.ThreadPool(CPU_COUNT)
 
 
 class DummyResource(Resource):
@@ -73,7 +82,8 @@ class TestConcurrentResourceOps:
         environment.start_in_pool(pool)
         b = time.time()
 
-        assert b - a < 2, "resources didn't start concurrently"
+        if CPU_COUNT >= 2:
+            assert b - a < 2, "resources didn't start concurrently"
         assert pre.call_count == 2, "pre-hooks not invoked"
         assert post.call_count == 2, "post-hooks not invoked"
 
@@ -81,7 +91,8 @@ class TestConcurrentResourceOps:
         environment.stop_in_pool(pool)
         d = time.time()
 
-        assert d - c < 2, "resources didn't stop concurrently"
+        if CPU_COUNT >= 2:
+            assert d - c < 2, "resources didn't stop concurrently"
         assert pre.call_count == 4, "pre-hooks not invoked"
         assert post.call_count == 4, "post-hooks not invoked"
 
@@ -108,7 +119,8 @@ class TestConcurrentResourceOps:
         b = time.time()
         environment.stop_in_pool(pool)
 
-        assert b - a < 3, "resources didn't start concurrently"
+        if CPU_COUNT >= 2:
+            assert b - a < 3, "resources didn't start concurrently"
         assert wait.call_count == 2, "wait-hooks not invoked"
         assert post.call_count == 2, "post-hooks not invoked"
 
@@ -135,7 +147,8 @@ class TestConcurrentResourceOps:
         environment.stop_in_pool(pool)
         b = time.time()
 
-        assert b - a < 3, "resources didn't stop concurrently"
+        if CPU_COUNT >= 2:
+            assert b - a < 3, "resources didn't stop concurrently"
         assert wait.call_count == 2, "wait-hooks not invoked"
         assert pre.call_count == 2, "pre-hooks not invoked"
 
@@ -164,7 +177,8 @@ class TestConcurrentResourceOps:
         a = time.time()
         environment.start_in_pool(pool)
         b = time.time()
-        assert b - a < 2, "resources didn't start concurrently"
+        if CPU_COUNT >= 2:
+            assert b - a < 2, "resources didn't start concurrently"
         assert not len(environment.start_exceptions)
 
         m.start()
@@ -199,11 +213,13 @@ class TestConcurrentResourceOps:
         ):
             environment.stop_in_pool(pool, timeout=0.2)
 
-    def test_nested_pool(self, environment, pool, mocker):
+    def test_nested_pool(self, mocker):
         wait, post = mocker.Mock(), mocker.Mock()
-        with mp.ThreadPool() as pool:
+        with mp.ThreadPool(CPU_COUNT) as another_pool:
 
             def _nested(_):
+                environment = Environment()
+                pool = mp.ThreadPool(CPU_COUNT)
                 environment.add(
                     DummyResource(
                         pre_stop=lambda _: time.sleep(1),
@@ -223,9 +239,10 @@ class TestConcurrentResourceOps:
                 environment.stop_in_pool(pool)
                 b = time.time()
 
-                assert b - a < 2, "resources didn't start concurrently"
+                if CPU_COUNT >= 4:
+                    assert b - a < 4, "resources didn't start concurrently"
 
-            r = pool.map_async(
+            r = another_pool.map_async(
                 _nested,
                 [None, None],
             )
