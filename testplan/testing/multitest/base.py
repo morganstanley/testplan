@@ -1231,7 +1231,9 @@ class MultiTest(testing_base.Test):
 
                 time_restriction = getattr(testcase, "timeout", None)
                 # Use default testcase timeout from config if no explicit timeout is set
-                if time_restriction is None and self.cfg.testcase_timeout:
+                if time_restriction is None and getattr(
+                    self.cfg, "testcase_timeout", None
+                ):
                     time_restriction = self.cfg.testcase_timeout
                 if time_restriction:
                     # pylint: disable=unbalanced-tuple-unpacking
