@@ -364,20 +364,26 @@ class RemotePool(Pool):
         for worker in self._workers:
             self._conn.register(worker)
         if self.pool:
-            self._workers.start_in_pool(self.pool)
+            self._workers.start_in_pool(
+                self.pool,
+                self.cfg.status_wait_timeout,
+            )
         else:
             self._workers.start()
 
     def _stop_workers(self) -> None:
         if self.pool:
-            self._workers.stop_in_pool(self.pool)
+            self._workers.stop_in_pool(
+                self.pool,
+                self.cfg.status_wait_timeout,
+            )
         else:
             self._workers.stop()
 
     def _start_thread_pool(self) -> None:
         size = len(self._instances)
         try:
-            if size > 2:
+            if size >= 2:
                 self.pool = ThreadPool(min(size, cpu_count()))
         except Exception as exc:
             if isinstance(exc, AttributeError):
