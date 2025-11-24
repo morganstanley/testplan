@@ -3,6 +3,7 @@ Module containing base classes that represent object entities that can accept
 configuration, start/stop/run/abort, create results and have some state.
 """
 
+import multiprocessing.pool as mp
 import os
 import signal
 import sys
@@ -11,6 +12,7 @@ import time
 import traceback
 from collections import OrderedDict, deque
 from contextlib import suppress
+from multiprocessing import TimeoutError
 from typing import (
     Any,
     Callable,
@@ -33,7 +35,7 @@ from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
-from testplan.common.utils.timing import wait, Timer
+from testplan.common.utils.timing import Timer, wait
 from testplan.common.utils.validation import is_subclass
 
 
@@ -238,39 +240,32 @@ class Environment:
             else:
                 resource.logger.info("%s started", resource)
 
-    def start_in_pool(self, pool):
+    def start_in_pool(
+        self, pool: mp.ThreadPool, timeout: Optional[float] = None
+    ):
         """
-        Start all resources concurrently in thread pool.
+        Start all resources concurrently in thread pool and log exceptions.
 
         :param pool: thread pool
-        :type pool: ``ThreadPool``
         """
+        # async_start is meaningless here...
+        for r in self._resources.values():
+            if r.auto_start:
+                r.cfg.set_local("async_start", False)
 
-        for resource in self._resources.values():
-            if not resource.async_start:
-                raise RuntimeError(
-                    f"Cannot start resource {resource} in thread pool,"
-                    " its `async_start` attribute is set to False"
-                )
-
-        # Trigger start all resources
-        resources_to_wait_for = []
-        for resource in self._resources.values():
-            if not resource.auto_start:
-                continue
-
-            pool.apply_async(
-                self._log_exception(
-                    resource, resource.start, self.start_exceptions
-                )
+        async_r = pool.map_async(
+            self._apply_resource_exception_logged(
+                self.start_exceptions, lambda r: r.start()
+            ),
+            (r for r in self._resources.values() if r.auto_start),
+        )
+        try:
+            async_r.get(timeout)
+        except TimeoutError:
+            raise RuntimeError(
+                f"timeout after {timeout}s when starting resources "
+                f"{self._resources.values()} in internal threading pool."
             )
-            resources_to_wait_for.append(resource)
-
-        # Wait resources status to be STARTED.
-        for resource in resources_to_wait_for:
-            if resource not in self.start_exceptions:
-                resource.wait(resource.STATUS.STARTED)
-                resource.logger.info("%s started", resource)
 
     def sync_stop_resource(self, resource: "Resource"):
         """
@@ -352,67 +347,49 @@ class Environment:
                 resource.force_stop()
             resource.logger.info("%s stopped", resource)
 
-    def stop_in_pool(self, pool, is_reversed=False):
+    def stop_in_pool(
+        self, pool: mp.ThreadPool, timeout: Optional[float] = None
+    ):
         """
-        Stop all resources in reverse order and log exceptions.
+        Stop all resources concurrently in thread pool and log exceptions.
 
         :param pool: thread pool
-        :type pool: ``ThreadPool``
-        :param is_reversed: flag whether to stop resources in reverse order
-        :type is_reversed: ``bool``
         """
-        resources = list(self._resources.values())
-        if is_reversed is True:
-            resources = resources[::-1]
+        # async_start is meaningless here...
+        # in practice, stop_in_pool must be called in pair of start_in_pool
+        for r in self._resources.values():
+            if r.auto_start:
+                r.cfg.set_local("async_start", False)
 
-        # Stop all resources
-        resources_to_wait_for = []
-        for resource in resources:
-            if resource.status in (
-                resource.STATUS.STOPPING,
-                resource.STATUS.STOPPED,
-            ):
-                continue
-            pool.apply_async(
-                self._log_exception(
-                    resource, resource.stop, self.stop_exceptions
-                )
+        async_r = pool.map_async(
+            self._apply_resource_exception_logged(
+                self.stop_exceptions, lambda r: r.stop()
+            ),
+            self._resources.values(),
+        )
+        try:
+            async_r.get(timeout)
+        except TimeoutError:
+            raise RuntimeError(
+                f"timeout after {timeout}s when stopping resources "
+                f"{self._resources.values()} in internal threading pool."
             )
-            resources_to_wait_for.append(resource)
 
-        # Wait resources status to be STOPPED.
-        for resource in resources_to_wait_for:
-            if resource not in self.stop_exceptions:
-                if resource.async_start:
-                    resource.wait(resource.STATUS.STOPPED)
-                else:
-                    # avoid post_stop being called twice
-                    wait(
-                        lambda: resource.status == resource.STATUS.STOPPED,
-                        timeout=resource.cfg.status_wait_timeout,
-                    )
-                resource.logger.info("%s stopped", resource)
-            else:
-                # Resource status should be STOPPED even it failed to stop
-                resource.force_stop()
-
-    def _log_exception(self, resource, func, exception_record):
+    def _apply_resource_exception_logged(
+        self, exception_record, func: Callable[["Resource"], None]
+    ) -> Callable[["Resource"], None]:
         """
-        Decorator for logging an exception at resource and environment level.
+        Applying ``func`` to resource and log possible exception at environment level.
 
-        :param resource: resource to log the exception with
-        :type resource: :py:class:`~testplan.common.entity.base.Resource`
-        :param func: function to catch exception for
-        :type func: ``Callable``
         :param exception_record: A dictionary that maps resource name to
             exception message during start or stop: `self.start_exception`
             for `start()` and `self.stop_exceptions` for `stop()`.
-        :type exception_record: ``dict``
+        :param func: function to catch exception for
         """
 
-        def wrapper(*args, **kargs):
+        def wrapper(resource: "Resource"):
             try:
-                func(*args, **kargs)
+                func(resource)
             except Exception:
                 msg = "While executing {} of resource [{}]\n{}".format(
                     func.__name__, resource.cfg.name, traceback.format_exc()

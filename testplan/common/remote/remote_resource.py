@@ -143,7 +143,7 @@ class RemoteResource(Entity):
     :param paramiko_config: Paramiko SSH client extra configuration.
     :param remote_runtime_builder: RuntimeBuilder instance to prepare remote python env.
         Default is ``SourceTransferBuilder()``.
-    :param status_wait_timeout: remote resource start/stop timeout, default is 60.
+    :param status_wait_timeout: remote resource start/stop timeout, default is 600.
     """
 
     CONFIG = RemoteResourceConfig
@@ -170,7 +170,7 @@ class RemoteResource(Entity):
         setup_script: List[str] = None,
         paramiko_config: Optional[dict] = None,
         remote_runtime_builder: Optional[RuntimeBuilder] = None,
-        status_wait_timeout: int = 60,
+        status_wait_timeout: int = 600,
         **options,
     ) -> None:
         if not worker_is_remote(remote_host):
