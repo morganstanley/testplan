@@ -9,6 +9,7 @@ from testplan.runners.local import LocalRunner
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.process import ProcessPool
 from testplan.testing.base import Test
+from testplan.testing.multitest.driver.base import Driver
 
 
 @mt.testsuite
@@ -192,10 +193,50 @@ def test_task_error(exec_ids):
         skip_strategy="tests-on-failed",
     )
     mockplan.add_resource(lrunner("lrunner"))
-    mockplan.add_resource(tpool("tpool", 4))
+    mockplan.add_resource(tpool("tpool", 1))
     mockplan.add_resource(ppool("ppool", 4))
     for mt, rid in zip(make_tests_with_task_error(), exec_ids):
         mockplan.schedule(target=mt, resource=rid)
     report = mockplan.run().report
     assert len(report) == 1
     assert ERROR_TEST_NAME in report.entries[0].name
+
+
+@mt.testsuite
+class Suite7:
+    @mt.testcase(parameters=range(10000))
+    def normal_large(self, env, result, param):
+        result.true(param >= 0)
+
+
+class SlowDriver(Driver):
+    def stopping(self):
+        time.sleep(2)
+        super().stopping()
+
+
+def test_simultaneous_discard():
+    mockplan = TestplanMock(
+        name="in the middle of functional test",
+        skip_strategy="tests-on-failed",
+    )
+    mockplan.add_resource(tpool("tpool", 3))
+    mockplan.schedule(
+        target=mt.MultiTest("mt1", [Suite1()]),
+        resource="tpool",
+    )
+    mockplan.schedule(
+        target=mt.MultiTest("mt2", [Suite7()], environment=[SlowDriver("sd")]),
+        resource="tpool",
+    )
+    mockplan.schedule(
+        target=mt.MultiTest("mt3", [Suite7()], environment=[SlowDriver("sd")]),
+        resource="tpool",
+    )
+    a = time.time()
+    report = mockplan.run().report
+    b = time.time()
+    # runtime overhead of threadpool setup etc. should be smaller than 2
+    assert b - a < 4, "multitests not discarded simultaneously"
+    assert len(report) == 1
+    assert report.entries[0].name == "mt1"
