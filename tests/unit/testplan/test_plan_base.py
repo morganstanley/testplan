@@ -2,6 +2,7 @@
 
 import os
 
+from testplan.base import default_runpath_mock
 from testplan.testing.multitest.driver.base import Driver
 import pytest
 
@@ -129,7 +130,12 @@ def test_testplan_decorator():
     """TODO."""
     from testplan import test_plan
 
-    @test_plan(name="MyPlan", port=800, parse_cmdline=False)
+    @test_plan(
+        name="MyPlan",
+        port=800,
+        parse_cmdline=False,
+        runpath=default_runpath_mock,
+    )
     def main1(plan):
         plan.add(DummyTest(name="bob"))
         return 123
