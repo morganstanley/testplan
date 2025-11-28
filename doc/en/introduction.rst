@@ -333,6 +333,7 @@ Command line
 
     General:
       --runpath             Directory path under which all temp files and logs will be created.
+      --archive-runpath     Archive the runpath directory after test execution if test fails or timeout.
       --timeout             Expiry timeout on test execution.
       -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
       --pre-start-environments     Enable pre-start of environments in interactive mode. MultiTest names are to be passed as whitespace separated list of strings. Defaults to no pre-start.

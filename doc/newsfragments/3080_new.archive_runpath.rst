@@ -1,0 +1,1 @@
+Added ``--archive-runpath`` command-line option to automatically archive the runpath directory after test execution when tests fail or timeout. The archive is created in zstd-compressed tar format (.tar.zst) and can be configured via the ``--archive-runpath`` CLI argument. This feature helps preserve test execution artifacts for debugging failed or timed-out tests.

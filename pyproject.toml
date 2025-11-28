@@ -57,6 +57,7 @@
         "click>=8.1.8",
         "gherkin-official>=32.1.2",
         "uv>=0.7.18",
+        "zstandard>=0.25.0",
 ]
     requires-python = ">=3.9"
 
