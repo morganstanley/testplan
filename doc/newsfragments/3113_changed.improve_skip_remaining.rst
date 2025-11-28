@@ -1,0 +1,1 @@
+Make it quicker to discard remaining tests within a :py:class:`~testplan.runners.pools.base.Pool` when requested by ``--skip-remaining`` (command line argument) or ``skip_strategy`` (programmatic option) and certain test failure occurred.

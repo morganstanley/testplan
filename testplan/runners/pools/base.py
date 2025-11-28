@@ -1,13 +1,13 @@
 """Worker pool executor base classes."""
 
 import datetime
-import numbers
 import os
 import pprint
 import queue
 import threading
 import time
 import traceback
+from multiprocessing.pool import ThreadPool
 from typing import (
     Dict,
     Generator,
@@ -104,7 +104,6 @@ class WorkerBase(entity.Resource):
         self.assigned = set()
         self.requesting = 0
         self.restart_count = self.cfg.restart_count
-        self._discard_running = threading.Event()
 
     @property
     def host(self) -> str:
@@ -161,7 +160,8 @@ class WorkerBase(entity.Resource):
         pass
 
     def discard_running_tasks(self):
-        self._discard_running.set()
+        # should be implemented by subclasses
+        pass
 
     def __repr__(self):
         return f"{self.__class__.__name__}[{self.cfg.index}]"
@@ -186,6 +186,7 @@ class Worker(WorkerBase):
     def __init__(self, **options) -> None:
         super().__init__(**options)
         self._handler = None
+        self._discard_running = threading.Event()
         self._curr_runnable_lock = threading.Lock()
         self._curr_runnable = None
 
@@ -259,6 +260,9 @@ class Worker(WorkerBase):
                 )
                 if received_.cmd == Message.Stop:
                     break
+                if received_.cmd == Message.DiscardPending:
+                    # handled in ``self.discard_running_tasks``
+                    pass
             elif received.cmd == Message.Ack:
                 pass
             time.sleep(self.cfg.active_loop_sleep)
@@ -297,7 +301,7 @@ class Worker(WorkerBase):
         return task_result
 
     def discard_running_tasks(self):
-        super().discard_running_tasks()
+        self._discard_running.set()
         with self._curr_runnable_lock:
             if self._curr_runnable is not None:
                 self._curr_runnable.abort()
@@ -327,7 +331,7 @@ class PoolConfig(ExecutorConfig):
             ),
             ConfigOption("heartbeats_miss_limit", default=3): int,
             ConfigOption("restart_count", default=3): int,
-            ConfigOption("max_active_loop_sleep", default=5): numbers.Number,
+            ConfigOption("max_active_loop_sleep", default=5): Or(int, float),
             ConfigOption("allow_task_rerun", default=True): bool,
         }
 
@@ -396,9 +400,7 @@ class Pool(Executor):
         # for skip-remaining feature
         # like LocalRunner, ``_loop`` & ``discard_pending_tasks`` will be
         # triggered in different threads
-        # NOTE: pool operations should all take little time, to narrow down
-        # NOTE: the critical section would be rather meaningless
-        self._discard_pending_lock = threading.RLock()
+        self._discard_pending_lock = threading.Lock()
         self._discard_pending = False
         self._stopping_queue = []
         self.worker_status = {
@@ -513,10 +515,7 @@ class Pool(Executor):
             worker.respond(response.make(Message.Stop))
         elif request.cmd in self._request_handlers:
             try:
-                with self._discard_pending_lock:
-                    self._request_handlers[request.cmd](
-                        worker, request, response
-                    )
+                self._request_handlers[request.cmd](worker, request, response)
             except Exception:
                 self.logger.error(traceback.format_exc())
                 self.logger.debug(
@@ -553,6 +552,12 @@ class Pool(Executor):
         tasks = []
 
         if self.status == self.status.STARTED:
+            with self._discard_pending_lock:
+                if self._discard_pending:
+                    # in case of long heartbeat interval
+                    worker.respond(response.make(Message.DiscardPending))
+                    return
+
             for _ in range(request.data):
                 try:
                     priority, uid = self.unassigned.get()
@@ -619,9 +624,10 @@ class Pool(Executor):
         """Handle a TaskResults message from a worker."""
         worker.respond(response.make(Message.Ack))
 
-        if self._discard_pending:
-            # real clean up done in ``discard_pending_tasks``
-            return
+        with self._discard_pending_lock:
+            if self._discard_pending:
+                # real clean up done in ``discard_pending_tasks``
+                return
 
         def task_should_rerun():
             if not self.cfg.allow_task_rerun:
@@ -710,16 +716,13 @@ class Pool(Executor):
             request.data,
             time.time() - request.data,
         )
-        if self._discard_pending:
-            worker.respond(
-                response.make(
-                    Message.DiscardPending, data=worker.last_heartbeat
-                )
-            )
-        else:
-            worker.respond(
-                response.make(Message.Ack, data=worker.last_heartbeat)
-            )
+        with self._discard_pending_lock:
+            if self._discard_pending:
+                # in case of workers all being busy, i.e., no taskpull sent
+                cmd = Message.DiscardPending
+            else:
+                cmd = Message.Ack
+        worker.respond(response.make(cmd, data=worker.last_heartbeat))
 
     def _handle_setupfailed(
         self, worker: Worker, request: Message, response: Message
@@ -919,46 +922,52 @@ class Pool(Executor):
         self, report_status: Status = Status.NONE, report_reason: str = ""
     ):
         with self._discard_pending_lock:
+            if self._discard_pending:
+                return
             self._discard_pending = True
 
-            for w in self._workers:
-                w: WorkerBase
+        if self.status == self.STATUS.STARTED:
+            # here i suppose ``discard_running_tasks`` not really cpu-intensive
+            with ThreadPool(len(self._workers)) as pool:
                 # do real discard
-                w.discard_running_tasks()
+                pool.map_async(
+                    lambda w: w.discard_running_tasks(),
+                    self._workers,
+                )
+                pool.close()
+                pool.join()
 
-            self.logger.warning("Discard pending tasks of %s.", self)
-            while self.ongoing:
-                uid = self.ongoing[0]
-                task = self._input[uid]
-                if report_status:
-                    reason = (
-                        f"{task} discarded"
-                        + (" " + report_reason if report_reason else "")
-                        + "."
-                    )
-                    result = TestResult()
-                    result.report = TestGroupReport(
-                        name=str(task), category=ReportCategories.ERROR
-                    )
-                    result_lines = [
-                        "{}: {}".format(attr, getattr(task, attr, None) or "")
-                        for attr in task.serializable_attrs
-                    ]
-                    result.report.logger.error(os.linesep.join(result_lines))
-                    result.report.logger.error(reason)
-                    result.report.status_override = report_status
-                    self._results[uid] = TaskResult(
-                        task=self._input[uid],
-                        status=False,
-                        reason=reason,
-                        result=result,
-                    )
-                if report_reason:
-                    self.logger.warning(
-                        "Discarding %s %s.", task, report_reason
-                    )
-                self.ongoing.pop(0)
-            self.unassigned = TaskQueue()
+        self.logger.warning("Discard pending tasks of %s.", self)
+        while self.ongoing:
+            uid = self.ongoing[0]
+            task = self._input[uid]
+            if report_status:
+                reason = (
+                    f"{task} discarded"
+                    + (" " + report_reason if report_reason else "")
+                    + "."
+                )
+                result = TestResult()
+                result.report = TestGroupReport(
+                    name=str(task), category=ReportCategories.ERROR
+                )
+                result_lines = [
+                    "{}: {}".format(attr, getattr(task, attr, None) or "")
+                    for attr in task.serializable_attrs
+                ]
+                result.report.logger.error(os.linesep.join(result_lines))
+                result.report.logger.error(reason)
+                result.report.status_override = report_status
+                self._results[uid] = TaskResult(
+                    task=self._input[uid],
+                    status=False,
+                    reason=reason,
+                    result=result,
+                )
+            if report_reason:
+                self.logger.warning("Discarding %s %s.", task, report_reason)
+            self.ongoing.pop(0)
+        self.unassigned = TaskQueue()
 
     def _append_temporary_task_result(self, task_result: TaskResult) -> None:
         """If a task should rerun, append the task result already fetched."""
