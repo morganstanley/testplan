@@ -106,6 +106,13 @@ class TestplanParser:
         )
 
         general_group.add_argument(
+            "--archive-runpath",
+            type=str,
+            metavar="PATH",
+            help="Archive runpath to a user specified path.",
+        )
+
+        general_group.add_argument(
             "--timeout",
             metavar="TIMEOUT",
             default=self._default_options["timeout"],

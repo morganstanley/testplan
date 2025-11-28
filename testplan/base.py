@@ -3,11 +3,13 @@
 import argparse
 import os
 import random
+import shutil
 import signal
 import sys
 import tempfile
 import traceback
 import threading
+import zstandard as zstd
 
 from typing import (
     Optional,
@@ -19,7 +21,7 @@ from typing import (
     Literal,
 )
 from types import ModuleType
-from schema import And
+from schema import And, Or
 
 from testplan import defaults
 from testplan.common import entity
@@ -70,6 +72,7 @@ class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
             ConfigOption("runnable", default=TestRunner): is_subclass(
                 entity.Runnable
             ),
+            ConfigOption("archive_runpath", default=None): Or(str, None),
         }
 
 
@@ -248,6 +251,7 @@ class Testplan(entity.RunnableManager):
             logger_level=logger_level,
             file_log_level=file_log_level,
             runpath=runpath,
+            archive_runpath=None,
             path_cleanup=path_cleanup,
             all_tasks_local=all_tasks_local,
             shuffle=shuffle,
@@ -291,6 +295,7 @@ class Testplan(entity.RunnableManager):
 
         # Stores independent environments.
         self._runnable.add_resource(Environments())
+        self.result.report.information.append(("runpath", self.runpath))
 
     @property
     def parser(self):
@@ -373,11 +378,43 @@ class Testplan(entity.RunnableManager):
             pass
 
         result = super(Testplan, self).run()
+        self._archive_runpath()
         if isinstance(result, TestRunnerResult):
             testplan_result = TestplanResult()
             testplan_result.__dict__ = result.__dict__
             return testplan_result
         return result
+
+    def _archive_runpath(self):
+        """
+        Archive the runpath to a user specified directory.
+        """
+        if self.cfg.archive_runpath:
+            archive_path = os.path.abspath(
+                os.path.expandvars(os.path.expanduser(self.cfg.archive_runpath))
+            )
+            if not archive_path.endswith(".zst"):
+                archive_path += ".zst"
+
+            self.logger.user_info(
+                f"Archiving runpath {self.runpath} to {archive_path}"
+            )
+            with open(archive_path, "wb") as f:
+                cctx = zstd.ZstdCompressor(level=3, threads=-1)
+                with cctx.stream_writer(f) as compressor:
+                    for root, _, files in os.walk(self.runpath):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            arcname = os.path.relpath(file_path, self.runpath)
+                            compressor.write(
+                                b"file", arcname.encode("utf-8")
+                            )
+                            with open(file_path, "rb") as src:
+                                shutil.copyfileobj(src, compressor)
+            self.logger.user_info(f"Runpath archived to {archive_path}")
+            self.result.report.information.append(
+                ("runpath_archive", archive_path)
+            )
 
     # NOTE: if adding, deleting or modifying a wrapper parameter here you
     # MUST also update the class docstring and __init__() constructor above
