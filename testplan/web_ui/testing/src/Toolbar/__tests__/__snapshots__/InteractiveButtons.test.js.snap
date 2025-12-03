@@ -3,20 +3,12 @@
 exports[`AbortButton Renders a clickable button 1`] = `
 <NavItem
   key="abort-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -30,25 +22,9 @@ exports[`AbortButton Renders a clickable button 1`] = `
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-abort"
-      listItem={false}
-      mask={null}
-      maskId={null}
       onClick={[MockFunction]}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
-      spin={false}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Abort Testplan"
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>
@@ -57,20 +33,12 @@ exports[`AbortButton Renders a clickable button 1`] = `
 exports[`AbortButton Renders a spinning icon when abortion is in-progress 1`] = `
 <NavItem
   key="abort-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -84,24 +52,8 @@ exports[`AbortButton Renders a spinning icon when abortion is in-progress 1`] = 
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-abort"
-      listItem={false}
-      mask={null}
-      maskId={null}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
-      spin={false}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Aborting..."
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>
@@ -110,20 +62,12 @@ exports[`AbortButton Renders a spinning icon when abortion is in-progress 1`] = 
 exports[`ReloadButton Renders a clickable button 1`] = `
 <NavItem
   key="reload-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -137,25 +81,9 @@ exports[`ReloadButton Renders a clickable button 1`] = `
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-reload"
-      listItem={false}
-      mask={null}
-      maskId={null}
       onClick={[MockFunction]}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
-      spin={false}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Reload code"
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>
@@ -164,20 +92,12 @@ exports[`ReloadButton Renders a clickable button 1`] = `
 exports[`ReloadButton Renders a spinning icon when reload is in-progress 1`] = `
 <NavItem
   key="reload-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -191,24 +111,9 @@ exports[`ReloadButton Renders a spinning icon when reload is in-progress 1`] = `
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-reload"
-      listItem={false}
-      mask={null}
-      maskId={null}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
       spin={true}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Reloading..."
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>
@@ -217,20 +122,12 @@ exports[`ReloadButton Renders a spinning icon when reload is in-progress 1`] = `
 exports[`ResetButton Renders a clickable button 1`] = `
 <NavItem
   key="reset-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -244,25 +141,9 @@ exports[`ResetButton Renders a clickable button 1`] = `
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-reset"
-      listItem={false}
-      mask={null}
-      maskId={null}
       onClick={[MockFunction]}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
-      spin={false}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Reset all MultiTest environments and reports"
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>
@@ -271,20 +152,12 @@ exports[`ResetButton Renders a clickable button 1`] = `
 exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
 <NavItem
   key="reset-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -298,24 +171,8 @@ exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-reset"
-      listItem={false}
-      mask={null}
-      maskId={null}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
-      spin={false}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Resetting..."
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>
@@ -324,20 +181,12 @@ exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
 exports[`RunAllButton Renders a clickable button 1`] = `
 <NavItem
   key="runall-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -351,25 +200,9 @@ exports[`RunAllButton Renders a clickable button 1`] = `
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-runall"
-      listItem={false}
-      mask={null}
-      maskId={null}
       onClick={[MockFunction]}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
-      spin={false}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Run all tests"
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>
@@ -378,20 +211,12 @@ exports[`RunAllButton Renders a clickable button 1`] = `
 exports[`RunAllButton Renders an inactive icon when running is in-progress 1`] = `
 <NavItem
   key="runall-button"
-  tag="li"
 >
   <div
     className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
-      beat={false}
-      beatFade={false}
-      border={false}
-      bounce={false}
       className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
-      fade={false}
-      fixedWidth={false}
-      flip={false}
       icon={
         Object {
           "icon": Array [
@@ -405,24 +230,9 @@ exports[`RunAllButton Renders an inactive icon when running is in-progress 1`] =
           "prefix": "fas",
         }
       }
-      inverse={false}
       key="toolbar-runall"
-      listItem={false}
-      mask={null}
-      maskId={null}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      shake={false}
-      size={null}
       spin={true}
-      spinPulse={false}
-      spinReverse={false}
-      swapOpacity={false}
-      symbol={false}
       title="Running tests..."
-      titleId={null}
-      transform={null}
     />
   </div>
 </NavItem>

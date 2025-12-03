@@ -1,0 +1,1 @@
+Added ``--testcase-timeout`` CLI option to set a default timeout for testcases without explicit timeout decorators.

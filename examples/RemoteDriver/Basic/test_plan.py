@@ -2,6 +2,7 @@
 
 import os
 import sys
+import subprocess
 
 # Check if the remote host has been specified in the environment. Remote
 # hosts can only be Linux systems.
@@ -15,6 +16,7 @@ if not REMOTE_HOST:
 from testplan import test_plan
 from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.remote.remote_service import RemoteService
+from testplan.common.remote.remote_runtime import PipBasedBuilder
 from testplan.common.utils.context import context
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 from testplan.testing.multitest import testsuite, testcase, MultiTest
@@ -60,8 +62,23 @@ def main(plan):
     # remote_service represents the RPyC server that runs on remote host
     remote_service = RemoteService(
         "rmt_svc",
-        REMOTE_HOST,
+        REMOTE_HOST,  # pyright: ignore
         clean_remote=True,
+        remote_runtime_builder=PipBasedBuilder(
+            # here we pick the same base binary as the one running this script
+            python_base_bin=sys.base_prefix + "/bin/python3",
+            # here we manually exclude certain doc related deps
+            overridden_deps=[
+                p
+                for p in subprocess.check_output(
+                    [sys.executable, "-m", "uv", "pip", "freeze"]
+                )
+                .decode()
+                .splitlines()
+                if "sphinx" not in p
+            ],
+            transfer_exclude=["*.venv*", "*node_modules*", "*.git*", "*doc/*"],
+        ),
     )
 
     # add the remote_service to plan so that it gets started,
@@ -104,4 +121,4 @@ def main(plan):
 # set the return status. Note that it has to be inverted because it's
 # a boolean value.
 if __name__ == "__main__":
-    sys.exit(not main())
+    sys.exit(main().exit_code)

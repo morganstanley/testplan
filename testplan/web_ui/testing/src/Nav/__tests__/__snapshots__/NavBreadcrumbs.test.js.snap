@@ -21,33 +21,10 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
         }
       >
         <FontAwesomeIcon
-          beat={false}
-          beatFade={false}
-          border={false}
-          bounce={false}
           className="makeStyles-homeIcon-3"
-          fade={false}
-          fixedWidth={false}
-          flip={false}
           icon="home"
-          inverse={false}
           key="breadcrumbMenuHomeIcon"
-          listItem={false}
-          mask={null}
-          maskId={null}
-          pull={null}
-          pulse={false}
-          rotation={null}
-          shake={false}
-          size={null}
-          spin={false}
-          spinPulse={false}
-          spinReverse={false}
-          swapOpacity={false}
-          symbol={false}
           title="Home"
-          titleId={null}
-          transform={null}
         />
       </WithStyles(ForwardRef(Button))>
     </li>

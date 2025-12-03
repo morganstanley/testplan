@@ -13,6 +13,14 @@ testplan.common.remote.remote_resource module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.remote.remote_runtime module
+++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.remote.remote_runtime
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.common.remote.remote_service module
 ++++++++++++++++++++++++++++++++++++++++++++
 
@@ -25,6 +33,14 @@ testplan.common.remote.remote_driver module
 +++++++++++++++++++++++++++++++++++++++++++
 
 .. automodule:: testplan.common.remote.remote_driver
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testplan.common.remote.ssh_client module
++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.remote.ssh_client
     :members:
     :undoc-members:
     :show-inheritance:

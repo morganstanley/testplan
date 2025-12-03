@@ -2,35 +2,28 @@
 Module implementing RemoteService class. Based on RPyC package.
 """
 
-import os
 import re
+import shlex
 import signal
 import subprocess
 import warnings
 from typing import Optional
 
 import rpyc
+import rpyc.core.protocol
 from rpyc import Connection
 from schema import Use
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.remote.remote_resource import (
-    RemoteResourceConfig,
     RemoteResource,
+    RemoteResourceConfig,
 )
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import StdFiles
-from testplan.common.utils.process import subprocess_popen, kill_process
+from testplan.common.utils.process import kill_process, subprocess_popen
 from testplan.common.utils.timing import get_sleeper
-
-RPYC_BIN = os.path.join(
-    os.path.dirname(rpyc.__file__),
-    os.pardir,
-    os.pardir,
-    "bin",
-    "rpyc_classic.py",
-)
 
 
 class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
@@ -44,7 +37,9 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
         """Resource specific config options."""
         return {
             "name": str,
-            ConfigOption("rpyc_bin", default=RPYC_BIN): str,
+            # NOTE: currently we have ``get_remote_rpyc_bin`` in ``RuntimeBuilder``,
+            # NOTE: do we still need this config option here?
+            ConfigOption("rpyc_bin", default=None): str,
             ConfigOption("rpyc_port", default=0): int,
             ConfigOption("stop_timeout", default=5): Use(float),
         }
@@ -73,8 +68,8 @@ class RemoteService(Resource, RemoteResource):
         self,
         name: str,
         remote_host: str,
-        rpyc_bin: str = RPYC_BIN,
-        rpyc_port: str = 0,
+        rpyc_bin: Optional[str] = None,
+        rpyc_port: int = 0,
         stop_timeout: float = 5,
         **options,
     ) -> None:
@@ -124,13 +119,20 @@ class RemoteService(Resource, RemoteResource):
         """
         Starting the rpyc service on remote host.
         """
+        rpyc_bin = (
+            self.cfg.rpyc_bin
+            or self._remote_runtime_builder.get_remote_rpyc_bin()
+        )
+
+        # TODO: refactor, use self._ssh_client instead
+        # TODO: make use of paramiko Channel, add apis to our wrapper class
         cmd = self.cfg.ssh_cmd(
             self.ssh_cfg,
-            " ".join(
+            shlex.join(
                 [
-                    self.python_binary,
+                    self.remote_python_bin,
                     "-uB",
-                    self.cfg.rpyc_bin,
+                    rpyc_bin,
                     "--host",
                     "0.0.0.0",
                     "-p",
@@ -161,13 +163,16 @@ class RemoteService(Resource, RemoteResource):
             self.std.err_path,
         )
 
-    def _wait_started(self, timeout: float = None) -> None:
+    def _wait_started(self, timeout: Optional[float] = None) -> None:
         """
         Waits for RPyC server start, changes status to STARTED.
 
         :param timeout: timeout in seconds
         :raises RuntimeError: if server startup fails
         """
+        timeout: float = (
+            timeout if timeout is not None else self.cfg.status_wait_timeout
+        )
         sleeper = get_sleeper(
             interval=0.2,
             timeout=timeout,
@@ -250,5 +255,3 @@ class RemoteService(Resource, RemoteResource):
             # otherwise we need to manual kill this orphaned ssh procc
             if self.proc:
                 kill_process(self.proc, self.cfg.stop_timeout)
-
-        self.status.change(self.STATUS.STOPPED)

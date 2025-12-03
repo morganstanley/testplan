@@ -45,9 +45,10 @@ const AssertionGroup = (props) => {
       }
 
       return (
-        <ErrorBoundary>
+        <ErrorBoundary
+          key={`error-boundary-${assertionKey}`}>
           <Assertion
-            key={assertionKey}
+            key={`assertion-${assertionKey}`}
             uid={assertionKey}
             assertion={assertion}
             expand={expand}

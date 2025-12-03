@@ -3,33 +3,10 @@
 exports[`NotImplementedAssertion shallow renders the correct HTML structure 1`] = `
 <Fragment>
   <FontAwesomeIcon
-    beat={false}
-    beatFade={false}
-    border={false}
-    bounce={false}
     className="icon_1tijhm4"
-    fade={false}
-    fixedWidth={false}
-    flip={false}
     icon="frown"
-    inverse={false}
     key="faFrown"
-    listItem={false}
-    mask={null}
-    maskId={null}
-    pull={null}
-    pulse={false}
-    rotation={null}
-    shake={false}
     size="lg"
-    spin={false}
-    spinPulse={false}
-    spinReverse={false}
-    swapOpacity={false}
-    symbol={false}
-    title=""
-    titleId={null}
-    transform={null}
   />
   Currently there is no rendering mechanism for this type of assertion. Please contact 
   <strong>

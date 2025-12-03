@@ -6,7 +6,7 @@ import signal
 import subprocess
 import sys
 import tempfile
-from typing import List, Type, Union
+from typing import List, Type, Union, Optional
 
 from schema import Or
 
@@ -78,7 +78,7 @@ class ProcessWorker(Worker):
 
         return cmd
 
-    def _write_syspath(self, sys_path: str = None) -> None:
+    def _write_syspath(self, sys_path: Optional[list[str]] = None) -> None:
         """Write out our current sys.path to a file and return the filename."""
         sys_path = sys_path or sys.path
         with tempfile.NamedTemporaryFile(
@@ -89,6 +89,7 @@ class ProcessWorker(Worker):
             self._syspath_file = f.name
 
     def pre_start(self) -> None:
+        super().pre_start()
         self._write_syspath()
 
     def starting(self) -> None:
@@ -147,7 +148,6 @@ class ProcessWorker(Worker):
         """Stop child process worker."""
         if self._handler:
             kill_process(self._handler, self.cfg.stop_timeout)
-        self.status.change(self.STATUS.STOPPED)
 
     def aborting(self) -> None:
         """Process worker abort logic."""

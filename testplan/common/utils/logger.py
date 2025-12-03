@@ -41,6 +41,7 @@ class TestplanLogger(logging.Logger):
     corresponding method for USER_INFO.
     """
 
+    _TEST_MESSAGE_FORMAT = "%(indent)s[%(name)s] %(message)s"
     _TEST_STATUS_FORMAT = "%(indent)s[%(name)s] -> %(pass_label)s"
 
     # In addition to the built-in log levels, we add some extras.
@@ -74,6 +75,21 @@ class TestplanLogger(logging.Logger):
     def user_info(self, msg, *args, **kwargs):
         """Log 'msg % args' with severity 'USER_INFO'"""
         self._custom_log(USER_INFO, msg, *args, **kwargs)
+
+    def log_test_message(
+        self,
+        name: str,
+        message: str,
+        indent: int = 0,
+        level: int = DEBUG,
+    ):
+        indent_str = indent * " "
+        msg = self._TEST_MESSAGE_FORMAT
+        self._custom_log(
+            level,
+            msg,
+            {"name": name, "message": message, "indent": indent_str},
+        )
 
     def log_test_status(
         self,

@@ -357,12 +357,15 @@ def execute_cmd(
     if isinstance(cmd, list):
         cmd = [str(a) for a in cmd]
         # for logging, easy to copy and execute
-        cmd_string = " ".join(map(shlex.quote, cmd))
+        shell = False
+        cmd_string = shlex.join(cmd)
     else:
+        # cmd should be str
+        shell = True
         cmd_string = cmd
 
     if not label:
-        label = hash(cmd_string) % 1000
+        label = str(hash(cmd_string) % 1000)
 
     if stdout is None:
         stdout = subprocess.PIPE
@@ -374,29 +377,37 @@ def execute_cmd(
     start_time = time.time()
 
     handler = subprocess.Popen(
-        cmd, stdout=stdout, stderr=stderr, env=env, text=True, bufsize=0
+        cmd,
+        stdout=stdout,
+        stderr=stderr,
+        shell=shell,
+        env=env,
+        text=True,
+        bufsize=0,
     )
     output, error = handler.communicate()
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.debug(
+        logger.warning(
             "Failed executing command [%s] after %.2f sec.", label, elapsed
         )
+        output_s = output if output is not None else ""
+        error_s = error if error is not None else ""
         if detailed_log is not LogDetailsOption.NEVER_LOG:
-            _log_subprocess_output(logger, output, error)
+            _log_subprocess_output(logger, output_s, error_s)
         if check:
             raise RuntimeError(
-                "Command '{}' returned with non-zero exit code {}".format(
-                    cmd_string, handler.returncode
-                )
+                f"Command '{cmd_string}' returned with non-zero exit code {handler.returncode},\n"
+                f"stdout: {output_s}\n"
+                f"stderr: {error_s}"
             )
     else:
         logger.debug("Command [%s] finished in %.2f sec", label, elapsed)
         if detailed_log is LogDetailsOption.LOG_ALWAYS:
             _log_subprocess_output(logger, output, error)
 
-    return handler.returncode
+    return handler.returncode, output, error
 
 
 def enforce_timeout(process, timeout=1, callback=None, output=None):

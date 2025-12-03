@@ -6,6 +6,7 @@ from testplan.report.testing.styles import StyleArg
 from testplan.exporters.testing.failed_tests import FailedTestLevel
 
 TESTPLAN_TIMEOUT = 14400  # 4h
+TESTCASE_TIMEOUT = None  # No timeout by default
 
 SUMMARY_NUM_PASSING = 5
 SUMMARY_NUM_FAILING = 5

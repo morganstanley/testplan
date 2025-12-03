@@ -13,7 +13,7 @@ The implementation of remote driver is based on
 with :py:class:`~testplan.runners.pools.remote.RemotePool`
 (but not to be confused, they are two different features). First the remote host
 will be set up for drivers - create runpath, make available of workspace and
-testplan lib, push user files etc. Then a classic-mode RPyC server will
+dependencies, push user files etc. Then a classic-mode RPyC server will
 be started on remote host. The server is abstracted into
 :py:class:`~testplan.common.remote.remote_service.RemoteService` class. Once the
 remote service is started, we can instantiate

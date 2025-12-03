@@ -3,6 +3,7 @@
 import inspect
 import math
 import os
+import psutil
 import random
 import re
 import sys
@@ -51,6 +52,7 @@ if TYPE_CHECKING:
 
 from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
+from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.selector import Expr as SExpr
@@ -271,6 +273,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
                 None, And(int, lambda t: t >= 0)
             ),
+            ConfigOption(
+                "testcase_timeout", default=defaults.TESTCASE_TIMEOUT
+            ): Or(None, And(int, lambda t: t >= 0)),
             # active_loop_sleep impacts cpu usage in interactive mode
             ConfigOption("active_loop_sleep", default=0.05): float,
             ConfigOption(
@@ -1291,6 +1296,28 @@ class TestRunner(Runnable):
 
         return should_run
 
+    def _check_pidfile(self):
+        """
+        Check if a PID file exists and if the process is still running.
+        Raises RuntimeError if another testplan instance is using this runpath.
+        """
+
+        if not os.path.exists(self._pidfile_path):
+            return
+
+        with open(self._pidfile_path, "r") as pid_file:
+            pid_content = pid_file.read().strip()
+
+        if not pid_content or not pid_content.isdigit():
+            return
+
+        pid = int(pid_content)
+
+        if psutil.pid_exists(pid) and pid != os.getpid():
+            raise RunpathInUseError(
+                f"Another testplan instance with PID {pid} is already using runpath: {self._runpath}"
+            )
+
     def make_runpath_dirs(self):
         """
         Creates runpath related directories.
@@ -1299,6 +1326,9 @@ class TestRunner(Runnable):
             raise RuntimeError(
                 "{} runpath cannot be None".format(self.__class__.__name__)
             )
+
+        self._pidfile_path = os.path.join(self._runpath, "testplan.pid")
+        self._check_pidfile()
 
         self.logger.user_info(
             "Testplan[%s] has runpath: %s and pid %s",
@@ -1315,6 +1345,9 @@ class TestRunner(Runnable):
         else:
             makeemptydirs(self._runpath)
             makeemptydirs(self._scratch)
+
+        with open(self._pidfile_path, "w") as pid_file:
+            pid_file.write(str(os.getpid()))
 
         with open(
             os.path.join(self._runpath, self.runid_filename), "wb"

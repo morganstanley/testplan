@@ -5,7 +5,12 @@ import testplan.testing.multitest.suite as suite
 from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.driver.base import Driver
 from tests.unit.testplan.testing.test_pytest import pytest_test_inst
+
+
+class DummyDriver(Driver):
+    pass
 
 
 @suite.testsuite
@@ -157,7 +162,7 @@ def _do_assert(exp_structure, mt_report):
 
 
 def test_mt_omit_passed():
-    with argv_overridden("--omit-passed"):
+    with argv_overridden("--omit-passed", "--driver-info"):
         plan = TestplanMock(
             name=f"{inspect.currentframe().f_code.co_name}_test",
             parse_cmdline=True,
@@ -166,11 +171,13 @@ def test_mt_omit_passed():
             MultiTest(
                 name="TestMT",
                 suites=[OneSuite(), AnotherSuite(), SkippedSuite()],
+                environment=[DummyDriver(name="a"), DummyDriver(name="b")],
             )
         )
         mt_report = plan.run().report["TestMT"]
 
     exp_structure = {
+        "Environment Start": {"Starting": 3},
         "OneSuite": {"passing": 0, "failing": 2, "expect_to_fail": 2},
         "AnotherSuite": {
             "with_param": {
@@ -186,13 +193,14 @@ def test_mt_omit_passed():
             },
         },
         "SkippedSuite": {"should_skip_jr": 1},
+        "Environment Stop": {"Stopping": 2},
     }
 
     _do_assert(exp_structure, mt_report)
 
 
 def test_mt_preserve_structure():
-    with argv_overridden("--report-exclude=efpiuxc"):
+    with argv_overridden("--report-exclude=efpiuxc", "--driver-info"):
         plan = TestplanMock(
             name=f"{inspect.currentframe().f_code.co_name}_test",
             parse_cmdline=True,
@@ -201,11 +209,13 @@ def test_mt_preserve_structure():
             MultiTest(
                 name="TestMT",
                 suites=[OneSuite(), AnotherSuite(), SkippedSuite()],
+                environment=[DummyDriver(name="a"), DummyDriver(name="b")],
             )
         )
         mt_report = plan.run().report["TestMT"]
 
     exp_structure = {
+        "Environment Start": {"Starting": 3},
         "OneSuite": {"passing": 0, "failing": 0, "expect_to_fail": 2},
         "AnotherSuite": {
             "with_param": {
@@ -221,6 +231,47 @@ def test_mt_preserve_structure():
             },
         },
         "SkippedSuite": {"should_skip_jr": 1},
+        "Environment Stop": {"Stopping": 2},
     }
 
     _do_assert(exp_structure, mt_report)
+
+
+def test_mt_assign_error_not_filtered():
+    from testplan.runners.pools.base import Pool
+
+    class CustomPool(Pool):
+        def _can_assign_task(self, _):
+            return False
+
+    def _dummy_mt_2():
+        return MultiTest(
+            name="TestMT2",
+            suites=[OneSuite()],
+        )
+
+    with argv_overridden("--omit-passed"):
+        plan = TestplanMock(
+            name=f"{inspect.currentframe().f_code.co_name}_test",
+            parse_cmdline=True,
+        )
+        plan.add_resource(CustomPool(name="pool", size=1))
+        plan.add(
+            MultiTest(
+                name="TestMT",
+                suites=[OneSuite()],
+            )
+        )
+        plan.schedule(target=_dummy_mt_2, resource="pool")
+        report = plan.run().report
+
+    assert len(report) == 2
+    assert len(report["TestMT"]) == 1
+    assert len(report["TestMT"]["OneSuite"]["passing"]) == 0  # filtered
+    assert len(report["TestMT"]["OneSuite"]["failing"]) == 2
+    assert len(report["TestMT"]["OneSuite"]["expect_to_fail"]) == 2
+
+    assert report.entries[1].name.startswith(
+        "Task[<function test_mt_assign_error_not_filtered.<locals>._dummy_mt_2"
+    )
+    assert len(report.entries[1].entries) == 0

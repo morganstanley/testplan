@@ -1,0 +1,26 @@
+Running Testplan[SamplePlan]
+Starting LocalRunner[local_runner]
+Starting Environments[environments]
+LocalRunner[local_runner] started
+Environments[environments] started
+Running MultiTest[MyMultiTest]
+    [Suite] --------------- testsuite start ----------------
+      [passing] ---------------- testcase start ----------------
+        passing assertion - Pass
+          1 == 1
+      [passing] -> Passed
+      [passing] ----------------- testcase end -----------------
+      [failing] ---------------- testcase start ----------------
+        failing assertion - Fail
+          File: None
+          Line: None
+          {'a': 1, 'b': 2} == {'b': 2}
+      [failing] -> Failed
+      [failing] ----------------- testcase end -----------------
+    [Suite] -> Failed
+    [Suite] ---------------- testsuite end -----------------
+  [MyMultiTest] -> Failed
+Stopping Environments[environments]
+Stopping LocalRunner[local_runner]
+Environments[environments] stopped
+[SamplePlan] -> Failed

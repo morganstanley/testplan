@@ -193,9 +193,11 @@ class Worker(WorkerBase):
     def handler(self):
         return self._handler
 
+    def pre_start(self):
+        self.make_runpath_dirs()
+
     def starting(self) -> None:
         """Starts the daemonic worker loop."""
-        self.make_runpath_dirs()
         self._handler = threading.Thread(
             target=self._loop, args=(self._transport,)
         )
@@ -368,8 +370,8 @@ class Pool(Executor):
         self.unassigned = TaskQueue()  # unassigned tasks
         self.is_auto_size = size == "auto"
         self._executed_tests = []
-        self._task_retries_cnt = {}  # uid: times_reassigned_without_result
-        self._task_retries_limit = 2
+        self._task_reassign_cnt = {}  # uid: times_reassigned_without_result
+        self._task_reassign_limit = 2
         self._workers = entity.Environment(parent=self)
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
@@ -431,7 +433,7 @@ class Pool(Executor):
             raise ValueError(f"Task was expected, got {type(task)} instead.")
         super(Pool, self).add(task, uid)
         self.unassigned.put(task.priority, uid)
-        self._task_retries_cnt[uid] = 0
+        self._task_reassign_cnt[uid] = 0
 
     def _can_assign_task(self, task: Task) -> bool:
         """
@@ -565,11 +567,14 @@ class Pool(Executor):
                 worker.rebase_task_path(task)
 
                 if self._can_assign_task(task):
-                    if self._task_retries_cnt[uid] > self._task_retries_limit:
+                    if (
+                        self._task_reassign_cnt[uid]
+                        > self._task_reassign_limit
+                    ):
                         self._discard_task(
                             uid,
-                            f"{self._input[uid]} already reached max retries limit:"
-                            f" {self._task_retries_limit}",
+                            f"{self._input[uid]} already reached pool reassign limit:"
+                            f" {self._task_reassign_limit}",
                         )
                         continue
                     else:
@@ -578,8 +583,8 @@ class Pool(Executor):
                                 "Scheduling %s to %s %s",
                                 task,
                                 worker,
-                                "(rerun {})".format(task.reassign_cnt)
-                                if task.reassign_cnt > 0
+                                "(rerun {})".format(task.rerun_cnt)
+                                if task.rerun_cnt > 0
                                 else "",
                             )
                             worker.assigned.add(uid)
@@ -592,7 +597,7 @@ class Pool(Executor):
                                 "Cannot schedule %s to %s", task, worker
                             )
                             self.unassigned.put(task.priority, uid)
-                            self._task_retries_cnt[uid] += 1
+                            self._task_reassign_cnt[uid] += 1
                 else:
                     # Later may create a default local pool as failover option
                     self._discard_task(
@@ -625,7 +630,7 @@ class Pool(Executor):
                 return False
             if not task_result.task:
                 return False
-            if task_result.task.rerun == 0:
+            if task_result.task.rerun_limit == 0:
                 return False
 
             result = task_result.result
@@ -637,13 +642,13 @@ class Pool(Executor):
             ):
                 return False
 
-            if task_result.task.reassign_cnt >= task_result.task.rerun:
+            if task_result.task.rerun_cnt >= task_result.task.rerun_limit:
                 self.logger.user_info(
                     "Will not rerun %(input)s again as it already "
                     "reached max rerun limit %(reruns)d",
                     {
                         "input": self._input[uid],
-                        "reruns": task_result.task.rerun,
+                        "reruns": task_result.task.rerun_limit,
                     },
                 )
                 return False
@@ -672,13 +677,13 @@ class Pool(Executor):
                     "Will rerun %(task)s for max %(rerun)d more times",
                     {
                         "task": task_result.task,
-                        "rerun": task_result.task.rerun
-                        - task_result.task.reassign_cnt,
+                        "rerun": task_result.task.rerun_limit
+                        - task_result.task.rerun_cnt,
                     },
                 )
                 self.unassigned.put(task_result.task.priority, uid)
-                self._task_retries_cnt[uid] = 0
-                self._input[uid].reassign_cnt += 1
+                self._task_reassign_cnt[uid] = 0
+                self._input[uid].rerun_cnt += 1
                 # Will rerun task, but still need to retain the result
                 self._append_temporary_task_result(task_result)
                 continue
@@ -744,7 +749,7 @@ class Pool(Executor):
                 "Re-collect %s from %s to %s.", task, worker, self
             )
             self.unassigned.put(task.priority, uid)
-            self._task_retries_cnt[uid] += 1
+            self._task_reassign_cnt[uid] += 1
 
     def _workers_monitoring(self) -> None:
         """
@@ -959,10 +964,10 @@ class Pool(Executor):
         """If a task should rerun, append the task result already fetched."""
         test_report = task_result.result.report
         uid = task_result.task.uid()
-        if uid not in self._task_retries_cnt:
+        if uid not in self._task_reassign_cnt:
             return
 
-        postfix = f" => Run {task_result.task.reassign_cnt}"
+        postfix = f" => Run {task_result.task.rerun_cnt}"
         test_report.name = f"{test_report.name}{postfix}"
         test_report.uid = f"{test_report.uid}{postfix}"
         test_report.category = ReportCategories.TASK_RERUN

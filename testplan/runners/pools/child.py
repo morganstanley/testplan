@@ -300,17 +300,6 @@ class RemoteChildLoop(ChildLoop):
             ):
                 raise RuntimeError("Setup script exited with non 0 code.")
 
-    def exit_loop(self):
-        if self._setup_metadata.delete_pushed:
-            for item in self._setup_metadata.push_dirs:
-                self.logger.user_info("Removing directory: %s", item)
-                shutil.rmtree(item, ignore_errors=True)
-            for item in self._setup_metadata.push_files:
-                self.logger.user_info("Removing file: %s", item)
-                os.remove(item)
-
-        super(RemoteChildLoop, self).exit_loop()
-
 
 def child_logic(args):
     """Able to be imported child logic."""
@@ -410,13 +399,16 @@ def process_syspath_file(filename, working_dir=None):
     """
     with open(filename) as f:
         new_syspath = f.read().split("\n")
-    new_syspath = list(filter(os.path.exists, new_syspath))
+    new_syspath = list(
+        filter(lambda p: p.startswith(sys.base_prefix), sys.path)
+    ) + list(filter(os.path.exists, new_syspath))
 
     if working_dir is not None:
         new_syspath.insert(0, working_dir)
 
     with open(filename, "w") as f:
         f.write("\n".join(new_syspath))
+        f.write("\n")
 
     return new_syspath
 

@@ -1,0 +1,1 @@
+Fix an issue that certain error-reporting entries being unexpectedly removed after applying report filters.
