@@ -160,6 +160,11 @@ class Testplan(entity.RunnableManager):
         interconnection information in UI report.
     :param collect_code_context: Collects the file path, line number and code
         context of the assertions.
+    :param auto_part_runtime_limit: Maximum estimated runtime of an
+        automatically split MultiTest part.
+    :param plan_runtime_target: Targeted runtime for the entire Testplan.
+    :param skip_strategy: Skip the execution of rest testcases under certain
+        conditions.
     """
 
     CONFIG = TestplanConfig
@@ -217,6 +222,7 @@ class Testplan(entity.RunnableManager):
         plan_runtime_target: Union[
             int, Literal["auto"]
         ] = defaults.PLAN_RUNTIME_TARGET,
+        skip_strategy: Optional[str] = None,
         **options,
     ):
         # Set mutable defaults.
@@ -283,6 +289,7 @@ class Testplan(entity.RunnableManager):
             collect_code_context=collect_code_context,
             auto_part_runtime_limit=auto_part_runtime_limit,
             plan_runtime_target=plan_runtime_target,
+            skip_strategy=skip_strategy,
             **options,
         )
 
@@ -431,6 +438,7 @@ class Testplan(entity.RunnableManager):
         collect_code_context=False,
         auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_MAX,
         plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
+        skip_strategy=None,
         **options,
     ):
         """
@@ -495,6 +503,7 @@ class Testplan(entity.RunnableManager):
                     collect_code_context=collect_code_context,
                     auto_part_runtime_limit=auto_part_runtime_limit,
                     plan_runtime_target=plan_runtime_target,
+                    skip_strategy=skip_strategy,
                     **options,
                 )
                 try:

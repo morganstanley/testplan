@@ -1,3 +1,4 @@
+import shutil
 import time
 from itertools import permutations
 
@@ -9,6 +10,16 @@ from testplan.runners.local import LocalRunner
 from testplan.runners.pools.base import Pool
 from testplan.runners.pools.process import ProcessPool
 from testplan.testing.base import Test
+from testplan.testing.multitest.driver.base import Driver
+
+
+@pytest.fixture
+def plan(runpath):
+    yield TestplanMock(
+        name="court of testcase king",
+        runpath=runpath,
+        skip_strategy="tests-on-failed",
+    )
 
 
 @mt.testsuite
@@ -103,9 +114,10 @@ def ppool(name, size=2):
         (ppool, "tests-on-failed", ((1,),)),
     ),
 )
-def test_intra_executor(exec_gen, option, abs_report_struct):
+def test_intra_executor(exec_gen, option, abs_report_struct, runpath):
     mockplan = TestplanMock(
-        name="in the middle of functional test",
+        name="fast failing of functional fortress",
+        runpath=runpath,
         skip_strategy=option,
     )
     mockplan.add_resource(exec_gen("exec", 1))
@@ -121,10 +133,10 @@ class Suite5:
     def passed_5(self, env, result):
         result.true(True)
 
-    @mt.testcase
-    def fainted_5(self, env, result):
-        while True:
-            time.sleep(1)
+    @mt.testcase(parameters=range(int(1e4)))
+    def interruptible_5(self, env, result, p):
+        time.sleep(1)
+        result.true(0 <= p)
 
 
 @mt.testsuite
@@ -149,17 +161,13 @@ def make_mt2():
         ("ppool", "ppool", "ppool"),
     ),
 )
-def test_inter_executor(exec_ids):
-    mockplan = TestplanMock(
-        name="in the middle of functional test",
-        skip_strategy="tests-on-failed",
-    )
-    mockplan.add_resource(lrunner("lrunner"))
-    mockplan.add_resource(tpool("tpool", 4))
-    mockplan.add_resource(ppool("ppool", 4))
+def test_inter_executor(exec_ids, plan):
+    plan.add_resource(lrunner("lrunner"))
+    plan.add_resource(tpool("tpool", 4))
+    plan.add_resource(ppool("ppool", 4))
     for mt, rid in zip(make_mt2(), exec_ids):
-        mockplan.schedule(target=mt, resource=rid)
-    report = mockplan.run().report
+        plan.schedule(target=mt, resource=rid)
+    report = plan.run().report
     assert len(report) == 1
     assert report.entries[0].name == "mt5"
 
@@ -186,16 +194,41 @@ def make_tests_with_task_error():
         ("ppool", "ppool", "ppool"),
     ),
 )
-def test_task_error(exec_ids):
-    mockplan = TestplanMock(
-        name="in the middle of functional test",
-        skip_strategy="tests-on-failed",
-    )
-    mockplan.add_resource(lrunner("lrunner"))
-    mockplan.add_resource(tpool("tpool", 4))
-    mockplan.add_resource(ppool("ppool", 4))
+def test_task_error(exec_ids, plan):
+    plan.add_resource(lrunner("lrunner"))
+    plan.add_resource(tpool("tpool", 4))
+    plan.add_resource(ppool("ppool", 4))
     for mt, rid in zip(make_tests_with_task_error(), exec_ids):
-        mockplan.schedule(target=mt, resource=rid)
-    report = mockplan.run().report
+        plan.schedule(target=mt, resource=rid)
+    report = plan.run().report
     assert len(report) == 1
     assert ERROR_TEST_NAME in report.entries[0].name
+
+
+class SlowDriver(Driver):
+    def stopping(self):
+        time.sleep(2)
+        super().stopping()
+
+
+def test_simultaneous_discard(plan):
+    plan.add_resource(tpool("tpool", 3))
+    plan.schedule(
+        target=mt.MultiTest("mt1", [Suite1()]),
+        resource="tpool",
+    )
+    plan.schedule(
+        target=mt.MultiTest("mt2", [Suite5()], environment=[SlowDriver("sd")]),
+        resource="tpool",
+    )
+    plan.schedule(
+        target=mt.MultiTest("mt3", [Suite5()], environment=[SlowDriver("sd")]),
+        resource="tpool",
+    )
+    a = time.time()
+    report = plan.run().report
+    b = time.time()
+    # runtime overhead of threadpool setup etc. should be smaller than 2
+    assert b - a < 4, "multitests not discarded simultaneously"
+    assert len(report) == 1
+    assert report.entries[0].name == "mt1"
