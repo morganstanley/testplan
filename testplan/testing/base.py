@@ -1021,7 +1021,7 @@ class Test(Runnable):
             level=self.__class__.__name__,
         ) as test_span:
             super(Test, self)._run_batch_steps()
-            if not self.report.passed:
+            if self.report.failed:
                 tracing.set_span_as_failed(test_span)
 
 
