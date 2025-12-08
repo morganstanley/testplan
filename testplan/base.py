@@ -31,7 +31,7 @@ from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser, FailedTestLevel
 from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
-
+from testplan.common.utils.observability import tracing
 from testplan.runners.local import LocalRunner
 from testplan.runners.base import Executor
 from testplan.report.testing.styles import Style
@@ -165,6 +165,8 @@ class Testplan(entity.RunnableManager):
     :param plan_runtime_target: Targeted runtime for the entire Testplan.
     :param skip_strategy: Skip the execution of rest testcases under certain
         conditions.
+    :param otel_traces: Enable OpenTelemetry tracing at specified level.
+    :param otel_traceparent: Optional traceparent for OpenTelemetry traces.
     """
 
     CONFIG = TestplanConfig
@@ -223,6 +225,8 @@ class Testplan(entity.RunnableManager):
             int, Literal["auto"]
         ] = defaults.PLAN_RUNTIME_TARGET,
         skip_strategy: Optional[str] = None,
+        otel_traces: Optional[Literal["Test", "TestSuite", "TestCase"]] = None,
+        otel_traceparent: Optional[str] = None,
         **options,
     ):
         # Set mutable defaults.
@@ -290,6 +294,8 @@ class Testplan(entity.RunnableManager):
             auto_part_runtime_limit=auto_part_runtime_limit,
             plan_runtime_target=plan_runtime_target,
             skip_strategy=skip_strategy,
+            otel_traces=otel_traces,
+            otel_traceparent=otel_traceparent,
             **options,
         )
 
@@ -298,6 +304,12 @@ class Testplan(entity.RunnableManager):
 
         # Stores independent environments.
         self._runnable.add_resource(Environments())
+
+        if (
+            self.cfg.otel_traces is not None
+            and self.cfg.interactive_port is None
+        ):
+            tracing._setup(self.cfg.otel_traceparent)
 
     @property
     def parser(self):
@@ -379,11 +391,26 @@ class Testplan(entity.RunnableManager):
         except Exception:
             pass
 
-        result = super(Testplan, self).run()
-        if isinstance(result, TestRunnerResult):
-            testplan_result = TestplanResult()
-            testplan_result.__dict__ = result.__dict__
-            return testplan_result
+        with tracing.conditional_span(
+            self.cfg.name,
+            context=tracing._get_root_context(),
+            condition=self._tests and self.cfg.otel_traces,
+            level="TestPlan",
+        ) as tp_span:
+            if tp_span:
+                tracing._inject_root_context()
+            result = super(Testplan, self).run()
+
+            if isinstance(result, TestRunnerResult):
+                testplan_result = TestplanResult()
+                testplan_result.__dict__ = result.__dict__
+                if not testplan_result.success:
+                    tracing.set_span_as_failed(tp_span)
+                for info in testplan_result.report.information:
+                    tracing.set_span_attrs(tp_span, **{info[0]: info[1]})
+                if self.cfg.label:
+                    tracing.set_span_attrs(tp_span, label=self.cfg.label)
+                return testplan_result
         return result
 
     # NOTE: if adding, deleting or modifying a wrapper parameter here you
@@ -439,6 +466,8 @@ class Testplan(entity.RunnableManager):
         auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_MAX,
         plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         skip_strategy=None,
+        otel_traces=None,
+        otel_traceparent=None,
         **options,
     ):
         """
@@ -504,6 +533,8 @@ class Testplan(entity.RunnableManager):
                     auto_part_runtime_limit=auto_part_runtime_limit,
                     plan_runtime_target=plan_runtime_target,
                     skip_strategy=skip_strategy,
+                    otel_traces=otel_traces,
+                    otel_traceparent=otel_traceparent,
                     **options,
                 )
                 try:

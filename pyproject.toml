@@ -76,11 +76,17 @@ interactive = [
     "cheroot>=10.0.1",
     "flask-orjson>=2.0.0",
 ]
+observability = [
+    "opentelemetry-api>=1.38.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.38.0",
+    "opentelemetry-instrumentation>=0.59b0",
+    "opentelemetry-sdk>=1.38.0",
+]
 plotly = [
     "pandas>=2.2.3",
     "plotly>=6.1.0",
 ]
-all = ["testplan[interactive,plotly]"]
+all = ["testplan[interactive,observability,plotly]"]
 
 [tool.setuptools.dynamic]
     version = {attr = "testplan.version.__build_version__"}
