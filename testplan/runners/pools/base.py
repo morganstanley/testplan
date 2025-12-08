@@ -306,6 +306,13 @@ class Worker(WorkerBase):
             if self._curr_runnable is not None:
                 self._curr_runnable.abort()
 
+    @property
+    def otel_traces(self) -> bool:
+        # handle possibly missing ``otel_traces``
+        if not hasattr(self.cfg, "otel_traces"):
+            return None
+        return self.cfg.otel_traces
+
 
 class PoolConfig(ExecutorConfig):
     """

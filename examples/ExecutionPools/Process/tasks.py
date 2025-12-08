@@ -7,6 +7,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan.common.utils.context import context
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
+from testplan.common.utils.observability import tracing
 
 
 def after_start(env):

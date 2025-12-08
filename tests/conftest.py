@@ -11,8 +11,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 
 import pytest
 
+import testplan
 from testplan import TestplanMock
 from testplan.common.utils.path import VAR_TMP
+from testplan.common.utils import observability
+from testplan.common.utils.observability import Tracing
 
 
 # Testplan and various drivers have a `runpath` attribute in their config
@@ -135,3 +138,104 @@ def captplog(caplog):
     TESTPLAN_LOGGER.addHandler(caplog.handler)
     yield caplog
     TESTPLAN_LOGGER.removeHandler(caplog.handler)
+
+
+# --- Shared Observability Fixtures ---
+
+
+@pytest.fixture(scope="session")
+def session_provider_exporter():
+    """
+    Session-scoped OpenTelemetry provider and in-memory exporter.
+    Sets the global tracer provider once per session.
+    Also resets the Testplan tracing singleton before use to avoid stale state.
+    """
+    pytest.importorskip("opentelemetry")
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
+        InMemorySpanExporter,
+    )
+
+    from opentelemetry import trace
+
+    exporter = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+
+    # Save the original provider (could be None or already set by --otel-traces).
+    original_provider = trace.get_tracer_provider()
+
+    # Forcefully set the test provider for this session.
+    trace._TRACER_PROVIDER = provider
+
+    yield provider, exporter
+    trace._TRACER_PROVIDER = original_provider
+    provider.shutdown()
+
+
+@pytest.fixture
+def test_exporter(session_provider_exporter, monkeypatch):
+    """
+    Function-scoped fixture that provides a clean tracing environment per test.
+    Patches Tracing._setup to use the session provider instead of reading env vars.
+    """
+    from opentelemetry import trace
+
+    provider, exporter = session_provider_exporter
+
+    existing_tracing = observability.tracing
+
+    # Capture original tracing state to restore after the test.
+    original_tracing_enabled = getattr(
+        existing_tracing, "_tracing_enabled", False
+    )
+    original_root_context = getattr(
+        existing_tracing, "_root_context", {}
+    ).copy()
+    original_tracer = getattr(existing_tracing, "_tracer", None)
+    original_tracer_provider = getattr(
+        existing_tracing, "_tracer_provider", None
+    )
+
+    def mock_setup(traceparent=None):
+        if traceparent:
+            existing_tracing._root_context = {"traceparent": traceparent}
+
+        existing_tracing._tracer = trace.get_tracer("testplan_tracer")
+        existing_tracing._tracer_provider = provider
+        existing_tracing._tracing_enabled = True
+
+    existing_tracing._setup = mock_setup
+    existing_tracing._tracing_enabled = False
+    monkeypatch.setattr(existing_tracing, "_setup", mock_setup)
+
+    yield exporter
+    exporter.clear()
+
+    existing_tracing._tracing_enabled = original_tracing_enabled
+    existing_tracing._root_context = original_root_context
+    existing_tracing._tracer = original_tracer
+    existing_tracing._tracer_provider = original_tracer_provider
+
+
+@pytest.fixture
+def unit_test_tracing(session_provider_exporter):
+    from opentelemetry import trace
+
+    provider, exporter = session_provider_exporter
+    fresh_tracing = Tracing()
+
+    def mock_setup(traceparent=None):
+        if traceparent:
+            fresh_tracing._root_context = {"traceparent": traceparent}
+
+        fresh_tracing._tracer = trace.get_tracer("testplan_tracer")
+        fresh_tracing._tracer_provider = provider
+        fresh_tracing._tracing_enabled = True
+
+    fresh_tracing._setup = mock_setup
+
+    yield fresh_tracing, exporter
+
+    exporter.clear()

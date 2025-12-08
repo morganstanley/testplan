@@ -8,6 +8,7 @@ Subpackages
 .. toctree::
 
     testplan.common.utils.sockets
+    testplan.common.utils.observability
 
 
 Submodules

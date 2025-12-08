@@ -12,6 +12,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils import validation
+from testplan.common.utils.observability import tracing
 from testplan.report import (
     ReportCategories,
     RuntimeStatus,
@@ -116,7 +117,13 @@ class PyTest(testing.Test):
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
-        with self.report.timer.record("run"):
+        with (
+            tracing.conditional_span(
+                name=self.name,
+                condition=self.otel_traces,
+            ) as pytest_span,
+            self.report.timer.record("run"),
+        ):
             return_code = pytest.main(
                 self._pytest_args, plugins=[self._pytest_plugin]
             )
@@ -129,6 +136,8 @@ class PyTest(testing.Test):
                 self.logger.info(
                     "pytest exited with return code %d", return_code
                 )
+            if self.report.failed:
+                tracing.set_span_as_failed(pytest_span)
 
     def _collect_tests(self):
         """Collect test items but do not run any."""
