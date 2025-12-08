@@ -8,6 +8,7 @@ Subpackages
 .. toctree::
 
     testplan.common.utils.sockets
+    testplan.common.utils.observability
 
 
 Submodules
@@ -97,14 +98,6 @@ testplan.common.utils.networking module
 +++++++++++++++++++++++++++++++++++++++
 
 .. automodule:: testplan.common.utils.networking
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-testplan.common.utils.observability module
-+++++++++++++++++++++++++++++++++++++
-
-.. automodule:: testplan.common.utils.observability
     :members:
     :undoc-members:
     :show-inheritance:
