@@ -108,6 +108,42 @@ class MultiStepSpanSuite:
         tracing.end_span(self.span)
 
 
+@testsuite
+class ConditionalSpanSuite:
+    """Suite demonstrating conditional span creation."""
+
+    @testcase
+    def test_with_conditional_span_true(self, env, result):
+        """Test conditional span when condition is True."""
+        with tracing.conditional_span(
+            "conditional_op", condition=True, op_type="test"
+        ) as span:
+            result.equal(1, 1)
+
+    @testcase
+    def test_with_conditional_span_false(self, env, result):
+        """Test conditional span when condition is False."""
+        with tracing.conditional_span(
+            "skipped_op", condition=False, op_type="test"
+        ) as span:
+            result.equal(1, 1)
+
+
+@testsuite
+class DecoratorSpanSuite:
+    """Suite demonstrating the trace decorator."""
+
+    @testcase
+    def test_decorated_method(self, env, result):
+        """Test using the trace decorator."""
+        self._decorated_operation(result)
+
+    @tracing.trace
+    def _decorated_operation(self, result):
+        """A decorated helper method."""
+        result.equal(1, 1)
+
+
 def test_tracing_disabled_by_default(test_exporter):
     """
     Tests that no spans are created when tracing is not explicitly enabled.
@@ -485,3 +521,137 @@ def test_otel_traceparent_without_tracing_enabled(test_exporter):
 
     spans = test_exporter.get_finished_spans()
     assert len(spans) == 0
+
+
+def test_conditional_span_with_true_condition(test_exporter):
+    """
+    Tests that conditional_span creates a span when condition is True.
+    """
+    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    assert tracing._tracing_enabled
+
+    mockplan.add(
+        MultiTest(name="MyMultitest", suites=[ConditionalSpanSuite()])
+    )
+    mockplan.run()
+
+    spans = test_exporter.get_finished_spans()
+
+    conditional_span = find_span(spans, "conditional_op")
+    assert conditional_span is not None
+    assert conditional_span.attributes.get("op_type") == "test"
+
+
+def test_conditional_span_with_false_condition(test_exporter):
+    """
+    Tests that conditional_span does not create a span when condition is False.
+    """
+    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    assert tracing._tracing_enabled
+
+    mockplan.add(
+        MultiTest(name="MyMultitest", suites=[ConditionalSpanSuite()])
+    )
+    mockplan.run()
+
+    spans = test_exporter.get_finished_spans()
+
+    skipped_span = find_span(spans, "skipped_op")
+    assert skipped_span is None, (
+        "No span should be created when condition is False"
+    )
+
+
+def test_trace_decorator(test_exporter):
+    """
+    Tests that the trace decorator creates spans for decorated methods.
+    """
+    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    assert tracing._tracing_enabled
+
+    mockplan.add(MultiTest(name="MyMultitest", suites=[DecoratorSpanSuite()]))
+    mockplan.run()
+
+    spans = test_exporter.get_finished_spans()
+
+    decorated_span = find_span(spans, "_decorated_operation")
+    test_case_span = find_span(spans, "test_decorated_method")
+
+    assert decorated_span is not None
+    assert test_case_span is not None
+    assert decorated_span.parent.span_id == test_case_span.context.span_id
+    assert decorated_span.attributes.get("level") == "DecoratorSpanSuite"
+
+
+def test_inject_root_context_prints_trace_id(test_exporter, capsys):
+    """
+    Tests that _inject_root_context prints the trace ID.
+    """
+    test_traceparent = (
+        "00-a4f7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    )
+
+    mockplan = TestplanMock(
+        name="MockPlan",
+        otel_traces="TestCase",
+        otel_traceparent=test_traceparent,
+    )
+    assert tracing._tracing_enabled
+
+    # Inject root context
+    tracing._inject_root_context()
+
+    # Capture printed output
+    captured = capsys.readouterr()
+    expected_trace_id = test_traceparent.split("-")[1]
+    assert f"Trace ID: {expected_trace_id}" in captured.out
+
+
+def test_conditional_span_when_tracing_disabled(test_exporter):
+    """
+    Tests that conditional_span does nothing when tracing is disabled.
+    """
+    mockplan = TestplanMock(name="MockPlan")
+    assert tracing._tracing_enabled is False
+
+    with tracing.conditional_span("disabled_span", condition=True) as span:
+        assert span is None
+
+    spans = test_exporter.get_finished_spans()
+    assert len(spans) == 0
+
+
+def test_trace_decorator_when_tracing_disabled(test_exporter):
+    """
+    Tests that trace decorator works normally when tracing is disabled.
+    """
+    mockplan = TestplanMock(name="MockPlan")
+    assert tracing._tracing_enabled is False
+
+    mockplan.add(MultiTest(name="MyMultitest", suites=[DecoratorSpanSuite()]))
+    mockplan.run()
+
+    spans = test_exporter.get_finished_spans()
+    assert len(spans) == 0
+
+
+def test_set_span_attrs_with_none_span(test_exporter):
+    """
+    Tests that set_span_attrs handles None span gracefully.
+    """
+    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    assert tracing._tracing_enabled
+
+    # Should not raise an error
+    tracing.set_span_attrs(span=None, attr1="value1")
+
+
+def test_set_span_as_failed_with_none_span(test_exporter):
+    """
+    Tests that set_span_as_failed handles None span gracefully.
+    """
+    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    assert tracing._tracing_enabled
+
+    # Should not raise an error
+    tracing.set_span_as_failed(span=None, description="Test failure")

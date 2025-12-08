@@ -25,7 +25,6 @@ class TCPTestsuite:
     def __init__(self):
         self._process_id = os.getpid()
 
-    @tracing.trace
     @testcase
     def send_and_receive_msg(self, env, result):
         """
