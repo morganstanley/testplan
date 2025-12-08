@@ -314,6 +314,10 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("driver_info", default=False): bool,
             ConfigOption("collect_code_context", default=False): bool,
             ConfigOption("archive_runpath", default=None): Or(str, None),
+            ConfigOption("otel_traces", default=None): Or(
+                None, "Test", "TestSuite", "TestCase"
+            ),
+            ConfigOption("otel_traceparent", default=None): Or(str, None),
         }
 
 
