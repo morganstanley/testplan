@@ -211,6 +211,7 @@ License information `here <https://github.com/morganstanley/testplan/blob/main/L
    remote
    exotic_features
    signal_handler
+   observability
 
 .. toctree::
    :caption: Tools

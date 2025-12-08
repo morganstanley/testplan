@@ -12,6 +12,7 @@ from schema import And, Or, Use
 from testplan.common import config, entity
 from testplan.common.utils import interface, strings, timing, watcher
 from testplan.common.utils.composer import compose_contexts
+from testplan.common.utils.observability import tracing
 from testplan.common.report import (
     ReportCategories,
     RuntimeStatus,
@@ -818,7 +819,14 @@ class MultiTest(testing_base.Test):
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
 
-        with testsuite_report.timer.record("run"):
+        with (
+            tracing.conditional_span(
+                name=testsuite.name,
+                condition=(self.otel_traces and self.otel_traces != "Test"),
+                level="TestSuite",
+            ) as testsuite_span,
+            testsuite_report.timer.record("run"),
+        ):
             with self.watcher.save_covered_lines_to(testsuite_report):
                 setup_report = self._setup_testsuite(testsuite)
             if setup_report is not None:
@@ -828,6 +836,7 @@ class MultiTest(testing_base.Test):
                         teardown_report = self._teardown_testsuite(testsuite)
                     if teardown_report is not None:
                         testsuite_report.append(teardown_report)
+                    tracing.set_span_as_failed(testsuite_span)
                     return testsuite_report
 
             serial_cases, parallel_cases = (
@@ -869,6 +878,9 @@ class MultiTest(testing_base.Test):
                 teardown_report = self._teardown_testsuite(testsuite)
             if teardown_report is not None:
                 testsuite_report.append(teardown_report)
+
+            if testsuite_report.failed and not hasattr(testsuite, "__xfail__"):
+                tracing.set_span_as_failed(testsuite_span)
 
         # if testsuite is marked xfail by user, override its status
         if hasattr(testsuite, "__xfail__"):
@@ -1213,7 +1225,15 @@ class MultiTest(testing_base.Test):
             self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_END)
             return testcase_report
 
-        with testcase_report.timer.record("run"):
+        testcase_span = None
+        with (
+            tracing.conditional_span(
+                name=testcase.name,
+                condition=self.otel_traces == "TestCase",
+                level="TestCase",
+            ) as testcase_span,
+            testcase_report.timer.record("run"),
+        ):
             with compose_contexts(
                 testcase_report.logged_exceptions(),
                 self.watcher.save_covered_lines_to(testcase_report),
@@ -1262,6 +1282,9 @@ class MultiTest(testing_base.Test):
                     self.log_testcase_lifecycle(
                         testcase, TestLifecycle.POST_TESTCASE_END
                     )
+
+            if not case_result.passed and not hasattr(testcase, "__xfail__"):
+                tracing.set_span_as_failed(testcase_span)
 
         # Apply testcase level summarization
         if getattr(testcase, "summarize", False):

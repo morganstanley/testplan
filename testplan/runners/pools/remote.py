@@ -18,6 +18,7 @@ from testplan.common.remote.remote_resource import (
 )
 from testplan.common.remote.remote_runtime import RuntimeBuilder
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.observability import tracing
 from testplan.common.utils.path import fix_home_prefix, rebase_path
 from testplan.common.utils.remote import copy_cmd, ssh_cmd
 from testplan.common.utils.timing import get_sleeper, wait
@@ -115,6 +116,8 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             "--sys-path-file",
             self._remote_syspath_file,
         ]
+        if tracing._get_traceparent():
+            cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
         if self.parent.resource_monitor_address:
             cmd.extend(
                 [

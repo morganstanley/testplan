@@ -4,6 +4,7 @@ import unittest
 from typing import Generator, Dict
 
 from testplan.testing import base as testing
+from testplan.common.utils.observability import tracing
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import schemas
 from testplan.testing.multitest.entries import base as entries_base
@@ -58,8 +59,17 @@ class PyUnit(testing.Test):
 
     def run_tests(self):
         """Run PyUnit and wait for it to terminate."""
-        with self.report.timer.record("run"):
+        with (
+            tracing.conditional_span(
+                name=self.name,
+                condition=self.otel_traces,
+                level=self.__class__.__name__,
+            ) as pyunit_span,
+            self.report.timer.record("run"),
+        ):
             self.result.report.extend(self._run_tests())
+            if self.report.failed:
+                tracing.set_span_as_failed(pyunit_span)
 
     def get_test_context(self):
         """

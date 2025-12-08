@@ -101,6 +101,14 @@ testplan.common.utils.networking module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.utils.observability module
++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.observability
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.common.utils.parser module
 +++++++++++++++++++++++++++++++++++
 
