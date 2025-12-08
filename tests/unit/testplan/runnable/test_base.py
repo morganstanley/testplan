@@ -114,7 +114,7 @@ class TestPidFileCheck:
     def test_check_pidfile_stale_remote_process(self, tmpdir):
         """
         Test PID file with stale remote process {host}:{port};{pid} format.
-        
+
         Verifies that when a PID file contains remote process information but
         the SSH connection (identified by host:port) is no longer ESTABLISHED,
         the check passes and allows the new testplan to proceed.
@@ -146,7 +146,7 @@ class TestPidFileCheck:
     def test_check_pidfile_active_remote_process(self, tmpdir):
         """
         Test PID file with active remote process {host}:{port};{pid} format.
-        
+
         Verifies that when a PID file contains remote process information and
         an ESTABLISHED TCP connection to the specified host:port exists,
         a RunpathInUseError is raised to prevent concurrent testplan execution
