@@ -2,7 +2,6 @@
 
 import collections.abc
 import concurrent.futures
-from contextlib import nullcontext
 import functools
 import itertools
 import warnings
@@ -821,9 +820,11 @@ class MultiTest(testing_base.Test):
         testsuite_report = self._new_testsuite_report(testsuite)
 
         with (
-            tracing.span(name=testsuite.name, level="TestSuite")
-            if (self.otel_traces != "Test")
-            else nullcontext() as testsuite_span,
+            tracing.conditional_span(
+                name=testsuite.name,
+                condition=(self.otel_traces and self.otel_traces != "Test"),
+                level="TestSuite",
+            ) as testsuite_span,
             testsuite_report.timer.record("run"),
         ):
             with self.watcher.save_covered_lines_to(testsuite_report):
@@ -1226,9 +1227,11 @@ class MultiTest(testing_base.Test):
 
         testcase_span = None
         with (
-            tracing.span(name=testcase.name, level="TestCase")
-            if self.otel_traces == "TestCase"
-            else nullcontext() as testcase_span,
+            tracing.conditional_span(
+                name=testcase.name,
+                condition=self.otel_traces == "TestCase",
+                level="TestCase",
+            ) as testcase_span,
             testcase_report.timer.record("run"),
         ):
             with compose_contexts(

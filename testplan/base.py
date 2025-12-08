@@ -1,7 +1,6 @@
 """Testplan base module."""
 
 import argparse
-from contextlib import nullcontext
 import os
 import random
 import signal
@@ -392,16 +391,14 @@ class Testplan(entity.RunnableManager):
         except Exception:
             pass
 
-        with (
-            tracing.span(
-                self.cfg.name,
-                level="TestPlan",
-                context=tracing._get_root_context(),
-            )
-            if self._tests
-            else nullcontext() as tp_span
-        ):
-            tracing._inject_root_context()
+        with tracing.conditional_span(
+            self.cfg.name,
+            context=tracing._get_root_context(),
+            condition=self._tests and self.cfg.otel_traces,
+            level="TestPlan",
+        ) as tp_span:
+            if tp_span:
+                tracing._inject_root_context()
             result = super(Testplan, self).run()
 
             if isinstance(result, TestRunnerResult):
@@ -410,9 +407,9 @@ class Testplan(entity.RunnableManager):
                 if not testplan_result.success:
                     tracing.set_span_as_failed(tp_span)
                 for info in testplan_result.report.information:
-                    tracing.set_span_attrs(**{info[0]: info[1]})
+                    tracing.set_span_attrs(tp_span, **{info[0]: info[1]})
                 if self.cfg.label:
-                    tracing.set_span_attrs(label=self.cfg.label)
+                    tracing.set_span_attrs(tp_span, label=self.cfg.label)
                 return testplan_result
         return result
 
@@ -551,7 +548,6 @@ class Testplan(entity.RunnableManager):
 
                 plan_result = plan.run()
                 plan_result.decorated_value = returned
-                tracing.force_flush()
                 return plan_result
 
             return test_plan_inner_inner

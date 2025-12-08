@@ -1014,9 +1014,10 @@ class Test(Runnable):
         return self.cfg.otel_traces
 
     def _run_batch_steps(self):
-        with tracing.span(
+        with tracing.conditional_span(
             name=self.uid(),
             context=tracing._get_root_context(),
+            condition=self.otel_traces,
             level=self.__class__.__name__,
         ) as test_span:
             super(Test, self)._run_batch_steps()
@@ -1303,7 +1304,11 @@ class ProcessRunnerTest(Test):
         :raises ValueError: upon invalid test command
         """
         with (
-            tracing.span(name=self.name, level=self.__class__.__name__),
+            tracing.conditional_span(
+                name=self.name,
+                condition=self.otel_traces,
+                level=self.__class__.__name__,
+            ),
             self.report.timer.record("run"),
         ):
             with (

@@ -152,6 +152,40 @@ class Tracing(Loggable):
         ) as span:
             yield span
 
+    @contextmanager
+    def conditional_span(
+        self,
+        name: str,
+        context: Optional[Dict[str, Any]] = None,
+        condition: bool = True,
+        **kwargs,
+    ) -> Iterator[Optional["Span"]]:
+        """
+        Utility function to create a span conditionally.
+
+        :param name: Name of the span
+        :type name: str
+        :param context: Optional trace context for span propagation, defaults to current parent span if not provided
+        :type context: Optional[Dict[str, Any]]
+        :param condition: Condition to determine whether to create the span
+        :type condition: bool
+        :param kwargs: Additional span attributes as keyword arguments
+        :type kwargs: Any
+
+        :yield: Span object if tracing is enabled and condition is met, None otherwise
+        :rtype: Iterator[Optional[Span]]
+
+        Example:
+            >>> with tracing.conditional_span("operation", condition=True, example_attr="value1") as span:
+            ...     # Perform operation
+            ...     pass
+        """
+        if not self._tracing_enabled or not condition:
+            yield
+            return
+        with self.span(name, context=context, **kwargs) as span:
+            yield span
+
     def start_span(
         self,
         span_name: str,
@@ -261,7 +295,7 @@ class Tracing(Loggable):
         """
         Mark a span as failed with an error status.
 
-        :param span: Span to mark as failed, or None to use current span
+        :param span: Span to mark as failed, if None, do nothing
         :type span: Optional[Span]
         :param description: Optional error description
         :type description: Optional[str]
@@ -274,11 +308,10 @@ class Tracing(Loggable):
             ...             description="Validation failed"
             ...         )
         """
-        if not self._tracing_enabled:
+        if not self._tracing_enabled or span is None:
             return None
         from opentelemetry import trace
 
-        span = span or trace.get_current_span()
         span.set_status(
             trace.StatusCode.ERROR,
             description,
@@ -288,7 +321,7 @@ class Tracing(Loggable):
         """
         Set attributes on a span.
 
-        :param span: Span to set attributes on, or None to use current span
+        :param span: Span to set attributes on, if None, do nothing
         :type span: Optional[Span]
         :param kwargs: Attributes as keyword arguments
         :type kwargs: Any
@@ -302,11 +335,8 @@ class Tracing(Loggable):
             ...         response_time_ms=response.elapsed
             ...     )
         """
-        if not self._tracing_enabled:
+        if not self._tracing_enabled or span is None:
             return None
-        from opentelemetry import trace
-
-        span = span or trace.get_current_span()
         span.set_attributes(kwargs)
 
     def force_flush(self) -> None:
@@ -314,9 +344,7 @@ class Tracing(Loggable):
         Force the current span processor to export all ended spans.
         """
         if self._tracer_provider:
-            self.logger.warning("Forcing span processor to flush ended spans.")
             self._tracer_provider.force_flush()
-            self.logger.warning("Span processor flush complete.")
 
     def trace(self, func):
         """

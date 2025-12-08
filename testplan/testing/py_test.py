@@ -114,13 +114,14 @@ class PyTest(testing.Test):
         """Setup the PyTest plugin for the suite."""
         self._pytest_plugin.setup()
 
-    @tracing.trace
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
         with (
-            tracing.span(
-                name=self.name, level=self.__class__.__name__
+            tracing.conditional_span(
+                name=self.name,
+                condition=self.otel_traces,
+                level=self.__class__.__name__,
             ) as pytest_span,
             self.report.timer.record("run"),
         ):
