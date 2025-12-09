@@ -34,6 +34,12 @@ kafka_cfg_template = os.path.join(
 )
 
 
+kraft_kafka_cfg_template = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "kraft_server_template.properties",
+)
+
+
 @pytest.fixture(scope="module")
 def zookeeper_server(runpath_module):
     server = zookeeper.ZookeeperStandalone(
@@ -89,6 +95,55 @@ def test_kafka(kafka_server):
     topic = "testplan"
     message = str(uuid.uuid4()).encode("utf-8")
     producer.produce(topic=topic, value=message)
+    consumer.subscribe([topic])
+    msg = consumer.poll(10)
+    assert message == msg.value()
+
+
+@pytest.fixture(scope="module")
+def kraft_kafka_server(runpath_module):
+    server = kafka.KafkaStandalone(
+        "kafka",
+        cfg_template=kraft_kafka_cfg_template,
+        runpath=runpath_module,
+        host="localhost",
+        port=9092,
+        controller_port=9093,
+    )
+
+    testplan = TestplanMock("KafkaTest", parse_cmdline=False)
+    env = entity.Environment(parent=testplan)
+    env.add(server)
+
+    with server:
+        yield server
+
+
+def test_kraft_kafka(kraft_kafka_server):
+    producer = Producer(
+        {
+            "bootstrap.servers": f"localhost:{kraft_kafka_server.port}",
+            "max.in.flight": 1,
+            "client.id": "kafka-client",
+            "acks": 1,  # Wait for leader acknowledgment only
+            "request.timeout.ms": 30000,  # Add timeout
+            "delivery.timeout.ms": 30000,  # Add delivery timeout
+        }
+    )
+    consumer = Consumer(
+        {
+            "bootstrap.servers": f"localhost:{kraft_kafka_server.port}",
+            "group.id": uuid.uuid4(),
+            "default.topic.config": {"auto.offset.reset": "smallest"},
+            "enable.auto.commit": True,
+            "broker.address.family": "v4",
+        }
+    )
+
+    topic = "testplan"
+    message = str(uuid.uuid4()).encode("utf-8")
+    producer.produce(topic=topic, value=message)
+    producer.flush()
     consumer.subscribe([topic])
     msg = consumer.poll(10)
     assert message == msg.value()
