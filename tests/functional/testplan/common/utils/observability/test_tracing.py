@@ -599,8 +599,8 @@ def test_inject_root_context_prints_trace_id(test_exporter, capsys):
     )
     assert tracing._tracing_enabled
 
-    # Inject root context
-    tracing._inject_root_context()
+    mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
+    mockplan.run()
 
     # Capture printed output
     captured = capsys.readouterr()
