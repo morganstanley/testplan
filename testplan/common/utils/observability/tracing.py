@@ -7,7 +7,6 @@ and analyze test execution across distributed systems.
 
 from contextlib import contextmanager
 import os
-import grpc
 from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional
 from functools import wraps
 
@@ -65,6 +64,7 @@ class Tracing(Loggable):
             self._root_context = {"traceparent": traceparent}
 
         try:
+            import grpc
             from opentelemetry import trace
             from opentelemetry.sdk.trace import TracerProvider
             from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -256,7 +256,7 @@ class Tracing(Loggable):
         """
         if not self._tracing_enabled:
             return
-        from opentelemetry.propagate import inject
+        from opentelemetry.propagate import inject  # pylint: disable=import-error
 
         inject(self._root_context)
         if trace := self._get_traceparent():
@@ -276,7 +276,7 @@ class Tracing(Loggable):
         """
         if not self._tracing_enabled:
             return {}
-        from opentelemetry.propagate import extract
+        from opentelemetry.propagate import extract  # pylint: disable=import-error
 
         return extract(self._root_context)
 
@@ -310,7 +310,7 @@ class Tracing(Loggable):
         """
         if not self._tracing_enabled or span is None:
             return None
-        from opentelemetry import trace
+        from opentelemetry import trace  # pylint: disable=import-error
 
         span.set_status(
             trace.StatusCode.ERROR,
