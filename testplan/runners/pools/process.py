@@ -76,7 +76,7 @@ class ProcessWorker(Worker):
             "--sys-path-file",
             self._syspath_file,
         ]
-        if self.cfg.otel_traces and tracing._get_traceparent():
+        if self.otel_traces and tracing._get_traceparent():
             cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
         return cmd
 
