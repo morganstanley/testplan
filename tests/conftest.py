@@ -17,13 +17,6 @@ from testplan.common.utils.path import VAR_TMP
 from testplan.common.utils import observability
 from testplan.common.utils.observability import Tracing
 
-# OpenTelemetry fixtures shared by unit/functional tests
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor
-from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
-    InMemorySpanExporter,
-)
-
 
 # Testplan and various drivers have a `runpath` attribute in their config
 # and intermediate files will be placed under that path during running.
@@ -157,6 +150,13 @@ def session_provider_exporter():
     Sets the global tracer provider once per session.
     Also resets the Testplan tracing singleton before use to avoid stale state.
     """
+    pytest.importorskip("opentelemetry")
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
+        InMemorySpanExporter,
+    )
+
     from opentelemetry import trace
 
     exporter = InMemorySpanExporter()
