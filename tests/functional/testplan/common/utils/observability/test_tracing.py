@@ -1,3 +1,4 @@
+from typing import Optional
 import pytest
 
 from opentelemetry.sdk.trace import Span
@@ -7,7 +8,7 @@ from testplan.common.utils.observability import tracing
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 
-def find_span(spans: list[Span], name: str) -> Span | None:
+def find_span(spans: list[Span], name: str) -> Optional[Span]:
     """Helper to find a span by name."""
     for span in spans:
         if span.name == name:
