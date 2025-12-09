@@ -116,7 +116,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             "--sys-path-file",
             self._remote_syspath_file,
         ]
-        if tracing._get_traceparent():
+        if self.cfg.otel_traces and tracing._get_traceparent():
             cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
         if self.parent.resource_monitor_address:
             cmd.extend(
