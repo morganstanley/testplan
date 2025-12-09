@@ -187,10 +187,16 @@ def test_exporter(session_provider_exporter, monkeypatch):
     existing_tracing = observability.tracing
 
     # Capture original tracing state to restore after the test.
-    original_tracing_enabled = getattr(existing_tracing, "_tracing_enabled", False)
-    original_root_context = getattr(existing_tracing, "_root_context", {}).copy()
+    original_tracing_enabled = getattr(
+        existing_tracing, "_tracing_enabled", False
+    )
+    original_root_context = getattr(
+        existing_tracing, "_root_context", {}
+    ).copy()
     original_tracer = getattr(existing_tracing, "_tracer", None)
-    original_tracer_provider = getattr(existing_tracing, "_tracer_provider", None)
+    original_tracer_provider = getattr(
+        existing_tracing, "_tracer_provider", None
+    )
 
     def mock_setup(traceparent=None):
         if traceparent:
@@ -211,7 +217,7 @@ def test_exporter(session_provider_exporter, monkeypatch):
     existing_tracing._root_context = original_root_context
     existing_tracing._tracer = original_tracer
     existing_tracing._tracer_provider = original_tracer_provider
- 
+
 
 @pytest.fixture
 def unit_test_tracing(session_provider_exporter):
