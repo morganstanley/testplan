@@ -163,14 +163,14 @@ def session_provider_exporter():
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))
 
-    try:
-        trace.set_tracer_provider(provider)
-    except RuntimeError:
-        # Provider already set in this session, which is fine
-        pass
+    # Save the original provider (could be None or already set by --otel-traces).
+    original_provider = trace.get_tracer_provider()
+
+    # Forcefully set the test provider for this session.
+    trace._TRACER_PROVIDER = provider
 
     yield provider, exporter
-
+    trace._TRACER_PROVIDER = original_provider
     provider.shutdown()
 
 
@@ -186,6 +186,12 @@ def test_exporter(session_provider_exporter, monkeypatch):
 
     existing_tracing = observability.tracing
 
+    # Capture original tracing state to restore after the test.
+    original_tracing_enabled = getattr(existing_tracing, "_tracing_enabled", False)
+    original_root_context = getattr(existing_tracing, "_root_context", {}).copy()
+    original_tracer = getattr(existing_tracing, "_tracer", None)
+    original_tracer_provider = getattr(existing_tracing, "_tracer_provider", None)
+
     def mock_setup(traceparent=None):
         if traceparent:
             existing_tracing._root_context = {"traceparent": traceparent}
@@ -195,16 +201,17 @@ def test_exporter(session_provider_exporter, monkeypatch):
         existing_tracing._tracing_enabled = True
 
     existing_tracing._setup = mock_setup
+    existing_tracing._tracing_enabled = False
     monkeypatch.setattr(existing_tracing, "_setup", mock_setup)
 
     yield exporter
     exporter.clear()
 
-    existing_tracing._tracing_enabled = False
-    existing_tracing._root_context = {}
-    existing_tracing._tracer = None
-    existing_tracing._tracer_provider = None
-
+    existing_tracing._tracing_enabled = original_tracing_enabled
+    existing_tracing._root_context = original_root_context
+    existing_tracing._tracer = original_tracer
+    existing_tracing._tracer_provider = original_tracer_provider
+ 
 
 @pytest.fixture
 def unit_test_tracing(session_provider_exporter):
