@@ -544,7 +544,6 @@ class Test(Runnable):
             self._spans[span_key] = tracing.start_span(
                 span_key,
                 start_time=start_time,
-                level=span_key,
             )
 
     def end_span_and_timer(self, timer_key: str, span_key: str) -> None:
@@ -1018,7 +1017,6 @@ class Test(Runnable):
             name=self.uid(),
             context=tracing._get_root_context(),
             condition=self.otel_traces,
-            level=self.__class__.__name__,
         ) as test_span:
             super(Test, self)._run_batch_steps()
             if self.report.failed:
@@ -1307,7 +1305,6 @@ class ProcessRunnerTest(Test):
             tracing.conditional_span(
                 name=self.name,
                 condition=self.otel_traces,
-                level=self.__class__.__name__,
             ),
             self.report.timer.record("run"),
         ):
