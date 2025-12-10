@@ -823,7 +823,6 @@ class MultiTest(testing_base.Test):
             tracing.conditional_span(
                 name=testsuite.name,
                 condition=(self.otel_traces and self.otel_traces != "Test"),
-                level="TestSuite",
             ) as testsuite_span,
             testsuite_report.timer.record("run"),
         ):
@@ -1230,7 +1229,7 @@ class MultiTest(testing_base.Test):
             tracing.conditional_span(
                 name=testcase.name,
                 condition=self.otel_traces == "TestCase",
-                level="TestCase",
+                test_id=f"{self.uid()}:{testsuite.uid()}:{testcase.__name__}",
             ) as testcase_span,
             testcase_report.timer.record("run"),
         ):

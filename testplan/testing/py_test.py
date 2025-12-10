@@ -121,7 +121,6 @@ class PyTest(testing.Test):
             tracing.conditional_span(
                 name=self.name,
                 condition=self.otel_traces,
-                level=self.__class__.__name__,
             ) as pytest_span,
             self.report.timer.record("run"),
         ):

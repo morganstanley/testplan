@@ -127,6 +127,40 @@ Then pass the output to multiple parallel Testplan runs:
     python testplan3.py --otel-trace TestCase --otel-traceparent "$TRACEPARENT" &
     wait
 
+Deterministic Trace IDs
++++++++++++++++++++++++
+
+For better traceability in CI/CD pipelines, you can generate deterministic trace IDs based on build
+and testplan identifiers. This allows you to correlate traces with specific builds and test executions:
+
+.. code-block:: python
+
+    # generate_traceparent.py
+    import sys
+    
+    def generate_deterministic_traceparent(build_id, testplan_name):
+        """Generate a deterministic trace ID from build and testplan identifiers."""
+        # Format: {BUILD_ID}{TESTPLAN_NAME}0000000 (padded to 32 hex chars)
+        # Format should be different enough to avoid collisions
+        trace_id_base = f"{build_id}{testplan_name}"
+        trace_id = trace_id_base.ljust(32, '0')[:32]
+        parent_span_id = "0000000000000001"
+        trace_flags = "01"
+        return f"00-{trace_id}-{parent_span_id}-{trace_flags}"
+    
+    if __name__ == "__main__":
+        build_id = sys.argv[1]  # e.g., "BUILD123"
+        testplan_name = sys.argv[2]  # e.g., "smoke_tests"
+        print(generate_deterministic_traceparent(build_id, testplan_name))
+
+Usage:
+
+.. code-block:: bash
+
+    # Generate traceparent for a specific build and testplan
+    TRACEPARENT=$(python generate_traceparent.py BUILD123 smoke_tests)
+    python testplan.py --otel-trace TestCase --otel-traceparent "$TRACEPARENT"
+
 Tracing
 -----------------
 
@@ -277,3 +311,25 @@ you either need to ensure that the environment variables are set on the remote o
 The root trace context is automatically injected into worker processes. When the environment
 variables are configured correctly, trace export will occur normally and trace propagation
 will continue as expected across the distributed test execution.
+
+Querying Traces
+---------------
+
+Test Case Identification
++++++++++++++++++++++++++
+
+Each testcase span in MultiTest includes a ``test_id`` attribute that uniquely identifies it within the trace.
+The test ID follows the format: ``{test_uid}:{testsuite_uid}:{testcase_name}``.
+
+This allows you to query for specific test failures or patterns using TraceQL:
+
+.. code-block:: text
+
+    # Find all failed or errored test cases
+    {span.test_id != "" && (span.status = error || span.status = unset)}
+
+    # Find failures in a specific test suite
+    {span.test_id =~ ".*:MyTestSuite:.*" && span.status = error}
+
+    # Find all instances of a specific test case across runs
+    {span.test_id =~ ".*:.*:test_database_connection"}
