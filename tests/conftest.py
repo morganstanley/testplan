@@ -15,7 +15,7 @@ import testplan
 from testplan import TestplanMock
 from testplan.common.utils.path import VAR_TMP
 from testplan.common.utils import observability
-from testplan.common.utils.observability import Tracing
+from testplan.common.utils.observability import RootTraceIdGenerator, Tracing
 
 
 # Testplan and various drivers have a `runpath` attribute in their config
@@ -197,13 +197,17 @@ def test_exporter(session_provider_exporter, monkeypatch):
     original_tracer_provider = getattr(
         existing_tracing, "_tracer_provider", None
     )
+    original_id_generator = provider.id_generator
 
     def mock_setup(traceparent=None):
         if traceparent:
             existing_tracing._root_context = {"traceparent": traceparent}
 
-        existing_tracing._tracer = trace.get_tracer("testplan_tracer")
         existing_tracing._tracer_provider = provider
+        existing_tracing._tracer_provider.id_generator = RootTraceIdGenerator(
+            existing_tracing
+        )
+        existing_tracing._tracer = trace.get_tracer("testplan_tracer")
         existing_tracing._tracing_enabled = True
 
     existing_tracing._setup = mock_setup
@@ -217,6 +221,7 @@ def test_exporter(session_provider_exporter, monkeypatch):
     existing_tracing._root_context = original_root_context
     existing_tracing._tracer = original_tracer
     existing_tracing._tracer_provider = original_tracer_provider
+    provider.id_generator = original_id_generator
 
 
 @pytest.fixture
@@ -230,8 +235,8 @@ def unit_test_tracing(session_provider_exporter):
         if traceparent:
             fresh_tracing._root_context = {"traceparent": traceparent}
 
-        fresh_tracing._tracer = trace.get_tracer("testplan_tracer")
         fresh_tracing._tracer_provider = provider
+        fresh_tracing._tracer = trace.get_tracer("testplan_tracer")
         fresh_tracing._tracing_enabled = True
 
     fresh_tracing._setup = mock_setup
