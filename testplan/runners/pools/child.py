@@ -56,6 +56,8 @@ class ChildLoop:
         self.runpath = runpath
         self.logger = logger
 
+        self._discard_pending = False
+
     @property
     def metadata(self):
         """Metadata information."""
@@ -206,9 +208,11 @@ class ChildLoop:
                             time.time() - hb_resp.data,
                         )
                     if hb_resp.cmd == Message.DiscardPending:
-                        self._pool.discard_pending_tasks(
-                            report_reason="DiscardPending received"
-                        )
+                        if not self._discard_pending:
+                            self._pool.discard_pending_tasks(
+                                report_reason="DiscardPending received"
+                            )
+                            self._discard_pending = True
                     next_heartbeat = now + self._pool_cfg.worker_heartbeat
 
                 # Send back results
@@ -258,6 +262,16 @@ class ChildLoop:
                             self._pool_cfg.max_active_loop_sleep,
                         )
                         next_possible_request = time.time() + request_delay
+                    elif received.cmd == Message.DiscardPending:
+                        if not self._discard_pending:
+                            self.logger.debug(
+                                "Received DiscardPending from TaskPullRequest"
+                            )
+                            # shouldn't add much overhead during process termination
+                            self._pool.discard_pending_tasks(
+                                report_reason="DiscardPending received"
+                            )
+                            self._discard_pending = True
                 time.sleep(self._pool_cfg.active_loop_sleep)
         self.logger.info("Local pool %s stopped.", self._pool)
 

@@ -238,6 +238,7 @@ A typical input JSON looks like below:
 
         general_group.add_argument(
             "--skip-remaining",
+            default=self._default_options["skip_strategy"],
             choices=common.SkipStrategy.all_options(),
             dest="skip_strategy",
             help="Make Testplan break from the current execution flow and skip remaining "
