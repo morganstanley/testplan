@@ -94,6 +94,14 @@ to specify the parent trace context in W3C Trace Context format:
 
 The traceparent format is: ``version-trace_id-parent_span_id-trace_flags``
 
+If you are only concerned with setting a specific trace ID and don't need to link to an actual parent span,
+you can use a dummy span ID of all zeros:
+
+.. code-block:: bash
+
+    # Set trace ID without parent span linkage
+    python my_testplan.py --otel-trace TestCase --otel-traceparent "00-0af7651916cd43dd8448eb211c80319c-0000000000000000-01"
+
 This allows your Testplan execution to appear as a child span in your broader system trace, enabling
 end-to-end observability across multiple test executions. A common use case is to start
 a parent trace and have multiple Testplan runs execute in parallel as child spans under that trace.
@@ -144,7 +152,8 @@ and testplan identifiers. This allows you to correlate traces with specific buil
         # Format should be different enough to avoid collisions
         trace_id_base = f"{build_id}{testplan_name}"
         trace_id = trace_id_base.ljust(32, '0')[:32]
-        parent_span_id = "0000000000000001"
+        # Use dummy span ID since we only care about trace ID grouping
+        parent_span_id = "0000000000000000"
         trace_flags = "01"
         return f"00-{trace_id}-{parent_span_id}-{trace_flags}"
     

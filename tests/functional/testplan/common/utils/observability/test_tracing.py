@@ -506,6 +506,33 @@ def test_otel_traceparent_flag(test_exporter):
         assert span_trace_id == expected_trace_id
 
 
+def test_otel_traceparent_flag_with_only_valid_traceid(test_exporter):
+    """
+    Tests that otel_traceparent is properly injected as root context
+    for distributed tracing even if span id is invalid.
+    """
+    test_traceparent = (
+        "00-a4f7651916cd43dd8448eb211c80319c-0000000000000000-01"
+    )
+
+    mockplan = TestplanMock(
+        name="MockPlan",
+        otel_traces="TestCase",
+        otel_traceparent=test_traceparent,
+    )
+    assert tracing._tracing_enabled
+
+    mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
+    mockplan.run()
+
+    spans = test_exporter.get_finished_spans()
+
+    expected_trace_id = test_traceparent.split("-")[1]
+    for span in spans:
+        span_trace_id = format(span.context.trace_id, "x")
+        assert span_trace_id == expected_trace_id
+
+
 def test_otel_traceparent_without_tracing_enabled(test_exporter):
     """
     Tests that otel_traceparent is ignored when tracing is disabled.
