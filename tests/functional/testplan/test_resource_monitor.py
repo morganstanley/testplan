@@ -23,7 +23,7 @@ def test_resource(runpath):
     print(f"Current PID: {current_pid}")
     server = ResourceMonitorServer(file_directory=runpath, detailed=True)
     assert server.address == ""
-    server.start()
+    server.start(30)  # tracing.shutdown has a timeout of 30s
     assert server.address != ""
     assert server.file_directory.exists()
 
@@ -38,7 +38,10 @@ def test_resource(runpath):
     resource_detail_file_path = (
         server.file_directory / f"{slugify(client.uid)}.detailed"
     )
-    wait(lambda: meta_file_path.exists(), timeout=client.poll_interval * 2)
+    # tracing.shutdown has a timeout of 30s
+    wait(
+        lambda: meta_file_path.exists(), timeout=30 + client.poll_interval * 2
+    )
 
     with open(meta_file_path) as meta_file:
         meta_info = json.load(meta_file)
