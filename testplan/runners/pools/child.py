@@ -124,6 +124,11 @@ class ChildLoop:
         fhandler.setFormatter(formatter)
         fhandler.setLevel(self.logger.level)
         self.logger.addHandler(fhandler)
+        logger = logging.getLogger("opentelemetry")
+        for handler in self.logger.handlers:
+            logger.addHandler(handler)
+        logger.error("THIS IS WORKING")
+        self.logger.error(logger.handlers)
 
     def _send_and_expect(self, message, send, expect):
         try:

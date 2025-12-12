@@ -26,6 +26,7 @@ class RootTraceIdGenerator:
     def __init__(self, tracing_instance: "Tracing") -> None:
         """
         Initialize the ID generator.
+
         :param tracing_instance: Reference to the Tracing instance
         :type tracing_instance: Tracing
         """
@@ -37,6 +38,7 @@ class RootTraceIdGenerator:
     def generate_trace_id(self) -> int:
         """
         Generate a trace ID, using the root trace ID if available.
+
         :return: Trace ID as integer
         :rtype: int
         """
@@ -50,6 +52,7 @@ class RootTraceIdGenerator:
     def generate_span_id(self) -> int:
         """
         Generate a span ID using random generation.
+
         :return: Span ID as integer
         :rtype: int
         """
@@ -404,6 +407,13 @@ class Tracing(Loggable):
                 return func(instance_self, *args, **kwargs)
 
         return _wrapped
+
+    def _shutdown(self) -> None:
+        """
+        Shutdown the tracer provider
+        """
+        if self._tracer_provider:
+            self._tracer_provider.shutdown()
 
 
 #: Global tracing instance for Testplan observability
