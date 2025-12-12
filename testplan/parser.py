@@ -536,6 +536,19 @@ that match ALL of the given tags.
             help="Collects file path, line number and code context of the assertions.",
         )
 
+        report_group.add_argument(
+            "--otel-traces",
+            choices=["Test", "TestSuite", "TestCase"],
+            default=self._default_options["otel_traces"],
+            help="Enable OpenTelemetry tracing at specified level.",
+        )
+
+        report_group.add_argument(
+            "--otel-traceparent",
+            default=self._default_options["otel_traceparent"],
+            help="Optional traceparent for OpenTelemetry traces.",
+        )
+
         self.add_arguments(parser)
         return parser
 
