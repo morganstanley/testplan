@@ -714,14 +714,21 @@ class InteractiveReportComponent extends BaseReport {
       getSelectedUIDsFromPath(this.props.match.params, base64url.decode),
       this.state.filteredReport.report
     );
-    const centerPane = <CenterPane
-      reportState={this.state}
-      reportFetchMessage={reportFetchMessage}
-      loading={null}
-      selectedEntries={selectedEntries}
-      displayTime={this.props.displayTime}
-      UTCTime={this.props.UTCTime}
-    />;
+    const centerPane = (
+      <CenterPane
+        key={`center-pane-${
+          selectedEntries
+            ? selectedEntries.map((entry) => entry.hash).join(",")
+            : ""
+        }`}
+        reportState={this.state}
+        reportFetchMessage={reportFetchMessage}
+        reportUid={null}
+        selectedEntries={selectedEntries}
+        displayTime={this.props.displayTime}
+        UTCTime={this.props.UTCTime}
+      />
+    );
 
     return (
       <div className={css(styles.interactiveReport)}>

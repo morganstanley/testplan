@@ -1051,7 +1051,7 @@ exports[`InteractiveReport Handles 'full' parameter for report serialization 1`]
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-12345"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -1561,6 +1561,7 @@ exports[`InteractiveReport Handles 'full' parameter for report serialization 1`]
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={
             Array [
               Object {
@@ -2135,7 +2136,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -2406,6 +2407,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={Array []}
         />
       </ErrorBoundary>
@@ -3333,7 +3335,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-12345"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -3777,6 +3779,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={
             Array [
               Object {
@@ -4221,7 +4224,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -4395,6 +4398,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={Array []}
         />
       </ErrorBoundary>
@@ -5006,7 +5010,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-11111"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -5292,6 +5296,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={
             Array [
               Object {
@@ -5756,7 +5761,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -6029,6 +6034,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={Array []}
         />
       </ErrorBoundary>
@@ -6359,7 +6365,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -6630,6 +6636,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={Array []}
         />
       </ErrorBoundary>
@@ -6960,7 +6967,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -7231,6 +7238,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={Array []}
         />
       </ErrorBoundary>
@@ -7561,7 +7569,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     >
       <ErrorBoundary>
         <CenterPane
-          loading={null}
+          key="center-pane-"
           reportFetchMessage={null}
           reportState={
             Object {
@@ -7832,6 +7840,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
               "running": false,
             }
           }
+          reportUid={null}
           selectedEntries={Array []}
         />
       </ErrorBoundary>
