@@ -148,9 +148,8 @@ class Tracing(Loggable):
         # Tune BatchSpanProcessor for short-lived worker processes:
         # Allow overriding via environment, else use more aggressive default.
         schedule_delay = int(os.getenv("OTEL_BSP_SCHEDULE_DELAY", 200))
-        self.exporter = OTLPSpanExporter(credentials=credentials)
         processor = BatchSpanProcessor(
-            self.exporter,
+            OTLPSpanExporter(credentials=credentials),
             schedule_delay_millis=schedule_delay,
         )
         provider.add_span_processor(processor)
@@ -408,7 +407,7 @@ class Tracing(Loggable):
 
     def _shutdown(self) -> None:
         """
-        Shutdown the tracer provider to ensure all spans are exported.
+        Shutdown the tracer provider
         """
         if self._tracer_provider:
             self._tracer_provider.shutdown()
