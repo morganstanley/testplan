@@ -58,12 +58,12 @@ To enable OpenTelemetry tracing, set the following environment variables:
     # Batch span processor delay in milliseconds (default: 200)
     export OTEL_BSP_SCHEDULE_DELAY=500
 
-Then, use the ``--otel-trace`` command line flag:
+Then, use the ``--otel-traces`` command line flag:
 
 .. code-block:: bash
 
     # Enable tracing with the flag
-    python my_testplan.py --otel-trace <LEVEL> [Test|TestSuite|TestCase]
+    python my_testplan.py --otel-traces <LEVEL> [Test|TestSuite|TestCase]
 
 Where ``<LEVEL>`` can be:
     * ``Test``: Trace at the Testplan and Test levels
@@ -90,7 +90,7 @@ to specify the parent trace context in W3C Trace Context format:
 .. code-block:: bash
 
     # Link Testplan execution to an existing trace
-    python my_testplan.py --otel-trace TestCase --otel-traceparent "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    python my_testplan.py --otel-traces TestCase --otel-traceparent "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
 
 The traceparent format is: ``version-trace_id-parent_span_id-trace_flags``
 
@@ -100,7 +100,7 @@ you can use a dummy span ID of all zeros:
 .. code-block:: bash
 
     # Set trace ID without parent span linkage
-    python my_testplan.py --otel-trace TestCase --otel-traceparent "00-0af7651916cd43dd8448eb211c80319c-0000000000000000-01"
+    python my_testplan.py --otel-traces TestCase --otel-traceparent "00-0af7651916cd43dd8448eb211c80319c-0000000000000000-01"
 
 This allows your Testplan execution to appear as a child span in your broader system trace, enabling
 end-to-end observability across multiple test executions. A common use case is to start
@@ -130,9 +130,9 @@ Then pass the output to multiple parallel Testplan runs:
     TRACEPARENT=$(python start_trace.py | tail -n 1)
     
     # Launch multiple testplan runs in parallel under the same parent trace
-    python testplan1.py --otel-trace TestCase --otel-traceparent "$TRACEPARENT" &
-    python testplan2.py --otel-trace TestCase --otel-traceparent "$TRACEPARENT" &
-    python testplan3.py --otel-trace TestCase --otel-traceparent "$TRACEPARENT" &
+    python testplan1.py --otel-traces TestCase --otel-traceparent "$TRACEPARENT" &
+    python testplan2.py --otel-traces TestCase --otel-traceparent "$TRACEPARENT" &
+    python testplan3.py --otel-traces TestCase --otel-traceparent "$TRACEPARENT" &
     wait
 
 Deterministic Trace IDs
@@ -168,7 +168,7 @@ Usage:
 
     # Generate traceparent for a specific build and testplan
     TRACEPARENT=$(python generate_traceparent.py BUILD123 smoke_tests)
-    python testplan.py --otel-trace TestCase --otel-traceparent "$TRACEPARENT"
+    python testplan.py --otel-traces TestCase --otel-traceparent "$TRACEPARENT"
 
 Tracing
 -----------------
@@ -335,10 +335,10 @@ This allows you to query for specific test failures or patterns using TraceQL:
 .. code-block:: text
 
     # Find all failed or errored test cases
-    {span.test_id != "" && (span.status = error || span.status = unset)}
+    {span.test_id != "" && (span:status = error || span:status = unset)}
 
     # Find failures in a specific test suite
-    {span.test_id =~ ".*:MyTestSuite:.*" && span.status = error}
+    {span.test_id =~ ".*:MyTestSuite:.*" && span:status = error}
 
     # Find all instances of a specific test case across runs
     {span.test_id =~ ".*:.*:test_database_connection"}
