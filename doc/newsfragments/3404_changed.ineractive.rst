@@ -1,0 +1,1 @@
+Fix the issue where interactive mode was not auto-refreshing.
