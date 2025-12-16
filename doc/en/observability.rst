@@ -5,6 +5,7 @@ Observability
 
 Testplan provides built-in observability through OpenTelemetry tracing, allowing you to monitor
 and analyze test execution. This feature enables you to monitor test execution flow, timing, and performance bottlenecks
+
 Overview
 ========
 
@@ -58,9 +59,10 @@ Then, use the ``--otel-traces`` command line flag:
 .. code-block:: bash
 
     # Enable tracing with the flag
-    python my_testplan.py --otel-traces <LEVEL> [Test|TestSuite|TestCase]
+    python my_testplan.py --otel-traces <LEVEL> [Plan|Test|TestSuite|TestCase]
 
 Where ``<LEVEL>`` can be:
+    * ``Plan``: Trace at the Testplan level
     * ``Test``: Trace at the Testplan and Test levels
     * ``TestSuite``: Trace at the Testplan, Test, and Testsuite levels
     * ``TestCase``: Trace at all levels including Testcase
@@ -70,8 +72,9 @@ You can also set the tracing level programmatically in your test plan definition
 .. code-block:: python
 
     from testplan import test_plan
+    from testplan.common.utils.observability import TraceLevel
 
-    @test_plan(name="MyTestPlan", otel_traces="TestCase")
+    @test_plan(name="MyTestPlan", otel_traces=TraceLevel.TESTCASE)
     def main(plan):
         # Your test plan definition here
         pass
@@ -227,7 +230,7 @@ Start/End Style
             result.true(process_data())
         finally:
             # End the span
-            tracing.end_span("complex_operation")
+            tracing.end_span(span)
 
 Setting Span Attributes
 ++++++++++++++++++++++++

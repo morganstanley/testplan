@@ -31,7 +31,7 @@ from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser, FailedTestLevel
 from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.runners.local import LocalRunner
 from testplan.runners.base import Executor
 from testplan.report.testing.styles import Style
@@ -225,9 +225,7 @@ class Testplan(entity.RunnableManager):
             int, Literal["auto"]
         ] = defaults.PLAN_RUNTIME_TARGET,
         skip_strategy: Optional[str] = None,
-        otel_traces: Optional[
-            Literal["Plan", "Test", "TestSuite", "TestCase"]
-        ] = None,
+        otel_traces: TraceLevel = defaults.TRACE_LEVEL,
         otel_traceparent: Optional[str] = None,
         **options,
     ):
@@ -307,10 +305,7 @@ class Testplan(entity.RunnableManager):
         # Stores independent environments.
         self._runnable.add_resource(Environments())
 
-        if (
-            self.cfg.otel_traces is not None
-            and self.cfg.interactive_port is None
-        ):
+        if self.cfg.otel_traces and self.cfg.interactive_port is None:
             tracing._setup(self.cfg.otel_traceparent)
 
     @property
@@ -397,10 +392,9 @@ class Testplan(entity.RunnableManager):
             self.cfg.name,
             context=tracing._get_root_context(),
             condition=self._tests and self.cfg.otel_traces,
-            level="TestPlan",
         ) as tp_span:
             if tp_span:
-                tracing._inject_root_context()
+                tracing._inject_root_context(tp_span)
             result = super(Testplan, self).run()
 
             if isinstance(result, TestRunnerResult):
@@ -468,7 +462,7 @@ class Testplan(entity.RunnableManager):
         auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_MAX,
         plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
         skip_strategy=None,
-        otel_traces=None,
+        otel_traces=defaults.TRACE_LEVEL,
         otel_traceparent=None,
         **options,
     ):

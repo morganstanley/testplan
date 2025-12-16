@@ -43,7 +43,7 @@ from testplan.common.utils.process import (
     subprocess_popen,
 )
 from testplan.common.utils.timing import format_duration, parse_duration
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report import TestCaseReport, TestGroupReport, test_styles
 from testplan.testing import common, filtering, ordering, result, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
@@ -536,11 +536,7 @@ class Test(Runnable):
 
     def start_span_and_timer(self, timer_key: str, span_key: str) -> None:
         self.timer.start(timer_key)
-        if (
-            self.otel_traces
-            and self.otel_traces != "Test"
-            and self.otel_traces != "Plan"
-        ):
+        if self.otel_traces >= TraceLevel.TESTSUITE:
             start_time = int(
                 self.timer.last(timer_key).start.timestamp() * 1e9
             )
@@ -1012,14 +1008,15 @@ class Test(Runnable):
     def otel_traces(self) -> bool:
         # handle possibly missing ``otel_traces``
         if not hasattr(self.cfg, "otel_traces"):
-            return None
+            return TraceLevel.NONE
         return self.cfg.otel_traces
 
     def _run_batch_steps(self):
         with tracing.conditional_span(
             name=self.uid(),
             context=tracing._get_root_context(),
-            condition=self.otel_traces and self.otel_traces != "Plan",
+            condition=self.otel_traces >= TraceLevel.TEST,
+            test_id=self.uid(),
         ) as test_span:
             super(Test, self)._run_batch_steps()
             if self.report.failed:
@@ -1307,7 +1304,7 @@ class ProcessRunnerTest(Test):
         with (
             tracing.conditional_span(
                 name=self.name,
-                condition=self.otel_traces,
+                condition=self.otel_traces >= TraceLevel.TEST,
             ),
             self.report.timer.record("run"),
         ):

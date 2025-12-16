@@ -218,14 +218,14 @@ def test_parent_trace_propagation(unit_test_tracing):
     assert finished.parent.span_id == int(span_id_hex, 16)
 
 
-def test_inject_root_context_disabled(unit_test_tracing, capsys):
+def test_inject_root_context_disabled(unit_test_tracing, captplog):
     tracing, exporter = unit_test_tracing
-    tracing._inject_root_context()
-    captured = capsys.readouterr()
-    assert captured.out == ""
+    mock_span = MagicMock(spec=_Span)
+    tracing._inject_root_context(mock_span)
+    assert captplog.text == ""
 
 
-def test_inject_root_context_enabled(monkeypatch, unit_test_tracing, capsys):
+def test_inject_root_context_enabled(monkeypatch, unit_test_tracing, captplog):
     tracing, exporter = unit_test_tracing
     tracing._setup()
     called = {}
@@ -236,9 +236,9 @@ def test_inject_root_context_enabled(monkeypatch, unit_test_tracing, capsys):
     monkeypatch.setattr("opentelemetry.propagate.inject", fake_inject)
     traceparent = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
     tracing._root_context = {"traceparent": traceparent}
-    tracing._inject_root_context()
-    captured = capsys.readouterr()
-    assert "0af7651916cd43dd8448eb211c80319c" in captured.out
+    mock_span = MagicMock(spec=_Span)
+    tracing._inject_root_context(mock_span)
+    assert "0af7651916cd43dd8448eb211c80319c" in captplog.text
     assert called["carrier"]["traceparent"] == traceparent
 
 
