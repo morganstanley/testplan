@@ -225,7 +225,9 @@ class Testplan(entity.RunnableManager):
             int, Literal["auto"]
         ] = defaults.PLAN_RUNTIME_TARGET,
         skip_strategy: Optional[str] = None,
-        otel_traces: Optional[Literal["Test", "TestSuite", "TestCase"]] = None,
+        otel_traces: Optional[
+            Literal["Plan", "Test", "TestSuite", "TestCase"]
+        ] = None,
         otel_traceparent: Optional[str] = None,
         **options,
     ):
