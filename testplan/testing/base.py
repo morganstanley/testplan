@@ -36,7 +36,6 @@ from testplan.common.report import ReportCategories, RuntimeStatus
 from testplan.common.report import Status as ReportStatus
 from testplan.common.utils import interface, strings, validation
 from testplan.common.utils.composer import compose_contexts
-from testplan.common.utils.observability import tracing
 from testplan.common.utils.context import render
 from testplan.common.utils.process import (
     enforce_timeout,
