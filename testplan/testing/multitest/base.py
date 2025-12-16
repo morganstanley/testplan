@@ -882,12 +882,12 @@ class MultiTest(testing_base.Test):
             if teardown_report is not None:
                 testsuite_report.append(teardown_report)
 
-            if testsuite_report.failed and not hasattr(testsuite, "__xfail__"):
-                tracing.set_span_as_failed(testsuite_span)
+            # if testsuite is marked xfail by user, override its status
+            if hasattr(testsuite, "__xfail__"):
+                testsuite_report.xfail(testsuite.__xfail__["strict"])
 
-        # if testsuite is marked xfail by user, override its status
-        if hasattr(testsuite, "__xfail__"):
-            testsuite_report.xfail(testsuite.__xfail__["strict"])
+            if testsuite_report.failed:
+                tracing.set_span_as_failed(testsuite_span)
 
         testsuite_report.runtime_status = RuntimeStatus.FINISHED
 
@@ -1286,27 +1286,27 @@ class MultiTest(testing_base.Test):
                         testcase, TestLifecycle.POST_TESTCASE_END
                     )
 
-            if not case_result.passed and not hasattr(testcase, "__xfail__"):
+            # Apply testcase level summarization
+            if getattr(testcase, "summarize", False):
+                case_result.entries = [
+                    entries_base.Summary(
+                        entries=case_result.entries,
+                        num_passing=testcase.summarize_num_passing,
+                        num_failing=testcase.summarize_num_failing,
+                        key_combs_limit=testcase.summarize_key_combs_limit,
+                    )
+                ]
+
+            # native assertion objects -> dict form
+            testcase_report.extend(case_result.serialized_entries)
+            testcase_report.attachments.extend(case_result.attachments)
+
+            # If xfailed testcase, force set status_override and update result
+            if hasattr(testcase, "__xfail__"):
+                testcase_report.xfail(testcase.__xfail__["strict"])
+
+            if not case_result.passed:
                 tracing.set_span_as_failed(testcase_span)
-
-        # Apply testcase level summarization
-        if getattr(testcase, "summarize", False):
-            case_result.entries = [
-                entries_base.Summary(
-                    entries=case_result.entries,
-                    num_passing=testcase.summarize_num_passing,
-                    num_failing=testcase.summarize_num_failing,
-                    key_combs_limit=testcase.summarize_key_combs_limit,
-                )
-            ]
-
-        # native assertion objects -> dict form
-        testcase_report.extend(case_result.serialized_entries)
-        testcase_report.attachments.extend(case_result.attachments)
-
-        # If xfailed testcase, force set status_override and update result
-        if hasattr(testcase, "__xfail__"):
-            testcase_report.xfail(testcase.__xfail__["strict"])
 
         testcase_report.pass_if_empty()
         testcase_report.runtime_status = RuntimeStatus.FINISHED
