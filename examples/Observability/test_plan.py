@@ -9,23 +9,44 @@ import time
 
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 
+try:
+    import grpc
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+        OTLPSpanExporter,
+    )
+except ImportError as e:
+    raise RuntimeError(
+        "Certain packages failed to import, please consider install Testplan "
+        "package with `observability` extra to run this example."
+    ) from e
 
-# Configure OpenTelemetry environment variables
-# In production, these would typically be set externally
-os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"] = (
-    "https://otlp.example.com:4317"
-)
-os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = "header1=value1"
-os.environ["OTEL_EXPORTER_OTLP_CERTIFICATE"] = "/path/to/ca-cert.pem"
-os.environ["OTEL_EXPORTER_OTLP_CLIENT_KEY"] = "/path/to/client-key.pem"
-os.environ["OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE"] = (
-    "/path/to/client-cert.pem"
-)
-os.environ["OTEL_RESOURCE_ATTRIBUTES"] = (
-    "service.name=testplan-example,environment=demo"
-)
+required = [
+    "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+    "OTEL_EXPORTER_OTLP_HEADERS",
+    "OTEL_EXPORTER_OTLP_CERTIFICATE",
+    "OTEL_EXPORTER_OTLP_CLIENT_KEY",
+    "OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE",
+    "OTEL_RESOURCE_ATTRIBUTES",
+]
+missing = [name for name in required if not os.environ.get(name)]
+if missing:
+    """
+    Environment variables can be set via
+    export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="https://otlp.example.com:4317"
+    export OTEL_EXPORTER_OTLP_HEADERS="header1=value1"
+    export OTEL_EXPORTER_OTLP_CERTIFICATE="/path/to/ca-cert.pem"
+    export OTEL_EXPORTER_OTLP_CLIENT_KEY="/path/to/client-key.pem"
+    export OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE="/path/to/client-cert.pem"
+    export OTEL_RESOURCE_ATTRIBUTES="service.name=testplan-example,environment=demo"
+    """
+    raise RuntimeError(
+        f"Missing required OTEL environment variables: {', '.join(missing)}"
+    )
 
 
 @testsuite
@@ -95,7 +116,8 @@ class TracingExamples:
                 tracing.set_span_as_failed(
                     span=span, description="Validation failed"
                 )
-                result.fail("Validation failed")
+                # You can mark the test as failed here if desired
+                # result.fail("Validation failed")
             else:
                 result.true(True, description="Validation passed")
 
@@ -124,7 +146,7 @@ class MultiTestCaseSpan:
         tracing.end_span(self.span)
 
 
-@test_plan(name="ObservabilityExample", otel_traces="Test")
+@test_plan(name="ObservabilityExample", otel_traces=TraceLevel.TEST)
 def main(plan):
     """
     Testplan demonstrating observability features.

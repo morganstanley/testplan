@@ -12,7 +12,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils import validation
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report import (
     ReportCategories,
     RuntimeStatus,
@@ -120,7 +120,7 @@ class PyTest(testing.Test):
         with (
             tracing.conditional_span(
                 name=self.name,
-                condition=self.otel_traces and self.otel_traces != "Plan",
+                condition=self.otel_traces >= TraceLevel.TEST,
             ) as pytest_span,
             self.report.timer.record("run"),
         ):

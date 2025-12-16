@@ -4,7 +4,7 @@ import pytest
 from opentelemetry.sdk.trace import Span
 
 from testplan import TestplanMock
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 
@@ -167,7 +167,7 @@ def test_otel_traces_flag_set_to_Plan(test_exporter):
     Tests that when otel_traces is set to "Plan", only a single span
     is created for the whole Testplan with no child spans.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="Plan")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.PLAN)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
@@ -187,7 +187,7 @@ def test_otel_traces_flag_set_to_Test(test_exporter):
     Tests that when otel_traces is set to "Test", only a single span
     is created for the MultiTest with no child spans.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="Test")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TEST)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
@@ -210,7 +210,7 @@ def test_otel_trace_flag_set_to_TestSuite(test_exporter):
     Tests that when otel_trace is set to "TestSuite", spans are created
     for the MultiTest and each TestSuite, but not for individual test cases.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestSuite")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTSUITE)
     assert tracing._tracing_enabled
 
     mockplan.add(
@@ -249,7 +249,7 @@ def test_otel_trace_flag_set_to_TestCase(test_exporter):
     Tests that when otel_trace is set to "TestCase", spans are created
     for everything: MultiTest, TestSuites, and individual test cases.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(
@@ -307,7 +307,7 @@ def test_successful_and_failing_case_status(test_exporter):
     Tests that a successful testcase has a span with OK status, and
     a failing testcase has a span with ERROR status (when TestCase tracing is enabled).
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[FailingSuite()]))
@@ -333,7 +333,7 @@ def test_multiple_multitests(test_exporter):
     """
     Tests span hierarchy when multiple MultiTests are added to the same plan.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="Test")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TEST)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MultiTest1", suites=[MySuite()]))
@@ -360,7 +360,7 @@ def test_user_created_spans_with_context_manager(test_exporter):
     """
     Tests user-created spans using context manager.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[UserSpanSuite()]))
@@ -380,7 +380,7 @@ def test_user_created_spans_with_manual_start_end(test_exporter):
     """
     Tests user-created spans using manual start/end.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[UserSpanSuite()]))
@@ -401,7 +401,7 @@ def test_user_created_nested_spans(test_exporter):
     """
     Tests nested user-created spans.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[UserSpanSuite()]))
@@ -423,7 +423,7 @@ def test_user_span_with_custom_attributes(test_exporter):
     """
     Tests setting custom attributes on user-created spans.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[UserSpanSuite()]))
@@ -443,7 +443,7 @@ def test_user_span_marked_as_failed(test_exporter):
     """
     Tests that user-created spans can be marked as failed.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[UserSpanSuite()]))
@@ -464,7 +464,7 @@ def test_multi_step_workflow_span(test_exporter):
     """
     Tests spans that span across multiple test cases.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[MultiStepSpanSuite()]))
@@ -492,7 +492,7 @@ def test_empty_testplan_with_tracing(test_exporter):
     """
     Test that no root span is created for empty test plan.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="Test")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TEST)
     mockplan.run()
 
     spans = test_exporter.get_finished_spans()
@@ -510,7 +510,7 @@ def test_otel_traceparent_flag(test_exporter):
 
     mockplan = TestplanMock(
         name="MockPlan",
-        otel_traces="TestCase",
+        otel_traces=TraceLevel.TESTCASE,
         otel_traceparent=test_traceparent,
     )
     assert tracing._tracing_enabled
@@ -537,7 +537,7 @@ def test_otel_traceparent_flag_with_only_valid_traceid(test_exporter):
 
     mockplan = TestplanMock(
         name="MockPlan",
-        otel_traces="TestCase",
+        otel_traces=TraceLevel.TESTCASE,
         otel_traceparent=test_traceparent,
     )
     assert tracing._tracing_enabled
@@ -575,7 +575,7 @@ def test_conditional_span_with_true_condition(test_exporter):
     """
     Tests that conditional_span creates a span when condition is True.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(
@@ -594,7 +594,7 @@ def test_conditional_span_with_false_condition(test_exporter):
     """
     Tests that conditional_span does not create a span when condition is False.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(
@@ -614,7 +614,7 @@ def test_trace_decorator(test_exporter):
     """
     Tests that the trace decorator creates spans for decorated methods.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[DecoratorSpanSuite()]))
@@ -631,7 +631,7 @@ def test_trace_decorator(test_exporter):
     assert decorated_span.attributes.get("level") == "DecoratorSpanSuite"
 
 
-def test_inject_root_context_prints_trace_id(test_exporter, capsys):
+def test_inject_root_context_prints_trace_id(test_exporter, captplog):
     """
     Tests that _inject_root_context prints the trace ID.
     """
@@ -641,7 +641,7 @@ def test_inject_root_context_prints_trace_id(test_exporter, capsys):
 
     mockplan = TestplanMock(
         name="MockPlan",
-        otel_traces="TestCase",
+        otel_traces=TraceLevel.TESTCASE,
         otel_traceparent=test_traceparent,
     )
     assert tracing._tracing_enabled
@@ -650,9 +650,8 @@ def test_inject_root_context_prints_trace_id(test_exporter, capsys):
     mockplan.run()
 
     # Capture printed output
-    captured = capsys.readouterr()
     expected_trace_id = test_traceparent.split("-")[1]
-    assert f"Trace ID: {expected_trace_id}" in captured.out
+    assert f"Trace ID: {expected_trace_id}" in captplog.text
 
 
 def test_conditional_span_when_tracing_disabled(test_exporter):
@@ -687,7 +686,7 @@ def test_set_span_attrs_with_none_span(test_exporter):
     """
     Tests that set_span_attrs handles None span gracefully.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     # Should not raise an error
@@ -698,7 +697,7 @@ def test_set_span_as_failed_with_none_span(test_exporter):
     """
     Tests that set_span_as_failed handles None span gracefully.
     """
-    mockplan = TestplanMock(name="MockPlan", otel_traces="TestCase")
+    mockplan = TestplanMock(name="MockPlan", otel_traces=TraceLevel.TESTCASE)
     assert tracing._tracing_enabled
 
     # Should not raise an error

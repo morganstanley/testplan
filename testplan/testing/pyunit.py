@@ -4,7 +4,7 @@ import unittest
 from typing import Generator, Dict
 
 from testplan.testing import base as testing
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import schemas
 from testplan.testing.multitest.entries import base as entries_base
@@ -62,7 +62,7 @@ class PyUnit(testing.Test):
         with (
             tracing.conditional_span(
                 name=self.name,
-                condition=self.otel_traces and self.otel_traces != "Plan",
+                condition=self.otel_traces >= TraceLevel.TEST,
             ) as pyunit_span,
             self.report.timer.record("run"),
         ):

@@ -67,8 +67,7 @@ class Tracing(Loggable):
     providing both automatic and manual span creation capabilities.
 
     The class is instantiated as a singleton (:py:data:`tracing`) and should be accessed
-    through that global instance. Tracing is automatically enabled when OTEL environment
-    variables are detected.
+    through that global instance.
 
     Required Environment Variables:
         - ``OTEL_EXPORTER_OTLP_TRACES_ENDPOINT``: OTLP traces endpoint URL
@@ -88,6 +87,7 @@ class Tracing(Loggable):
         self._root_context = {}
         self._tracer = None
         self._tracer_provider = None
+        self._root_span = None
 
     def __str__(self):
         return "Tracing"
@@ -239,8 +239,6 @@ class Tracing(Loggable):
         Manually start a span (use when context manager is not suitable).
 
         The span must be explicitly ended using :py:meth:`end_span` else it will not be exported.
-        Will override if there is already a current span with the same name so use unique span names
-        or end previous span before reusing the name.
 
         :param span_name: Name of the span
         :type span_name: str
@@ -289,7 +287,7 @@ class Tracing(Loggable):
             return
         span.end(end_time=end_time)
 
-    def _inject_root_context(self) -> None:
+    def _inject_root_context(self, span: "Span") -> None:
         """
         Inject root trace context for distributed tracing.
 
@@ -301,13 +299,14 @@ class Tracing(Loggable):
         from opentelemetry.propagate import inject  # pylint: disable=import-error
 
         inject(self._root_context)
+        self._root_span = span
         if trace := self._get_traceparent():
             # root trace is in the format of 00-d1b9e555b056907ee20b0daebf62282c-7dcd821387246e1c-01
             # 00 is a version number which you can ignore.
             # d1b9e555b056907ee20b0daebf62282c is the trace_id.
             # 7dcd821387246e1c is the span_id of the parent span, i.e. the parent_span_id of the child log.
             # 01 is the trace_flags field and indicates that the trace should be included by sampling.
-            print(f"Trace ID: {trace.split('-')[1]}")
+            self.logger.user_info(f"Trace ID: {trace.split('-')[1]}")
 
     def _get_root_context(self) -> "Context":
         """
@@ -330,6 +329,18 @@ class Tracing(Loggable):
         :rtype: str
         """
         return self._root_context.get("traceparent", "")
+
+    def _get_root_span(self) -> Optional["Span"]:
+        """
+        Get the root span.
+
+        :return: Root span or None if tracing not enabled
+        :rtype: Optional[Span]
+        """
+        if not self._tracing_enabled:
+            return None
+
+        return self._root_span
 
     def set_span_as_failed(
         self, span: Optional["Span"] = None, description: Optional[str] = None
@@ -407,21 +418,6 @@ class Tracing(Loggable):
                 return func(instance_self, *args, **kwargs)
 
         return _wrapped
-
-    def _shutdown(self) -> None:
-        """
-        Shutdown the tracer provider
-        """
-        if self._tracer_provider:
-            try:
-                self._tracer_provider.shutdown()
-            except Exception as e:  # Handle any grpc issue during shutdown
-                self.logger.warning(
-                    f"Error during tracer provider shutdown: {e}"
-                )
-                self._tracing_enabled = False
-                self._tracer_provider = None
-                self._tracer = None
 
 
 #: Global tracing instance for Testplan observability
