@@ -120,7 +120,7 @@ class PyTest(testing.Test):
         with (
             tracing.conditional_span(
                 name=self.name,
-                condition=self.otel_traces,
+                condition=self.otel_traces and self.otel_traces != "Plan",
             ) as pytest_span,
             self.report.timer.record("run"),
         ):

@@ -162,6 +162,26 @@ def test_tracing_disabled_by_default(test_exporter):
     )
 
 
+def test_otel_traces_flag_set_to_Plan(test_exporter):
+    """
+    Tests that when otel_traces is set to "Plan", only a single span
+    is created for the whole Testplan with no child spans.
+    """
+    mockplan = TestplanMock(name="MockPlan", otel_traces="Plan")
+    assert tracing._tracing_enabled
+
+    mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
+    mockplan.run()
+
+    spans = test_exporter.get_finished_spans()
+
+    # root Testplan
+    assert len(spans) == 1
+
+    tp_span = find_span(spans, "MockPlan")
+    assert tp_span is not None
+
+
 def test_otel_traces_flag_set_to_Test(test_exporter):
     """
     Tests that when otel_traces is set to "Test", only a single span
