@@ -413,7 +413,15 @@ class Tracing(Loggable):
         Shutdown the tracer provider
         """
         if self._tracer_provider:
-            self._tracer_provider.shutdown()
+            try:
+                self._tracer_provider.shutdown()
+            except Exception as e:  # Handle any grpc issue during shutdown
+                self.logger.warning(
+                    f"Error during tracer provider shutdown: {e}"
+                )
+                self._tracing_enabled = False
+                self._tracer_provider = None
+                self._tracer = None
 
 
 #: Global tracing instance for Testplan observability
