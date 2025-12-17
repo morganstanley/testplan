@@ -13,7 +13,7 @@ class Alpha:
         result.equal(1, 1, "equality description")
 
 
-@test_plan(name="Multiply", exporters=WebServerExporter())
+@test_plan(name="Multiply Programmatic", exporters=WebServerExporter())
 def main(plan):
     test = MultiTest(name="MultiplyTest", suites=[Alpha()])
     plan.add(test)

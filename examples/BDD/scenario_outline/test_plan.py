@@ -10,7 +10,7 @@ NAME = "Scenario Outline"
 DESCRIPTION = "Example to show parametrized scenarios with Scenario Outline"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Scenario Outline Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".", default_parser=SimpleParser, feature_linked_steps=True

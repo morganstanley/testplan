@@ -12,7 +12,7 @@ DESCRIPTION = (
 )
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Arguments Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".", default_parser=SimpleParser, feature_linked_steps=True

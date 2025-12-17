@@ -13,7 +13,7 @@ NAME = "BDD style TCP example"
 DESCRIPTION = "Example to show driver usage in BDD style"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD TCP Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".", default_parser=SimpleParser, feature_linked_steps=True
