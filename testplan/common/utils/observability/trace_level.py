@@ -1,7 +1,6 @@
 """
 Enum for different trace levels in Testplan.
 This needs to be in a separate file to prevent pickling of the tracing object
-
 """
 
 from enum import IntEnum

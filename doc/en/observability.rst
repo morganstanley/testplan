@@ -5,6 +5,7 @@ Observability
 
 Testplan provides built-in observability through OpenTelemetry tracing, allowing you to monitor
 and analyze test execution. This feature enables you to monitor test execution flow, timing, and performance bottlenecks
+
 Overview
 ========
 
@@ -229,7 +230,7 @@ Start/End Style
             result.true(process_data())
         finally:
             # End the span
-            tracing.end_span("complex_operation")
+            tracing.end_span(span)
 
 Setting Span Attributes
 ++++++++++++++++++++++++
