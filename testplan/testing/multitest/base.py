@@ -12,7 +12,7 @@ from schema import And, Or, Use
 from testplan.common import config, entity
 from testplan.common.utils import interface, strings, timing, watcher
 from testplan.common.utils.composer import compose_contexts
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.common.report import (
     ReportCategories,
     RuntimeStatus,
@@ -822,11 +822,7 @@ class MultiTest(testing_base.Test):
         with (
             tracing.conditional_span(
                 name=testsuite.name,
-                condition=(
-                    self.otel_traces
-                    and self.otel_traces != "Test"
-                    and self.otel_traces != "Plan"
-                ),
+                condition=(self.otel_traces >= TraceLevel.TESTSUITE),
             ) as testsuite_span,
             testsuite_report.timer.record("run"),
         ):
@@ -1232,7 +1228,7 @@ class MultiTest(testing_base.Test):
         with (
             tracing.conditional_span(
                 name=testcase.name,
-                condition=self.otel_traces == "TestCase",
+                condition=self.otel_traces >= TraceLevel.TESTCASE,
                 test_id=f"{self.uid()}:{testsuite.uid()}:{testcase.__name__}",
             ) as testcase_span,
             testcase_report.timer.record("run"),

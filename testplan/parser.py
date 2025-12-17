@@ -19,6 +19,7 @@ from testplan.report.testing import (
     ReportTagsAction,
     styles,
 )
+from testplan.common.utils.observability import TraceLevel
 from testplan.exporters.testing.failed_tests import FailedTestLevel
 from testplan.testing import common, filtering, listing, ordering
 
@@ -538,7 +539,8 @@ that match ALL of the given tags.
 
         report_group.add_argument(
             "--otel-traces",
-            choices=["Plan", "Test", "TestSuite", "TestCase"],
+            type=lambda s: TraceLevel[s.upper()],
+            choices=list(TraceLevel),
             default=self._default_options["otel_traces"],
             help="Enable OpenTelemetry tracing at specified level.",
         )
