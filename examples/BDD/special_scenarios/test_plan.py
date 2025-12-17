@@ -11,7 +11,7 @@ NAME = "Special Scenarios"
 DESCRIPTION = "Example to show how how to hook up setup/teardown pre_testcase/post_testcase"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Special Scenarios Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".",

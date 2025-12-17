@@ -10,7 +10,7 @@ NAME = "Labels"
 DESCRIPTION = "Examples for labels of all kind"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Labels Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".", default_parser=SimpleParser, feature_linked_steps=True

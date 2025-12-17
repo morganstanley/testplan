@@ -10,7 +10,7 @@ NAME = "Parallel execution"
 DESCRIPTION = "Example to show how to execute scnearios parallel"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Parallel Execution Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".", default_parser=SimpleParser, feature_linked_steps=True
