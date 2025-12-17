@@ -1006,7 +1006,7 @@ class Test(Runnable):
 
     @property
     def otel_traces(self) -> TraceLevel:
-        # handle possibly missing ``driver_info``
+        # handle possibly missing ``otel_traces``
         if not hasattr(self.cfg, "otel_traces"):
             return TraceLevel.NONE
         return self.cfg.otel_traces
