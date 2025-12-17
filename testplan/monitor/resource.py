@@ -276,7 +276,6 @@ class ResourceMonitorClient:
             self.zmq_socket.send(serialize(msg))
 
     def _loop(self):
-        tracing._shutdown()  # shutdown tracing to avoid issues with the grpc connection
         self.parent_process = psutil.Process(pid=self.parent_pid)
         self._zmq_context = zmq.Context()
         self.zmq_socket = self._zmq_context.socket(zmq.PUSH)
@@ -296,6 +295,7 @@ class ResourceMonitorClient:
                 time.sleep(rest_time)
 
     def start(self):
+        tracing.force_flush()  # flush so that no grpc communication is happening while forking
         self._monitor_worker = multiprocessing.Process(
             target=self._loop, daemon=True
         )
@@ -411,7 +411,6 @@ class ResourceMonitorServer:
                 await self.handle_request(m)
 
     def _serve(self, shared_dict: dict):
-        tracing._shutdown()  # shutdown tracing to avoid issues with the grpc connection
         # setup log
         fhandler = logging.FileHandler(
             self.file_directory / "resource.log", encoding="utf-8"
@@ -499,6 +498,7 @@ class ResourceMonitorServer:
 
     def start(self, timeout=5):
         shared_dict = multiprocessing.Manager().dict()
+        tracing.force_flush()  # flush so that no grpc communication is happening while forking
         self._server_process = multiprocessing.Process(
             target=self._serve, args=(shared_dict,), daemon=True
         )
