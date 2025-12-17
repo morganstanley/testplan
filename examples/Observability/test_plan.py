@@ -9,7 +9,7 @@ import time
 
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.common.utils.observability import tracing
+from testplan.common.utils.observability import TraceLevel, tracing
 
 
 # Configure OpenTelemetry environment variables
@@ -124,7 +124,7 @@ class MultiTestCaseSpan:
         tracing.end_span(self.span)
 
 
-@test_plan(name="ObservabilityExample", otel_traces="Test")
+@test_plan(name="ObservabilityExample", otel_traces=TraceLevel.TEST)
 def main(plan):
     """
     Testplan demonstrating observability features.
