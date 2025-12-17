@@ -307,7 +307,7 @@ class Tracing(Loggable):
             # d1b9e555b056907ee20b0daebf62282c is the trace_id.
             # 7dcd821387246e1c is the span_id of the parent span, i.e. the parent_span_id of the child log.
             # 01 is the trace_flags field and indicates that the trace should be included by sampling.
-            print(f"Trace ID: {trace.split('-')[1]}")
+            self.logger.user_info(f"Trace ID: {trace.split('-')[1]}")
 
     def _get_root_context(self) -> "Context":
         """

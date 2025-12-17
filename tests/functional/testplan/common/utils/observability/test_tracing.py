@@ -631,7 +631,7 @@ def test_trace_decorator(test_exporter):
     assert decorated_span.attributes.get("level") == "DecoratorSpanSuite"
 
 
-def test_inject_root_context_prints_trace_id(test_exporter, capsys):
+def test_inject_root_context_prints_trace_id(test_exporter, captplog):
     """
     Tests that _inject_root_context prints the trace ID.
     """
@@ -650,9 +650,8 @@ def test_inject_root_context_prints_trace_id(test_exporter, capsys):
     mockplan.run()
 
     # Capture printed output
-    captured = capsys.readouterr()
     expected_trace_id = test_traceparent.split("-")[1]
-    assert f"Trace ID: {expected_trace_id}" in captured.out
+    assert f"Trace ID: {expected_trace_id}" in captplog.text
 
 
 def test_conditional_span_when_tracing_disabled(test_exporter):
