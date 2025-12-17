@@ -1016,6 +1016,7 @@ class Test(Runnable):
             name=self.uid(),
             context=tracing._get_root_context(),
             condition=self.otel_traces >= TraceLevel.TEST,
+            test_id=self.uid(),
         ) as test_span:
             super(Test, self)._run_batch_steps()
             if self.report.failed:
