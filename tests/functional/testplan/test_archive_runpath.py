@@ -1,5 +1,11 @@
 """Functional tests for archive_runpath feature."""
 
+from pytest_test_filters import skip_on_windows
+
+pytestmark = skip_on_windows(
+    reason="Subprocess based approach is problematic on windows."
+)
+
 import os
 import tarfile
 import tempfile
