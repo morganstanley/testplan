@@ -67,8 +67,7 @@ class Tracing(Loggable):
     providing both automatic and manual span creation capabilities.
 
     The class is instantiated as a singleton (:py:data:`tracing`) and should be accessed
-    through that global instance. Tracing is automatically enabled when OTEL environment
-    variables are detected.
+    through that global instance.
 
     Required Environment Variables:
         - ``OTEL_EXPORTER_OTLP_TRACES_ENDPOINT``: OTLP traces endpoint URL
