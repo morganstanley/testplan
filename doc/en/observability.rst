@@ -3,13 +3,14 @@
 Observability
 *************
 
-Testplan provides built-in observability through OpenTelemetry tracing, allowing you to monitor
-and analyze test execution. This feature enables you to monitor test execution flow, timing, and performance bottlenecks
+Testplan provides built-in observability through OpenTelemetry tracing and logging, allowing you to monitor
+and analyze test execution. This feature enables you to monitor test execution flow, timing, performance bottlenecks,
+and export log output correlated with your traces to Loki.
 
 Overview
 ========
 
-The observability feature integrates OpenTelemetry to create spans for various levels of test execution:
+The observability feature integrates OpenTelemetry to create spans and collect logs for various levels of test execution:
 
   1. **Testplan level**: Top-level span for the entire test plan
   2. **Test level**: Spans for individual test runnables (MultiTest, PyTest, GTest, etc.)
@@ -20,7 +21,8 @@ For test types other than MultiTest (such as PyTest, GTest, JUnit), only the ent
 is traced as a single span, without breaking down into individual suites or cases.
 
 Each span captures timing information, attributes, and status (pass/fail), allowing you to visualize
-the complete test execution in your observability platform.
+the complete test execution in your observability platform. When logging is enabled, all logs are
+automatically correlated with their corresponding spans via trace_id and span_id.
 
 Configuration
 -------------
@@ -30,7 +32,7 @@ Environment Variables
 
 To enable OpenTelemetry tracing, set the following environment variables:
 
-**Required Variables:**
+**Required Variables for Tracing:**
 
 .. code-block:: bash
 
@@ -48,13 +50,27 @@ To enable OpenTelemetry tracing, set the following environment variables:
     # Resource attributes (key-value format)
     export OTEL_RESOURCE_ATTRIBUTES="service.name=my-testplan,environment=staging,team=qa"
 
+**Additional Variables for Logging:**
+
+.. code-block:: bash
+
+    # Loki endpoint for log export
+    export OTEL_EXPORTER_LOKI_ENDPOINT=https://your-loki-endpoint:3100
+
 **Optional Variables:**
 
 .. code-block:: bash
+
     # Batch span processor delay in milliseconds (default: 200)
     export OTEL_BSP_SCHEDULE_DELAY=500
 
-Then, use the ``--otel-traces`` command line flag:
+Tracing
+=======
+
+Enabling Tracing
+----------------
+
+Use the ``--otel-traces`` command line flag:
 
 .. code-block:: bash
 
@@ -78,6 +94,32 @@ You can also set the tracing level programmatically in your test plan definition
     def main(plan):
         # Your test plan definition here
         pass
+
+Trace Hierarchy
+---------------
+
+The tracing hierarchy follows the test structure:
+
+.. code-block:: text
+
+    Testplan (root span)
+    ├── MultiTest
+    │   ├── TestSuite1
+    │   │   ├── testcase_1
+    │   │   ├── testcase_2
+    │   │   └── testcase_3
+    │   └── TestSuite2
+    │       ├── testcase_4
+    │       └── testcase_5
+    ├── PyTest
+    └── GTest
+
+Each span includes:
+
+  * **Name**: The name of the test/suite/case
+  * **Attributes**: Metadata like test level, status, etc.
+  * **Status**: Pass/error based on test results
+  * **Timing**: Start and end timestamps
 
 Trace Context Propagation
 ++++++++++++++++++++++++++
@@ -167,32 +209,6 @@ Usage:
     # Generate traceparent for a specific build and testplan
     TRACEPARENT=$(python generate_traceparent.py BUILD123 smoke_tests)
     python testplan.py --otel-traces TestCase --otel-traceparent "$TRACEPARENT"
-
-Tracing
------------------
-
-The tracing hierarchy follows the test structure:
-
-.. code-block:: text
-
-    Testplan (root span)
-    ├── MultiTest
-    │   ├── TestSuite1
-    │   │   ├── testcase_1
-    │   │   ├── testcase_2
-    │   │   └── testcase_3
-    │   └── TestSuite2
-    │       ├── testcase_4
-    │       └── testcase_5
-    ├── PyTest
-    └── GTest
-
-Each span includes:
-
-  * **Name**: The name of the test/suite/case
-  * **Attributes**: Metadata like test level, status, etc.
-  * **Status**: Pass/error based on test results
-  * **Timing**: Start and end timestamps
 
 Manual Span Creation
 --------------------

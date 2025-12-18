@@ -78,6 +78,8 @@ class ProcessWorker(Worker):
         ]
         if self.otel_traces and tracing._get_traceparent():
             cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
+        if self.otel_logs:
+            cmd.append("--otel-logs")
         return cmd
 
     def _write_syspath(self, sys_path: Optional[list[str]] = None) -> None:

@@ -551,6 +551,13 @@ that match ALL of the given tags.
             help="Optional traceparent for OpenTelemetry traces.",
         )
 
+        report_group.add_argument(
+            "--otel-logs",
+            action="store_true",
+            default=self._default_options["otel_logs"],
+            help="Enable OpenTelemetry logging.",
+        )
+
         self.add_arguments(parser)
         return parser
 

@@ -31,7 +31,11 @@ from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser, FailedTestLevel
 from testplan.runnable import TestRunner, TestRunnerConfig, TestRunnerResult
-from testplan.common.utils.observability import TraceLevel, tracing
+from testplan.common.utils.observability import (
+    otel_logging,
+    TraceLevel,
+    tracing,
+)
 from testplan.runners.local import LocalRunner
 from testplan.runners.base import Executor
 from testplan.report.testing.styles import Style
@@ -227,6 +231,7 @@ class Testplan(entity.RunnableManager):
         skip_strategy: Optional[str] = None,
         otel_traces: TraceLevel = defaults.TRACE_LEVEL,
         otel_traceparent: Optional[str] = None,
+        otel_logs: bool = False,
         **options,
     ):
         # Set mutable defaults.
@@ -296,6 +301,7 @@ class Testplan(entity.RunnableManager):
             skip_strategy=skip_strategy,
             otel_traces=otel_traces,
             otel_traceparent=otel_traceparent,
+            otel_logs=otel_logs,
             **options,
         )
 
@@ -307,6 +313,8 @@ class Testplan(entity.RunnableManager):
 
         if self.cfg.otel_traces and self.cfg.interactive_port is None:
             tracing._setup(self.cfg.otel_traceparent)
+            if self.cfg.otel_logs:
+                otel_logging._setup()
 
     @property
     def parser(self):
@@ -464,6 +472,7 @@ class Testplan(entity.RunnableManager):
         skip_strategy=None,
         otel_traces=defaults.TRACE_LEVEL,
         otel_traceparent=None,
+        otel_logs=False,
         **options,
     ):
         """
@@ -531,6 +540,7 @@ class Testplan(entity.RunnableManager):
                     skip_strategy=skip_strategy,
                     otel_traces=otel_traces,
                     otel_traceparent=otel_traceparent,
+                    otel_logs=otel_logs,
                     **options,
                 )
                 try:
