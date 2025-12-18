@@ -4,8 +4,10 @@ import os
 import shutil
 import sys
 import tempfile
+import logging
 from logging import Logger, INFO
 from logging.handlers import RotatingFileHandler
+from uuid import uuid4
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 
@@ -15,8 +17,12 @@ import testplan
 from testplan import TestplanMock
 from testplan.common.utils.path import VAR_TMP
 from testplan.common.utils import observability
-from testplan.common.utils.observability import RootTraceIdGenerator, Tracing
-
+from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.observability import (
+    OTEL_Logging,
+    RootTraceIdGenerator,
+    Tracing,
+)
 
 # Testplan and various drivers have a `runpath` attribute in their config
 # and intermediate files will be placed under that path during running.
@@ -243,3 +249,104 @@ def unit_test_tracing(session_provider_exporter):
     yield fresh_tracing, exporter
 
     exporter.clear()
+
+
+@pytest.fixture(scope="session")
+def session_provider_log_exporter():
+    pytest.importorskip("opentelemetry")
+    from opentelemetry import _logs
+    from opentelemetry.sdk._logs import LoggerProvider
+    from opentelemetry.sdk._logs.export import (
+        InMemoryLogExporter,
+        SimpleLogRecordProcessor,
+    )
+
+    """
+    Session-scoped OpenTelemetry logger provider and in-memory exporter for logs.
+    Sets the global logger provider once per session.
+    """
+
+    exporter = InMemoryLogExporter()
+    provider = LoggerProvider()
+    provider.add_log_record_processor(SimpleLogRecordProcessor(exporter))
+
+    # Save the original provider (could be None or already set by --otel-logs).
+    original_provider = _logs.get_logger_provider()
+
+    # Forcefully set the log provider for this session.
+    _logs._LOGGER_PROVIDER = provider
+
+    yield provider, exporter
+    _logs._LOGGER_PROVIDER = original_provider
+    provider.shutdown()
+
+
+@pytest.fixture
+def test_log_exporter(session_provider_log_exporter, monkeypatch):
+    """
+    Function-scoped fixture that provides a clean logging environment per test.
+    Patches OTEL_Logging._setup to use the session provider instead of reading env vars.
+    """
+    from opentelemetry.sdk._logs import LoggingHandler
+
+    provider, exporter = session_provider_log_exporter
+
+    existing_logging = observability.otel_logging
+
+    # Capture original logging state to restore after the test.
+    original_logging_enabled = getattr(
+        existing_logging, "_logging_enabled", False
+    )
+    original_logger_provider = getattr(
+        existing_logging, "_logger_provider", None
+    )
+    original_handlers = TESTPLAN_LOGGER.handlers.copy()
+
+    def mock_setup():
+        existing_logging._logging_enabled = True
+        existing_logging._logger_provider = provider
+        otel_handler = LoggingHandler(
+            level=logging.DEBUG, logger_provider=provider
+        )
+        otel_handler.setLevel(logging.DEBUG)
+        TESTPLAN_LOGGER.addHandler(otel_handler)
+
+    existing_logging._setup = mock_setup
+    existing_logging._logging_enabled = False
+    monkeypatch.setattr(existing_logging, "_setup", mock_setup)
+
+    yield exporter
+    exporter.get_finished_logs()
+    exporter.clear()
+
+    existing_logging._logging_enabled = original_logging_enabled
+    existing_logging._logger_provider = original_logger_provider
+    TESTPLAN_LOGGER.handlers = original_handlers
+
+
+@pytest.fixture
+def unit_test_logging(session_provider_log_exporter):
+    from opentelemetry.sdk._logs import LoggingHandler
+
+    provider, exporter = session_provider_log_exporter
+    fresh_logging = OTEL_Logging()
+
+    logger = logging.getLogger(f"otel_test_logger_{uuid4()}")
+    logger.propagate = False
+    logger.setLevel(logging.DEBUG)
+    logger.handlers = []
+
+    def mock_setup():
+        fresh_logging._logging_enabled = True
+        fresh_logging._logger_provider = provider
+        otel_handler = LoggingHandler(
+            level=logging.DEBUG, logger_provider=provider
+        )
+        logger.addHandler(otel_handler)
+
+    fresh_logging._setup = mock_setup
+
+    yield fresh_logging, logger, exporter
+
+    exporter.clear()
+    logger.handlers = []

@@ -314,6 +314,13 @@ class Worker(WorkerBase):
             return TraceLevel.NONE
         return self.cfg.otel_traces
 
+    @property
+    def otel_logs(self) -> bool:
+        # handle possibly missing ``otel_logs``
+        if not hasattr(self.cfg, "otel_logs"):
+            return False
+        return self.cfg.otel_logs
+
 
 class PoolConfig(ExecutorConfig):
     """

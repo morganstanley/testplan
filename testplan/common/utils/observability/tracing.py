@@ -421,6 +421,25 @@ class Tracing(Loggable):
 
         return _wrapped
 
+    @contextmanager
+    def attach_to_root_context(self) -> Iterator[None]:
+        """
+        Context manager to attach to root trace context.
+        Context in opentelemetry is thread-local, so to attach the logs to the root trace,
+        we need to attach to the root context when we start a new thread (in TestRunner and Test subclasses)
+        """
+        if not self._tracing_enabled:
+            yield
+            return
+        from opentelemetry.context import attach, detach  # pylint: disable=import-error
+
+        ctx = self._get_root_context()
+        token = attach(ctx)
+        try:
+            yield
+        finally:
+            detach(token)
+
 
 #: Global tracing instance for Testplan observability
 tracing = Tracing()

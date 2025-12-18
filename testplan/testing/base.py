@@ -1012,12 +1012,15 @@ class Test(Runnable):
         return self.cfg.otel_traces
 
     def _run_batch_steps(self):
-        with tracing.conditional_span(
-            name=self.uid(),
-            context=tracing._get_root_context(),
-            condition=self.otel_traces >= TraceLevel.TEST,
-            test_id=self.uid(),
-        ) as test_span:
+        with (
+            tracing.attach_to_root_context(),  # this is needed for Plan level
+            tracing.conditional_span(
+                name=self.uid(),
+                context=tracing._get_root_context(),
+                condition=self.otel_traces >= TraceLevel.TEST,
+                test_id=self.uid(),
+            ) as test_span,
+        ):
             super(Test, self)._run_batch_steps()
             if self.report.failed:
                 tracing.set_span_as_failed(test_span)

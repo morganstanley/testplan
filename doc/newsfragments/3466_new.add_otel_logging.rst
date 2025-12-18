@@ -1,0 +1,1 @@
+Added ``--otel-logs`` flag to enable OpenTelemetry logging integration with Grafana Loki. When used alongside ``--otel-traces``, all testplan logs are automatically captured and correlated with the active span. See :ref:`here <observability>` for more configuration details and examples.
