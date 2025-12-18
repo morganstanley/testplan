@@ -392,10 +392,9 @@ class Testplan(entity.RunnableManager):
             self.cfg.name,
             context=tracing._get_root_context(),
             condition=self._tests and self.cfg.otel_traces,
-            level="TestPlan",
         ) as tp_span:
             if tp_span:
-                tracing._inject_root_context()
+                tracing._inject_root_context(tp_span)
             result = super(Testplan, self).run()
 
             if isinstance(result, TestRunnerResult):
