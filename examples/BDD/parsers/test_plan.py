@@ -8,7 +8,7 @@ NAME = "Special Scenarios"
 DESCRIPTION = "Example to show how to change parsers in step definitions"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Parsers Example")
 def main(plan):
     factory = BDDTestSuiteFactory(".", feature_linked_steps=True)
     plan.add(

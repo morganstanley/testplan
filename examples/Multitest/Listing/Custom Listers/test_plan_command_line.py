@@ -99,7 +99,7 @@ listing_registry.add_lister(HelloWorldLister())
 #                         "name-full" - List tests in readable format.
 #                         "count" - Lists top level instances and total number of suites & testcases per instance.
 #                         "hello-world" - This lister print Hello World for each multitest
-@test_plan(name="Custom test lister example")
+@test_plan(name="Custom test lister command line example")
 def main(plan):
     test1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
     test2 = MultiTest(name="Secondary", suites=[Gamma()])

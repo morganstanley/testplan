@@ -50,7 +50,7 @@ class Suite:
         intermediary_marked(result, both=True)
 
 
-@test_plan(name="Plan")
+@test_plan(name="Non-Linear Marking Plan")
 def main(plan):
     plan.add(
         MultiTest(

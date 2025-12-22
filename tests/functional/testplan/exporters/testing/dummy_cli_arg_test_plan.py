@@ -12,7 +12,7 @@ class Alpha:
         result.equal(1, 1, "equality description")
 
 
-@test_plan(name="Multiply")
+@test_plan(name="Multiply CLI Args")
 def main(plan):
     test = MultiTest(name="MultiplyTest", suites=[Alpha()])
     plan.add(test)

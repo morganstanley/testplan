@@ -19,7 +19,7 @@ from typing import (
     Literal,
 )
 from types import ModuleType
-from schema import And
+from schema import And, Or
 
 from testplan import defaults
 from testplan.common import entity
