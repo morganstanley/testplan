@@ -275,8 +275,12 @@ Distributed Tracing
 -------------------
 
 When running tests in distributed environments (e.g., with :ref:`pools <Pools>`), tracing
-context can be propagated across process boundaries. For remote pools such as RemotePool, 
-you either need to ensure that the environment variables are set on the remote or explicitly pass the OpenTelemetry environment variables to the pool workers:
+context is automatically propagated across process boundaries.
+
+**Automatic Environment Variable Propagation**
+
+For remote pools such as RemotePool, OpenTelemetry environment variables (those prefixed with ``OTEL_``) 
+are automatically passed to remote workers, so no additional configuration is typically needed:
 
 .. code-block:: python
 
@@ -287,22 +291,10 @@ you either need to ensure that the environment variables are set on the remote o
     
     @test_plan(name="DistributedTracing")
     def main(plan):
-        # Collect OTEL environment variables to pass to workers
-        otel_keys = [
-            'OTEL_RESOURCE_ATTRIBUTES',
-            'OTEL_EXPORTER_OTLP_HEADERS',
-            'OTEL_EXPORTER_OTLP_TRACES_ENDPOINT',
-            'OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE',
-            'OTEL_EXPORTER_OTLP_CLIENT_KEY',
-            'OTEL_EXPORTER_OTLP_CERTIFICATE',
-        ]
-        env_dict = {k: os.environ.get(k) for k in otel_keys if os.environ.get(k)}
-        
-        # Add a pool with OTEL environment variables
+        # OTEL_ environment variables are automatically propagated
         pool = RemotePool(
             name="MyPool",
-            size=4,
-            env=env_dict  # Pass OTEL environment to workers
+            size=4
         )
         plan.add_resource(pool)
         
@@ -315,28 +307,41 @@ you either need to ensure that the environment variables are set on the remote o
             )
             plan.schedule(task, resource='MyPool')
 
-The root trace context is automatically injected into worker processes. When the environment
-variables are configured correctly, trace export will occur normally and trace propagation
-will continue as expected across the distributed test execution.
+**Explicit Environment Variable Configuration**
 
-Querying Traces
----------------
+If you need to customize the OpenTelemetry configuration for remote workers (e.g., the credentials path is not accessible on the remote),
+you can explicitly pass the environment variables via the ``env`` parameter:
 
-Test Case Identification
-+++++++++++++++++++++++++
+.. code-block:: python
 
-Each testcase span in MultiTest includes a ``test_id`` attribute that uniquely identifies it within the trace.
-The test ID follows the format: ``{test_uid}:{testsuite_uid}:{testcase_name}``.
-
-This allows you to query for specific test failures or patterns using TraceQL:
-
-.. code-block:: text
-
-    # Find all failed or errored test cases
-    {span.test_id != "" && (span:status = error || span:status = unset)}
-
-    # Find failures in a specific test suite
-    {span.test_id =~ ".*:MyTestSuite:.*" && span:status = error}
-
-    # Find all instances of a specific test case across runs
-    {span.test_id =~ ".*:.*:test_database_connection"}
+    import os
+    from testplan import test_plan
+    from testplan.runners.pools import RemotePool
+    from testplan.runners.pools.tasks import Task
+    
+    @test_plan(name="DistributedTracing")
+    def main(plan):
+        # Explicitly configure OTEL environment variables for remote workers
+        env_dict = {
+            'OTEL_RESOURCE_ATTRIBUTES': 'service.name=worker-service,environment=remote',
+            'OTEL_EXPORTER_OTLP_TRACES_ENDPOINT': 'https://remote-otlp-endpoint:4317',
+            'OTEL_EXPORTER_OTLP_HEADERS': 'api-key=remote-key',
+            'OTEL_EXPORTER_OTLP_CERTIFICATE': '/path/to/remote-ca-cert.pem',
+        }
+        
+        # Add a pool with custom OTEL environment variables
+        pool = RemotePool(
+            name="MyPool",
+            size=4,
+            env=env_dict  # Override default OTEL configuration
+        )
+        plan.add_resource(pool)
+        
+        # Tasks will use the custom configuration
+        for idx in range(10):
+            task = Task(
+                target='make_multitest',
+                module='tasks',
+                path='.'
+            )
+            plan.schedule(task, resource='MyPool')
