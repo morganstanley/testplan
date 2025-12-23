@@ -17,6 +17,7 @@ from testplan.common.remote.remote_runtime import (
     SourceTransferBuilder,
 )
 from testplan.common.remote.ssh_client import SSHClient
+from testplan.common.utils.observability import tracing
 from testplan.common.utils.path import (
     fix_home_prefix,
     is_subdir,
@@ -248,7 +249,14 @@ class RemoteResource(Entity):
             self._push_files(self.cfg.push, self.cfg.push_exclude)
 
         self.setup_metadata.setup_script = self.cfg.setup_script
-        self.setup_metadata.env = self.cfg.env
+        self.setup_metadata.env = self.cfg.env or {}
+        if tracing._tracing_enabled:
+            otel_vars = {
+                k: v
+                for k, v in os.environ.items()
+                if k.startswith("OTEL_") and k not in self.setup_metadata.env
+            }
+            self.setup_metadata.env.update(otel_vars)
 
     def _define_remote_dirs(self) -> None:
         """Define mandatory directories in remote host."""

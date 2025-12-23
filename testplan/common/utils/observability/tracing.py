@@ -292,7 +292,8 @@ class Tracing(Loggable):
         Inject root trace context for distributed tracing.
 
         This is called internally to propagate trace context to child
-        threads.
+        threads. Only injects once to prevent nested testplans from
+        overwriting the root context.
         """
         if not self._tracing_enabled:
             return
@@ -300,6 +301,7 @@ class Tracing(Loggable):
 
         inject(self._root_context)
         self._root_span = span
+
         if trace := self._get_traceparent():
             # root trace is in the format of 00-d1b9e555b056907ee20b0daebf62282c-7dcd821387246e1c-01
             # 00 is a version number which you can ignore.
