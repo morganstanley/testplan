@@ -7,6 +7,7 @@ import pytest
 
 from testplan import TestplanMock
 from testplan.common.remote.remote_runtime import SourceTransferBuilder
+from testplan.common.utils.observability import tracing
 from testplan.common.utils.path import rebase_path
 from testplan.common.utils.remote import filepath_exist_cmd
 
@@ -201,9 +202,16 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
             )[0]
         )
 
+    otel_env = {}
+    if tracing._tracing_enabled:
+        otel_env = {
+            k: v for k, v in os.environ.items() if k.startswith("OTEL_")
+        }
+
     # for now, these setting are used by child.py rather than remote_resource
     assert remote_resource.setup_metadata.env == {
-        "LOCAL_USER": getpass.getuser()
+        "LOCAL_USER": getpass.getuser(),
+        **otel_env,
     }
     assert remote_resource.setup_metadata.setup_script == ["remote_setup.py"]
 
