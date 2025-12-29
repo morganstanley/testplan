@@ -23,14 +23,6 @@ def strip_ansi_codes(text: str) -> str:
     return ANSI_ESCAPE_PATTERN.sub("", text)
 
 
-def find_log(logs: List[LogData], message_substring: str) -> Optional[LogData]:
-    """Helper to find a log record by message substring."""
-    for log in logs:
-        if message_substring in log.log_record.body:
-            return log
-    return None
-
-
 def find_span(spans, name: str) -> Optional[Span]:
     """Helper to find a span by name."""
     for span in spans:
@@ -67,10 +59,6 @@ def assert_span_not_exists(spans: List[Span], span_name: str):
     assert span is None
 
 
-def assert_logs_have_span_id(logs: List[LogData], span: Span):
-    assert all(log.log_record.span_id == span.context.span_id for log in logs)
-
-
 def assert_messages_in_logs(logs: List[LogData], expected_messages: List[str]):
     messages = [strip_ansi_codes(log.log_record.body) for log in logs]
     for expected_msg in expected_messages:
@@ -85,10 +73,18 @@ def assert_messages_not_in_logs(
         assert not any(unexpected_msg in msg for msg in messages)
 
 
-def assert_single_trace_id(logs: List[LogData], expected_trace_id):
-    all_trace_ids = {log.log_record.trace_id for log in logs}
-    assert len(all_trace_ids) == 1
-    assert all_trace_ids.pop() == expected_trace_id
+def filter_logs_by_trace_id(
+    logs: List[LogData], expected_trace_id
+) -> List[LogData]:
+    """
+    Filter logs to only include those matching the expected trace_id.
+
+    This is necessary because otel_logging is a singleton that captures all logs
+    globally, including logs from concurrent threads.
+    """
+    return [
+        log for log in logs if log.log_record.trace_id == expected_trace_id
+    ]
 
 
 @testsuite
@@ -152,7 +148,7 @@ def test_logs_at_testcase_level(test_log_exporter, test_exporter):
     mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
     mockplan.run()
 
-    logs = test_log_exporter.get_finished_logs()
+    all_logs = test_log_exporter.get_finished_logs()
     spans = test_exporter.get_finished_spans()
 
     span_map = {
@@ -162,16 +158,15 @@ def test_logs_at_testcase_level(test_log_exporter, test_exporter):
         "MockPlan": assert_span_exists(spans, "MockPlan"),
     }
 
+    logs = filter_logs_by_trace_id(
+        all_logs, span_map["MockPlan"].context.trace_id
+    )
     logs_by_span = group_logs_by_span(logs, span_map)
 
     assert len(logs_by_span["test_one"]) == 2
     assert len(logs_by_span["MySuite"]) > 0
     assert len(logs_by_span["MyMultitest"]) > 0
     assert len(logs_by_span["MockPlan"]) > 0
-
-    for span_name, span in span_map.items():
-        assert_logs_have_span_id(logs_by_span[span_name], span)
-    assert_single_trace_id(logs, span_map["MockPlan"].context.trace_id)
 
     assert_messages_in_logs(
         logs_by_span["test_one"],
@@ -213,7 +208,7 @@ def test_logs_at_testsuite_level(test_log_exporter, test_exporter):
     mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
     mockplan.run()
 
-    logs = test_log_exporter.get_finished_logs()
+    all_logs = test_log_exporter.get_finished_logs()
     spans = test_exporter.get_finished_spans()
 
     assert_span_not_exists(spans, "test_one")
@@ -224,14 +219,13 @@ def test_logs_at_testsuite_level(test_log_exporter, test_exporter):
         "MockPlan": assert_span_exists(spans, "MockPlan"),
     }
 
+    logs = filter_logs_by_trace_id(
+        all_logs, span_map["MockPlan"].context.trace_id
+    )
     logs_by_span = group_logs_by_span(logs, span_map)
 
     for span_name in span_map:
         assert len(logs_by_span[span_name]) > 0
-
-    for span_name, span in span_map.items():
-        assert_logs_have_span_id(logs_by_span[span_name], span)
-    assert_single_trace_id(logs, span_map["MockPlan"].context.trace_id)
 
     assert_messages_in_logs(
         logs_by_span["MySuite"],
@@ -271,7 +265,7 @@ def test_logs_at_test_level(test_log_exporter, test_exporter):
     mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
     mockplan.run()
 
-    logs = test_log_exporter.get_finished_logs()
+    all_logs = test_log_exporter.get_finished_logs()
     spans = test_exporter.get_finished_spans()
 
     assert_span_not_exists(spans, "test_one")
@@ -282,14 +276,13 @@ def test_logs_at_test_level(test_log_exporter, test_exporter):
         "MockPlan": assert_span_exists(spans, "MockPlan"),
     }
 
+    logs = filter_logs_by_trace_id(
+        all_logs, span_map["MockPlan"].context.trace_id
+    )
     logs_by_span = group_logs_by_span(logs, span_map)
 
     for span_name in span_map:
         assert len(logs_by_span[span_name]) > 0
-
-    for span_name, span in span_map.items():
-        assert_logs_have_span_id(logs_by_span[span_name], span)
-    assert_single_trace_id(logs, span_map["MockPlan"].context.trace_id)
 
     assert_messages_in_logs(
         logs_by_span["MyMultitest"],
@@ -325,7 +318,7 @@ def test_logs_at_testplan_level(test_log_exporter, test_exporter):
     mockplan.add(MultiTest(name="MyMultitest", suites=[MySuite()]))
     mockplan.run()
 
-    logs = test_log_exporter.get_finished_logs()
+    all_logs = test_log_exporter.get_finished_logs()
     spans = test_exporter.get_finished_spans()
 
     assert_span_not_exists(spans, "test_one")
@@ -335,12 +328,12 @@ def test_logs_at_testplan_level(test_log_exporter, test_exporter):
     testplan_span = assert_span_exists(spans, "MockPlan")
     span_map = {"MockPlan": testplan_span}
 
+    logs = filter_logs_by_trace_id(
+        all_logs, span_map["MockPlan"].context.trace_id
+    )
     logs_by_span = group_logs_by_span(logs, span_map)
 
     assert len(logs_by_span["MockPlan"]) > 0
-
-    assert_logs_have_span_id(logs_by_span["MockPlan"], testplan_span)
-    assert_single_trace_id(logs, testplan_span.context.trace_id)
 
     assert_messages_in_logs(
         logs_by_span["MockPlan"],
@@ -372,7 +365,7 @@ def test_logs_with_multiple_suites(test_log_exporter, test_exporter):
     )
     mockplan.run()
 
-    logs = test_log_exporter.get_finished_logs()
+    all_logs = test_log_exporter.get_finished_logs()
     spans = test_exporter.get_finished_spans()
 
     span_map = {
@@ -381,8 +374,12 @@ def test_logs_with_multiple_suites(test_log_exporter, test_exporter):
         "test_one": assert_span_exists(spans, "test_one"),
         "test_two": assert_span_exists(spans, "test_two"),
         "test_three": assert_span_exists(spans, "test_three"),
+        "MockPlan": assert_span_exists(spans, "MockPlan"),
     }
 
+    logs = filter_logs_by_trace_id(
+        all_logs, span_map["MockPlan"].context.trace_id
+    )
     logs_by_span = group_logs_by_span(logs, span_map)
 
     for span_name in span_map:
@@ -437,7 +434,7 @@ def test_logs_with_multiple_multitests(test_log_exporter, test_exporter):
     mockplan.add(MultiTest(name="SecondMultitest", suites=[AnotherSuite()]))
     mockplan.run()
 
-    logs = test_log_exporter.get_finished_logs()
+    all_logs = test_log_exporter.get_finished_logs()
     spans = test_exporter.get_finished_spans()
 
     span_map = {
@@ -445,7 +442,12 @@ def test_logs_with_multiple_multitests(test_log_exporter, test_exporter):
         "SecondMultitest": assert_span_exists(spans, "SecondMultitest"),
         "MySuite": assert_span_exists(spans, "MySuite"),
         "AnotherSuite": assert_span_exists(spans, "AnotherSuite"),
+        "MockPlan": assert_span_exists(spans, "MockPlan"),
     }
+
+    logs = filter_logs_by_trace_id(
+        all_logs, span_map["MockPlan"].context.trace_id
+    )
 
     assert (
         span_map["FirstMultitest"].context.span_id
@@ -511,15 +513,19 @@ def test_logs_with_failing_tests(test_log_exporter, test_exporter):
     mockplan.add(MultiTest(name="MyMultitest", suites=[FailingSuite()]))
     mockplan.run()
 
-    logs = test_log_exporter.get_finished_logs()
+    all_logs = test_log_exporter.get_finished_logs()
     spans = test_exporter.get_finished_spans()
 
     span_map = {
         "successful_case": assert_span_exists(spans, "successful_case"),
         "failing_case": assert_span_exists(spans, "failing_case"),
         "FailingSuite": assert_span_exists(spans, "FailingSuite"),
+        "MockPlan": assert_span_exists(spans, "MockPlan"),
     }
 
+    logs = filter_logs_by_trace_id(
+        all_logs, span_map["MockPlan"].context.trace_id
+    )
     logs_by_span = group_logs_by_span(logs, span_map)
 
     for span_name in span_map:

@@ -4,7 +4,7 @@ import os
 from testplan.common.utils.logger import Loggable, TESTPLAN_LOGGER
 
 
-class OTEL_Logging(Loggable):
+class OtelLogging(Loggable):
     """
     Global logging object to handle OpenTelemetry logging integration.
 
@@ -49,7 +49,7 @@ class OTEL_Logging(Loggable):
             )
         except ImportError as e:
             raise RuntimeError(
-                "Certain packages failed to import, please consider install Testplan"
+                "Certain packages failed to import, please consider install Testplan "
                 "package with `observability` extra to enable logging."
             ) from e
 
@@ -96,4 +96,4 @@ class OTEL_Logging(Loggable):
             self._logger_provider.force_flush()
 
 
-otel_logging = OTEL_Logging()
+otel_logging = OtelLogging()

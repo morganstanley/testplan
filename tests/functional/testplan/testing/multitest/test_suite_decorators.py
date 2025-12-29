@@ -162,7 +162,7 @@ def test_unwanted_testsuite_name(mockplan, suite_name):
     1. Suite name too long
     2. Colon in suite name
     """
-    with mock.patch("warnings.warn", return_value=None) as mock_warn:
+    with pytest.warns(UserWarning) as record:
 
         @testsuite(name=suite_name)
         class MySuite:
@@ -174,7 +174,7 @@ def test_unwanted_testsuite_name(mockplan, suite_name):
         mockplan.add(multitest)
         mockplan.run()
 
-    mock_warn.assert_called_once()
+    assert len(record) == 1
 
 
 def test_duplicate_testsuite_names(mockplan):

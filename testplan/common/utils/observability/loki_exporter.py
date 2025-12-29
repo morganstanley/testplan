@@ -4,8 +4,8 @@ import sys
 import time
 from typing import Sequence
 
-from opentelemetry.sdk._logs import LogData
-from opentelemetry.sdk._logs.export import LogExporter, LogExportResult
+from opentelemetry.sdk._logs import LogData  # pylint: disable=import-error
+from opentelemetry.sdk._logs.export import LogExporter, LogExportResult  # pylint: disable=import-error
 
 
 class LokiExporter(LogExporter):

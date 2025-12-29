@@ -75,7 +75,7 @@ Use the ``--otel-traces`` command line flag:
 .. code-block:: bash
 
     # Enable tracing with the flag
-    python my_testplan.py --otel-traces <LEVEL> [Plan|Test|TestSuite|TestCase]
+    python my_testplan.py --otel-traces <LEVEL>
 
 Where ``<LEVEL>`` can be:
     * ``Plan``: Trace at the Testplan level
