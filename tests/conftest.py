@@ -175,7 +175,7 @@ def session_provider_exporter():
 
 
 @pytest.fixture
-def test_exporter(session_provider_exporter, monkeypatch):
+def test_exporter(session_provider_exporter):
     """
     Function-scoped fixture that provides a clean tracing environment per test.
     Patches Tracing._setup to use the session provider instead of reading env vars.
@@ -197,7 +197,7 @@ def test_exporter(session_provider_exporter, monkeypatch):
     original_tracer_provider = getattr(
         existing_tracing, "_tracer_provider", None
     )
-    original_id_generator = provider.id_generator
+    fixture_id_generator = provider.id_generator
 
     def mock_setup(traceparent=None):
         if traceparent:
@@ -212,7 +212,6 @@ def test_exporter(session_provider_exporter, monkeypatch):
 
     existing_tracing._setup = mock_setup
     existing_tracing._tracing_enabled = False
-    monkeypatch.setattr(existing_tracing, "_setup", mock_setup)
 
     yield exporter
     exporter.clear()
@@ -221,7 +220,7 @@ def test_exporter(session_provider_exporter, monkeypatch):
     existing_tracing._root_context = original_root_context
     existing_tracing._tracer = original_tracer
     existing_tracing._tracer_provider = original_tracer_provider
-    provider.id_generator = original_id_generator
+    provider.id_generator = fixture_id_generator
 
 
 @pytest.fixture

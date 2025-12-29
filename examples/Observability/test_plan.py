@@ -107,19 +107,20 @@ class TracingExamples:
                 / records_processed,
             )
 
-    @testcase
-    def test_setting_span_failure(self, env, result):
-        """Marking spans as failed if required"""
-        with tracing.span("failing_span") as span:
-            is_valid = False
-            if not is_valid:
-                tracing.set_span_as_failed(
-                    span=span, description="Validation failed"
-                )
-                # You can mark the test as failed here if desired
-                # result.fail("Validation failed")
-            else:
-                result.true(True, description="Validation passed")
+    # Uncomment to test failure case
+    # @testcase
+    # def test_setting_span_failure(self, env, result):
+    #     """Marking spans as failed if required"""
+    #     with tracing.span("failing_span") as span:
+    #         is_valid = False
+    #         if not is_valid:
+    #             tracing.set_span_as_failed(
+    #                 span=span, description="Validation failed"
+    #             )
+    #             # You can mark the test as failed here if desired
+    #             # result.fail("Validation failed")
+    #         else:
+    #             result.true(True, description="Validation passed")
 
 
 @testsuite
@@ -163,4 +164,8 @@ def main(plan):
 
 
 if __name__ == "__main__":
-    sys.exit(main().exit_code)
+    # this storing of context is only used for internal testing so the context of this test_plan does not intefere with the parent test_plan
+    original_context = tracing._root_context.copy()
+    result = main().exit_code
+    tracing._root_context = original_context
+    sys.exit(result)
