@@ -1,6 +1,6 @@
 |ReadTheDocs|_ |TravisCI|_
 
-.. image:: https://badgen.net/badge/Lifecycle/Active/green
+.. image:: https://img.shields.io/badge/Lifecycle-Active-brightgreen
     :alt: Lifecycle Active
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
