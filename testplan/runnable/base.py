@@ -7,10 +7,13 @@ import psutil
 import random
 import re
 import sys
+import tarfile
 import time
 import traceback
 import uuid
 import webbrowser
+import shutil
+
 from collections import OrderedDict
 from copy import copy, deepcopy
 from dataclasses import dataclass
@@ -29,6 +32,7 @@ from typing import (
     Tuple,
     Union,
 )
+import zstandard as zstd
 
 from schema import And, Or, Use
 
@@ -309,6 +313,7 @@ class TestRunnerConfig(RunnableConfig):
             ): Use(common.SkipStrategy.from_option_or_none),
             ConfigOption("driver_info", default=False): bool,
             ConfigOption("collect_code_context", default=False): bool,
+            ConfigOption("archive_runpath", default=None): Or(str, None),
         }
 
 
@@ -384,6 +389,8 @@ class TestRunner(Runnable):
     :type runpath: ``str`` or ``callable``
     :param path_cleanup: Clean previous runpath entries.
     :type path_cleanup: ``bool``
+    :param archive_runpath: Directory path to archive the runpath after test execution.
+    :type archive_runpath: ``str`` or ``NoneType``
     :param all_tasks_local: Schedule all tasks in local pool
     :type all_tasks_local: ``bool``
     :param shuffle: Shuffle strategy.
@@ -487,6 +494,9 @@ class TestRunner(Runnable):
         self.remote_services: Dict[str, "RemoteService"] = {}
         self.runid_filename = uuid.uuid4().hex
         self.define_runpath()
+        self.result.report.information.append(("runpath", self.runpath))
+        self._archive_path = None
+        self._define_archive_path()
         self._runnable_uids = set()
         self._verified_targets = {}  # target object id -> runnable uid
         self.resource_monitor_server: Optional["ResourceMonitorServer"] = None
@@ -1392,6 +1402,56 @@ class TestRunner(Runnable):
             self.resource_monitor_server.stop()
             self.resource_monitor_server = None
 
+    def _define_archive_path(self):
+        if not self.cfg.archive_runpath:
+            return
+        archive_dir = os.path.abspath(
+            os.path.expandvars(os.path.expanduser(self.cfg.archive_runpath))
+        )
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        self._archive_path = os.path.join(
+            archive_dir,
+            f"{os.path.basename(self.runpath)}_{timestamp}.tar.zst",
+        )
+        self.result.report.information.append(
+            ("runpath_archive", self._archive_path)
+        )
+
+    def _archive_runpath(self):
+        """
+        Archive the runpath to a user specified directory.
+        """
+        if not self.cfg.archive_runpath:
+            return
+
+        if self.result.report.passed:
+            self.logger.user_info("Testplan passed, skipping runpath archive")
+            return
+
+        archive_dir = os.path.dirname(self._archive_path)
+        if not os.path.exists(archive_dir):
+            os.makedirs(archive_dir, exist_ok=True)
+
+        if not os.path.exists(self.runpath):
+            self.logger.error(
+                f"Runpath {self.runpath} does not exist, cannot archive."
+            )
+            return
+
+        self.logger.user_info(
+            f"Archiving runpath {self.runpath} to {self._archive_path}"
+        )
+
+        with open(self._archive_path, "wb") as f:
+            cctx = zstd.ZstdCompressor(level=3, threads=-1)
+            with cctx.stream_writer(f) as compressor:
+                with tarfile.open(fileobj=compressor, mode="w|") as tar:
+                    tar.add(
+                        self.runpath, arcname=os.path.basename(self.runpath)
+                    )
+
+        self.logger.user_info(f"Runpath archived to {self._archive_path}")
+
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before resources started."""
         self._add_step(self.timer.start, "run")
@@ -1408,6 +1468,7 @@ class TestRunner(Runnable):
 
     def add_post_resource_steps(self):
         """Runnable steps to be executed after resources stopped."""
+        super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self.timer.end, "run")  # needs to happen before export
@@ -1415,8 +1476,8 @@ class TestRunner(Runnable):
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
         self._add_step(self._stop_remote_services)
-        super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._stop_resource_monitor)
+        self._add_step(self._archive_runpath)
 
     def _collect_timeout_info(self):
         threads, processes = self._get_process_info(recursive=True)

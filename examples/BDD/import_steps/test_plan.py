@@ -11,7 +11,7 @@ NAME = "Import Step Definitions"
 DESCRIPTION = "Example to show how to import step definitions, best shown with feature linked"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Import Steps Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".",

@@ -51,7 +51,7 @@ class MyTestsuite:
         result.equal(env.cat_app.proc, None, description="App is not running.")
 
 
-@test_plan(name="App driver example")
+@test_plan(name="App driver autostart example")
 def main(plan):
     """
     A simple example that demonstrate manually starting and stopping the App driver.

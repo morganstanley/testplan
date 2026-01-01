@@ -11,7 +11,7 @@ NAME = "Context Resolution"
 DESCRIPTION = "Example to show how to refer context values from gherkin "
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Context Resolution Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".",

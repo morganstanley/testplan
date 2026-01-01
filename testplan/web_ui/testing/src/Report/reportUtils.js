@@ -224,7 +224,8 @@ const CenterPane = ({
     if (assertions === null) {
       if (
         selectedEntry.entries.length === 0 &&
-        selectedEntry.counter.total > 0
+        selectedEntry.counter.total > 0 &&
+        reportUid !== null
       ) {
         // version 3 report structure
         const assertionFileName = getAssertionsFileName(selectedEntries[1].uid);
@@ -302,19 +303,19 @@ const CenterPane = ({
     return <ResourcePanel key="resourcePanel" report={reportState.report} />;
   }
 
-  if (assertions === null) {
+  if (assertions === null && reportUid !== null) {
     return <Message message="Loading assertions" />;
   }
 
   if (
-    assertions.length > 0 ||
+    (assertions !== null && assertions.length > 0) ||
     logs.length > 0 ||
     selectedDescription.length > 0
   ) {
     return (
       <AssertionPane
         key={selectedEntry ? selectedEntry.hash || selectedEntry.uid : null}
-        assertions={assertions}
+        assertions={assertions || []}
         logs={logs}
         descriptionEntries={selectedDescription}
         left={reportState.navWidth}

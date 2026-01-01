@@ -10,7 +10,7 @@ NAME = "Known To Fail"
 DESCRIPTION = "Example to show how to deal with scnearios known to fail"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Known to Fail Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".", default_parser=SimpleParser, feature_linked_steps=True

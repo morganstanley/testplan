@@ -10,7 +10,7 @@ NAME = "Background"
 DESCRIPTION = "Example to show how background can be used to perform the same steps before scenarios"
 
 
-@test_plan(name="BDD Example")
+@test_plan(name="BDD Background Example")
 def main(plan):
     factory = BDDTestSuiteFactory(
         ".", default_parser=SimpleParser, feature_linked_steps=True

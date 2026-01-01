@@ -6,7 +6,7 @@ from testplan.testing.bdd import BDDTestSuiteFactory
 from testplan.testing.bdd.parsers import SimpleParser
 
 
-@test_plan(name="Example Gherkin Testplan")
+@test_plan(name="BDD Common Steps Example")
 def main(plan):
     factory1 = BDDTestSuiteFactory(
         "features/feature1",

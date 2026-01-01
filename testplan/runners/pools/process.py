@@ -155,8 +155,9 @@ class ProcessWorker(Worker):
         self.stop()
 
     def discard_running_tasks(self):
-        # discard logic handled by pool in ``_handle_heartbeat``
-        WorkerBase.discard_running_tasks(self)
+        # discard logic handled by pool in heartbeat & taskpull responses
+        # if bubbled up to all executors then testrunner will initiate stop
+        pass
 
 
 class ProcessPoolConfig(PoolConfig):
