@@ -538,7 +538,7 @@ that match ALL of the given tags.
 
         report_group.add_argument(
             "--otel-traces",
-            choices=["Test", "TestSuite", "TestCase"],
+            choices=["Plan", "Test", "TestSuite", "TestCase"],
             default=self._default_options["otel_traces"],
             help="Enable OpenTelemetry tracing at specified level.",
         )

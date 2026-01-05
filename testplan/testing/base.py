@@ -36,7 +36,6 @@ from testplan.common.report import ReportCategories, RuntimeStatus
 from testplan.common.report import Status as ReportStatus
 from testplan.common.utils import interface, strings, validation
 from testplan.common.utils.composer import compose_contexts
-from testplan.common.utils.observability import tracing
 from testplan.common.utils.context import render
 from testplan.common.utils.process import (
     enforce_timeout,
@@ -537,7 +536,11 @@ class Test(Runnable):
 
     def start_span_and_timer(self, timer_key: str, span_key: str) -> None:
         self.timer.start(timer_key)
-        if self.otel_traces and self.otel_traces != "Test":
+        if (
+            self.otel_traces
+            and self.otel_traces != "Test"
+            and self.otel_traces != "Plan"
+        ):
             start_time = int(
                 self.timer.last(timer_key).start.timestamp() * 1e9
             )
@@ -1016,7 +1019,7 @@ class Test(Runnable):
         with tracing.conditional_span(
             name=self.uid(),
             context=tracing._get_root_context(),
-            condition=self.otel_traces,
+            condition=self.otel_traces and self.otel_traces != "Plan",
         ) as test_span:
             super(Test, self)._run_batch_steps()
             if self.report.failed:

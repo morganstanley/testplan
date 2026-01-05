@@ -62,7 +62,7 @@ class PyUnit(testing.Test):
         with (
             tracing.conditional_span(
                 name=self.name,
-                condition=self.otel_traces,
+                condition=self.otel_traces and self.otel_traces != "Plan",
             ) as pyunit_span,
             self.report.timer.record("run"),
         ):
