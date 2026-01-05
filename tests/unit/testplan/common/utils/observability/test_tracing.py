@@ -11,6 +11,35 @@ from opentelemetry.trace import (
     set_span_in_context,
 )
 
+from testplan.common.utils.observability.tracing import RootTraceIdGenerator
+
+
+def test_root_trace_id_generator_with_traceparent():
+    """Test that RootTraceIdGenerator uses trace ID from traceparent."""
+    tracing = MagicMock()
+    traceparent = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    tracing._get_traceparent.return_value = traceparent
+
+    generator = RootTraceIdGenerator(tracing)
+    trace_id = generator.generate_trace_id()
+
+    expected_trace_id = int("0af7651916cd43dd8448eb211c80319c", 16)
+    assert trace_id == expected_trace_id
+
+
+def test_root_trace_id_generator_without_traceparent():
+    """Test that RootTraceIdGenerator falls back to random when no traceparent."""
+    tracing = MagicMock()
+    tracing._get_traceparent.return_value = ""
+
+    generator = RootTraceIdGenerator(tracing)
+    trace_id = generator.generate_trace_id()
+
+    # Should generate a valid trace ID (128-bit integer)
+    assert isinstance(trace_id, int)
+    assert trace_id > 0
+    assert trace_id < 2**128
+
 
 def test_tracing_disabled_by_default(unit_test_tracing):
     tracing, exporter = unit_test_tracing

@@ -17,6 +17,48 @@ if TYPE_CHECKING:
     from opentelemetry.sdk.trace import Span
 
 
+class RootTraceIdGenerator:
+    """
+    Custom ID generator that uses a root trace ID when available.
+    Falls back to random ID generation when no root trace ID is set.
+    """
+
+    def __init__(self, tracing_instance: "Tracing") -> None:
+        """
+        Initialize the ID generator.
+
+        :param tracing_instance: Reference to the Tracing instance
+        :type tracing_instance: Tracing
+        """
+        from opentelemetry.sdk.trace import RandomIdGenerator  # pylint: disable=import-error
+
+        self._random_generator = RandomIdGenerator()
+        self._tracing_instance = tracing_instance
+
+    def generate_trace_id(self) -> int:
+        """
+        Generate a trace ID, using the root trace ID if available.
+
+        :return: Trace ID as integer
+        :rtype: int
+        """
+        traceparent = self._tracing_instance._get_traceparent()
+        if traceparent:
+            # Format: 00-{trace_id}-{span_id}-{flags}
+            trace_id_hex = traceparent.split("-")[1]
+            return int(trace_id_hex, 16)
+        return self._random_generator.generate_trace_id()
+
+    def generate_span_id(self) -> int:
+        """
+        Generate a span ID using random generation.
+
+        :return: Span ID as integer
+        :rtype: int
+        """
+        return self._random_generator.generate_span_id()
+
+
 class Tracing(Loggable):
     """
     Global tracing object to handle OpenTelemetry tracing.
@@ -105,7 +147,7 @@ class Tracing(Loggable):
                 certificate_chain=cc.read(),
             )
 
-        provider = TracerProvider()
+        provider = TracerProvider(id_generator=RootTraceIdGenerator(self))
         # Tune BatchSpanProcessor for short-lived worker processes:
         # Allow overriding via environment, else use more aggressive default.
         schedule_delay = int(os.getenv("OTEL_BSP_SCHEDULE_DELAY", 200))
@@ -282,7 +324,7 @@ class Tracing(Loggable):
 
     def _get_traceparent(self) -> str:
         """
-        Get the root trace ID in W3C traceparent format.
+        Get the traceparent.
 
         :return: Traceparent string or empty string if not set
         :rtype: str
@@ -365,6 +407,21 @@ class Tracing(Loggable):
                 return func(instance_self, *args, **kwargs)
 
         return _wrapped
+
+    def _shutdown(self) -> None:
+        """
+        Shutdown the tracer provider
+        """
+        if self._tracer_provider:
+            try:
+                self._tracer_provider.shutdown()
+            except Exception as e:  # Handle any grpc issue during shutdown
+                self.logger.warning(
+                    f"Error during tracer provider shutdown: {e}"
+                )
+                self._tracing_enabled = False
+                self._tracer_provider = None
+                self._tracer = None
 
 
 #: Global tracing instance for Testplan observability

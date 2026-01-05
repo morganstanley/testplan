@@ -141,4 +141,4 @@ def main(plan):
 
 
 if __name__ == "__main__":
-    sys.exit(not main())
+    sys.exit(main().exit_code)
