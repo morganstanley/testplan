@@ -1,3 +1,3 @@
 """Observability modules."""
 
-from .tracing import Tracing, tracing
+from .tracing import Tracing, tracing, RootTraceIdGenerator
