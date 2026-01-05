@@ -822,7 +822,11 @@ class MultiTest(testing_base.Test):
         with (
             tracing.conditional_span(
                 name=testsuite.name,
-                condition=(self.otel_traces and self.otel_traces != "Test"),
+                condition=(
+                    self.otel_traces
+                    and self.otel_traces != "Test"
+                    and self.otel_traces != "Plan"
+                ),
             ) as testsuite_span,
             testsuite_report.timer.record("run"),
         ):
