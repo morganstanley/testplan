@@ -13,6 +13,7 @@ from schema import Or
 from testplan.common.config import ConfigOption
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.match import match_regexps_in_file
+from testplan.common.utils.observability import tracing
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.timing import get_sleeper
 
@@ -75,7 +76,8 @@ class ProcessWorker(Worker):
             "--sys-path-file",
             self._syspath_file,
         ]
-
+        if self.otel_traces and tracing._get_traceparent():
+            cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
         return cmd
 
     def _write_syspath(self, sys_path: Optional[list[str]] = None) -> None:

@@ -1,0 +1,1 @@
+Added ``--otel-tracing`` to allow tracing of test execution. When enabled, this captures information about test setup, execution, and teardown phases, allowing you to analyze bottlenecks and trace test progress. See :ref:`here <observability>` for more configuration details and examples.

@@ -14,6 +14,7 @@ import multiprocessing
 
 from typing import Dict, Optional, Union, TextIO, NamedTuple
 from testplan.defaults import RESOURCE_META_FILE_NAME
+from testplan.common.utils.observability import tracing
 from testplan.common.utils.path import pwd
 from testplan.common.utils.json import json_dumps, json_loads
 from testplan.common.utils.strings import slugify
@@ -294,6 +295,7 @@ class ResourceMonitorClient:
                 time.sleep(rest_time)
 
     def start(self):
+        tracing.force_flush()  # flush so that no grpc communication is happening while forking
         self._monitor_worker = multiprocessing.Process(
             target=self._loop, daemon=True
         )
@@ -496,6 +498,7 @@ class ResourceMonitorServer:
 
     def start(self, timeout=5):
         shared_dict = multiprocessing.Manager().dict()
+        tracing.force_flush()  # flush so that no grpc communication is happening while forking
         self._server_process = multiprocessing.Process(
             target=self._serve, args=(shared_dict,), daemon=True
         )

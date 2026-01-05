@@ -20,6 +20,7 @@ Downloadable examples
     Interactive
     JUnit
     Multitest
+    Observability
     Python
     Remote
     Test Output
