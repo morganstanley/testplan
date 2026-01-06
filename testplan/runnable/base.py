@@ -26,6 +26,7 @@ from typing import (
     Collection,
     Dict,
     List,
+    Literal,
     MutableMapping,
     Optional,
     Pattern,
@@ -102,7 +103,7 @@ class TaskInformation:
     materialized_test: Test
     uid: str
     task_arguments: dict
-    num_of_parts: int
+    num_of_parts: Union[None, int, Literal["auto"]]
 
 
 def get_exporters(values):
