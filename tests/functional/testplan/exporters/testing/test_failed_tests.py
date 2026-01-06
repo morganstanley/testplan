@@ -1,11 +1,14 @@
+import multiprocessing
 import pathlib
 import pytest
+import threading
 from testplan import TestplanMock
 from testplan.testing import multitest
 from testplan.exporters.testing.failed_tests import (
     FailedTestsExporter,
     FailedTestLevel,
 )
+from testplan.runners.pools.base import Pool
 
 
 @multitest.testsuite
@@ -53,6 +56,14 @@ class Delta:
 
     def teardown(self, env, result):
         raise Exception("foo")
+
+
+@multitest.testsuite
+class TimeoutSuite:
+    @multitest.testcase
+    def blocks(self, env, result):
+        result.log("Blocking...")
+        threading.Event().wait()
 
 
 def failed_after_start(env, result):
@@ -168,3 +179,74 @@ def test_failed_tests_exporter_with_parts(runpath, level, failed_tests):
     with failed_tests_path.open("r") as f:
         content = f.read()
     assert "\n".join(failed_tests) == content.strip()
+
+
+def _run_plan_timeout_in_process(failed_tests_path, runpath, use_parts):
+    """
+    Helper function to run the test plan in a separate process.
+    Instantiate suites here to avoid pickling issues on Windows where multiprocessing uses spawn.
+    """
+    plan = TestplanMock(
+        "plan",
+        exporters=FailedTestsExporter(
+            dump_failed_tests=str(failed_tests_path),
+        ),
+        runpath=runpath,
+        timeout=5,
+    )
+    pool = Pool(name="pool", size=2)
+    plan.add_resource(pool)
+
+    if use_parts:
+        for idx in range(2):
+            plan.schedule(
+                target=multitest.MultiTest(
+                    name="mock tests 1",
+                    suites=[TimeoutSuite(), Gamma()],
+                    part=(idx, 2),
+                ),
+                resource="pool",
+            )
+    else:
+        multitest_1 = multitest.MultiTest(
+            name="mock tests 1", suites=[TimeoutSuite()]
+        )
+        multitest_2 = multitest.MultiTest(
+            name="mock tests 2", suites=[Gamma()]
+        )
+        plan.schedule(target=multitest_1, resource="pool")
+        plan.schedule(target=multitest_2, resource="pool")
+    plan.run()
+
+
+@pytest.mark.parametrize(
+    "use_parts, expected_failed_test",
+    (
+        (False, "mock tests 1"),
+        (True, "mock tests 1 - part(0/2)"),
+    ),
+)
+def test_failed_tests_exporter_during_timeout(
+    runpath, use_parts, expected_failed_test
+):
+    """
+    Test the FailedTestsExporter for testplan timeout with and without parts.
+    """
+    failed_tests_path = pathlib.Path(runpath) / "failed_tests.txt"
+
+    # this needs to be run in a separate process else _collect_timeout_info in TestRunner will face an error
+    # causing the pool to not be aborted properly
+    process = multiprocessing.Process(
+        target=_run_plan_timeout_in_process,
+        args=(failed_tests_path, runpath, use_parts),
+    )
+    process.start()
+    process.join(timeout=15)
+    if process.is_alive():
+        process.kill()
+
+    assert failed_tests_path.exists()
+    assert failed_tests_path.stat().st_size > 0, "Failed tests file is empty"
+    with failed_tests_path.open("r") as f:
+        content = f.read()
+    assert expected_failed_test == content.strip()
