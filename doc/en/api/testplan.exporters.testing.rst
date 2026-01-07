@@ -11,6 +11,7 @@ Subpackages
     testplan.exporters.testing.xml
     testplan.exporters.testing.http
     testplan.exporters.testing.webserver
+    testplan.exporters.testing.failed_tests
 
 Submodules
 ----------
