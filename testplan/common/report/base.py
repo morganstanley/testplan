@@ -1013,6 +1013,9 @@ class BaseReportGroup(Report):
         """
         for entry in self:
             if entry.name in entries.keys():
+                if entry.category == ReportCategories.SYNTHESIZED:
+                    # skip setting env start/stop
+                    continue
                 if hasattr(entry, "set_runtime_status_filtered"):
                     entry.set_runtime_status_filtered(
                         new_status, entries[entry.name]

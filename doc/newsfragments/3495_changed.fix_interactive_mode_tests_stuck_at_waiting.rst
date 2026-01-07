@@ -1,0 +1,1 @@
+Fix an issue where the test runs in interactive mode will be stuck at waiting when filter text is present in the search box.
