@@ -141,6 +141,146 @@ const initialReport = () => ({
   ],
 });
 
+const initialReportWithEnvSuites = () => ({
+  category: "testplan",
+  uid: "TestplanUID",
+  timer: {},
+  status: "unknown",
+  runtime_status: "ready",
+  env_status: null,
+  meta: {},
+  status_override: null,
+  attachments: {},
+  tags_index: {},
+  name: "TestplanName",
+  parent_uids: [],
+  type: "TestGroupReport",
+  hash: 12345,
+  entries: [
+    {
+      category: "multitest",
+      uid: "MultiTestUID",
+      timer: {},
+      description: null,
+      tags: {},
+      status: "unknown",
+      runtime_status: "ready",
+      env_status: "STOPPED",
+      part: null,
+      status_override: null,
+      name: "MultiTestName",
+      parent_uids: ["TestplanUID"],
+      type: "TestGroupReport",
+      hash: 12345,
+      entries: [
+        {
+          category: "synthesized",
+          uid: "Environment Start",
+          timer: {},
+          description: null,
+          tags: {},
+          status: "unknown",
+          runtime_status: "ready",
+          parent_uids: ["TestplanUID", "MultiTestName"],
+          type: "TestGroupReport",
+          name: "Environment Start",
+          hash: 12345,
+          entries: [
+            {
+              type: "TestCaseReport",
+              parent_uids: [
+                "TestplanUID",
+                "MultiTestName",
+                "Environment Start",
+              ],
+              logs: [],
+              entries: [],
+              runtime_status: "ready",
+              tags: {},
+              uid: "Starting",
+              category: "synthesized",
+              status: "unknown",
+              status_override: null,
+              timer: {},
+              name: "Starting",
+              description: "",
+              hash: 12345,
+            },
+          ],
+        },
+        {
+          category: "testsuite",
+          uid: "SuiteUID",
+          timer: {},
+          description: null,
+          tags: {},
+          status: "unknown",
+          runtime_status: "ready",
+          env_status: null,
+          part: null,
+          status_override: null,
+          name: "SuiteName",
+          fix_spec_path: null,
+          parent_uids: ["TestplanUID", "MultiTestUID"],
+          type: "TestGroupReport",
+          category: "testsuite",
+          hash: 12345,
+          entries: [
+            {
+              category: "testcase",
+              uid: "testcaseUID",
+              timer: {},
+              description: null,
+              tags: {},
+              status: "unknown",
+              runtime_status: "ready",
+              env_status: null,
+              logs: [],
+              entries: [],
+              status_override: null,
+              name: "testcaseName",
+              type: "TestCaseReport",
+              parent_uids: ["TestplanUID", "MultiTestUID", "SuiteUID"],
+              hash: 12345,
+            },
+          ],
+        },
+        {
+          category: "synthesized",
+          uid: "Environment Stop",
+          timer: {},
+          description: null,
+          tags: {},
+          status: "unknown",
+          runtime_status: "ready",
+          parent_uids: ["TestplanUID", "MultiTestUID"],
+          type: "TestGroupReport",
+          name: "Environment Stop",
+          hash: 12345,
+          entries: [
+            {
+              type: "TestCaseReport",
+              parent_uids: ["TestplanUID", "MultiTestUID", "Environment Stop"],
+              logs: [],
+              entries: [],
+              runtime_status: "ready",
+              tags: {},
+              uid: "Stopping",
+              category: "synthesized",
+              status: "unknown",
+              status_override: null,
+              timer: {},
+              name: "Stopping",
+              description: null,
+              hash: 12345,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+
 const renderInteractiveReport = (firstGet = false) => {
   // Mock the match object that would be passed down from react-router.
   // InteractiveReport uses this object to get the report UID.
@@ -807,6 +947,98 @@ describe("InteractiveReport", () => {
             done();
           });
         });
+    });
+  });
+
+  it("Run filtered tests excludes synthesized entries", (done) => {
+    const interactiveReport = renderInteractiveReport();
+
+    const report = initialReportWithEnvSuites();
+    const multitest = report.entries[0];
+    expect(multitest.category).toBe("multitest");
+
+    interactiveReport.setState({
+      filteredReport: {
+        report: report,
+        filter: { text: "something" },
+      },
+    });
+    interactiveReport.update();
+    interactiveReport.instance().runAll();
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/interactive/report");
+      expect(request.config.method).toBe("put");
+      const putData = JSON.parse(request.config.data);
+      const allCategories = [];
+      const collectCategories = (entry) => {
+        allCategories.push(entry.category);
+        if (entry.entries) {
+          entry.entries.forEach(collectCategories);
+        }
+      };
+      putData.entries.forEach(collectCategories);
+      expect(allCategories).not.toContain("synthesized");
+      expect(putData.entries[0].entries.every((e) => e !== null)).toBe(true);
+      request
+        .respondWith({
+          status: 200,
+          response: putData,
+        })
+        .then(() => {
+          moxios.wait(() => {
+            const request = moxios.requests.mostRecent();
+            expect(request.url).toBe("/api/v1/interactive/report");
+            expect(request.config.method).toBe("put");
+            const putData = JSON.parse(request.config.data);
+            expect(putData.runtime_status).toBe("running");
+            expect(putData.entries).toHaveLength(1);
+            expect(putData.entries[0].name).toBe("MultiTestName");
+            done();
+          });
+        });
+    });
+  });
+
+  it("Run single multitest with filter excludes synthesized entries", (done) => {
+    const interactiveReport = renderInteractiveReport();
+
+    const report = initialReportWithEnvSuites();
+    const multitest = report.entries[0];
+    expect(multitest.category).toBe("multitest");
+
+    interactiveReport.setState({
+      report: PropagateIndices(report),
+      filteredReport: {
+        report: report,
+        filter: { text: "something" },
+      },
+    });
+    interactiveReport.update();
+
+    const mockEvent = { preventDefault: jest.fn(), stopPropagation: jest.fn() };
+    interactiveReport.instance().handleClick(mockEvent, multitest, "running");
+
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/interactive/report/tests/MultiTestUID");
+      expect(request.config.method).toBe("put");
+      const putData = JSON.parse(request.config.data);
+
+      const allCategories = [];
+      const collectCategories = (entry) => {
+        allCategories.push(entry.category);
+        if (entry.entries) {
+          entry.entries.forEach(collectCategories);
+        }
+      };
+      if (putData.entries) {
+        putData.entries.forEach(collectCategories);
+      }
+
+      expect(allCategories).not.toContain("synthesized");
+      expect(putData.entries.every((e) => e !== null)).toBe(true);
+      done();
     });
   });
 });
