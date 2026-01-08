@@ -68,28 +68,34 @@ class FailedTestsExporter(Exporter):
 
         failed_tests = set()
 
-        for multitest in source:
-            if not multitest.failed:
+        for test_grp_report in source:
+            if not test_grp_report.failed:
                 continue
 
-            if self.cfg.failed_tests_level == FailedTestLevel.MULTITEST:
-                failed_tests.add(multitest.name)
+            if test_grp_report.category == ReportCategories.SYNTHESIZED:
                 continue
 
-            for testsuite in multitest:
+            if (
+                self.cfg.failed_tests_level == FailedTestLevel.MULTITEST
+                or test_grp_report.category == ReportCategories.ERROR
+            ):
+                failed_tests.add(test_grp_report.name)
+                continue
+
+            for testsuite in test_grp_report:
                 if testsuite.failed:
                     if (
                         isinstance(testsuite, TestGroupReport)
                         and testsuite.category == ReportCategories.SYNTHESIZED
                     ):
-                        failed_tests.add(multitest.name)
+                        failed_tests.add(test_grp_report.name)
                         break
                     if (
                         self.cfg.failed_tests_level
                         == FailedTestLevel.TESTSUITE
                     ):
                         failed_tests.add(
-                            f"{multitest.definition_name}:{testsuite.name}"
+                            f"{test_grp_report.definition_name}:{testsuite.name}"
                         )
                         continue
                     for testcase in testsuite:
@@ -97,7 +103,7 @@ class FailedTestsExporter(Exporter):
                             continue
                         if testcase.category == ReportCategories.SYNTHESIZED:
                             failed_tests.add(
-                                f"{multitest.definition_name}:{testsuite.name}"
+                                f"{test_grp_report.definition_name}:{testsuite.name}"
                             )
                             break
                         if isinstance(testcase, TestGroupReport):
@@ -105,13 +111,13 @@ class FailedTestsExporter(Exporter):
                             for param_case in testcase:
                                 if param_case.failed:
                                     failed_tests.add(
-                                        f"{multitest.definition_name}:"
+                                        f"{test_grp_report.definition_name}:"
                                         f"{testsuite.name}:"
                                         f"{param_case.name}"
                                     )
                         else:
                             failed_tests.add(
-                                f"{multitest.definition_name}:{testsuite.name}:{testcase.name}"
+                                f"{test_grp_report.definition_name}:{testsuite.name}:{testcase.name}"
                             )
 
         failed_test_path.parent.mkdir(exist_ok=True)
