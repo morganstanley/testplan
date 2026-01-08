@@ -3,6 +3,7 @@ import pathlib
 import pytest
 import threading
 from testplan import TestplanMock
+from testplan.common.utils import timing
 from testplan.testing import multitest
 from testplan.exporters.testing.failed_tests import (
     FailedTestsExporter,
@@ -241,9 +242,17 @@ def test_failed_tests_exporter_during_timeout(
         args=(failed_tests_path, runpath, use_parts),
     )
     process.start()
-    process.join(timeout=15)
-    if process.is_alive():
-        process.kill()
+    try:
+        timing.wait(
+            failed_tests_path.exists,
+            interval=1,
+            timeout=60,
+            raise_on_timeout=True,
+        )
+        process.join(timeout=15)
+    finally:
+        if process.is_alive():
+            process.kill()
 
     assert failed_tests_path.exists()
     assert failed_tests_path.stat().st_size > 0, "Failed tests file is empty"
