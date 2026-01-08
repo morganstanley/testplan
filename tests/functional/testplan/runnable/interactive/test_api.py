@@ -10,7 +10,7 @@ import testplan
 from testplan.common import entity
 from testplan.common.utils import timing
 from testplan.exporters.testing import XMLExporter
-from testplan.report import RuntimeStatus, Status
+from testplan.report import ReportCategories, RuntimeStatus, Status
 from testplan.testing import multitest
 from testplan.testing.multitest import driver
 from tests.functional.testplan.runnable.interactive.interactive_helper import (
@@ -198,6 +198,44 @@ def plan3(tmpdir):
             multitest.MultiTest(
                 name="ExampleMTest2",
                 suites=[StrictOrderSuite(str(logfile))],
+            )
+        )
+        plan.run()
+        wait_for_interactive_start(plan)
+        yield plan
+        plan.abort()
+
+
+@pytest.fixture
+def plan4(tmpdir):
+    """
+    Yield an interactive testplan. It only has one multitest instance with
+    an environment of a dummy driver.
+    """
+
+    with mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
+        plan = testplan.TestplanMock(
+            name="InteractiveAPITest",
+            interactive_port=0,
+            interactive_block=False,
+            exporters=[XMLExporter(xml_dir=str(tmpdir / "xml_exporter"))],
+        )
+
+        logfile = tmpdir / "attached_log.txt"
+        logfile.write_text(
+            "This text will be written into the attached file.",
+            encoding="utf-8",
+        )
+
+        plan.add(
+            multitest.MultiTest(
+                name="ExampleMTest",
+                suites=[ExampleSuite(str(logfile))],
+                environment=[driver.Driver("DummyDriver")],
             )
         )
         plan.run()
@@ -1277,6 +1315,80 @@ def test_run_testcases_sequentially(plan3):
     assert (
         "errmsg" in suite_json
         and "reset test report if necessary" in suite_json["errmsg"]
+    )
+
+
+def test_filtered_run_does_not_leave_test_stuck_at_waiting(plan4):
+    """
+    Test that filtered test runs (via PUT requests with entries) do not
+    leave the test's runtime_status stuck at waiting
+    """
+    host, port = plan4.interactive.http_handler_info
+    assert host == "0.0.0.0"
+
+    mtest_url = (
+        "http://localhost:{}/api/v1/interactive/report/tests/"
+        "ExampleMTest".format(port)
+    )
+    rsp = requests.get(mtest_url)
+    assert rsp.status_code == 200
+    mtest_json = rsp.json()
+    # simultate filtered runs by inputting entries into the json
+    mtest_json["entries"] = [
+        {
+            "name": "Environment Start",
+            "category": "synthesized",
+            "entries": [
+                {"name": "Starting", "category": "synthesized"},
+            ],
+        },
+        {
+            "name": "ExampleSuite",
+            "category": "testsuite",
+            "entries": [
+                {
+                    "category": "testcase",
+                    "name": "test_passes",
+                },
+                {
+                    "category": "testcase",
+                    "name": "test_fails",
+                },
+            ],
+        },
+        {
+            "name": "Environment Stop",
+            "category": "synthesized",
+            "entries": [{"name": "Stopping", "category": "synthesized"}],
+        },
+    ]
+
+    # Trigger multitest to run by updating the report status to RUNNING
+    # and PUTting back the data.
+    mtest_json["runtime_status"] = RuntimeStatus.RUNNING.to_json_compatible()
+    rsp = requests.put(mtest_url, json=mtest_json)
+    assert rsp.status_code == 200
+    updated_json = rsp.json()
+    assert updated_json["hash"] != mtest_json["hash"]
+    assert (
+        updated_json["runtime_status"]
+        == RuntimeStatus.WAITING.to_json_compatible()
+    )
+    test_api.compare_json(
+        updated_json, mtest_json, ignored_keys=["runtime_status", "entries"]
+    )
+
+    timing.wait(
+        functools.partial(
+            _check_test_status,
+            mtest_url,
+            Status.FAILED.to_json_compatible(),
+            RuntimeStatus.READY.to_json_compatible(),
+            updated_json["hash"],
+        ),
+        interval=0.2,
+        timeout=60,
+        raise_on_timeout=True,
     )
 
 
