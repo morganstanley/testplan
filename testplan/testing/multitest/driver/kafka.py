@@ -37,6 +37,7 @@ class KafkaStandaloneConfig(app.AppConfig):
             ConfigOption("controller_port"): int,
             ConfigOption("controller_quorum_voters"): Or(str, None),
             ConfigOption("kafka_storage"): str,
+            ConfigOption("cluster_id"): Or(str, None),
         }
 
 
@@ -69,6 +70,7 @@ class KafkaStandalone(app.App):
         controller_port: int = 0,
         controller_quorum_voters: Optional[str] = None,
         kafka_storage: str = KAFKA_STORAGE,
+        cluster_id: str = None,
         **options,
     ):
         stdout_regexps = [
@@ -91,6 +93,7 @@ class KafkaStandalone(app.App):
             controller_quorum_voters=controller_quorum_voters,
             kafka_storage=kafka_storage,
             install_files=install_files,
+            cluster_id=cluster_id,
             **options,
         )
 
@@ -166,6 +169,8 @@ class KafkaStandalone(app.App):
             self.config_path,
             "--ignore-formatted",
         ]
+        if self.cfg.cluster_id:
+            cmd.extend(["--cluster-id", self.cfg.cluster_id])
         execute_cmd(cmd, env=self.env, label=self.uid(), logger=self.logger)
 
     @property
