@@ -19,6 +19,7 @@ from testplan.report.testing import (
     ReportTagsAction,
     styles,
 )
+from testplan.common.utils.observability import TraceLevel
 from testplan.exporters.testing.failed_tests import FailedTestLevel
 from testplan.testing import common, filtering, listing, ordering
 
@@ -534,6 +535,27 @@ that match ALL of the given tags.
             action="store_true",
             default=self._default_options["collect_code_context"],
             help="Collects file path, line number and code context of the assertions.",
+        )
+
+        report_group.add_argument(
+            "--otel-traces",
+            type=lambda s: TraceLevel[s.upper()],
+            choices=list(TraceLevel),
+            default=self._default_options["otel_traces"],
+            help="Enable OpenTelemetry tracing at specified level.",
+        )
+
+        report_group.add_argument(
+            "--otel-traceparent",
+            default=self._default_options["otel_traceparent"],
+            help="Optional traceparent for OpenTelemetry traces.",
+        )
+
+        report_group.add_argument(
+            "--otel-logs",
+            action="store_true",
+            default=self._default_options["otel_logs"],
+            help="Enable OpenTelemetry logging.",
         )
 
         self.add_arguments(parser)

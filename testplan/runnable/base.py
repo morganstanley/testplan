@@ -47,6 +47,7 @@ from testplan.common.entity import (
     RunnableStatus,
 )
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
+from testplan.common.utils.observability import TraceLevel, tracing
 
 if TYPE_CHECKING:
     from testplan.common.remote.remote_service import RemoteService
@@ -315,6 +316,11 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("driver_info", default=False): bool,
             ConfigOption("collect_code_context", default=False): bool,
             ConfigOption("archive_runpath", default=None): Or(str, None),
+            ConfigOption(
+                "otel_traces", default=defaults.TRACE_LEVEL
+            ): TraceLevel,
+            ConfigOption("otel_traceparent", default=None): Or(str, None),
+            ConfigOption("otel_logs", default=None): bool,
         }
 
 
@@ -1952,4 +1958,5 @@ class TestRunner(Runnable):
             self.result.run = True
             return self.result
 
-        return super().run()
+        with tracing.attach_to_root_context():
+            return super().run()

@@ -26,6 +26,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils import selector, strings
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
+from testplan.common.utils.observability import TraceLevel
 from testplan.common.report import Status, ReportCategories
 from testplan.report.testing.base import TestGroupReport
 from testplan.runners.base import Executor, ExecutorConfig
@@ -305,6 +306,20 @@ class Worker(WorkerBase):
         with self._curr_runnable_lock:
             if self._curr_runnable is not None:
                 self._curr_runnable.abort()
+
+    @property
+    def otel_traces(self) -> TraceLevel:
+        # handle possibly missing ``otel_traces``
+        if not hasattr(self.cfg, "otel_traces"):
+            return TraceLevel.NONE
+        return self.cfg.otel_traces
+
+    @property
+    def otel_logs(self) -> bool:
+        # handle possibly missing ``otel_logs``
+        if not hasattr(self.cfg, "otel_logs"):
+            return False
+        return self.cfg.otel_logs
 
 
 class PoolConfig(ExecutorConfig):
