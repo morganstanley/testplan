@@ -110,3 +110,78 @@ class TestPidFileCheck:
             match=f"Another testplan instance with PID {other_pid}",
         ):
             plan._check_pidfile()
+
+    def test_check_pidfile_stale_remote_process(self, tmpdir):
+        """
+        Test PID file with stale remote process {host}:{port};{pid} format.
+
+        Verifies that when a PID file contains remote process information but
+        the SSH connection (identified by host:port) is no longer ESTABLISHED,
+        the check passes and allows the new testplan to proceed.
+        """
+        plan = TestRunner(name="test", parse_cmdline=False)
+        plan._runpath = str(tmpdir)
+        plan._pidfile_path = os.path.join(plan._runpath, "testplan.pid")
+
+        existing_connections = set()
+        for conn in psutil.net_connections(kind="tcp"):
+            if conn.status == psutil.CONN_ESTABLISHED and conn.raddr:
+                existing_connections.add((conn.raddr.ip, conn.raddr.port))
+
+        fake_host = "192.0.2.1"
+        fake_port = 65432
+
+        while (fake_host, fake_port) in existing_connections:
+            fake_port += 1
+
+        fake_pid = 999999
+        while psutil.pid_exists(fake_pid):
+            fake_pid += 1
+
+        with open(plan._pidfile_path, "w") as f:
+            f.write(f"{fake_host}:{fake_port};{fake_pid}")
+
+        plan._check_pidfile()
+
+    def test_check_pidfile_active_remote_process(self, tmpdir):
+        """
+        Test PID file with active remote process {host}:{port};{pid} format.
+
+        Verifies that when a PID file contains remote process information and
+        an ESTABLISHED TCP connection to the specified host:port exists,
+        a RunpathInUseError is raised to prevent concurrent testplan execution
+        using the same runpath.
+        """
+        plan = TestRunner(name="test", parse_cmdline=False)
+        plan._runpath = str(tmpdir)
+        plan._pidfile_path = os.path.join(plan._runpath, "testplan.pid")
+
+        active_conn = None
+        for conn in psutil.net_connections(kind="tcp"):
+            if (
+                conn.status == psutil.CONN_ESTABLISHED
+                and conn.raddr
+                and conn.raddr.ip
+                and conn.raddr.port
+            ):
+                active_conn = conn
+                break
+
+        if active_conn is None:
+            pytest.skip("No active TCP connection found for testing")
+
+        fake_pid = 999999
+        while psutil.pid_exists(fake_pid):
+            fake_pid += 1
+
+        with open(plan._pidfile_path, "w") as f:
+            f.write(
+                f"{active_conn.raddr.ip}:{active_conn.raddr.port};{fake_pid}"
+            )
+
+        # Should raise because the connection exists
+        with pytest.raises(
+            RunpathInUseError,
+            match=f"Another testplan instance on {active_conn.raddr.ip}",
+        ):
+            plan._check_pidfile()

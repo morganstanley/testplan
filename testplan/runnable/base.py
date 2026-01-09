@@ -1,6 +1,7 @@
 """Tests runner module."""
 
 import inspect
+import ipaddress
 import math
 import os
 import psutil
@@ -1309,25 +1310,69 @@ class TestRunner(Runnable):
 
     def _check_pidfile(self):
         """
-        Check if a PID file exists and if the process is still running.
-        Raises RuntimeError if another testplan instance is using this runpath.
+        Check if a PID file exists and verify if another testplan instance is using this runpath.
+
+        For remote processes (PID file format: {host}:{port};{pid}), verifies the SSH connection
+        is still active by checking for an ESTABLISHED TCP connection to the specified host:port.
+
+        For local processes (PID file format: {pid}), checks if the process is still running.
+
+        Raises RunpathInUseError if another active testplan instance is detected.
         """
 
         if not os.path.exists(self._pidfile_path):
             return
 
         with open(self._pidfile_path, "r") as pid_file:
-            pid_content = pid_file.read().strip()
+            pid_file_content = pid_file.read().strip().split(";")
 
-        if not pid_content or not pid_content.isdigit():
+        if len(pid_file_content) == 1:
+            host, port, pid = None, None, pid_file_content[0]
+        elif len(pid_file_content) == 2:
+            connection_info, pid = pid_file_content
+            if ":" in connection_info:
+                host, port = connection_info.rsplit(":", 1)
+            else:
+                return
+        else:
             return
 
-        pid = int(pid_content)
+        if pid and pid.isdigit():
+            if (
+                host
+                and port.isdigit()
+                and self._is_remote_process_alive(host, int(port))
+            ):
+                raise RunpathInUseError(
+                    f"Another testplan instance on {host} (PID: {pid}) is already using runpath: {self._runpath}"
+                )
+            else:
+                pid = int(pid)
+                if psutil.pid_exists(pid) and pid != os.getpid():
+                    raise RunpathInUseError(
+                        f"Another testplan instance with PID {pid} is already using runpath: {self._runpath}"
+                    )
 
-        if psutil.pid_exists(pid) and pid != os.getpid():
-            raise RunpathInUseError(
-                f"Another testplan instance with PID {pid} is already using runpath: {self._runpath}"
-            )
+    def _is_remote_process_alive(self, host: str, port: int) -> bool:
+        """
+        Check if a remote process is alive by verifying the SSH connection
+        is still active.
+        """
+        try:
+            ipaddress.ip_address(host)
+        except ValueError:
+            return False
+
+        for conn in psutil.net_connections(kind="tcp"):
+            if (
+                conn.status == psutil.CONN_ESTABLISHED
+                and conn.raddr
+                and conn.raddr.ip == host
+                and conn.raddr.port == port
+            ):
+                return True
+
+        return False
 
     def make_runpath_dirs(self):
         """
