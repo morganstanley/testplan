@@ -185,7 +185,6 @@ class ScenarioOutline(ParsedStore, StepContainer):
                 return [resolve(i, data, paths, current) for i in item]
             elif isinstance(item, str):
                 return resolve_text(item)
-
             else:
                 pass  # TODO: Should not happen, raise an Exception?
 
@@ -212,7 +211,7 @@ class ScenarioOutline(ParsedStore, StepContainer):
                         resolve(
                             step,
                             data_dict,
-                            ":.text:.argument.rows.cells.value:.argument.content",
+                            ":.text:.dataTable.rows.cells.value:.docString.content",
                         )
                         for step in self["steps"]
                     ],
