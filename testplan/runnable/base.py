@@ -970,31 +970,31 @@ class TestRunner(Runnable):
             if time_info and isinstance(
                 task_info.materialized_test, MultiTest
             ):
-                if prev_case_count := time_info.get("testcase_count", 0):
-                    # XXX: cache dry_run result somewhere?
-                    # NOTE: get_metadata won't work here since filters not applied
-                    if (
-                        curr_case_count
-                        := task_info.materialized_test.dry_run().report.counter[
-                            "total"
-                        ]
-                    ):
-                        # XXX: lb defined, ub?
-                        adjusted_exec_time = time_info["execution_time"] * max(
-                            curr_case_count / prev_case_count,
-                            MULTITEST_EXEC_TIME_ADJUST_FACTOR_LB,
-                        )
-                        self.logger.user_info(
-                            "%s: adjust estimated total execution time %.2f -> %.2f "
-                            "(prev total testcase number: %d, curr total testcase number: %d)",
-                            uid,
-                            time_info["execution_time"],
-                            adjusted_exec_time,
-                            prev_case_count,
-                            curr_case_count,
-                        )
-                        time_info["execution_time"] = adjusted_exec_time
-                        time_info["testcase_count"] = curr_case_count
+                prev_case_count = time_info.get("testcase_count", 0)
+                curr_case_count = (
+                    task_info.materialized_test.dry_run().report.counter[
+                        "total"
+                    ]
+                )
+                time_info["testcase_count"] = curr_case_count
+                if not curr_case_count:
+                    time_info["execution_time"] = 0
+                elif prev_case_count:
+                    # XXX: lb defined, ub?
+                    adjusted_exec_time = time_info["execution_time"] * max(
+                        curr_case_count / prev_case_count,
+                        MULTITEST_EXEC_TIME_ADJUST_FACTOR_LB,
+                    )
+                    self.logger.user_info(
+                        "%s: adjust estimated total execution time %.2f -> %.2f "
+                        "(prev total testcase number: %d, curr total testcase number: %d)",
+                        uid,
+                        time_info["execution_time"],
+                        adjusted_exec_time,
+                        prev_case_count,
+                        curr_case_count,
+                    )
+                    time_info["execution_time"] = adjusted_exec_time
 
     def _calculate_part_runtime(
         self, discovered: List[TaskInformation]
@@ -1084,12 +1084,16 @@ class TestRunner(Runnable):
                     )
                     num_of_parts = 1
                 else:
-                    # the setup time shall take no more than 50% of runtime
-                    cap = math.ceil(
-                        time_info["execution_time"]
-                        / auto_part_runtime_limit
-                        * 2
+                    cap = min(
+                        time_info["testcase_count"],
+                        # the setup time shall take no more than 50% of runtime
+                        math.ceil(
+                            time_info["execution_time"]
+                            / auto_part_runtime_limit
+                            * 2
+                        ),
                     )
+                    cap = max(cap, 1)
                     formula = f"""
             num_of_parts = math.ceil(
                 time_info["execution_time"] {time_info["execution_time"]}

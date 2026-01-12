@@ -1,0 +1,1 @@
+Added an edge-case check so auto-part for multitest does not split into more parts than testcases.

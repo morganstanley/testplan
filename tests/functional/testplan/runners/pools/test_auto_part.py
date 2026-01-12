@@ -9,6 +9,7 @@ import pytest
 from testplan import TestplanMock
 from testplan.runners.pools.tasks.base import Task
 from testplan.runners.pools.process import ProcessPool
+from testplan.testing.filtering import Pattern
 
 
 def test_auto_parts_discover():
@@ -443,3 +444,66 @@ def test_multitest_weight_adjusted_by_relative_testcase_count(
             assert task.weight == exp_weight
         mockplan.run()
         assert pool.size == math.ceil(exp_weight * exp_parts / 80)
+
+
+def test_auto_parts_capped_by_testcase_count():
+    """
+    initial_num_of_parts = execution_time / (auto_part_runtime_limit - setup_time - teardown_time)
+     = 1000 / (45 - 5 - 0) = 25
+    capped_num_of_parts = 10
+    """
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit=45,
+            plan_runtime_target=200,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 1000,
+                    "setup_time": 5,
+                    "teardown_time": 0,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        mockplan.schedule_all(
+            path=f"{current_folder}/discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+        assert len(pool.added_items) == 10
+        mockplan.run()
+        assert pool.size == 10
+
+
+def test_auto_parts_run_with_zero_testcases():
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit=45,
+            plan_runtime_target=200,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 1000,
+                    "setup_time": 5,
+                    "teardown_time": 0,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        mockplan.schedule_all(
+            path=f"{current_folder}/discover_tasks",
+            name_pattern=r".*auto_parts_zero_testcase_tasks\.py$",
+            resource="MyPool",
+        )
+        assert len(pool.added_items) == 1
+        mockplan.run()
+        assert pool.size == 1
