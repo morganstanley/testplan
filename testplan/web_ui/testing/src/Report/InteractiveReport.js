@@ -500,13 +500,18 @@ class InteractiveReportComponent extends BaseReport {
    */
   pruneReportEntry(reportEntry) {
     const { name, category, entries } = reportEntry;
+    if (category === "synthesized") {
+      return null;
+    }
     const pruneEntry = {
       name: name,
       category: category,
     };
 
     if (!isReportLeaf(reportEntry) && !_.isEmpty(entries)) {
-      pruneEntry.entries = entries.map((entry) => this.pruneReportEntry(entry));
+      pruneEntry.entries = entries
+        .map((entry) => this.pruneReportEntry(entry))
+        .filter((entry) => entry !== null);
     }
 
     return pruneEntry;
@@ -528,9 +533,9 @@ class InteractiveReportComponent extends BaseReport {
 
     // the filter text is either "null" or an empty string, use truthy-falsy
     if (this.state.filteredReport.filter.text) {
-      shallowEntry.entries = entries.map((entry) =>
-        this.pruneReportEntry(entry)
-      );
+      shallowEntry.entries = entries
+        .map((entry) => this.pruneReportEntry(entry))
+        .filter((entry) => entry !== null);
     }
 
     return shallowEntry;
