@@ -957,7 +957,8 @@ class Pool(Executor):
                 )
                 result = TestResult()
                 result.report = TestGroupReport(
-                    name=str(task), category=ReportCategories.ERROR
+                    name=task.uid(),
+                    category=ReportCategories.ERROR,
                 )
                 result_lines = [
                     "{}: {}".format(attr, getattr(task, attr, None) or "")

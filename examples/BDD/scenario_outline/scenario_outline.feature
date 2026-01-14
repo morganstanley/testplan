@@ -6,7 +6,13 @@ Feature: Scenario Outline Example
 
         Given we have two number: <a> and <b>
         When we sum the numbers
+            """
+            with a of value <a> and b of value <b>
+            """
         Then the result is: <expected>
+        And our small table looks good
+            | [a] | [b] | [expected] |
+            | <a> | <b> | <expected> |
 
         Examples: when both positive
             | a   | b   | expected |

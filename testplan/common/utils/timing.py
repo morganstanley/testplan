@@ -441,7 +441,7 @@ def format_duration(duration: int) -> str:
     """
     assert duration > 0, "`duration` must be nonzero number."
 
-    hours = duration / 3600
+    hours = duration // 3600
     minutes = duration // 60 % 60
     seconds = duration % 60
 

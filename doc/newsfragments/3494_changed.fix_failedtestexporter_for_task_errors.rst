@@ -1,0 +1,1 @@
+Fix an issue where the ``FailedTestsExporter`` exports the Task name instead of the test name when tasks encounter errors.

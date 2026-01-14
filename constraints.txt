@@ -71,7 +71,7 @@ contourpy==1.3.3 ; python_full_version >= '3.11'
     # via matplotlib
 coverage==7.10.7 ; python_full_version < '3.10'
     # via testplan
-coverage==7.13.0 ; python_full_version >= '3.10'
+coverage==7.13.1 ; python_full_version >= '3.10'
     # via testplan
 cryptography==46.0.3
     # via paramiko
@@ -99,7 +99,7 @@ exceptiongroup==1.3.1 ; python_full_version < '3.11'
     #   testplan
 filelock==3.19.1 ; python_full_version < '3.10'
     # via virtualenv
-filelock==3.20.0 ; python_full_version >= '3.10'
+filelock==3.20.2 ; python_full_version >= '3.10'
     # via virtualenv
 flask==3.1.2
     # via
@@ -112,15 +112,15 @@ flask-restx==1.3.2
     # via testplan
 fonttools==4.60.2 ; python_full_version < '3.10'
     # via matplotlib
-fonttools==4.61.0 ; python_full_version >= '3.10'
+fonttools==4.61.1 ; python_full_version >= '3.10'
     # via matplotlib
-gherkin-official==37.0.0
+gherkin-official==37.0.1
     # via testplan
 googleapis-common-protos==1.72.0
     # via opentelemetry-exporter-otlp-proto-grpc
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.46
     # via releaseherald
 grpcio==1.76.0
     # via opentelemetry-exporter-otlp-proto-grpc
@@ -132,7 +132,7 @@ idna==3.11
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.7.0
+importlib-metadata==8.7.1
     # via
     #   doit
     #   flask
@@ -179,11 +179,11 @@ markupsafe==3.0.3
     #   flask
     #   jinja2
     #   werkzeug
-marshmallow==3.26.1
+marshmallow==3.26.2
     # via testplan
 matplotlib==3.9.4 ; python_full_version < '3.10'
     # via testplan
-matplotlib==3.10.7 ; python_full_version >= '3.10'
+matplotlib==3.10.8 ; python_full_version >= '3.10'
     # via testplan
 mccabe==0.7.0
     # via pylint
@@ -191,9 +191,9 @@ more-itertools==10.8.0
     # via
     #   cheroot
     #   jaraco-functools
-narwhals==2.13.0
+narwhals==2.14.0
     # via plotly
-nodeenv==1.9.1
+nodeenv==1.10.0
     # via pre-commit
 numpy==2.0.2 ; python_full_version < '3.10'
     # via
@@ -205,7 +205,7 @@ numpy==2.2.6 ; python_full_version == '3.10.*'
     #   contourpy
     #   matplotlib
     #   pandas
-numpy==2.3.5 ; python_full_version >= '3.11'
+numpy==2.4.0 ; python_full_version >= '3.11'
     # via
     #   contourpy
     #   matplotlib
@@ -282,18 +282,18 @@ pluggy==1.6.0
 plumbum==1.10.0
     # via rpyc
 pre-commit==4.3.0 ; python_full_version < '3.10'
-pre-commit==4.5.0 ; python_full_version >= '3.10'
+pre-commit==4.5.1 ; python_full_version >= '3.10'
 protobuf==6.33.0
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-psutil==7.1.3
+psutil==7.2.1
     # via testplan
 pyasn1==0.6.1
     # via paramiko
 pycparser==2.23 ; (implementation_name != 'PyPy' and platform_python_implementation != 'PyPy') or (implementation_name == 'pypy' and platform_python_implementation == 'PyPy')
     # via cffi
-pydantic==1.10.24
+pydantic==1.10.26
     # via releaseherald
 pygments==2.19.2
     # via
@@ -301,9 +301,9 @@ pygments==2.19.2
     #   sphinx
 pylint==3.3.9 ; python_full_version < '3.10'
 pylint==4.0.4 ; python_full_version >= '3.10'
-pynacl==1.6.1
+pynacl==1.6.2
     # via paramiko
-pyparsing==3.2.5
+pyparsing==3.3.1
     # via matplotlib
 pytest==8.4.2 ; python_full_version < '3.10'
     # via
@@ -343,14 +343,16 @@ referencing==0.37.0 ; python_full_version >= '3.10'
     #   flask-restx
     #   jsonschema
     #   jsonschema-specifications
-releaseherald @ git+https://github.com/morganstanley/releaseherald.git@22d29630d748b6ec6f22435baef095d756a7a9d9
-reportlab==4.4.5
+releaseherald @ git+https://github.com/morganstanley/releaseherald.git@9bbe24d60146990084e273bb23edac5bd4dfd80b
+reportlab==4.4.7
     # via testplan
 requests==2.32.5
     # via
     #   sphinx
     #   testplan
-roman-numerals-py==3.1.0 ; python_full_version >= '3.11'
+roman-numerals==4.1.0 ; python_full_version >= '3.11'
+    # via roman-numerals-py
+roman-numerals-py==4.1.0 ; python_full_version >= '3.11'
     # via sphinx
 rpds-py==0.27.1 ; python_full_version < '3.10'
     # via
@@ -362,7 +364,7 @@ rpds-py==0.30.0 ; python_full_version >= '3.10'
     #   referencing
 rpyc==6.0.2
     # via testplan
-ruff==0.14.8
+ruff==0.14.10
 schema==0.7.8
     # via testplan
 setuptools==80.9.0
@@ -407,7 +409,7 @@ sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 termcolor==3.1.0 ; python_full_version < '3.10'
     # via testplan
-termcolor==3.2.0 ; python_full_version >= '3.10'
+termcolor==3.3.0 ; python_full_version >= '3.10'
     # via testplan
 terminaltables==3.1.10
     # via testplan
@@ -436,15 +438,15 @@ typing-extensions==4.15.0
     #   releaseherald
     #   testplan
     #   virtualenv
-tzdata==2025.2
+tzdata==2025.3
     # via
     #   pandas
     #   tzlocal
 tzlocal==5.3.1
     # via testplan
-urllib3==2.6.1
+urllib3==2.6.2
     # via requests
-uv==0.9.17
+uv==0.9.21
     # via testplan
 validators==0.20.0
     # via testplan
