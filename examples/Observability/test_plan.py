@@ -8,7 +8,7 @@ import sys
 import time
 
 from testplan import test_plan
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing.multitest import MultiTest, testsuite, testcase, xfail
 from testplan.common.utils.observability import TraceLevel, tracing
 
 try:
@@ -107,20 +107,20 @@ class TracingExamples:
                 / records_processed,
             )
 
-    # Uncomment to test failure case
-    # @testcase
-    # def test_setting_span_failure(self, env, result):
-    #     """Marking spans as failed if required"""
-    #     with tracing.span("failing_span") as span:
-    #         is_valid = False
-    #         if not is_valid:
-    #             tracing.set_span_as_failed(
-    #                 span=span, description="Validation failed"
-    #             )
-    #             # You can mark the test as failed here if desired
-    #             # result.fail("Validation failed")
-    #         else:
-    #             result.true(True, description="Validation passed")
+    @xfail("failed span demo", strict=True)
+    @testcase
+    def test_setting_span_failure(self, env, result):
+        """Marking spans as failed if required"""
+        with tracing.span("failing_span") as span:
+            is_valid = False
+            if not is_valid:
+                tracing.set_span_as_failed(
+                    span=span, description="Validation failed"
+                )
+                # You can mark the test as failed here if desired
+                # result.fail("Validation failed")
+            else:
+                result.true(True, description="Validation passed")
 
 
 @testsuite
