@@ -43,6 +43,7 @@ from testplan.common.utils.process import (
     subprocess_popen,
 )
 from testplan.common.utils.timing import format_duration, parse_duration
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report import TestCaseReport, TestGroupReport, test_styles
 from testplan.testing import common, filtering, ordering, result, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
@@ -252,6 +253,7 @@ class Test(Runnable):
         self.log_testcase_status = functools.partial(
             self._log_status, indent=TESTCASE_INDENT
         )
+        self._spans = {}
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}[{self.name}]"
@@ -532,9 +534,30 @@ class Test(Runnable):
                 suite_name
             ].runtime_status = RuntimeStatus.FINISHED
 
+    def start_span_and_timer(self, timer_key: str, span_key: str) -> None:
+        self.timer.start(timer_key)
+        if self.otel_traces >= TraceLevel.TESTSUITE:
+            start_time = int(
+                self.timer.last(timer_key).start.timestamp() * 1e9
+            )
+            self._spans[span_key] = tracing.start_span(
+                span_key,
+                start_time=start_time,
+            )
+
+    def end_span_and_timer(self, timer_key: str, span_key: str) -> None:
+        self.timer.end(timer_key)
+        end_time = int(self.timer.last(timer_key).end.timestamp() * 1e9)
+        if span := self._spans.get(span_key):
+            tracing.end_span(span, end_time=end_time)
+
     def add_pre_resource_steps(self) -> None:
         """Runnable steps to be executed before environment starts."""
-        self._add_step(self.timer.start, "setup")
+        self._add_step(
+            self.start_span_and_timer,
+            "setup",
+            "Environment Start",
+        )
         self._add_step(self._init_context)
         self._add_step(self._build_environment)
         self._add_step(self._set_dependencies)
@@ -583,16 +606,28 @@ class Test(Runnable):
 
     def add_pre_main_steps(self) -> None:
         """Runnable steps to run after environment started."""
-        self._add_step(self.timer.end, "setup")
+        self._add_step(
+            self.end_span_and_timer,
+            "setup",
+            "Environment Start",
+        )
 
     def add_post_main_steps(self) -> None:
         """Runnable steps to run before environment stopped."""
-        self._add_step(self.timer.start, "teardown")
+        self._add_step(
+            self.start_span_and_timer,
+            "teardown",
+            "Environment Stop",
+        )
 
     def add_post_resource_steps(self) -> None:
         """Runnable steps to run after environment stopped."""
         self._add_step(self._run_error_handler)
-        self._add_step(self.timer.end, "teardown")
+        self._add_step(
+            self.end_span_and_timer,
+            "teardown",
+            "Environment Stop",
+        )
 
     def run_testcases_iter(
         self, testsuite_pattern: str = "*", testcase_pattern: str = "*"
@@ -969,6 +1004,27 @@ class Test(Runnable):
         """
         return getattr(self.cfg, "collect_code_context", False)
 
+    @property
+    def otel_traces(self) -> bool:
+        # handle possibly missing ``otel_traces``
+        if not hasattr(self.cfg, "otel_traces"):
+            return TraceLevel.NONE
+        return self.cfg.otel_traces
+
+    def _run_batch_steps(self):
+        with (
+            tracing.attach_to_root_context(),  # this is needed for Plan level
+            tracing.conditional_span(
+                name=self.uid(),
+                context=tracing._get_root_context(),
+                condition=self.otel_traces >= TraceLevel.TEST,
+                test_id=self.uid(),
+            ) as test_span,
+        ):
+            super(Test, self)._run_batch_steps()
+            if self.report.failed:
+                tracing.set_span_as_failed(test_span)
+
 
 class ProcessRunnerTestConfig(TestConfig):
     """
@@ -1248,7 +1304,13 @@ class ProcessRunnerTest(Test):
 
         :raises ValueError: upon invalid test command
         """
-        with self.report.timer.record("run"):
+        with (
+            tracing.conditional_span(
+                name=self.name,
+                condition=self.otel_traces >= TraceLevel.TEST,
+            ),
+            self.report.timer.record("run"),
+        ):
             with (
                 self.report.logged_exceptions(),
                 open(self.stderr, "w") as stderr,

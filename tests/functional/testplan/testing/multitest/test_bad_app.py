@@ -3,6 +3,7 @@ from pytest_test_filters import skip_module_on_windows
 skip_module_on_windows(reason='No need to dive into Windows "signals".')
 
 
+import contextlib
 import os
 import re
 import signal
@@ -78,25 +79,25 @@ def make_app(app_args, driver_args, name="app"):
     ),
     ids=count(0),
 )
-def test_basic_loose(app_args, driver_args, suite_cls, mocker):
-    mock_warn = mocker.patch("warnings.warn")
-    mockplan = Mockplan(
-        name="bad_app_mock_test",
+def test_basic_loose(app_args, driver_args, suite_cls):
+    ctx = (
+        pytest.warns(DeprecationWarning, match=r"sigint_timeout.*deprecated")
+        if "sigint_timeout" in driver_args
+        else contextlib.nullcontext()
     )
-    mockplan.add(
-        mt.MultiTest(
-            "dummy_mt",
-            suite_cls(),
-            environment=[make_app(app_args, driver_args)],
-        )
-    )
-    report = mockplan.run().report
 
-    if "sigint_timeout" in driver_args:
-        mock_warn.assert_called_once()
-        assert re.search(
-            r"sigint_timeout.*deprecated", mock_warn.call_args[0][0]
+    with ctx:
+        mockplan = Mockplan(
+            name="bad_app_mock_test",
         )
+        mockplan.add(
+            mt.MultiTest(
+                "dummy_mt",
+                suite_cls(),
+                environment=[make_app(app_args, driver_args)],
+            )
+        )
+        report = mockplan.run().report
 
     # force_stop triggered, direct child terminated
     curr_proc = psutil.Process()

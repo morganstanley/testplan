@@ -18,7 +18,9 @@ from testplan.common.remote.remote_resource import (
 )
 from testplan.common.remote.remote_runtime import RuntimeBuilder
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.observability import tracing
 from testplan.common.utils.path import fix_home_prefix, rebase_path
+from testplan.common.utils.process import kill_process
 from testplan.common.utils.remote import copy_cmd, ssh_cmd
 from testplan.common.utils.timing import get_sleeper, wait
 
@@ -115,6 +117,10 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             "--sys-path-file",
             self._remote_syspath_file,
         ]
+        if self.otel_traces and tracing._get_traceparent():
+            cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
+        if self.otel_logs:
+            cmd.append("--otel-logs")
         if self.parent.resource_monitor_address:
             cmd.extend(
                 [
@@ -165,6 +171,46 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         """Stop child process worker."""
         with self.timer.record("fetch results"):
             self._fetch_results()
+
+    def stopping(self) -> None:
+        """
+        Stop the ssh process.
+        Wait for child.py to naturally exit after cleanup, with timeout fallback.
+        """
+        if not self._handler:
+            return
+
+        # First, wait for the SSH process to exit naturally
+        # This allows child.py to complete its cleanup (stopping child workers, etc.)
+        self.logger.debug(
+            "Waiting for remote worker %s to exit naturally (timeout: %ss)",
+            self.cfg.index,
+            self.cfg.stop_timeout,
+        )
+
+        sleeper = get_sleeper(
+            interval=(0.1, 0.5),
+            timeout=self.cfg.stop_timeout,
+        )
+
+        while next(sleeper):
+            retcode = self._handler.poll()
+            if retcode is not None:
+                self.logger.debug(
+                    "Remote worker %s exited naturally with code %d",
+                    self.cfg.index,
+                    retcode,
+                )
+                return
+
+        # Timeout reached - child.py didn't exit gracefully
+        # Fall back to force-killing the SSH process
+        self.logger.warning(
+            "Remote worker %s did not exit within %ss, force-killing SSH process",
+            self.cfg.index,
+            self.cfg.stop_timeout,
+        )
+        kill_process(self._handler, timeout=1)
 
     def post_stop(self) -> None:
         self._clean_remote()

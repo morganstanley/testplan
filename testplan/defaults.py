@@ -2,6 +2,7 @@
 
 import os
 
+from testplan.common.utils.observability import TraceLevel
 from testplan.report.testing.styles import StyleArg
 from testplan.exporters.testing.failed_tests import FailedTestLevel
 
@@ -18,7 +19,7 @@ SUMMARY_KEY_COMB_LIMIT = 10  # Number of failed key combinations to summary.
 PDF_STYLE = StyleArg.SUMMARY.value
 STDOUT_STYLE = StyleArg.EXTENDED_SUMMARY.value
 FAILED_TESTS_LEVEL = FailedTestLevel.MULTITEST
-
+TRACE_LEVEL = TraceLevel.NONE
 
 REPORT_DIR = os.getcwd()
 XML_DIR = os.path.join(REPORT_DIR, "xml")

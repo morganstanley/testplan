@@ -4,16 +4,25 @@ import os
 import shutil
 import sys
 import tempfile
+import logging
 from logging import Logger, INFO
 from logging.handlers import RotatingFileHandler
+from uuid import uuid4
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 
 import pytest
 
+import testplan
 from testplan import TestplanMock
 from testplan.common.utils.path import VAR_TMP
-
+from testplan.common.utils import observability
+from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.observability import (
+    OtelLogging,
+    RootTraceIdGenerator,
+    Tracing,
+)
 
 # Testplan and various drivers have a `runpath` attribute in their config
 # and intermediate files will be placed under that path during running.
@@ -135,3 +144,197 @@ def captplog(caplog):
     TESTPLAN_LOGGER.addHandler(caplog.handler)
     yield caplog
     TESTPLAN_LOGGER.removeHandler(caplog.handler)
+
+
+# --- Shared Observability Fixtures ---
+
+
+@pytest.fixture(scope="session")
+def session_provider_exporter():
+    """
+    Session-scoped OpenTelemetry provider and in-memory exporter.
+    Sets the global tracer provider once per session.
+    Also resets the Testplan tracing singleton before use to avoid stale state.
+    """
+    pytest.importorskip("opentelemetry")
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
+        InMemorySpanExporter,
+    )
+
+    from opentelemetry import trace
+
+    exporter = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+
+    # Save the original provider (could be None or already set by --otel-traces).
+    original_provider = trace.get_tracer_provider()
+
+    # Forcefully set the test provider for this session.
+    trace._TRACER_PROVIDER = provider
+
+    yield provider, exporter
+    trace._TRACER_PROVIDER = original_provider
+    provider.shutdown()
+
+
+@pytest.fixture
+def test_exporter(session_provider_exporter, mocker):
+    """
+    Function-scoped fixture that provides a clean tracing environment per test.
+    Patches Tracing._setup to use the session provider instead of reading env vars.
+    """
+    from opentelemetry import trace
+
+    provider, exporter = session_provider_exporter
+
+    existing_tracing = observability.tracing
+    original_state = {
+        "tracing_enabled": existing_tracing._tracing_enabled,
+        "root_context": existing_tracing._root_context.copy(),
+        "tracer": existing_tracing._tracer,
+        "tracer_provider": existing_tracing._tracer_provider,
+    }
+    fixture_id_generator = provider.id_generator
+
+    def mock_setup(traceparent=None):
+        if traceparent:
+            existing_tracing._root_context = {"traceparent": traceparent}
+
+        existing_tracing._tracer_provider = provider
+        existing_tracing._tracer_provider.id_generator = RootTraceIdGenerator(
+            existing_tracing
+        )
+        existing_tracing._tracer = trace.get_tracer("testplan_tracer")
+        existing_tracing._tracing_enabled = True
+
+    mocker.patch.object(existing_tracing, "_setup", side_effect=mock_setup)
+    existing_tracing._tracing_enabled = False
+
+    yield exporter
+    exporter.clear()
+
+    existing_tracing._tracing_enabled = original_state["tracing_enabled"]
+    existing_tracing._root_context = original_state["root_context"]
+    existing_tracing._tracer = original_state["tracer"]
+    existing_tracing._tracer_provider = original_state["tracer_provider"]
+    provider.id_generator = fixture_id_generator
+
+
+@pytest.fixture
+def unit_test_tracing(session_provider_exporter):
+    from opentelemetry import trace
+
+    provider, exporter = session_provider_exporter
+    fresh_tracing = Tracing()
+
+    def mock_setup(traceparent=None):
+        if traceparent:
+            fresh_tracing._root_context = {"traceparent": traceparent}
+
+        fresh_tracing._tracer_provider = provider
+        fresh_tracing._tracer = trace.get_tracer("testplan_tracer")
+        fresh_tracing._tracing_enabled = True
+
+    fresh_tracing._setup = mock_setup
+
+    yield fresh_tracing, exporter
+
+    exporter.clear()
+
+
+@pytest.fixture(scope="session")
+def session_provider_log_exporter():
+    pytest.importorskip("opentelemetry")
+    from opentelemetry import _logs
+    from opentelemetry.sdk._logs import LoggerProvider
+    from opentelemetry.sdk._logs.export import (
+        InMemoryLogExporter,
+        SimpleLogRecordProcessor,
+    )
+
+    """
+    Session-scoped OpenTelemetry logger provider and in-memory exporter for logs.
+    Sets the global logger provider once per session.
+    """
+
+    exporter = InMemoryLogExporter()
+    provider = LoggerProvider()
+    provider.add_log_record_processor(SimpleLogRecordProcessor(exporter))
+
+    # Save the original provider (could be None or already set by --otel-logs).
+    original_provider = _logs.get_logger_provider()
+
+    # Forcefully set the log provider for this session.
+    _logs._LOGGER_PROVIDER = provider
+
+    yield provider, exporter
+    _logs._LOGGER_PROVIDER = original_provider
+    provider.shutdown()
+
+
+@pytest.fixture
+def test_log_exporter(session_provider_log_exporter, mocker):
+    """
+    Function-scoped fixture that provides a clean logging environment per test.
+    Patches OtelLogging._setup to use the session provider instead of reading env vars.
+    """
+    from opentelemetry.sdk._logs import LoggingHandler
+
+    provider, exporter = session_provider_log_exporter
+
+    existing_logging = observability.otel_logging
+    original_state = {
+        "logging_enabled": existing_logging._logging_enabled,
+        "logger_provider": existing_logging._logger_provider,
+        "handlers": TESTPLAN_LOGGER.handlers.copy(),
+    }
+
+    def mock_setup():
+        existing_logging._logging_enabled = True
+        existing_logging._logger_provider = provider
+        otel_handler = LoggingHandler(
+            level=logging.DEBUG, logger_provider=provider
+        )
+        otel_handler.setLevel(logging.DEBUG)
+        TESTPLAN_LOGGER.addHandler(otel_handler)
+
+    mocker.patch.object(existing_logging, "_setup", side_effect=mock_setup)
+    existing_logging._logging_enabled = False
+
+    yield exporter
+    exporter.clear()
+
+    existing_logging._logging_enabled = original_state["logging_enabled"]
+    existing_logging._logger_provider = original_state["logger_provider"]
+    TESTPLAN_LOGGER.handlers = original_state["handlers"]
+
+
+@pytest.fixture
+def unit_test_logging(session_provider_log_exporter):
+    from opentelemetry.sdk._logs import LoggingHandler
+
+    provider, exporter = session_provider_log_exporter
+    fresh_logging = OtelLogging()
+
+    logger = logging.getLogger(f"otel_test_logger_{uuid4()}")
+    logger.propagate = False
+    logger.setLevel(logging.DEBUG)
+    logger.handlers = []
+
+    def mock_setup():
+        fresh_logging._logging_enabled = True
+        fresh_logging._logger_provider = provider
+        otel_handler = LoggingHandler(
+            level=logging.DEBUG, logger_provider=provider
+        )
+        logger.addHandler(otel_handler)
+
+    fresh_logging._setup = mock_setup
+
+    yield fresh_logging, logger, exporter
+
+    exporter.clear()
+    logger.handlers = []

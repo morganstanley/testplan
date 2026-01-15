@@ -510,8 +510,11 @@ def test_invalid_name_func(suite_reloaded, name_func, msg, err):
 
 def test_unwanted_testcase_name(mockplan):
     """Custom naming function should return a valid non-empty string."""
-    with mock.patch("warnings.warn", return_value=None) as mock_warn:
-        long_string = "c" * (MAX_TEST_NAME_LENGTH + 1)
+    long_string = "c" * (MAX_TEST_NAME_LENGTH + 1)
+    with pytest.warns(
+        UserWarning,
+        match=f"The name name_func returned \\({long_string}\\) is too long, using index suffixed names.",
+    ) as record:
 
         @testsuite
         class MySuite:
@@ -525,8 +528,6 @@ def test_unwanted_testcase_name(mockplan):
         multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
         mockplan.add(multitest)
         mockplan.run()
-
-    mock_warn.assert_called_once()
 
 
 def test_custom_wrapper():

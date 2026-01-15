@@ -31,6 +31,7 @@ KNOWN_EXCEPTIONS = [
     r"lost connection",
     r"RuntimeError: Testcase raises",  # Expected error raised by PyUnit example.
     r"Certain packages failed to import, please consider install Testplan package with `plotly` extra to run this example.",  # Missing plotly package. Will skip Plotly example.
+    r"Certain packages failed to import, please consider install Testplan package with `observability` extra to run this example.",  # Missing opentelemetry packages. Will skip Observability example.
 ]
 
 SKIP = [
@@ -55,6 +56,10 @@ if not REMOTE_HOST:
             os.path.join("RemoteDriver", "Basic", "test_plan.py"),
         )
     )
+
+OTEL_ENV = os.environ.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT")
+if not OTEL_ENV:
+    SKIP.append(os.path.join("Observability", "test_plan.py"))
 
 SKIP_ON_WINDOWS = [
     os.path.join("Cpp", "GTest", "test_plan.py"),

@@ -27,6 +27,8 @@ def parse_cmdline():
     parser.add_argument("--remote-pool-size", action="store", default=1)
     parser.add_argument("--sys-path-file", action="store")
     parser.add_argument("--resource-monitor-server", action="store")
+    parser.add_argument("--otel-traceparent", action="store", default="")
+    parser.add_argument("--otel-logs", action="store_true", default=False)
     return parser.parse_args()
 
 
@@ -44,6 +46,8 @@ class ChildLoop:
         pool_size,
         worker_type,
         logger,
+        otel_traceparent,
+        otel_logs,
         runpath=None,
     ):
         self._metadata = {"index": index, "pid": os.getpid()}
@@ -53,6 +57,8 @@ class ChildLoop:
         self._pool_cfg = None
         self._worker_type = worker_type
         self._to_heartbeat = float(0)
+        self._otel_traceparent = otel_traceparent
+        self.otel_logs = otel_logs
         self.runpath = runpath
         self.logger = logger
 
@@ -82,6 +88,8 @@ class ChildLoop:
             signum,
             threading.current_thread(),
         )
+        tracing.force_flush()
+        otel_logging.force_flush()
         if self._pool:
             self._pool.abort()
             os.kill(os.getpid(), 9)
@@ -169,6 +177,7 @@ class ChildLoop:
         sends back results to the main pool.
         """
         from testplan.runners.pools.communication import Message
+        from testplan.common.utils.observability import otel_logging, tracing
 
         message = Message(**self.metadata)
 
@@ -181,6 +190,11 @@ class ChildLoop:
                 expect=message.Ack,
             )
             return
+
+        if self._otel_traceparent:
+            tracing._setup(self._otel_traceparent)
+            if self.otel_logs:
+                otel_logging._setup()
 
         with self._child_pool():
             message = Message(**self.metadata)
@@ -379,7 +393,14 @@ def child_logic(args):
 
     if args.type == "process_worker":
         loop = ChildLoop(
-            args.index, transport, NoRunpathPool, 1, Worker, TESTPLAN_LOGGER
+            args.index,
+            transport,
+            NoRunpathPool,
+            1,
+            Worker,
+            TESTPLAN_LOGGER,
+            args.otel_traceparent,
+            args.otel_logs,
         )
         loop.worker_loop()
 
@@ -398,6 +419,8 @@ def child_logic(args):
             args.remote_pool_size,
             worker_type,
             TESTPLAN_LOGGER,
+            args.otel_traceparent,
+            args.otel_logs,
             runpath=args.runpath,
         )
         loop.worker_loop()
@@ -451,6 +474,7 @@ if __name__ == "__main__":
         TESTPLAN_LOGGER,
         STDOUT_HANDLER,
     )
+    from testplan.common.utils.observability import otel_logging, tracing
 
     resource_monitor_client = None
     if ARGS.resource_monitor_server:
@@ -460,9 +484,10 @@ if __name__ == "__main__":
             ARGS.resource_monitor_server
         )
         resource_monitor_client.start()
-
     child_logic(ARGS)
     print("child.py exiting")
+    tracing.force_flush()
+    otel_logging.force_flush()
     if resource_monitor_client:
         resource_monitor_client.stop()
     os._exit(0)

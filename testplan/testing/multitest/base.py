@@ -12,6 +12,7 @@ from schema import And, Or, Use
 from testplan.common import config, entity
 from testplan.common.utils import interface, strings, timing, watcher
 from testplan.common.utils.composer import compose_contexts
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.common.report import (
     ReportCategories,
     RuntimeStatus,
@@ -818,7 +819,13 @@ class MultiTest(testing_base.Test):
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
 
-        with testsuite_report.timer.record("run"):
+        with (
+            tracing.conditional_span(
+                name=testsuite.name,
+                condition=(self.otel_traces >= TraceLevel.TESTSUITE),
+            ) as testsuite_span,
+            testsuite_report.timer.record("run"),
+        ):
             with self.watcher.save_covered_lines_to(testsuite_report):
                 setup_report = self._setup_testsuite(testsuite)
             if setup_report is not None:
@@ -828,6 +835,7 @@ class MultiTest(testing_base.Test):
                         teardown_report = self._teardown_testsuite(testsuite)
                     if teardown_report is not None:
                         testsuite_report.append(teardown_report)
+                    tracing.set_span_as_failed(testsuite_span)
                     return testsuite_report
 
             serial_cases, parallel_cases = (
@@ -870,9 +878,12 @@ class MultiTest(testing_base.Test):
             if teardown_report is not None:
                 testsuite_report.append(teardown_report)
 
-        # if testsuite is marked xfail by user, override its status
-        if hasattr(testsuite, "__xfail__"):
-            testsuite_report.xfail(testsuite.__xfail__["strict"])
+            # if testsuite is marked xfail by user, override its status
+            if hasattr(testsuite, "__xfail__"):
+                testsuite_report.xfail(testsuite.__xfail__["strict"])
+
+            if testsuite_report.failed:
+                tracing.set_span_as_failed(testsuite_span)
 
         testsuite_report.runtime_status = RuntimeStatus.FINISHED
 
@@ -1213,7 +1224,15 @@ class MultiTest(testing_base.Test):
             self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_END)
             return testcase_report
 
-        with testcase_report.timer.record("run"):
+        testcase_span = None
+        with (
+            tracing.conditional_span(
+                name=testcase.name,
+                condition=self.otel_traces >= TraceLevel.TESTCASE,
+                test_id=f"{self.uid()}:{testsuite.uid()}:{testcase.__name__}",
+            ) as testcase_span,
+            testcase_report.timer.record("run"),
+        ):
             with compose_contexts(
                 testcase_report.logged_exceptions(),
                 self.watcher.save_covered_lines_to(testcase_report),
@@ -1263,24 +1282,27 @@ class MultiTest(testing_base.Test):
                         testcase, TestLifecycle.POST_TESTCASE_END
                     )
 
-        # Apply testcase level summarization
-        if getattr(testcase, "summarize", False):
-            case_result.entries = [
-                entries_base.Summary(
-                    entries=case_result.entries,
-                    num_passing=testcase.summarize_num_passing,
-                    num_failing=testcase.summarize_num_failing,
-                    key_combs_limit=testcase.summarize_key_combs_limit,
-                )
-            ]
+            # Apply testcase level summarization
+            if getattr(testcase, "summarize", False):
+                case_result.entries = [
+                    entries_base.Summary(
+                        entries=case_result.entries,
+                        num_passing=testcase.summarize_num_passing,
+                        num_failing=testcase.summarize_num_failing,
+                        key_combs_limit=testcase.summarize_key_combs_limit,
+                    )
+                ]
 
-        # native assertion objects -> dict form
-        testcase_report.extend(case_result.serialized_entries)
-        testcase_report.attachments.extend(case_result.attachments)
+            # native assertion objects -> dict form
+            testcase_report.extend(case_result.serialized_entries)
+            testcase_report.attachments.extend(case_result.attachments)
 
-        # If xfailed testcase, force set status_override and update result
-        if hasattr(testcase, "__xfail__"):
-            testcase_report.xfail(testcase.__xfail__["strict"])
+            # If xfailed testcase, force set status_override and update result
+            if hasattr(testcase, "__xfail__"):
+                testcase_report.xfail(testcase.__xfail__["strict"])
+
+            if not case_result.passed:
+                tracing.set_span_as_failed(testcase_span)
 
         testcase_report.pass_if_empty()
         testcase_report.runtime_status = RuntimeStatus.FINISHED
