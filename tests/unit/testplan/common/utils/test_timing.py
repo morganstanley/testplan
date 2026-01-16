@@ -3,7 +3,7 @@ import datetime
 
 import pytest
 
-from testplan.common.utils.timing import Interval, Timer, utcnow
+from testplan.common.utils.timing import Interval, Timer, utcnow, wait
 
 
 def test_interval():
@@ -87,3 +87,30 @@ class TestTimer:
 
         # TODO check why 1 (sleep_durtion) <= 0.9999 (elapsed)
         # assert sleep_duration <= timer['my_key'][-1].elapsed <= sleep_duration + sleeper_delta
+
+
+class TestWait:
+    def test_wait_truthy_value(self):
+        """wait() should accept truthy values, not just boolean True."""
+        result = wait(lambda: "non-empty string", timeout=1)
+        assert result == "non-empty string"
+
+    def test_wait_truthy_list(self):
+        """wait() should accept a non-empty list as truthy."""
+        result = wait(lambda: [1, 2, 3], timeout=1)
+        assert result == [1, 2, 3]
+
+    def test_wait_truthy_dict(self):
+        """wait() should accept a non-empty dict as truthy."""
+        result = wait(lambda: {"key": "value"}, timeout=1)
+        assert result == {"key": "value"}
+
+    def test_wait_truthy_number(self):
+        """wait() should accept a non-zero number as truthy."""
+        result = wait(lambda: 42, timeout=1)
+        assert result == 42
+
+    def test_wait_boolean_true(self):
+        """wait() should still accept boolean True."""
+        result = wait(lambda: True, timeout=1)
+        assert result is True

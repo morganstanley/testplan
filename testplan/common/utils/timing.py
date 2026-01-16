@@ -151,13 +151,13 @@ def timeout(
 
 
 def wait(
-    predicate: Callable[[], bool],
+    predicate: Callable[[], Any],
     timeout: int,
     interval: float = 0.05,
     raise_on_timeout: bool = True,
-) -> bool:
+) -> Any:
     """
-    Wait until a predicate evaluates to True.
+    Wait until a predicate evaluates to a truthy value.
 
     :param predicate: Input predicate.
     :type predicate: ``callable``
@@ -168,14 +168,14 @@ def wait(
     :param raise_on_timeout: Raise exception if hits timeout, defaults to True.
     :type raise_on_timeout: ``bool``
     :return: Predicate result.
-    :rtype: ``bool``
+    :rtype: ``Any``
     """
     start_time = time.time()
     end_time = start_time + timeout
     while True:
         res = predicate()
         error_msg = getattr(res, "error_msg", "")
-        if res is True:
+        if res:
             return res
         elif time.time() < end_time:
             # no timeout yet
