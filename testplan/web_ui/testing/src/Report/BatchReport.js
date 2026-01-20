@@ -19,6 +19,7 @@ import {
   findFirstFailure,
   filterReport,
   getSelectedUIDsFromPath,
+  applyPartsMerge,
 } from "./reportUtils";
 import { generateSelectionPath } from "./path";
 
@@ -30,7 +31,11 @@ import {
 } from "../Common/fakeReport";
 import { ErrorBoundary } from "../Common/ErrorBoundary";
 import { useAtomValue } from "jotai";
-import { displayTimeInfoPreference, timeInfoUTCPreference } from "../UserSettings/UserSettings";
+import {
+  displayTimeInfoPreference,
+  timeInfoUTCPreference,
+  mergeMultitestPartsPreference,
+} from "../UserSettings/UserSettings";
 
 /**
  * BatchReport component:
@@ -42,11 +47,13 @@ import { displayTimeInfoPreference, timeInfoUTCPreference } from "../UserSetting
 const BatchReport = (props) => {
   const displayTimeInfo = useAtomValue(displayTimeInfoPreference);
   const UTCTimeInfo = useAtomValue(timeInfoUTCPreference);
+  const mergeParts = useAtomValue(mergeMultitestPartsPreference);
   return (
     <BatchReportComponent
       {...props}
       displayTime={displayTimeInfo}
       UTCTime={UTCTimeInfo}
+      mergeParts={mergeParts}
     />
   );
 };
@@ -261,9 +268,13 @@ class BatchReportComponent extends BaseReport {
       window.document.title = this.state.report.name;
     }
 
+    const displayReport = this.props.mergeParts
+      ? applyPartsMerge(this.state.filteredReport.report)
+      : this.state.filteredReport.report;
+
     const selectedEntries = GetSelectedEntries(
       getSelectedUIDsFromPath(this.props.match.params),
-      this.state.filteredReport.report
+      displayReport
     );
 
     if (selectedEntries.length) {
@@ -298,6 +309,7 @@ class BatchReportComponent extends BaseReport {
           updateTagsDisplayFunc={this.updateTagsDisplay}
           current_pannel={this.state.currentPanelView}
           switchPanelViewFunc={this.updatePanelView}
+          mergeParts={this.props.mergeParts}
         />
         <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
         <div
@@ -310,7 +322,7 @@ class BatchReportComponent extends BaseReport {
           <Nav
             interactive={false}
             navListWidth={this.state.navWidth}
-            report={this.state.filteredReport.report}
+            report={displayReport}
             selected={selectedEntries}
             filter={this.state.filter}
             displayTags={this.state.displayTags}

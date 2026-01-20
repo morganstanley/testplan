@@ -58,6 +58,7 @@ import {
   hideSkippedTestcasesPreference,
   useTreeViewPreference,
   showStatusIconsPreference,
+  mergeMultitestPartsPreference,
 } from "../UserSettings/UserSettings";
 import { useAtom, useAtomValue } from "jotai";
 import _ from "lodash";
@@ -267,6 +268,9 @@ const ToolbarPreferencesButton = ({ toolbarStyle }) => {
         </UserPreferenceCheckbox>
         <UserPreferenceCheckbox preferenceAtom={hideSkippedTestcasesPreference}>
           Hide skipped testcases
+        </UserPreferenceCheckbox>
+        <UserPreferenceCheckbox preferenceAtom={mergeMultitestPartsPreference}>
+          Merge multitest parts
         </UserPreferenceCheckbox>
       </DropdownMenu>
     </UncontrolledDropdown>

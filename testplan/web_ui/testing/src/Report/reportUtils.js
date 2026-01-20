@@ -64,6 +64,244 @@ function _mergeTags(tagsA, tagsB) {
 }
 
 /**
+ * Merge counters from multiple report entries.
+ *
+ * @param {Array} parts - Array of report entries to merge counters from.
+ * @returns {Object} - Merged counter object.
+ * @private
+ */
+const _mergeCounters = (parts) => {
+  return parts.reduce(
+    (acc, part) => ({
+      passed: acc.passed + (part.counter.passed),
+      failed: acc.failed + (part.counter.failed),
+      total: acc.total + (part.counter.total),
+      error: acc.error + (part.counter.error || 0),
+    }),
+    { passed: 0, failed: 0, total: 0, error: 0 }
+  );
+};
+
+/**
+ * Compute combined status from multiple report entries.
+ * Priority: error > failed > passed > unknown
+ *
+ * @param {Array} parts - Array of report entries.
+ * @returns {string} - Combined status.
+ * @private
+ */
+const _mergeStatus = (parts) => {
+  const statuses = parts.map((p) => p.status);
+  if (statuses.includes("error")) return "error";
+  if (statuses.includes("failed")) return "failed";
+  if (statuses.includes("passed")) return "passed";
+  return "unknown";
+};
+
+/**
+ * Build common merged fields from a group of entries.
+ *
+ * @param {Array} group - Array of entries to merge.
+ * @returns {Object} - Common merged fields.
+ * @private
+ */
+const _mergeCommonFields = (group) => ({
+  counter: _mergeCounters(group),
+  timer: null,
+  status: _mergeStatus(group),
+  status_override:
+    group.find((e) => e.status_override)?.status_override ?? null,
+  tags: group.reduce((acc, e) => _mergeTags(acc, e.tags || {}), {}),
+  logs: group.flatMap((e) => e.logs || []),
+  _allPartUids: [
+    ...new Set(
+      group.flatMap((e) => (e._allPartUids ? e._allPartUids : [e.uid]))
+    ),
+  ],
+});
+
+/**
+ * Flatten a report entry tree into a pre-order list.
+ * Each entry is annotated with _parentPath (array of ancestor definition_names).
+ * Synthesized entries are skipped.
+ *
+ * @param {Object} entry - The entry to flatten.
+ * @param {Array} parentPath - Path of ancestor definition_names.
+ * @returns {Array} - Flattened array of entries with _parentPath.
+ * @private
+ */
+const _preOrderFlatten = (entry, parentPath = []) => {
+  if (entry.category === "synthesized") return [];
+
+  const annotated = { ...entry, _parentPath: parentPath };
+  const result = [annotated];
+
+  const currentPath = [...parentPath, entry.definition_name];
+  for (const child of entry.entries || []) {
+    result.push(..._preOrderFlatten(child, currentPath));
+  }
+
+  annotated.entries = [];
+  return result;
+};
+
+/**
+ * Find the parent node in the merged tree using parentPath.
+ * Since we process entries in pre-order, parents are always added before children.
+ *
+ * @param {Object} root - The root of the merged tree.
+ * @param {Array} parentPath - Array of ancestor definition_names.
+ * @returns {Object} - The parent node where the entry should be added.
+ * @private
+ */
+const _findParent = (root, parentPath) => {
+  let current = root;
+  for (const defName of parentPath) {
+    current = current.entries.find((e) => e.definition_name === defName);
+  }
+  return current;
+};
+
+/**
+ * Add an entry to the merged tree, creating parent structure as needed.
+ * If a structure entry (suite/parametrization) already exists, merge metadata.
+ * If a test case, always append.
+ *
+ * @param {Object} root - The root of the merged tree.
+ * @param {Object} entry - The entry to add (with _parentPath).
+ * @private
+ */
+const _addEntryToMerged = (root, entry) => {
+  const parentPath = entry._parentPath || [];
+  const parent = _findParent(root, parentPath);
+  const { _parentPath, ...cleanEntry } = entry;
+
+  if (isReportLeaf(entry)) {
+    parent.entries.push(cleanEntry);
+  } else {
+    const existing = parent.entries.find(
+      (e) => e.definition_name === entry.definition_name
+    );
+    if (existing) {
+      Object.assign(existing, _mergeCommonFields([existing, entry]));
+    } else {
+      parent.entries.push({ ...cleanEntry, entries: [] });
+    }
+  }
+};
+
+/**
+ * Recursively tag all entries with their source multitest UID.
+ * This is needed so test cases know which assertion file to look in.
+ *
+ * @param {Array} entries - Array of entries to tag.
+ * @param {string} sourceMultitestUid - The UID of the source multitest.
+ * @private
+ */
+const _tagEntriesWithSource = (entries, sourceMultitestUid) => {
+  if (!entries) return;
+  for (const entry of entries) {
+    entry._sourceMultitestUid = sourceMultitestUid;
+    if (entry.entries && entry.entries.length > 0) {
+      _tagEntriesWithSource(entry.entries, sourceMultitestUid);
+    }
+  }
+};
+
+/**
+ * Merge multiple multitest parts into a single entry.
+ * Uses round-robin insertion: process each part until a testcase is inserted,
+ * then move to the next part. This preserves correct test case ordering.
+ *
+ * @param {string} baseName - The base name (definition_name) for the merged entry.
+ * @param {Array} parts - Array of part entries to merge.
+ * @returns {Object} - Merged multitest entry.
+ * @private
+ */
+const _mergeParts = (baseName, parts) => {
+  const sortedParts = _.sortBy(parts, (p) => p.part[0]);
+  const first = sortedParts[0];
+
+  for (const part of sortedParts) {
+    _tagEntriesWithSource(part.entries, part.uid);
+  }
+
+  const flattenedParts = sortedParts.map((part) =>
+    part.entries.flatMap((child) => _preOrderFlatten(child))
+  );
+
+  // [0, 0, 0...] for each part
+  const pointers = sortedParts.map(() => 0);
+
+  const merged = {
+    ...first,
+    name: baseName,
+    part: null,
+    entries: [],
+    ..._mergeCommonFields(sortedParts),
+  };
+
+  const hasMoreEntries = () =>
+    pointers.some((cursor, i) => cursor < flattenedParts[i].length);
+
+  while (hasMoreEntries()) {
+    for (let partIdx = 0; partIdx < sortedParts.length; partIdx++) {
+      const flat = flattenedParts[partIdx];
+
+      while (pointers[partIdx] < flat.length) {
+        const entry = flat[pointers[partIdx]];
+        pointers[partIdx]++;
+
+        _addEntryToMerged(merged, entry);
+
+        if (isReportLeaf(entry)) {
+          break;
+        }
+      }
+    }
+  }
+
+  return merged;
+};
+
+/**
+ * Merge multitest parts that share the same definition_name.
+ * Parts are identified by having a non-null `part` field (e.g., [0, 2]).
+ * Synthesized entries are discarded during merge.
+ *
+ * @param {Array} entries - Array of report entries at the same level.
+ * @returns {Array} - Entries with parts merged.
+ * @private
+ */
+const mergeMultitestParts = (entries) => {
+  if (!entries || entries.length === 0) return entries;
+
+  const partGroups = {};
+  const result = [];
+
+  for (const entry of entries) {
+    if (Array.isArray(entry.part)) {
+      const key = entry.definition_name;
+      if (!partGroups[key]) {
+        partGroups[key] = { index: result.length, entries: [] };
+        result.push(null);
+      }
+      partGroups[key].entries.push(entry);
+    } else {
+      result.push(entry);
+    }
+  }
+
+  for (const [baseName, { index, entries: group }] of
+    Object.entries(partGroups)) {
+    const merged = _mergeParts(baseName, group);
+    result[index] = merged;
+  }
+
+  return result;
+};
+
+/**
  * Merge assertions and structure into main report.
  *
  * @param {Object} mainReport - Main report with meta data.
@@ -87,6 +325,45 @@ const MergeSplittedReport = (mainReport, assertions, structure) => {
   }
   mainReport.entries = structure;
   return mainReport;
+};
+
+/**
+ * Update uids to reflect merged tree structure while preserving originals.
+ * Stores current uids as _originalUids, then sets new uids based on parent path.
+ * The new uids field is for tree view node structure
+ * the _originalUids is for url generation in the node
+ *
+ * @param {Array} entries - Array of report entries.
+ * @param {Array} parentUids - Parent's uid path.
+ * @private
+ */
+const _updateUidsForMergedTree = (entries, parentUids) => {
+  if (!entries) return;
+  for (const entry of entries) {
+    if (entry.uids) {
+      entry._originalUids = entry.uids;
+    }
+    entry.uids = [...parentUids, entry.uid];
+    if (entry.entries) {
+      _updateUidsForMergedTree(entry.entries, entry.uids);
+    }
+  }
+};
+
+/**
+ * Apply multitest parts merging to a report.
+ * Creates a deep copy to avoid mutating the original.
+ * Updates uids after merging so tree structure is consistent.
+ *
+ * @param {Object} report - The report to process.
+ * @returns {Object} - Report with merged multitest parts.
+ */
+const applyPartsMerge = (report) => {
+  if (!report) return report;
+  const cloned = _.cloneDeep(report);
+  cloned.entries = mergeMultitestParts(cloned.entries);
+  _updateUidsForMergedTree(cloned.entries, [cloned.uid]);
+  return cloned;
 };
 
 /**
@@ -228,7 +505,10 @@ const CenterPane = ({
         reportUid !== null
       ) {
         // version 3 report structure
-        const assertionFileName = getAssertionsFileName(selectedEntries[1].uid);
+        // Use _sourceMultitestUid if available (merged multitest parts)
+        const multitestUid =
+          selectedEntry._sourceMultitestUid || selectedEntries[1].uid;
+        const assertionFileName = getAssertionsFileName(multitestUid);
         if (assertionsCache.hasOwnProperty(assertionFileName)) {
           const _assertions = getAssertions(
             selectedEntries,
@@ -450,8 +730,11 @@ const GetSelectedEntries = (selectedUIDs, report) => {
   }
 
   if (tailSelectedUIDs.length > 0) {
+    const targetUid = tailSelectedUIDs[0];
     const childEntry = report.entries.find(
-      (entry) => entry.uid === tailSelectedUIDs[0]
+      (entry) =>
+        entry.uid === targetUid ||
+        (entry._allPartUids && entry._allPartUids.includes(targetUid))
     );
     return [report, ...GetSelectedEntries(tailSelectedUIDs, childEntry)];
   } else {
@@ -523,4 +806,5 @@ export {
   filterReport,
   isValidSelection,
   getSelectedUIDsFromPath,
+  applyPartsMerge,
 };

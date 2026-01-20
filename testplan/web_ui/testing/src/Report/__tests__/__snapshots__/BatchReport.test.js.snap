@@ -39188,6 +39188,22 @@ exports[`BatchReport renders loading message when fetching report 1`] = `
                               Hide skipped testcases
                             </label>
                           </button>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Merge multitest parts
+                            </label>
+                          </button>
                         </div>
                       </li>
                       <li
@@ -39945,6 +39961,51 @@ exports[`BatchReport renders loading message when fetching report 1`] = `
                                             </Input>
                                              
                                             Hide skipped testcases
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
+                                  >
+                                    <DropdownItem
+                                      className="dropdownItem_1h5fos4"
+                                      toggle={false}
+                                    >
+                                      <button
+                                        className="dropdownItem_1h5fos4 dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
+                                      >
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_1wpifct"
+                                        >
+                                          <label
+                                            className="filterLabel_1wpifct form-check-label"
+                                          >
+                                            <Input
+                                              checked={false}
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                            >
+                                              <input
+                                                checked={false}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Merge multitest parts
                                           </label>
                                         </Label>
                                       </button>
@@ -44907,6 +44968,22 @@ ZeroDivisionError: integer division or modulo by zero
                               Hide skipped testcases
                             </label>
                           </button>
+                          <button
+                            class="dropdownItem_1h5fos4 dropdown-item"
+                            role="menuitem"
+                            tabindex="0"
+                          >
+                            <label
+                              class="filterLabel_1wpifct form-check-label"
+                            >
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                              />
+                               
+                              Merge multitest parts
+                            </label>
+                          </button>
                         </div>
                       </li>
                       <li
@@ -45664,6 +45741,51 @@ ZeroDivisionError: integer division or modulo by zero
                                             </Input>
                                              
                                             Hide skipped testcases
+                                          </label>
+                                        </Label>
+                                      </button>
+                                    </DropdownItem>
+                                  </UserPreferenceCheckbox>
+                                  <UserPreferenceCheckbox
+                                    preferenceAtom={
+                                      Object {
+                                        "read": [Function],
+                                        "toString": [Function],
+                                        "write": [Function],
+                                      }
+                                    }
+                                  >
+                                    <DropdownItem
+                                      className="dropdownItem_1h5fos4"
+                                      toggle={false}
+                                    >
+                                      <button
+                                        className="dropdownItem_1h5fos4 dropdown-item"
+                                        onClick={[Function]}
+                                        role="menuitem"
+                                        tabIndex="0"
+                                      >
+                                        <Label
+                                          check={true}
+                                          className="filterLabel_1wpifct"
+                                        >
+                                          <label
+                                            className="filterLabel_1wpifct form-check-label"
+                                          >
+                                            <Input
+                                              checked={false}
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                            >
+                                              <input
+                                                checked={false}
+                                                className="form-check-input"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </Input>
+                                             
+                                            Merge multitest parts
                                           </label>
                                         </Label>
                                       </button>

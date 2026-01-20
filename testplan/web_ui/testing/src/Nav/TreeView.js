@@ -235,11 +235,12 @@ const Node = (props) => {
   const { setSelectedElement, transitionFinishedCallback } =
     useContext(SelectionContext);
 
+  const urlUids = props.entry._originalUids || props.entry.uids;
   let [reportuid, ...selectionuids] = !props.interactive
-    ? props.entry.uids
+    ? urlUids
     : base64url
-    ? props.entry.uids.map(base64url)
-    : props.entry.uids;
+    ? urlUids.map(base64url)
+    : urlUids;
   const linkTo = generateURLWithParameters(
     window.location,
     generatePath(props.url, {
