@@ -309,7 +309,6 @@ class BatchReportComponent extends BaseReport {
           updateTagsDisplayFunc={this.updateTagsDisplay}
           current_pannel={this.state.currentPanelView}
           switchPanelViewFunc={this.updatePanelView}
-          mergeParts={this.props.mergeParts}
         />
         <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
         <div
