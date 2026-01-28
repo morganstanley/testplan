@@ -22,8 +22,9 @@ const CELL_RENDERER = Object.freeze({
  * Base assertion used to render dict and fix match assertions.
  */
 export default function MatchBaseAssertion(props) {
-  const flattenedDict = sortFlattenedJSON(
-    preprocessDictRows(props.assertion.comparison, true),
+  const flattenedDict = preprocessDictRows(props.assertion.comparison, true);
+  const sortedByStatusDict = sortFlattenedJSON(
+    flattenedDict,
     0,
     false,
     true
@@ -34,7 +35,7 @@ export default function MatchBaseAssertion(props) {
     true
   );
 
-  const [rowData, setRowData] = useState(flattenedDict);
+  const [rowData, setRowData] = useState(sortedByStatusDict);
 
   const buttonGroup = (
     <DictButtonGroup
@@ -42,6 +43,7 @@ export default function MatchBaseAssertion(props) {
         SORT_TYPES.ALPHABETICAL,
         SORT_TYPES.REVERSE_ALPHABETICAL,
         SORT_TYPES.BY_STATUS,
+        SORT_TYPES.NONE,
       ]}
       filterOptionList={[
         FILTER_OPTIONS.FAILURES_ONLY,

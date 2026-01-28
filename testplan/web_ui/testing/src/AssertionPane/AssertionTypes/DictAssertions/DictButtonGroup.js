@@ -32,84 +32,16 @@ function DictButtonGroup({
   sortTypeList,
   filterOptionList,
 }) {
-  const [selectedSortType, setSelectedSortType] = useState(
-    defaultSortType || SORT_TYPES.NONE
-  );
-  const [selectedFilterOptions, setSelectedFilterOptions] = useState(
-    defaultFilterOptions || []
-  );
-  const [sortedData, setSortedData] = useState(flattenedDict);
-
-  const noSort = () => {
-    let sortedData = flattenedDict;
-    setRowData(sortedData);
-    setSelectedSortType(SORT_TYPES.NONE);
-    setSortedData(sortedData);
-  };
-
-  const sortByChar = () => {
-    let sortedData = sortAndFilterData(
-      SORT_TYPES.ALPHABETICAL,
-      selectedFilterOptions
-    );
-    setRowData(sortedData);
-    setSelectedSortType(SORT_TYPES.ALPHABETICAL);
-    setSortedData(sortedData);
-  };
-
-  const sortByCharReverse = () => {
-    let sortedData = sortAndFilterData(
-      SORT_TYPES.REVERSE_ALPHABETICAL,
-      selectedFilterOptions
-    );
-    setRowData(sortedData);
-    setSelectedSortType(SORT_TYPES.REVERSE_ALPHABETICAL);
-    setSortedData(sortedData);
-  };
-
-  const sortByStatus = () => {
-    let sortedData = sortAndFilterData(
-      SORT_TYPES.BY_STATUS,
-      selectedFilterOptions
-    );
-    setRowData(sortedData);
-    setSelectedSortType(SORT_TYPES.BY_STATUS);
-    setSortedData(sortedData);
-  };
-
-  const filterFailure = () => {
-    let filterOptions = selectedFilterOptions;
-    filterOptions =
-      filterOptions.indexOf(FILTER_OPTIONS.FAILURES_ONLY) >= 0
-        ? filterOptions.filter((opt) => opt !== FILTER_OPTIONS.FAILURES_ONLY)
-        : filterOptions.concat([FILTER_OPTIONS.FAILURES_ONLY]);
-    let sortedData = sortAndFilterData(selectedSortType, filterOptions);
-    setRowData(sortedData);
-    setSelectedFilterOptions(filterOptions);
-    setSortedData(sortedData);
-  };
-
-  const filterIgnorable = () => {
-    let filterOptions = selectedFilterOptions;
-    filterOptions =
-      filterOptions.indexOf(FILTER_OPTIONS.EXCLUDE_IGNORABLE) >= 0
-        ? filterOptions.filter(
-            (opt) => opt !== FILTER_OPTIONS.EXCLUDE_IGNORABLE
-          )
-        : filterOptions.concat([FILTER_OPTIONS.EXCLUDE_IGNORABLE]);
-    let sortedData = sortAndFilterData(selectedSortType, filterOptions);
-    setRowData(sortedData);
-    setSelectedFilterOptions(filterOptions);
-    setSortedData(sortedData);
-  };
-
   const sortAndFilterData = (SortType, filterOptions) => {
-    let sortedData = sortFlattenedJSON(
-      flattenedDict,
-      0,
-      SortType === SORT_TYPES.REVERSE_ALPHABETICAL,
-      SortType === SORT_TYPES.BY_STATUS
-    );
+    let sortedData = flattenedDict;
+    if (SortType !== SORT_TYPES.NONE) {
+      sortedData = sortFlattenedJSON(
+        flattenedDict,
+        0,
+        SortType === SORT_TYPES.REVERSE_ALPHABETICAL,
+        SortType === SORT_TYPES.BY_STATUS
+      );
+    }
     if (filterOptions.indexOf(FILTER_OPTIONS.FAILURES_ONLY) >= 0) {
       sortedData = sortedData.filter((line) => line[2] === "Failed");
     }
@@ -119,45 +51,68 @@ function DictButtonGroup({
     return sortedData;
   };
 
+  const [selectedSortType, setSelectedSortType] = useState(
+    defaultSortType || SORT_TYPES.NONE
+  );
+  const [selectedFilterOptions, setSelectedFilterOptions] = useState(
+    defaultFilterOptions || []
+  );
+  const [sortedData, setSortedData] = useState(
+    sortAndFilterData(selectedSortType, selectedFilterOptions)
+  );
+
+  const sortBy = (sortType) => {
+    const newSortedData = sortAndFilterData(sortType, selectedFilterOptions);
+    setRowData(newSortedData);
+    setSelectedSortType(sortType);
+    setSortedData(newSortedData);
+  };
+
+  const filterBy = (filterOption) => {
+    const newFilterOptions =
+      selectedFilterOptions.indexOf(filterOption) >= 0
+        ? selectedFilterOptions.filter((opt) => opt !== filterOption)
+        : selectedFilterOptions.concat([filterOption]);
+    const newSortedData = sortAndFilterData(selectedSortType, newFilterOptions);
+    setRowData(newSortedData);
+    setSelectedFilterOptions(newFilterOptions);
+    setSortedData(newSortedData);
+  };
+
   const buttonUid = uid || uniqueId();
-  let buttonMap = {};
-
-  buttonMap[SORT_TYPES.NONE] = {
-    display: "Original order",
-    onClick: noSort,
-  };
-
-  buttonMap[SORT_TYPES.ALPHABETICAL] = {
-    display: (
-      <FontAwesomeIcon
-        size="sm"
-        key="faSortAmountDown"
-        icon="sort-amount-down"
-      />
-    ),
-    onClick: sortByChar,
-  };
-
-  buttonMap[SORT_TYPES.REVERSE_ALPHABETICAL] = {
-    display: (
-      <FontAwesomeIcon size="sm" key="faSortAmountUp" icon="sort-amount-up" />
-    ),
-    onClick: sortByCharReverse,
-  };
-
-  buttonMap[SORT_TYPES.BY_STATUS] = {
-    display: "Status",
-    onClick: sortByStatus,
-  };
-
-  buttonMap[FILTER_OPTIONS.FAILURES_ONLY] = {
-    display: "Failures only",
-    onClick: filterFailure,
-  };
-
-  buttonMap[FILTER_OPTIONS.EXCLUDE_IGNORABLE] = {
-    display: "Hide ignored items",
-    onClick: filterIgnorable,
+  const buttonMap = {
+    [SORT_TYPES.NONE]: {
+      display: "Original order",
+      onClick: () => sortBy(SORT_TYPES.NONE),
+    },
+    [SORT_TYPES.ALPHABETICAL]: {
+      display: (
+        <FontAwesomeIcon
+          size="sm"
+          key="faSortAmountDown"
+          icon="sort-amount-down"
+        />
+      ),
+      onClick: () => sortBy(SORT_TYPES.ALPHABETICAL),
+    },
+    [SORT_TYPES.REVERSE_ALPHABETICAL]: {
+      display: (
+        <FontAwesomeIcon size="sm" key="faSortAmountUp" icon="sort-amount-up" />
+      ),
+      onClick: () => sortBy(SORT_TYPES.REVERSE_ALPHABETICAL),
+    },
+    [SORT_TYPES.BY_STATUS]: {
+      display: "Status",
+      onClick: () => sortBy(SORT_TYPES.BY_STATUS),
+    },
+    [FILTER_OPTIONS.FAILURES_ONLY]: {
+      display: "Failures only",
+      onClick: () => filterBy(FILTER_OPTIONS.FAILURES_ONLY),
+    },
+    [FILTER_OPTIONS.EXCLUDE_IGNORABLE]: {
+      display: "Hide ignored items",
+      onClick: () => filterBy(FILTER_OPTIONS.EXCLUDE_IGNORABLE),
+    },
   };
 
   let buttonGroup = [];
