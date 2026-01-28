@@ -131,13 +131,13 @@ def get_exporters(values):
     return [get_exporter(values)]
 
 
-def result_for_failed_task(original_result):
+def result_for_failed_task(original_result: TaskResult):
     """
     Create a new result entry for invalid result retrieved from a resource.
     """
     result = TestResult()
     result.report = TestGroupReport(
-        name=str(original_result.task), category=ReportCategories.ERROR
+        name=original_result.task.uid(), category=ReportCategories.ERROR
     )
     attrs = [attr for attr in original_result.task.serializable_attrs]
     result_lines = [

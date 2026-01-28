@@ -1,0 +1,1 @@
+Errored tasks that are discarded now use the multitest name as the report name instead of the ``Task[...]`` representation.
