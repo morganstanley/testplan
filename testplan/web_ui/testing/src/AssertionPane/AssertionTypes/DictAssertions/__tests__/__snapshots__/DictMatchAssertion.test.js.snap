@@ -55,6 +55,12 @@ exports[`DictMatchAssertion renders the correct HTML structure 1`] = `
       class="btn btn-outline-secondary btn-sm"
       type="button"
     >
+      Original order
+    </button>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+    >
       Failures only
     </button>
     <button
@@ -1566,6 +1572,12 @@ exports[`DictMatchAssertion renders the correct HTML structure with simple compa
       type="button"
     >
       Status
+    </button>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+    >
+      Original order
     </button>
     <button
       class="btn btn-outline-secondary btn-sm"
