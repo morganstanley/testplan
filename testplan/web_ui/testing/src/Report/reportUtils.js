@@ -502,7 +502,8 @@ const CenterPane = ({
       if (
         selectedEntry.entries.length === 0 &&
         selectedEntry.counter.total > 0 &&
-        reportUid !== null
+        reportUid !== null &&
+        selectedEntries.length > 1
       ) {
         // version 3 report structure
         // Use _sourceMultitestUid if available (merged multitest parts)

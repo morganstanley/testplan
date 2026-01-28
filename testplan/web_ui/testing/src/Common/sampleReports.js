@@ -9,6 +9,7 @@ const TESTPLAN_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 3, failed: 1, error: 0, total: 4 },
   timer: {
     run: [
       {
@@ -30,6 +31,7 @@ const TESTPLAN_REPORT = {
       tags: {
         simple: ["server"],
       },
+      counter: { passed: 2, failed: 1, error: 0, total: 3 },
       timer: {
         run: [
           {
@@ -57,6 +59,7 @@ const TESTPLAN_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 1, failed: 1, error: 0, total: 2 },
           timer: {
             run: [
               {
@@ -78,6 +81,7 @@ const TESTPLAN_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -112,6 +116,7 @@ const TESTPLAN_REPORT = {
               uid: "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 0, failed: 1, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -150,6 +155,7 @@ const TESTPLAN_REPORT = {
           tags: {
             simple: ["client"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -169,6 +175,7 @@ const TESTPLAN_REPORT = {
               uid: "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -207,6 +214,7 @@ const TESTPLAN_REPORT = {
       uid: "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
       type: "TestGroupReport",
       logs: [],
+      counter: { passed: 1, failed: 0, error: 0, total: 1 },
       timer: {
         run: [
           {
@@ -238,6 +246,7 @@ const TESTPLAN_REPORT = {
           uid: "08d4c671-d55d-49d4-96ba-dc654d12be26",
           type: "TestGroupReport",
           logs: [],
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -257,6 +266,7 @@ const TESTPLAN_REPORT = {
               uid: "f73bd6ea-d378-437b-a5db-00d9e427f36a",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -336,6 +346,7 @@ const SIMPLE_PASSED_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 1, failed: 0, error: 0, total: 1 },
   timer: {
     run: [
       {
@@ -357,6 +368,7 @@ const SIMPLE_PASSED_REPORT = {
       tags: {
         simple: ["server"],
       },
+      counter: { passed: 1, failed: 0, error: 0, total: 1 },
       timer: {
         run: [
           {
@@ -390,6 +402,7 @@ const SIMPLE_PASSED_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -411,6 +424,7 @@ const SIMPLE_PASSED_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -474,6 +488,7 @@ const SIMPLE_FAILED_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 0, failed: 1, error: 0, total: 1 },
   timer: {
     run: [
       {
@@ -495,6 +510,7 @@ const SIMPLE_FAILED_REPORT = {
       tags: {
         simple: ["server"],
       },
+      counter: { passed: 0, failed: 1, error: 0, total: 1 },
       timer: {
         run: [
           {
@@ -522,6 +538,7 @@ const SIMPLE_FAILED_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 0, failed: 1, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -543,6 +560,7 @@ const SIMPLE_FAILED_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 0, failed: 1, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -606,6 +624,7 @@ const SIMPLE_ERROR_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 0, failed: 0, error: 1, total: 1 },
   timer: {
     run: [
       {
@@ -644,6 +663,7 @@ const ERROR_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 2, failed: 0, error: 1, total: 3 },
   timer: {
     run: [
       {
@@ -660,6 +680,7 @@ const ERROR_REPORT = {
       description: null,
       status_override: null,
       uid: "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+      counter: { passed: 2, failed: 0, error: 0, total: 2 },
       type: "TestGroupReport",
       logs: [],
       tags: {
@@ -692,6 +713,7 @@ const ERROR_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -713,6 +735,7 @@ const ERROR_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -751,6 +774,7 @@ const ERROR_REPORT = {
           tags: {
             simple: ["client"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -770,6 +794,7 @@ const ERROR_REPORT = {
               uid: "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -808,6 +833,7 @@ const ERROR_REPORT = {
       uid: "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
       type: "TestGroupReport",
       logs: [],
+      counter: { passed: 0, failed: 0, error: 1, total: 1 },
       timer: {
         run: [
           {
@@ -843,6 +869,7 @@ const ERROR_REPORT = {
               created: "2018-10-15T14:30:12.009872+00:00",
             },
           ],
+          counter: { passed: 0, failed: 0, error: 1, total: 1 },
           timer: {
             run: [
               {

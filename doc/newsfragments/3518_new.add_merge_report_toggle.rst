@@ -1,1 +1,1 @@
-Added a UI toggle to merge Multitest Parts reports.
+Added a UI toggle to merge Multitest Parts reports. The option is under the Navigation Preference section in the navbar.
