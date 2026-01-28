@@ -671,9 +671,9 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                       </span>
                       <div
                         class="entryName_1u6ioda-o_O-passed_159jltg"
-                        title="SplitMultiTest - passed"
+                        title="SplitMultiTest [Merged] - passed"
                       >
-                        SplitMultiTest
+                        SplitMultiTest [Merged]
                       </div>
                       <div
                         class="entryIcons_9stzon"

@@ -329,13 +329,13 @@ describe("BatchReport", () => {
       fireEvent.click(mergeButton);
 
       await waitFor(() => {
-        expect(screen.getByText("SplitMultiTest")).toBeInTheDocument();
+        expect(screen.getByText("SplitMultiTest [Merged]")).toBeInTheDocument();
         expect(screen.queryByText("SplitMultiTest - part(0/2)")).not.toBeInTheDocument();
         expect(screen.queryByText("SplitMultiTest - part(1/2)")).not.toBeInTheDocument();
       });
 
       // Expand the merged multitest to see suites
-      const merged_mt_text = screen.getByText("SplitMultiTest");
+      const merged_mt_text = screen.getByText("SplitMultiTest [Merged]");
       const merged_mt_treeItem = merged_mt_text.closest(".MuiTreeItem-root");
       const merged_mt_expandIcon = merged_mt_treeItem.querySelector(".MuiTreeItem-iconContainer");
       fireEvent.click(merged_mt_expandIcon);
@@ -370,7 +370,7 @@ describe("BatchReport", () => {
       fireEvent.click(mergeButton);
 
       await waitFor(() => {
-        expect(screen.getByText("SplitMultiTest")).toBeInTheDocument();
+        expect(screen.getByText("SplitMultiTest [Merged]")).toBeInTheDocument();
       });
 
       fireEvent.click(mergeButton);
@@ -378,7 +378,7 @@ describe("BatchReport", () => {
       await waitFor(() => {
         expect(screen.getByText("SplitMultiTest - part(0/2)")).toBeInTheDocument();
         expect(screen.getByText("SplitMultiTest - part(1/2)")).toBeInTheDocument();
-        expect(screen.queryByText(/^SplitMultiTest$/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/^SplitMultiTest [Merged]$/)).not.toBeInTheDocument();
       });
     });
 
@@ -414,10 +414,10 @@ describe("BatchReport", () => {
       fireEvent.click(mergeButton);
 
       await waitFor(() => {
-        expect(screen.getByText("SplitMultiTest")).toBeInTheDocument();
+        expect(screen.getByText("SplitMultiTest [Merged]")).toBeInTheDocument();
       });
 
-      const merged_mt_text = screen.getByText("SplitMultiTest");
+      const merged_mt_text = screen.getByText("SplitMultiTest [Merged]");
       const merged_mt_treeItem = merged_mt_text.closest(".MuiTreeItem-root");
       const merged_mt_expandIcon = merged_mt_treeItem.querySelector(".MuiTreeItem-iconContainer");
       fireEvent.click(merged_mt_expandIcon);
@@ -496,7 +496,7 @@ describe("BatchReport", () => {
       fireEvent.click(mergeButton);
 
       // Verify the merged multitest shows failed status
-      const mergedMtText = screen.getByTitle("SplitMultiTest - failed");
+      const mergedMtText = screen.getByTitle("SplitMultiTest [Merged] - failed");
       expect(mergedMtText).toBeInTheDocument();
 
       // Check the counter display shows correct merged values (3 passed / 1 failed)

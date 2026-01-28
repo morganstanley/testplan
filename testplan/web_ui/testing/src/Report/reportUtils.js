@@ -235,7 +235,7 @@ const _mergeParts = (baseName, parts) => {
 
   const merged = {
     ...first,
-    name: baseName,
+    name: `${baseName} [Merged]`,
     part: null,
     entries: [],
     ..._mergeCommonFields(sortedParts),

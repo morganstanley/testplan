@@ -377,7 +377,7 @@ describe("Report/reportUtils", () => {
 
       expect(result.entries).toHaveLength(1);
       const merged = result.entries[0];
-      expect(merged.name).toBe("MyMultitest");
+      expect(merged.name).toBe("MyMultitest [Merged]");
       expect(merged.part).toBeNull();
       expect(merged._allPartUids).toEqual([
         "multitest_part0",
@@ -407,7 +407,7 @@ describe("Report/reportUtils", () => {
       const result = applyPartsMerge(report);
 
       expect(result.entries).toHaveLength(2);
-      expect(result.entries[0].name).toBe("MyMultitest");
+      expect(result.entries[0].name).toBe("MyMultitest [Merged]");
       expect(result.entries[1].name).toBe("Standalone");
     });
 
@@ -580,7 +580,7 @@ describe("Report/reportUtils", () => {
 
       expect(result.entries).toHaveLength(1);
       const merged = result.entries[0];
-      expect(merged.name).toBe("MyMultitest");
+      expect(merged.name).toBe("MyMultitest [Merged]");
       expect(merged.part).toBeNull();
       expect(merged._allPartUids).toEqual([
         "multitest_part0",
