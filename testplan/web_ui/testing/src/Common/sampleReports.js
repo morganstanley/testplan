@@ -9,6 +9,7 @@ const TESTPLAN_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 3, failed: 1, error: 0, total: 4 },
   timer: {
     run: [
       {
@@ -30,6 +31,7 @@ const TESTPLAN_REPORT = {
       tags: {
         simple: ["server"],
       },
+      counter: { passed: 2, failed: 1, error: 0, total: 3 },
       timer: {
         run: [
           {
@@ -57,6 +59,7 @@ const TESTPLAN_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 1, failed: 1, error: 0, total: 2 },
           timer: {
             run: [
               {
@@ -78,6 +81,7 @@ const TESTPLAN_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -112,6 +116,7 @@ const TESTPLAN_REPORT = {
               uid: "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 0, failed: 1, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -150,6 +155,7 @@ const TESTPLAN_REPORT = {
           tags: {
             simple: ["client"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -169,6 +175,7 @@ const TESTPLAN_REPORT = {
               uid: "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -207,6 +214,7 @@ const TESTPLAN_REPORT = {
       uid: "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
       type: "TestGroupReport",
       logs: [],
+      counter: { passed: 1, failed: 0, error: 0, total: 1 },
       timer: {
         run: [
           {
@@ -238,6 +246,7 @@ const TESTPLAN_REPORT = {
           uid: "08d4c671-d55d-49d4-96ba-dc654d12be26",
           type: "TestGroupReport",
           logs: [],
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -257,6 +266,7 @@ const TESTPLAN_REPORT = {
               uid: "f73bd6ea-d378-437b-a5db-00d9e427f36a",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -336,6 +346,7 @@ const SIMPLE_PASSED_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 1, failed: 0, error: 0, total: 1 },
   timer: {
     run: [
       {
@@ -357,6 +368,7 @@ const SIMPLE_PASSED_REPORT = {
       tags: {
         simple: ["server"],
       },
+      counter: { passed: 1, failed: 0, error: 0, total: 1 },
       timer: {
         run: [
           {
@@ -390,6 +402,7 @@ const SIMPLE_PASSED_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -411,6 +424,7 @@ const SIMPLE_PASSED_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -474,6 +488,7 @@ const SIMPLE_FAILED_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 0, failed: 1, error: 0, total: 1 },
   timer: {
     run: [
       {
@@ -495,6 +510,7 @@ const SIMPLE_FAILED_REPORT = {
       tags: {
         simple: ["server"],
       },
+      counter: { passed: 0, failed: 1, error: 0, total: 1 },
       timer: {
         run: [
           {
@@ -522,6 +538,7 @@ const SIMPLE_FAILED_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 0, failed: 1, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -543,6 +560,7 @@ const SIMPLE_FAILED_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 0, failed: 1, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -606,6 +624,7 @@ const SIMPLE_ERROR_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 0, failed: 0, error: 1, total: 1 },
   timer: {
     run: [
       {
@@ -644,6 +663,7 @@ const ERROR_REPORT = {
   tags_index: {},
   status_override: null,
   meta: {},
+  counter: { passed: 2, failed: 0, error: 1, total: 3 },
   timer: {
     run: [
       {
@@ -660,6 +680,7 @@ const ERROR_REPORT = {
       description: null,
       status_override: null,
       uid: "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+      counter: { passed: 2, failed: 0, error: 0, total: 2 },
       type: "TestGroupReport",
       logs: [],
       tags: {
@@ -692,6 +713,7 @@ const ERROR_REPORT = {
           tags: {
             simple: ["server"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -713,6 +735,7 @@ const ERROR_REPORT = {
               tags: {
                 colour: ["white"],
               },
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -751,6 +774,7 @@ const ERROR_REPORT = {
           tags: {
             simple: ["client"],
           },
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
               {
@@ -770,6 +794,7 @@ const ERROR_REPORT = {
               uid: "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
               type: "TestCaseReport",
               logs: [],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
                   {
@@ -808,6 +833,7 @@ const ERROR_REPORT = {
       uid: "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
       type: "TestGroupReport",
       logs: [],
+      counter: { passed: 0, failed: 0, error: 1, total: 1 },
       timer: {
         run: [
           {
@@ -843,6 +869,7 @@ const ERROR_REPORT = {
               created: "2018-10-15T14:30:12.009872+00:00",
             },
           ],
+          counter: { passed: 0, failed: 0, error: 1, total: 1 },
           timer: {
             run: [
               {
@@ -934,6 +961,273 @@ const FakeInteractiveReport = {
   uid: "_dev",
 };
 
+
+/**
+ * Report with a multitest split into 2 parts
+ * Part 0: Suite0 (case1), Suite1 (case2)
+ * Part 1: Suite1 (case1, case3)
+ */
+const MULTITEST_PARTS_REPORT = {
+  category: "testplan",
+  name: "Multitest Parts Report",
+  status: "passed",
+  uid: "f7a32e1b-8c4d-4a91-b5e6-9d0f1c2a3b4e",
+  tags_index: {},
+  parent_uids: [],
+  status_override: null,
+  meta: {},
+  counter: { passed: 4, failed: 0, error: 0, total: 4 },
+  timer: {
+    run: [
+      {
+        start: "2018-10-15T14:30:10.998071+00:00",
+        end: "2018-10-15T14:30:11.296158+00:00",
+      },
+    ],
+  },
+  entries: [
+    {
+      name: "SplitMultiTest - part(0/2)",
+      definition_name: "SplitMultiTest",
+      status: "passed",
+      category: "multitest",
+      description: null,
+      status_override: null,
+      uid: "3a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d",
+      type: "TestGroupReport",
+      logs: [],
+      tags: {},
+      parent_uids: ["Multitest Parts Report"],
+      part: [0, 2],
+      counter: { passed: 2, failed: 0, error: 0, total: 2 },
+      timer: {
+        run: [
+          {
+            start: "2018-10-15T14:30:11.009705+00:00",
+            end: "2018-10-15T14:30:11.159661+00:00",
+          },
+        ],
+      },
+      entries: [
+        {
+          status: "passed",
+          category: "testsuite",
+          name: "Suite0",
+          definition_name: "Suite0",
+          status_override: null,
+          description: null,
+          uid: "a1b2c3d4-1111-4a5b-8c9d-e1f2a3b4c5d6",
+          type: "TestGroupReport",
+          logs: [],
+          tags: {},
+          parent_uids: [
+            "Multitest Parts Report",
+            "SplitMultiTest - part(0/2)",
+          ],
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
+          timer: {
+            run: [
+              {
+                start: "2018-10-15T14:30:11.009872+00:00",
+                end: "2018-10-15T14:30:11.158224+00:00",
+              },
+            ],
+          },
+          entries: [
+            {
+              category: "testcase",
+              name: "case1",
+              definition_name: "case1",
+              status: "passed",
+              status_override: null,
+              description: null,
+              uid: "c1a1b1c1-d1e1-4f1a-b1c1-d1e1f1a1b1c1",
+              type: "TestCaseReport",
+              logs: [],
+              tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(0/2)",
+                "Suite0",
+              ],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
+              timer: {
+                run: [
+                  {
+                    start: "2018-10-15T14:30:11.010072+00:00",
+                    end: "2018-10-15T14:30:11.132214+00:00",
+                  },
+                ],
+              },
+              entries: [],
+            },
+          ],
+        },
+        {
+          status: "passed",
+          category: "testsuite",
+          name: "Suite1",
+          definition_name: "Suite1",
+          status_override: null,
+          description: null,
+          uid: "b2c3d4e5-2222-4b6c-9d0e-f2a3b4c5d6e7",
+          type: "TestGroupReport",
+          logs: [],
+          tags: {},
+          parent_uids: [
+            "Multitest Parts Report",
+            "SplitMultiTest - part(0/2)",
+          ],
+          counter: { passed: 1, failed: 0, error: 0, total: 1 },
+          timer: {
+            run: [
+              {
+                start: "2018-10-15T14:30:11.160000+00:00",
+                end: "2018-10-15T14:30:11.280000+00:00",
+              },
+            ],
+          },
+          entries: [
+            {
+              category: "testcase",
+              name: "case2",
+              definition_name: "case2",
+              status: "passed",
+              status_override: null,
+              description: null,
+              uid: "c2a2b2c2-d2e2-4f2a-b2c2-d2e2f2a2b2c2",
+              type: "TestCaseReport",
+              logs: [],
+              tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(0/2)",
+                "Suite1",
+              ],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
+              timer: {
+                run: [
+                  {
+                    start: "2018-10-15T14:30:11.160100+00:00",
+                    end: "2018-10-15T14:30:11.275000+00:00",
+                  },
+                ],
+              },
+              entries: [],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "SplitMultiTest - part(1/2)",
+      definition_name: "SplitMultiTest",
+      status: "passed",
+      category: "multitest",
+      description: null,
+      status_override: null,
+      uid: "4b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+      type: "TestGroupReport",
+      logs: [],
+      tags: {},
+      parent_uids: ["Multitest Parts Report"],
+      part: [1, 2],
+      counter: { passed: 2, failed: 0, error: 0, total: 2 },
+      timer: {
+        run: [
+          {
+            start: "2018-10-15T14:30:12.009705+00:00",
+            end: "2018-10-15T14:30:12.159661+00:00",
+          },
+        ],
+      },
+      entries: [
+        {
+          status: "passed",
+          category: "testsuite",
+          name: "Suite1",
+          definition_name: "Suite1",
+          status_override: null,
+          description: null,
+          uid: "c3d4e5f6-3333-4c7d-0e1f-a3b4c5d6e7f8",
+          type: "TestGroupReport",
+          logs: [],
+          tags: {},
+          parent_uids: [
+            "Multitest Parts Report",
+            "SplitMultiTest - part(1/2)",
+          ],
+          counter: { passed: 2, failed: 0, error: 0, total: 2 },
+          timer: {
+            run: [
+              {
+                start: "2018-10-15T14:30:12.009872+00:00",
+                end: "2018-10-15T14:30:12.158224+00:00",
+              },
+            ],
+          },
+          entries: [
+            {
+              category: "testcase",
+              name: "case1",
+              definition_name: "case1",
+              status: "passed",
+              status_override: null,
+              description: null,
+              uid: "c1b1a1c1-e1d1-4a1f-c1b1-f1e1d1c1b1a1",
+              type: "TestCaseReport",
+              logs: [],
+              tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(1/2)",
+                "Suite1",
+              ],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
+              timer: {
+                run: [
+                  {
+                    start: "2018-10-15T14:30:12.010072+00:00",
+                    end: "2018-10-15T14:30:12.132214+00:00",
+                  },
+                ],
+              },
+              entries: [],
+            },
+            {
+              category: "testcase",
+              name: "case3",
+              definition_name: "case3",
+              status: "passed",
+              status_override: null,
+              description: null,
+              uid: "c3a3b3c3-d3e3-4f3a-b3c3-d3e3f3a3b3c3",
+              type: "TestCaseReport",
+              logs: [],
+              tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(1/2)",
+                "Suite1",
+              ],
+              counter: { passed: 1, failed: 0, error: 0, total: 1 },
+              timer: {
+                run: [
+                  {
+                    start: "2018-10-15T14:30:12.135000+00:00",
+                    end: "2018-10-15T14:30:12.155000+00:00",
+                  },
+                ],
+              },
+              entries: [],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 export {
   TESTPLAN_REPORT,
   SIMPLE_PASSED_REPORT,
@@ -941,4 +1235,5 @@ export {
   SIMPLE_ERROR_REPORT,
   ERROR_REPORT,
   FakeInteractiveReport,
+  MULTITEST_PARTS_REPORT,
 };
