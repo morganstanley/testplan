@@ -19,3 +19,7 @@ export const showStatusIconsPreference = atomWithStorage(
   "showStatusIcons",
   false
 );
+export const mergeMultitestPartsPreference = atomWithStorage(
+  "mergeMultitestParts",
+  false
+);

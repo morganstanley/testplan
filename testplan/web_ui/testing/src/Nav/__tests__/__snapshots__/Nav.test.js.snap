@@ -8,14 +8,32 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
     Array [
       Object {
         "category": "multitest",
+        "counter": Object {
+          "error": 0,
+          "failed": 1,
+          "passed": 2,
+          "total": 3,
+        },
         "description": null,
         "entries": Array [
           Object {
             "category": "testsuite",
+            "counter": Object {
+              "error": 0,
+              "failed": 1,
+              "passed": 1,
+              "total": 2,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -54,6 +72,12 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
               },
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 1,
+                  "passed": 0,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -109,10 +133,22 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
           },
           Object {
             "category": "testsuite",
+            "counter": Object {
+              "error": 0,
+              "failed": 0,
+              "passed": 1,
+              "total": 1,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -195,14 +231,32 @@ exports[`Nav with List shallow renders and matches snapshot 1`] = `
       },
       Object {
         "category": "multitest",
+        "counter": Object {
+          "error": 0,
+          "failed": 0,
+          "passed": 1,
+          "total": 1,
+        },
         "description": null,
         "entries": Array [
           Object {
             "category": "testsuite",
+            "counter": Object {
+              "error": 0,
+              "failed": 0,
+              "passed": 1,
+              "total": 1,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -335,14 +389,32 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
     Array [
       Object {
         "category": "multitest",
+        "counter": Object {
+          "error": 0,
+          "failed": 1,
+          "passed": 2,
+          "total": 3,
+        },
         "description": null,
         "entries": Array [
           Object {
             "category": "testsuite",
+            "counter": Object {
+              "error": 0,
+              "failed": 1,
+              "passed": 1,
+              "total": 2,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -381,6 +453,12 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
               },
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 1,
+                  "passed": 0,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -436,10 +514,22 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
           },
           Object {
             "category": "testsuite",
+            "counter": Object {
+              "error": 0,
+              "failed": 0,
+              "passed": 1,
+              "total": 1,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -522,14 +612,32 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
       },
       Object {
         "category": "multitest",
+        "counter": Object {
+          "error": 0,
+          "failed": 0,
+          "passed": 1,
+          "total": 1,
+        },
         "description": null,
         "entries": Array [
           Object {
             "category": "testsuite",
+            "counter": Object {
+              "error": 0,
+              "failed": 0,
+              "passed": 1,
+              "total": 1,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testcase",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
@@ -654,17 +762,41 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
     Array [
       Object {
         "category": "testplan",
+        "counter": Object {
+          "error": 0,
+          "failed": 1,
+          "passed": 3,
+          "total": 4,
+        },
         "entries": Array [
           Object {
             "category": "multitest",
+            "counter": Object {
+              "error": 0,
+              "failed": 1,
+              "passed": 2,
+              "total": 3,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testsuite",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 1,
+                  "passed": 1,
+                  "total": 2,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
                     "category": "testcase",
+                    "counter": Object {
+                      "error": 0,
+                      "failed": 0,
+                      "passed": 1,
+                      "total": 1,
+                    },
                     "description": null,
                     "entries": Array [
                       Object {
@@ -703,6 +835,12 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
                   },
                   Object {
                     "category": "testcase",
+                    "counter": Object {
+                      "error": 0,
+                      "failed": 1,
+                      "passed": 0,
+                      "total": 1,
+                    },
                     "description": null,
                     "entries": Array [
                       Object {
@@ -758,10 +896,22 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
               },
               Object {
                 "category": "testsuite",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
                     "category": "testcase",
+                    "counter": Object {
+                      "error": 0,
+                      "failed": 0,
+                      "passed": 1,
+                      "total": 1,
+                    },
                     "description": null,
                     "entries": Array [
                       Object {
@@ -844,14 +994,32 @@ exports[`Nav with TreeView shallow renders and matches snapshot 1`] = `
           },
           Object {
             "category": "multitest",
+            "counter": Object {
+              "error": 0,
+              "failed": 0,
+              "passed": 1,
+              "total": 1,
+            },
             "description": null,
             "entries": Array [
               Object {
                 "category": "testsuite",
+                "counter": Object {
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 1,
+                  "total": 1,
+                },
                 "description": null,
                 "entries": Array [
                   Object {
                     "category": "testcase",
+                    "counter": Object {
+                      "error": 0,
+                      "failed": 0,
+                      "passed": 1,
+                      "total": 1,
+                    },
                     "description": null,
                     "entries": Array [
                       Object {

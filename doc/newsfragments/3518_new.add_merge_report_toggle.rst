@@ -1,0 +1,1 @@
+Add a UI toggle under Preferences button to display multitest parts in merged view
