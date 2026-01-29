@@ -271,7 +271,5 @@ def test_mt_assign_error_not_filtered():
     assert len(report["TestMT"]["OneSuite"]["failing"]) == 2
     assert len(report["TestMT"]["OneSuite"]["expect_to_fail"]) == 2
 
-    assert report.entries[1].name.startswith(
-        "Task[<function test_mt_assign_error_not_filtered.<locals>._dummy_mt_2"
-    )
+    assert report.entries[1].name == "TestMT2"
     assert len(report.entries[1].entries) == 0

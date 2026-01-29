@@ -259,3 +259,43 @@ def test_failed_tests_exporter_during_timeout(
     with failed_tests_path.open("r") as f:
         content = f.read()
     assert expected_failed_test == content.strip()
+
+
+def test_failed_tests_exporter_for_discarded_tasks(runpath):
+    class RejectingPool(Pool):
+        def __init__(self, *args, reject_task_name=None, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._reject_task_name = reject_task_name
+
+        def _can_assign_task_to_worker(self, task, worker):
+            test = task.materialize()
+            if test.name == self._reject_task_name:
+                return False
+            return True
+
+    failed_tests_path = pathlib.Path(runpath) / "failed_tests.txt"
+    plan = TestplanMock(
+        "plan",
+        exporters=FailedTestsExporter(
+            dump_failed_tests=str(failed_tests_path),
+        ),
+        runpath=runpath,
+    )
+    pool = RejectingPool(
+        name="pool", size=1, reject_task_name="discarded test"
+    )
+    plan.add_resource(pool)
+
+    discarded_mt = multitest.MultiTest(name="discarded test", suites=[Gamma()])
+    normal_mt = multitest.MultiTest(name="normal test", suites=[Gamma()])
+
+    plan.schedule(target=discarded_mt, resource="pool")
+    plan.schedule(target=normal_mt, resource="pool")
+
+    plan.run()
+
+    assert failed_tests_path.exists()
+    assert failed_tests_path.stat().st_size > 0, "Failed tests file is empty"
+    with failed_tests_path.open("r") as f:
+        content = f.read()
+    assert "discarded test" == content.strip()

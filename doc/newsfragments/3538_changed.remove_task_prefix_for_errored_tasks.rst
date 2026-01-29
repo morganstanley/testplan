@@ -1,0 +1,1 @@
+Errored-out tasks now have their test names as the names of report entries instead of the ``Task[...]`` representation.

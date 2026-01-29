@@ -4,8 +4,14 @@ import psutil
 
 from testplan.common.report import ReportCategories
 from testplan.common.utils.exceptions import RunpathInUseError
+from testplan.report import Status
 from testplan.report.testing import TestGroupReport
-from testplan.runnable.base import collate_for_merging, TestRunner
+from testplan.runners.pools.tasks import Task, TaskResult
+from testplan.runnable.base import (
+    collate_for_merging,
+    result_for_failed_task,
+    TestRunner,
+)
 
 
 @pytest.mark.parametrize(
@@ -25,6 +31,28 @@ def test_collate_for_merging(entries):
     assert all(
         [t[0].category != ReportCategories.SYNTHESIZED for t in res if t]
     )
+
+
+def test_result_for_failed_task():
+    task = Task(
+        target="dummy_target",
+        module="dummy_module",
+        path="/dummy/path",
+        uid="test_task_uid",
+    )
+
+    failed_result = TaskResult(
+        task=task,
+        status=False,
+        reason="Worker crashed unexpectedly",
+    )
+
+    result = result_for_failed_task(failed_result)
+
+    assert result.report is not None
+    assert result.report.name == "test_task_uid"
+    assert result.report.category == ReportCategories.ERROR
+    assert result.report.status_override == Status.ERROR
 
 
 class TestPidFileCheck:
