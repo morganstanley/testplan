@@ -288,20 +288,42 @@ describe("Report/reportUtils", () => {
   });
 
   describe("applyPartsMerge", () => {
-    const createPart = (partIndex, totalParts, overrides = {}) => ({
-      uid: `multitest_part${partIndex}`,
-      name: `MyMultitest - part ${partIndex}/${totalParts}`,
-      definition_name: "MyMultitest",
-      category: "multitest",
-      part: [partIndex, totalParts],
-      status: "passed",
-      counter: { passed: 1, failed: 0, total: 1, error: 0 },
-      timer: { run: [{ start: "2024-01-01T00:00:00", end: "2024-01-01T00:01:00" }] },
-      tags: {},
-      logs: [],
-      entries: [],
-      ...overrides,
-    });
+    const setParentUidsRec = (node, ancestors) => {
+      if (!node.parent_uids) {
+        node.parent_uids = ancestors;
+      }
+      if (node.entries && node.entries.length > 0) {
+        const nextAncestors = [...ancestors, node.name];
+        for (const child of node.entries) {
+          setParentUidsRec(child, nextAncestors);
+        }
+      }
+    };
+
+    const createPart = (partIndex, totalParts, overrides = {}) => {
+      const part = {
+        uid: `multitest_part${partIndex}`,
+        name: `MyMultitest - part ${partIndex}/${totalParts}`,
+        definition_name: "MyMultitest",
+        category: "multitest",
+        part: [partIndex, totalParts],
+        status: "passed",
+        counter: { passed: 1, failed: 0, total: 1, error: 0 },
+        timer: {
+          run: [{ start: "2024-01-01T00:00:00", end: "2024-01-01T00:01:00" }],
+        },
+        tags: {},
+        logs: [],
+        entries: [],
+        ...overrides,
+      };
+      if (part.entries && part.entries.length > 0) {
+        for (const child of part.entries) {
+          setParentUidsRec(child, ["testplan", part.name]);
+        }
+      }
+      return part;
+    };
 
     const createSuite = (name, overrides = {}) => ({
       uid: `suite_${name}`,

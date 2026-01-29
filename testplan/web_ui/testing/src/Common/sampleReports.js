@@ -973,6 +973,7 @@ const MULTITEST_PARTS_REPORT = {
   status: "passed",
   uid: "f7a32e1b-8c4d-4a91-b5e6-9d0f1c2a3b4e",
   tags_index: {},
+  parent_uids: [],
   status_override: null,
   meta: {},
   counter: { passed: 4, failed: 0, error: 0, total: 4 },
@@ -996,6 +997,7 @@ const MULTITEST_PARTS_REPORT = {
       type: "TestGroupReport",
       logs: [],
       tags: {},
+      parent_uids: ["Multitest Parts Report"],
       part: [0, 2],
       counter: { passed: 2, failed: 0, error: 0, total: 2 },
       timer: {
@@ -1018,6 +1020,10 @@ const MULTITEST_PARTS_REPORT = {
           type: "TestGroupReport",
           logs: [],
           tags: {},
+          parent_uids: [
+            "Multitest Parts Report",
+            "SplitMultiTest - part(0/2)",
+          ],
           counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
@@ -1039,6 +1045,11 @@ const MULTITEST_PARTS_REPORT = {
               type: "TestCaseReport",
               logs: [],
               tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(0/2)",
+                "Suite0",
+              ],
               counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
@@ -1063,6 +1074,10 @@ const MULTITEST_PARTS_REPORT = {
           type: "TestGroupReport",
           logs: [],
           tags: {},
+          parent_uids: [
+            "Multitest Parts Report",
+            "SplitMultiTest - part(0/2)",
+          ],
           counter: { passed: 1, failed: 0, error: 0, total: 1 },
           timer: {
             run: [
@@ -1084,6 +1099,11 @@ const MULTITEST_PARTS_REPORT = {
               type: "TestCaseReport",
               logs: [],
               tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(0/2)",
+                "Suite1",
+              ],
               counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
@@ -1110,6 +1130,7 @@ const MULTITEST_PARTS_REPORT = {
       type: "TestGroupReport",
       logs: [],
       tags: {},
+      parent_uids: ["Multitest Parts Report"],
       part: [1, 2],
       counter: { passed: 2, failed: 0, error: 0, total: 2 },
       timer: {
@@ -1132,6 +1153,10 @@ const MULTITEST_PARTS_REPORT = {
           type: "TestGroupReport",
           logs: [],
           tags: {},
+          parent_uids: [
+            "Multitest Parts Report",
+            "SplitMultiTest - part(1/2)",
+          ],
           counter: { passed: 2, failed: 0, error: 0, total: 2 },
           timer: {
             run: [
@@ -1153,6 +1178,11 @@ const MULTITEST_PARTS_REPORT = {
               type: "TestCaseReport",
               logs: [],
               tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(1/2)",
+                "Suite1",
+              ],
               counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [
@@ -1175,6 +1205,11 @@ const MULTITEST_PARTS_REPORT = {
               type: "TestCaseReport",
               logs: [],
               tags: {},
+              parent_uids: [
+                "Multitest Parts Report",
+                "SplitMultiTest - part(1/2)",
+                "Suite1",
+              ],
               counter: { passed: 1, failed: 0, error: 0, total: 1 },
               timer: {
                 run: [

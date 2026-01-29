@@ -122,26 +122,21 @@ const _mergeCommonFields = (group) => ({
 
 /**
  * Flatten a report entry tree into a pre-order list.
- * Each entry is annotated with _parentPath (array of ancestor definition_names).
  * Synthesized entries are skipped.
  *
  * @param {Object} entry - The entry to flatten.
- * @param {Array} parentPath - Path of ancestor definition_names.
- * @returns {Array} - Flattened array of entries with _parentPath.
+ * @returns {Array} - Flattened array of entries.
  * @private
  */
-const _preOrderFlatten = (entry, parentPath = []) => {
+const _preOrderFlatten = (entry) => {
   if (entry.category === "synthesized") return [];
 
-  const annotated = { ...entry, _parentPath: parentPath };
-  const result = [annotated];
-
-  const currentPath = [...parentPath, entry.definition_name];
-  for (const child of entry.entries || []) {
-    result.push(..._preOrderFlatten(child, currentPath));
+  const cleanedEntry = { ...entry, entries: [] };
+  const result = [cleanedEntry];
+  for (const child of entry.entries) {
+    result.push(..._preOrderFlatten(child));
   }
 
-  annotated.entries = [];
   return result;
 };
 
@@ -156,8 +151,8 @@ const _preOrderFlatten = (entry, parentPath = []) => {
  */
 const _findParent = (root, parentPath) => {
   let current = root;
-  for (const defName of parentPath) {
-    current = current.entries.find((e) => e.definition_name === defName);
+  for (const name of parentPath) {
+    current = current.entries.find((e) => e.name === name);
   }
   return current;
 };
@@ -168,24 +163,24 @@ const _findParent = (root, parentPath) => {
  * If a test case, always append.
  *
  * @param {Object} root - The root of the merged tree.
- * @param {Object} entry - The entry to add (with _parentPath).
+ * @param {Object} entry - The entry to add.
  * @private
  */
 const _addEntryToMerged = (root, entry) => {
-  const parentPath = entry._parentPath || [];
+  // parent_uids = [testplan_name, mt_name, ...]
+  const parentPath = entry.parent_uids.slice(2);
   const parent = _findParent(root, parentPath);
-  const { _parentPath, ...cleanEntry } = entry;
 
   if (isReportLeaf(entry)) {
-    parent.entries.push(cleanEntry);
+    parent.entries.push(entry);
   } else {
     const existing = parent.entries.find(
-      (e) => e.definition_name === entry.definition_name
+      (e) => e.name === entry.name
     );
     if (existing) {
       Object.assign(existing, _mergeCommonFields([existing, entry]));
     } else {
-      parent.entries.push({ ...cleanEntry, entries: [] });
+      parent.entries.push(entry);
     }
   }
 };
