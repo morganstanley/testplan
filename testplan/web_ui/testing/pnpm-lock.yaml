@@ -116,8 +116,8 @@ importers:
         specifier: ^0.11.0-master.b7b87ea
         version: 0.11.0-master.f69239d
       plotly.js:
-        specifier: ^2.34.0
-        version: 2.35.3(mapbox-gl@1.13.3)(webpack@5.102.1)
+        specifier: ^3.3.1
+        version: 3.3.1(mapbox-gl@1.13.3)
       pretty-bytes:
         specifier: ^6.1.1
         version: 6.1.1
@@ -147,7 +147,7 @@ importers:
         version: 6.0.3(@types/react@17.0.89)(react@17.0.2)
       react-plotly.js:
         specifier: ^2.6.0
-        version: 2.6.0(plotly.js@2.35.3(mapbox-gl@1.13.3)(webpack@5.102.1))(react@17.0.2)
+        version: 2.6.0(plotly.js@3.3.1(mapbox-gl@1.13.3))(react@17.0.2)
       react-router:
         specifier: ^5.3.4
         version: 5.3.4(react@17.0.2)
@@ -1048,8 +1048,18 @@ packages:
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
 
+  '@eslint-community/eslint-utils@4.9.1':
+    resolution: {integrity: sha512-phrYmNiYppR7znFEdqgfWHXR6NCkZEK7hwWDHZUjit/2/U0r6XvkDl0SYnoM51Hq7FhCGdLDT6zxCCOY1hexsQ==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
+
   '@eslint-community/regexpp@4.12.1':
     resolution: {integrity: sha1-z8bP/jnfOQo4Qc3iq8z5Lqp64OA=}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+
+  '@eslint-community/regexpp@4.12.2':
+    resolution: {integrity: sha512-EriSTlt5OC9/7SXkRSCAhfSxxoSUgBm33OH+IkwbdpgoqsSsUg7y3uh+IICI/Qg4BBWr3U2i39RpmycbxMq4ew==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
 
   '@eslint/eslintrc@2.1.4':
@@ -1545,20 +1555,20 @@ packages:
     resolution: {integrity: sha1-zMqrdYr1Z2Hre/N69vA/Mm3XmK0=}
     engines: {node: '>=10.13.0'}
 
-  '@turf/area@7.2.0':
-    resolution: {integrity: sha1-fB5V3ZtJ73z+SrhI7ieFR6HfPP0=}
+  '@turf/area@7.3.3':
+    resolution: {integrity: sha512-FT66TCxUec+3RsCCyO1kWP57/tiEWEqYfpIs5n44dup401Cne/E+xunahEWxMfP/HSUxfcRQqrjH5vEulLrNoA==}
 
-  '@turf/bbox@7.2.0':
-    resolution: {integrity: sha1-nbM41kBzgPZqcgUGV/GZjFxczEo=}
+  '@turf/bbox@7.3.3':
+    resolution: {integrity: sha512-1zNO/JUgDp0N+3EG5fG7+8EolE95OW1LD8ur0hRP0JK+lRyN0gAvJT7n1I9pu/NIqTa8x/zXxGRc1dcOdohYkg==}
 
-  '@turf/centroid@7.2.0':
-    resolution: {integrity: sha1-MhH+gdaLZQgse+cr8JmzO5IRsoI=}
+  '@turf/centroid@7.3.3':
+    resolution: {integrity: sha512-3vWLnF1CksLk7xTUH11IzOQJ6fOoj7zhuL8M3GTxcKruVkGat/vIm3Ye5b68sDVcE5nFDA2pYjjbL7Rfmn3/GQ==}
 
-  '@turf/helpers@7.2.0':
-    resolution: {integrity: sha1-V3EwgQjJjWCOuOfxbc0Os/uKNBc=}
+  '@turf/helpers@7.3.3':
+    resolution: {integrity: sha512-9Ias0L1GuZPIzO6sk8jraTEuLJye6n9LYNEdw69ZGOQ6C1IigjxkPW49zmn21aTv1z27vxdVLSS3r+78DB2QnQ==}
 
-  '@turf/meta@7.2.0':
-    resolution: {integrity: sha1-amsZGIkLTZ0rX/ELOtR+L9dHCRI=}
+  '@turf/meta@7.3.3':
+    resolution: {integrity: sha512-Tz1j4h70iFB5SebWWoVv/uL59x4aOngXU+d1xQDXzOCn/O6txnreGVGMcYU362c5F06yqZx38H9UFTQ553lK0w==}
 
   '@types/aria-query@5.0.4':
     resolution: {integrity: sha1-GjHD03iFDSd42rtjdNA23LpLpwg=}
@@ -2074,9 +2084,6 @@ packages:
   ajv@8.17.1:
     resolution: {integrity: sha1-N9mlx3ava8ktf0+VEOukwKYNEaY=}
 
-  almost-equal@1.1.0:
-    resolution: {integrity: sha1-+FHGMROHV5lCdqou++jfowZszN0=}
-
   ansi-escapes@4.3.2:
     resolution: {integrity: sha1-ayKR0dt9mLZSHV8e+kLQ86n+tl4=}
     engines: {node: '>=8'}
@@ -2589,11 +2596,14 @@ packages:
   color-parse@2.0.0:
     resolution: {integrity: sha1-a88fDx+v/+aMrMLd56GbOow9e80=}
 
-  color-rgba@2.1.1:
-    resolution: {integrity: sha1-RjO4OBfHQGyQs9e/TRrPpI3eXIM=}
+  color-rgba@2.4.0:
+    resolution: {integrity: sha1-roWBnFMCYsKfwtoSn8fI+e/FcBU=}
 
-  color-space@1.16.0:
-    resolution: {integrity: sha1-YReBvKQc2FgqFGb9niin09iXcqI=}
+  color-rgba@3.0.0:
+    resolution: {integrity: sha1-dwkL3NspUcFzXiAJnd1QQBZ1N1s=}
+
+  color-space@2.3.2:
+    resolution: {integrity: sha512-BcKnbOEsOarCwyoLstcoEztwT0IJxqqQkNwDuA3a65sICvvHL2yoeV13psoDFh5IuiOMnIOKdQDwB4Mk3BypiA==}
 
   colord@2.9.3:
     resolution: {integrity: sha1-T4zpGd5Fbx1cHDaMMH/iDz5Z+0M=}
@@ -2763,18 +2773,6 @@ packages:
       webpack:
         optional: true
 
-  css-loader@7.1.2:
-    resolution: {integrity: sha1-ZGcVQcbv4GsOIudQUDEGvdhogPg=}
-    engines: {node: '>= 18.12.0'}
-    peerDependencies:
-      '@rspack/core': 0.x || 1.x
-      webpack: ^5.27.0
-    peerDependenciesMeta:
-      '@rspack/core':
-        optional: true
-      webpack:
-        optional: true
-
   css-minimizer-webpack-plugin@3.4.1:
     resolution: {integrity: sha512-1u6D71zeIfgngN2XNRJefc/hY7Ybsxd74Jm4qngIXyUEk7fss3VUzuHxLAq/R8NAba4QU9OUSaMZlbpRc7bM4Q==}
     engines: {node: '>= 12.13.0'}
@@ -2889,6 +2887,9 @@ packages:
 
   csstype@3.1.3:
     resolution: {integrity: sha1-2A/ylNEU+w5qxQD7+FtgE31+/4E=}
+
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
   d3-array@1.2.4:
     resolution: {integrity: sha1-Y1zk1e6nWfb2BYY9vPww7cc39x8=}
@@ -3566,8 +3567,8 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  esquery@1.6.0:
-    resolution: {integrity: sha1-kUGSNPgE2FKoLc7sPhbNwiz52uc=}
+  esquery@1.7.0:
+    resolution: {integrity: sha512-Ap6G0WQwcU/LHsvLwON1fAQX9Zp0A2Y6Y/cJBl9r/JbW90Zyg4/zbG6zzKa2OTALELarYHmKu0GhpM5EO+7T0g==}
     engines: {node: '>=0.10'}
 
   esrecurse@4.3.0:
@@ -4058,9 +4059,6 @@ packages:
 
   hpack.js@2.1.6:
     resolution: {integrity: sha1-h3dMCUnlE/QuhFdbPEVoH63ioLI=}
-
-  hsluv@0.0.3:
-    resolution: {integrity: sha1-gpEH2vtKn4tSoYCe0C4JHq3mdUw=}
 
   html-element-map@1.3.1:
     resolution: {integrity: sha1-RLLLz6e+eqT/WXeeR+UQEuHHPAg=}
@@ -4717,8 +4715,8 @@ packages:
     resolution: {integrity: sha1-2ugS/bOCX6MGYJqHFzg8UMNqBTc=}
     hasBin: true
 
-  js-yaml@4.1.0:
-    resolution: {integrity: sha1-wftl+PUBeQHN0slRhkuhhFihBgI=}
+  js-yaml@4.1.1:
+    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
 
   jsdom@16.7.0:
@@ -5115,9 +5113,6 @@ packages:
     resolution: {integrity: sha1-d+tGBX9NetvRbZKQ+nKZ9vpkzO0=}
     hasBin: true
 
-  mumath@3.3.4:
-    resolution: {integrity: sha1-SNSg8P2MrU57Mglu6JsWGmPTC78=}
-
   murmurhash-js@1.0.0:
     resolution: {integrity: sha1-sGJ44h/Gw3+lMTcysEEry2rhX1E=}
 
@@ -5444,8 +5439,9 @@ packages:
     resolution: {integrity: sha1-EA7CNcwVDk/UJRlBJZaihRKg3vU=}
     engines: {node: '>=8'}
 
-  plotly.js@2.35.3:
-    resolution: {integrity: sha1-aneH1jtNM0lIwoGqnI33+5QbQl4=}
+  plotly.js@3.3.1:
+    resolution: {integrity: sha512-SrGSZ02HvCWQIYsbQX4sgjgGo7k4T+Oz8a+RQwE5Caz+yu1vputBM1UThmiOPY51B5HzO9ajym8Rl4pmLj+i9Q==}
+    engines: {node: '>=18.0.0'}
 
   point-in-polygon@1.1.0:
     resolution: {integrity: sha1-sK8mFsAb3uNBy/KJTfZDOHygM1c=}
@@ -6332,6 +6328,11 @@ packages:
     engines: {node: '>= 0.4'}
     hasBin: true
 
+  resolve@1.22.11:
+    resolution: {integrity: sha512-RfqAvLnMl313r7c9oclB1HhUEAezcpLjz95wFH4LVuhk9JF/r22qmVP9AMmOU4vMX7Q8pN8jwNg/CSpdFnMjTQ==}
+    engines: {node: '>= 0.4'}
+    hasBin: true
+
   resolve@2.0.0-next.5:
     resolution: {integrity: sha1-aw7DEH5nHlK2jNBo7zJxc7kNwDw=}
     hasBin: true
@@ -6420,8 +6421,9 @@ packages:
   sax@1.2.4:
     resolution: {integrity: sha1-KBYjTiN4vdxOU1T6tcqold9xANk=}
 
-  sax@1.4.1:
-    resolution: {integrity: sha1-RMyJiDd/EmME07P8EBDHM7kp7w8=}
+  sax@1.4.4:
+    resolution: {integrity: sha512-1n3r/tGXO6b6VXMdFT54SHzT9ytu9yr7TaELowdYpMqY/Ao7EnlQGmAQ1+RatX7Tkkdm6hONI2owqNx2aZj5Sw==}
+    engines: {node: '>=11.0.0'}
 
   saxes@5.0.1:
     resolution: {integrity: sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==}
@@ -6738,12 +6740,6 @@ packages:
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
-
-  style-loader@4.0.0:
-    resolution: {integrity: sha1-DqluRo9DxpYAAR4FicsFxE87F6U=}
-    engines: {node: '>= 18.12.0'}
-    peerDependencies:
-      webpack: ^5.27.0
 
   style-to-object@0.3.0:
     resolution: {integrity: sha512-CzFnRRXhzWIdItT3OmF8SQfWyahHhjq3HwcMNCNLn+N7klOOqPjMeG/4JSu77D7ypZdGvSzvkrbyeTMizz2VrA==}
@@ -8483,7 +8479,14 @@ snapshots:
       eslint: 8.57.1
       eslint-visitor-keys: 3.4.3
 
+  '@eslint-community/eslint-utils@4.9.1(eslint@8.57.1)':
+    dependencies:
+      eslint: 8.57.1
+      eslint-visitor-keys: 3.4.3
+
   '@eslint-community/regexpp@4.12.1': {}
+
+  '@eslint-community/regexpp@4.12.2': {}
 
   '@eslint/eslintrc@2.1.4':
     dependencies:
@@ -8493,7 +8496,7 @@ snapshots:
       globals: 13.24.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       minimatch: 3.1.2
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -9224,36 +9227,37 @@ snapshots:
 
   '@trysound/sax@0.2.0': {}
 
-  '@turf/area@7.2.0':
+  '@turf/area@7.3.3':
     dependencies:
-      '@turf/helpers': 7.2.0
-      '@turf/meta': 7.2.0
+      '@turf/helpers': 7.3.3
+      '@turf/meta': 7.3.3
       '@types/geojson': 7946.0.16
       tslib: 2.8.1
 
-  '@turf/bbox@7.2.0':
+  '@turf/bbox@7.3.3':
     dependencies:
-      '@turf/helpers': 7.2.0
-      '@turf/meta': 7.2.0
+      '@turf/helpers': 7.3.3
+      '@turf/meta': 7.3.3
       '@types/geojson': 7946.0.16
       tslib: 2.8.1
 
-  '@turf/centroid@7.2.0':
+  '@turf/centroid@7.3.3':
     dependencies:
-      '@turf/helpers': 7.2.0
-      '@turf/meta': 7.2.0
+      '@turf/helpers': 7.3.3
+      '@turf/meta': 7.3.3
       '@types/geojson': 7946.0.16
       tslib: 2.8.1
 
-  '@turf/helpers@7.2.0':
+  '@turf/helpers@7.3.3':
     dependencies:
       '@types/geojson': 7946.0.16
       tslib: 2.8.1
 
-  '@turf/meta@7.2.0':
+  '@turf/meta@7.3.3':
     dependencies:
-      '@turf/helpers': 7.2.0
+      '@turf/helpers': 7.3.3
       '@types/geojson': 7946.0.16
+      tslib: 2.8.1
 
   '@types/aria-query@5.0.4': {}
 
@@ -9543,7 +9547,7 @@ snapshots:
     dependencies:
       '@types/prop-types': 15.7.15
       '@types/scheduler': 0.16.8
-      csstype: 3.1.3
+      csstype: 3.2.3
 
   '@types/resolve@1.17.1':
     dependencies:
@@ -9888,8 +9892,6 @@ snapshots:
       fast-uri: 3.1.0
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
-
-  almost-equal@1.1.0: {}
 
   ansi-escapes@4.3.2:
     dependencies:
@@ -10490,7 +10492,7 @@ snapshots:
   color-normalize@1.5.0:
     dependencies:
       clamp: 1.0.1
-      color-rgba: 2.1.1
+      color-rgba: 2.4.0
       dtype: 2.0.0
 
   color-parse@1.4.3:
@@ -10501,16 +10503,17 @@ snapshots:
     dependencies:
       color-name: 1.1.4
 
-  color-rgba@2.1.1:
+  color-rgba@2.4.0:
     dependencies:
-      clamp: 1.0.1
       color-parse: 1.4.3
-      color-space: 1.16.0
+      color-space: 2.3.2
 
-  color-space@1.16.0:
+  color-rgba@3.0.0:
     dependencies:
-      hsluv: 0.0.3
-      mumath: 3.3.4
+      color-parse: 2.0.0
+      color-space: 2.3.2
+
+  color-space@2.3.2: {}
 
   colord@2.9.3: {}
 
@@ -10673,19 +10676,6 @@ snapshots:
     optionalDependencies:
       webpack: 5.102.1
 
-  css-loader@7.1.2(webpack@5.102.1):
-    dependencies:
-      icss-utils: 5.1.0(postcss@8.5.6)
-      postcss: 8.5.6
-      postcss-modules-extract-imports: 3.1.0(postcss@8.5.6)
-      postcss-modules-local-by-default: 4.2.0(postcss@8.5.6)
-      postcss-modules-scope: 3.2.1(postcss@8.5.6)
-      postcss-modules-values: 4.0.0(postcss@8.5.6)
-      postcss-value-parser: 4.2.0
-      semver: 7.7.3
-    optionalDependencies:
-      webpack: 5.102.1
-
   css-minimizer-webpack-plugin@3.4.1(webpack@5.102.1):
     dependencies:
       cssnano: 5.1.15(postcss@8.5.6)
@@ -10816,6 +10806,8 @@ snapshots:
 
   csstype@3.1.3: {}
 
+  csstype@3.2.3: {}
+
   d3-array@1.2.4: {}
 
   d3-array@2.12.1:
@@ -10861,7 +10853,7 @@ snapshots:
       commander: 2.20.3
       d3-array: 1.2.4
       d3-geo: 1.12.1
-      resolve: 1.22.10
+      resolve: 1.22.11
 
   d3-geo@1.12.1:
     dependencies:
@@ -11630,8 +11622,8 @@ snapshots:
 
   eslint@8.57.1:
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.0(eslint@8.57.1)
-      '@eslint-community/regexpp': 4.12.1
+      '@eslint-community/eslint-utils': 4.9.1(eslint@8.57.1)
+      '@eslint-community/regexpp': 4.12.2
       '@eslint/eslintrc': 2.1.4
       '@eslint/js': 8.57.1
       '@humanwhocodes/config-array': 0.13.0
@@ -11647,7 +11639,7 @@ snapshots:
       eslint-scope: 7.2.2
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
-      esquery: 1.6.0
+      esquery: 1.7.0
       esutils: 2.0.3
       fast-deep-equal: 3.1.3
       file-entry-cache: 6.0.1
@@ -11659,7 +11651,7 @@ snapshots:
       imurmurhash: 0.1.4
       is-glob: 4.0.3
       is-path-inside: 3.0.3
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       json-stable-stringify-without-jsonify: 1.0.1
       levn: 0.4.1
       lodash.merge: 4.6.2
@@ -11688,7 +11680,7 @@ snapshots:
 
   esprima@4.0.1: {}
 
-  esquery@1.6.0:
+  esquery@1.7.0:
     dependencies:
       estraverse: 5.3.0
 
@@ -12194,7 +12186,7 @@ snapshots:
       graceful-fs: 4.2.11
       inherits: 2.0.4
       map-limit: 0.0.1
-      resolve: 1.22.10
+      resolve: 1.22.11
 
   glslify@7.1.1:
     dependencies:
@@ -12208,7 +12200,7 @@ snapshots:
       glslify-bundle: 5.1.1
       glslify-deps: 1.3.2
       minimist: 1.2.8
-      resolve: 1.22.10
+      resolve: 1.22.11
       stack-trace: 0.0.9
       static-eval: 2.1.1
       through2: 2.0.5
@@ -12346,8 +12338,6 @@ snapshots:
       obuf: 1.1.2
       readable-stream: 2.3.8
       wbuf: 1.7.3
-
-  hsluv@0.0.3: {}
 
   html-element-map@1.3.1:
     dependencies:
@@ -13230,7 +13220,7 @@ snapshots:
       argparse: 1.0.10
       esprima: 4.0.1
 
-  js-yaml@4.1.0:
+  js-yaml@4.1.1:
     dependencies:
       argparse: 2.0.1
 
@@ -13687,10 +13677,6 @@ snapshots:
       dns-packet: 5.6.1
       thunky: 1.1.0
 
-  mumath@3.3.4:
-    dependencies:
-      almost-equal: 1.1.0
-
   murmurhash-js@1.0.0: {}
 
   mz@2.7.0:
@@ -13718,7 +13704,7 @@ snapshots:
     dependencies:
       debug: 3.2.7
       iconv-lite: 0.4.24
-      sax: 1.4.1
+      sax: 1.4.4
     transitivePeerDependencies:
       - supports-color
 
@@ -14021,23 +14007,23 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  plotly.js@2.35.3(mapbox-gl@1.13.3)(webpack@5.102.1):
+  plotly.js@3.3.1(mapbox-gl@1.13.3):
     dependencies:
       '@plotly/d3': 3.8.2
       '@plotly/d3-sankey': 0.7.2
       '@plotly/d3-sankey-circular': 0.33.1
       '@plotly/mapbox-gl': 1.13.4(mapbox-gl@1.13.3)
-      '@turf/area': 7.2.0
-      '@turf/bbox': 7.2.0
-      '@turf/centroid': 7.2.0
+      '@plotly/regl': 2.1.2
+      '@turf/area': 7.3.3
+      '@turf/bbox': 7.3.3
+      '@turf/centroid': 7.3.3
       base64-arraybuffer: 1.0.2
       canvas-fit: 1.5.0
       color-alpha: 1.0.4
       color-normalize: 1.5.0
       color-parse: 2.0.0
-      color-rgba: 2.1.1
+      color-rgba: 3.0.0
       country-regex: 1.1.0
-      css-loader: 7.1.2(webpack@5.102.1)
       d3-force: 1.2.1
       d3-format: 1.4.5
       d3-geo: 1.12.1
@@ -14061,13 +14047,11 @@ snapshots:
       point-in-polygon: 1.1.0
       polybooljs: 1.2.2
       probe-image-size: 7.2.3
-      regl: '@plotly/regl@2.1.2'
       regl-error2d: 2.0.12
       regl-line2d: 3.1.3
       regl-scatter2d: 3.3.1
       regl-splom: 1.0.14
       strongly-connected-components: 1.0.1
-      style-loader: 4.0.0(webpack@5.102.1)
       superscript-text: 1.0.0
       svg-path-sdf: 1.1.3
       tinycolor2: 1.6.0
@@ -14076,10 +14060,8 @@ snapshots:
       webgl-context: 2.2.0
       world-calendars: 1.0.4
     transitivePeerDependencies:
-      - '@rspack/core'
       - mapbox-gl
       - supports-color
-      - webpack
 
   point-in-polygon@1.1.0: {}
 
@@ -14753,9 +14735,9 @@ snapshots:
       raf: 3.4.1
       react: 17.0.2
 
-  react-plotly.js@2.6.0(plotly.js@2.35.3(mapbox-gl@1.13.3)(webpack@5.102.1))(react@17.0.2):
+  react-plotly.js@2.6.0(plotly.js@3.3.1(mapbox-gl@1.13.3))(react@17.0.2):
     dependencies:
-      plotly.js: 2.35.3(mapbox-gl@1.13.3)(webpack@5.102.1)
+      plotly.js: 3.3.1(mapbox-gl@1.13.3)
       prop-types: 15.8.1
       react: 17.0.2
 
@@ -15103,7 +15085,7 @@ snapshots:
       clamp: 1.0.1
       color-id: 1.1.0
       color-normalize: 1.5.0
-      color-rgba: 2.1.1
+      color-rgba: 2.4.0
       flatten-vertex-data: 1.0.2
       glslify: 7.1.1
       is-iexplorer: 1.0.0
@@ -15192,6 +15174,12 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
+  resolve@1.22.11:
+    dependencies:
+      is-core-module: 2.16.1
+      path-parse: 1.0.7
+      supports-preserve-symlinks-flag: 1.0.0
+
   resolve@2.0.0-next.5:
     dependencies:
       is-core-module: 2.16.1
@@ -15268,7 +15256,7 @@ snapshots:
 
   sax@1.2.4: {}
 
-  sax@1.4.1: {}
+  sax@1.4.4: {}
 
   saxes@5.0.1:
     dependencies:
@@ -15653,10 +15641,6 @@ snapshots:
   strongly-connected-components@1.0.1: {}
 
   style-loader@3.3.4(webpack@5.102.1):
-    dependencies:
-      webpack: 5.102.1
-
-  style-loader@4.0.0(webpack@5.102.1):
     dependencies:
       webpack: 5.102.1
 
