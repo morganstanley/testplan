@@ -8,7 +8,7 @@ import pytest
 from testplan import defaults, report
 from testplan.report import TestCaseReport
 from testplan.report.testing.schemas import TestGroupReportSchema
-from testplan.testing import py_test as pytest_runner
+from testplan.testing import filtering, py_test as pytest_runner
 from tests.unit.testplan.testing import pytest_expected_data
 
 
@@ -30,6 +30,7 @@ def pytest_test_inst(repo_root_path, root_directory):
         name="My PyTest",
         description="PyTest example test",
         target=example_path,
+        test_filter=filtering.Filter(),
         stdout_style=defaults.STDOUT_STYLE,
         extra_args=["--rootdir", rootdir],
     )
@@ -42,6 +43,19 @@ def test_dry_run(pytest_test_inst):
     result = pytest_test_inst.dry_run()
     report = result.report
     assert report == pytest_expected_data.EXPECTED_DRY_RUN_REPORT
+
+
+def test_dry_run_with_filter_false(pytest_test_inst):
+    """
+    dry_run(with_filter=False) should still produce the same report
+    for PyTest since its _dry_run_testsuites does not use the filter.
+    """
+    result_default = pytest_test_inst.dry_run()
+    result_no_filter = pytest_test_inst.dry_run(with_filter=False)
+    assert (
+        result_no_filter.report.counter["total"]
+        == result_default.report.counter["total"]
+    )
 
 
 def test_run_tests(pytest_test_inst):

@@ -507,3 +507,43 @@ def test_auto_parts_run_with_zero_testcases():
         assert len(pool.added_items) == 1
         mockplan.run()
         assert pool.size == 1
+
+
+def test_auto_parts_with_part_pattern_filter():
+    with tempfile.TemporaryDirectory() as runpath:
+        # Simulates a re-run of a specific part from a previous run.
+        part_filter = Pattern("Proj1-suite - part(1/5)")
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            merge_scheduled_parts=True,
+            auto_part_runtime_limit=45,
+            plan_runtime_target=200,
+            test_filter=part_filter,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 199.99,
+                    "setup_time": 5,
+                    "teardown_time": 0,
+                    "testcase_count": 10,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        mockplan.schedule_all(
+            path=f"{current_folder}/discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+        assert (
+            mockplan.runnable.cfg.runtime_data["Proj1-suite"]["testcase_count"]
+            == 10
+        )
+        assert (
+            mockplan.runnable.cfg.runtime_data["Proj1-suite"]["execution_time"]
+            > 0
+        )
+        assert len(pool.added_items) == 1
+        assert pool.added_items["Proj1-suite - part(1/5)"]._part == (1, 5)

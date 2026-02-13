@@ -314,6 +314,52 @@ def test_dry_run():
     )
 
 
+def test_dry_run_with_filter_false_bypasses_filter():
+    """dry_run(with_filter=False) bypasses the configured test_filter."""
+    mtest = multitest.MultiTest(
+        name="MTest",
+        suites=[Suite()],
+        test_filter=filtering.Pattern("MTest:NonExistent"),
+        test_sorter=ordering.NoopSorter(),
+        stdout_style=defaults.STDOUT_STYLE,
+    )
+
+    result_filtered = mtest.dry_run()
+    assert result_filtered.report.counter["total"] == 0
+
+    result_unfiltered = mtest.dry_run(with_filter=False)
+    assert result_unfiltered.report.counter["total"] == 4
+
+
+def test_dry_run_with_filter_false_part_pattern():
+    mtest = multitest.MultiTest(
+        name="MTest",
+        suites=[Suite()],
+        test_filter=filtering.Pattern("MTest - part(1/6)"),
+        test_sorter=ordering.NoopSorter(),
+        stdout_style=defaults.STDOUT_STYLE,
+    )
+    result_filtered = mtest.dry_run()
+    assert result_filtered.report.counter["total"] == 0
+
+    result_unfiltered = mtest.dry_run(with_filter=False)
+    assert result_unfiltered.report.counter["total"] == 4
+
+
+def test_dry_run_with_filter_false_restores_filter():
+    """After dry_run(with_filter=False), the original filter is restored."""
+    original_filter = filtering.Pattern("MTest:Suite:case")
+    mtest = multitest.MultiTest(
+        name="MTest",
+        suites=[Suite()],
+        test_filter=original_filter,
+        test_sorter=ordering.NoopSorter(),
+        stdout_style=defaults.STDOUT_STYLE,
+    )
+    mtest.dry_run(with_filter=False)
+    assert mtest.cfg.test_filter is original_filter
+
+
 def test_run_all_tests():
     """Test running all tests."""
     mtest = multitest.MultiTest(

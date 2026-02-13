@@ -816,54 +816,68 @@ class Test(Runnable):
 
             self.result.report.append(testsuite_report)
 
-    def dry_run(self) -> RunnableResult:
+    def dry_run(self, with_filter: bool = True) -> RunnableResult:
         """
         Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
+
+        :param with_filter: Bypass the test_filter if False, used for
+            autopart calculation since filters might include parts.
         """
 
-        self.result.report = self._new_test_report()
+        original_filter = None
+        if not with_filter:
+            original_filter = self.cfg.test_filter
+            self.cfg.set_local("test_filter", filtering.Filter())
+            self.reset_context()
 
-        for hook, hook_name, suite_name in (
-            (
-                self.cfg.before_start,
-                ResourceHooks.BEFORE_START.value,
-                ResourceHooks.ENVIRONMENT_START.value,
-            ),
-            (
-                (lambda: None) if self.cfg.environment else None,
-                ResourceHooks.STARTING.value,
-                ResourceHooks.ENVIRONMENT_START.value,
-            ),
-            (
-                self.cfg.after_start,
-                ResourceHooks.AFTER_START.value,
-                ResourceHooks.ENVIRONMENT_START.value,
-            ),
-        ):
-            self._dry_run_resource_hook(hook, hook_name, suite_name)
-        self._dry_run_testsuites()
+        try:
+            self.result.report = self._new_test_report()
 
-        for hook, hook_name, suite_name in (
-            (
-                self.cfg.before_stop,
-                ResourceHooks.BEFORE_STOP.value,
-                ResourceHooks.ENVIRONMENT_STOP.value,
-            ),
-            (
-                (lambda: None) if self.cfg.environment else None,
-                ResourceHooks.STOPPING.value,
-                ResourceHooks.ENVIRONMENT_STOP.value,
-            ),
-            (
-                self.cfg.after_stop,
-                ResourceHooks.AFTER_STOP.value,
-                ResourceHooks.ENVIRONMENT_STOP.value,
-            ),
-        ):
-            self._dry_run_resource_hook(hook, hook_name, suite_name)
+            for hook, hook_name, suite_name in (
+                (
+                    self.cfg.before_start,
+                    ResourceHooks.BEFORE_START.value,
+                    ResourceHooks.ENVIRONMENT_START.value,
+                ),
+                (
+                    (lambda: None) if self.cfg.environment else None,
+                    ResourceHooks.STARTING.value,
+                    ResourceHooks.ENVIRONMENT_START.value,
+                ),
+                (
+                    self.cfg.after_start,
+                    ResourceHooks.AFTER_START.value,
+                    ResourceHooks.ENVIRONMENT_START.value,
+                ),
+            ):
+                self._dry_run_resource_hook(hook, hook_name, suite_name)
+            self._dry_run_testsuites()
 
-        return self.result
+            for hook, hook_name, suite_name in (
+                (
+                    self.cfg.before_stop,
+                    ResourceHooks.BEFORE_STOP.value,
+                    ResourceHooks.ENVIRONMENT_STOP.value,
+                ),
+                (
+                    (lambda: None) if self.cfg.environment else None,
+                    ResourceHooks.STOPPING.value,
+                    ResourceHooks.ENVIRONMENT_STOP.value,
+                ),
+                (
+                    self.cfg.after_stop,
+                    ResourceHooks.AFTER_STOP.value,
+                    ResourceHooks.ENVIRONMENT_STOP.value,
+                ),
+            ):
+                self._dry_run_resource_hook(hook, hook_name, suite_name)
+
+            return self.result
+        finally:
+            if original_filter is not None:
+                self.cfg.set_local("test_filter", original_filter)
+                self.reset_context()
 
     def set_discover_path(self, path: str) -> None:
         """

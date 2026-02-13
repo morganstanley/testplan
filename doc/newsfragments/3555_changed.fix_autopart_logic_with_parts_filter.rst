@@ -1,0 +1,1 @@
+Fixed a bug in autopart logic producing 0 parts when the test filter includes a part specification (e.g. ``--patterns "MyTest - part(1/6)"``).

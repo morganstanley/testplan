@@ -84,6 +84,19 @@ def test_dry_run(pyunit_runner_inst):
     assert report == pyunit_expected_data.EXPECTED_DRY_RUN_REPORT
 
 
+def test_dry_run_with_filter_false(pyunit_runner_inst):
+    """
+    dry_run(with_filter=False) should still produce the same report
+    for PyUnit since its _dry_run_testsuites does not use the filter.
+    """
+    result_default = pyunit_runner_inst.dry_run()
+    result_no_filter = pyunit_runner_inst.dry_run(with_filter=False)
+    assert (
+        result_no_filter.report.counter["total"]
+        == result_default.report.counter["total"]
+    )
+
+
 def test_run_testcases_iter_all(pyunit_runner_inst):
     """Test running all testcases iteratively."""
     results = list(pyunit_runner_inst.run_testcases_iter())

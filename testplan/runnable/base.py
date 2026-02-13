@@ -977,11 +977,11 @@ class TestRunner(Runnable):
                 task_info.materialized_test, MultiTest
             ):
                 prev_case_count = time_info.get("testcase_count", 0)
-                curr_case_count = (
-                    task_info.materialized_test.dry_run().report.counter[
-                        "total"
-                    ]
-                )
+                # We need parts calculation to remain the same even with filters, so ignore all filters in this dry_run.
+                # TODO: Consider filters to better split into parts? part numbers will no longer be the same if filters are considered.
+                curr_case_count = task_info.materialized_test.dry_run(
+                    with_filter=False
+                ).report.counter["total"]
                 time_info["testcase_count"] = curr_case_count
                 if not curr_case_count:
                     time_info["execution_time"] = 0
