@@ -150,7 +150,7 @@ class ResourceMonitorClient:
         self.zmq_socket.send(serialize(msg))
 
     def collect_cpu_usage(self) -> float:
-        return psutil.cpu_percent()
+        return psutil.cpu_percent(0.1)
 
     def collect_memory_usage(self) -> int:
         return self.memory_size - psutil.virtual_memory().available
@@ -196,6 +196,16 @@ class ResourceMonitorClient:
     def collect_process_data(self):
         processes = self.parent_process.children(recursive=True)
         processes.append(self.parent_process)
+        # Prime cpu_percent for all processes (first call always returns 0.0)
+        for proc in processes:
+            try:
+                proc.cpu_percent()
+            except psutil.NoSuchProcess:
+                continue
+
+        # Short sleep to allow CPU measurement interval
+        time.sleep(0.1)
+
         self.last_process_resource = {}
         for proc in processes:
             try:
