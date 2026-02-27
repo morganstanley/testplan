@@ -179,11 +179,16 @@ class Environment:
         )
 
     def _record_resource_exception(self, message, resource, msg_store):
-        fetch_msg = "\n".join(resource.fetch_error_log())
+        tb = traceback.format_exc()
+        try:
+            fetch_msg = "\n".join(resource.fetch_error_log())
+        except Exception:
+            fetch_msg = "[NO ERROR LOG FETCHED DUE TO EXCEPTION ABOVE]"
+            tb = traceback.format_exc()
 
         msg = message.format(
             resource=resource,
-            traceback_exc=traceback.format_exc(),
+            traceback_exc=tb,
             fetch_msg=fetch_msg,
         )
         resource.logger.error(msg)

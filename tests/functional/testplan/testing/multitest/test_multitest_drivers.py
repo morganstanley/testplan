@@ -209,6 +209,21 @@ class VulnerableDriver2(BaseDriver):
         raise Exception("Shutdown error")
 
 
+class VulnerableDriver3(BaseDriver):
+    """This driver raises exception during shutdown and error log fetching."""
+
+    def fetch_error_log(self):
+        return [b"\xe3\xd4\x84".decode()]
+
+    def stopping(self):
+        """Trigger driver stop."""
+        super().stopping()
+        with open(self.logpath, "a") as log_handle:
+            for idx in range(1000):
+                log_handle.write(f"This is line {idx}\n")
+        raise Exception("Shutdown error")
+
+
 class GoodDriver(BaseDriver):
     """This driver timeout during start."""
 
@@ -313,6 +328,40 @@ def test_multitest_driver_start_timeout():
 
     with driver2:
         assert True
+
+
+def test_multitest_driver_fetch_error_log_exc_handling(mockplan):
+    mockplan.add(
+        MultiTest(
+            name="Mtest2",
+            suites=[MySuite()],
+            environment=[
+                VulnerableDriver3(
+                    name="vulnerable_driver_2",
+                    report_errors_from_logs=True,
+                    error_logs_max_lines=10,
+                )
+            ],
+        )
+    )
+    mockplan.run()
+
+    res = mockplan.result
+    assert res.run is True
+
+    report = res.report
+    assert (
+        "Exception: Shutdown error"
+        in report.entries[0].entries[-1].entries[0].logs[0]["message"]
+    )
+
+    text = report.entries[0].entries[-1].entries[0].logs[0]["message"]
+    assert re.search(
+        r".*During handling.*invalid continuation byte.*"
+        r"[NO ERROR LOG FETCHED DUE TO EXCEPTION ABOVE].*",
+        text,
+        re.DOTALL | re.MULTILINE,
+    )
 
 
 def pre_start_fn(driver):
