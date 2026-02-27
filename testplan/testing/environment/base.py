@@ -143,15 +143,21 @@ class TestEnvironment(Environment):
             for driver in self._rt_dependency.drivers_processing():
                 watch: DriverPocketwatch = self._pocketwatches[driver.uid()]
                 try:
-                    if time.time() >= watch.start_time + watch.total_wait:
-                        # we got a timed-out here
-                        raise TimeoutException(
-                            f"Timeout when starting {driver}. "
-                            f"{TimeoutExceptionInfo(watch.start_time).msg()}"
-                        )
                     res = None
                     if watch.should_check():
                         res = driver.started_check()
+                    if time.time() >= watch.start_time + watch.total_wait:
+                        # we got a timed-out here
+                        if res:
+                            raise TimeoutException(
+                                f"Timeout when starting {driver} despite it's probably started now. "
+                                f"{TimeoutExceptionInfo(watch.start_time).msg()}"
+                            )
+                        else:
+                            raise TimeoutException(
+                                f"Timeout when starting {driver}. "
+                                f"{TimeoutExceptionInfo(watch.start_time).msg()}"
+                            )
                     if res:
                         driver._after_started()
                         driver.logger.info("%s started", driver)

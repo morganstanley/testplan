@@ -602,34 +602,6 @@ class MultiTest(testing_base.Test):
             )
         return self._tags_index
 
-    def skip_step(self, step) -> bool:
-        """Check if a step should be skipped."""
-        if step == self._run_error_handler:
-            return not (
-                self.resources.start_exceptions
-                or self.resources.stop_exceptions
-                or self._get_error_logs()
-            )
-        elif "_start_resource" not in self.result.step_results and any(
-            map(
-                lambda x: isinstance(x, Exception),
-                self.result.step_results.values(),
-            )
-        ):
-            # exc before _start_resource
-            return True
-        elif step in (
-            self._start_resource,
-            self._stop_resource,
-            self._finish_resource_report,
-            self.apply_xfail_tests,
-        ):
-            return False
-        elif self.resources.start_exceptions or self.resources.stop_exceptions:
-            self.logger.critical('Skipping step "%s"', step.__name__)
-            return True
-        return False
-
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
 
@@ -1361,14 +1333,6 @@ class MultiTest(testing_base.Test):
         else:
             parent_uids = [self.uid(), testsuite.uid()]
         return parent_uids
-
-    def _get_error_logs(self) -> Dict:
-        if "run_tests" in self.result.step_results:
-            return [
-                log
-                for log in self.result.step_results["run_tests"].flattened_logs
-                if log["levelname"] == "ERROR"
-            ]
 
     def _skip_testcases(self, testsuite, testcases):
         """
