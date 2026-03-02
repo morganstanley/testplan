@@ -332,7 +332,11 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                 install_file = render(install_file, context)
                 if not os.path.isfile(install_file):
                     raise ValueError("{} is not a file".format(install_file))
-                instantiate(install_file, context, self._install_target())
+                dst = self._install_target()
+                instantiate(install_file, context, dst)
+                self.logger.debug(
+                    "%s: installed file %s to %s", self, install_file, dst
+                )
             elif isinstance(install_file, tuple):
                 if len(install_file) != 2:
                     raise ValueError(
@@ -345,7 +349,10 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
                 dst = render(dst, context)
                 if not os.path.isabs(dst):
                     dst = os.path.join(self._install_target(), dst)
-                instantiate(src, self.context_input(), dst)
+                instantiate(src, context, dst)
+                self.logger.debug(
+                    "%s: installed file %s to %s", self, src, dst
+                )
 
     def _setup_file_logger(self) -> None:
         """

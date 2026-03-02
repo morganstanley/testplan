@@ -602,6 +602,11 @@ class MultiTest(testing_base.Test):
             )
         return self._tags_index
 
+    def skip_step(self, step) -> bool:
+        if step == self.apply_xfail_tests:
+            return False
+        return super().skip_step(step)
+
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
 

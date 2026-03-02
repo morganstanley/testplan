@@ -493,6 +493,7 @@ class Test(Runnable):
 
         if self.resources.start_exceptions:
             for msg in self.resources.start_exceptions.values():
+                self.logger.error(msg)
                 case_report.logger.error(msg)
             case_report.status_override = ReportStatus.ERROR
             case_report.runtime_status = RuntimeStatus.NOT_RUN
@@ -516,6 +517,7 @@ class Test(Runnable):
 
         if self.resources.stop_exceptions:
             for msg in self.resources.stop_exceptions.values():
+                self.logger.error(msg)
                 case_report.logger.error(msg)
             case_report.status_override = ReportStatus.ERROR
         pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_STOP}:{ResourceHooks.STOPPING}"
@@ -572,7 +574,6 @@ class Test(Runnable):
             self._start_resource,
             self._stop_resource,
             self._finish_resource_report,
-            self.apply_xfail_tests,
         ):
             return False
         elif self.resources.start_exceptions or self.resources.stop_exceptions:
@@ -1390,6 +1391,8 @@ class ProcessRunnerTest(Test):
                     self._test_process_retcode = self._test_process.wait()
 
                 self._test_has_run = True
+
+        return self.report
 
     def read_test_data(self):
         """
