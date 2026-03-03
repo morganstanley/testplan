@@ -3,6 +3,7 @@
 import logging
 import os
 import time
+import warnings
 from typing import Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
@@ -55,7 +56,6 @@ class DriverConfig(ResourceConfig):
             ConfigOption("stderr_regexps", default=None): Or(None, list),
             ConfigOption("file_logger", default=None): Or(None, str),
             ConfigOption("async_start", default=UNSET): Or(UNSET_T, bool),
-            ConfigOption("report_errors_from_logs", default=False): bool,
             ConfigOption("error_logs_max_lines", default=10): int,
             ConfigOption("path_cleanup", default=True): bool,
             ConfigOption("pre_start", default=None): validate_func("driver"),
@@ -79,10 +79,8 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     :param stderr_regexps: regexps to be matched in stderr file
     :param file_logger: filepath for driver log, defaults to top level TP log
     :param async_start: whether to allow async start in environment
-    :param report_errors_from_logs: whether to log the tail of
-        stdout/stderr/logfile logs upon start/stop exception
     :param error_logs_max_lines: number of lines to be logged from the
-        tail of stdout/stderr/logfile logs if `report_errors_from_logs` is True
+        tail of stdout/stderr/logfile logs when error occurs during start/stop
     :param path_cleanup: whether to remove existing runpath elements
     :param pre_start: callable to execute before starting the driver
     :param post_start: callable to execute after the driver is started
@@ -106,7 +104,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         stderr_regexps: List[Pattern] = None,
         file_logger: str = None,
         async_start: Union[UNSET_T, bool] = UNSET,
-        report_errors_from_logs: bool = False,
         error_logs_max_lines: int = 10,
         pre_start: Callable = None,
         post_start: Callable = None,
@@ -114,6 +111,12 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         post_stop: Callable = None,
         **options,
     ):
+        if "report_errors_from_logs" in options:
+            warnings.warn(
+                "``report_errors_from_logs`` is deprecated since we always attach tail of logs when error occurs now.",
+                DeprecationWarning,
+            )
+            options.pop("report_errors_from_logs")
         options.update(self.filter_locals(locals()))
         super(Driver, self).__init__(**options)
         self.extracts = {}
