@@ -35,6 +35,8 @@ class DummyTest(Test):
             time.sleep(0.5)  # 500ms for execution
             self.result.report.status_override = Status.PASSED
 
+        return self.result.report
+
     def add_pre_resource_steps(self):
         self._add_step(lambda: self.result.report.timer.start("flag1"))
         self.make_runpath_dirs()

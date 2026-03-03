@@ -54,6 +54,7 @@ class DummyTest(Test):
         self.result.custom = "{}Result[{}]".format(
             self.__class__.__name__, self.name
         )
+        return self.report
 
     def add_main_batch_steps(self):
         self._add_step(self.run_tests)

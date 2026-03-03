@@ -493,6 +493,7 @@ class Test(Runnable):
 
         if self.resources.start_exceptions:
             for msg in self.resources.start_exceptions.values():
+                self.logger.error(msg)
                 case_report.logger.error(msg)
             case_report.status_override = ReportStatus.ERROR
             case_report.runtime_status = RuntimeStatus.NOT_RUN
@@ -516,15 +517,9 @@ class Test(Runnable):
 
         if self.resources.stop_exceptions:
             for msg in self.resources.stop_exceptions.values():
+                self.logger.error(msg)
                 case_report.logger.error(msg)
             case_report.status_override = ReportStatus.ERROR
-        drivers = set(self.resources.start_exceptions.keys())
-        drivers.update(self.resources.stop_exceptions.keys())
-        for driver in drivers:
-            if driver.cfg.report_errors_from_logs:
-                error_log = os.linesep.join(driver.fetch_error_log())
-                if error_log:
-                    case_report.logger.error(error_log)
         pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_STOP}:{ResourceHooks.STOPPING}"
         self._xfail(pattern, case_report)
 
@@ -550,6 +545,41 @@ class Test(Runnable):
         end_time = int(self.timer.last(timer_key).end.timestamp() * 1e9)
         if span := self._spans.get(span_key):
             tracing.end_span(span, end_time=end_time)
+
+    def _get_error_logs(self) -> Dict:
+        if "run_tests" in self.result.step_results:
+            return [
+                log
+                for log in self.result.step_results["run_tests"].flattened_logs
+                if log["levelname"] == "ERROR"
+            ]
+
+    def skip_step(self, step) -> bool:
+        """Check if a step should be skipped."""
+        if step == self._run_error_handler:
+            return not (
+                self.resources.start_exceptions
+                or self.resources.stop_exceptions
+                or self._get_error_logs()
+            )
+        elif "_start_resource" not in self.result.step_results and any(
+            map(
+                lambda x: isinstance(x, Exception),
+                self.result.step_results.values(),
+            )
+        ):
+            # exc before _start_resource
+            return True
+        elif step in (
+            self._start_resource,
+            self._stop_resource,
+            self._finish_resource_report,
+        ):
+            return False
+        elif self.resources.start_exceptions or self.resources.stop_exceptions:
+            self.logger.critical('Skipping step "%s"', step.__name__)
+            return True
+        return False
 
     def add_pre_resource_steps(self) -> None:
         """Runnable steps to be executed before environment starts."""
@@ -1361,6 +1391,8 @@ class ProcessRunnerTest(Test):
                     self._test_process_retcode = self._test_process.wait()
 
                 self._test_has_run = True
+
+        return self.report
 
     def read_test_data(self):
         """

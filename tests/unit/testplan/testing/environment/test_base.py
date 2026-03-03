@@ -247,6 +247,9 @@ class TestExceptionThrown:
         env.set_dependency(parse_dependency({a: b}))
         env.start()
         assert len(env.start_exceptions) == 1
+        assert "While starting driver FlakyDriver[a]:" in str(
+            list(env.start_exceptions.values())[0]
+        )
         assert a.status == a.status.STARTING
         assert b.status == b.status.NONE
         assert c.status == c.status.NONE
@@ -264,6 +267,9 @@ class TestExceptionThrown:
         env.set_dependency(parse_dependency({a: b}))
         env.start()
         assert len(env.start_exceptions) == 1
+        assert "While waiting for driver FlakyDriver[a] to start:" in str(
+            list(env.start_exceptions.values())[0]
+        )
         assert a.status == a.status.STARTING
         assert b.status == b.status.NONE
         assert c.status == c.status.STARTED
@@ -285,6 +291,9 @@ class TestExceptionThrown:
         assert c.status == c.status.STARTED
         env.stop()
         assert len(env.stop_exceptions) == 1
+        assert "While stopping driver FlakyDriver[a]:" in str(
+            list(env.stop_exceptions.values())[0]
+        )
         assert a.status == a.status.STOPPED
         assert b.status == b.status.STOPPED
         assert c.status == c.status.STOPPED
@@ -305,6 +314,44 @@ class TestExceptionThrown:
         assert c.status == c.status.STARTED
         env.stop()
         assert len(env.stop_exceptions) == 1
+        assert "While waiting for driver FlakyDriver[a] to stop:" in str(
+            list(env.stop_exceptions.values())[0]
+        )
         assert a.status == a.status.STOPPED
         assert b.status == b.status.STOPPED
         assert c.status == c.status.STOPPED
+
+    def test_timeout_ordinary(self, mocker):
+        m = mocker.Mock()
+        env = TestEnvironment()
+        a = MockDriver("a", m, total_wait=2, timeout=1)
+        b = MockDriver("b", m)
+
+        for d_ in [a, b]:
+            env.add(d_)
+        env.set_dependency(parse_dependency({a: b}))
+        env.start()
+        assert len(env.start_exceptions) == 1
+        assert "Timeout when starting MockDriver[a]." in str(
+            list(env.start_exceptions.values())[0]
+        )
+        assert a.status == a.status.STARTING
+        assert b.status == b.status.NONE
+
+    def test_timeout_critical(self, mocker):
+        m = mocker.Mock()
+        env = TestEnvironment()
+        a = MockDriver("a", m, check_wait=2, timeout=1)
+        b = MockDriver("b", m)
+
+        for d_ in [a, b]:
+            env.add(d_)
+        env.set_dependency(parse_dependency({a: b}))
+        env.start()
+        assert len(env.start_exceptions) == 1
+        assert (
+            "Timeout when starting MockDriver[a] despite it's probably started now."
+            in str(list(env.start_exceptions.values())[0])
+        )
+        assert a.status == a.status.STARTING
+        assert b.status == b.status.NONE
