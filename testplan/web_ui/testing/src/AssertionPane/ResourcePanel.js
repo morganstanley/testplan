@@ -23,6 +23,8 @@ import PropTypes from "prop-types";
 import prettyBytes from "pretty-bytes";
 import { getResourceUrl, timeToTimestamp } from "../Common/utils";
 import {
+  ORANGE,
+  LIGHT_ORANGE,
   RED,
   LIGHT_RED,
   GREEN,
@@ -338,21 +340,38 @@ const HostResourceGraphContainer = ({
   startTime,
   endTime,
   memorySize,
+  system_load,
 }) => {
   const cpuData = [];
   const memoryData = [];
   const diskData = [];
   const iopsData = [];
+  const systemLoadData = [];
 
   for (let t in time) {
     cpuData.push({ x: time[t] * 1000, y: cpu[t] / 100 });
     memoryData.push({ x: time[t] * 1000, y: memory[t] });
     diskData.push({ x: time[t] * 1000, y: disk[t] });
+    // systemLoad is optional, only push data when it's available
+    if (system_load) {
+      systemLoadData.push({ x: time[t] * 1000, y: system_load[t] });
+    }
     iopsData.push({
       x: time[t] * 1000,
       y: iops[t],
     });
   }
+  const systemLoadGraph = system_load ? (
+    <ResourceGraph
+      data={systemLoadData}
+      label="System Load"
+      startTime={startTime}
+      endTime={endTime}
+      valueTicks={defaultTicks}
+      lineColor={ORANGE}
+      fillColor={LIGHT_ORANGE}
+    />
+  ) : null;
 
   const cpuGraph = (
     <ResourceGraph
@@ -405,6 +424,7 @@ const HostResourceGraphContainer = ({
 
   return (
     <>
+      {systemLoadGraph}
       {cpuGraph}
       {memoryGraph}
       {diskGraph}
