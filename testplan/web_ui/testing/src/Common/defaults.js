@@ -16,6 +16,7 @@ const LIGHT_GREEN = "#DFF0D8";
 const RED = "#A2000C";
 const DARK_RED = "#840008";
 const LIGHT_RED = "#F2DEDE";
+const LIGHT_ORANGE = "#FCE5CD66";
 const ORANGE = "#D2691E";
 const DARK_ORANGE = "#DD8800";
 const LIGHT_GREY = "#F3F3F3";
@@ -276,6 +277,7 @@ export {
   RED,
   DARK_RED,
   LIGHT_RED,
+  LIGHT_ORANGE,
   ORANGE,
   DARK_ORANGE,
   LIGHT_GREY,

@@ -1,0 +1,1 @@
+Resource monitor now supports collecting system load information.

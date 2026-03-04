@@ -44,6 +44,7 @@ class HostResourceData(ResourceData):
     """
 
     disk_used: int
+    system_load: float
 
 
 @dataclasses.dataclass
@@ -69,6 +70,7 @@ class HostResourceRow(NamedTuple):
     iops: float
     io_read: float
     io_write: float
+    system_load: float
 
 
 class ProcessResourceRow(NamedTuple):
@@ -184,6 +186,7 @@ class ResourceMonitorClient:
                 iops=iops,
                 io_read=io_read,
                 io_write=io_write,
+                system_load=psutil.getloadavg()[0],
             )
             self.last_host_resource = host_resource
 
@@ -381,6 +384,7 @@ class ResourceMonitorServer:
                 client_host_data.iops,
                 client_host_data.io_read,
                 client_host_data.io_write,
+                client_host_data.system_load,
             )
             self._file_handler[client_id]["host_csv"].writerow(row)
             self._file_handler[client_id]["host_file"].flush()
@@ -457,6 +461,7 @@ class ResourceMonitorServer:
                 "iops": [],
                 "io_read": [],
                 "io_write": [],
+                "system_load": [],
             }
             with open(client_host_path) as client_file:
                 reader = csv.reader(client_file)
@@ -477,6 +482,9 @@ class ResourceMonitorServer:
                     resource_data["io_write"].append(
                         float(host_resource.io_write)
                     )
+                    resource_data["system_load"].append(
+                        float(host_resource.system_load)
+                    )
             json_file_path = self.file_directory / f"{slugify(client_id)}.json"
             with open(json_file_path, "w") as json_file:
                 json_file.write(json_dumps(resource_data))
@@ -486,6 +494,7 @@ class ResourceMonitorServer:
                 "max_memory": max(resource_data["memory"]),
                 "max_disk": max(resource_data["disk"]),
                 "max_iops": max(resource_data["iops"]),
+                "max_system_load": max(resource_data["system_load"]),
             }
         except FileNotFoundError:
             return
