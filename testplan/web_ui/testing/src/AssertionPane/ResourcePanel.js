@@ -440,6 +440,7 @@ const HostMetaTitle = ({
   diskSize,
   diskPath,
   memorySize,
+  extraInfo,
   isLocal,
 }) => {
   let uidDiv = null;
@@ -485,6 +486,26 @@ const HostMetaTitle = ({
       <div style={{ fontSize: "12px", color: "gray" }}>
         {cpuInfo} {memoryInfo} {diskInfo} {diskPathInfo}
       </div>
+      {!_.isEmpty(extraInfo) ? (
+        <div style={{ fontSize: "12px", color: "gray" }}>
+          {extraInfo.map((item, index) => {
+            return _.isArray(item) ? (
+              <div>
+                <a
+                  key={index}
+                  href={item[1]}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {item[0]}
+                </a>
+              </div>
+            ) : (
+              <div>{item}</div>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -496,6 +517,12 @@ HostMetaTitle.propTypes = {
   diskSize: PropTypes.number,
   diskPath: PropTypes.string,
   memorySize: PropTypes.number,
+  extraInfo: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.string,
+    ])
+  ),
   isLocal: PropTypes.bool,
 };
 
@@ -572,6 +599,7 @@ const HostResource = ({
         diskSize={resourceEntry.metaData.disk_size}
         diskPath={resourceEntry.metaData.disk_path}
         memorySize={resourceEntry.metaData.memory_size}
+        extraInfo={resourceEntry.metaData.extra_info}
         isLocal={resourceEntry.metaData.is_local}
       />
       {hostResourceGraph}
