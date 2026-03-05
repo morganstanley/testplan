@@ -111,6 +111,7 @@ class ResourceMonitorClient:
         self.disk_path: str = disk_path or pwd()
         self.disk_size: int = 0
         self.is_local: bool = is_local
+        self.extra_info: Optional[list[Union[str, tuple[str, str]]]] = None
         self.enrich_metadata()
 
         self.last_host_resource: Optional[HostResourceData] = None
@@ -147,6 +148,7 @@ class ResourceMonitorClient:
                 "disk_path": self.disk_path,
                 "disk_size": self.disk_size,
                 "is_local": self.is_local,
+                "extra_info": self.extra_info,
             },
         )
         self.zmq_socket.send(serialize(msg))
