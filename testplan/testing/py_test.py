@@ -139,6 +139,8 @@ class PyTest(testing.Test):
             if self.report.failed:
                 tracing.set_span_as_failed(pytest_span)
 
+        return self.report
+
     def _collect_tests(self):
         """Collect test items but do not run any."""
 

@@ -70,6 +70,8 @@ class PyUnit(testing.Test):
             if self.report.failed:
                 tracing.set_span_as_failed(pyunit_span)
 
+        return self.report
+
     def get_test_context(self):
         """
         Currently we do not inspect individual PyUnit testcases - only allow
