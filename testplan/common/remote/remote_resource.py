@@ -507,6 +507,10 @@ class RemoteResource(Entity):
                 remote_target=True,
                 exclude=self.cfg.workspace_exclude,
             )
+            self._ssh_client.exec_command(
+                cmd="/usr/bin/sync",
+                label="sync remote disk after copying workspace",
+            )
 
             if IS_WIN:
                 return
