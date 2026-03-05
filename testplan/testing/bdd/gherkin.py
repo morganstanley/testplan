@@ -33,10 +33,10 @@ class ParsedStore:
 class Feature(ParsedStore):
     def __init__(self, featurefile):
         try:
+            with open(featurefile, "r") as f:
+                content = f.read()
             parser = Parser(ast_builder=AstBuilder())
-            feature = parser.parse(TokenScanner(featurefile)).get(
-                "feature", {}
-            )
+            feature = parser.parse(TokenScanner(content)).get("feature", {})
         except:
             print("Error parsing: {}".format(featurefile))
             raise
