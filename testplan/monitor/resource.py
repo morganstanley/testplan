@@ -111,6 +111,7 @@ class ResourceMonitorClient:
         self.disk_path: str = disk_path or pwd()
         self.disk_size: int = 0
         self.is_local: bool = is_local
+        self.extra_info: Optional[list[Union[str, tuple[str, str]]]] = None
         self.enrich_metadata()
 
         self.last_host_resource: Optional[HostResourceData] = None
@@ -147,6 +148,7 @@ class ResourceMonitorClient:
                 "disk_path": self.disk_path,
                 "disk_size": self.disk_size,
                 "is_local": self.is_local,
+                "extra_info": self.extra_info,
             },
         )
         self.zmq_socket.send(serialize(msg))
@@ -490,6 +492,8 @@ class ResourceMonitorServer:
                 json_file.write(json_dumps(resource_data))
             return {
                 "resource_file": str(json_file_path.resolve()),
+                "time_start": min(resource_data["time"]),
+                "time_end": max(resource_data["time"]),
                 "max_cpu": max(resource_data["cpu"]),
                 "max_memory": max(resource_data["memory"]),
                 "max_disk": max(resource_data["disk"]),
