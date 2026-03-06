@@ -492,6 +492,8 @@ class ResourceMonitorServer:
                 json_file.write(json_dumps(resource_data))
             return {
                 "resource_file": str(json_file_path.resolve()),
+                "time_start": min(resource_data["time"]),
+                "time_end": max(resource_data["time"]),
                 "max_cpu": max(resource_data["cpu"]),
                 "max_memory": max(resource_data["memory"]),
                 "max_disk": max(resource_data["disk"]),
