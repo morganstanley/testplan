@@ -195,6 +195,30 @@ def test_programmatic_filtering(filter_obj, report_ctx):
     check_report_context(test_report, report_ctx)
 
 
+def test_programmatic_filtering_empty_multitest():
+    """MultiTest with no suites should still run if pattern matches test name."""
+    multitest_x = MultiTest(name="XXX", suites=[])
+
+    plan = TestplanMock(name="plan", test_filter=filtering.Pattern("XXX"))
+    plan.add(multitest_x)
+    plan.run()
+
+    test_report = plan.report
+    check_report_context(test_report, [("XXX", [])])
+
+
+def test_programmatic_filtering_empty_multitest_no_match():
+    """MultiTest with no suites should not run if pattern doesn't match."""
+    multitest_x = MultiTest(name="XXX", suites=[])
+
+    plan = TestplanMock(name="plan", test_filter=filtering.Pattern("YYY"))
+    plan.add(multitest_x)
+    plan.run()
+
+    test_report = plan.report
+    check_report_context(test_report, [])
+
+
 @pytest.mark.parametrize(
     "filter_obj, report_ctx",
     (

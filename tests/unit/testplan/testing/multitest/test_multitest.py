@@ -664,3 +664,44 @@ def test_skip_steps():
         )
     )
     assert "_start_resource" not in mt.result.step_results
+
+
+@pytest.mark.parametrize(
+    "pattern, name, expected",
+    (
+        ("Test", "Test", True),
+        ("T*", "Test", True),
+        ("Test1", "Test", False),
+        ("*", "Test", True),
+        ("*:*:*", "Test", True),
+        ("Test:Suite:case", "Test", True),
+        ("Test1:Suite:case", "Test", False),
+    ),
+)
+def test_should_run_with_pattern_filter(pattern, name, expected):
+    mt = multitest.MultiTest(
+        name=name,
+        suites=[Suite()],
+        **{**MTEST_DEFAULT_PARAMS, "test_filter": filtering.Pattern(pattern)},
+    )
+    assert mt.should_run() == expected
+
+
+def test_should_run_with_no_suites():
+    """should_run returns True if filter matches even with no suites."""
+    mt = multitest.MultiTest(
+        name="Test",
+        suites=[],
+        **{**MTEST_DEFAULT_PARAMS, "test_filter": filtering.Pattern("Test")},
+    )
+    assert mt.should_run() is True
+
+
+def test_should_run_with_no_suites_no_match():
+    """should_run returns False if filter doesn't match and no suites."""
+    mt = multitest.MultiTest(
+        name="Test",
+        suites=[],
+        **{**MTEST_DEFAULT_PARAMS, "test_filter": filtering.Pattern("Test1")},
+    )
+    assert mt.should_run() is False
