@@ -29,7 +29,7 @@ import shutil
 import socket
 import sys
 from functools import reduce
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 from testplan.common.entity import Environment
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -38,8 +38,9 @@ from testplan.testing.multitest import testsuite, testcase
 from testplan.testing.result import Result
 
 
-def _prev_all_green(env, result) -> bool:
-    return env.parent.report.passed and reduce(
+def _prev_all_green(env: Environment, result: Result) -> bool:
+    assert env.parent is not None
+    return env.parent.report.passed and reduce(  # type: ignore[attr-defined]
         lambda x, y: x and y.get("passed", True),
         result.serialized_entries,
         True,
@@ -65,8 +66,8 @@ class DriverLogCollector:
         self,
         name: str = "DriverLogCollector",
         description: str = "logs",
-        ignore: List[str] = None,
-        file_pattern: List[str] = None,
+        ignore: Optional[List[str]] = None,
+        file_pattern: Optional[List[str]] = None,
         recursive: bool = True,
         failure_only: bool = True,
     ) -> None:
@@ -90,7 +91,7 @@ class DriverLogCollector:
             for driver in env:
                 result.attach(
                     path=driver.runpath,
-                    description=f"Driver: {driver.name} - {self.description}",
+                    description=f"Driver: {driver.name} - {self.description}",  # type: ignore[attr-defined]
                     only=self.file_pattern,
                     recursive=self.recursive,
                     ignore=self.ignore,
@@ -135,7 +136,7 @@ def log_hardware(result: Result) -> None:
     """
     result.log(socket.getfqdn(), description="Current Host")
     hardware = get_hardware_info()
-    result.dict.log(hardware, description="Hardware info")
+    result.dict.log(hardware, description="Hardware info")  # type: ignore[attr-defined]
 
 
 def log_environment(result: Result) -> None:
@@ -144,7 +145,7 @@ def log_environment(result: Result) -> None:
 
     :param result: testcase result
     """
-    result.dict.log(
+    result.dict.log(  # type: ignore[attr-defined]
         dict(os.environ), description="Current environment variable"
     )
 
@@ -217,12 +218,14 @@ def clean_runpath_if_passed(
     :param result: result object
     """
     multitest = env.parent
-    if _prev_all_green(env, result) and multitest.report.passed:
+    if multitest is None:
+        return
+    if _prev_all_green(env, result) and multitest.report.passed:  # type: ignore[attr-defined]
         for subfile in os.listdir(multitest.runpath):
             # TODO: Define scratch as a constant
             if subfile != "scratch":
                 path = os.path.join(
-                    os.path.abspath(multitest.runpath), subfile
+                    os.path.abspath(multitest.runpath), subfile  # type: ignore[type-var, arg-type]
                 )
                 if os.path.isfile(path) or os.path.islink(path):
                     os.remove(path)
@@ -237,14 +240,14 @@ class TestplanExecutionInfo:
     """
 
     @testcase
-    def environment(self, env, result):
+    def environment(self, env: Environment, result: Result) -> None:
         """
         Environment
         """
         log_environment(result)
 
     @testcase
-    def path(self, env, result):
+    def path(self, env: Environment, result: Result) -> None:
         """
         Execution path
         """
@@ -252,14 +255,14 @@ class TestplanExecutionInfo:
         log_cmd(result)
 
     @testcase
-    def hardware(self, env, result):
+    def hardware(self, env: Environment, result: Result) -> None:
         """
         Host hardware
         """
         log_hardware(result)
 
     @testcase
-    def logging(self, env, result):
+    def logging(self, env: Environment, result: Result) -> None:
         """
         Testplan log
         """

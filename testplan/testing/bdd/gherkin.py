@@ -1,5 +1,6 @@
 import copy
 import re
+from typing import Any, Dict, List, Optional, Union
 
 from boltons.cacheutils import cachedproperty
 from gherkin.ast_builder import AstBuilder
@@ -7,23 +8,23 @@ from gherkin.parser import Parser
 from gherkin.token_scanner import TokenScanner
 
 
-def get_tags(parsed):
+def get_tags(parsed: Any) -> List[str]:
     return [tag["name"][1:] for tag in parsed.get("tags", [])]
 
 
 class ParsedStore:
-    def __init__(self, parsed):
+    def __init__(self, parsed: Any) -> None:
         super(ParsedStore, self).__init__()
         self._parsed = parsed
 
     @property
-    def parsed(self):
+    def parsed(self) -> Any:
         return self._parsed
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         return self._parsed.__getitem__(item)
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> Any:
         try:
             return self[item]
         except KeyError as e:
@@ -31,7 +32,7 @@ class ParsedStore:
 
 
 class Feature(ParsedStore):
-    def __init__(self, featurefile):
+    def __init__(self, featurefile: str) -> None:
         try:
             with open(featurefile, "r") as f:
                 content = f.read()
@@ -45,19 +46,19 @@ class Feature(ParsedStore):
             raise TypeError("Not valid feature file {}".format(featurefile))
 
         super(Feature, self).__init__(feature)
-        self.file = featurefile
-        self.background = None
-        self._scenarios = []
+        self.file: str = featurefile
+        self.background: Optional["Background"] = None
+        self._scenarios: List[Union["Scenario", "ScenarioOutline"]] = []
 
-        self.name = feature["name"]  # should be mandatory
-        self.description = feature.get("description", "")
-        self.tags = get_tags(feature)
+        self.name: str = feature["name"]  # should be mandatory
+        self.description: str = feature.get("description", "")
+        self.tags: List[str] = get_tags(feature)
 
         self.parse_children(feature.get("children", []))
 
     @cachedproperty
-    def scenarios(self):
-        scenarios = []
+    def scenarios(self) -> List["Scenario"]:
+        scenarios: List["Scenario"] = []
 
         for scen in self._scenarios:
             if isinstance(scen, ScenarioOutline):
@@ -67,7 +68,7 @@ class Feature(ParsedStore):
 
         return scenarios
 
-    def parse_children(self, childrens):
+    def parse_children(self, childrens: Any) -> None:
         for child in childrens:
             if "background" in child:
                 self.background = Background(child["background"])
@@ -89,28 +90,28 @@ class Feature(ParsedStore):
 
 class StepContainer:
     @cachedproperty
-    def steps(self):
+    def steps(self) -> List["Step"]:
         return self._steps()
 
-    def _steps(self):
-        return [Step(step) for step in self.parsed.get("steps", [])]
+    def _steps(self) -> List["Step"]:
+        return [Step(step) for step in self.parsed.get("steps", [])]  # type: ignore[attr-defined]
 
 
 class Scenario(ParsedStore, StepContainer):
-    def __init__(self, parsed, background=None):
+    def __init__(self, parsed: Dict[str, Any], background: Optional["Background"] = None) -> None:
         super(Scenario, self).__init__(parsed)
 
-        self.name = self.parsed["name"]
-        self.tags = get_tags(parsed)
-        self.description = self.parsed.get("description", "")
+        self.name: str = self.parsed["name"]
+        self.tags: List[str] = get_tags(parsed)
+        self.description: str = self.parsed.get("description", "")
         self.background = background
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         return self.parsed.__getitem__(item)
 
     @cachedproperty
-    def steps(self):
-        steps = []
+    def steps(self) -> List["Step"]:
+        steps: List["Step"] = []
         if self.background:
             steps += self.background.steps
         steps += self._steps()
@@ -118,56 +119,56 @@ class Scenario(ParsedStore, StepContainer):
 
 
 class Background(ParsedStore, StepContainer):
-    def __init__(self, parsed):
+    def __init__(self, parsed: Dict[str, Any]) -> None:
         super(Background, self).__init__(parsed)
 
 
-def parse_cells(row):
-    return [cell.get("value") for cell in row.get("cells")]
+def parse_cells(row: Dict[str, Any]) -> List[Any]:
+    return [cell.get("value") for cell in row.get("cells", [])]
 
 
-def parse_rows(rows):
+def parse_rows(rows: List[Dict[str, Any]]) -> List[List[Any]]:
     return [parse_cells(row) for row in rows]
 
 
 class DataTable(ParsedStore):
-    def __init__(self, parsed):
+    def __init__(self, parsed: Dict[str, Any]) -> None:
         super(DataTable, self).__init__(parsed)
 
-        self.data = parse_rows(self.parsed["rows"])
+        self.data: List[List[Any]] = parse_rows(self.parsed["rows"])
 
 
 class Example(ParsedStore):
-    def __init__(self, parsed):
+    def __init__(self, parsed: Dict[str, Any]) -> None:
         super(Example, self).__init__(parsed)
 
-        self.name = self.parsed["name"]
-        self.data = parse_rows(self.parsed["tableBody"])
-        self.header = parse_cells(self.parsed["tableHeader"])
-        self.description = self.parsed.get("description", "")
+        self.name: str = self.parsed["name"]
+        self.data: List[List[Any]] = parse_rows(self.parsed["tableBody"])
+        self.header: List[Any] = parse_cells(self.parsed["tableHeader"])
+        self.description: str = self.parsed.get("description", "")
 
 
 class ScenarioOutline(ParsedStore, StepContainer):
-    def __init__(self, parsed, background=None):
+    def __init__(self, parsed: Dict[str, Any], background: Optional["Background"] = None) -> None:
         super(ScenarioOutline, self).__init__(parsed)
 
-        self.name = self.parsed["name"]
-        self.tags = get_tags(parsed)
-        self.examples = [
+        self.name: str = self.parsed["name"]
+        self.tags: List[str] = get_tags(parsed)
+        self.examples: List[Example] = [
             Example(example) for example in self.parsed["examples"]
         ]
         self.background = background
-        self.description = self.parsed.get("description", "")
+        self.description: str = self.parsed.get("description", "")
 
     @cachedproperty
-    def scenarios(self):
+    def scenarios(self) -> List[Scenario]:
         return self.compile_scenarios()
 
-    def compile_scenarios(self):
-        def resolve(item, data, paths=[":"], current=":"):
-            def resolve_text(value):
+    def compile_scenarios(self) -> List[Scenario]:
+        def resolve(item: Any, data: Dict[str, Any], paths: Any = [":"], current: str = ":") -> Any:
+            def resolve_text(value: str) -> str:
                 regexp = "(<([^>]*)>)"
-                result = value  # type: unicode
+                result = value
                 for marker, name in re.findall(regexp, value):
                     result = result.replace(marker, data.get(name, marker))
 
@@ -188,7 +189,7 @@ class ScenarioOutline(ParsedStore, StepContainer):
             else:
                 pass  # TODO: Should not happen, raise an Exception?
 
-        compiled_scenarios = []
+        compiled_scenarios: List[Scenario] = []
 
         for example in self.examples:
             name = (
@@ -225,9 +226,9 @@ class ScenarioOutline(ParsedStore, StepContainer):
         return compiled_scenarios
 
 
-def get_argument(parsed):
+def get_argument(parsed: Dict[str, Any]) -> Optional[Union[str, DataTable]]:
     if "docString" in parsed:
-        return parsed["docString"]["content"]
+        return parsed["docString"]["content"]  # type: ignore[no-any-return]
 
     if "dataTable" in parsed:
         return DataTable(parsed["dataTable"])
@@ -236,13 +237,13 @@ def get_argument(parsed):
 
 
 class Step(ParsedStore):
-    def __init__(self, parsed):
+    def __init__(self, parsed: Dict[str, Any]) -> None:
         super(Step, self).__init__(parsed)
 
-        self.text = self.parsed["text"]  # This should be there
-        self.keyword = self.parsed["keyword"]
-        self.argument = get_argument(self.parsed)
+        self.text: str = self.parsed["text"]  # This should be there
+        self.keyword: str = self.parsed["keyword"]
+        self.argument: Optional[Union[str, DataTable]] = get_argument(self.parsed)
 
     @property
-    def sentence(self):
+    def sentence(self) -> str:
         return "{}{}".format(self.keyword, self.text)

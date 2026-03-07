@@ -6,7 +6,7 @@ import fnmatch
 import operator
 import re
 from enum import Enum, IntEnum, auto
-from typing import TYPE_CHECKING, Callable, List, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from testplan.testing import tagging
 from testplan.testing.common import (
@@ -45,19 +45,19 @@ class BaseFilter:
     e.g. (FilterA(...) & FilterB(...)) | ~FilterC(...)
     """
 
-    def map(self, f):
+    def map(self, f: Callable) -> "BaseFilter":
         raise NotImplementedError
 
-    def filter(self, test, suite, case) -> bool:
+    def filter(self, test: Any, suite: Any, case: Any) -> bool:
         raise NotImplementedError
 
-    def __or__(self, other):
+    def __or__(self, other: "BaseFilter") -> "Or":
         return Or(self, other)
 
-    def __and__(self, other):
+    def __and__(self, other: "BaseFilter") -> "And":
         return And(self, other)
 
-    def __invert__(self):
+    def __invert__(self) -> "BaseFilter":
         return Not(self)
 
 
@@ -73,19 +73,19 @@ class Filter(BaseFilter):
 
     category = FilterCategory.COMMON
 
-    def map(self, f):
-        return f(self)
+    def map(self, f: Callable) -> "BaseFilter":
+        return f(self)  # type: ignore[no-any-return]
 
-    def filter_test(self, test) -> bool:
+    def filter_test(self, test: Any) -> bool:
         return True
 
-    def filter_suite(self, suite) -> bool:
+    def filter_suite(self, suite: Any) -> bool:
         return True
 
-    def filter_case(self, case) -> bool:
+    def filter_case(self, case: Any) -> bool:
         return True
 
-    def filter(self, test, suite, case):
+    def filter(self, test: Any, suite: Any, case: Any) -> bool:
         res = True
         for level in test.get_filter_levels():
             if level is FilterLevel.TEST:
@@ -100,8 +100,8 @@ class Filter(BaseFilter):
 
 
 def flatten_filters(
-    metafilter_kls: Type["MetaFilter"], filters: List[Filter]
-) -> List[Filter]:
+    metafilter_kls: Type["MetaFilter"], filters: List[BaseFilter]
+) -> List[BaseFilter]:
     """
     This is used for flattening nested filters of same type
 
@@ -130,35 +130,35 @@ def flatten_filters(
 class MetaFilter(BaseFilter):
     """Higher level filter that allow composition of other filters."""
 
-    operator_str = None
+    operator_str: Optional[str] = None
 
-    def __init__(self, *filters):
-        self.filters = flatten_filters(self.__class__, filters)
+    def __init__(self, *filters: BaseFilter) -> None:
+        self.filters = flatten_filters(self.__class__, list(filters))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}({})".format(
             self.__class__.__name__, ", ".join([repr(f) for f in self.filters])
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         delimiter = " {} ".format(self.operator_str)
         return "({})".format(
             delimiter.join([str(filter_obj) for filter_obj in self.filters])
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, self.__class__) and other.filters == self.filters
         )
 
-    def map(self, f):
+    def map(self, f: Callable) -> "MetaFilter":
         self.filters = list(map(f, self.filters))
         return self
 
-    def composed_filter(self, _test, _suite, _case) -> bool:
+    def composed_filter(self, _test: Any, _suite: Any, _case: Any) -> bool:
         raise NotImplementedError
 
-    def filter(self, test, suite, case):
+    def filter(self, test: Any, suite: Any, case: Any) -> bool:
         return self.composed_filter(test, suite, case)
 
 
@@ -167,9 +167,9 @@ class Or(MetaFilter):
     Meta filter that returns True if ANY of the child filters return True.
     """
 
-    operator_str = "|"
+    operator_str: Optional[str] = "|"
 
-    def composed_filter(self, test, suite, case):
+    def composed_filter(self, test: Any, suite: Any, case: Any) -> bool:
         return any(f.filter(test, suite, case) for f in self.filters)
 
 
@@ -178,33 +178,33 @@ class And(MetaFilter):
     Meta filter that returns True if ALL of the child filters return True.
     """
 
-    operator_str = "&"
+    operator_str: Optional[str] = "&"
 
-    def composed_filter(self, test, suite, case):
+    def composed_filter(self, test: Any, suite: Any, case: Any) -> bool:
         return all(f.filter(test, suite, case) for f in self.filters)
 
 
 class Not(BaseFilter):
     """Meta filter that returns the inverse of the original filter result."""
 
-    def __init__(self, filter_obj):
-        self.filter_obj: Filter = filter_obj
+    def __init__(self, filter_obj: BaseFilter) -> None:
+        self.filter_obj: BaseFilter = filter_obj
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__, self.filter_obj)
 
-    def __invert__(self):
+    def __invert__(self) -> BaseFilter:
         """Double negative returns original filter."""
         return self.filter_obj
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, Not) and other.filter_obj == self.filter_obj
 
-    def map(self, f):
+    def map(self, f: Callable) -> "Not":
         self.filter_obj = f(self.filter_obj)
         return self
 
-    def filter(self, test, suite, case):
+    def filter(self, test: Any, suite: Any, case: Any) -> bool:
         return not self.filter_obj.filter(test, suite, case)
 
 
@@ -213,38 +213,38 @@ class BaseTagFilter(Filter):
 
     category = FilterCategory.TAG
 
-    def __init__(self, tags):
+    def __init__(self, tags: Any) -> None:
         self.tags_orig = tags
         self.tags = tagging.validate_tag_value(tags)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.tags_orig == other.tags_orig
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{}(tags="{}")'.format(self.__class__.__name__, self.tags_orig)
 
     def get_match_func(self) -> Callable:
         raise NotImplementedError
 
-    def _check_tags(self, obj, tag_getter) -> bool:
-        return self.get_match_func()(
+    def _check_tags(self, obj: Any, tag_getter: Callable) -> bool:
+        return self.get_match_func()(  # type: ignore[no-any-return]
             tag_arg_dict=self.tags, target_tag_dict=tag_getter(obj)
         )
 
-    def filter_test(self, test):
+    def filter_test(self, test: Any) -> bool:
         return self._check_tags(
             obj=test, tag_getter=operator.methodcaller("get_tags_index")
         )
 
-    def filter_suite(self, suite):
+    def filter_suite(self, suite: Any) -> bool:
         return self._check_tags(
             obj=suite, tag_getter=operator.attrgetter("__tags_index__")
         )
 
-    def filter_case(self, case):
+    def filter_case(self, case: Any) -> bool:
         return self._check_tags(
             obj=case, tag_getter=operator.attrgetter("__tags_index__")
         )
@@ -253,14 +253,14 @@ class BaseTagFilter(Filter):
 class Tags(BaseTagFilter):
     """Tag filter that returns True if ANY of the given tags match."""
 
-    def get_match_func(self):
+    def get_match_func(self) -> Callable:
         return tagging.check_any_matching_tags
 
 
 class TagsAll(BaseTagFilter):
     """Tag filter that returns True if ALL of the given tags match."""
 
-    def get_match_func(self):
+    def get_match_func(self) -> Callable:
         return tagging.check_all_matching_tags
 
 
@@ -282,22 +282,22 @@ class Pattern(Filter):
 
     category = FilterCategory.PATTERN
 
-    def __init__(self, pattern, match_uid=False):
+    def __init__(self, pattern: str, match_uid: bool = False) -> None:
         self.match_uid = match_uid
         self.parse_pattern(pattern)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.pattern == other.pattern
             and self.match_uid == other.match_uid
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{}(pattern="{}")'.format(self.__class__.__name__, self.pattern)
 
     @property
-    def pattern(self):
+    def pattern(self) -> str:
         if isinstance(self.test_pattern, tuple):
             test_p = TEST_PART_PATTERN_FORMAT_STRING.format(
                 self.test_pattern[0],
@@ -308,7 +308,7 @@ class Pattern(Filter):
             test_p = self.test_pattern
         return ":".join([test_p, self.suite_pattern, self.case_pattern])
 
-    def parse_pattern(self, pattern: str) -> List[str]:
+    def parse_pattern(self, pattern: str) -> None:
         # ":" or "::" can be used as delimiter
         patterns = (
             pattern.split("::") if "::" in pattern else pattern.split(":")
@@ -346,7 +346,7 @@ class Pattern(Filter):
                         f"we cannot cut a pizza by {test_ttl_part_p_} and then take "
                         f"the {test_cur_part_p_}-th slice, and we count from 0."
                     )
-            self.test_pattern = (
+            self.test_pattern: Union[str, Tuple[str, Tuple[str, str]]] = (
                 test_name_p,
                 (test_cur_part_p, test_ttl_part_p),
             )
@@ -356,7 +356,7 @@ class Pattern(Filter):
         self.suite_pattern = suite_level
         self.case_pattern = case_level
 
-    def filter_test(self, test: "Test"):
+    def filter_test(self, test: Any) -> bool:
         # uid and structural pattern may differ under certain circumstances
         if self.match_uid:
             return fnmatch.fnmatch(test.uid(), self.test_pattern)
@@ -377,11 +377,11 @@ class Pattern(Filter):
 
         return fnmatch.fnmatch(test.name, self.test_pattern)
 
-    def filter_suite(self, suite):
+    def filter_suite(self, suite: Any) -> bool:
         # For test suite uid is the same as name
         return fnmatch.fnmatch(suite.name, self.suite_pattern)
 
-    def filter_case(self, case):
+    def filter_case(self, case: Any) -> bool:
         name_match = fnmatch.fnmatch(
             case.__name__ if self.match_uid else case.name,
             self.case_pattern,
@@ -401,7 +401,7 @@ class Pattern(Filter):
         return name_match
 
     @classmethod
-    def any(cls, *patterns: str):
+    def any(cls, *patterns: str) -> "Or":
         """
         Shortcut for filtering against multiple patterns.
 
@@ -428,7 +428,7 @@ class PatternAction(argparse.Action):
         [Pattern('foo'), Pattern('bar'), Pattern('baz')]
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser: argparse.ArgumentParser, namespace: argparse.Namespace, values: Any, option_string: Optional[str] = None) -> None:
         items = getattr(namespace, self.dest) or []
 
         items.extend([Pattern(value) for value in values])
@@ -461,9 +461,9 @@ class TagsAction(argparse.Action):
         ]
     """
 
-    filter_class = Tags
+    filter_class: Type[BaseTagFilter] = Tags
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser: argparse.ArgumentParser, namespace: argparse.Namespace, values: Any, option_string: Optional[str] = None) -> None:
         items = getattr(namespace, self.dest) or []
         items.append(self.filter_class(tagging.parse_tag_arguments(*values)))
         setattr(namespace, self.dest, items)
@@ -495,10 +495,10 @@ class TagsAllAction(TagsAction):
         ]
     """
 
-    filter_class = TagsAll
+    filter_class: Type[BaseTagFilter] = TagsAll
 
 
-def parse_filter_args(parsed_args, arg_names):
+def parse_filter_args(parsed_args: Dict[str, Any], arg_names: Sequence[str]) -> Optional[BaseFilter]:
     """
     Utility function that's used for grouping filters of the same category
     together. Will be used while parsing command line arguments for
@@ -526,7 +526,7 @@ def parse_filter_args(parsed_args, arg_names):
         )
     """
 
-    def get_filter_category(filter_objs):
+    def get_filter_category(filter_objs: List[Filter]) -> BaseFilter:
         if len(filter_objs) == 1:
             return filter_objs[0]
         return Or(*filter_objs)

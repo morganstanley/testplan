@@ -1,7 +1,7 @@
 import copy
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import Any, Dict, TYPE_CHECKING, Optional
 
 from testplan.common.config import UNSET
 from testplan.common.entity.base import Environment
@@ -28,14 +28,14 @@ class DriverPocketwatch:
     start_time: float = 0
     last_check: float = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.interval_cap == 0:
             self.interval_cap = self.curr_interval
             self.multiplier = 1
         else:
             self.multiplier = 2
 
-    def record_start(self):
+    def record_start(self) -> None:
         self.start_time = time.time()
         self.last_check = self.start_time
 
@@ -58,7 +58,7 @@ class TestEnvironment(Environment):
         self.__dict__["_rt_dependency"] = None  # Optional[DriverDepGraph]
         self.__dict__["_pocketwatches"] = {}  # Dict[str, DriverPocketwatch]
 
-    def set_dependency(self, dependency: Optional[DriverDepGraph]):
+    def set_dependency(self, dependency: Optional[DriverDepGraph]) -> None:
         if dependency is None:
             return
 
@@ -71,7 +71,7 @@ class TestEnvironment(Environment):
                     f"Driver {d} used in `dependencies` parameter "
                     "while not being declared in `environment` parameter."
                 )
-        for d in self._resources.values():
+        for d in self._resources.values():  # type: ignore[assignment]
             if d.cfg.async_start != UNSET:
                 raise ValueError(
                     f"`async_start` parameter of driver {d} should not "
@@ -85,17 +85,17 @@ class TestEnvironment(Environment):
 
         self._orig_dependency = dependency
 
-    def start_in_pool(self, *_):
+    def start_in_pool(self, *_: Any) -> None:
         raise RuntimeError(
             "TestEnvironment.start_in_pool: Would not be invoked by design."
         )
 
-    def stop_in_pool(self, *_):
+    def stop_in_pool(self, *_: Any) -> None:
         raise RuntimeError(
             "TestEnvironment.stop_in_pool: Would not be invoked by design."
         )
 
-    def start(self):
+    def start(self) -> None:
         """
         Start the drivers either in the legacy way or following dependency.
         """
@@ -128,7 +128,7 @@ class TestEnvironment(Environment):
                     self._record_resource_exception(
                         message="While starting driver {resource}:\n"
                         "{traceback_exc}\n{fetch_msg}",
-                        resource=driver,
+                        resource=driver,  # type: ignore[arg-type]
                         msg_store=self.start_exceptions,
                     )
                     # exception occurred, skip rest of drivers
@@ -166,7 +166,7 @@ class TestEnvironment(Environment):
                     self._record_resource_exception(
                         message="While waiting for driver {resource} to start:\n"
                         "{traceback_exc}\n{fetch_msg}",
-                        resource=driver,
+                        resource=driver,  # type: ignore[arg-type]
                         msg_store=self.start_exceptions,
                     )
                     # exception occurred, skip rest of drivers
@@ -176,7 +176,7 @@ class TestEnvironment(Environment):
 
             time.sleep(MINIMUM_CHECK_INTERVAL)
 
-    def stop(self, is_reversed=False):
+    def stop(self, is_reversed: bool = False) -> None:
         """
         Stop drivers while skipping previously skipped ones.
         """
@@ -184,12 +184,12 @@ class TestEnvironment(Environment):
             return super().stop(is_reversed=is_reversed)
 
         # schedule driver stopping in "reverse" order
-        self._rt_dependency: DriverDepGraph = self._orig_dependency.transpose()
+        self._rt_dependency = self._orig_dependency.transpose()
 
         # filter drivers based on status
-        for driver in self._resources.values():
-            if driver.status == driver.status.NONE:
-                self._rt_dependency.remove_vertex(id(driver))
+        for resource in self._resources.values():
+            if resource.status == resource.status.NONE:
+                self._rt_dependency.remove_vertex(id(resource))
 
         # distribute pocketwatches
         for _, v in self._rt_dependency.vertices.items():
@@ -213,7 +213,7 @@ class TestEnvironment(Environment):
                     self._record_resource_exception(
                         message="While stopping driver {resource}"
                         ":\n{traceback_exc}\n{fetch_msg}",
-                        resource=driver,
+                        resource=driver,  # type: ignore[arg-type]
                         msg_store=self.stop_exceptions,
                     )
                     # driver status should be STOPPED even it failed to stop
@@ -236,7 +236,7 @@ class TestEnvironment(Environment):
                     self._record_resource_exception(
                         message="While waiting for driver {resource} to stop:\n"
                         "{traceback_exc}\n{fetch_msg}",
-                        resource=driver,
+                        resource=driver,  # type: ignore[arg-type]
                         msg_store=self.stop_exceptions,
                     )
                     # driver status should be STOPPED even it failed to stop

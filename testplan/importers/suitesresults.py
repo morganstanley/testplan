@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from testplan.common.utils.strings import uuid4
 from testplan.importers import ImportedResult
@@ -12,7 +12,7 @@ class SuitesResult(ImportedResult):
         self,
         name: str,
         results: List[TestGroupReport],
-        description: str = None,
+        description: Optional[str] = None,
     ):
         """
 

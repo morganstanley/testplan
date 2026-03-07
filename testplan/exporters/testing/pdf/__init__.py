@@ -8,7 +8,7 @@ import time
 import traceback
 import uuid
 import warnings
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from urllib.request import pathname2url
 
 from schema import Or
@@ -51,16 +51,16 @@ try:
 except Exception as exc:
     warnings.warn("reportlab must be supported: {}".format(exc))
     traceback.print_exc()
-    report_registry = None
-    serialized_entry_registry = None
-    const = None
+    report_registry = None  # type: ignore[assignment]
+    serialized_entry_registry = None  # type: ignore[assignment]
+    const = None  # type: ignore[assignment]
     stored_exc = exc
 
 
 MAX_FILENAME_LENGTH = 100
 
 
-def generate_path_for_tags(config, tag_dict, filter_type):
+def generate_path_for_tags(config: Any, tag_dict: Dict[str, Any], filter_type: str) -> str:
     """
     Generate the PDF filename using the given filter and tag context.
     Will trim the filename and append a uuid suffix if it ends up
@@ -79,7 +79,7 @@ def generate_path_for_tags(config, tag_dict, filter_type):
     <directory>/report-tags-all-foo__bar__hello-world-mars.pdf
     """
 
-    def add_count_suffix(directory, path, count=0):
+    def add_count_suffix(directory: str, path: str, count: int = 0) -> str:
         """Add a number suffix to file name if files with same names exist."""
         target_path = "{}_{}".format(path, count) if count else path
         full_path = os.path.join(config.report_dir, target_path + ".pdf")
@@ -111,7 +111,7 @@ class BasePDFExporterConfig(ExporterConfig):
     """Config for PDF exporter"""
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("timestamp", default=None): Or(str, None),
             ConfigOption("pdf_style"): Style,
@@ -126,7 +126,7 @@ class PDFExporterConfig(BasePDFExporterConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {ConfigOption("pdf_path"): str}
 
 
@@ -140,7 +140,7 @@ class TagFilteredPDFExporterConfig(
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {ConfigOption("report_dir"): str}
 
 
@@ -157,10 +157,10 @@ class PDFExporter(Exporter):
 
     CONFIG = PDFExporterConfig
 
-    def __init__(self, name="PDF exporter", **options):
+    def __init__(self, name: str = "PDF exporter", **options: Any) -> None:
         super(PDFExporter, self).__init__(name=name, **options)
 
-    def create_pdf(self, source):
+    def create_pdf(self, source: TestReport) -> str:
         """Entry point for PDF generation."""
         if stored_exc is not None:
             # We cannot generate a PDF if there was an exception importing the
@@ -188,7 +188,7 @@ class PDFExporter(Exporter):
                 else serialized_entry_registry
             )
 
-            renderer = registry[obj](style=self.cfg.pdf_style)
+            renderer = registry[obj](style=self.cfg.pdf_style)  # type: ignore[index]
             if renderer.should_display(source=obj):
                 row_data = renderer.get_row_data(
                     source=obj, depth=depth, row_idx=row_idx
@@ -276,7 +276,7 @@ class TagFilteredPDFExporter(TagFilteredExporter):
     CONFIG = TagFilteredPDFExporterConfig
     exporter_class = PDFExporter
 
-    def get_params(self, tag_dict, filter_type):
+    def get_params(self, tag_dict: Dict[str, Any], filter_type: str) -> Dict[str, str]:
         return {
             "pdf_path": generate_path_for_tags(self.cfg, tag_dict, filter_type)
         }

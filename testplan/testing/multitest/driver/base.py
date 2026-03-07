@@ -4,7 +4,7 @@ import logging
 import os
 import time
 import warnings
-from typing import Callable, Dict, List, Optional, Pattern, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from schema import Or
 
@@ -43,7 +43,7 @@ class DriverConfig(ResourceConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -65,7 +65,7 @@ class DriverConfig(ResourceConfig):
         }
 
 
-class Driver(Resource, metaclass=get_metaclass_for_documentation()):
+class Driver(Resource, metaclass=get_metaclass_for_documentation()):  # type: ignore[metaclass]
     """
     Driver base class providing common functionality.
 
@@ -97,20 +97,20 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def __init__(
         self,
         name: str,
-        install_files: List[Union[str, Tuple]] = None,
+        install_files: Optional[List[Union[str, Tuple]]] = None,
         timeout: int = 300,
-        log_regexps: List[Pattern] = None,
-        stdout_regexps: List[Pattern] = None,
-        stderr_regexps: List[Pattern] = None,
-        file_logger: str = None,
+        log_regexps: Optional[List[Pattern]] = None,
+        stdout_regexps: Optional[List[Pattern]] = None,
+        stderr_regexps: Optional[List[Pattern]] = None,
+        file_logger: Optional[str] = None,
         async_start: Union[UNSET_T, bool] = UNSET,
         error_logs_max_lines: int = 10,
-        pre_start: Callable = None,
-        post_start: Callable = None,
-        pre_stop: Callable = None,
-        post_stop: Callable = None,
-        **options,
-    ):
+        pre_start: Optional[Callable] = None,
+        post_start: Optional[Callable] = None,
+        pre_stop: Optional[Callable] = None,
+        post_stop: Optional[Callable] = None,
+        **options: Any,
+    ) -> None:
         if "report_errors_from_logs" in options:
             warnings.warn(
                 "``report_errors_from_logs`` is deprecated since we always attach tail of logs when error occurs now.",
@@ -119,23 +119,23 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
             options.pop("report_errors_from_logs")
         options.update(self.filter_locals(locals()))
         super(Driver, self).__init__(**options)
-        self.extracts = {}
-        self._file_log_handler = None
+        self.extracts: Dict[str, str] = {}
+        self._file_log_handler: Optional[logging.FileHandler] = None
 
         # NOTE: We should get rid of `async_start` in the future,
         # NOTE: we still keep it now for compatibility.
         self._async_start_override: Optional[bool] = None
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def name(self) -> str:
         """Driver name."""
-        return self.cfg.name
+        return self.cfg.name  # type: ignore[no-any-return]
 
     @emphasized
     def uid(self) -> str:
         """Driver uid."""
-        return self.cfg.name
+        return self.cfg.name  # type: ignore[no-any-return]
 
     @property
     def async_start(self) -> bool:
@@ -147,7 +147,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         )
 
     @async_start.setter
-    def async_start(self, async_start_override: bool):
+    def async_start(self, async_start_override: bool) -> None:
         self._async_start_override = async_start_override
 
     def pre_start(self) -> None:
@@ -170,7 +170,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """Driver stopped check interval."""
         return DEFAULT_INTERVAL
 
-    def wait(self, target_status, timeout=None):
+    def wait(self, target_status: Optional[str], timeout: Optional[int] = None) -> None:
         """
         Wait until objects status becomes target status.
 
@@ -191,11 +191,11 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
     @property
     def start_timeout(self) -> float:
-        return self.cfg.timeout
+        return self.cfg.timeout  # type: ignore[no-any-return]
 
     @property
     def stop_timeout(self) -> float:
-        return self.cfg.timeout
+        return self.cfg.timeout  # type: ignore[no-any-return]
 
     def started_check(self) -> ActionResult:
         """
@@ -214,7 +214,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         """
         return True
 
-    def stopped_check_with_watch(self, watch) -> ActionResult:
+    def stopped_check_with_watch(self, watch: Any) -> ActionResult:
         if time.time() >= watch.start_time + watch.total_wait:
             raise TimeoutException(
                 f"Timeout when stopping {self}. "
@@ -269,17 +269,17 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         self._close_file_logger()
 
     @property
-    def logpath(self):
+    def logpath(self) -> Optional[str]:
         """Path for log regexp matching."""
         return self.outpath
 
     @property
-    def outpath(self):
+    def outpath(self) -> Optional[str]:
         """Path for stdout file regexp matching."""
         return None
 
     @property
-    def errpath(self):
+    def errpath(self) -> Optional[str]:
         """Path for stderr file regexp matching."""
         return None
 
@@ -321,7 +321,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
             return FailedAction(error_msg=err)
         return rc
 
-    def _install_target(self):
+    def _install_target(self) -> str:
         raise NotImplementedError()
 
     def install_files(self) -> None:
@@ -406,9 +406,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         :return: text from log file
         """
-        content = []
+        content: List[str] = []
 
-        def get_lines_at_tail(log_file, max_count):
+        def get_lines_at_tail(log_file: str, max_count: int) -> List[str]:
             """Fetch last n lines from a big file."""
             if not os.path.exists(log_file):
                 return []
@@ -430,7 +430,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         logging_paths = {self.errpath, self.outpath, self.logpath}
         if self.cfg.file_logger:
-            file_log_path = os.path.join(self.runpath, self.cfg.file_logger)
+            file_log_path = os.path.join(self.runpath, self.cfg.file_logger)  # type: ignore[arg-type]
             if file_log_path not in logging_paths:
                 logging_paths.add(file_log_path)
 
@@ -454,5 +454,5 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
             connections.extend(extractor.extract_connection(self))
         return connections
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}[{self.name}]"

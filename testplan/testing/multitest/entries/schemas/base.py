@@ -2,6 +2,8 @@
 Base classes / logic for marshalling go here.
 """
 
+from typing import Any, Dict, List
+
 from marshmallow import Schema, fields, post_dump
 
 from testplan.common.serialization import fields as custom_fields
@@ -16,15 +18,15 @@ from .. import base
 
 
 class AssertionSchemaRegistry(SchemaRegistry):
-    def get_category(self, obj):
-        return obj.meta_type
+    def get_category(self, obj: Any) -> str:
+        return obj.meta_type  # type: ignore[no-any-return]
 
 
 registry = AssertionSchemaRegistry()
 
 
 class GenericEntryList(fields.Field):
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> List[Any]:
         return [registry.serialize(entry) for entry in value]
 
 
@@ -47,11 +49,11 @@ class BaseSchema(Schema):
     # utc_time = custom_fields.UTCDateTime(allow_none=True, load_only=True)
     # machine_time = custom_fields.LocalDateTime(allow_none=True, load_only=True)
 
-    def load(self, *args, **kwargs):
+    def load(self, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError("Only serialization is supported.")
 
     @post_dump
-    def streamline(self, data, **kwargs):
+    def streamline(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         # since source code is always available,
         # none-test on file_path should be reliable
         if data["file_path"] is None:
@@ -77,7 +79,7 @@ class GroupSchema(Schema):
     # # deprecated, but this is a dump_only schema
     # utc_time = custom_fields.UTCDateTime(allow_none=True, load_only=True)
 
-    def load(self, *args, **kwargs):
+    def load(self, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError("Only serialization is supported.")
 
 
@@ -110,7 +112,7 @@ class DictLogSchema(BaseSchema):
     flattened_dict = fields.Raw()
 
     @post_dump
-    def compress_level(self, data, many, **kw):
+    def compress_level(self, data: Dict[str, Any], many: bool, **kw: Any) -> Dict[str, Any]:
         data["flattened_dict"] = delta_encode_level(data["flattened_dict"])
         return data
 
@@ -124,7 +126,7 @@ class GraphSchema(BaseSchema):
     series_options = fields.Dict(
         keys=fields.String(), values=fields.Dict(), allow_none=True
     )
-    type = fields.String()
+    type = fields.String()  # type: ignore[assignment]
     graph_options = fields.Dict(allow_none=True)
     discrete_chart = fields.Bool()
 
@@ -147,7 +149,7 @@ class DirectorySchema(BaseSchema):
     source_path = fields.String()
     dst_path = fields.String()
     ignore = fields.List(fields.String(), allow_none=True)
-    only = fields.List(fields.String(), allow_none=True)
+    only = fields.List(fields.String(), allow_none=True)  # type: ignore[assignment]
     recursive = fields.Boolean()
     file_list = fields.List(fields.String())
 

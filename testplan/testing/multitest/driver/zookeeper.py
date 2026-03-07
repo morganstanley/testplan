@@ -4,7 +4,7 @@ Driver for Zookeeper server
 
 import os
 import socket
-from typing import Optional, Dict
+from typing import Any, Dict, Optional
 
 from schema import Or
 
@@ -38,7 +38,7 @@ class ZookeeperStandaloneConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("cfg_template"): str,
             ConfigOption("binary"): str,
@@ -75,8 +75,8 @@ class ZookeeperStandalone(Driver):
         host: Optional[str] = None,
         port: int = 2181,
         env: Optional[dict] = None,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         super(ZookeeperStandalone, self).__init__(
             name=name,
             cfg_template=cfg_template,
@@ -86,17 +86,17 @@ class ZookeeperStandalone(Driver):
             env=env,
             **options,
         )
-        self._host = host
-        self._port = port
-        self._env = None
-        self.config = None
-        self.zkdata_path = None
-        self.zklog_path = None
-        self.etc_path = None
-        self.pid_file = None
-        self.std = None
+        self._host: Optional[str] = host
+        self._port: int = port
+        self._env: Optional[Dict[str, str]] = None
+        self.config: Optional[str] = None
+        self.zkdata_path: Optional[str] = None
+        self.zklog_path: Optional[str] = None
+        self.etc_path: Optional[str] = None
+        self.pid_file: Optional[str] = None
+        self.std: Optional[StdFiles] = None
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def host(self) -> str:
         """Host to bind to."""
@@ -106,13 +106,13 @@ class ZookeeperStandalone(Driver):
             )
         return self._host
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def port(self) -> int:
         """Port to listen on."""
         return self._port
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def env(self) -> Dict[str, str]:
         """Environment variables."""
@@ -121,7 +121,7 @@ class ZookeeperStandalone(Driver):
         self._env = self.cfg.env.copy() if self.cfg.env else {}
         return self._env
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def connection_str(self) -> str:
         """Connection string."""
@@ -132,71 +132,74 @@ class ZookeeperStandalone(Driver):
         return "{}:{}".format(self._host, self._port)
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> int:
         return self.port
 
     @property
-    def local_port(self):
+    def local_port(self) -> int:
         return self.port
 
     @property
-    def local_host(self):
+    def local_host(self) -> Optional[str]:
         return self.host if self._host else None
 
-    def pre_start(self):
+    def pre_start(self) -> None:
         """
         Create mandatory directories and install files from given templates
         using the drivers context before starting zookeeper.
         """
         super(ZookeeperStandalone, self).pre_start()
-        self.zkdata_path = os.path.join(self.runpath, "zkdata")
-        self.zklog_path = os.path.join(self.runpath, "zklog")
-        self.etc_path = os.path.join(self.runpath, "etc")
+        self.zkdata_path = os.path.join(self.runpath, "zkdata")  # type: ignore[arg-type]
+        self.zklog_path = os.path.join(self.runpath, "zklog")  # type: ignore[arg-type]
+        self.etc_path = os.path.join(self.runpath, "etc")  # type: ignore[arg-type]
         self.env["ZOO_LOG_DIR"] = self.zklog_path
         for directory in (self.zkdata_path, self.zklog_path, self.etc_path):
             if self.cfg.path_cleanup is False:
                 makedirs(directory)
             else:
                 makeemptydirs(directory)
-        self.config = os.path.join(self.runpath, "etc", "zookeeper.cfg")
+        self.config = os.path.join(self.runpath, "etc", "zookeeper.cfg")  # type: ignore[arg-type]
         self._host = self._host or socket.getfqdn()
         if self._port == 0:
             raise RuntimeError("Zookeeper doesn't support random port")
         instantiate(self.cfg.cfg_template, self.context_input(), self.config)
 
-    def starting(self):
+    def starting(self) -> None:
         """Starts the Zookeeper instance."""
         super(ZookeeperStandalone, self).starting()
         start_cmd = [self.cfg.binary, "start", self.config]
+        assert self.runpath is not None
         self.std = StdFiles(self.runpath)
 
         execute_cmd(
             start_cmd,
             label=self.uid(),
             check=True,
-            stdout=self.std.out,
-            stderr=self.std.err,
+            stdout=self.std.out,  # type: ignore[arg-type]
+            stderr=self.std.err,  # type: ignore[arg-type]
             logger=self.logger,
             env=self.env,
         )
 
-    def post_start(self):
+    def post_start(self) -> None:
         super().post_start()
         self.logger.info("%s listening on %s:%s", self, self.host, self.port)
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Stops the Zookeeper instance."""
         stop_cmd = [self.cfg.binary, "stop", self.config]
         try:
+            assert self.std is not None
             execute_cmd(
                 stop_cmd,
                 label=self.uid(),
                 check=True,
-                stdout=self.std.out,
-                stderr=self.std.err,
+                stdout=self.std.out,  # type: ignore[arg-type]
+                stderr=self.std.err,  # type: ignore[arg-type]
                 logger=self.logger,
                 env=self.env,
             )
         finally:
-            self.std.close()
+            if self.std is not None:
+                self.std.close()
         super().stopping()

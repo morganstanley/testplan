@@ -3,7 +3,7 @@
 import time
 import queue
 from threading import Thread, Event
-from typing import Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 try:
     from typing import Literal
@@ -36,7 +36,7 @@ class HTTPClientConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -83,38 +83,38 @@ class HTTPClient(Driver):
         self,
         name: str,
         host: Union[str, ContextValue],
-        port: Union[int, ContextValue] = None,
+        port: Optional[Union[int, ContextValue]] = None,
         protocol: str = "http",
         timeout: int = 5,
         interval: float = 0.01,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(HTTPClient, self).__init__(**options)
-        self._host: str = None
-        self._port: Union[int, Literal[""]] = None
-        self.protocol = None
-        self.timeout = None
-        self.interval = None
-        self.responses = None
-        self.request_threads = []
+        self._host: Optional[str] = None
+        self._port: Optional[Union[int, Literal[""]]] = None
+        self.protocol: Optional[str] = None
+        self.timeout: Optional[int] = None
+        self.interval: Optional[float] = None
+        self.responses: queue.Queue[Any] = queue.Queue()
+        self.request_threads: List[Tuple[Thread, Event]] = []
 
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         """Target host name."""
         return self._host
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> Optional[Union[int, Literal[""]]]:
         return self.port
 
     @property
-    def port(self):
+    def port(self) -> Optional[Union[int, Literal[""]]]:
         """Client port number assigned."""
         return self._port
 
-    def starting(self):
+    def starting(self) -> None:
         """
         Start the HTTPClient.
         """
@@ -134,17 +134,17 @@ class HTTPClient(Driver):
             port_,
         )
 
-    def stopping(self):
+    def stopping(self) -> None:
         """
         Stop the HTTPClient.
         """
         super(HTTPClient, self).stopping()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the client."""
         super(HTTPClient, self).aborting()
 
-    def _send_request(self, method, api, drop_response, timeout, **kwargs):
+    def _send_request(self, method: str, api: str, drop_response: Event, timeout: int, **kwargs: Any) -> None:
         """
         Send a request using the requests module.
 
@@ -177,7 +177,7 @@ class HTTPClient(Driver):
         if not drop_response.is_set():
             self.responses.put(response)
 
-    def send(self, method, api, **kwargs):
+    def send(self, method: str, api: str, **kwargs: Any) -> None:
         """
         Send a non blocking HTTP request.
 
@@ -199,7 +199,7 @@ class HTTPClient(Driver):
         request_thread.start()
         self.request_threads.append((request_thread, drop_response))
 
-    def head(self, api, **kwargs):
+    def head(self, api: str, **kwargs: Any) -> None:
         """
         Send HEAD request.ZMQClient
 
@@ -211,7 +211,7 @@ class HTTPClient(Driver):
         """
         self.send("head", api, **kwargs)
 
-    def get(self, api, params=None, **kwargs):
+    def get(self, api: str, params: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
         """
         Send GET request.
 
@@ -225,7 +225,7 @@ class HTTPClient(Driver):
         """
         self.send("get", api, params=params, **kwargs)
 
-    def post(self, api, data=None, json=None, **kwargs):
+    def post(self, api: str, data: Optional[Any] = None, json: Optional[Any] = None, **kwargs: Any) -> None:
         """
         Send POST request.
 
@@ -241,7 +241,7 @@ class HTTPClient(Driver):
         """
         self.send("post", api, data=data, json=json, **kwargs)
 
-    def put(self, api, data=None, **kwargs):
+    def put(self, api: str, data: Optional[Any] = None, **kwargs: Any) -> None:
         """
         Send PUT request.
 
@@ -255,7 +255,7 @@ class HTTPClient(Driver):
         """
         self.send("put", api, data=data, **kwargs)
 
-    def delete(self, api, **kwargs):
+    def delete(self, api: str, **kwargs: Any) -> None:
         """
         Send DELETE request.
 
@@ -267,7 +267,7 @@ class HTTPClient(Driver):
         """
         self.send("delete", api, **kwargs)
 
-    def patch(self, api, data=None, **kwargs):
+    def patch(self, api: str, data: Optional[Any] = None, **kwargs: Any) -> None:
         """
         Send PATCH request.
 
@@ -281,7 +281,7 @@ class HTTPClient(Driver):
         """
         self.send("patch", api, data=data, **kwargs)
 
-    def options(self, api, **kwargs):
+    def options(self, api: str, **kwargs: Any) -> None:
         """
         Send OPTIONS request.
 
@@ -293,7 +293,7 @@ class HTTPClient(Driver):
         """
         self.send("options", api, **kwargs)
 
-    def receive(self, timeout=None):
+    def receive(self, timeout: Optional[int] = None) -> Optional[requests.Response]:
         """
         Wait to receive a response.
 
@@ -304,11 +304,11 @@ class HTTPClient(Driver):
         :return: A request response or ``None``
         :rtype: ``requests.models.Response`` or ``NoneType``
         """
-        timeout = timeout if timeout is not None else self.timeout
-        timeout += time.time()
+        effective_timeout: int = timeout if timeout is not None else self.timeout  # type: ignore[assignment]
+        deadline = effective_timeout + time.time()
         response = None
 
-        while time.time() < timeout:
+        while time.time() < deadline:
             try:
                 response = self.responses.get(False)
             except queue.Empty:
@@ -318,11 +318,11 @@ class HTTPClient(Driver):
                 self.responses.task_done()
                 self.logger.info("Received response.")
                 break
-            time.sleep(self.interval)
+            time.sleep(self.interval)  # type: ignore[arg-type]
 
         return response
 
-    def flush(self):
+    def flush(self) -> None:
         """
         Drop any currently incoming messages and flush the received messages
         queue.
@@ -331,7 +331,7 @@ class HTTPClient(Driver):
             drop_message.set()
             self.logger.debug("Request thread set to drop response.")
 
-        timeout = time.time() + (5 * self.timeout)
+        timeout = time.time() + (5 * self.timeout)  # type: ignore[operator]
         while not self.responses.empty() and time.time() < timeout:
             try:
                 self.responses.get(block=False)

@@ -2,7 +2,7 @@
 
 from inspect import signature
 from itertools import zip_longest
-from typing import List, Optional
+from typing import Any, Callable, List, Optional
 
 
 class MethodSignatureMismatch(Exception):
@@ -24,7 +24,7 @@ def _unused_variant(arg_name: Optional[str]) -> List[str]:
     return []
 
 
-def check_signature(func: callable, args_list: List[str]) -> bool:
+def check_signature(func: Callable[..., Any], args_list: List[str]) -> bool:
     """
     Checks if the given function's signature matches the given list of args
 
@@ -53,7 +53,7 @@ def check_signature(func: callable, args_list: List[str]) -> bool:
     return True
 
 
-def check_signature_leading(func: callable, exp_params: List[str]) -> bool:
+def check_signature_leading(func: Callable[..., Any], exp_params: List[str]) -> bool:
     """
     check if the leading (positional) parameters of the function signature
     matches the expected parameters

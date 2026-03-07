@@ -2,7 +2,7 @@
 
 import time
 import socket
-from typing import Union, Tuple
+from typing import Optional, Union, Tuple
 
 
 class Client:
@@ -36,15 +36,16 @@ class Client:
         self._input_host = host
         self._input_port = port
         self._interface = interface
-        self._client = None
-        self._timeout = None
+        self._client: Optional[socket.socket] = None
+        self._timeout: Optional[int] = None
 
     @property
     def address(self) -> Tuple[str, int]:
         """
         Returns the host and port information of socket.
         """
-        return self._client.getsockname()
+        assert self._client is not None
+        return self._client.getsockname()  # type: ignore[no-any-return]
 
     @property
     def port(self) -> Union[str, int]:
@@ -67,6 +68,7 @@ class Client:
         :return: Timestamp when msg sent (in microseconds from epoch) and
                  number of bytes sent
         """
+        assert self._client is not None
         tsp = time.time() * 1000000
         size = self._client.send(msg)
         return tsp, size
@@ -79,6 +81,7 @@ class Client:
         :param timeout: Timeout in seconds.
         :return: message received
         """
+        assert self._client is not None
         if timeout != self._timeout:
             self._timeout = timeout
         self._client.settimeout(timeout)
@@ -98,6 +101,7 @@ class Client:
         :param flags: Defaults to zero.
         :return: message received
         """
+        assert self._client is not None
         return self._client.recv(bufsize, flags)
 
     def close(self) -> None:

@@ -1,6 +1,6 @@
 import socket
 import sys
-from typing import List
+from typing import Any, List, Optional
 import psutil
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -27,11 +27,11 @@ NETWORK_CONNECTION_MAP = {
 
 
 class ConnectionExtractor(BaseConnectionExtractor):
-    def __init__(self, protocol: Protocol, direction: Direction) -> None:
+    def __init__(self, protocol: str, direction: Direction) -> None:
         self.protocol = protocol
         self.direction = direction
 
-    def extract_connection(self, driver) -> List[PortConnectionInfo]:
+    def extract_connection(self, driver: Any) -> List[PortConnectionInfo]:  # type: ignore[override]
         return [
             PortConnectionInfo(
                 protocol=self.protocol,
@@ -46,27 +46,27 @@ class ConnectionExtractor(BaseConnectionExtractor):
 class SubprocessPortConnectionExtractor(BaseConnectionExtractor):
     def __init__(
         self,
-        connections_to_check: List[Protocol] = None,
-        connections_to_ignore: List[Protocol] = None,
-    ):
+        connections_to_check: Optional[List[str]] = None,
+        connections_to_ignore: Optional[List[str]] = None,
+    ) -> None:
         if not connections_to_check:
             connections_to_check = [Protocol.TCP, Protocol.UDP]
         if not connections_to_ignore:
             connections_to_ignore = []
         # map the protocols to SocketKind
         for idx, protocol in enumerate(connections_to_check):
-            connections_to_check[idx] = NETWORK_CONNECTION_MAP[protocol]
+            connections_to_check[idx] = NETWORK_CONNECTION_MAP[protocol]  # type: ignore[call-overload]
         for idx, protocol in enumerate(connections_to_ignore):
-            connections_to_ignore[idx] = NETWORK_CONNECTION_MAP[protocol]
-        connections_to_ignore.append(socket.SocketKind.SOCK_SEQPACKET)
+            connections_to_ignore[idx] = NETWORK_CONNECTION_MAP[protocol]  # type: ignore[call-overload]
+        connections_to_ignore.append(socket.SocketKind.SOCK_SEQPACKET)  # type: ignore[arg-type]
         self.connections_to_check = connections_to_check
         self.connections_to_ignore = connections_to_ignore
 
-    def extract_connection(self, driver) -> List[PortConnectionInfo]:
-        connections = []
+    def extract_connection(self, driver: Any) -> List[PortConnectionInfo]:  # type: ignore[override]
+        connections: List[PortConnectionInfo] = []
         try:
             proc = psutil.Process(driver.pid)
-            listening_addresses = []
+            listening_addresses: List[int] = []
             # update to net_connections when psutil is updated to 6.0.0
             for conn in proc.connections():
                 # first loop to determine which is listening
@@ -130,13 +130,13 @@ class SubprocessPortConnectionExtractor(BaseConnectionExtractor):
 
 
 class SubprocessFileConnectionExtractor(BaseConnectionExtractor):
-    def __init__(self, files_to_ignore: List[str] = None):
+    def __init__(self, files_to_ignore: Optional[List[str]] = None) -> None:
         if not files_to_ignore:
             files_to_ignore = ["stdout", "stderr"]
         self.files_to_ignore = files_to_ignore
 
-    def extract_connection(self, driver) -> List[FileConnectionInfo]:
-        connections = []
+    def extract_connection(self, driver: Any) -> List[FileConnectionInfo]:  # type: ignore[override]
+        connections: List[FileConnectionInfo] = []
         try:
             proc = psutil.Process(driver.pid)
             for open_file in proc.open_files():

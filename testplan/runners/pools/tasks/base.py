@@ -11,6 +11,7 @@ from typing import (
     Tuple,
     Union,
     Dict,
+    List,
     Sequence,
     Callable,
     Any,
@@ -80,7 +81,7 @@ class Task(SelectiveSerializable):
         self._uid = uid or strings.uuid4()
         self._aborted = False
         self._assign_for_rerun = 0
-        self._executors = OrderedDict()
+        self._executors: Dict[str, Any] = OrderedDict()
         self.priority = -weight
 
         if rerun < 0:
@@ -113,7 +114,7 @@ class Task(SelectiveSerializable):
         return -self.priority
 
     @weight.setter
-    def weight(self, value: int):
+    def weight(self, value: int) -> None:
         self.priority = -value
 
     @property
@@ -143,7 +144,7 @@ class Task(SelectiveSerializable):
         return self._kwargs
 
     @property
-    def module(self) -> str:
+    def module(self) -> Optional[str]:
         """Task target module."""
         if callable(self._target):
             return self._target.__module__
@@ -161,7 +162,7 @@ class Task(SelectiveSerializable):
         return self._assign_for_rerun
 
     @rerun_cnt.setter
-    def rerun_cnt(self, value: int):
+    def rerun_cnt(self, value: int) -> None:
         if value < 0:
             raise ValueError("Value of `rerun_cnt` cannot be negative")
         elif value > self._max_rerun_limit:
@@ -171,20 +172,20 @@ class Task(SelectiveSerializable):
         self._assign_for_rerun = value
 
     @property
-    def executors(self):
+    def executors(self) -> Dict[str, Any]:
         """Executors to which the task had been assigned."""
         return self._executors
 
     @property
-    def aborted(self):
+    def aborted(self) -> bool:
         """Returns if task was aborted."""
         return self._aborted
 
-    def abort(self):
+    def abort(self) -> None:
         """For compatibility reason when task is added into an executor."""
         self._aborted = True
 
-    def materialize(self, target=None) -> Test:
+    def materialize(self, target: Any = None) -> Test:
         """
         Create the actual task target executable/runnable object.
         """
@@ -229,7 +230,7 @@ class Task(SelectiveSerializable):
                         os.path.abspath(self._rebased_path)
                     )
 
-                return target
+                return target  # type: ignore[no-any-return]
         else:
             target = self._string_to_target()(*self._args, **self._kwargs)
             if target:
@@ -237,11 +238,12 @@ class Task(SelectiveSerializable):
             else:
                 raise TaskMaterializationError(errmsg.format(self._target))
 
-    def _string_to_target(self):
+    def _string_to_target(self) -> Any:
         """Dynamically load an object from a module by target name."""
 
         if self._module is None:
             try:
+                assert isinstance(self._target, str)
                 module, target = self._target.rsplit(".", 1)
             except ValueError:
                 raise TaskMaterializationError(
@@ -250,6 +252,7 @@ class Task(SelectiveSerializable):
                 )
         else:
             module = self._module
+            assert isinstance(self._target, str)
             target = self._target
 
         with import_tmp_module(
@@ -265,7 +268,7 @@ class Task(SelectiveSerializable):
                     )
             return tgt
 
-    def rebase_path(self, local, remote):
+    def rebase_path(self, local: str, remote: str) -> None:
         """adapt task's path for remote execution if necessary"""
         if os.path.isabs(self._path):
             self._rebased_path = rebase_path(
@@ -303,7 +306,7 @@ class TaskResult(SelectiveSerializable):
         return self._uid
 
     @property
-    def task(self) -> Task:
+    def task(self) -> Optional[Task]:
         """Original task."""
         return self._task
 
@@ -331,22 +334,22 @@ class TaskResult(SelectiveSerializable):
     def serializable_attrs(self) -> Tuple:
         return "_task", "_status", "_reason", "_result", "_follow", "_uid"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "TaskResult[{}, {}]".format(self.status, self.reason)
 
 
 @dataclass
 class TaskTargetInformation:
-    target_params: Sequence[Union[Sequence, dict]]
+    target_params: Optional[Sequence[Union[Sequence, dict]]]
     multitest_parts: Union[int, str, None]
     task_kwargs: Dict[str, Any]
 
 
 def task_target(
-    parameters: Union[Callable, Sequence[Union[Sequence, dict]]] = None,
+    parameters: Optional[Union[Callable, Sequence[Union[Sequence, dict]]]] = None,
     multitest_parts: Union[int, Literal["auto"], None] = None,
-    **kwargs,
-):
+    **kwargs: Any,
+) -> Any:
     """
     Decorator to make task target discoverable by plan.schedule_all.
 
@@ -377,11 +380,11 @@ def task_target(
         )
         return func
 
-    def inner(func):
+    def inner(func: Callable) -> Callable:
         set_task_target(
             func,
             TaskTargetInformation(
-                target_params=parameters,
+                target_params=parameters,  # type: ignore[arg-type]
                 multitest_parts=multitest_parts,
                 task_kwargs=kwargs,
             ),
@@ -392,14 +395,14 @@ def task_target(
     return inner
 
 
-def set_task_target(func: Callable, info: TaskTargetInformation):
+def set_task_target(func: Callable, info: TaskTargetInformation) -> None:
     """
     Mark a callable object as a task target which can be packaged
     in a :py:class:`~testplan.runners.pools.tasks.base.Task` object.
     """
-    func.__task_target_info__ = info
+    func.__task_target_info__ = info  # type: ignore[attr-defined]
 
 
-def is_task_target(func):
+def is_task_target(func: Callable) -> Any:
     """Check if a callable object is a task target."""
     return getattr(func, "__task_target_info__", False)

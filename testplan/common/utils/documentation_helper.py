@@ -1,5 +1,8 @@
 import inspect
 import os
+from typing import TypeVar
+
+_F = TypeVar("_F")
 
 
 class EmphasizedDocs(type):
@@ -38,7 +41,7 @@ class EmphasizedDocs(type):
         return cls
 
 
-def emphasized(func):
+def emphasized(func: _F) -> _F:
     func.__doc__ = f"{func.__doc__}\n\n.. @emphasized_doc\n"
     return func
 

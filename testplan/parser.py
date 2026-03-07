@@ -7,7 +7,7 @@ import argparse
 import copy
 import sys
 import warnings
-from typing import Dict, List
+from typing import Any, Dict, List, NoReturn, Optional, Sequence, Union
 
 import schema
 
@@ -29,7 +29,7 @@ class HelpParser(argparse.ArgumentParser):
     Extends ``ArgumentParser`` in order to print the help message upon failure.
     """
 
-    def error(self, message: str) -> None:
+    def error(self, message: str) -> NoReturn:
         """
         Overrides `error` method to print error and display help message.
 
@@ -63,7 +63,7 @@ class TestplanParser:
         self.name = name
         self._default_options = default_options
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: HelpParser) -> None:
         """
         Virtual method to be overridden by custom parsers.
 
@@ -561,7 +561,7 @@ that match ALL of the given tags.
         self.add_arguments(parser)
         return parser
 
-    def parse_args(self):
+    def parse_args(self) -> argparse.Namespace:
         """
         Generates the parser & return parsed command line args.
         """
@@ -634,9 +634,15 @@ class LogLevelAction(argparse.Action):
     LEVELS = logger.TestplanLogger.LEVELS.copy()
     LEVELS["NONE"] = None
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = None,
+    ) -> None:
         """Store the log level value corresponding to the level's name."""
-        setattr(namespace, self.dest, self.LEVELS[values])
+        setattr(namespace, self.dest, self.LEVELS[values])  # type: ignore[index]
 
 
 def _read_text_file(file: str) -> List[str]:
@@ -656,7 +662,7 @@ runtime_schema = schema.Schema(
 )
 
 
-def _runtime_json_file(file: str) -> dict:
+def _runtime_json_file(file: str) -> Dict[str, Any]:
     runtime_info = json_load_from_path(file)
     if runtime_schema.is_valid(runtime_info):
         return runtime_info

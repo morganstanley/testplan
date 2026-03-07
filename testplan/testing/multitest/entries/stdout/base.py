@@ -8,7 +8,7 @@ of their serialized (dict) versions.
 import os
 import re
 import pprint
-
+from typing import Any, Optional
 
 from terminaltables import AsciiTable
 
@@ -20,14 +20,14 @@ ASSERTION_NAME_PATTERN = re.compile(r"([A-Z])")
 
 
 class StdOutRegistry(Registry):
-    def get_category(self, obj):
-        return obj.meta_type
+    def get_category(self, obj: Any) -> str:
+        return obj.meta_type  # type: ignore[no-any-return]
 
-    def indented_msg(self, msg, indent):
+    def indented_msg(self, msg: str, indent: int) -> str:
         parts = [indent * " " + line for line in msg.split(os.linesep)]
         return os.linesep.join(parts)
 
-    def log_entry(self, entry, stdout_style):
+    def log_entry(self, entry: Any, stdout_style: Any) -> None:
         from testplan.testing.base import ASSERTION_INDENT
 
         logger = self[entry]()
@@ -59,38 +59,38 @@ registry = StdOutRegistry()
 class BaseRenderer:
     """Absolute fallback for all entries."""
 
-    def get_default_header(self, entry):
+    def get_default_header(self, entry: Any) -> str:
         return ASSERTION_NAME_PATTERN.sub(
             " \\1", entry.__class__.__name__
         ).strip()
 
-    def get_header_text(self, entry):
+    def get_header_text(self, entry: Any) -> str:
         return entry.description or self.get_default_header(entry)
 
-    def get_header(self, entry):
+    def get_header(self, entry: Any) -> Optional[str]:
         return self.get_header_text(entry)
 
-    def get_details(self, entry):
+    def get_details(self, entry: Any) -> Optional[str]:
         pass
 
 
 @registry.bind(base.Group)
 class GroupRenderer:
-    def get_header(self, entry):
+    def get_header(self, entry: Any) -> str:
         return entry.description or "Group"
 
 
 @registry.bind(base.Log)
 class LogRenderer(BaseRenderer):
-    def get_header(self, entry):
+    def get_header(self, entry: Any) -> Optional[str]:
         if entry.description:
-            return entry.description
+            return str(entry.description)
         elif isinstance(entry.message, str):
             return str(entry.message)
         else:
             return self.get_default_header(entry)
 
-    def get_details(self, entry):
+    def get_details(self, entry: Any) -> Optional[str]:
         if isinstance(entry.message, str):
             if entry.description:
                 return str(entry.message)
@@ -102,25 +102,25 @@ class LogRenderer(BaseRenderer):
 
 @registry.bind(base.Attachment)
 class AttachmentRenderer(BaseRenderer):
-    def get_details(self, entry):
+    def get_details(self, entry: Any) -> Optional[str]:
         return "Attach file: {}".format(entry.source_path)
 
 
 @registry.bind(base.MatPlot)
 class MatPlotRenderer(BaseRenderer):
-    def get_details(self, entry):
+    def get_details(self, entry: Any) -> Optional[str]:
         return "MatPlot graph generated at: {}".format(entry.source_path)
 
 
 @registry.bind(base.Plotly)
 class PlotlyRenderer(BaseRenderer):
-    def get_details(self, entry):
+    def get_details(self, entry: Any) -> Optional[str]:
         return "Plotly graph generated at: {}".format(entry.source_path)
 
 
 @registry.bind(base.Directory)
 class DirectoryRenderer(BaseRenderer):
-    def get_details(self, entry):
+    def get_details(self, entry: Any) -> Optional[str]:
         return "Attach directory: {}".format(entry.source_path)
 
 
@@ -139,12 +139,12 @@ class TableLogRenderer(BaseRenderer):
                 if isinstance(cell, bytes):
                     entry.table[j][i] = str(cell)
 
-        return AsciiTable([entry.columns, *entry.table]).table
+        return AsciiTable([entry.columns, *entry.table]).table  # type: ignore[no-any-return]
 
 
 @registry.bind(base.DictLog, base.FixLog)
 class DictLogRenderer(BaseRenderer):
-    def get_details(self, entry):
+    def get_details(self, entry: Any) -> Optional[str]:
         result = []
         if len(entry.flattened_dict) == 0:
             result.append("(empty)")

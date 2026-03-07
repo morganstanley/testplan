@@ -43,7 +43,7 @@ class ToJsonAction(ProcessResultAction):
 
 @writer_commands.command(name="tojson")
 @click.argument("output", type=click.Path())
-def to_json(output: click.Path) -> ToJsonAction:
+def to_json(output: str) -> ToJsonAction:
     """
     Writer command for exporting JSON format.
 
@@ -94,7 +94,7 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
              while failing tests will include assertion detail\n
         """,
 )
-def to_pdf(filename: click.Path, pdf_style: click.Choice) -> ToPDFAction:
+def to_pdf(filename: str, pdf_style: str) -> ToPDFAction:
     """
     Writer command for exporting PDF format.
 
@@ -109,6 +109,8 @@ def to_pdf(filename: click.Path, pdf_style: click.Choice) -> ToPDFAction:
         return ToPDFAction(filename=filename, style=StyleArg.EXTENDED_SUMMARY)
     elif pdf_style == "detailed":
         return ToPDFAction(filename=filename, style=StyleArg.DETAILED)
+    else:
+        raise click.UsageError(f"Unknown pdf style: {pdf_style}")
 
 
 class ToJUnitAction(ProcessResultAction, logger.Loggable):
@@ -133,7 +135,7 @@ class ToJUnitAction(ProcessResultAction, logger.Loggable):
 
 @writer_commands.command(name="tojunit")
 @click.argument("dir_name", required=True, type=click.Path())
-def to_junit(dir_name: click.Path) -> ToJUnitAction:
+def to_junit(dir_name: str) -> ToJUnitAction:
     """
     Writer command for exporting JUnit format.
 

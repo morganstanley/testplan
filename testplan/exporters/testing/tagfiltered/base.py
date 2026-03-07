@@ -3,7 +3,7 @@
 """
 Implements base exporter objects.
 """
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 from schema import Use
 
 from testplan.common.config import ConfigOption
@@ -25,7 +25,7 @@ class TagFilteredExporterConfig(ExporterConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("report_tags"): [Use(tagging.validate_tag_value)],
             ConfigOption("report_tags_all"): [Use(tagging.validate_tag_value)],
@@ -45,8 +45,8 @@ class TagFilteredExporter(Exporter):
     ALL: str = "all"
     ANY: str = "any"
 
-    CONFIG: TagFilteredExporterConfig = TagFilteredExporterConfig
-    exporter_class: Exporter = None
+    CONFIG = TagFilteredExporterConfig
+    exporter_class: Optional[Type[Exporter]] = None
 
     def get_params(self, tag_dict: Dict, filter_type: str) -> Dict:
         """
@@ -60,7 +60,7 @@ class TagFilteredExporter(Exporter):
         """
         return {}
 
-    def get_exporter(self, **params) -> Exporter:
+    def get_exporter(self, **params: Any) -> Exporter:
         """
         Instantiates `exporter_class` with given `params`.
 
