@@ -8,13 +8,13 @@ aniso8601==10.0.1
     # via flask-restx
 astroid==3.3.11 ; python_full_version < '3.10'
     # via pylint
-astroid==4.0.4 ; python_full_version >= '3.10'
+astroid==4.0.2 ; python_full_version >= '3.10'
     # via pylint
 attrs==25.4.0
     # via
     #   jsonschema
     #   referencing
-babel==2.18.0
+babel==2.17.0
     # via sphinx
 bcrypt==5.0.0
     # via paramiko
@@ -24,7 +24,7 @@ boltons==25.0.0
     # via
     #   releaseherald
     #   testplan
-certifi==2026.2.25
+certifi==2025.11.12
     # via requests
 cffi==2.0.0 ; implementation_name == 'pypy' or platform_python_implementation != 'PyPy'
     # via
@@ -35,7 +35,7 @@ cfgv==3.4.0 ; python_full_version < '3.10'
     # via pre-commit
 cfgv==3.5.0 ; python_full_version >= '3.10'
     # via pre-commit
-charset-normalizer==3.4.5
+charset-normalizer==3.4.4
     # via
     #   reportlab
     #   requests
@@ -53,7 +53,7 @@ click==8.3.1 ; python_full_version >= '3.10'
     #   releaseherald
     #   sphinx-click
     #   testplan
-cloudpickle==3.1.2 ; python_full_version < '3.10'
+cloudpickle==3.1.2
     # via doit
 colorama==0.4.6
     # via
@@ -62,7 +62,7 @@ colorama==0.4.6
     #   pytest
     #   sphinx
     #   testplan
-confluent-kafka==2.13.2
+confluent-kafka==2.12.2
 contourpy==1.3.0 ; python_full_version < '3.10'
     # via matplotlib
 contourpy==1.3.2 ; python_full_version == '3.10.*'
@@ -71,49 +71,37 @@ contourpy==1.3.3 ; python_full_version >= '3.11'
     # via matplotlib
 coverage==7.10.7 ; python_full_version < '3.10'
     # via testplan
-coverage==7.13.4 ; python_full_version >= '3.10'
+coverage==7.13.1 ; python_full_version >= '3.10'
     # via testplan
-cryptography==46.0.5
-    # via
-    #   paramiko
-    #   types-paramiko
+cryptography==46.0.3
+    # via paramiko
 cycler==0.12.1
     # via matplotlib
 decorator==5.2.1
     # via
     #   gssapi
     #   validators
-dill==0.4.1
+dill==0.4.0
     # via
     #   pylint
     #   testplan
 distlib==0.4.0
     # via virtualenv
-docutils==0.21.2 ; python_full_version < '3.11'
+docutils==0.21.2
     # via
     #   sphinx
     #   sphinx-click
     #   sphinx-rtd-theme
-docutils==0.22.4 ; python_full_version >= '3.11'
-    # via
-    #   sphinx
-    #   sphinx-click
-    #   sphinx-rtd-theme
-doit==0.36.0 ; python_full_version < '3.10'
-doit==0.37.0 ; python_full_version >= '3.10'
+doit==0.36.0
 exceptiongroup==1.3.1 ; python_full_version < '3.11'
     # via
     #   pytest
     #   testplan
 filelock==3.19.1 ; python_full_version < '3.10'
-    # via
-    #   python-discovery
-    #   virtualenv
-filelock==3.25.0 ; python_full_version >= '3.10'
-    # via
-    #   python-discovery
-    #   virtualenv
-flask==3.1.3
+    # via virtualenv
+filelock==3.20.2 ; python_full_version >= '3.10'
+    # via virtualenv
+flask==3.1.2
     # via
     #   flask-orjson
     #   flask-restx
@@ -126,35 +114,31 @@ fonttools==4.60.2 ; python_full_version < '3.10'
     # via matplotlib
 fonttools==4.61.1 ; python_full_version >= '3.10'
     # via matplotlib
-gherkin-official==39.0.0
+gherkin-official==37.0.1
     # via testplan
+googleapis-common-protos==1.72.0
+    # via opentelemetry-exporter-otlp-proto-grpc
 gitdb==4.0.12
     # via gitpython
 gitpython==3.1.46
     # via releaseherald
-googleapis-common-protos==1.73.0
+grpcio==1.76.0
     # via opentelemetry-exporter-otlp-proto-grpc
-grpcio==1.78.0
-    # via opentelemetry-exporter-otlp-proto-grpc
-gssapi==1.11.1 ; sys_platform != 'win32'
+gssapi==1.10.1 ; sys_platform != 'win32'
     # via paramiko
-identify==2.6.15 ; python_full_version < '3.10'
-    # via pre-commit
-identify==2.6.17 ; python_full_version >= '3.10'
+identify==2.6.15
     # via pre-commit
 idna==3.11
     # via requests
-imagesize==1.5.0 ; python_full_version < '3.10'
-    # via sphinx
-imagesize==2.0.0 ; python_full_version >= '3.10'
+imagesize==1.4.1
     # via sphinx
 importlib-metadata==8.7.1
     # via
     #   doit
     #   flask
     #   isort
-    #   opentelemetry-api
     #   sphinx
+    #   opentelemetry-api
 importlib-resources==6.5.2
     # via
     #   flask-restx
@@ -167,11 +151,11 @@ invoke==2.2.1
     # via paramiko
 isort==6.1.0 ; python_full_version < '3.10'
     # via pylint
-isort==8.0.1 ; python_full_version >= '3.10'
+isort==7.0.0 ; python_full_version >= '3.10'
     # via pylint
 itsdangerous==2.2.0
     # via flask
-jaraco-functools==4.4.0
+jaraco-functools==4.3.0
     # via cheroot
 jinja2==3.1.6
     # via
@@ -179,9 +163,7 @@ jinja2==3.1.6
     #   releaseherald
     #   sphinx
     #   testplan
-jsonschema==4.25.1 ; python_full_version < '3.10'
-    # via flask-restx
-jsonschema==4.26.0 ; python_full_version >= '3.10'
+jsonschema==4.25.1
     # via flask-restx
 jsonschema-specifications==2025.9.1
     # via jsonschema
@@ -190,8 +172,6 @@ kiwisolver==1.4.7 ; python_full_version < '3.10'
     # via matplotlib
 kiwisolver==1.4.9 ; python_full_version >= '3.10'
     # via matplotlib
-librt==0.8.1 ; platform_python_implementation != 'PyPy'
-    # via mypy
 lxml==6.0.2
     # via testplan
 markupsafe==3.0.3
@@ -211,10 +191,7 @@ more-itertools==10.8.0
     # via
     #   cheroot
     #   jaraco-functools
-mypy==1.19.1
-mypy-extensions==1.1.0
-    # via mypy
-narwhals==2.17.0
+narwhals==2.14.0
     # via plotly
 nodeenv==1.10.0
     # via pre-commit
@@ -228,18 +205,18 @@ numpy==2.2.6 ; python_full_version == '3.10.*'
     #   contourpy
     #   matplotlib
     #   pandas
-numpy==2.4.2 ; python_full_version >= '3.11'
+numpy==2.4.0 ; python_full_version >= '3.11'
     # via
     #   contourpy
     #   matplotlib
     #   pandas
 opentelemetry-api==1.38.0
     # via
+    #   testplan
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-instrumentation
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   testplan
 opentelemetry-exporter-otlp-proto-common==1.38.0
     # via opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-exporter-otlp-proto-grpc==1.38.0
@@ -252,21 +229,17 @@ opentelemetry-proto==1.38.0
     #   opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-sdk==1.38.0
     # via
-    #   opentelemetry-exporter-otlp-proto-grpc
     #   testplan
+    #   opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-semantic-conventions==0.59b0
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-sdk
-orjson==3.11.5 ; python_full_version < '3.10'
+orjson==3.11.5
     # via
     #   flask-orjson
     #   testplan
-orjson==3.11.7 ; python_full_version >= '3.10'
-    # via
-    #   flask-orjson
-    #   testplan
-packaging==26.0
+packaging==25.0
     # via
     #   marshmallow
     #   matplotlib
@@ -274,24 +247,20 @@ packaging==26.0
     #   plotly
     #   pytest
     #   sphinx
-pandas==2.3.3 ; python_full_version < '3.11'
-    # via testplan
-pandas==3.0.1 ; python_full_version >= '3.11'
+pandas==2.3.3
     # via testplan
 paramiko==4.0.0
     # via testplan
-parse==1.21.1
+parse==1.20.2
     # via
     #   releaseherald
     #   testplan
-pathspec==1.0.4
-    # via mypy
 pillow==11.3.0 ; python_full_version < '3.10'
     # via
     #   matplotlib
     #   reportlab
     #   testplan
-pillow==12.1.1 ; python_full_version >= '3.10'
+pillow==12.0.0 ; python_full_version >= '3.10'
     # via
     #   matplotlib
     #   reportlab
@@ -299,14 +268,12 @@ pillow==12.1.1 ; python_full_version >= '3.10'
 platformdirs==4.4.0 ; python_full_version < '3.10'
     # via
     #   pylint
-    #   python-discovery
     #   virtualenv
-platformdirs==4.9.4 ; python_full_version >= '3.10'
+platformdirs==4.5.1 ; python_full_version >= '3.10'
     # via
     #   pylint
-    #   python-discovery
     #   virtualenv
-plotly==6.6.0
+plotly==6.5.0
     # via testplan
 pluggy==1.6.0
     # via
@@ -316,17 +283,15 @@ plumbum==1.10.0
     # via rpyc
 pre-commit==4.3.0 ; python_full_version < '3.10'
 pre-commit==4.5.1 ; python_full_version >= '3.10'
-protobuf==6.33.5
+protobuf==6.33.0
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-psutil==7.2.2
+psutil==7.2.1
     # via testplan
-pyasn1==0.6.2
+pyasn1==0.6.1
     # via paramiko
-pycparser==2.23 ; (python_full_version < '3.10' and implementation_name != 'PyPy' and platform_python_implementation != 'PyPy') or (python_full_version < '3.10' and implementation_name == 'pypy' and platform_python_implementation == 'PyPy')
-    # via cffi
-pycparser==3.0 ; (python_full_version >= '3.10' and implementation_name != 'PyPy' and platform_python_implementation != 'PyPy') or (python_full_version >= '3.10' and implementation_name == 'pypy' and platform_python_implementation == 'PyPy')
+pycparser==2.23 ; (implementation_name != 'PyPy' and platform_python_implementation != 'PyPy') or (implementation_name == 'pypy' and platform_python_implementation == 'PyPy')
     # via cffi
 pydantic==1.10.26
     # via releaseherald
@@ -335,10 +300,10 @@ pygments==2.19.2
     #   pytest
     #   sphinx
 pylint==3.3.9 ; python_full_version < '3.10'
-pylint==4.0.5 ; python_full_version >= '3.10'
+pylint==4.0.4 ; python_full_version >= '3.10'
 pynacl==1.6.2
     # via paramiko
-pyparsing==3.3.2
+pyparsing==3.3.1
     # via matplotlib
 pytest==8.4.2 ; python_full_version < '3.10'
     # via
@@ -356,13 +321,9 @@ python-dateutil==2.9.0.post0
     # via
     #   matplotlib
     #   pandas
-python-discovery==1.1.1
-    # via virtualenv
-python-dotenv==1.2.1 ; python_full_version < '3.10'
+python-dotenv==1.2.1
     # via pytest-dotenv
-python-dotenv==1.2.2 ; python_full_version >= '3.10'
-    # via pytest-dotenv
-pytz==2026.1.post1 ; python_full_version < '3.11'
+pytz==2025.2
     # via pandas
 pywin32==311 ; sys_platform == 'win32'
     # via
@@ -382,14 +343,16 @@ referencing==0.37.0 ; python_full_version >= '3.10'
     #   flask-restx
     #   jsonschema
     #   jsonschema-specifications
-releaseherald @ git+https://github.com/morganstanley/releaseherald.git@bb3d734954f2ee5f23564a4aadca2e2a918ae4a9
-reportlab==4.4.10
+releaseherald @ git+https://github.com/morganstanley/releaseherald.git@9bbe24d60146990084e273bb23edac5bd4dfd80b
+reportlab==4.4.7
     # via testplan
 requests==2.32.5
     # via
     #   sphinx
     #   testplan
 roman-numerals==4.1.0 ; python_full_version >= '3.11'
+    # via roman-numerals-py
+roman-numerals-py==4.1.0 ; python_full_version >= '3.11'
     # via sphinx
 rpds-py==0.27.1 ; python_full_version < '3.10'
     # via
@@ -401,10 +364,10 @@ rpds-py==0.30.0 ; python_full_version >= '3.10'
     #   referencing
 rpyc==6.0.2
     # via testplan
-ruff==0.15.5
+ruff==0.14.10
 schema==0.7.8
     # via testplan
-setuptools==82.0.0
+setuptools==80.9.0
     # via testplan
 six==1.17.0
     # via python-dateutil
@@ -422,19 +385,14 @@ sphinx==8.1.3 ; python_full_version == '3.10.*'
     #   sphinx-click
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
-sphinx==9.0.4 ; python_full_version == '3.11.*'
-    # via
-    #   sphinx-click
-    #   sphinx-rtd-theme
-    #   sphinxcontrib-jquery
-sphinx==9.1.0 ; python_full_version >= '3.12'
+sphinx==8.2.3 ; python_full_version >= '3.11'
     # via
     #   sphinx-click
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
 sphinx-click==6.0.0 ; python_full_version < '3.10'
 sphinx-click==6.2.0 ; python_full_version >= '3.10'
-sphinx-rtd-theme==3.1.0
+sphinx-rtd-theme==3.0.2
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
 sphinxcontrib-devhelp==2.0.0
@@ -455,17 +413,14 @@ termcolor==3.3.0 ; python_full_version >= '3.10'
     # via testplan
 terminaltables==3.1.10
     # via testplan
-tomli==2.4.0
+tomli==2.3.0
     # via
-    #   mypy
     #   pylint
     #   pytest
     #   releaseherald
     #   sphinx
-tomlkit==0.14.0
+tomlkit==0.13.3
     # via pylint
-types-paramiko==4.0.0.20250822
-types-requests==2.32.4.20260107
 typing-extensions==4.15.0
     # via
     #   astroid
@@ -473,8 +428,6 @@ typing-extensions==4.15.0
     #   exceptiongroup
     #   gherkin-official
     #   gitpython
-    #   grpcio
-    #   mypy
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-sdk
@@ -485,23 +438,21 @@ typing-extensions==4.15.0
     #   releaseherald
     #   testplan
     #   virtualenv
-tzdata==2025.3 ; python_full_version < '3.11' or sys_platform == 'emscripten' or sys_platform == 'win32'
+tzdata==2025.3
     # via
     #   pandas
     #   tzlocal
 tzlocal==5.3.1
     # via testplan
-urllib3==2.6.3
-    # via
-    #   requests
-    #   types-requests
-uv==0.10.9
+urllib3==2.6.2
+    # via requests
+uv==0.9.21
     # via testplan
 validators==0.20.0
     # via testplan
-virtualenv==21.1.0
+virtualenv==20.35.4
     # via pre-commit
-werkzeug==3.1.6
+werkzeug==3.1.4
     # via
     #   flask
     #   flask-restx
