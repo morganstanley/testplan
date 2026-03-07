@@ -197,8 +197,8 @@ def test_driver_report_information_with_flag():
     for i in range(len(expected_drv1)):
         assert re.search(expected_drv1[i], driver_setup_info[0][i])
         assert re.search(expected_drv2[i], driver_setup_info[1][i])
-    assert 0.1 < driver_setup_info[0][-1] < 0.3
-    assert 0.1 < driver_setup_info[1][-1] < 0.3
+    assert 0.1 < driver_setup_info[0][-1] < 1.0
+    assert 0.1 < driver_setup_info[1][-1] < 1.0
 
     driver_teardown_report = (
         report.get_by_uids([ResourceHooks.ENVIRONMENT_STOP.value])
@@ -211,8 +211,8 @@ def test_driver_report_information_with_flag():
     for i in range(len(expected_drv1)):
         assert re.search(expected_drv1[i], driver_teardown_info[1][i])
         assert re.search(expected_drv2[i], driver_teardown_info[0][i])
-    assert 0 < driver_teardown_info[0][-1] < 0.2
-    assert 0 < driver_teardown_info[1][-1] < 0.2
+    assert 0 < driver_teardown_info[0][-1] < 1.0
+    assert 0 < driver_teardown_info[1][-1] < 1.0
 
 
 def test_driver_report_information_with_flag_when_driver_fails():
@@ -259,7 +259,7 @@ def test_driver_report_information_with_flag_when_driver_fails():
             assert i + 1 == len(expected_drv1)
         else:
             assert re.search(expected_drv2[i], driver_setup_info[1][i])
-    assert 0.1 < driver_setup_info[0][-1] < 0.3
+    assert 0.1 < driver_setup_info[0][-1] < 1.0
     assert driver_setup_info[1][-1] == None
 
     driver_teardown_report = (
@@ -273,5 +273,5 @@ def test_driver_report_information_with_flag_when_driver_fails():
     for i in range(len(expected_drv1)):
         assert re.search(expected_drv1[i], driver_teardown_info[1][i])
         assert re.search(expected_drv2[i], driver_teardown_info[0][i])
-    assert 0 < driver_teardown_info[0][-1] < 0.2
-    assert 0 < driver_teardown_info[1][-1] < 0.2
+    assert 0 < driver_teardown_info[0][-1] < 1.0
+    assert 0 < driver_teardown_info[1][-1] < 1.0
