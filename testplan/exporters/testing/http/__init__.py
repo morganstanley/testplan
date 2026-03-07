@@ -5,7 +5,7 @@ must be able to handle POST request and receive data in JSON format.
 
 from typing import Any, Tuple, Union, Optional, Dict
 
-import requests
+import requests  # type: ignore[import-untyped]
 from schema import Or, And, Use
 
 from testplan.common.config import ConfigOption

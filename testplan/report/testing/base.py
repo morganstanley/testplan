@@ -193,7 +193,9 @@ class TestReport(BaseReportGroup):
         return ShallowTestReportSchema().dump(self)  # type: ignore[no-any-return]
 
     @classmethod
-    def shallow_deserialize(cls, data: Dict[str, Any], old_report: "TestReport") -> "TestReport":
+    def shallow_deserialize(
+        cls, data: Dict[str, Any], old_report: "TestReport"
+    ) -> "TestReport":
         """
         Shortcut for deserializing a ``TestReport`` object from its shallow
         serialized representation.
@@ -342,14 +344,18 @@ class TestGroupReport(BaseReportGroup):
         return ShallowTestGroupReportSchema().dump(self)  # type: ignore[no-any-return]
 
     @classmethod
-    def shallow_deserialize(cls, data: Dict[str, Any], old_report: "TestGroupReport") -> "TestGroupReport":
+    def shallow_deserialize(
+        cls, data: Dict[str, Any], old_report: "TestGroupReport"
+    ) -> "TestGroupReport":
         """
         Shortcut for deserializing a ``TestGroupReport`` object from its
         shallow serialized representation.
         """
         from .schemas import ShallowTestGroupReportSchema
 
-        deserialized: TestGroupReport = ShallowTestGroupReportSchema().load(data)
+        deserialized: TestGroupReport = ShallowTestGroupReportSchema().load(
+            data
+        )
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
         return deserialized
@@ -367,7 +373,9 @@ class TestGroupReport(BaseReportGroup):
                 tag_dicts.append(child.tags)
         return tagging.merge_tag_dicts(*tag_dicts)  # type: ignore[no-any-return]
 
-    def propagate_tag_indices(self, parent_tags: Optional[Dict[str, Any]] = None) -> None:
+    def propagate_tag_indices(
+        self, parent_tags: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Distribute native tag data onto `tags_index` attributes on the nodes
         of the test report. This distribution happens 2 ways.
@@ -592,10 +600,14 @@ class TestCaseReport(Report):
         self.timer = report.timer
         self.status_reason = report.status_reason
 
-    def flattened_entries(self, depth: int) -> List[Tuple[int, Dict[str, Any]]]:
+    def flattened_entries(
+        self, depth: int
+    ) -> List[Tuple[int, Dict[str, Any]]]:
         """Need to take assertion groups into account."""
 
-        def flatten_dicts(dicts: List[Dict[str, Any]], _depth: int) -> List[Tuple[int, Dict[str, Any]]]:
+        def flatten_dicts(
+            dicts: List[Dict[str, Any]], _depth: int
+        ) -> List[Tuple[int, Dict[str, Any]]]:
             """Recursively flatten serialized entry list."""
             result = []
             for d in dicts:

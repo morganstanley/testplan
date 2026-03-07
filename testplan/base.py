@@ -348,7 +348,9 @@ class Testplan(entity.RunnableManager):
             options[key] = self._processed_args[key]
         return options
 
-    def _print_current_status(self, sig: int, frame: Optional[FrameType]) -> None:
+    def _print_current_status(
+        self, sig: int, frame: Optional[FrameType]
+    ) -> None:
         """
         Print stack frames of all threads and status information of
         resources.
@@ -489,7 +491,9 @@ class Testplan(entity.RunnableManager):
         :py:class:`~testplan.base.Testplan` entity.
         """
 
-        def test_plan_inner(definition: Callable[..., Any]) -> Callable[..., TestplanResult]:
+        def test_plan_inner(
+            definition: Callable[..., Any],
+        ) -> Callable[..., TestplanResult]:
             """
             This is being passed the user-defined testplan entry point.
             """
@@ -568,7 +572,9 @@ class Testplan(entity.RunnableManager):
         return test_plan_inner
 
     @classmethod
-    def _prepare_plan(cls, definition: Callable[..., Any], plan: "Testplan") -> Any:
+    def _prepare_plan(
+        cls, definition: Callable[..., Any], plan: "Testplan"
+    ) -> Any:
         if arity(definition) == 2:
             returned = definition(plan, plan.parser)
         else:

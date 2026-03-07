@@ -26,7 +26,7 @@ def with_input(func: Callable) -> Callable:
     """
     Attaches a "source" argument to the command.
     """
-    return click.argument(
+    return click.argument(  # type: ignore[no-any-return]
         "source", type=click.Path(exists=True), required=True
     )(func)
 
@@ -80,9 +80,7 @@ class ReaderAction(ParseSingleAction):
 @single_reader_commands.command(name="fromcppunit")
 @with_input
 @with_plan_options
-def from_cppunit(
-    source: str, name: str, description: str
-) -> ReaderAction:
+def from_cppunit(source: str, name: str, description: str) -> ReaderAction:
     """
     Reads a CppUnit XML result.
 
@@ -96,9 +94,7 @@ def from_cppunit(
 @single_reader_commands.command(name="fromgtest")
 @with_input
 @with_plan_options
-def from_gtest(
-    source: str, name: str, description: str
-) -> ReaderAction:
+def from_gtest(source: str, name: str, description: str) -> ReaderAction:
     """
     Reads a GoogleTest XML result.
 
@@ -123,9 +119,7 @@ def from_json(source: str) -> ReaderAction:
 @single_reader_commands.command(name="fromjunit")
 @with_input
 @with_plan_options
-def from_junit(
-    source: str, name: str, description: str
-) -> ReaderAction:
+def from_junit(source: str, name: str, description: str) -> ReaderAction:
     """
     Reads a JUnit result.
 

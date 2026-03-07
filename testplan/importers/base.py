@@ -43,7 +43,10 @@ class ThreePhaseFileImporter(ResultImporter, Generic[T]):
     """
 
     def __init__(
-        self, path: str, name: Optional[str] = None, description: Optional[str] = None
+        self,
+        path: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
     ) -> None:
         """
         :param path: path to source file

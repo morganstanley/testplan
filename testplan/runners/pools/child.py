@@ -131,7 +131,9 @@ class ChildLoop:
         fhandler.setLevel(self.logger.level)
         self.logger.addHandler(fhandler)
 
-    def _send_and_expect(self, message: Any, send: str, expect: List[str]) -> Any:
+    def _send_and_expect(
+        self, message: Any, send: str, expect: List[str]
+    ) -> Any:
         try:
             return self._transport.send_and_receive(
                 message.make(send), expect=expect
@@ -428,7 +430,9 @@ def child_logic(args: argparse.Namespace) -> None:
         loop.worker_loop()
 
 
-def process_syspath_file(filename: str, working_dir: Optional[str] = None) -> List[str]:
+def process_syspath_file(
+    filename: str, working_dir: Optional[str] = None
+) -> List[str]:
     """
     Process the syspath file, which should contain one sys.path entry per line
     Since we might be on a remote host, we need to check the accessibility of

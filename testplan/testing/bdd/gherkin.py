@@ -98,7 +98,9 @@ class StepContainer:
 
 
 class Scenario(ParsedStore, StepContainer):
-    def __init__(self, parsed: Dict[str, Any], background: Optional["Background"] = None) -> None:
+    def __init__(
+        self, parsed: Dict[str, Any], background: Optional["Background"] = None
+    ) -> None:
         super(Scenario, self).__init__(parsed)
 
         self.name: str = self.parsed["name"]
@@ -149,7 +151,9 @@ class Example(ParsedStore):
 
 
 class ScenarioOutline(ParsedStore, StepContainer):
-    def __init__(self, parsed: Dict[str, Any], background: Optional["Background"] = None) -> None:
+    def __init__(
+        self, parsed: Dict[str, Any], background: Optional["Background"] = None
+    ) -> None:
         super(ScenarioOutline, self).__init__(parsed)
 
         self.name: str = self.parsed["name"]
@@ -165,7 +169,12 @@ class ScenarioOutline(ParsedStore, StepContainer):
         return self.compile_scenarios()
 
     def compile_scenarios(self) -> List[Scenario]:
-        def resolve(item: Any, data: Dict[str, Any], paths: Any = [":"], current: str = ":") -> Any:
+        def resolve(
+            item: Any,
+            data: Dict[str, Any],
+            paths: Any = [":"],
+            current: str = ":",
+        ) -> Any:
             def resolve_text(value: str) -> str:
                 regexp = "(<([^>]*)>)"
                 result = value
@@ -242,7 +251,9 @@ class Step(ParsedStore):
 
         self.text: str = self.parsed["text"]  # This should be there
         self.keyword: str = self.parsed["keyword"]
-        self.argument: Optional[Union[str, DataTable]] = get_argument(self.parsed)
+        self.argument: Optional[Union[str, DataTable]] = get_argument(
+            self.parsed
+        )
 
     @property
     def sentence(self) -> str:

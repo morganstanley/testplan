@@ -44,7 +44,13 @@ class PyUnit(testing.Test):
     CONFIG = PyUnitConfig
     _TESTCASE_NAME = "PyUnit test results"
 
-    def __init__(self, name: str, testcases: List[Type[unittest.TestCase]], description: Optional[str] = None, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        name: str,
+        testcases: List[Type[unittest.TestCase]],
+        description: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         super(PyUnit, self).__init__(
             name=name, testcases=testcases, description=description, **kwargs
         )
@@ -145,7 +151,9 @@ class PyUnit(testing.Test):
         for pyunit_testcase in self.cfg.testcases:
             yield self._run_testsuite(pyunit_testcase)
 
-    def _run_testsuite(self, pyunit_testcase: Type[unittest.TestCase]) -> TestGroupReport:
+    def _run_testsuite(
+        self, pyunit_testcase: Type[unittest.TestCase]
+    ) -> TestGroupReport:
         """Run a single PyUnit Testcase as a suite and return a testsuite report."""
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(
             pyunit_testcase

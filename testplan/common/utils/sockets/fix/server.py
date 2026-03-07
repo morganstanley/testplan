@@ -160,7 +160,9 @@ class Server:
         self._listening = False
 
         self._conndetails_by_fd: Dict[int, ConnectionDetails] = {}
-        self._conndetails_by_name: Dict[Tuple[str, str], ConnectionDetails] = {}
+        self._conndetails_by_name: Dict[
+            Tuple[str, str], ConnectionDetails
+        ] = {}
         self._first_sender: Optional[str] = None
         self._first_target: Optional[str] = None
 
@@ -311,7 +313,8 @@ class Server:
             self._conndetails_by_fd[fdesc].connection.close()
 
             self._conndetails_by_name.pop(
-                self._conndetails_by_fd[fdesc].name, None  # type: ignore[arg-type]
+                self._conndetails_by_fd[fdesc].name,  # type: ignore[arg-type]
+                None,
             )
         self._conndetails_by_fd = {}
 
@@ -416,7 +419,9 @@ class Server:
         """
         return conn_name in self._conndetails_by_name
 
-    def _logon_connection(self, fdesc: int, conn_name: Tuple[str, str]) -> None:
+    def _logon_connection(
+        self, fdesc: int, conn_name: Tuple[str, str]
+    ) -> None:
         """
         Logon given connection for given file descriptor.
 
@@ -471,7 +476,9 @@ class Server:
             self._recv_thread.join()
         self.log_callback("Stopped server.")
 
-    def _validate_connection_name(self, conn_name: Tuple[Optional[str], Optional[str]]) -> Tuple[str, str]:
+    def _validate_connection_name(
+        self, conn_name: Tuple[Optional[str], Optional[str]]
+    ) -> Tuple[str, str]:
         """
         Check if given connection name is valid.
 
@@ -507,7 +514,9 @@ class Server:
 
         return sender, target
 
-    def _add_msg_tags(self, msg: Any, conn_name: Tuple[str, str], fdesc: Optional[int] = None) -> Any:
+    def _add_msg_tags(
+        self, msg: Any, conn_name: Tuple[str, str], fdesc: Optional[int] = None
+    ) -> Any:
         """
         Add session tags and senderCompID and targetCompID tags to the given
         FIX message.
@@ -535,7 +544,9 @@ class Server:
         msg[52] = getattr(self.codec, "utc_timestamp", utc_timestamp)()
         return msg
 
-    def _no_lock_send(self, msg: Any, conn_name: Tuple[str, str], fdesc: Optional[int] = None) -> None:
+    def _no_lock_send(
+        self, msg: Any, conn_name: Tuple[str, str], fdesc: Optional[int] = None
+    ) -> None:
         """
         Send the given Fix message through the given connection, expecting
         the lock is already acquired.
@@ -563,7 +574,11 @@ class Server:
                 msg.to_wire(self.codec)
             )
 
-    def send(self, msg: Any, conn_name: Tuple[Optional[str], Optional[str]] = (None, None)) -> Any:
+    def send(
+        self,
+        msg: Any,
+        conn_name: Tuple[Optional[str], Optional[str]] = (None, None),
+    ) -> Any:
         """
         Send the given Fix message through the given connection.
 
@@ -595,7 +610,11 @@ class Server:
             )
         return msg
 
-    def receive(self, conn_name: Tuple[Optional[str], Optional[str]] = (None, None), timeout: int = 30) -> Any:
+    def receive(
+        self,
+        conn_name: Tuple[Optional[str], Optional[str]] = (None, None),
+        timeout: int = 30,
+    ) -> Any:
         """
         Receive a FIX message from the given connection.
 

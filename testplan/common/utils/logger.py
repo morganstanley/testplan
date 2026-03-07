@@ -117,7 +117,9 @@ class TestplanLogger(logging.Logger):
             {"name": name, "pass_label": pass_label, "indent": indent_str},
         )
 
-    def _custom_log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:
+    def _custom_log(
+        self, level: int, msg: str, *args: Any, **kwargs: Any
+    ) -> None:
         """Log 'msg % args' with severity 'level'."""
         if self.isEnabledFor(level):
             self._log(level, msg, args, **kwargs)

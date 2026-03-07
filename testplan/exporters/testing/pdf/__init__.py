@@ -60,7 +60,9 @@ except Exception as exc:
 MAX_FILENAME_LENGTH = 100
 
 
-def generate_path_for_tags(config: Any, tag_dict: Dict[str, Any], filter_type: str) -> str:
+def generate_path_for_tags(
+    config: Any, tag_dict: Dict[str, Any], filter_type: str
+) -> str:
     """
     Generate the PDF filename using the given filter and tag context.
     Will trim the filename and append a uuid suffix if it ends up
@@ -276,7 +278,9 @@ class TagFilteredPDFExporter(TagFilteredExporter):
     CONFIG = TagFilteredPDFExporterConfig
     exporter_class = PDFExporter
 
-    def get_params(self, tag_dict: Dict[str, Any], filter_type: str) -> Dict[str, str]:
+    def get_params(
+        self, tag_dict: Dict[str, Any], filter_type: str
+    ) -> Dict[str, str]:
         return {
             "pdf_path": generate_path_for_tags(self.cfg, tag_dict, filter_type)
         }

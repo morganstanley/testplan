@@ -6,7 +6,18 @@ import numbers
 import threading
 import warnings
 from concurrent import futures
-from typing import Any, Awaitable, Callable, Dict, Generator, Iterable, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from testplan.common import config, entity
 from testplan.common.report import Report
@@ -184,7 +195,9 @@ class TestRunnerIHandler(entity.Entity):
         runner = self.target.resources[self.target.resources.first()]
         return runner.added_item(test_uid)
 
-    def reset_all_tests(self, await_results: bool = True) -> Optional[Awaitable[Any]]:
+    def reset_all_tests(
+        self, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Reset the Testplan report.
 
@@ -203,7 +216,9 @@ class TestRunnerIHandler(entity.Entity):
             self.reset_test(test_uid)
         return None
 
-    def reset_test(self, test_uid: str, await_results: bool = True) -> Optional[Awaitable[Any]]:
+    def reset_test(
+        self, test_uid: str, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Reset the report of a single Test instance.
 
@@ -480,7 +495,9 @@ class TestRunnerIHandler(entity.Entity):
             )
         return None
 
-    def start_test_resources(self, test_uid: str, await_results: bool = True) -> Optional[Awaitable[Any]]:
+    def start_test_resources(
+        self, test_uid: str, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Start all test resources.
 
@@ -517,7 +534,9 @@ class TestRunnerIHandler(entity.Entity):
             self._set_env_status(test_uid, entity.ResourceStatus.STARTED)
         return None
 
-    def stop_test_resources(self, test_uid: str, await_results: bool = True) -> Optional[Awaitable[Any]]:
+    def stop_test_resources(
+        self, test_uid: str, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Stop all test resources.
 
@@ -551,7 +570,9 @@ class TestRunnerIHandler(entity.Entity):
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
         return None
 
-    def get_driver_info_report(self, test_uid: str, start_or_stop: str) -> None:
+    def get_driver_info_report(
+        self, test_uid: str, start_or_stop: str
+    ) -> None:
         # get the plotly graph attachment
         if (
             len(self.test(test_uid).resources) > 0
@@ -586,7 +607,12 @@ class TestRunnerIHandler(entity.Entity):
         test = self.test(test_uid)
         return test.resources[resource_uid]
 
-    def test_report(self, test_uid: str, serialized: bool = True, exclude_assertions: bool = False) -> Any:
+    def test_report(
+        self,
+        test_uid: str,
+        serialized: bool = True,
+        exclude_assertions: bool = False,
+    ) -> Any:
         """Get a test report."""
         test = self.test(test_uid)
         report = test.result.report
@@ -596,7 +622,13 @@ class TestRunnerIHandler(entity.Entity):
             return report.serialize()
         return report
 
-    def test_case_report(self, test_uid: str, suite_uid: str, case_uid: str, serialized: bool = True) -> Any:
+    def test_case_report(
+        self,
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        serialized: bool = True,
+    ) -> Any:
         """Get a testcase report."""
         report = self.test_report(test_uid, serialized=False)
 
@@ -699,7 +731,11 @@ class TestRunnerIHandler(entity.Entity):
         return result
 
     def environment_resource_context(
-        self, env_uid: str, resource_uid: str, context_item: Optional[str] = None, **kwargs: Any
+        self,
+        env_uid: str,
+        resource_uid: str,
+        context_item: Optional[str] = None,
+        **kwargs: Any,
     ) -> Any:
         """Get the context info of an environment resource."""
         result = self.get_environment_context(
@@ -709,12 +745,16 @@ class TestRunnerIHandler(entity.Entity):
             return result[context_item]
         return result
 
-    def environment_resource_start(self, env_uid: str, resource_uid: str) -> None:
+    def environment_resource_start(
+        self, env_uid: str, resource_uid: str
+    ) -> None:
         """Start an environment resource."""
         resource = self.get_environment_resource(env_uid, resource_uid)
         self.start_resource(resource)
 
-    def environment_resource_stop(self, env_uid: str, resource_uid: str) -> None:
+    def environment_resource_stop(
+        self, env_uid: str, resource_uid: str
+    ) -> None:
         """Stop an environment resource."""
         resource = self.get_environment_resource(env_uid, resource_uid)
         self.stop_resource(resource)
@@ -748,7 +788,9 @@ class TestRunnerIHandler(entity.Entity):
         """Stop all tests environments."""
         self.all_tests_operation("stop")
 
-    def all_tests_operation(self, operation: str, await_results: bool = True) -> None:
+    def all_tests_operation(
+        self, operation: str, await_results: bool = True
+    ) -> None:
         """Perform an operation in all tests."""
         all_tests = self.all_tests()
 
@@ -882,7 +924,9 @@ class TestRunnerIHandler(entity.Entity):
             test_report.logs.clear()
             test_report.status_override = None  # type: ignore[assignment]
 
-    def _run_async(self, func: Callable[..., Any], *args: Any, **kwargs: Any) -> Awaitable[Any]:
+    def _run_async(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Awaitable[Any]:
         """
         Schedule a function to run asynchronously in our task pool. We add a
         callback to ensure that all async exceptions are logged, for debugging
@@ -918,7 +962,9 @@ class TestRunnerIHandler(entity.Entity):
                 )
             parent_entry[report.uid] = report
 
-    def _merge_attributes(self, attribs: Dict[str, Any], parent_uids: List[str]) -> None:
+    def _merge_attributes(
+        self, attribs: Dict[str, Any], parent_uids: List[str]
+    ) -> None:
         """Merge attributes of test report from a test run."""
         with self.report_mutex:
             parent_entry: Any = self.report

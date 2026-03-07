@@ -27,7 +27,9 @@ from .base import BaseRowRenderer, MetadataMixin, RowData, format_duration
 
 
 class ReportRendererRegistry(Registry):
-    def __getitem__(self, item: Union[TestReport, TestGroupReport, TestCaseReport]) -> Type[BaseRowRenderer]:
+    def __getitem__(
+        self, item: Union[TestReport, TestGroupReport, TestCaseReport]
+    ) -> Type[BaseRowRenderer]:
         """Try to get renderers for TestGroupReports by category first"""
         if isinstance(item, TestGroupReport):
             try:
@@ -77,7 +79,9 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
 
         :param source: Source object for the renderer. Report for a Testplan test run.
         """
-        ctx: OrderedDict[str, str] = super(TestReportRenderer, self).get_metadata_context(source)
+        ctx: OrderedDict[str, str] = super(
+            TestReportRenderer, self
+        ).get_metadata_context(source)
 
         ctx.update(
             [
@@ -117,7 +121,8 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         :param depth: Depth of the source object on report tree. Used for indentation.
         :param row_idx: Index of the current table row to be rendered.
         """
-        row_data = RowData(            start=row_idx,
+        row_data = RowData(
+            start=row_idx,
             content=[source.name, "", "", format_status(source.status)],
             style=[
                 RowStyle(
@@ -196,7 +201,8 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         logs = [log for log in source.logs if log["levelno"] >= lvl]
 
         return (
-            RowData(                start=row_idx,
+            RowData(
+                start=row_idx,
                 content=[
                     [wrap(log["message"], width=width), "", "", ""]
                     for log in logs
@@ -297,7 +303,8 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
             const.PAGE_WIDTH - (depth * const.INDENT),
         )
 
-        return RowData(            start=row_idx,
+        return RowData(
+            start=row_idx,
             content=[header_text, "", "", format_status(source.status)],
             style=styles,
         )
@@ -316,7 +323,8 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         :param depth: Depth of the source object on report tree. Used for indentation.
         :param row_idx: Index of the current table row to be rendered.
         """
-        return RowData(            start=row_idx,
+        return RowData(
+            start=row_idx,
             content=split_text(
                 format_description(description),
                 const.FONT_ITALIC,
@@ -352,7 +360,8 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         logs = [log for log in source.logs if log["levelno"] >= lvl]
 
         return (
-            RowData(                start=row_idx,
+            RowData(
+                start=row_idx,
                 content=[
                     [wrap(log["message"], width=width), "", "", ""]
                     for log in logs
@@ -367,7 +376,9 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
             else None
         )
 
-    def get_style(self, source: Union[TestGroupReport, TestCaseReport]) -> StyleFlag:
+    def get_style(
+        self, source: Union[TestGroupReport, TestCaseReport]
+    ) -> StyleFlag:
         if source.passed:
             return self.style.passing  # type: ignore[no-any-return]
         return self.style.failing  # type: ignore[no-any-return]
@@ -403,7 +414,9 @@ class TestCaseRowBuilder(TestRowRenderer):
         """
         return 0.5, colors.lightgrey
 
-    def should_display(self, source: Union[TestGroupReport, TestCaseReport]) -> bool:
+    def should_display(
+        self, source: Union[TestGroupReport, TestCaseReport]
+    ) -> bool:
         return self.get_style(source).display_testcase  # type: ignore[attr-defined, no-any-return]
 
 
@@ -431,7 +444,8 @@ class MultiTestRowBuilder(TestRowRenderer):
         :param depth: Depth of the source object on report tree. Used for indentation.
         :param row_idx: Index of the current table row to be rendered.
         """
-        row_data: _RowData = RowData(            start=row_idx,
+        row_data: _RowData = RowData(
+            start=row_idx,
             content=const.EMPTY_ROW,  # type: ignore[arg-type]
             style=RowStyle(line_below=(1, colors.black)),
         )

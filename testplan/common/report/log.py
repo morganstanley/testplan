@@ -17,7 +17,9 @@ from testplan.common.utils import strings
 
 LOGGER = logging.getLogger(__name__)
 
-REPORT_MAP: weakref.WeakValueDictionary[int, Any] = weakref.WeakValueDictionary()
+REPORT_MAP: weakref.WeakValueDictionary[int, Any] = (
+    weakref.WeakValueDictionary()
+)
 
 
 class ReportLogHandler(logging.Handler):

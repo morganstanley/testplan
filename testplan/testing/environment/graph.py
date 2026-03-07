@@ -1,7 +1,16 @@
 from copy import copy
 from dataclasses import dataclass, field
 from itertools import product
-from typing import Any, Dict, TYPE_CHECKING, Iterable, List, Optional, Set, Union
+from typing import (
+    Any,
+    Dict,
+    TYPE_CHECKING,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Union,
+)
 from typing_extensions import TypeAlias
 
 from testplan.common.utils.graph import DirectedGraph
@@ -29,7 +38,9 @@ class DriverDepGraph(DirectedGraph[int, D, Optional[bool]]):
     processed: List[int] = field(default_factory=list)
 
     @classmethod
-    def from_directed_graph(cls, g: DirectedGraph[int, D, Optional[bool]]) -> "DriverDepGraph":
+    def from_directed_graph(
+        cls, g: DirectedGraph[int, D, Optional[bool]]
+    ) -> "DriverDepGraph":
         cycles = g.cycles()
         if len(cycles):
             raise ValueError(

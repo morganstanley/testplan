@@ -76,8 +76,9 @@ class AppConfig(DriverConfig):
             ConfigOption("args", default=None): Or(None, list),
             ConfigOption("shell", default=False): bool,
             ConfigOption("env", default=None): Or(None, dict),
-            ConfigOption("binary_strategy", default="link"): lambda s: s
-            in ("copy", "link", "noop"),
+            ConfigOption("binary_strategy", default="link"): lambda s: (
+                s in ("copy", "link", "noop")
+            ),
             ConfigOption("logname", default=None): Or(None, str),
             ConfigOption("app_dir_name", default=None): Or(None, str),
             ConfigOption("working_dir", default=None): Or(None, str),
@@ -173,7 +174,9 @@ class App(Driver):
         self._resolved_bin: Optional[str] = None
         self._env: Optional[Dict[str, str]] = None
 
-        self._alive_child_procs: List[psutil.Process] = []  # for orphaned procs elimination
+        self._alive_child_procs: List[
+            psutil.Process
+        ] = []  # for orphaned procs elimination
 
     @emphasized  # type: ignore[prop-decorator]
     @property
@@ -592,7 +595,9 @@ class App(Driver):
             self.logger.info(
                 "Killing process id %s of %s", self.proc.pid, self
             )
-            kill_process(self.proc, int(self.stop_timeout), self.cfg.stop_signal)
+            kill_process(
+                self.proc, int(self.stop_timeout), self.cfg.stop_signal
+            )
             self.proc = None
         if self.std:
             self.std.close()

@@ -10,7 +10,17 @@ import re
 import warnings
 from enum import Enum, auto
 from signal import Signals
-from typing import IO, Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import (
+    IO,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import psutil
 
@@ -23,7 +33,9 @@ from testplan.common.utils.timing import (
 )
 
 
-def _log_proc(msg: Any, warn: bool = False, output: Optional[IO[Any]] = None) -> None:
+def _log_proc(
+    msg: Any, warn: bool = False, output: Optional[IO[Any]] = None
+) -> None:
     if output is not None:
         try:
             output.write("{}{}".format(msg, "\n"))
@@ -46,7 +58,9 @@ def process_is_alive(proc_id: int) -> bool:
         return True
 
 
-def wait_process_clean(proc_id: int, timeout: int = 5, output: Optional[IO[Any]] = None) -> None:
+def wait_process_clean(
+    proc_id: int, timeout: int = 5, output: Optional[IO[Any]] = None
+) -> None:
     if platform.system() != "Linux":
         return
     try:
@@ -309,7 +323,9 @@ def subprocess_popen(
         raise
 
 
-def _log_subprocess_output(logger: Any, stdout: Optional[str], stderr: Optional[str]) -> None:
+def _log_subprocess_output(
+    logger: Any, stdout: Optional[str], stderr: Optional[str]
+) -> None:
     if stdout:
         logger.debug("Stdout:\n%s", stdout)
     if stderr:
@@ -411,7 +427,12 @@ def execute_cmd(
     return handler.returncode, output, error
 
 
-def enforce_timeout(process: subprocess.Popen[Any], timeout: float = 1, callback: Optional[Callable[[], None]] = None, output: Optional[IO[Any]] = None) -> threading.Thread:
+def enforce_timeout(
+    process: subprocess.Popen[Any],
+    timeout: float = 1,
+    callback: Optional[Callable[[], None]] = None,
+    output: Optional[IO[Any]] = None,
+) -> threading.Thread:
     _log = functools.partial(_log_proc, output=output)
 
     def _inner() -> None:

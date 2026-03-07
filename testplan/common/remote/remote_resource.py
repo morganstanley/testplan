@@ -55,7 +55,9 @@ class WorkerSetupMetadata:
 class _LocationPaths:
     """Store local and remote equivalent paths."""
 
-    def __init__(self, local: Optional[str] = None, remote: Optional[str] = None) -> None:
+    def __init__(
+        self, local: Optional[str] = None, remote: Optional[str] = None
+    ) -> None:
         self.local = local
         self.remote = remote
 
@@ -581,7 +583,9 @@ class RemoteResource(Entity):
                     self._dangling_remote_fs_obj,
                 )
 
-    def _push_files(self, paths: list, exclude_patterns: Optional[list] = None) -> List[str]:
+    def _push_files(
+        self, paths: list, exclude_patterns: Optional[list] = None
+    ) -> List[str]:
         """Push files and directories to remote host."""
 
         # First enumerate the paths to be pushed, including
@@ -593,7 +597,9 @@ class RemoteResource(Entity):
         # Now actually push the files to the remote host.
         return self._push_files_to_dst(push_pairs, exclude_patterns)
 
-    def _build_push_lists(self, push_sources: Union[List[str], List[Tuple[str, str]]]) -> List[_LocationPaths]:
+    def _build_push_lists(
+        self, push_sources: Union[List[str], List[Tuple[str, str]]]
+    ) -> List[_LocationPaths]:
         """
         Create lists of the source and destination paths of files and
         directories to be pushed. Eliminate duplication of sub-directories.

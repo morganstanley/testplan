@@ -56,7 +56,8 @@ class LogCaptureMixin(Loggable):
     """Mixin to add easy logging support to any @multitest.testsuite"""
 
     _LogCaptureInfo = namedtuple(
-        "_LogCaptureInfo", ["result", "handler", "attach_file", "capture_level"]
+        "_LogCaptureInfo",
+        ["result", "handler", "attach_file", "capture_level"],
     )
 
     def __init__(self) -> None:
@@ -131,7 +132,11 @@ class LogCaptureMixin(Loggable):
 
     @contextmanager
     def capture_log(
-        self, result: Any, capture_level: Any = None, attach_log: Optional[bool] = None, format: Optional[str] = None
+        self,
+        result: Any,
+        capture_level: Any = None,
+        attach_log: Optional[bool] = None,
+        format: Optional[str] = None,
     ) -> Generator[logging.Logger, None, None]:
         """Context manager to capture logs, capture the log in the provided result.
 

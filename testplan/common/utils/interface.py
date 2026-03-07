@@ -53,7 +53,9 @@ def check_signature(func: Callable[..., Any], args_list: List[str]) -> bool:
     return True
 
 
-def check_signature_leading(func: Callable[..., Any], exp_params: List[str]) -> bool:
+def check_signature_leading(
+    func: Callable[..., Any], exp_params: List[str]
+) -> bool:
     """
     check if the leading (positional) parameters of the function signature
     matches the expected parameters

@@ -4,7 +4,17 @@ import operator
 import traceback
 from collections.abc import Mapping, Iterable, Container
 from itertools import zip_longest
-from typing import Any, Iterator, List, Optional, Sequence, Tuple, Dict, Hashable, Union
+from typing import (
+    Any,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Dict,
+    Hashable,
+    Union,
+)
 from typing import Callable as typing_Callable
 
 import re
@@ -19,7 +29,9 @@ def is_regex(obj: object) -> bool:
     return isinstance(obj, re.Pattern)
 
 
-def basic_compare(first: Any, second: Any, strict: bool = False) -> Tuple[Optional[bool], Optional[str]]:
+def basic_compare(
+    first: Any, second: Any, strict: bool = False
+) -> Tuple[Optional[bool], Optional[str]]:
     """
     Comparison used for custom match functions,
     can do pattern matching, function evaluation or simple equality.
@@ -45,7 +57,11 @@ def is_comparator(value: object) -> bool:
     return callable(value) or is_regex(value)
 
 
-def check_dict_keys(data: Dict[Hashable, Any], has_keys: Optional[Sequence[Hashable]] = None, absent_keys: Optional[Sequence[Hashable]] = None) -> Tuple["set[Hashable]", "set[Hashable]"]:
+def check_dict_keys(
+    data: Dict[Hashable, Any],
+    has_keys: Optional[Sequence[Hashable]] = None,
+    absent_keys: Optional[Sequence[Hashable]] = None,
+) -> Tuple["set[Hashable]", "set[Hashable]"]:
     """
     Check if a dictionary contains given
     keys and/or has given keys missing.
@@ -275,7 +291,9 @@ class Custom(Callable):
         )
     """
 
-    def __init__(self, callable_obj: typing_Callable[..., bool], description: str) -> None:
+    def __init__(
+        self, callable_obj: typing_Callable[..., bool], description: str
+    ) -> None:
         self.callable_obj = callable_obj
         self.description = description
 
@@ -314,7 +332,9 @@ class Custom(Callable):
 MAX_UNORDERED_COMPARE = 16
 
 
-def compare_with_callable(callable_obj: typing_Callable[..., Any], value: object) -> Tuple[bool, Optional[str]]:
+def compare_with_callable(
+    callable_obj: typing_Callable[..., Any], value: object
+) -> Tuple[bool, Optional[str]]:
     try:
         return bool(callable_obj(value)), None
     except Exception:
@@ -442,14 +462,18 @@ def is_match_res(type_num: int) -> bool:
     return type_num in (11, 12)
 
 
-def _build_res(key: Optional[Hashable], match: str, lhs: Any, rhs: Any) -> Tuple[Optional[Hashable], str, Any, Any]:
+def _build_res(
+    key: Optional[Hashable], match: str, lhs: Any, rhs: Any
+) -> Tuple[Optional[Hashable], str, Any, Any]:
     """
     Builds a result tuple object for CouchDB.
     """
     return key, match[0], lhs, rhs
 
 
-def _idictzip_all(lhs_dict: Mapping, rhs_dict: Mapping, default: object = Absent) -> Iterator[Tuple[Hashable, Any, Any]]:
+def _idictzip_all(
+    lhs_dict: Mapping, rhs_dict: Mapping, default: object = Absent
+) -> Iterator[Tuple[Hashable, Any, Any]]:
     """
     .. warning::
 
@@ -959,7 +983,13 @@ def _best_permutation(grid: List[List[int]]) -> List[int]:
 
     """
 
-    def bp_loop(outstanding: "frozenset[int]", level: int, grid: List[List[int]], grid_len: int, cache: "Dict[frozenset[int], Tuple[int, List[int]]]") -> Tuple[int, List[int]]:
+    def bp_loop(
+        outstanding: "frozenset[int]",
+        level: int,
+        grid: List[List[int]],
+        grid_len: int,
+        cache: "Dict[frozenset[int], Tuple[int, List[int]]]",
+    ) -> Tuple[int, List[int]]:
         """
         Recursively finds a solution by
         progressively excluding poor permutations "paths"
@@ -1000,7 +1030,9 @@ def _best_permutation(grid: List[List[int]]) -> List[int]:
 
 
 # helper func, used to generate errors matrix
-def _to_error(cmpr_tuple: Tuple[bool, List[Any]], weights: Dict[str, int]) -> int:
+def _to_error(
+    cmpr_tuple: Tuple[bool, List[Any]], weights: Dict[str, int]
+) -> int:
     """
     Converts a comparison tuple (as returned by compare) to an error.
 
@@ -1064,7 +1096,12 @@ class Expected:
     Input to the "unordered_compare" function.
     """
 
-    def __init__(self, value: Any, ignore: Optional[List[Hashable]] = None, include: Optional[List[Hashable]] = None) -> None:
+    def __init__(
+        self,
+        value: Any,
+        ignore: Optional[List[Hashable]] = None,
+        include: Optional[List[Hashable]] = None,
+    ) -> None:
         """
         :param value: object compared against
                         each actual value in unordered_compare
@@ -1213,7 +1250,9 @@ def unordered_compare(
     # construct a list of report entries
     base_descr = description or "unordered {}".format(match_name)
 
-    def build_descr(msg_indx: int, cmp_indx: int, expected_msg: Any, received_msg: Any) -> str:
+    def build_descr(
+        msg_indx: int, cmp_indx: int, expected_msg: Any, received_msg: Any
+    ) -> str:
         """
         Build an additional description that indicates
          if the message was missed or unexpected.
@@ -1247,7 +1286,9 @@ def unordered_compare(
     ]
 
 
-def tuplefy_item(item: Dict[str, Any], list_entry: bool = False) -> Tuple[Any, ...]:
+def tuplefy_item(
+    item: Dict[str, Any], list_entry: bool = False
+) -> Tuple[Any, ...]:
     """
     Convert a dictionary report item in order to
     consume less space in json representation.
@@ -1286,7 +1327,9 @@ def tuplefy_item(item: Dict[str, Any], list_entry: bool = False) -> Tuple[Any, .
         return ret
 
 
-def tuplefy_comparisons(comparisons: List[Dict[str, Any]], table: bool = False) -> List[Any]:
+def tuplefy_comparisons(
+    comparisons: List[Dict[str, Any]], table: bool = False
+) -> List[Any]:
     """
     Convert dictionary report comparisons to list and tuples composition.
     """

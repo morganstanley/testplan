@@ -85,7 +85,11 @@ def is_context(value: Any) -> bool:
     return isinstance(value, ContextValue)
 
 
-def expand(value: Any, contextobj: Any, constructor: Optional[Callable[..., Any]] = None) -> Any:
+def expand(
+    value: Any,
+    contextobj: Any,
+    constructor: Optional[Callable[..., Any]] = None,
+) -> Any:
     """
     Take a value and a context and return the expanded result.
     Apply a constructor if necessary.
@@ -99,7 +103,9 @@ def expand(value: Any, contextobj: Any, constructor: Optional[Callable[..., Any]
         return value
 
 
-def render(template: Union[Template, TempitaTemplate, str], context: Any) -> str:
+def render(
+    template: Union[Template, TempitaTemplate, str], context: Any
+) -> str:
     """
     Renders the template with the given context, that used for expression resolution.
 
@@ -112,7 +118,7 @@ def render(template: Union[Template, TempitaTemplate, str], context: Any) -> str
     if isinstance(template, str):
         template = parse_template(template)
 
-    return (
+    return (  # type: ignore[no-any-return]
         template.substitute(context)
         if isinstance(template, TempitaTemplate)
         else template.render(context)

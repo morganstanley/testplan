@@ -89,7 +89,10 @@ class BaseRenderer:
                 raise TypeError("Unsupported report type: {}".format(child))
 
     def render_testsuite(
-        self, index: int, test_report: TestGroupReport, testsuite_report: TestGroupReport
+        self,
+        index: int,
+        test_report: TestGroupReport,
+        testsuite_report: TestGroupReport,
     ) -> Element:
         """
         Renders a single testsuite with its testcases within a `testsuite` tag.

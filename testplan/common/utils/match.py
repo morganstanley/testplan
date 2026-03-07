@@ -19,7 +19,7 @@ from typing import (
     Tuple,
     Union,
 )
-import paramiko
+import paramiko  # type: ignore[import-untyped]
 from typing_extensions import TypeAlias
 
 from . import logger, timing
@@ -439,7 +439,9 @@ class LogMatcher(logger.Loggable):
 
         return matches
 
-    def match_between(self, regex: Regex, mark1: str, mark2: str) -> Optional[Match]:
+    def match_between(
+        self, regex: Regex, mark1: str, mark2: str
+    ) -> Optional[Match]:
         """
         Matches file against passed in regex. Matching is performed from
         file position denoted by mark1 and ends before file position denoted
@@ -483,7 +485,9 @@ class LogMatcher(logger.Loggable):
 
         return not self.match_between(regex, mark1, mark2)
 
-    def get_between(self, mark1: Optional[str] = None, mark2: Optional[str] = None) -> Union[str, bytes]:
+    def get_between(
+        self, mark1: Optional[str] = None, mark2: Optional[str] = None
+    ) -> Union[str, bytes]:
         """
         Returns the content of the file from the start marker to the end marker.
         It is possible to omit either marker to receive everything from start

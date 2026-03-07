@@ -40,13 +40,17 @@ _IANA_UTC = "Etc/UTC"
 class TagField(fields.Field):
     """Field for serializing tag data, which is a ``dict`` of ``set``."""
 
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Dict[str, List[str]]:
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Dict[str, List[str]]:
         return {
             tag_name: list(tag_values)
             for tag_name, tag_values in value.items()
         }
 
-    def _deserialize(self, value: Any, attr: Any, data: Any, **kwargs: Any) -> Dict[str, set]:
+    def _deserialize(
+        self, value: Any, attr: Any, data: Any, **kwargs: Any
+    ) -> Dict[str, set]:
         return {
             tag_name: set(tag_values) for tag_name, tag_values in value.items()
         }
@@ -66,10 +70,14 @@ class EntriesField(fields.Field):
         else:
             return True
 
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
         # we don't need a _deserialize() here as we don't (and can't)
         # convert str back to non-json-serializable.
-        def visit(parent: Any, key: Any, _value: Any) -> Union[bool, Tuple[Any, Any]]:
+        def visit(
+            parent: Any, key: Any, _value: Any
+        ) -> Union[bool, Tuple[Any, Any]]:
             """
             return
                 True - keep the node unchange
@@ -102,7 +110,9 @@ class TestCaseReportSchema(ReportSchema):
     tags = TagField()
 
     @post_load
-    def make_report(self, data: Dict[str, Any], **kwargs: Any) -> TestCaseReport:
+    def make_report(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> TestCaseReport:
         """
         Create the report object, assign ``timer`` &
         ``status_override`` attributes explicitly
@@ -110,7 +120,9 @@ class TestCaseReportSchema(ReportSchema):
         status = data.pop("status")
         runtime_status = data.pop("runtime_status")
 
-        rep: TestCaseReport = super(TestCaseReportSchema, self).make_report(data)
+        rep: TestCaseReport = super(TestCaseReportSchema, self).make_report(
+            data
+        )
 
         rep.status = status
         rep.runtime_status = runtime_status
@@ -145,16 +157,22 @@ class TestGroupReportSchema(BaseReportGroupSchema):
     # fix_spec_path = fields.String(allow_none=True, load_only=True)
 
     @post_load
-    def make_report(self, data: Dict[str, Any], **kwargs: Any) -> TestGroupReport:
+    def make_report(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> TestGroupReport:
         """
         Propagate tag indices after deserialization
         """
-        rep: TestGroupReport = super(TestGroupReportSchema, self).make_report(data)
+        rep: TestGroupReport = super(TestGroupReportSchema, self).make_report(
+            data
+        )
         rep.propagate_tag_indices()
         return rep
 
     @post_dump
-    def strip_none_by_category(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+    def strip_none_by_category(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
         if not ReportCategories.is_test_level(data["category"]):
             del data["part"]
             del data["env_status"]
@@ -243,7 +261,9 @@ class ShallowTestGroupReportSchema(Schema):
     # fix_spec_path = fields.String(allow_none=True, load_only=True)
 
     @post_load
-    def make_testgroup_report(self, data: Dict[str, Any], **kwargs: Any) -> TestGroupReport:
+    def make_testgroup_report(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> TestGroupReport:
         children = data.pop("children", [])
         timer = data.pop("timer")
         logs = data.pop("logs", [])
@@ -258,7 +278,9 @@ class ShallowTestGroupReportSchema(Schema):
         return group_report
 
     @post_dump
-    def strip_none_by_category(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+    def strip_none_by_category(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
         if not ReportCategories.is_test_level(data["category"]):
             del data["part"]
             del data["env_status"]
@@ -298,7 +320,9 @@ class ShallowTestReportSchema(Schema):
     hash = fields.Integer(dump_only=True)
 
     @post_load
-    def make_test_report(self, data: Dict[str, Any], **kwargs: Any) -> TestReport:
+    def make_test_report(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> TestReport:
         timer = data.pop("timer")
         logs = data.pop("logs", [])
 

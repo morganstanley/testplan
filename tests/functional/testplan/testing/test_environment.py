@@ -85,20 +85,24 @@ def test_testing_environment(
         for side_a, side_b in driver_dependencies:
             dependencies[drivers[side_a]].append(drivers[side_b])
             predicates.append(
-                lambda line_of: line_of[f"{drivers[side_a].name}_POST"]
-                < line_of[f"{drivers[side_b].name}_PRE"]
+                lambda line_of: (
+                    line_of[f"{drivers[side_a].name}_POST"]
+                    < line_of[f"{drivers[side_b].name}_PRE"]
+                )
             )
 
     mockplan.schedule(
         target=DummyTest(
             name="MyTest",
             binary=binary_path,
-            environment=lambda: list(drivers.values())
-            if use_callable
-            else list(drivers.values()),
-            dependencies=lambda: dependencies
-            if use_callable
-            else dependencies,
+            environment=lambda: (
+                list(drivers.values())
+                if use_callable
+                else list(drivers.values())
+            ),
+            dependencies=lambda: (
+                dependencies if use_callable else dependencies
+            ),
             after_start=_assert_orig_dep,
         ),
         resource=None,

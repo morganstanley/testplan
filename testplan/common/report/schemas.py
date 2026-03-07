@@ -31,7 +31,9 @@ class IntervalSchema(Schema):
     end = fields.DateTime("timestamp", allow_none=True)
 
     @pre_load
-    def accept_old_isoformat(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+    def accept_old_isoformat(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
         try:
             if data.get("start", None) and isinstance(data["start"], str):
                 data["start"] = datetime.datetime.fromisoformat(
@@ -47,7 +49,9 @@ class IntervalSchema(Schema):
             raise ValueError("Invalid value when loading Interval.") from e
 
     @post_load
-    def make_interval(self, data: Dict[str, Any], **kwargs: Any) -> timing.Interval:
+    def make_interval(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> timing.Interval:
         """Create an Interal object."""
         return timing.Interval(**data)
 
@@ -58,12 +62,16 @@ class TimerField(fields.Field):
     of ``timer.Interval``.
     """
 
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Dict[str, List[Dict[str, Any]]]:
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Dict[str, List[Dict[str, Any]]]:
         return {
             k: [IntervalSchema().dump(v) for v in l] for k, l in value.items()
         }
 
-    def _deserialize(self, value: Any, attr: Any, data: Any, **kwargs: Any) -> timing.Timer:
+    def _deserialize(
+        self, value: Any, attr: Any, data: Any, **kwargs: Any
+    ) -> timing.Timer:
         return timing.Timer(
             {
                 k: [IntervalSchema().load(v) for v in l]
@@ -95,7 +103,9 @@ class ReportLogSchema(Schema):
     uid = fields.UUID()
 
     @pre_load
-    def accept_old_isoformat(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+    def accept_old_isoformat(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
         try:
             if data.get("created", None) and isinstance(data["created"], str):
                 data["created"] = datetime.datetime.fromisoformat(
@@ -160,7 +170,9 @@ class ReportSchema(schemas.TreeNodeSchema):
         return rep
 
     @post_dump
-    def strip_none(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+    def strip_none(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
         if data["status_override"] is None:
             del data["status_override"]
         if data["status_reason"] is None:
@@ -173,7 +185,7 @@ class BaseReportGroupSchema(ReportSchema):
 
     source_class = BaseReportGroup  # type: ignore[assignment]
 
-    entries = custom_fields.GenericNested(  # type: ignore[assignment]
+    entries = custom_fields.GenericNested(
         schema_context={
             "Report": ReportSchema,
             "BaseReportGroup": lambda: BaseReportGroupSchema(),
@@ -184,7 +196,9 @@ class BaseReportGroupSchema(ReportSchema):
     children = fields.List(fields.Nested(ReportLinkSchema))
 
     @post_load
-    def make_report(self, data: Dict[str, Any], **kwargs: Any) -> BaseReportGroup:
+    def make_report(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> BaseReportGroup:
         """Create report group object"""
 
         children = data.pop("children", [])
@@ -192,7 +206,9 @@ class BaseReportGroupSchema(ReportSchema):
         status = data.pop("status")
         runtime_status = data.pop("runtime_status")
 
-        rep: BaseReportGroup = super(BaseReportGroupSchema, self).make_report(data)
+        rep: BaseReportGroup = super(BaseReportGroupSchema, self).make_report(
+            data
+        )
         rep.children = children
         rep.host = host  # type: ignore[attr-defined]
         rep.status = status

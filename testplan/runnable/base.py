@@ -507,7 +507,9 @@ class TestRunner(Runnable):
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = not self._is_interactive_run()
-        self.scheduled_modules: List[Tuple[str, str]] = []  # For interactive reload
+        self.scheduled_modules: List[
+            Tuple[str, str]
+        ] = []  # For interactive reload
         self.remote_services: Dict[str, "RemoteService"] = {}
         self.runid_filename: str = uuid.uuid4().hex
         self.define_runpath()
@@ -517,7 +519,9 @@ class TestRunner(Runnable):
         self._archive_path: Optional[str] = None
         self._define_archive_path()
         self._runnable_uids: Set[str] = set()
-        self._verified_targets: Dict[int, str] = {}  # target object id -> runnable uid
+        self._verified_targets: Dict[
+            int, str
+        ] = {}  # target object id -> runnable uid
         self.resource_monitor_server: Optional["ResourceMonitorServer"] = None
         self.resource_monitor_server_file_path: Optional[str] = None
         self.resource_monitor_client: Optional["ResourceMonitorClient"] = None
@@ -714,7 +718,9 @@ class TestRunner(Runnable):
             return es[0]
         return None
 
-    def _clone_task_for_part(self, task_info: TaskInformation, part_tuple: Tuple[int, int]) -> TaskInformation:
+    def _clone_task_for_part(
+        self, task_info: TaskInformation, part_tuple: Tuple[int, int]
+    ) -> TaskInformation:
         task_arguments = task_info.task_arguments
         assert task_arguments is not None
         task_arguments["part"] = part_tuple
@@ -733,7 +739,9 @@ class TestRunner(Runnable):
         return new_task_info
 
     def _create_task_n_info(
-        self, task_arguments: dict, num_of_parts: Union[int, "Literal['auto']", None] = None
+        self,
+        task_arguments: dict,
+        num_of_parts: Union[int, "Literal['auto']", None] = None,
     ) -> TaskInformation:
         self.logger.debug(
             "Task created with arguments: %s",
@@ -820,7 +828,8 @@ class TestRunner(Runnable):
                         else:
                             discovered.append(
                                 self._create_task_n_info(
-                                    task_arguments, target_info.multitest_parts  # type: ignore[arg-type]
+                                    task_arguments,
+                                    target_info.multitest_parts,  # type: ignore[arg-type]
                                 )
                             )
 
@@ -1254,7 +1263,9 @@ class TestRunner(Runnable):
     def _is_interactive_run(self) -> bool:
         return self.cfg.interactive_port is not None
 
-    def _register_task(self, resource: str, target: TestTask, uid: str, metadata: Any) -> None:
+    def _register_task(
+        self, resource: str, target: TestTask, uid: str, metadata: Any
+    ) -> None:
         self._tests[uid] = resource
         self._test_metadata.append(metadata)
         self.resources[resource].add(target, uid)  # type: ignore[attr-defined]
@@ -1298,7 +1309,9 @@ class TestRunner(Runnable):
             target, materialized_test, uid, task_arguments, num_of_parts
         )
 
-    def _register_task_for_interactive(self, task_info: TaskInformation) -> None:
+    def _register_task_for_interactive(
+        self, task_info: TaskInformation
+    ) -> None:
         target = task_info.target
         if isinstance(target, Task) and isinstance(target._target, str):
             self.scheduled_modules.append(
@@ -1566,7 +1579,10 @@ class TestRunner(Runnable):
 
     def _collect_timeout_info(self) -> None:
         threads, processes = self._get_process_info(recursive=True)
-        self._timeout_info: Dict[str, List[str]] = {"threads": [], "processes": []}
+        self._timeout_info: Dict[str, List[str]] = {
+            "threads": [],
+            "processes": [],
+        }
         for thread in threads:
             self._timeout_info["threads"].append(
                 os.linesep.join(
@@ -1843,16 +1859,12 @@ class TestRunner(Runnable):
                 "No tests were run - check your filter patterns."
             )
         else:
-            self.logger.log_test_status(
-                self.cfg.name, self.report.status
-            )
+            self.logger.log_test_status(self.cfg.name, self.report.status)
 
     def _pre_exporters(self) -> None:
         # Apply report filter if one exists
         if self.cfg.reporting_exclude_filter is not None:
-            self.result.report = self.cfg.reporting_exclude_filter(
-                self.report
-            )
+            self.result.report = self.cfg.reporting_exclude_filter(self.report)
 
         # Attach resource monitor data
         if self.resource_monitor_server:

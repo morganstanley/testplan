@@ -321,7 +321,9 @@ class HTTPServer(Driver):
         name: str,
         host: str = "localhost",
         port: int = 0,
-        request_handler: Type[http_server.BaseHTTPRequestHandler] = HTTPRequestHandler,
+        request_handler: Type[
+            http_server.BaseHTTPRequestHandler
+        ] = HTTPRequestHandler,
         handler_attributes: Optional[dict] = None,
         timeout: int = 5,
         interval: float = 0.01,
@@ -332,7 +334,9 @@ class HTTPServer(Driver):
         super(HTTPServer, self).__init__(**options)
         self._host: Optional[str] = None
         self._port: Optional[int] = None
-        self.request_handler: Optional[Type[http_server.BaseHTTPRequestHandler]] = None
+        self.request_handler: Optional[
+            Type[http_server.BaseHTTPRequestHandler]
+        ] = None
         self.handler_attributes: Optional[dict] = None
         self.timeout: Optional[int] = None
         self.interval: Optional[float] = None
@@ -412,7 +416,9 @@ class HTTPServer(Driver):
         except queue.Empty:
             return None
 
-    def receive(self, timeout: Optional[int] = None) -> Optional[ReceivedRequest]:
+    def receive(
+        self, timeout: Optional[int] = None
+    ) -> Optional[ReceivedRequest]:
         """
         Wait to receive a request.
 
@@ -422,7 +428,9 @@ class HTTPServer(Driver):
         """
         assert self.requests is not None
         assert self.interval is not None
-        effective_timeout: float = timeout if timeout is not None else (self.timeout or 5)
+        effective_timeout: float = (
+            timeout if timeout is not None else (self.timeout or 5)
+        )
         deadline = effective_timeout + time.time()
         request = None
 
@@ -534,7 +542,9 @@ class _HTTPServerThread(Thread):
         requests_queue: queue.Queue[ReceivedRequest],
         responses_queue: queue.Queue[HTTPResponse],
         handler_attributes: dict,
-        request_handler: Optional[Type[http_server.BaseHTTPRequestHandler]] = None,
+        request_handler: Optional[
+            Type[http_server.BaseHTTPRequestHandler]
+        ] = None,
         timeout: int = 5,
         interval: float = 0.01,
         logger: Optional[logging.Logger] = None,
