@@ -4,10 +4,7 @@ from typing import Any, Dict, Iterable
 
 import dill
 
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing_extensions import Self
 
 FIFTY_MEGA = 52428800
 
@@ -22,7 +19,7 @@ class DeserializationError(Exception):
 
 def serialize(obj: Any) -> bytes:
     try:
-        data = dill.dumps(obj)
+        data: bytes = dill.dumps(obj)
         if len(data) > FIFTY_MEGA:
             warnings.warn(
                 f"Too big object {obj} of type {type(obj)} after serialization."
@@ -46,7 +43,7 @@ def deserialize(data: bytes) -> Any:
     except TypeError as exc:
         raise DeserializationError(f"{str(exc).capitalize()}.")
     except dill.PickleError as exc:
-        raise DeserializationError(f"Failed to deserialize {data}.") from exc
+        raise DeserializationError(f"Failed to deserialize {data!r}.") from exc
 
 
 class SelectiveSerializable(ABC):

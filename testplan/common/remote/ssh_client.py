@@ -4,10 +4,10 @@ import os
 import time
 import shlex
 import logging
-import paramiko
+import paramiko  # type: ignore[import-untyped]
 import getpass
 from contextlib import contextmanager
-from typing import List, Dict, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from testplan.common.utils.timing import retry_until_timeout
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -27,11 +27,11 @@ class SSHClient:
 
     def __init__(
         self,
-        host,
+        host: str,
         port: int = 22,
-        logger=None,
-        **args,
-    ):
+        logger: Optional[logging.Logger] = None,
+        **args: Any,
+    ) -> None:
         """
         Initialize the SSH client.
 
@@ -57,8 +57,8 @@ class SSHClient:
             **args,
         }
 
-        self._ssh_client = None
-        self._sftp_client = None
+        self._ssh_client: Optional[paramiko.SSHClient] = None
+        self._sftp_client: Optional[paramiko.SFTPClient] = None
 
     @property
     def ssh_client(self) -> paramiko.SSHClient:
@@ -70,10 +70,11 @@ class SSHClient:
         """
         if not self._ssh_client:
             self.connect()
+        assert self._ssh_client is not None
         return self._ssh_client
 
     @property
-    def sftp_client(self):
+    def sftp_client(self) -> paramiko.SFTPClient:
         """
         Get the underlying paramiko SFTP client.
 
@@ -82,9 +83,10 @@ class SSHClient:
         """
         if not self._sftp_client:
             self.open_sftp()
+        assert self._sftp_client is not None
         return self._sftp_client
 
-    def connect(self):
+    def connect(self) -> paramiko.SSHClient:
         """
         Establish an SSH connection.
 
@@ -112,11 +114,11 @@ class SSHClient:
     def exec_command(
         self,
         cmd: Union[str, List[str]],
-        label: str = None,
+        label: Optional[str] = None,
         check: bool = True,
-        env: Dict = None,
+        env: Optional[Dict[str, Any]] = None,
         timeout: int = 30,
-    ):
+    ) -> Tuple[int, str, str]:
         """
         Run a command on the remote host.
 
@@ -192,7 +194,7 @@ class SSHClient:
 
         return exit_code, stdout_str, stderr_str
 
-    def open_sftp(self):
+    def open_sftp(self) -> paramiko.SFTPClient:
         """
         Open an SFTP session.
 
@@ -208,7 +210,7 @@ class SSHClient:
         self.logger.debug("Opened SFTP session to %s:%s", self.host, self.port)
         return self._sftp_client
 
-    def listdir_iter(self, path):
+    def listdir_iter(self, path: str) -> Any:
         """
         List files in a directory on the remote host.
 
@@ -221,7 +223,7 @@ class SSHClient:
         self.logger.debug("Listing directory: %s", path)
         return self.sftp_client.listdir_iter(path)
 
-    def open_file(self, path, mode):
+    def open_file(self, path: str, mode: str) -> paramiko.SFTPFile:
         """
         Open a file on the remote host using SFTP.
 
@@ -236,7 +238,7 @@ class SSHClient:
         self.logger.debug("Opening remote file: %s in mode %s", path, mode)
         return self.sftp_client.open(path, mode)
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the SSH and SFTP connections.
 

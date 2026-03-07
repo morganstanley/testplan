@@ -7,6 +7,8 @@ The reason being some assertion classes may have attributes that
 cannot be deserialized (processes, exception objects etc).
 """
 
+from typing import Any, Dict, List
+
 from marshmallow import Schema, fields, post_dump
 
 from testplan.common.serialization import fields as custom_fields
@@ -187,7 +189,9 @@ class DictMatchSchema(AssertionSchema):
     comparison = fields.Raw()
 
     @post_dump
-    def compress_level(self, data, many, **kw):
+    def compress_level(
+        self, data: Dict[str, Any], many: bool, **kw: Any
+    ) -> Dict[str, Any]:
         data["comparison"] = delta_encode_level(data["comparison"])
         return data
 
@@ -198,7 +202,9 @@ class DictMatchAllSchema(AssertionSchema):
     matches = fields.Raw()
 
     @post_dump
-    def compress_level(self, data, many, **kw):
+    def compress_level(
+        self, data: Dict[str, Any], many: bool, **kw: Any
+    ) -> Dict[str, Any]:
         for d in data["matches"]:
             d["comparison"] = delta_encode_level(d["comparison"])
         return data
@@ -212,14 +218,18 @@ class LogfileMatchResultSchema(Schema):
 
 
 class AtMostOneList(fields.List):
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
         if not isinstance(value, list) or len(value) > 1:
             raise TypeError(
                 f"Unexpected value {value} passed to AtMostOneList field."
             )
         return super()._serialize(value, attr, obj, **kwargs)
 
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(
+        self, value: Any, attr: Any, data: Any, **kwargs: Any
+    ) -> Any:
         if not isinstance(value, list) or len(value) > 1:
             raise TypeError(
                 f"Unexpected value {value} passed to AtMostOneList field."

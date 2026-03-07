@@ -7,7 +7,7 @@ import shlex
 import signal
 import subprocess
 import warnings
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import rpyc
 import rpyc.core.protocol
@@ -33,7 +33,7 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """Resource specific config options."""
         return {
             "name": str,
@@ -71,7 +71,7 @@ class RemoteService(Resource, RemoteResource):
         rpyc_bin: Optional[str] = None,
         rpyc_port: int = 0,
         stop_timeout: float = 5,
-        **options,
+        **options: Any,
     ) -> None:
         options.update(self.filter_locals(locals()))
         options["async_start"] = False
@@ -85,15 +85,15 @@ class RemoteService(Resource, RemoteResource):
             )
         super(RemoteService, self).__init__(**options)
 
-        self.proc: Optional[subprocess.Popen] = None
+        self.proc: Optional[subprocess.Popen[bytes]] = None
         # This mirrors the way default config is assigned, we only change
         # sync_request_timeout and pass it for the Connection object implicitly
         self.rpyc_config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         self.rpyc_config["sync_request_timeout"] = None
-        self.rpyc_connection: Connection = None
+        self.rpyc_connection: Optional[Connection] = None
         self.rpyc_port: Optional[int] = None
         self.rpyc_pid: Optional[int] = None
-        self.std: StdFiles = None
+        self.std: Optional[StdFiles] = None
 
     def __repr__(self) -> str:
         """
@@ -105,13 +105,14 @@ class RemoteService(Resource, RemoteResource):
         """
         Unique identifier.
         """
-        return self.cfg.name
+        return str(self.cfg.name)
 
     def pre_start(self) -> None:
         """
         Before service start.
         """
         self.make_runpath_dirs()
+        assert self.runpath is not None
         self.std = StdFiles(self.runpath)
         self._prepare_remote()
 
@@ -141,11 +142,12 @@ class RemoteService(Resource, RemoteResource):
             ),
         )
 
+        assert self.std is not None
         self.proc = subprocess_popen(
             cmd,
             stdin=subprocess.PIPE,
-            stdout=self.std.out,
-            stderr=self.std.err,
+            stdout=self.std.out,  # type: ignore[arg-type]
+            stderr=self.std.err,  # type: ignore[arg-type]
             cwd=self.runpath,
         )
 
@@ -170,12 +172,13 @@ class RemoteService(Resource, RemoteResource):
         :param timeout: timeout in seconds
         :raises RuntimeError: if server startup fails
         """
-        timeout: float = (
+        assert self.std is not None
+        effective_timeout: float = (
             timeout if timeout is not None else self.cfg.status_wait_timeout
         )
         sleeper = get_sleeper(
             interval=0.2,
-            timeout=timeout,
+            timeout=effective_timeout,
             raise_timeout_with_msg=f"RPyC server start timeout, logfile = {self.std.err_path}",
         )
         while next(sleeper):
@@ -247,6 +250,7 @@ class RemoteService(Resource, RemoteResource):
         Stops remote rpyc process.
         """
         try:
+            assert self.rpyc_connection is not None
             self.rpyc_connection.modules.os.kill(self.rpyc_pid, signal.SIGTERM)
         except EOFError:
             pass

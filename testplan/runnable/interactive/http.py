@@ -961,7 +961,7 @@ def _extract_entries(entry: Dict) -> Dict:
     :param entry: report entry
     :return: dictionary representing the tree structure of entry names
     """
-    entries = {}
+    entries: dict = {}
 
     # FIXME:
     # by design, filtering out assertions has been properly done in frontend

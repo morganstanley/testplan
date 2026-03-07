@@ -1,7 +1,7 @@
 """TODO."""
 
 import warnings
-from typing import Union, Dict
+from typing import Any, Callable, Optional, Union, Dict
 
 from testplan.vendor.tempita import Template as TempitaTemplate
 from jinja2 import Template
@@ -9,7 +9,7 @@ from jinja2 import Template
 
 def parse_template(template: str) -> Union[TempitaTemplate, Template]:
     tempita_failed = False
-    parsed_template = None
+    parsed_template: Optional[Union[TempitaTemplate, Template]] = None
     try:
         parsed_template = Template(template)
     except Exception:
@@ -27,6 +27,7 @@ def parse_template(template: str) -> Union[TempitaTemplate, Template]:
                 # raise the original jinja exception so user will fix it for jinja
                 raise
 
+    assert parsed_template is not None
     return parsed_template
 
 
@@ -44,10 +45,10 @@ class ContextValue:
         self.value = value
         self.template = parse_template(value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"context('{self.driver}', '{self.value}')"
 
-    def __call__(self, ctx):
+    def __call__(self, ctx: Any) -> str:
         """
         Resolve the template.
         """
@@ -63,7 +64,7 @@ class ContextValue:
         return render(self.template, ctx[self.driver].context_input())
 
 
-def context(driver, value):
+def context(driver: str, value: str) -> ContextValue:
     """
     Create a context extractor from a driver name and a value
     expression. Value expressions must be valid Jinja2 templates,
@@ -72,7 +73,7 @@ def context(driver, value):
     return ContextValue(driver, value)
 
 
-def is_context(value):
+def is_context(value: Any) -> bool:
     """
     Checks if a value is a context value
     :param value: Value which may have been constructed through `context`
@@ -84,7 +85,11 @@ def is_context(value):
     return isinstance(value, ContextValue)
 
 
-def expand(value, contextobj, constructor=None):
+def expand(
+    value: Any,
+    contextobj: Any,
+    constructor: Optional[Callable[..., Any]] = None,
+) -> Any:
     """
     Take a value and a context and return the expanded result.
     Apply a constructor if necessary.
@@ -98,7 +103,9 @@ def expand(value, contextobj, constructor=None):
         return value
 
 
-def render(template: Union[Template, TempitaTemplate, str], context) -> str:
+def render(
+    template: Union[Template, TempitaTemplate, str], context: Any
+) -> str:
     """
     Renders the template with the given context, that used for expression resolution.
 
@@ -111,7 +118,7 @@ def render(template: Union[Template, TempitaTemplate, str], context) -> str:
     if isinstance(template, str):
         template = parse_template(template)
 
-    return (
+    return (  # type: ignore[no-any-return]
         template.substitute(context)
         if isinstance(template, TempitaTemplate)
         else template.render(context)

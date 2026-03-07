@@ -26,12 +26,15 @@ from typing import (
     Callable,
     Collection,
     Dict,
+    Generator,
     List,
     Literal,
     MutableMapping,
     Optional,
     Pattern,
+    Set,
     Tuple,
+    Type,
     Union,
 )
 import zstandard as zstd
@@ -104,11 +107,11 @@ class TaskInformation:
     target: TestTask
     materialized_test: Test
     uid: str
-    task_arguments: dict
+    task_arguments: Optional[dict]
     num_of_parts: Union[None, int, Literal["auto"]]
 
 
-def get_exporters(values):
+def get_exporters(values: Any) -> List[BaseExporter]:
     """
     Validation function for exporter declarations.
 
@@ -116,12 +119,12 @@ def get_exporters(values):
     :return: List of initialized exporter objects.
     """
 
-    def get_exporter(value):
+    def get_exporter(value: Any) -> BaseExporter:
         if isinstance(value, BaseExporter):
             return value
         elif isinstance(value, tuple):
             exporter_cls, params = value
-            return exporter_cls(**params)
+            return exporter_cls(**params)  # type: ignore[no-any-return]
         raise TypeError("Invalid exporter value: {}".format(value))
 
     if values is None:
@@ -131,14 +134,16 @@ def get_exporters(values):
     return [get_exporter(values)]
 
 
-def result_for_failed_task(original_result: TaskResult):
+def result_for_failed_task(original_result: TaskResult) -> TestResult:
     """
     Create a new result entry for invalid result retrieved from a resource.
     """
     result = TestResult()
-    result.report = TestGroupReport(
+    assert original_result.task is not None
+    report = TestGroupReport(
         name=original_result.task.uid(), category=ReportCategories.ERROR
     )
+    result.report = report  # type: ignore[assignment]
     attrs = [attr for attr in original_result.task.serializable_attrs]
     result_lines = [
         "{}: {}".format(attr, getattr(original_result.task, attr))
@@ -146,11 +151,11 @@ def result_for_failed_task(original_result: TaskResult):
         else ""
         for attr in attrs
     ]
-    result.report.logger.error(
+    report.logger.error(
         os.linesep.join([line for line in result_lines if line])
     )
-    result.report.logger.error(original_result.reason)
-    result.report.status_override = Status.ERROR
+    report.logger.error(original_result.reason)
+    report.status_override = Status.ERROR
     return result
 
 
@@ -166,7 +171,7 @@ def validate_lines(d: dict) -> bool:
     return True
 
 
-def check_local_server(browse):
+def check_local_server(browse: Any) -> bool:
     """
     Early exit if local server (`interactive` extra) is not installed when user
     asks for displaying report using local server feature.
@@ -217,7 +222,7 @@ class TestRunnerConfig(RunnableConfig):
     ignore_extra_keys = True
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             "name": str,
             ConfigOption("description", default=None): Or(str, None),
@@ -338,15 +343,16 @@ class TestRunnerResult(RunnableResult):
     :py:class:`TestRunner <testplan.runnable.TestRunner>` runnable object.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(TestRunnerResult, self).__init__()
-        self.test_results = OrderedDict()
-        self.exporter_results = []
-        self.report = None
+        self.test_results: OrderedDict[str, TestResult] = OrderedDict()
+        self.exporter_results: List[Any] = []
+        self.report: Optional[TestReport] = None
 
     @property
-    def success(self):
+    def success(self) -> bool:
         """Run was successful."""
+        assert self.report is not None
         return not self.report.failed and all(
             [
                 exporter_result.success
@@ -358,7 +364,7 @@ class TestRunnerResult(RunnableResult):
 CACHED_TASK_INFO_ATTRIBUTE = "_cached_task_info"
 
 
-def _attach_task_info(task_info: TaskInformation) -> Task:
+def _attach_task_info(task_info: TaskInformation) -> TestTask:
     """
     Attach task information (TaskInformation) to the task object
     """
@@ -367,11 +373,11 @@ def _attach_task_info(task_info: TaskInformation) -> Task:
     return task
 
 
-def _detach_task_info(task: Task) -> Optional[TaskInformation]:
+def _detach_task_info(task: TestTask) -> TaskInformation:
     """
     Detach task information (TaskInformation) from the task object
     """
-    task_info = getattr(task, CACHED_TASK_INFO_ATTRIBUTE)
+    task_info: TaskInformation = getattr(task, CACHED_TASK_INFO_ATTRIBUTE)
     delattr(task, CACHED_TASK_INFO_ATTRIBUTE)
     return task_info
 
@@ -476,11 +482,14 @@ class TestRunner(Runnable):
     STATUS = TestRunnerStatus
     RESULT = TestRunnerResult
 
-    def __init__(self, **options):
+    result: TestRunnerResult
+
+    def __init__(self, **options: Any) -> None:
         # TODO: check options sanity?
         super(TestRunner, self).__init__(**options)
+        self.result = TestRunnerResult()
         # uid to resource, in definition order
-        self._test_metadata = []
+        self._test_metadata: List[Any] = []
         self._tests: MutableMapping[str, str] = OrderedDict()
         self.result.report = TestReport(
             name=self.cfg.name,
@@ -490,43 +499,50 @@ class TestRunner(Runnable):
             label=self.cfg.label,
             information=[("testplan_version", self.get_testplan_version())],
         )
-        self._exporters = None
-        self._web_server_thread = None
-        self._file_log_handler = None
+        self._exporters: Optional[List[BaseExporter]] = None
+        self._web_server_thread: Any = None
+        self._file_log_handler: Optional[Any] = None
         self._configure_stdout_logger()
         # Before saving test report, recursively generate unique strings in
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = not self._is_interactive_run()
-        self.scheduled_modules = []  # For interactive reload
+        self.scheduled_modules: List[
+            Tuple[str, str]
+        ] = []  # For interactive reload
         self.remote_services: Dict[str, "RemoteService"] = {}
-        self.runid_filename = uuid.uuid4().hex
+        self.runid_filename: str = uuid.uuid4().hex
         self.define_runpath()
+        assert self.result.report is not None
+        assert self.runpath is not None
         self.result.report.information.append(("runpath", self.runpath))
-        self._archive_path = None
+        self._archive_path: Optional[str] = None
         self._define_archive_path()
-        self._runnable_uids = set()
-        self._verified_targets = {}  # target object id -> runnable uid
+        self._runnable_uids: Set[str] = set()
+        self._verified_targets: Dict[
+            int, str
+        ] = {}  # target object id -> runnable uid
         self.resource_monitor_server: Optional["ResourceMonitorServer"] = None
         self.resource_monitor_server_file_path: Optional[str] = None
         self.resource_monitor_client: Optional["ResourceMonitorClient"] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Testplan[{self.uid()}]"
 
     @staticmethod
-    def get_testplan_version():
+    def get_testplan_version() -> str:
         import testplan
 
         return testplan.__version__
 
     @property
-    def report(self) -> TestReport:
+    def report(self) -> TestReport:  # type: ignore[override]
         """Tests report."""
+        assert self.result.report is not None
         return self.result.report
 
     @property
-    def exporters(self):
+    def exporters(self) -> List[BaseExporter]:
         """
         Return a list of
         :py:class:`report exporters <testplan.exporters.testing.base.Exporter>`.
@@ -538,23 +554,23 @@ class TestRunner(Runnable):
             for exporter in self._exporters:
                 if hasattr(exporter, "cfg"):
                     exporter.cfg.parent = self.cfg
-                exporter.parent = self
+                exporter.parent = self  # type: ignore[attr-defined]
         return self._exporters
 
-    def get_test_metadata(self):
+    def get_test_metadata(self) -> List[Any]:
         return self._test_metadata
 
-    def disable_reset_report_uid(self):
+    def disable_reset_report_uid(self) -> None:
         """Do not generate unique strings in uuid4 format as report uid"""
         self._reset_report_uid = False
 
-    def get_default_exporters(self):
+    def get_default_exporters(self) -> List[BaseExporter]:
         """
         Instantiate certain exporters if related cmdline argument (e.g. --pdf)
         or programmatic arguments (e.g. pdf_path) is passed but there are not
         any exporter declarations.
         """
-        exporters = []
+        exporters: List[BaseExporter] = []
         if self.cfg.pdf_path:
             exporters.append(test_exporters.PDFExporter())
         if self.cfg.report_tags or self.cfg.report_tags_all:
@@ -580,7 +596,7 @@ class TestRunner(Runnable):
 
     def add_environment(
         self, env: EnvironmentCreator, resource: Optional[Environments] = None
-    ):
+    ) -> str:
         """
         Adds an environment to the target resource holder.
 
@@ -593,14 +609,14 @@ class TestRunner(Runnable):
         :return: Environment uid.
         :rtype: ``str``
         """
-        resource = (
-            self.resources[resource]
+        target_resource: Any = (
+            self.resources[resource]  # type: ignore[index]
             if resource
             else self.resources.environments
         )
         target = env.create(parent=self)
-        env_uid = env.uid()
-        resource.add(target, env_uid)
+        env_uid: str = env.uid()
+        target_resource.add(target, env_uid)
         return env_uid
 
     def add_resource(
@@ -624,7 +640,7 @@ class TestRunner(Runnable):
             )
         return self.resources.add(resource, uid=uid)
 
-    def add_exporters(self, exporters: List[Exporter]):
+    def add_exporters(self, exporters: List[Exporter]) -> None:
         """
         Add a list of
         :py:class:`report exporters <testplan.exporters.testing.base.Exporter>`
@@ -635,7 +651,7 @@ class TestRunner(Runnable):
         """
         self.cfg.exporters.extend(get_exporters(exporters))
 
-    def add_remote_service(self, remote_service: "RemoteService"):
+    def add_remote_service(self, remote_service: "RemoteService") -> None:
         """
         Adds a remote service
         :py:class:`~testplan.common.remote.remote_service.RemoteService`
@@ -653,7 +669,7 @@ class TestRunner(Runnable):
         remote_service.cfg.parent = self.cfg
         self.remote_services[name] = remote_service
 
-    def skip_step(self, step):
+    def skip_step(self, step: Callable[..., Any]) -> bool:
         if isinstance(
             self.result.step_results.get("_start_remote_services", None),
             Exception,
@@ -668,7 +684,7 @@ class TestRunner(Runnable):
             return True
         return False
 
-    def _start_remote_services(self):
+    def _start_remote_services(self) -> Optional[Exception]:
         for rmt_svc in self.remote_services.values():
             try:
                 rmt_svc.start()
@@ -679,9 +695,10 @@ class TestRunner(Runnable):
                 self.report.status_override = Status.ERROR
                 # skip the rest, set step return value
                 return e
+        return None
 
-    def _stop_remote_services(self):
-        es = []
+    def _stop_remote_services(self) -> Optional[Exception]:
+        es: List[Exception] = []
         for rmt_svc in self.remote_services.values():
             try:
                 rmt_svc.stop()
@@ -695,13 +712,17 @@ class TestRunner(Runnable):
                 es.append(e)
         if es:
             if len(es) > 1:
-                return ExceptionGroup(
+                return ExceptionGroup(  # type: ignore[no-any-return]
                     "multiple remote services failed to stop", es
                 )
             return es[0]
+        return None
 
-    def _clone_task_for_part(self, task_info, part_tuple):
+    def _clone_task_for_part(
+        self, task_info: TaskInformation, part_tuple: Tuple[int, int]
+    ) -> TaskInformation:
         task_arguments = task_info.task_arguments
+        assert task_arguments is not None
         task_arguments["part"] = part_tuple
         self.logger.debug(
             "Task re-created with arguments: %s",
@@ -718,7 +739,9 @@ class TestRunner(Runnable):
         return new_task_info
 
     def _create_task_n_info(
-        self, task_arguments, num_of_parts=None
+        self,
+        task_arguments: dict,
+        num_of_parts: Union[int, "Literal['auto']", None] = None,
     ) -> TaskInformation:
         self.logger.debug(
             "Task created with arguments: %s",
@@ -734,7 +757,7 @@ class TestRunner(Runnable):
         self,
         path: str = ".",
         name_pattern: Union[str, Pattern] = r".*\.py$",
-    ) -> List[Task]:
+    ) -> List[TestTask]:
         """
         Discover task targets under path in the modules that matches name pattern,
         and return the created Task object.
@@ -799,13 +822,14 @@ class TestRunner(Runnable):
                                 discovered.append(
                                     self._create_task_n_info(
                                         deepcopy(task_arguments),
-                                        target_info.multitest_parts,
+                                        target_info.multitest_parts,  # type: ignore[arg-type]
                                     )
                                 )
                         else:
                             discovered.append(
                                 self._create_task_n_info(
-                                    task_arguments, target_info.multitest_parts
+                                    task_arguments,
+                                    target_info.multitest_parts,  # type: ignore[arg-type]
                                 )
                             )
 
@@ -873,7 +897,7 @@ class TestRunner(Runnable):
         self,
         task: Optional[Task] = None,
         resource: Optional[str] = None,
-        **options,
+        **options: Any,
     ) -> Optional[str]:
         """
         Schedules a serializable
@@ -897,9 +921,9 @@ class TestRunner(Runnable):
     def schedule_all(
         self,
         path: str = ".",
-        name_pattern: Union[str, Pattern] = r".*\.py$",
+        name_pattern: Union[str, Pattern[str]] = r".*\.py$",
         resource: Optional[str] = None,
-    ):
+    ) -> None:
         """
         Discover task targets under path in the modules that matches name pattern,
         create task objects from them and schedule them to resource (usually pool)
@@ -920,7 +944,7 @@ class TestRunner(Runnable):
         for task in tasks:
             self.add(task, resource=resource)
 
-    def auto_part(self, tasks: List[Task]) -> List[Task]:
+    def auto_part(self, tasks: List[TestTask]) -> List[TestTask]:
         """
         Automatically partitions tasks into smaller parts based on runtime limits.
         This method takes a list of tasks and partitions them into smaller tasks
@@ -964,7 +988,7 @@ class TestRunner(Runnable):
 
     def _adjust_runtime_data(
         self, discovered: List[TaskInformation], runtime_data: dict
-    ):
+    ) -> None:
         """
         Adjust the runtime data to ensure that all discovered tasks have their
         runtime data available. If a task's UID is not found in the runtime data,
@@ -981,7 +1005,7 @@ class TestRunner(Runnable):
                 # TODO: Consider filters to better split into parts? part numbers will no longer be the same if filters are considered.
                 curr_case_count = task_info.materialized_test.dry_run(
                     with_filter=False
-                ).report.counter["total"]
+                ).report.counter["total"]  # type: ignore[attr-defined]
                 time_info["testcase_count"] = curr_case_count
                 if not curr_case_count:
                     time_info["execution_time"] = 0
@@ -1006,7 +1030,7 @@ class TestRunner(Runnable):
         self, discovered: List[TaskInformation]
     ) -> float:
         if self.cfg.auto_part_runtime_limit != "auto":
-            return self.cfg.auto_part_runtime_limit
+            return self.cfg.auto_part_runtime_limit  # type: ignore[no-any-return]
 
         runtime_data = self.cfg.runtime_data or {}
         if not runtime_data:
@@ -1065,7 +1089,7 @@ class TestRunner(Runnable):
 
     def _calculate_parts_and_weights(
         self, task_info: TaskInformation, auto_part_runtime_limit: float
-    ):
+    ) -> List[TaskInformation]:
         num_of_parts = (
             task_info.num_of_parts
         )  # @task_target(multitest_parts=...)
@@ -1139,6 +1163,7 @@ class TestRunner(Runnable):
 
             # by now we shall have a valid num_of_part, user specified or auto derived
             task_arguments = task_info.task_arguments
+            assert task_arguments is not None
             if "weight" not in task_arguments:
                 task_arguments["weight"] = (
                     math.ceil(
@@ -1155,6 +1180,7 @@ class TestRunner(Runnable):
                 num_of_parts,
                 task_arguments["weight"],
             )
+            assert isinstance(task_info.target, Task)
             if num_of_parts == 1:
                 task_info.target.weight = task_arguments["weight"]
                 partitioned.append(task_info)
@@ -1167,6 +1193,7 @@ class TestRunner(Runnable):
                     partitioned.append(new_task_info)
 
         else:
+            assert isinstance(task_info.target, Task)
             if time_info and not task_info.target.weight:
                 task_info.target.weight = math.ceil(
                     time_info["execution_time"]
@@ -1233,19 +1260,21 @@ class TestRunner(Runnable):
         )
         return uid
 
-    def _is_interactive_run(self):
+    def _is_interactive_run(self) -> bool:
         return self.cfg.interactive_port is not None
 
-    def _register_task(self, resource, target, uid, metadata):
+    def _register_task(
+        self, resource: str, target: TestTask, uid: str, metadata: Any
+    ) -> None:
         self._tests[uid] = resource
         self._test_metadata.append(metadata)
-        self.resources[resource].add(target, uid)
+        self.resources[resource].add(target, uid)  # type: ignore[attr-defined]
 
     def _assemble_task_info(
         self,
         target: TestTask,
         task_arguments: Optional[dict] = None,
-        num_of_parts: Optional[int] = None,
+        num_of_parts: Union[None, int, Literal["auto"]] = None,
     ) -> TaskInformation:
         if isinstance(target, Task):
             if hasattr(target, CACHED_TASK_INFO_ATTRIBUTE):
@@ -1280,7 +1309,9 @@ class TestRunner(Runnable):
             target, materialized_test, uid, task_arguments, num_of_parts
         )
 
-    def _register_task_for_interactive(self, task_info: TaskInformation):
+    def _register_task_for_interactive(
+        self, task_info: TaskInformation
+    ) -> None:
         target = task_info.target
         if isinstance(target, Task) and isinstance(target._target, str):
             self.scheduled_modules.append(
@@ -1318,7 +1349,7 @@ class TestRunner(Runnable):
 
         return should_run
 
-    def _check_pidfile(self):
+    def _check_pidfile(self) -> None:
         """
         Check if a PID file exists and verify if another testplan instance is using this runpath.
 
@@ -1336,8 +1367,10 @@ class TestRunner(Runnable):
         with open(self._pidfile_path, "r") as pid_file:
             pid_file_content = pid_file.read().strip().split(";")
 
+        host: Optional[str] = None
+        port: Optional[str] = None
         if len(pid_file_content) == 1:
-            host, port, pid = None, None, pid_file_content[0]
+            pid = pid_file_content[0]
         elif len(pid_file_content) == 2:
             connection_info, pid = pid_file_content
             if ":" in connection_info:
@@ -1350,6 +1383,7 @@ class TestRunner(Runnable):
         if pid and pid.isdigit():
             if (
                 host
+                and port is not None
                 and port.isdigit()
                 and self._is_remote_process_alive(host, int(port))
             ):
@@ -1357,10 +1391,10 @@ class TestRunner(Runnable):
                     f"Another testplan instance on {host} (PID: {pid}) is already using runpath: {self._runpath}"
                 )
             else:
-                pid = int(pid)
-                if psutil.pid_exists(pid) and pid != os.getpid():
+                pid_int = int(pid)
+                if psutil.pid_exists(pid_int) and pid_int != os.getpid():
                     raise RunpathInUseError(
-                        f"Another testplan instance with PID {pid} is already using runpath: {self._runpath}"
+                        f"Another testplan instance with PID {pid_int} is already using runpath: {self._runpath}"
                     )
 
     def _is_remote_process_alive(self, host: str, port: int) -> bool:
@@ -1384,7 +1418,7 @@ class TestRunner(Runnable):
 
         return False
 
-    def make_runpath_dirs(self):
+    def make_runpath_dirs(self) -> None:
         """
         Creates runpath related directories.
         """
@@ -1421,6 +1455,7 @@ class TestRunner(Runnable):
             pass
 
         if self.cfg.resource_monitor:
+            assert self.scratch is not None
             self.resource_monitor_server_file_path = os.path.join(
                 self.scratch, "resource_monitor"
             )
@@ -1431,7 +1466,7 @@ class TestRunner(Runnable):
                 self._runpath, "matplotlib"
             )
 
-    def _start_resource_monitor(self):
+    def _start_resource_monitor(self) -> None:
         """Start resource monitor server and client"""
         from testplan.monitor.resource import (
             ResourceMonitorClient,
@@ -1439,6 +1474,7 @@ class TestRunner(Runnable):
         )
 
         if self.cfg.resource_monitor:
+            assert self.resource_monitor_server_file_path is not None
             self.resource_monitor_server = ResourceMonitorServer(
                 self.resource_monitor_server_file_path,
                 detailed=self.cfg.logger_level == logger.DEBUG,
@@ -1449,7 +1485,7 @@ class TestRunner(Runnable):
             )
             self.resource_monitor_client.start()
 
-    def _stop_resource_monitor(self):
+    def _stop_resource_monitor(self) -> None:
         """Stop resource monitor server and client"""
         if self.resource_monitor_client:
             self.resource_monitor_client.stop()
@@ -1458,32 +1494,38 @@ class TestRunner(Runnable):
             self.resource_monitor_server.stop()
             self.resource_monitor_server = None
 
-    def _define_archive_path(self):
+    def _define_archive_path(self) -> None:
         if not self.cfg.archive_runpath:
             return
         archive_dir = os.path.abspath(
             os.path.expandvars(os.path.expanduser(self.cfg.archive_runpath))
         )
         timestamp = time.strftime("%Y%m%d-%H%M%S")
+        assert self.runpath is not None
         self._archive_path = os.path.join(
             archive_dir,
             f"{os.path.basename(self.runpath)}_{timestamp}.tar.zst",
         )
+        assert self.result.report is not None
+        assert self._archive_path is not None
         self.result.report.information.append(
             ("runpath_archive", self._archive_path)
         )
 
-    def _archive_runpath(self):
+    def _archive_runpath(self) -> None:
         """
         Archive the runpath to a user specified directory.
         """
         if not self.cfg.archive_runpath:
             return
 
+        assert self.result.report is not None
         if self.result.report.passed:
             self.logger.user_info("Testplan passed, skipping runpath archive")
             return
 
+        assert self._archive_path is not None
+        assert self.runpath is not None
         archive_dir = os.path.dirname(self._archive_path)
         if not os.path.exists(archive_dir):
             os.makedirs(archive_dir, exist_ok=True)
@@ -1508,7 +1550,7 @@ class TestRunner(Runnable):
 
         self.logger.user_info(f"Runpath archived to {self._archive_path}")
 
-    def add_pre_resource_steps(self):
+    def add_pre_resource_steps(self) -> None:
         """Runnable steps to be executed before resources started."""
         self._add_step(self.timer.start, "run")
         super(TestRunner, self).add_pre_resource_steps()
@@ -1518,11 +1560,11 @@ class TestRunner(Runnable):
         self._add_step(self.calculate_pool_size)
         self._add_step(self._start_resource_monitor)
 
-    def add_main_batch_steps(self):
+    def add_main_batch_steps(self) -> None:
         """Runnable steps to be executed while resources are running."""
         self._add_step(self._wait_ongoing)
 
-    def add_post_resource_steps(self):
+    def add_post_resource_steps(self) -> None:
         """Runnable steps to be executed after resources stopped."""
         super(TestRunner, self).add_post_resource_steps()
         self._add_step(self._create_result)
@@ -1535,14 +1577,17 @@ class TestRunner(Runnable):
         self._add_step(self._stop_resource_monitor)
         self._add_step(self._archive_runpath)
 
-    def _collect_timeout_info(self):
+    def _collect_timeout_info(self) -> None:
         threads, processes = self._get_process_info(recursive=True)
-        self._timeout_info = {"threads": [], "processes": []}
+        self._timeout_info: Dict[str, List[str]] = {
+            "threads": [],
+            "processes": [],
+        }
         for thread in threads:
             self._timeout_info["threads"].append(
                 os.linesep.join(
                     [thread.name]
-                    + format_stack(sys._current_frames()[thread.ident])
+                    + format_stack(sys._current_frames()[thread.ident])  # type: ignore[index]
                 )
             )
 
@@ -1553,7 +1598,7 @@ class TestRunner(Runnable):
                 f"Pid: {process.pid}, Parent pid: {parent_pid}, {command}"
             )
 
-    def _wait_ongoing(self):
+    def _wait_ongoing(self) -> None:
         # TODO: if a pool fails to initialize we could reschedule the tasks.
         if self.resources.start_exceptions:
             for resource, exception in self.resources.start_exceptions.items():
@@ -1567,7 +1612,7 @@ class TestRunner(Runnable):
         while self.active:
             if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
                 msg = f"Timeout: Aborting execution after {self.cfg.timeout} seconds"
-                self.result.report.logger.error(msg)
+                self.report.logger.error(msg)
                 self.logger.error(msg)
                 self._collect_timeout_info()
 
@@ -1585,7 +1630,7 @@ class TestRunner(Runnable):
                 # Poll the resource's health - if it has unexpectedly died
                 # then abort the entire test to avoid hanging.
                 if not resource.is_alive:
-                    self.result.report.status_override = Status.ERROR
+                    self.report.status_override = Status.ERROR
                     self.logger.critical(
                         "Aborting %s - %s unexpectedly died", self, resource
                     )
@@ -1595,22 +1640,22 @@ class TestRunner(Runnable):
                 break
             time.sleep(self.cfg.active_loop_sleep)
 
-    def _post_run_checks(self, start_threads, start_procs):
+    def _post_run_checks(self, start_threads: Any, start_procs: Any) -> None:
         super()._post_run_checks(start_threads, start_procs)
         self._close_file_logger()
 
-    def _create_result(self):
+    def _create_result(self) -> bool:
         """Fetch task result from executors and create a full test result."""
         step_result = True
         test_results = self.result.test_results
-        plan_report = self.result.report
-        test_rep_lookup = {}
+        plan_report = self.report
+        test_rep_lookup: Dict[str, List[Tuple[Any, TestGroupReport]]] = {}
 
         for uid, resource in self._tests.items():
             if not isinstance(self.resources[resource], Executor):
                 continue
 
-            resource_result = self.resources[resource].results.get(uid)
+            resource_result = self.resources[resource].results.get(uid)  # type: ignore[attr-defined]
             # Tasks may not been executed (i.e. timeout), although the thread
             # will wait for a buffer period until the follow up work finishes.
             # But for insurance we assume that still some uids are missing.
@@ -1624,7 +1669,8 @@ class TestRunner(Runnable):
             else:
                 test_results[uid] = resource_result
 
-            run, report = test_results[uid].run, test_results[uid].report
+            run = test_results[uid].run
+            report: Any = test_results[uid].report
 
             if report.part:
                 if (
@@ -1706,7 +1752,7 @@ class TestRunner(Runnable):
 
     def _merge_reports(
         self, test_report_lookup: Dict[str, List[Tuple[bool, Any]]]
-    ):
+    ) -> bool:
         """
         Merge report of MultiTest parts into test runner report.
         Return True if all parts are found and can be successfully merged.
@@ -1725,9 +1771,9 @@ class TestRunner(Runnable):
         merge_result = True
 
         for uid, result in test_report_lookup.items():
-            placeholder_report: TestGroupReport = (
-                self.result.report.get_by_uid(uid)
-            )
+            assert self.result.report is not None
+            placeholder_report = self.result.report.get_by_uid(uid)
+            assert isinstance(placeholder_report, TestGroupReport)
             num_of_parts = 0
             part_indexes = set()
             merged = False
@@ -1736,7 +1782,8 @@ class TestRunner(Runnable):
             with placeholder_report.logged_exceptions():
                 disassembled = []
                 for run, report in result:
-                    report: TestGroupReport
+                    assert isinstance(report, TestGroupReport)
+                    assert report.part is not None
                     if num_of_parts and num_of_parts != report.part[1]:
                         raise ValueError(
                             "Cannot merge parts for child report with"
@@ -1759,7 +1806,7 @@ class TestRunner(Runnable):
                         else:
                             report.annotate_part_num()
                             flatten = list(report.pre_order_disassemble())
-                            disassembled.append(collate_for_merging(flatten))
+                            disassembled.append(collate_for_merging(flatten))  # type: ignore[arg-type]
                     else:
                         raise MergeError(
                             f"While merging parts of report `uid`: {uid}, "
@@ -1770,6 +1817,7 @@ class TestRunner(Runnable):
                         for e in es:
                             if not e.parent_uids:
                                 # specially handle mt entry
+                                assert isinstance(e, TestGroupReport)
                                 placeholder_report.merge(e)
                             else:
                                 placeholder_report.graft_entry(
@@ -1785,12 +1833,14 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
+                    assert report.part is not None
                     report.name = (
                         common.TEST_PART_PATTERN_FORMAT_STRING.format(
                             report.name, report.part[0], report.part[1]
                         )
                     )
                     report.uid = strings.uuid4()  # considered as error report
+                    assert self.result.report is not None
                     self.result.report.append(report)
 
             merge_result = (
@@ -1799,26 +1849,22 @@ class TestRunner(Runnable):
 
         return merge_result
 
-    def uid(self):
+    def uid(self) -> str:
         """Entity uid."""
-        return self.cfg.name
+        return self.cfg.name  # type: ignore[no-any-return]
 
-    def _log_test_status(self):
-        if not self.result.report.entries:
+    def _log_test_status(self) -> None:
+        if not self.report.entries:
             self.logger.warning(
                 "No tests were run - check your filter patterns."
             )
         else:
-            self.logger.log_test_status(
-                self.cfg.name, self.result.report.status
-            )
+            self.logger.log_test_status(self.cfg.name, self.report.status)
 
-    def _pre_exporters(self):
+    def _pre_exporters(self) -> None:
         # Apply report filter if one exists
         if self.cfg.reporting_exclude_filter is not None:
-            self.result.report = self.cfg.reporting_exclude_filter(
-                self.result.report
-            )
+            self.result.report = self.cfg.reporting_exclude_filter(self.report)
 
         # Attach resource monitor data
         if self.resource_monitor_server:
@@ -1827,18 +1873,18 @@ class TestRunner(Runnable):
             )
 
     def _invoke_exporters(self) -> None:
-        if self.result.report.is_empty():  # skip empty report
+        if self.report.is_empty():  # skip empty report
             return
 
-        if hasattr(self.result.report, "bubble_up_attachments"):
-            self.result.report.bubble_up_attachments()
+        if hasattr(self.report, "bubble_up_attachments"):
+            self.report.bubble_up_attachments()
 
         export_context = ExportContext()
         for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
                 run_exporter(
                     exporter=exporter,
-                    source=self.result.report,
+                    source=self.report,
                     export_context=export_context,
                 )
             else:
@@ -1850,12 +1896,12 @@ class TestRunner(Runnable):
 
         self.result.exporter_results = export_context.results
 
-    def _post_exporters(self):
+    def _post_exporters(self) -> None:
         # View report in web browser if "--browse" specified
         report_urls = []
         report_opened = False
 
-        if self.result.report.is_empty():  # skip empty report
+        if self.report.is_empty():  # skip empty report
             self.logger.warning("Empty report, nothing to be exported!")
             return
 
@@ -1892,12 +1938,12 @@ class TestRunner(Runnable):
         exec_selector: SExpr,
         report_status: Status = Status.INCOMPLETE,
         report_reason: str = "",
-    ):
+    ) -> None:
         for k, v in self.resources.items():
             if isinstance(v, Executor) and apply_single(exec_selector, k):
                 v.discard_pending_tasks(report_status, report_reason)
 
-    def abort_dependencies(self):
+    def abort_dependencies(self) -> Generator[Any, None, None]:
         """
         Yield all dependencies to be aborted before self abort.
         """
@@ -1905,7 +1951,7 @@ class TestRunner(Runnable):
             yield self._ihandler
         yield from super(TestRunner, self).abort_dependencies()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Stop the web server if it is running."""
         if self._web_server_thread is not None:
             self._web_server_thread.stop()
@@ -1914,11 +1960,11 @@ class TestRunner(Runnable):
         self._stop_resource_monitor()
         self._close_file_logger()
 
-    def _configure_stdout_logger(self):
+    def _configure_stdout_logger(self) -> None:
         """Configure the stdout logger by setting the required level."""
         logger.STDOUT_HANDLER.setLevel(self.cfg.logger_level)
 
-    def _configure_file_logger(self):
+    def _configure_file_logger(self) -> None:
         """
         Configure the file logger to the specified log levels. A log file
         will be created under the runpath (so runpath must be created before
@@ -1936,7 +1982,7 @@ class TestRunner(Runnable):
                 self.cfg.file_log_level, self.runpath
             )
 
-    def _close_file_logger(self):
+    def _close_file_logger(self) -> None:
         """
         Closes the file logger, releasing all file handles. This is necessary to
         avoid permissions errors on Windows.
@@ -1947,7 +1993,7 @@ class TestRunner(Runnable):
             logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
             self._file_log_handler = None
 
-    def _run_batch_steps(self):
+    def _run_batch_steps(self) -> None:
         if not self._tests:
             self.logger.warning("No tests were added, skipping execution!")
             self.status.change(self.STATUS.RUNNING)
@@ -1955,7 +2001,7 @@ class TestRunner(Runnable):
         else:
             super()._run_batch_steps()
 
-    def run(self):
+    def run(self) -> TestRunnerResult:
         """
         Executes the defined steps and populates the result object.
         """
@@ -1964,4 +2010,5 @@ class TestRunner(Runnable):
             return self.result
 
         with tracing.attach_to_root_context():
-            return super().run()
+            super().run()
+            return self.result

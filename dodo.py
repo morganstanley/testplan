@@ -100,10 +100,17 @@ def task_crlf_check():
         yield {"name": "notsupported", "actions": None}
 
 
+def task_mypy():
+    return {
+        "actions": ["mypy testplan --config-file pyproject.toml"],
+        "doc": "Run mypy type checking",
+    }
+
+
 def task_lint():
     return {
         "actions": None,
-        "task_dep": ["ruff_fmt", "pylint", "crlf_check"],
+        "task_dep": ["ruff_fmt", "pylint", "mypy", "crlf_check"],
         "doc": "Run lint on python and javascript code",
     }
 

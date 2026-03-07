@@ -9,6 +9,7 @@ import getpass
 import warnings
 from contextlib import closing
 from typing import (
+    Any,
     AnyStr,
     Dict,
     List,
@@ -18,7 +19,7 @@ from typing import (
     Tuple,
     Union,
 )
-import paramiko
+import paramiko  # type: ignore[import-untyped]
 from typing_extensions import TypeAlias
 
 from . import logger, timing
@@ -42,11 +43,11 @@ LOG_MATCHER_DEFAULT_TIMEOUT = 5.0
 Regex: TypeAlias = Union[str, bytes, Pattern]
 
 
-def _format_logline(s):
+def _format_logline(s: Any) -> str:
     if not s:
         return "<EOF>\n"
     if len(s) <= 100:
-        return s
+        return str(s)
     return f"{s[:100]} ... ({len(s) - 100} chars omitted)"
 
 
@@ -61,7 +62,7 @@ def match_regexps_in_file(
     :param log_extracts:  Regex list.
     :return: Match result.
     """
-    extracted_values = {}
+    extracted_values: Dict[str, str] = {}
 
     if not os.path.exists(logpath):
         return False, extracted_values, log_extracts
@@ -104,23 +105,25 @@ class ScopedLogfileMatch:
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
     ):
         self.regex, self.timeout = regex, timeout
-        self.match_results = []
-        self.match_failure = None
+        self.match_results: List[Tuple[Match, Regex, Any, Any]] = []
+        self.match_failure: Optional[Tuple[None, Regex, Any, Any]] = None
 
         self.log_matcher = log_matcher
 
-    def __enter__(self):
+    def __enter__(self) -> "ScopedLogfileMatch":
         self.log_matcher.seek_eof()
         self.match_results = []
         self.match_failure = None
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         if exc_type is not None:
-            return False
+            return
         m = self.log_matcher.match(
             self.regex, self.timeout, raise_on_timeout=False
         )
+        assert self.log_matcher._debug_info_s is not None
+        assert self.log_matcher._debug_info_e is not None
         s_pos = self.log_matcher._debug_info_s[0]
         e_pos = self.log_matcher._debug_info_e[0]
         if m is not None:
@@ -147,12 +150,12 @@ class LogMatcher(logger.Loggable):
         """
         self.log_path = log_path
         self.binary = binary
-        self.marks = {}
+        self.marks: Dict[str, Optional[LogPosition]] = {}
         self.position: Optional[LogPosition] = None
         self.log_stream: RotatedFileLogStream = self._create_log_stream()
 
-        self._debug_info_s = ()
-        self._debug_info_e = ()
+        self._debug_info_s: Optional[Tuple[str, float, str]] = ()  # type: ignore[assignment]
+        self._debug_info_e: Optional[Tuple[str, float, str]] = ()  # type: ignore[assignment]
 
         # deprecation helpers
         self.had_transformed = False
@@ -209,7 +212,7 @@ class LogMatcher(logger.Loggable):
 
         return regexp
 
-    def seek(self, mark: Optional[str] = None):
+    def seek(self, mark: Optional[str] = None) -> None:
         """
         Sets current file position to the specified mark. The mark has to exist.
         If the mark is None sets current file position to beginning of file.
@@ -221,15 +224,15 @@ class LogMatcher(logger.Loggable):
         else:
             self.position = self.marks[mark]
 
-    def seek_eof(self):
+    def seek_eof(self) -> None:
         """Sets current file position to the current end of file."""
         self.position = self.log_stream.flush()
 
-    def seek_sof(self):
+    def seek_sof(self) -> None:
         """Sets current file position to the start of file."""
         self.seek()
 
-    def mark(self, name: str):
+    def mark(self, name: str) -> None:
         """
         Marks the current file position with the specified name. The mark name
         can later be used to set the file position
@@ -323,6 +326,8 @@ class LogMatcher(logger.Loggable):
         m = self._match(regex, timeout=timeout)
 
         if m is None:
+            assert self._debug_info_s is not None
+            assert self._debug_info_e is not None
             self.logger.debug(
                 "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
@@ -343,7 +348,7 @@ class LogMatcher(logger.Loggable):
         self,
         regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
-    ):
+    ) -> None:
         """
         Opposite of :py:meth:`~testplan.common.utils.match.LogMatcher.match`
         which raises an exception if a match is found. Matching is performed
@@ -363,6 +368,8 @@ class LogMatcher(logger.Loggable):
         m = self._match(regex, timeout)
 
         if m is not None:
+            assert self._debug_info_s is not None
+            assert self._debug_info_e is not None
             self.logger.debug(
                 "%s: unexpected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
@@ -401,7 +408,7 @@ class LogMatcher(logger.Loggable):
 
         while True:
             if timeout == 0:
-                t = 0
+                t: float = 0
             else:
                 t = end_time - time.time()
                 if t <= 0:
@@ -414,6 +421,8 @@ class LogMatcher(logger.Loggable):
                 break
 
         if not matches:
+            assert self._debug_info_s is not None
+            assert self._debug_info_e is not None
             self.logger.debug(
                 "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
@@ -430,7 +439,9 @@ class LogMatcher(logger.Loggable):
 
         return matches
 
-    def match_between(self, regex: Regex, mark1: str, mark2: str):
+    def match_between(
+        self, regex: Regex, mark1: str, mark2: str
+    ) -> Optional[Match]:
         """
         Matches file against passed in regex. Matching is performed from
         file position denoted by mark1 and ends before file position denoted
@@ -449,7 +460,7 @@ class LogMatcher(logger.Loggable):
         with closing(self.log_stream) as log:
             log.seek(self.marks[mark1] if mark1 is not None else None)
             endpos = self.marks[mark2]
-            while not self.log_stream.reached_position(endpos):
+            while not self.log_stream.reached_position(endpos):  # type: ignore[arg-type]
                 line = log.readline()
                 if not line:
                     break
@@ -459,7 +470,7 @@ class LogMatcher(logger.Loggable):
 
         return match
 
-    def not_match_between(self, regex: Regex, mark1: str, mark2: str):
+    def not_match_between(self, regex: Regex, mark1: str, mark2: str) -> bool:
         """
         Opposite of :py:meth:`~testplan.common.utils.match.LogMatcher.match_between`
         which returns None if a match is not found. Matching is performed
@@ -474,7 +485,9 @@ class LogMatcher(logger.Loggable):
 
         return not self.match_between(regex, mark1, mark2)
 
-    def get_between(self, mark1=None, mark2=None):
+    def get_between(
+        self, mark1: Optional[str] = None, mark2: Optional[str] = None
+    ) -> Union[str, bytes]:
         """
         Returns the content of the file from the start marker to the end marker.
         It is possible to omit either marker to receive everything from start
@@ -495,7 +508,7 @@ class LogMatcher(logger.Loggable):
         """
         if mark1 is not None and mark2 is not None:
             if (
-                self.log_stream.compare(self.marks[mark1], self.marks[mark2])
+                self.log_stream.compare(self.marks[mark1], self.marks[mark2])  # type: ignore[arg-type]
                 >= 0
             ):
                 raise ValueError(
@@ -509,7 +522,7 @@ class LogMatcher(logger.Loggable):
             end_pos = self.marks[mark2] if mark2 is not None else None
             log.seek(start_pos)
             if not end_pos:
-                return log.read()
+                return log.read()  # type: ignore[no-any-return]
             lines_between = []
             while not self.log_stream.reached_position(end_pos):
                 line = log.readline()
@@ -521,7 +534,7 @@ class LogMatcher(logger.Loggable):
         self,
         regex: Regex,
         timeout: float = LOG_MATCHER_DEFAULT_TIMEOUT,
-    ):
+    ) -> ScopedLogfileMatch:
         """
         Context manager as a composite of
         :py:meth:`~testplan.common.utils.match.LogMatcher.seek_eof` and
@@ -578,8 +591,8 @@ class RemoteLogMatcher(LogMatcher):
         log_path: Union[os.PathLike, str],
         binary: bool = False,
         port: int = 22,
-        **args,
-    ):
+        **args: Any,
+    ) -> None:
         self._ssh_client = SSHClient(host, port, **args)
         super().__init__(log_path, binary)
 
