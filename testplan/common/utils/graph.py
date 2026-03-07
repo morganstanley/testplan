@@ -1,12 +1,9 @@
 from collections import defaultdict
 from copy import copy
 from dataclasses import dataclass
-from typing import Dict, Generic, List, Tuple, TypeVar
+from typing import Dict, Generic, List, Optional, Tuple, TypeVar
 
-try:
-    from typing import Self  # starting from py311
-except ImportError:
-    from typing_extensions import Self
+from typing_extensions import Self
 
 
 T = TypeVar("T")  # vertex rep
@@ -68,7 +65,7 @@ class DirectedGraph(Generic[T, U, V]):
             of type edge value.
         :return: The new graph.
         """
-        edges_ = {k: dict() for k in vertices}
+        edges_: Dict[T, Dict[T, V]] = {k: dict() for k in vertices}
         indegrees_ = {k: 0 for k in vertices}
         outdegrees_ = {k: 0 for k in vertices}
         for (src, dst), val in edges.items():
@@ -200,13 +197,19 @@ class DirectedGraph(Generic[T, U, V]):
             vertices in that component.
         """
         index = 0
-        stack = []
-        indices = dict(map(lambda x: (x, None), self.vertices.keys()))
-        lowlink = dict(map(lambda x: (x, None), self.vertices.keys()))
-        onstack = dict(map(lambda x: (x, False), self.vertices.keys()))
+        stack: List[T] = []
+        indices: Dict[T, Optional[int]] = dict(
+            map(lambda x: (x, None), self.vertices.keys())
+        )
+        lowlink: Dict[T, Optional[int]] = dict(
+            map(lambda x: (x, None), self.vertices.keys())
+        )
+        onstack: Dict[T, bool] = dict(
+            map(lambda x: (x, False), self.vertices.keys())
+        )
         ret_scc = defaultdict(list)
 
-        def _strongly_connect(v):
+        def _strongly_connect(v: T) -> None:
             nonlocal index
             indices[v] = index
             lowlink[v] = index
@@ -217,9 +220,9 @@ class DirectedGraph(Generic[T, U, V]):
             for w in self.edges[v]:  # edge values not considered here
                 if indices[w] is None:
                     _strongly_connect(w)
-                    lowlink[v] = min(lowlink[v], lowlink[w])
+                    lowlink[v] = min(lowlink[v], lowlink[w])  # type: ignore[type-var]
                 elif onstack[w]:
-                    lowlink[v] = min(lowlink[v], indices[w])
+                    lowlink[v] = min(lowlink[v], indices[w])  # type: ignore[type-var]
 
             if lowlink[v] == indices[v]:
                 # v is root vertex of certain scc

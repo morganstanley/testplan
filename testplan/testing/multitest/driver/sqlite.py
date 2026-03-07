@@ -3,6 +3,7 @@
 import os
 import sqlite3
 import functools
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
 
 from contextlib import contextmanager
 
@@ -19,7 +20,7 @@ class Sqlite3Config(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
 
@@ -30,11 +31,11 @@ class Sqlite3Config(DriverConfig):
         }
 
 
-def _rollback_on_error(func):
+def _rollback_on_error(func: Callable[..., Any]) -> Callable[..., Any]:
     """Rollback the databse if db operation raises."""
 
     @functools.wraps(func)
-    def wrap(self, *args):
+    def wrap(self: Any, *args: Any) -> Any:
         try:
             return func(self, *args)
         except Exception as exc:
@@ -65,26 +66,30 @@ class Sqlite3(Driver):
     CONFIG = Sqlite3Config
 
     def __init__(
-        self, name: str, db_path: str, connect_at_start: bool = True, **options
-    ):
+        self,
+        name: str,
+        db_path: str,
+        connect_at_start: bool = True,
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(Sqlite3, self).__init__(**options)
-        self.db = None
-        self.cursor = None
+        self.db: Optional[sqlite3.Connection] = None
+        self.cursor: Optional[sqlite3.Cursor] = None
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def db_path(self):
+    def db_path(self) -> str:
         """Database file path."""
         # if self.cfg.db_path is an absolute path it will return self.cfg.db_path
-        return os.path.join(self.runpath, self.cfg.db_path)
+        return os.path.join(self.runpath, self.cfg.db_path)  # type: ignore[arg-type]
 
-    def connect(self):
+    def connect(self) -> None:
         """Connect to the database and set the internal db cursor."""
         self.db = sqlite3.connect(self.db_path)
         self.cursor = self.db.cursor()
 
-    def starting(self):
+    def starting(self) -> None:
         """
         Start the driver.
         """
@@ -92,7 +97,7 @@ class Sqlite3(Driver):
         if self.cfg.connect_at_start:
             self.connect()
 
-    def stopping(self):
+    def stopping(self) -> None:
         """
         Stop the driver.
         """
@@ -100,7 +105,7 @@ class Sqlite3(Driver):
         if self.db:
             self.db.close()
 
-    def aborting(self, *args, **kwargs):
+    def aborting(self, *args: Any, **kwargs: Any) -> None:
         """
         Abort the driver.
         """
@@ -108,36 +113,44 @@ class Sqlite3(Driver):
             self.db.close()
 
     @contextmanager
-    def commit_at_exit(self):
+    def commit_at_exit(self) -> Generator[None, None, None]:
         """
         Context manager to perform operations and .commit() at exit.
         """
         yield
+        assert self.db is not None
         self.db.commit()
 
-    def commit(self):
+    def commit(self) -> None:
         """Commit db changes."""
+        assert self.db is not None
         self.db.commit()
 
     @_rollback_on_error
-    def execute(self, *args, **kwargs):
+    def execute(self, *args: Any, **kwargs: Any) -> None:
         """Invoke cursor execute."""
+        assert self.cursor is not None
         self.cursor.execute(*args, **kwargs)
 
     @_rollback_on_error
-    def executemany(self, *args):
+    def executemany(self, *args: Any) -> None:
         """Invoke cursor executemany."""
+        assert self.cursor is not None
         self.cursor.executemany(*args)
 
-    def fetchone(self):
+    def fetchone(self) -> Optional[Any]:
         """Invoke cursor fetchone."""
+        assert self.cursor is not None
         return self.cursor.fetchone()
 
-    def fetchall(self):
+    def fetchall(self) -> List[Any]:
         """Invoke cursor fetchall."""
+        assert self.cursor is not None
         return self.cursor.fetchall()
 
-    def fetch_table(self, table, columns=None):
+    def fetch_table(
+        self, table: str, columns: Optional[List[str]] = None
+    ) -> List[List[Any]]:
         """
         Fetch a table from the db. The first row will be the column names
         and the following rows will be the table rows. Returns a table like:
@@ -162,11 +175,13 @@ class Sqlite3(Driver):
         """
         if columns is None:
             self.execute("PRAGMA table_info({})".format(table))
+            assert self.cursor is not None
             columns = [str(col[1]) for col in self.cursor.fetchall()]
 
         self.execute("SELECT {} FROM {}".format(", ".join(columns), table))
 
-        table = [columns]
+        assert self.cursor is not None
+        result: List[List[Any]] = [columns]
         for row in self.cursor.fetchall():
-            table.append([item for item in row])
-        return table
+            result.append([item for item in row])
+        return result

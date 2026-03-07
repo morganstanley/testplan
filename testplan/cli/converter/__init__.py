@@ -39,6 +39,7 @@ def run_actions(
     result = parse()
 
     for process in processors:
+        assert isinstance(process, ProcessResultAction)
         result = process(result)
 
 

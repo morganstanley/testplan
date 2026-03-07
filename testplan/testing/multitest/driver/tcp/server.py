@@ -3,7 +3,7 @@ TCPServer driver classes.
 """
 
 import socket
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from schema import Or
 from testplan.common.config import ConfigOption
@@ -27,7 +27,7 @@ class TCPServerConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -67,60 +67,65 @@ class TCPServer(Driver):
         name: str,
         host: Optional[Union[str, ContextValue]] = "localhost",
         port: Optional[Union[int, str, ContextValue]] = 0,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(TCPServer, self).__init__(**options)
-        self._host: str = None
-        self._port: int = None
-        self._server = None
+        self._host: Optional[str] = None
+        self._port: Optional[int] = None
+        self._server: Optional[Server] = None
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         """Target host name."""
         return self._host
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def port(self):
+    def port(self) -> Optional[int]:
         """Port number assigned."""
         return self._port
 
     @property
-    def socket(self):
+    def socket(self) -> Any:
         """
         Returns the underlying ``socket`` object
         """
+        assert self._server is not None
         return self._server.socket
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_port(self):
+    def local_port(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_host(self):
+    def local_host(self) -> Optional[str]:
         return self.host
 
-    def accept_connection(self, timeout=10):
+    def accept_connection(self, timeout: int = 10) -> Any:
         """Doc from Server."""
+        assert self._server is not None
         return self._server.accept_connection(timeout=timeout)
 
     accept_connection.__doc__ = Server.accept_connection.__doc__
 
-    def close_connection(self, conn_idx):
+    def close_connection(self, conn_idx: int) -> None:
         """
         Docstring from Server.close_connection
         """
+        assert self._server is not None
         self._server.close_connection(conn_idx)
 
     close_connection.__doc__ = Server.close_connection.__doc__
 
-    def send_text(self, msg, standard="utf-8", **kwargs):
+    def send_text(
+        self, msg: str, standard: str = "utf-8", **kwargs: Any
+    ) -> Any:
         """
         Encodes to bytes and calls
         :py:meth:`TCPServer.send
@@ -128,22 +133,32 @@ class TCPServer(Driver):
         """
         return self.send(bytes(msg.encode(standard)), **kwargs)
 
-    def send(self, msg, conn_idx=None, timeout=30):
+    def send(
+        self, msg: bytes, conn_idx: Optional[int] = None, timeout: int = 30
+    ) -> Any:
         """Doc from Server."""
+        assert self._server is not None
         return self._server.send(msg=msg, conn_idx=conn_idx, timeout=timeout)
 
     send.__doc__ = Server.send.__doc__
 
-    def receive_text(self, standard="utf-8", **kwargs):
+    def receive_text(self, standard: str = "utf-8", **kwargs: Any) -> str:
         """
         Calls
         :py:meth:`TCPServer.receive
         <testplan.testing.multitest.driver.tcp.server.TCPServer.receive>`
         and decodes received bytes.
         """
-        return self.receive(**kwargs).decode(standard)
+        received = self.receive(**kwargs)
+        assert received is not None
+        return received.decode(standard)
 
-    def receive(self, size=None, conn_idx=None, timeout=30):
+    def receive(
+        self,
+        size: Optional[int] = None,
+        conn_idx: Optional[int] = None,
+        timeout: Optional[int] = 30,
+    ) -> Optional[bytes]:
         """Receive bytes from the given connection."""
         received = None
         timeout_info = TimeoutExceptionInfo()
@@ -156,6 +171,7 @@ class TCPServer(Driver):
                 receive_kwargs["size"] = size
                 receive_kwargs["wait_full_size"] = True
 
+            assert self._server is not None
             received = self._server.receive(**receive_kwargs)
         except socket.timeout:
             if timeout is not None:
@@ -166,7 +182,7 @@ class TCPServer(Driver):
                 )
         return received
 
-    def starting(self):
+    def starting(self) -> None:
         """Starts the TCP server."""
         super(TCPServer, self).starting()
         self._server = Server(
@@ -185,15 +201,15 @@ class TCPServer(Driver):
             self.port,
         )
 
-    def _stop_logic(self):
+    def _stop_logic(self) -> None:
         if self._server:
             self._server.close()
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Stops the TCP server."""
         super(TCPServer, self).stopping()
         self._stop_logic()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the server."""
         self._stop_logic()

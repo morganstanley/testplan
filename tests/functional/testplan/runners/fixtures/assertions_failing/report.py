@@ -726,8 +726,9 @@ expected_report = TestReport(
                                                 {},
                                                 # Check traceback msg
                                                 {
-                                                    "name": lambda v: ERROR_MSG
-                                                    in v
+                                                    "name": lambda v: (
+                                                        ERROR_MSG in v
+                                                    )
                                                 },
                                                 {},
                                             ),
@@ -1012,8 +1013,9 @@ expected_report = TestReport(
                                                 {},
                                                 # Check traceback msg
                                                 {
-                                                    "name": lambda v: ERROR_MSG
-                                                    in v
+                                                    "name": lambda v: (
+                                                        ERROR_MSG in v
+                                                    )
                                                 },
                                                 {},
                                             )

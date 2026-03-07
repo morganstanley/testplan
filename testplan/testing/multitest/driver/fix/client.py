@@ -2,7 +2,7 @@
 
 import errno
 import socket
-from typing import Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from schema import Or, Use
 
@@ -35,7 +35,7 @@ class FixClientConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             "msgclass": type,
             "codec": object,
@@ -128,63 +128,64 @@ class FixClient(Driver):
         sender: str,
         target: str,
         version: str = "FIX.4.2",
-        sendersub: str = None,
-        interface: Tuple[str, int] = None,
+        sendersub: Optional[str] = None,
+        interface: Optional[Tuple[str, int]] = None,
         connect_at_start: bool = True,
         logon_at_start: bool = True,
         logoff_at_stop: bool = True,
-        custom_logon_tags: FixMessage = None,
+        custom_logon_tags: Optional[FixMessage] = None,
         receive_timeout: Union[int, float] = 30,
         logon_timeout: Union[int, float] = 10,
         logoff_timeout: Union[int, float] = 3,
         tls_config: Optional[TLSConfig] = None,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(FixClient, self).__init__(**options)
-        self._host: str = None
-        self._port: int = None
-        self._client = None
+        self._host: Optional[str] = None
+        self._port: Optional[int] = None
+        self._client: Optional[Client] = None
 
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         """Target host name."""
         return self._host
 
     @property
-    def port(self):
+    def port(self) -> Optional[int]:
         """Client port number assigned."""
         return self._port
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def sender(self) -> str:
         """FIX SenderCompID."""
-        return self.cfg.sender
+        return self.cfg.sender  # type: ignore[no-any-return]
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def target(self) -> str:
         """FIX TargetCompID."""
-        return self.cfg.target
+        return self.cfg.target  # type: ignore[no-any-return]
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def sendersub(self) -> str:
         """FIX SenderSubID."""
-        return self.cfg.sendersub
+        return self.cfg.sendersub  # type: ignore[no-any-return]
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> Optional[int]:
+        assert self._client is not None
         return self._client.port
 
     @property
-    def local_port(self):
+    def local_port(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_host(self):
+    def local_host(self) -> Optional[str]:
         return self.host
 
     def started_check(self) -> ActionResult:
@@ -200,14 +201,15 @@ class FixClient(Driver):
     def started_check_interval(self) -> PollInterval:
         return (0.5, 2)
 
-    def connect(self):
+    def connect(self) -> None:
         """
         Connect client.
         """
+        assert self._client is not None
         self._client.connect()
         self._host, self._port = self._client.address
 
-    def reconnect(self):
+    def reconnect(self) -> None:
         """
         Starts a stopped FixClient instance reconnecting to the original host
         and port as it was originally started with.
@@ -241,10 +243,11 @@ class FixClient(Driver):
         if self.cfg.logon_at_start:
             self.logon()
 
-    def logon(self):
+    def logon(self) -> None:
         """
         Logon to server.
         """
+        assert self._client is not None
         self._client.sendlogon(custom_tags=self.cfg.custom_logon_tags)
         rcv = self._client.receive(timeout=self.cfg.logon_timeout)
         self.logger.info("Received logon response %s.", rcv)
@@ -252,10 +255,11 @@ class FixClient(Driver):
             self.logger.debug("Unexpected logon response.")
             raise Exception("Unexpected logon response : {0}.".format(rcv))
 
-    def logoff(self):
+    def logoff(self) -> None:
         """
         Logoff from server.
         """
+        assert self._client is not None
         self._client.sendlogoff()
         rcv = self._client.receive(timeout=self.cfg.logoff_timeout)
         self.logger.info("Received logoff response %s.", rcv)
@@ -266,7 +270,7 @@ class FixClient(Driver):
             )
             self.logger.debug("Unexpected logoff response %s", rcv)
 
-    def send(self, msg):
+    def send(self, msg: FixMessage) -> FixMessage:
         """
         Send message.
 
@@ -276,9 +280,10 @@ class FixClient(Driver):
         :return: msg
         :rtype: ``FixMessage``
         """
-        return self._client.send(msg)[1]
+        assert self._client is not None
+        return self._client.send(msg)[1]  # type: ignore[no-any-return]
 
-    def send_tsp(self, msg):
+    def send_tsp(self, msg: FixMessage) -> Tuple[float, FixMessage]:
         """
         Send message.
 
@@ -288,9 +293,12 @@ class FixClient(Driver):
         :return: Timestamp when msg sent (in microseconds from epoch) and msg.
         :rtype: ``tuple`` of ``long`` and ``FixMessage``
         """
-        return self._client.send(msg)
+        assert self._client is not None
+        return self._client.send(msg)  # type: ignore[no-any-return]
 
-    def receive(self, timeout=None):
+    def receive(
+        self, timeout: Optional[Union[int, float]] = None
+    ) -> FixMessage:
         """
         Receive message.
 
@@ -303,6 +311,7 @@ class FixClient(Driver):
         timeout = timeout if timeout is not None else self.cfg.receive_timeout
         timeout_info = TimeoutExceptionInfo()
         try:
+            assert self._client is not None
             received = self._client.receive(timeout=timeout)
         except socket.timeout:
             self.logger.error(
@@ -314,9 +323,9 @@ class FixClient(Driver):
                 )
             )
         self.logger.info("Received msg %s.", received)
-        return received
+        return received  # type: ignore[no-any-return]
 
-    def flush(self, timeout=0):
+    def flush(self, timeout: Union[int, float] = 0) -> None:
         """
         Flush all inbound messages.
 
@@ -331,7 +340,7 @@ class FixClient(Driver):
             except socket.error:
                 break
 
-    def _stop_logic(self):
+    def _stop_logic(self) -> None:
         if self._client:
             if self.cfg.logoff_at_stop:
                 try:
@@ -343,12 +352,12 @@ class FixClient(Driver):
             self._client.close()
             self._client = None
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Stops the FIX client."""
         super(FixClient, self).stopping()
         self._stop_logic()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the FIX client."""
         super(FixClient, self).aborting()
         self._stop_logic()

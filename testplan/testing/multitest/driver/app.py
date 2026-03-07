@@ -10,7 +10,7 @@ import subprocess
 import time
 import uuid
 import warnings
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 try:
     from typing import Literal
@@ -53,7 +53,7 @@ class OrphanedProcessException(Exception):
     driver.
     """
 
-    def __init__(self, driver, procs):
+    def __init__(self, driver: "App", procs: List[psutil.Process]) -> None:
         self.driver = driver
         self.procs = procs
         super().__init__(f"Orphaned processes detected: {procs} for {driver}")
@@ -66,7 +66,7 @@ class AppConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -76,8 +76,9 @@ class AppConfig(DriverConfig):
             ConfigOption("args", default=None): Or(None, list),
             ConfigOption("shell", default=False): bool,
             ConfigOption("env", default=None): Or(None, dict),
-            ConfigOption("binary_strategy", default="link"): lambda s: s
-            in ("copy", "link", "noop"),
+            ConfigOption("binary_strategy", default="link"): lambda s: (
+                s in ("copy", "link", "noop")
+            ),
             ConfigOption("logname", default=None): Or(None, str),
             ConfigOption("app_dir_name", default=None): Or(None, str),
             ConfigOption("working_dir", default=None): Or(None, str),
@@ -139,19 +140,19 @@ class App(Driver):
         self,
         name: str,
         binary: str,
-        pre_args: ArgsType = None,
-        args: ArgsType = None,
+        pre_args: Optional[ArgsType] = None,
+        args: Optional[ArgsType] = None,
         shell: bool = False,
-        env: Dict[str, str] = None,
+        env: Optional[Dict[str, str]] = None,
         binary_strategy: Literal["copy", "link", "noop"] = "link",
-        logname: str = None,
-        app_dir_name: str = None,
-        working_dir: str = None,
-        expected_retcode: int = None,
+        logname: Optional[str] = None,
+        app_dir_name: Optional[str] = None,
+        working_dir: Optional[str] = None,
+        expected_retcode: Optional[int] = None,
         stop_signal: Optional[signal.Signals] = None,
         stop_timeout: float = 5,
         binary_log: bool = False,
-        **options,
+        **options: Any,
     ) -> None:
         options.update(self.filter_locals(locals()))
         # ``sigint_timeout`` is deprecated
@@ -163,19 +164,21 @@ class App(Driver):
                 DeprecationWarning,
             )
         super(App, self).__init__(**options)
-        self.proc = None
-        self.std = None
-        self._binary = None
-        self._binpath: str = None
-        self._etcpath: str = None
-        self._retcode = None
-        self._log_matcher = None
-        self._resolved_bin = None
-        self._env = None
+        self.proc: Optional[subprocess.Popen[Any]] = None
+        self.std: Optional[StdFiles] = None
+        self._binary: Optional[str] = None
+        self._binpath: Optional[str] = None
+        self._etcpath: Optional[str] = None
+        self._retcode: Optional[int] = None
+        self._log_matcher: Optional[LogMatcher] = None
+        self._resolved_bin: Optional[str] = None
+        self._env: Optional[Dict[str, str]] = None
 
-        self._alive_child_procs = []  # for orphaned procs elimination
+        self._alive_child_procs: List[
+            psutil.Process
+        ] = []  # for orphaned procs elimination
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def pid(self) -> Optional[int]:
         """
@@ -203,13 +206,13 @@ class App(Driver):
         )
         return self._alive_child_procs
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def cmd(self) -> str:
+    def cmd(self) -> List[str]:
         """Command that starts the application."""
         args = self.cfg.args or []
         pre_args = self.cfg.pre_args or []
-        cmd = []
+        cmd: List[str] = []
         cmd.extend(pre_args)
         cmd.append(self.binary)
         cmd.extend(args)
@@ -219,7 +222,7 @@ class App(Driver):
         ]
         return cmd
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def env(self) -> Optional[Dict[str, str]]:
         """Environment variables."""
@@ -230,7 +233,7 @@ class App(Driver):
         if isinstance(self.cfg.env, dict):
             ctx = self.context_input(exclude=["env"])
             self._env = {
-                key: expand(val, self.context, str)
+                key: expand(val, self.context, str)  # type: ignore[misc]
                 if is_context(val)
                 # allowing None val for child class use case
                 else (render(val, ctx) if val is not None else None)
@@ -239,13 +242,13 @@ class App(Driver):
 
         return self._env
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def logname(self) -> str:
+    def logname(self) -> Optional[str]:
         """Configured logname."""
-        return self.cfg.logname
+        return self.cfg.logname  # type: ignore[no-any-return]
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def logpath(self) -> str:
         """Path for log regex matching."""
@@ -255,33 +258,35 @@ class App(Driver):
             else self.outpath
         )
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def outpath(self) -> str:
         """Path for stdout file regex matching."""
+        assert self.std is not None
         return self.std.out_path
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def errpath(self) -> str:
         """Path for stderr file regex matching."""
+        assert self.std is not None
         return self.std.err_path
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def app_path(self) -> str:
         """Application directory path."""
         if self.cfg.app_dir_name:
-            return os.path.join(self.runpath, self.cfg.app_dir_name)
-        return self.runpath
+            return os.path.join(self.runpath, self.cfg.app_dir_name)  # type: ignore[arg-type]
+        return self.runpath  # type: ignore[return-value]
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def binpath(self) -> str:
         """'bin' directory under runpath."""
-        return self._binpath
+        return self._binpath  # type: ignore[return-value]
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def binary(self) -> str:
         """The actual binary to execute, might be copied/linked to runpath"""
@@ -313,11 +318,11 @@ class App(Driver):
 
         return self._binary
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def etcpath(self) -> str:
         """'etc' directory under runpath."""
-        return self._etcpath
+        return self._etcpath  # type: ignore[return-value]
 
     @property
     def log_matcher(self) -> LogMatcher:
@@ -341,7 +346,7 @@ class App(Driver):
 
     def _prepare_binary(self) -> str:
         """prepare binary path, override for more sophisticated binary discover"""
-        return self.cfg.binary
+        return self.cfg.binary  # type: ignore[no-any-return]
 
     @property
     def hostname(self) -> str:
@@ -357,6 +362,7 @@ class App(Driver):
         cmd = " ".join(self.cmd) if self.cfg.shell else self.cmd
         cwd = self.cfg.working_dir or self.runpath
         try:
+            assert self.std is not None
             self.logger.info(
                 "%(driver)s driver command: %(cmd)s\n"
                 "\tRunpath: %(runpath)s\n"
@@ -375,8 +381,8 @@ class App(Driver):
                 cmd,
                 shell=self.cfg.shell,
                 stdin=subprocess.PIPE,
-                stdout=self.std.out,
-                stderr=self.std.err,
+                stdout=self.std.out,  # type: ignore[arg-type]
+                stderr=self.std.err,  # type: ignore[arg-type]
                 cwd=cwd,
                 env=self.env,
             )
@@ -396,6 +402,7 @@ class App(Driver):
         finished execution, otherwise tests if user-specified pattern exists in
         driver logs.
         """
+        assert self.proc is not None
         proc_result = self.proc.poll()
         extract_values_result = self.extract_values()
         if proc_result is not None and not extract_values_result:
@@ -406,7 +413,7 @@ class App(Driver):
 
     @property
     def stop_timeout(self) -> float:
-        return self.cfg.stop_timeout
+        return self.cfg.stop_timeout  # type: ignore[no-any-return]
 
     def stopping(self) -> None:
         """Stops the application binary process."""
@@ -435,8 +442,8 @@ class App(Driver):
 
         return True
 
-    def stopped_check_with_watch(self, watch) -> ActionResult:
-        def log_fn(exc):
+    def stopped_check_with_watch(self, watch: Any) -> ActionResult:
+        def log_fn(exc: BaseException) -> None:
             self.logger.warning("While killing driver %s: %s", self, exc)
 
         if time.time() >= watch.start_time + watch.total_wait:
@@ -446,6 +453,7 @@ class App(Driver):
                 self,
                 self.stop_timeout,
             )
+            assert self.proc is not None
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
@@ -455,6 +463,7 @@ class App(Driver):
                 return self.stopped_check()
             except OrphanedProcessException as exc:
                 self.logger.warning(exc)
+                assert self.proc is not None
                 kill_proc_and_child_procs(
                     self.proc, self.alive_child_procs, log_fn
                 )
@@ -465,7 +474,7 @@ class App(Driver):
     def _wait_stopped(self, timeout: Optional[float] = None) -> None:
         # for App driver and its inheritance, always force stop
 
-        def log_fn(exc):
+        def log_fn(exc: BaseException) -> None:
             self.logger.warning("While killing driver %s: %s", self, exc)
 
         try:
@@ -476,12 +485,14 @@ class App(Driver):
                 self,
                 self.stop_timeout,
             )
+            assert self.proc is not None
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
             self._mark_stopped()
         except OrphanedProcessException as exc:
             self.logger.warning(exc)
+            assert self.proc is not None
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
@@ -489,7 +500,7 @@ class App(Driver):
 
         # other exceptions gets propagated
 
-    def post_stop(self):
+    def post_stop(self) -> None:
         rc = self.retcode
         self.proc = None
         if self.std:
@@ -517,6 +528,7 @@ class App(Driver):
         """
         super(App, self).make_runpath_dirs()
 
+        assert self.runpath is not None
         bin_dir = os.path.join(self.runpath, "bin")
         etc_dir = os.path.join(self.runpath, "etc")
         for directory in (bin_dir, etc_dir, self.app_path):
@@ -539,7 +551,7 @@ class App(Driver):
         """
         self.stop()
         if self.async_start:
-            self.wait(self.status.STOPPED)
+            self.wait(self.status.STOPPED)  # type: ignore[attr-defined]
 
         if clean:
             self._move_app_path()
@@ -552,7 +564,7 @@ class App(Driver):
 
         self.start()
         if self.async_start:
-            self.wait(self.status.STARTED)
+            self.wait(self.status.STARTED)  # type: ignore[attr-defined]
 
         self.cfg._options["path_cleanup"] = path_cleanup
 
@@ -583,7 +595,9 @@ class App(Driver):
             self.logger.info(
                 "Killing process id %s of %s", self.proc.pid, self
             )
-            kill_process(self.proc, self.stop_timeout, self.cfg.stop_signal)
+            kill_process(
+                self.proc, int(self.stop_timeout), self.cfg.stop_signal
+            )
             self.proc = None
         if self.std:
             self.std.close()

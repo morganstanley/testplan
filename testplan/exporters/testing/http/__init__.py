@@ -29,7 +29,7 @@ class HTTPExporterConfig(ExporterConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("http_url"): is_valid_url,
             ConfigOption("timeout", default=60): Or(
@@ -52,12 +52,12 @@ class HTTPExporter(Exporter):
 
     CONFIG = HTTPExporterConfig
 
-    def __init__(self, name: str = "HTTP exporter", **options):
+    def __init__(self, name: str = "HTTP exporter", **options: Any) -> None:
         super(HTTPExporter, self).__init__(name=name, **options)
 
     def _upload_report(
         self, url: str, data: Any
-    ) -> Tuple[Union[None, requests.Request], str]:
+    ) -> Tuple[Optional[requests.Response], str]:
         """
         Upload Json data, then return the response from server with an
         error message (if any).

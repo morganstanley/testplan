@@ -6,7 +6,15 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Dict, Generator, Mapping, Optional, TextIO, Tuple
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    MutableMapping,
+    Optional,
+    TextIO,
+    Tuple,
+)
 
 from testplan.common.exporters import (
     ExportContext,
@@ -29,7 +37,9 @@ class CoveredTestsExporter(Exporter):
 
     CONFIG = ExporterConfig
 
-    def __init__(self, name: str = "Covered Tests Exporter", **options):
+    def __init__(
+        self, name: str = "Covered Tests Exporter", **options: Any
+    ) -> None:
         super(CoveredTestsExporter, self).__init__(name=name, **options)
 
     def export(
@@ -50,7 +60,7 @@ class CoveredTestsExporter(Exporter):
         )
         if len(source):
             # here we use an OrderedDict as an ordered set
-            results = OrderedDict()
+            results: OrderedDict[Tuple[str, ...], None] = OrderedDict()
             for entry in source.entries:
                 if (
                     isinstance(entry, TestGroupReport)
@@ -74,8 +84,8 @@ class CoveredTestsExporter(Exporter):
     def _append_mt_coverage(
         self,
         report: TestGroupReport,
-        result: Mapping[Tuple[str, ...], None],
-    ):
+        result: MutableMapping[Tuple[str, ...], None],
+    ) -> None:
         """
         Add test entity with covered_lines set to the result ordered set.
 

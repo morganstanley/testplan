@@ -10,6 +10,8 @@ import traceback
 import threading
 
 from typing import (
+    Any,
+    Dict,
     Optional,
     Union,
     Type,
@@ -18,7 +20,7 @@ from typing import (
     TYPE_CHECKING,
     Literal,
 )
-from types import ModuleType
+from types import FrameType, ModuleType
 from schema import And, Or
 
 from testplan import defaults
@@ -49,7 +51,7 @@ if TYPE_CHECKING:
     from testplan.runnable.interactive.base import TestRunnerIHandler
 
 
-def pdb_drop_handler(sig, frame):
+def pdb_drop_handler(sig: int, frame: Optional[FrameType]) -> None:
     """
     Drop into pdb
     """
@@ -65,7 +67,7 @@ class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """Additional and updated config options for Testplan class."""
         return {
             ConfigOption("parser", default=TestplanParser): And(
@@ -93,7 +95,7 @@ class TestplanResult(TestRunnerResult):
         """System exit code based on successful run."""
         return 0 if getattr(self, "run", False) is True and self.success else 1
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """
         To be used by ``sys.exit(not main())`` pattern.
         """
@@ -217,7 +219,7 @@ class Testplan(entity.RunnableManager):
         verbose: bool = False,
         debug: bool = False,
         timeout: int = defaults.TESTPLAN_TIMEOUT,
-        interactive_handler: Type["TestRunnerIHandler"] = None,
+        interactive_handler: Optional[Type["TestRunnerIHandler"]] = None,
         extra_deps: Optional[List[Union[str, ModuleType]]] = None,
         label: Optional[str] = None,
         driver_info: bool = False,
@@ -232,8 +234,8 @@ class Testplan(entity.RunnableManager):
         otel_traces: TraceLevel = defaults.TRACE_LEVEL,
         otel_traceparent: Optional[str] = None,
         otel_logs: bool = False,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         # Set mutable defaults.
         if abort_signals is None:
             abort_signals = entity.DEFAULT_RUNNABLE_ABORT_SIGNALS[:]
@@ -250,7 +252,7 @@ class Testplan(entity.RunnableManager):
 
         # Define instance attributes
         self._parsed_args = argparse.Namespace()
-        self._processed_args = {}
+        self._processed_args: Dict[str, Any] = {}
         self._default_options = {}
 
         super(Testplan, self).__init__(
@@ -317,23 +319,23 @@ class Testplan(entity.RunnableManager):
                 otel_logging._setup()
 
     @property
-    def parser(self):
+    def parser(self) -> TestplanParser:
         """Returns a new command line parser."""
-        return self._cfg.parser(
+        return self._cfg.parser(  # type: ignore[no-any-return]
             name=self._cfg.name, default_options=self._default_options
         )
 
     @property
-    def args(self):
+    def args(self) -> argparse.Namespace:
         """Parsed arguments."""
         return self._parsed_args
 
     @property
-    def processed_args(self):
+    def processed_args(self) -> Dict[str, Any]:
         """Processed parsed arguments."""
         return self._processed_args
 
-    def enrich_options(self, options):
+    def enrich_options(self, options: Dict[str, Any]) -> Dict[str, Any]:
         """
         Enrich the options using parsed command line arguments.
         The command line arguments will override any explicit programmatic
@@ -346,7 +348,9 @@ class Testplan(entity.RunnableManager):
             options[key] = self._processed_args[key]
         return options
 
-    def _print_current_status(self, sig, frame):
+    def _print_current_status(
+        self, sig: int, frame: Optional[FrameType]
+    ) -> None:
         """
         Print stack frames of all threads and status information of
         resources.
@@ -380,7 +384,7 @@ class Testplan(entity.RunnableManager):
         msg = os.linesep.join(msgs)
         print(msg)
 
-    def run(self):
+    def run(self) -> TestplanResult:
         """
         Runs the tests added and returns the result object.
         Also handles usr1 and usr2 signals.
@@ -410,12 +414,13 @@ class Testplan(entity.RunnableManager):
                 testplan_result.__dict__ = result.__dict__
                 if not testplan_result.success:
                     tracing.set_span_as_failed(tp_span)
+                assert testplan_result.report is not None
                 for info in testplan_result.report.information:
                     tracing.set_span_attrs(tp_span, **{info[0]: info[1]})
                 if self.cfg.label:
                     tracing.set_span_attrs(tp_span, label=self.cfg.label)
                 return testplan_result
-        return result
+        return result  # type: ignore[return-value]
 
     # NOTE: if adding, deleting or modifying a wrapper parameter here you
     # MUST also update the class docstring and __init__() constructor above
@@ -425,56 +430,60 @@ class Testplan(entity.RunnableManager):
     @classmethod
     def main_wrapper(
         cls,
-        name,
-        description=None,
-        parse_cmdline=True,
-        parser=TestplanParser,
-        interactive_port=None,
-        abort_signals=None,
-        logger_level=logger.USER_INFO,
-        file_log_level=logger.DEBUG,
-        runpath=path.default_runpath,
-        path_cleanup=True,
-        all_tasks_local=False,
-        shuffle=None,
-        shuffle_seed=None,
-        exporters=None,
-        stdout_style=defaults.STDOUT_STYLE,
-        report_dir=defaults.REPORT_DIR,
-        xml_dir=None,
-        json_path=None,
-        http_url=None,
-        pdf_path=None,
-        pdf_style=defaults.PDF_STYLE,
-        dump_failed_tests=None,
-        failed_tests_level=defaults.FAILED_TESTS_LEVEL,
-        report_tags=None,
-        report_tags_all=None,
-        resource_monitor=False,
-        merge_scheduled_parts=False,
-        browse=False,
-        ui_port=None,
-        web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
-        test_filter=filtering.Filter(),
-        test_sorter=ordering.NoopSorter(),
-        test_lister=None,
-        test_lister_output=None,
-        verbose=False,
-        debug=False,
-        timeout=defaults.TESTPLAN_TIMEOUT,
-        interactive_handler=None,
-        extra_deps=None,
-        label=None,
-        driver_info=False,
-        collect_code_context=False,
-        auto_part_runtime_limit=defaults.AUTO_PART_RUNTIME_MAX,
-        plan_runtime_target=defaults.PLAN_RUNTIME_TARGET,
-        skip_strategy=None,
-        otel_traces=defaults.TRACE_LEVEL,
-        otel_traceparent=None,
-        otel_logs=False,
-        **options,
-    ):
+        name: str,
+        description: Optional[str] = None,
+        parse_cmdline: bool = True,
+        parser: Type[TestplanParser] = TestplanParser,
+        interactive_port: Optional[int] = None,
+        abort_signals: Optional[List[signal.Signals]] = None,
+        logger_level: int = logger.USER_INFO,
+        file_log_level: int = logger.DEBUG,
+        runpath: Union[str, Callable[..., str]] = path.default_runpath,
+        path_cleanup: bool = True,
+        all_tasks_local: bool = False,
+        shuffle: Optional[List[str]] = None,
+        shuffle_seed: Optional[float] = None,
+        exporters: Optional[List[Any]] = None,
+        stdout_style: Style = defaults.STDOUT_STYLE,
+        report_dir: str = defaults.REPORT_DIR,
+        xml_dir: Optional[str] = None,
+        json_path: Optional[str] = None,
+        http_url: Optional[str] = None,
+        pdf_path: Optional[str] = None,
+        pdf_style: Style = defaults.PDF_STYLE,
+        dump_failed_tests: Optional[str] = None,
+        failed_tests_level: FailedTestLevel = defaults.FAILED_TESTS_LEVEL,
+        report_tags: Optional[List[Any]] = None,
+        report_tags_all: Optional[List[Any]] = None,
+        resource_monitor: bool = False,
+        merge_scheduled_parts: bool = False,
+        browse: bool = False,
+        ui_port: Optional[int] = None,
+        web_server_startup_timeout: int = defaults.WEB_SERVER_TIMEOUT,
+        test_filter: BaseFilter = filtering.Filter(),
+        test_sorter: BaseSorter = ordering.NoopSorter(),
+        test_lister: Optional[MetadataBasedLister] = None,
+        test_lister_output: Optional[os.PathLike[str]] = None,
+        verbose: bool = False,
+        debug: bool = False,
+        timeout: int = defaults.TESTPLAN_TIMEOUT,
+        interactive_handler: Optional[Type["TestRunnerIHandler"]] = None,
+        extra_deps: Optional[List[Union[str, ModuleType]]] = None,
+        label: Optional[str] = None,
+        driver_info: bool = False,
+        collect_code_context: bool = False,
+        auto_part_runtime_limit: Union[
+            int, Literal["auto"]
+        ] = defaults.AUTO_PART_RUNTIME_MAX,
+        plan_runtime_target: Union[
+            int, Literal["auto"]
+        ] = defaults.PLAN_RUNTIME_TARGET,
+        skip_strategy: Optional[str] = None,
+        otel_traces: TraceLevel = defaults.TRACE_LEVEL,
+        otel_traceparent: Optional[str] = None,
+        otel_logs: bool = False,
+        **options: Any,
+    ) -> Callable[..., Callable[..., TestplanResult]]:
         """
         Decorator that will be used for wrapping `main` methods in test scripts.
 
@@ -482,12 +491,14 @@ class Testplan(entity.RunnableManager):
         :py:class:`~testplan.base.Testplan` entity.
         """
 
-        def test_plan_inner(definition):
+        def test_plan_inner(
+            definition: Callable[..., Any],
+        ) -> Callable[..., TestplanResult]:
             """
             This is being passed the user-defined testplan entry point.
             """
 
-            def test_plan_inner_inner():
+            def test_plan_inner_inner() -> TestplanResult:
                 """
                 This is the callable returned in the end, it executes the plan
                 and the associated reporting
@@ -561,7 +572,9 @@ class Testplan(entity.RunnableManager):
         return test_plan_inner
 
     @classmethod
-    def _prepare_plan(cls, definition, plan):
+    def _prepare_plan(
+        cls, definition: Callable[..., Any], plan: "Testplan"
+    ) -> Any:
         if arity(definition) == 2:
             returned = definition(plan, plan.parser)
         else:
@@ -569,7 +582,7 @@ class Testplan(entity.RunnableManager):
         return returned
 
     @classmethod
-    def _do_listing(cls, plan):
+    def _do_listing(cls, plan: "Testplan") -> None:
         lister: MetadataBasedLister = plan.cfg.test_lister
         if lister is not None and lister.metadata_based:
             output = lister.get_output(
@@ -589,7 +602,7 @@ class Testplan(entity.RunnableManager):
 test_plan = Testplan.main_wrapper
 
 
-def default_runpath_mock(entity):
+def default_runpath_mock(entity: entity.Entity) -> str:
     """To avoid runpath collision in testing"""
     prefix = "{}_".format(path.slugify(entity.uid()))
     if os.environ.get("TEST_ROOT_RUNPATH"):
@@ -607,7 +620,7 @@ class TestplanMock(Testplan):
     necessary, e.g. you need to override default parameters.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         # mock testplan could run in threads
         kwargs.setdefault("abort_signals", [])
         kwargs.setdefault("parse_cmdline", False)
@@ -615,4 +628,4 @@ class TestplanMock(Testplan):
         kwargs.setdefault("runpath", default_runpath_mock)
 
         super(TestplanMock, self).__init__(*args, **kwargs)
-        self.runnable.disable_reset_report_uid()
+        self.runnable.disable_reset_report_uid()  # type: ignore[attr-defined]

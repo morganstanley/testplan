@@ -1,11 +1,12 @@
 """HTTPServer Driver."""
 
+import logging
 import time
 import queue
 import json
 import http.server as http_server
 from threading import Thread
-from typing import Optional
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 from schema import Use
 
@@ -77,7 +78,7 @@ class ReceivedRequest:
         :return Content type header or None
         """
         if _CONTENT_TYPE_KEY in self.headers:
-            return self.headers[_CONTENT_TYPE_KEY]
+            return str(self.headers[_CONTENT_TYPE_KEY])
         else:
             return None
 
@@ -92,7 +93,7 @@ class ReceivedRequest:
             self.raw_data is not None
             and self.content_type == "application/json"
         ):
-            return json.loads(self.raw_data)
+            return dict(json.loads(self.raw_data))
         else:
             return None
 
@@ -104,9 +105,9 @@ class HTTPResponse:
 
     def __init__(
         self,
-        status_code: int = None,
-        headers: dict = None,
-        content: list = None,
+        status_code: Optional[int] = None,
+        headers: Optional[dict] = None,
+        content: Optional[List[str]] = None,
     ) -> None:
         """
         Constructs a HTTPResponse
@@ -127,7 +128,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
     """
 
     def _send_header(
-        self, status_code: int = 200, headers: dict = None
+        self, status_code: int = 200, headers: Optional[dict] = None
     ) -> None:
         """
         Send a header response.
@@ -142,7 +143,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
             self.send_header(keyword, value)
         self.end_headers()
 
-    def _send_content(self, content):
+    def _send_content(self, content: List[str]) -> None:
         """
         Send the content response.
 
@@ -151,10 +152,10 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         """
         for line in content:
             try:
-                line = line.encode("utf-8")
+                encoded: Union[str, bytes] = line.encode("utf-8")
             except AttributeError:
-                pass
-            self.wfile.write(line)
+                encoded = line
+            self.wfile.write(encoded)  # type: ignore[arg-type]
 
     def _parse_request(self) -> None:
         """
@@ -162,7 +163,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         from the HTTPServer's response queue. If there is no response send an
         error message back.
         """
-        raw_content = None
+        raw_content: Optional[bytes] = None
 
         if _CONTENT_LENGTH_KEY in self.headers:
             raw_content = self.rfile.read(
@@ -171,10 +172,10 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
 
         response = self.get_response(
             ReceivedRequest(
-                headers=self.headers,
+                headers=dict(self.headers),
                 path_url=self.path,
-                raw_data=raw_content,
-                raw_requestline=self.raw_requestline,
+                raw_data=raw_content,  # type: ignore[arg-type]
+                raw_requestline=self.raw_requestline,  # type: ignore[attr-defined]
                 requestline=self.requestline,
                 method=self.command,
                 request_version=self.request_version,
@@ -188,15 +189,15 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
             status_code=response.status_code, headers=response.headers
         )
         self._send_content(response.content)
-        self.server.log_callback(
+        self.server.log_callback(  # type: ignore[attr-defined]
             "Sent response with:\n  status code {}\n  headers {}".format(
                 response.status_code, response.headers
             )
         )
 
-    def log_message(self, format, *args):
+    def log_message(self, format: str, *args: Any) -> None:
         """Log messages from the BaseHTTPRequestHandler class."""
-        self.server.log_callback("BASE CLASS: {}".format(format % args))
+        self.server.log_callback("BASE CLASS: {}".format(format % args))  # type: ignore[attr-defined]
 
     def get_response(self, request: ReceivedRequest) -> HTTPResponse:
         """
@@ -205,59 +206,59 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         :param request: The request path.
         :return: Http response.
         """
-        self.server.requests.put(request)
+        self.server.requests.put(request)  # type: ignore[attr-defined]
 
-        timeout = time.time() + self.server.timeout
+        timeout = time.time() + self.server.timeout  # type: ignore[operator]
         while time.time() < timeout:
             try:
-                response = self.server.responses.get(False)
+                response: HTTPResponse = self.server.responses.get(False)  # type: ignore[attr-defined]
             except queue.Empty:
                 response = HTTPResponse(
                     status_code=500, content=["No response in driver queue."]
                 )
-                self.server.log_callback("No response found in queue.")
+                self.server.log_callback("No response found in queue.")  # type: ignore[attr-defined]
             else:
-                self.server.log_callback("Response popped from queue.")
+                self.server.log_callback("Response popped from queue.")  # type: ignore[attr-defined]
                 break
-            time.sleep(self.server.interval)
+            time.sleep(self.server.interval)  # type: ignore[attr-defined]
         if response.status_code == 500:
-            self.server.log_callback("Responding with 500 error.")
+            self.server.log_callback("Responding with 500 error.")  # type: ignore[attr-defined]
         return response
 
-    def do_HEAD(self):
+    def do_HEAD(self) -> None:
         """Handles a HEAD request."""
         self._send_header()
-        self.server.log_callback("Sending response to HEAD request.")
+        self.server.log_callback("Sending response to HEAD request.")  # type: ignore[attr-defined]
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         """Handles a GET request."""
         self._parse_request()
-        self.server.log_callback("Sending response to GET request.")
+        self.server.log_callback("Sending response to GET request.")  # type: ignore[attr-defined]
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         """Handles a POST request."""
         self._parse_request()
-        self.server.log_callback("Sending response to POST request.")
+        self.server.log_callback("Sending response to POST request.")  # type: ignore[attr-defined]
 
-    def do_PUT(self):
+    def do_PUT(self) -> None:
         """Handles a PUT request."""
         self._parse_request()
-        self.server.log_callback("Sending response to PUT request.")
+        self.server.log_callback("Sending response to PUT request.")  # type: ignore[attr-defined]
 
-    def do_DELETE(self):
+    def do_DELETE(self) -> None:
         """Handles a DELETE request."""
         self._parse_request()
-        self.server.log_callback("Sending response to DELETE request.")
+        self.server.log_callback("Sending response to DELETE request.")  # type: ignore[attr-defined]
 
-    def do_PATCH(self):
+    def do_PATCH(self) -> None:
         """Handles a PATCH request."""
         self._parse_request()
-        self.server.log_callback("Sending response to PATCH request.")
+        self.server.log_callback("Sending response to PATCH request.")  # type: ignore[attr-defined]
 
-    def do_OPTIONS(self):
+    def do_OPTIONS(self) -> None:
         """Handles a OPTIONS request."""
         self._parse_request()
-        self.server.log_callback("Sending response to OPTIONS request.")
+        self.server.log_callback("Sending response to OPTIONS request.")  # type: ignore[attr-defined]
 
 
 class HTTPServerConfig(DriverConfig):
@@ -268,7 +269,7 @@ class HTTPServerConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -317,53 +318,57 @@ class HTTPServer(Driver):
 
     def __init__(
         self,
-        name,
+        name: str,
         host: str = "localhost",
         port: int = 0,
-        request_handler=HTTPRequestHandler,
-        handler_attributes=None,
-        timeout=5,
-        interval=0.01,
-        **options,
-    ):
+        request_handler: Type[
+            http_server.BaseHTTPRequestHandler
+        ] = HTTPRequestHandler,
+        handler_attributes: Optional[dict] = None,
+        timeout: int = 5,
+        interval: float = 0.01,
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(HTTPServer, self).__init__(**options)
-        self._host: str = None
-        self._port: int = None
-        self.request_handler = None
-        self.handler_attributes = None
-        self.timeout = None
-        self.interval = None
-        self.requests = None
-        self.responses = None
-        self._server_thread = None
+        self._host: Optional[str] = None
+        self._port: Optional[int] = None
+        self.request_handler: Optional[
+            Type[http_server.BaseHTTPRequestHandler]
+        ] = None
+        self.handler_attributes: Optional[dict] = None
+        self.timeout: Optional[int] = None
+        self.interval: Optional[float] = None
+        self.requests: Optional[queue.Queue[ReceivedRequest]] = None
+        self.responses: Optional[queue.Queue[HTTPResponse]] = None
+        self._server_thread: Optional[_HTTPServerThread] = None
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         """Host name."""
         return self._host
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def port(self):
+    def port(self) -> Optional[int]:
         """Port number assigned."""
         return self._port
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_port(self):
+    def local_port(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_host(self):
+    def local_host(self) -> Optional[str]:
         return self.host
 
-    def queue_response(self, response):
+    def queue_response(self, response: HTTPResponse) -> None:
         """
         Put an HTTPResponse on to the end of the response queue.
 
@@ -372,10 +377,11 @@ class HTTPServer(Driver):
         """
         if not isinstance(response, HTTPResponse):
             raise TypeError("Response must be of type HTTPResponse")
+        assert self.responses is not None
         self.responses.put(response)
         self.logger.debug("Added response to HTTPServer response queue.")
 
-    def respond(self, response):
+    def respond(self, response: HTTPResponse) -> None:
         """
         Put an HTTPResponse on to the end of the response queue.
 
@@ -391,6 +397,7 @@ class HTTPServer(Driver):
 
         :return: A request from the queue or ``None``
         """
+        assert self.requests is not None
         try:
             return self.requests.get(False).path_url
         except queue.Empty:
@@ -403,12 +410,15 @@ class HTTPServer(Driver):
 
         :return: A request from the queue or ``None``
         """
+        assert self.requests is not None
         try:
             return self.requests.get(False)
         except queue.Empty:
             return None
 
-    def receive(self, timeout: int = None) -> Optional[ReceivedRequest]:
+    def receive(
+        self, timeout: Optional[int] = None
+    ) -> Optional[ReceivedRequest]:
         """
         Wait to receive a request.
 
@@ -416,11 +426,15 @@ class HTTPServer(Driver):
           overrides timeout from init.
         :return: A request or ``None``
         """
-        timeout = timeout if timeout is not None else self.timeout
-        timeout += time.time()
+        assert self.requests is not None
+        assert self.interval is not None
+        effective_timeout: float = (
+            timeout if timeout is not None else (self.timeout or 5)
+        )
+        deadline = effective_timeout + time.time()
         request = None
 
-        while time.time() < timeout:
+        while time.time() < deadline:
             try:
                 request = self.requests.get(False)
             except queue.Empty:
@@ -434,7 +448,7 @@ class HTTPServer(Driver):
 
         return request
 
-    def starting(self):
+    def starting(self) -> None:
         """Start the HTTPServer."""
         super(HTTPServer, self).starting()
         self.request_handler = self.cfg.request_handler
@@ -459,32 +473,34 @@ class HTTPServer(Driver):
 
         while not hasattr(self._server_thread.server, "server_port"):
             time.sleep(0.1)
-        self._host, self._port = self._server_thread.server.server_address
+        assert self._server_thread.server is not None
+        self._host, self._port = self._server_thread.server.server_address  # type: ignore[misc, assignment]
         self.logger.info(
             "Started HTTPServer listening on http://%s:%s",
             self.host,
             self.port,
         )
 
-    def _stop(self):
+    def _stop(self) -> None:
         """Stop the HTTPServer."""
         if self._server_thread:
             self._server_thread.stop()
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Stop the HTTPServer."""
         super(HTTPServer, self).stopping()
         self._stop()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the server."""
         super(HTTPServer, self).aborting()
         self._stop()
 
     def flush_request_queue(self) -> None:
         """Flush the received messages queue."""
-        timeout = time.time() + (5 * self.timeout)
-        while not self.requests.empty() and time.time() < timeout:
+        assert self.requests is not None
+        deadline = time.time() + (5 * (self.timeout or 5))
+        while not self.requests.empty() and time.time() < deadline:
             try:
                 self.requests.get(block=False)
             except queue.Empty:
@@ -521,16 +537,18 @@ class _HTTPServerThread(Thread):
 
     def __init__(
         self,
-        host,
-        port,
-        requests_queue,
-        responses_queue,
-        handler_attributes,
-        request_handler=None,
-        timeout=5,
-        interval=0.01,
-        logger=None,
-    ):
+        host: str,
+        port: int,
+        requests_queue: queue.Queue[ReceivedRequest],
+        responses_queue: queue.Queue[HTTPResponse],
+        handler_attributes: dict,
+        request_handler: Optional[
+            Type[http_server.BaseHTTPRequestHandler]
+        ] = None,
+        timeout: int = 5,
+        interval: float = 0.01,
+        logger: Optional[logging.Logger] = None,
+    ) -> None:
         super(_HTTPServerThread, self).__init__()
         self.host = host
         self.port = port
@@ -541,26 +559,26 @@ class _HTTPServerThread(Thread):
         self.timeout = timeout
         self.interval = interval
         self.logger = logger
-        self.server = None
+        self.server: Optional[http_server.HTTPServer] = None
 
-    def run(self):
+    def run(self) -> None:
         """Start the HTTP server thread."""
         self.server = http_server.HTTPServer(
             server_address=(self.host, self.port),
             RequestHandlerClass=self.request_handler,
         )
-        self.server.requests = self.requests_queue
-        self.server.responses = self.responses_queue
-        self.server.handler_attributes = self.handler_attributes
+        self.server.requests = self.requests_queue  # type: ignore[attr-defined]
+        self.server.responses = self.responses_queue  # type: ignore[attr-defined]
+        self.server.handler_attributes = self.handler_attributes  # type: ignore[attr-defined]
         self.server.timeout = self.timeout
-        self.server.interval = self.interval
-        nothing = lambda msg: None
-        self.server.log_callback = (
+        self.server.interval = self.interval  # type: ignore[attr-defined]
+        nothing: Callable[[str], None] = lambda msg: None
+        self.server.log_callback = (  # type: ignore[attr-defined]
             self.logger.debug if self.logger else nothing
         )
         self.server.serve_forever()
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the HTTP server thread."""
         if self.server is not None:
             self.server.shutdown()
