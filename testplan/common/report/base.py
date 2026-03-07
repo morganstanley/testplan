@@ -15,7 +15,7 @@ import collections
 from collections import Counter
 from enum import Enum, auto
 from functools import total_ordering, reduce
-from typing import Dict, List, Optional, Callable
+from typing import Any, Dict, Iterator, List, Optional, Callable, Tuple, Type, Union
 from typing_extensions import Self
 
 from testplan.common.utils import strings, timing
@@ -36,19 +36,20 @@ class ExceptionLoggerBase:
     A context manager used for suppressing & logging an exception.
     """
 
-    def __init__(self, *exception_classes, **kwargs):
-        self.report = kwargs["report"]
-        self.exception_classes = exception_classes or (Exception,)
+    def __init__(self, *exception_classes: Type[BaseException], **kwargs: Any) -> None:
+        self.report: "Report" = kwargs["report"]
+        self.exception_classes: Tuple[Type[BaseException], ...] = exception_classes or (Exception,)
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         pass
 
-    def __exit__(self, exc_type, exc_value, _):
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], _: Any) -> Optional[bool]:
         if exc_type is not None and issubclass(
             exc_type, self.exception_classes
         ):
             self.report.logger.exception(exc_value)
             return True
+        return None
 
 
 class ExceptionLogger(ExceptionLoggerBase):
@@ -58,11 +59,11 @@ class ExceptionLogger(ExceptionLoggerBase):
     exception is raised (unless kwargs['fail'] is `False`).
     """
 
-    def __init__(self, *exception_classes, **kwargs):
-        self.fail = kwargs.get("fail", True)
+    def __init__(self, *exception_classes: Type[BaseException], **kwargs: Any) -> None:
+        self.fail: bool = kwargs.get("fail", True)
         super(ExceptionLogger, self).__init__(*exception_classes, **kwargs)
 
-    def __exit__(self, exc_type, exc_value, tb):
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], tb: Any) -> Optional[bool]:
         if exc_type is not None:
             if exc_type is SkipTestcaseException:
                 self.report.logger.critical(
@@ -82,6 +83,7 @@ class ExceptionLogger(ExceptionLoggerBase):
                 if self.fail:
                     self.report.status_override = Status.ERROR
                 return True
+        return None
 
 
 @total_ordering
@@ -116,11 +118,11 @@ class RuntimeStatus(Enum):
         return min(stats, key=lambda x: x.value)
 
     def __lt__(self, other: Self) -> bool:
-        return self.value < other.value
+        return bool(self.value < other.value)
 
     precede = __lt__
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self != self.NONE
 
     def to_json_compatible(self) -> Optional[str]:
@@ -248,7 +250,7 @@ class ReportCategories:
     SYNTHESIZED = "synthesized"
 
     @classmethod
-    def is_test_level(cls, cat):
+    def is_test_level(cls, cat: str) -> bool:
         return cat in (
             cls.MULTITEST,
             cls.TASK_RERUN,
@@ -292,7 +294,7 @@ class Report:
         self.status_override = status_override or Status.NONE
         self.status_reason = status_reason
 
-        self.logs = []
+        self.logs: List[Dict[str, Any]] = []
         self.logger = create_logging_adapter(report=self)
 
         # `parent_uids` is a list of the UIDs of all parents of this entry in
@@ -313,12 +315,12 @@ class Report:
 
         self.timer = timing.Timer()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '{kls}(name="{name}", uid="{uid}")'.format(
             kls=self.__class__.__name__, name=self.name, uid=self.uid
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{kls}(name="{name}", uid="{uid}", entries={entries})'.format(
             kls=self.__class__.__name__,
             name=self.name,
@@ -326,33 +328,33 @@ class Report:
             entries=repr(self.entries),
         )
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         return iter(self.entries)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.entries)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int) -> Any:
         return self.entries[key]
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict[str, Any]:
         # Omitting logger as it is not compatible with deep copy.
         return {k: v for k, v in self.__dict__.items() if k != "logger"}
 
-    def _get_comparison_attrs(self):
+    def _get_comparison_attrs(self) -> List[str]:
         return ["name", "description", "uid", "entries", "logs"]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         for attr in self._get_comparison_attrs():
             if getattr(self, attr) != getattr(other, attr):
                 return False
         return True
 
-    def __setstate__(self, data):
+    def __setstate__(self, data: Dict[str, Any]) -> None:
         data["logger"] = create_logging_adapter(report=self)
         self.__dict__.update(data)
 
-    def logged_exceptions(self, *exception_classes, **kwargs):
+    def logged_exceptions(self, *exception_classes: Type[BaseException], **kwargs: Any) -> ExceptionLoggerBase:
         """
         Wrapper around `ExceptionRecorder`, passing `report` arg implicitly.
 
@@ -366,7 +368,7 @@ class Report:
         kwargs["report"] = self
         return self.exception_logger(*exception_classes, **kwargs)
 
-    def _check_report(self, report):
+    def _check_report(self, report: "Report") -> None:
         """
         Utility method for checking `report` `type` and `definition_name`.
         """
@@ -389,7 +391,7 @@ class Report:
                 )
             )
 
-    def merge(self, report, strict=True):  # pylint: disable=unused-argument
+    def merge(self, report: "Report", strict: bool = True) -> None:  # pylint: disable=unused-argument
         """
         Child classes can override this, just make sure `merge`
         operation is idempotent, so that merging the same report onto
@@ -404,15 +406,15 @@ class Report:
 
         raise NotImplementedError
 
-    def append(self, item):
+    def append(self, item: Any) -> None:
         """Append ``item`` to ``self.entries``, no restrictions."""
         self.entries.append(item)
 
-    def extend(self, items):
+    def extend(self, items: List[Any]) -> None:
         """Extend ``self.entries`` with ``items``, no restrictions."""
         self.entries.extend(items)
 
-    def filter(self, *functions, **kwargs):
+    def filter(self, *functions: Callable[..., bool], **kwargs: Any) -> "Report":
         """
         Filtering report's entries in place using the given functions.
         If any of the functions return ``True``
@@ -429,14 +431,14 @@ class Report:
 
         return report_obj
 
-    def reset_uid(self, uid=None):
+    def reset_uid(self, uid: Optional[str] = None) -> None:
         """
         Reset uid of the report, it can be useful when need to generate
         a global unique id instead of the current one.
         """
         self.uid = uid or strings.uuid4()
 
-    def flattened_entries(self, depth):
+    def flattened_entries(self, depth: int) -> List[Tuple[int, Any]]:
         """
         Utility function that is used by `TestGroupReport.flatten`.
 
@@ -485,7 +487,7 @@ class Report:
         return self._status
 
     @status.setter
-    def status(self, new_status: Status):
+    def status(self, new_status: Status) -> None:
         self._status = new_status
 
     @property
@@ -497,12 +499,12 @@ class Report:
         return self._runtime_status
 
     @runtime_status.setter
-    def runtime_status(self, new_status: RuntimeStatus):
+    def runtime_status(self, new_status: RuntimeStatus) -> None:
         """Set the runtime status."""
         self._runtime_status = new_status
 
     @property
-    def hash(self):
+    def hash(self) -> int:
         """Return a hash of all entries in this report."""
         return hash((self.uid, tuple(id(entry) for entry in self.entries)))
 
@@ -523,18 +525,18 @@ class BaseReportGroup(Report):
 
     exception_logger = ExceptionLogger
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: str, **kwargs: Any) -> None:
         super(BaseReportGroup, self).__init__(name=name, **kwargs)
 
-        self._index: Dict = {}
-        self.children = []
+        self._index: Dict[str, int] = {}
+        self.children: List[Any] = []
 
         self.build_index()
 
         for child in self.entries:
             self.set_parent_uids(child)
 
-    @Report.status.getter
+    @Report.status.getter  # type: ignore[attr-defined]
     def status(self) -> Status:
         """
         Status of the report, will be used to decide
@@ -570,14 +572,14 @@ class BaseReportGroup(Report):
         return self._runtime_status
 
     @runtime_status.setter
-    def runtime_status(self, new_status: RuntimeStatus):
+    def runtime_status(self, new_status: RuntimeStatus) -> None:
         """Set the runtime_status of all child entries."""
         for entry in self:
             if entry.category != ReportCategories.SYNTHESIZED:
                 entry.runtime_status = new_status
         self._runtime_status = new_status
 
-    def build_index(self, recursive=False):
+    def build_index(self, recursive: bool = False) -> None:
         """
         Build (refresh) indexes for this report and
         optionally for each child report.
@@ -615,9 +617,9 @@ class BaseReportGroup(Report):
         :param uids: A `uid` for the child report.
         :type uids: ``list`` of ``hashable``
         """
-        report = self
+        report: Report = self
         for uid in uids:
-            report = report.get_by_uid(uid)
+            report = report.get_by_uid(uid)  # type: ignore[attr-defined]
         return report
 
     def has_uid(self, uid: str) -> bool:
@@ -635,11 +637,12 @@ class BaseReportGroup(Report):
         :param uid: `uid` for the child report.
         :type uid: ``hashable``
         """
-        return self.entries[self._index[uid]]
+        result: Report = self.entries[self._index[uid]]
+        return result
 
-    __getitem__ = get_by_uid
+    __getitem__ = get_by_uid  # type: ignore[assignment]
 
-    def set_by_uid(self, uid, item):
+    def set_by_uid(self, uid: str, item: Report) -> None:
         """
         Set child report via `uid` lookup.
 
@@ -665,13 +668,13 @@ class BaseReportGroup(Report):
 
     __setitem__ = set_by_uid
 
-    def remove_by_uid(self, uid):
+    def remove_by_uid(self, uid: str) -> None:
         self.entries.pop(self._index[uid])
         self._index = {child.uid: i for i, child in enumerate(self)}
 
     __delitem__ = remove_by_uid
 
-    def pre_order_iterate(self):
+    def pre_order_iterate(self) -> Iterator[Report]:
         yield self
         for e in self:
             if isinstance(e, BaseReportGroup):
@@ -679,7 +682,7 @@ class BaseReportGroup(Report):
             elif isinstance(e, Report):
                 yield e
 
-    def pre_order_disassemble(self):
+    def pre_order_disassemble(self) -> Iterator[Report]:
         es = copy.copy(self.entries)
         self.entries.clear()
         self._index.clear()
@@ -692,11 +695,11 @@ class BaseReportGroup(Report):
                 yield e
 
     @property
-    def entry_uids(self):
+    def entry_uids(self) -> List[str]:
         """Return the UIDs of all entries in this report group."""
         return [entry.uid for entry in self]
 
-    def merge_entries(self, report, strict=True):
+    def merge_entries(self, report: "BaseReportGroup", strict: bool = True) -> None:
         """
         For report groups, we call `merge` on each child report
         and later merge basic attributes.
@@ -727,7 +730,7 @@ class BaseReportGroup(Report):
                 else:
                     self.get_by_uid(entry.uid).merge(entry, strict=strict)
 
-    def merge(self, report, strict=True):
+    def merge(self, report: "BaseReportGroup", strict: bool = True) -> None:  # type: ignore[override]
         """Update `status_override` as well."""
 
         self._check_report(report)
@@ -746,7 +749,7 @@ class BaseReportGroup(Report):
             [self.status_override, report.status_override]
         )
 
-    def graft_entry(self, report: Report, parent_uids: List[str]):
+    def graft_entry(self, report: Report, parent_uids: List[str]) -> None:
         if not parent_uids:
             if report.uid in self:
                 self.get_by_uid(report.uid).merge(report)
@@ -766,7 +769,7 @@ class BaseReportGroup(Report):
             )
         e.graft_entry(report, parent_uids)
 
-    def append(self, item):
+    def append(self, item: Report) -> None:
         """Add `item` to `self.entries`, checking type & index."""
         if not isinstance(item, Report):
             raise TypeError(
@@ -786,7 +789,7 @@ class BaseReportGroup(Report):
         self._index[item.uid] = len(self.entries) - 1
         self.set_parent_uids(item)
 
-    def set_parent_uids(self, item):
+    def set_parent_uids(self, item: Report) -> None:
         """
         Set the parent UIDs recursively of an item and its child entries
         after it has been added into this report group.
@@ -796,12 +799,12 @@ class BaseReportGroup(Report):
             for child in item.entries:
                 item.set_parent_uids(child)
 
-    def extend(self, items):
+    def extend(self, items: List[Report]) -> None:
         """Add `items` to `self.entries`, checking type & index."""
         for item in items:
             self.append(item)
 
-    def filter(self, *functions, **kwargs) -> Self:
+    def filter(self, *functions: Callable[..., bool], **kwargs: Any) -> Self:
         """Recursively filter report entries and sub-entries."""
         is_root = kwargs.get("__copy", True)
         report_obj = copy.deepcopy(self) if is_root else self
@@ -819,7 +822,7 @@ class BaseReportGroup(Report):
 
         return report_obj
 
-    def reset_uid(self, uid=None):
+    def reset_uid(self, uid: Optional[str] = None) -> None:
         """
         Reset uid of test report and all of its children, it can be useful
         when need to generate global unique id for each report entry before
@@ -831,7 +834,7 @@ class BaseReportGroup(Report):
                 entry.reset_uid()
         self.build_index()
 
-    def flatten(self, depths=False):
+    def flatten(self, depths: bool = False) -> Union[List[Tuple[int, Report]], List[Report]]:
         """
         Depth-first traverse the report tree starting on the leftmost
         node (smallest index), return a list of `(depth, obj)` tuples or
@@ -841,8 +844,8 @@ class BaseReportGroup(Report):
         :return: List of reports or list of (`depth`, `report`) tuples.
         """
 
-        def flat_func(rep_obj, depth):
-            result = [(depth, rep_obj)]
+        def flat_func(rep_obj: Report, depth: int) -> List[Tuple[int, Report]]:
+            result: List[Tuple[int, Report]] = [(depth, rep_obj)]
 
             for entry in rep_obj:
                 if isinstance(entry, BaseReportGroup):
@@ -857,10 +860,10 @@ class BaseReportGroup(Report):
 
         if depths:
             return flattened
-        return list(zip(*flattened))[1]
+        return list(list(zip(*flattened))[1])
 
     @property
-    def flattened_logs(self):
+    def flattened_logs(self) -> List[Dict[str, Any]]:
         """Return a flattened list of the logs from each Report."""
         return list(
             itertools.chain.from_iterable(
@@ -868,7 +871,7 @@ class BaseReportGroup(Report):
             )
         )
 
-    def xfail(self, strict):
+    def xfail(self, strict: bool) -> None:
         """
         Override report status for test that is marked xfail by user
         :param strict: whether consider XPASS as failure
@@ -910,10 +913,10 @@ class BaseReportGroup(Report):
             )
         )
 
-    def filter_by_tags(self, tag_value, all_tags=False) -> Self:
+    def filter_by_tags(self, tag_value: Any, all_tags: bool = False) -> Self:
         """Shortcut method for filtering the report by given tags."""
 
-        def _filter_func(obj):
+        def _filter_func(obj: Any) -> bool:
             # Include all testcase entries, which are in dict form
             if isinstance(obj, dict):
                 return True
@@ -924,9 +927,9 @@ class BaseReportGroup(Report):
             else:
                 match_func = tagging.check_any_matching_tags
 
-            return match_func(
+            return bool(match_func(
                 tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index
-            )
+            ))
 
         return self.filter(_filter_func)
 
@@ -1001,8 +1004,8 @@ class BaseReportGroup(Report):
 
     def set_runtime_status_filtered(
         self,
-        new_status: str,
-        entries: Dict,
+        new_status: RuntimeStatus,
+        entries: Dict[str, Any],
     ) -> None:
         """
         Alternative setter for the runtime status of an entry. Propagates only
@@ -1021,7 +1024,7 @@ class BaseReportGroup(Report):
                     entry.runtime_status = new_status
         self._runtime_status = new_status
 
-    def _get_comparison_attrs(self):
+    def _get_comparison_attrs(self) -> List[str]:
         return super(BaseReportGroup, self)._get_comparison_attrs() + [
             "status_override",
             "timer",

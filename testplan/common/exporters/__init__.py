@@ -4,7 +4,7 @@ import traceback
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from testplan.common.config import Config, Configurable
 from testplan.common.utils import strings
@@ -16,24 +16,24 @@ from testplan.report import TestReport
 @dataclass
 class ExporterResult:
     exporter: "BaseExporter"
-    result: Dict = None
-    traceback: str = None
+    result: Optional[Dict[str, Any]] = None
+    traceback: Optional[str] = None
     uid: str = field(default_factory=strings.uuid4)
     start_time: datetime = field(default_factory=now)
-    end_time: datetime = None
+    end_time: Optional[datetime] = None
 
     @property
     def success(self) -> bool:
         return not self.traceback
 
     @classmethod
-    def run_exporter(self, exporter, source, type):
+    def run_exporter(cls, exporter: "BaseExporter", source: TestReport, type: str) -> "ExporterResult":
         "Putting this back for compatibility reasons"
 
         result = run_exporter(
             exporter=exporter,
             source=source,
-            export_context=None,
+            export_context=ExportContext(),
         )
         return result
 
@@ -52,7 +52,7 @@ class ExporterConfig(Config):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {"name": str}
 
 
@@ -61,21 +61,21 @@ class BaseExporter(Configurable):
 
     CONFIG = ExporterConfig
 
-    def __init__(self, name=None, **options):
+    def __init__(self, name: Optional[str] = None, **options: Any) -> None:
         if name is None:
             name = self.__class__.__name__
         self._cfg = self.CONFIG(name=name, **options)
         super().__init__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}[{self.name}]"
 
     @property
-    def name(self):
-        return self.cfg.name
+    def name(self) -> str:
+        return self.cfg.name  # type: ignore[no-any-return]
 
     @property
-    def cfg(self):
+    def cfg(self) -> ExporterConfig:
         """Exporter configuration."""
         return self._cfg
 
@@ -149,7 +149,7 @@ def run_exporter(
             exporter,
         )
         try:
-            result = exporter.export(source)
+            result = exporter.export(source)  # type: ignore[call-arg]
         except Exception:
             exp_result.traceback = traceback.format_exc()
     except Exception:
@@ -176,7 +176,7 @@ def run_exporter(
         return exp_result
 
 
-def format_cell_data(data, limit):
+def format_cell_data(data: List[Any], limit: int) -> List[str]:
     """
     Change the str representation of values in data if they represent regex or
     lambda functions. Also limit the length of these strings.
@@ -197,7 +197,7 @@ def format_cell_data(data, limit):
     return _limit_cell_length(data, limit)
 
 
-def _limit_cell_length(iterable, limit):
+def _limit_cell_length(iterable: Any, limit: int) -> List[str]:
     """
     Limit the length of each string in the iterable.
 

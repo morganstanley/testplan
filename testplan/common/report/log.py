@@ -10,13 +10,14 @@ to the report object's `logs` list.
 import logging
 import datetime
 import weakref
+from typing import Any
 
 from datetime import timezone
 from testplan.common.utils import strings
 
 LOGGER = logging.getLogger(__name__)
 
-REPORT_MAP = weakref.WeakValueDictionary()
+REPORT_MAP: weakref.WeakValueDictionary[int, Any] = weakref.WeakValueDictionary()
 
 
 class ReportLogHandler(logging.Handler):
@@ -25,7 +26,7 @@ class ReportLogHandler(logging.Handler):
     report objects.
     """
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         if hasattr(record, "report_obj_id"):
             report = REPORT_MAP.get(record.report_obj_id)
             if report is not None:
@@ -49,7 +50,7 @@ LOGGER.addHandler(ReportLogHandler())
 LOGGER.propagate = False
 
 
-def create_logging_adapter(report):
+def create_logging_adapter(report: Any) -> logging.LoggerAdapter:
     """
     Create a new adapter and bind the report to global `REPORT_MAP` so handler
     can access it.

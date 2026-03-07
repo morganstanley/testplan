@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import re
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from testplan.testing.multitest.driver.connection.base import (
     Direction,
@@ -24,8 +24,8 @@ class PortConnectionInfo(BaseConnectionInfo):
     port: Optional[int] = None  # port the driver is using
     host: Optional[str] = None  # host the driver is using
 
-    def promote_to_connection(self):
-        return PortDriverConnectionGroup.from_connection_info(self)
+    def promote_to_connection(self) -> "PortDriverConnectionGroup":
+        return PortDriverConnectionGroup.from_connection_info(self)  # type: ignore[no-any-return]
 
 
 class PortDriverConnectionGroup(BaseDriverConnectionGroup):
@@ -35,9 +35,9 @@ class PortDriverConnectionGroup(BaseDriverConnectionGroup):
     Stores the drivers involved in the connection as well as the logic of whether to add a driver into the connection.
     """
 
-    def add_driver_if_in_connection(
+    def add_driver_if_in_connection(  # type: ignore[override]
         self, driver_name: str, driver_connection_info: PortConnectionInfo
-    ):
+    ) -> bool:
         if self.connection_rep == driver_connection_info.connection_rep:
             port = (
                 str(driver_connection_info.port)
@@ -58,8 +58,8 @@ class FileConnectionInfo(BaseConnectionInfo):
     ConnectionInfo for file-based communication between drivers.
     """
 
-    def promote_to_connection(self):
-        return FileDriverConnectionGroup.from_connection_info(self)
+    def promote_to_connection(self) -> "FileDriverConnectionGroup":
+        return FileDriverConnectionGroup.from_connection_info(self)  # type: ignore[no-any-return]
 
 
 class FileDriverConnectionGroup(BaseDriverConnectionGroup):
@@ -69,9 +69,9 @@ class FileDriverConnectionGroup(BaseDriverConnectionGroup):
     Stores the drivers involved in the connection as well as the logic of whether to add a driver into the connection.
     """
 
-    def add_driver_if_in_connection(
+    def add_driver_if_in_connection(  # type: ignore[override]
         self, driver_name: str, driver_connection_info: FileConnectionInfo
-    ):
+    ) -> bool:
         if self.connection_rep == driver_connection_info.connection_rep:
             if driver_connection_info.direction == Direction.LISTENING:
                 self.in_drivers[driver_name].add("Read")
@@ -82,21 +82,21 @@ class FileDriverConnectionGroup(BaseDriverConnectionGroup):
 
 
 class DriverConnectionGraph:
-    def __init__(self, drivers):
+    def __init__(self, drivers: Any) -> None:
         self.drivers = drivers
         self.connections: List[BaseDriverConnectionGroup] = []
-        self._nodes = []
-        self._edges = []
+        self._nodes: List[Dict[str, Any]] = []
+        self._edges: List[Dict[str, Any]] = []
 
     @property
-    def nodes(self):
+    def nodes(self) -> List[Dict[str, Any]]:
         return self._nodes
 
     @property
-    def edges(self):
+    def edges(self) -> List[Dict[str, Any]]:
         return self._edges
 
-    def add_connection(self, driver_name: str, conn_info: BaseConnectionInfo):
+    def add_connection(self, driver_name: str, conn_info: BaseConnectionInfo) -> None:
         added = False
         for existing_connection in self.connections:
             added = existing_connection.add_driver_if_in_connection(
@@ -109,7 +109,7 @@ class DriverConnectionGraph:
             new_connection.add_driver_if_in_connection(driver_name, conn_info)
             self.connections.append(new_connection)
 
-    def set_nodes_and_edges(self):
+    def set_nodes_and_edges(self) -> None:
         drivers = set([str(driver) for driver in self.drivers])
         unconnected_drivers = set(drivers)
         for connection in self.connections:

@@ -12,7 +12,7 @@ import zmq.asyncio
 import psutil
 import multiprocessing
 
-from typing import Dict, Optional, Union, TextIO, NamedTuple
+from typing import Any, Dict, List, Optional, Union, TextIO, NamedTuple
 from testplan.defaults import RESOURCE_META_FILE_NAME
 from testplan.common.utils.observability import tracing, otel_logging
 from testplan.common.utils.path import pwd
@@ -126,7 +126,7 @@ class ResourceMonitorClient:
         self._zmq_context: Optional[zmq.Context] = None
         self._zmq_socket: Optional[zmq.Socket] = None
 
-    def enrich_metadata(self):
+    def enrich_metadata(self) -> None:
         """
         Enrich host hardware info
         """
@@ -135,7 +135,7 @@ class ResourceMonitorClient:
         self.memory_size = psutil.virtual_memory().total
         self.disk_size = psutil.disk_usage(self.disk_path).total
 
-    def send_metadata(self):
+    def send_metadata(self) -> None:
         msg = communication.Message(uid=self.uid)
         msg.make(
             cmd=communication.Message.Metadata,
@@ -152,17 +152,17 @@ class ResourceMonitorClient:
         self.zmq_socket.send(serialize(msg))
 
     def collect_cpu_usage(self) -> float:
-        return psutil.cpu_percent(0.1)
+        return psutil.cpu_percent(0.1)  # type: ignore[no-any-return]
 
     def collect_memory_usage(self) -> int:
-        return self.memory_size - psutil.virtual_memory().available
+        return self.memory_size - psutil.virtual_memory().available  # type: ignore[no-any-return]
 
     @staticmethod
-    def _ensure_positive(num):
+    def _ensure_positive(num: float) -> float:
         # Fix IO counter issue
         return max(num, 0)
 
-    def collect_host_data(self):
+    def collect_host_data(self) -> None:
         _disk_io = psutil.disk_io_counters()
         iops = _disk_io.read_count + _disk_io.write_count
         io_read = _disk_io.read_bytes
@@ -196,7 +196,8 @@ class ResourceMonitorClient:
             "io_write": _disk_io.write_bytes,
         }
 
-    def collect_process_data(self):
+    def collect_process_data(self) -> None:
+        assert self.parent_process is not None
         processes = self.parent_process.children(recursive=True)
         processes.append(self.parent_process)
         # Prime cpu_percent for all processes (first call always returns 0.0)
@@ -228,9 +229,9 @@ class ResourceMonitorClient:
             cpu_percent = float(raw_data["cpu_percent"])
             if cpu_percent < 0:
                 cpu_percent = 0.0
-            iops = 0
-            io_read = 0
-            io_write = 0
+            iops: float = 0
+            io_read: float = 0
+            io_write: float = 0
             try:
                 counters = {
                     "iops": raw_data["io_counters"].read_count
@@ -271,11 +272,11 @@ class ResourceMonitorClient:
                 io_write=io_write,
             )
 
-    def collect_data(self):
+    def collect_data(self) -> None:
         self.collect_host_data()
         self.collect_process_data()
 
-    def send_data(self):
+    def send_data(self) -> None:
         if self.last_host_resource:
             msg = communication.Message(uid=self.uid)
             msg.make(
@@ -288,7 +289,7 @@ class ResourceMonitorClient:
             )
             self.zmq_socket.send(serialize(msg))
 
-    def _loop(self):
+    def _loop(self) -> None:
         self.parent_process = psutil.Process(pid=self.parent_pid)
         self._zmq_context = zmq.Context()
         self.zmq_socket = self._zmq_context.socket(zmq.PUSH)
@@ -307,7 +308,7 @@ class ResourceMonitorClient:
             if rest_time > 0:
                 time.sleep(rest_time)
 
-    def start(self):
+    def start(self) -> None:
         tracing.force_flush()  # flush so that no grpc communication is happening while forking
         otel_logging.force_flush()
         self._monitor_worker = multiprocessing.Process(
@@ -315,7 +316,7 @@ class ResourceMonitorClient:
         )
         self._monitor_worker.start()
 
-    def stop(self):
+    def stop(self) -> None:
         if self._monitor_worker:
             try:
                 self._monitor_worker.kill()
@@ -327,8 +328,8 @@ class ResourceMonitorClient:
 
 class ResourceMonitorServer:
     def __init__(
-        self, file_directory: Union[str, pathlib.Path], detailed=False
-    ):
+        self, file_directory: Union[str, pathlib.Path], detailed: bool = False
+    ) -> None:
         """
         Start a ZMQ server for receiving resource data from client.
 
@@ -337,9 +338,7 @@ class ResourceMonitorServer:
         """
         self.file_directory = pathlib.Path(file_directory)
         self.detailed = detailed
-        self._file_handler: Dict[
-            str, Dict[str, Union[csv.writer, TextIO]]
-        ] = {}
+        self._file_handler: Dict[str, Dict[str, Any]] = {}
         self._server_process: Optional[multiprocessing.Process] = None
         self.collector_server: str = socket.getfqdn()
         self.collector_port: int = 0
@@ -356,7 +355,7 @@ class ResourceMonitorServer:
     def address(self) -> str:
         return self._address
 
-    async def handle_request(self, msg: bytes):
+    async def handle_request(self, msg: bytes) -> None:
         message: communication.Message = deserialize(msg)
         client_id: str = message.sender_metadata["uid"]
         if message.cmd == communication.Message.Metadata:
@@ -401,7 +400,7 @@ class ResourceMonitorServer:
                         self._file_handler[client_id]["detailed_file"]
                     )
                 for pid, process in process_data.items():
-                    row = ProcessResourceRow(
+                    detail_row = ProcessResourceRow(
                         message.data["time"],
                         pid,
                         process.name,
@@ -412,20 +411,21 @@ class ResourceMonitorServer:
                         process.io_write,
                         process.cmdline,
                     )
-                    self._file_handler[client_id]["detailed_csv"].writerow(row)
+                    self._file_handler[client_id]["detailed_csv"].writerow(detail_row)
                 self._file_handler[client_id]["detailed_file"].flush()
         else:
             self.logger.info(
                 "Received unknown data cmd %s, ignored!", message.cmd
             )
 
-    async def collector_service(self):
+    async def collector_service(self) -> None:
+        assert self._zmq_socket is not None
         while True:
             msg = await self._zmq_socket.recv_multipart()
             for m in msg:
                 await self.handle_request(m)
 
-    def _serve(self, shared_dict: dict):
+    def _serve(self, shared_dict: Dict[str, Any]) -> None:
         # setup log
         fhandler = logging.FileHandler(
             self.file_directory / "resource.log", encoding="utf-8"
@@ -448,12 +448,12 @@ class ResourceMonitorServer:
         )
         asyncio.run(self.collector_service())
 
-    def normalize_data(self, client_id: str) -> Optional[dict]:
+    def normalize_data(self, client_id: str) -> Optional[Dict[str, Any]]:
         try:
             client_host_path = (
                 self.file_directory / f"{slugify(client_id)}.csv"
             )
-            resource_data = {
+            resource_data: Dict[str, List[Any]] = {
                 "time": [],
                 "cpu": [],
                 "memory": [],
@@ -466,7 +466,7 @@ class ResourceMonitorServer:
             with open(client_host_path) as client_file:
                 reader = csv.reader(client_file)
                 for row in reader:
-                    host_resource = HostResourceRow(*row)
+                    host_resource = HostResourceRow(*row)  # type: ignore[arg-type]
                     resource_data["time"].append(
                         float(host_resource.timestamp)
                     )
@@ -497,10 +497,10 @@ class ResourceMonitorServer:
                 "max_system_load": max(resource_data["system_load"]),
             }
         except FileNotFoundError:
-            return
+            return None
 
     def dump(self) -> str:
-        resource_info = []
+        resource_info: List[Any] = []
         for host_meta_path in self.file_directory.glob("*.meta"):
             with open(host_meta_path) as meta_file:
                 meta = json_loads(meta_file.read())
@@ -516,7 +516,7 @@ class ResourceMonitorServer:
             meta_file.write(json_dumps({"entries": resource_info}))
         return str(meta_file_path.resolve())
 
-    def start(self, timeout=5):
+    def start(self, timeout: int = 5) -> None:
         shared_dict = multiprocessing.Manager().dict()
         tracing.force_flush()  # flush so that no grpc communication is happening while forking
         otel_logging.force_flush()
@@ -525,14 +525,14 @@ class ResourceMonitorServer:
         )
         self._server_process.start()
 
-        def is_started():
+        def is_started() -> bool:
             return shared_dict.get("collector_port") is not None
 
         wait(is_started, timeout=timeout)
         self.collector_port = shared_dict["collector_port"]
         self._address = f"tcp://{self.collector_server}:{self.collector_port}"
 
-    def stop(self):
+    def stop(self) -> None:
         if self._server_process:
             try:
                 self._server_process.kill()

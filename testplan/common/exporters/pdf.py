@@ -10,6 +10,8 @@ from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
+from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, Union
+
 from testplan.common.exporters import constants, _limit_cell_length
 
 # If you increase this too much Reportlab starts having
@@ -17,7 +19,7 @@ from testplan.common.exporters import constants, _limit_cell_length
 MAX_TABLE_ROWS = 1000
 
 
-def _partition_data(data, max_rows):
+def _partition_data(data: List[List[Any]], max_rows: int) -> Generator[List[List[Any]], None, None]:
     """
     Partition a table's data, each partition
     containing at most ``max_rows`` rows.
@@ -34,7 +36,7 @@ def _partition_data(data, max_rows):
     )
 
 
-def _partition_style(style, num_rows, max_rows):
+def _partition_style(style: List[Tuple[Any, ...]], num_rows: int, max_rows: int) -> Generator[List[Tuple[Any, ...]], None, None]:
     """
     Partition a table's style commands.
 
@@ -86,7 +88,7 @@ def _partition_style(style, num_rows, max_rows):
         yield partition
 
 
-def create_base_tables(data, style, col_widths, max_rows=MAX_TABLE_ROWS):
+def create_base_tables(data: List[List[Any]], style: List[Tuple[Any, ...]], col_widths: List[Any], max_rows: int = MAX_TABLE_ROWS) -> List[Table]:
     """
     Create tables for the specified data and style
     commands, partitioning where necessary.
@@ -113,7 +115,7 @@ def create_base_tables(data, style, col_widths, max_rows=MAX_TABLE_ROWS):
     ]
 
 
-def _add_row_index(columns, rows, indices):
+def _add_row_index(columns: List[Any], rows: List[List[Any]], indices: List[Any]) -> Tuple[List[Any], List[List[Any]]]:
     """
     Add row indices as the first column to the columns and rows data.
 
@@ -133,7 +135,7 @@ def _add_row_index(columns, rows, indices):
     return indexed_columns, indexed_rows
 
 
-def _create_cell_styles(colour_matrix, display_index):
+def _create_cell_styles(colour_matrix: List[List[str]], display_index: bool) -> List["RowStyle"]:
     """
     Create a list of cell styles indicating whether the cell should be black,
     green or red based on whether the cell result is ignored (I), passed (P) or
@@ -178,14 +180,14 @@ def _create_cell_styles(colour_matrix, display_index):
 
 
 def _create_sub_table(
-    columns,
-    rows,
-    column_start,
-    column_end,
-    style,
-    row_indices=None,
-    colour_matrix=None,
-):
+    columns: List[Any],
+    rows: List[List[Any]],
+    column_start: int,
+    column_end: int,
+    style: List[Tuple[Any, ...]],
+    row_indices: Optional[List[Any]] = None,
+    colour_matrix: Optional[List[List[str]]] = None,
+) -> Table:
     """
     Create ReportLab table from a subsection of the columns and rows data using
     the column_start and column_end indices. Row indices may be added to the
@@ -237,14 +239,14 @@ def _create_sub_table(
 
 
 def create_table(
-    table,
-    columns,
-    row_indices,
-    display_index,
-    max_width,
-    style,
-    colour_matrix=None,
-):
+    table: List[Dict[str, Any]],
+    columns: List[str],
+    row_indices: List[Any],
+    display_index: bool,
+    max_width: int,
+    style: List[Tuple[Any, ...]],
+    colour_matrix: Optional[List[List[str]]] = None,
+) -> List[List[Any]]:
     """
     Create a ReportLab table from a serialized entry. Table features are:
 
@@ -358,7 +360,7 @@ def create_table(
             )
         # If the table exceeds the max width of the page, add a table up to the
         # previous column.
-        if table.minWidth() > max_width:
+        if table.minWidth() > max_width:  # type: ignore[attr-defined]
             table = _create_sub_table(
                 columns=display_columns,
                 rows=rows,
@@ -381,7 +383,7 @@ def create_table(
     return tables
 
 
-def format_table_style(table_styles):
+def format_table_style(table_styles: List["RowStyle"]) -> List[Tuple[Any, ...]]:
     """
     Convert table style into a format ReportLab will accept.
 
@@ -391,7 +393,7 @@ def format_table_style(table_styles):
     :return: List of styles formatted into tuples.
     :rtype: ``list`` of ``tuple``
     """
-    table_style = []
+    table_style: List[Tuple[Any, ...]] = []
     for style in table_styles:
         table_style.extend(style.get_commands())
     return table_style
@@ -454,9 +456,9 @@ class RowStyle:
         self,
         start_column: int = 0,
         end_column: int = -1,
-        start_row: int = None,
-        end_row: int = None,
-        **style_props,
+        start_row: Optional[int] = None,
+        end_row: Optional[int] = None,
+        **style_props: Any,
     ) -> None:
         if not style_props:
             raise ValueError(
@@ -478,14 +480,14 @@ class RowStyle:
         return self._end_column
 
     @property
-    def start_row(self) -> int:
+    def start_row(self) -> Optional[int]:
         return self._start_row
 
     @property
-    def end_row(self) -> int:
+    def end_row(self) -> Optional[int]:
         return self._end_row
 
-    @start_row.setter
+    @start_row.setter  # type: ignore[attr-defined, no-redef]
     def start_row(self, value: int) -> None:
         if self._start_row is not None:
             raise ValueError(
@@ -495,7 +497,7 @@ class RowStyle:
             )
         self._start_row = value
 
-    @end_row.setter
+    @end_row.setter  # type: ignore[attr-defined, no-redef]
     def end_row(self, value: int) -> None:
         if self._end_row is not None:
             raise ValueError(
@@ -525,7 +527,7 @@ class RowStyle:
             ),
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         attrs = (
             "start_column",
             "end_column",
@@ -535,7 +537,7 @@ class RowStyle:
         )
         return all(getattr(self, att) == getattr(other, att) for att in attrs)
 
-    def get_commands(self) -> tuple:
+    def get_commands(self) -> Tuple[Tuple[Any, ...], ...]:
         """
         Return Reportlab compliant styling commands.
 
@@ -586,17 +588,17 @@ class RowData:
     via `RowStyle` objects.
     """
 
-    def __init__(self, num_columns, start=0, content=None, style=None):
+    def __init__(self, num_columns: int, start: int = 0, content: Optional[Union[str, List[Any]]] = None, style: Optional[Union["RowStyle", List["RowStyle"]]] = None) -> None:
         self._start = start
         self.num_columns = num_columns
 
-        self._style_objs = []
-        self.content = []
+        self._style_objs: List[RowStyle] = []
+        self.content: List[List[Any]] = []
 
         if content:
             self.append(content, style)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             "{class_name}(num_columns={num_columns}, start={start},"
             " content={content}, style={style_objs}".format(
@@ -608,17 +610,17 @@ class RowData:
             )
         )
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[List[Any]]:
         return iter(self.content)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.content)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         attrs = ("num_columns", "content", "_style_objs", "start", "end")
         return all(getattr(self, att) == getattr(other, att) for att in attrs)
 
-    def __add__(self, other):
+    def __add__(self, other: "RowData") -> "RowData":
         if self.num_columns != other.num_columns:
             raise ValueError(
                 "Column spans do not match ({} != {})".format(
@@ -640,7 +642,7 @@ class RowData:
         return row_data
 
     @property
-    def style(self):
+    def style(self) -> itertools.chain[Tuple[Any, ...]]:
         """
         Return Reportlab compatible styles (commands)
         from the RowStyle objects.
@@ -650,12 +652,12 @@ class RowData:
         )
 
     @property
-    def start(self):
+    def start(self) -> int:
         """Start index of the current row data."""
         return self._start
 
     @start.setter
-    def start(self, value):
+    def start(self, value: int) -> None:
         """
         Overwrite prevention if we have existing
         `RowStyles` for this `RowData` object.
@@ -668,14 +670,14 @@ class RowData:
         self._start = value
 
     @property
-    def end(self):
+    def end(self) -> int:
         """
         End index of the current row data, will keep
         increasing as more content is added.
         """
         return self.start + len(self)
 
-    def append(self, content, style=None):
+    def append(self, content: Union[str, List[Any]], style: Optional[Union[RowStyle, List[RowStyle]]] = None) -> None:
         """
         Append one or more rows to the current row data,
         with the given styles.
@@ -727,14 +729,14 @@ class RowData:
             # Reportlab styling uses inclusive indexes on both ends
             start_row, end_row = self.end, self.end + len(content) - 1
             for style_obj in style:
-                style_obj.start_row, style_obj.end_row = start_row, end_row
+                style_obj.start_row, style_obj.end_row = start_row, end_row  # type: ignore[misc]
                 self._style_objs.append(style_obj)
 
         # This changes `self.end`, so needs to happen last
-        self.content.extend(content)
+        self.content.extend(content)  # type: ignore[arg-type]
 
 
-def split_line(line, max_width, get_width_func=None):
+def split_line(line: str, max_width: int, get_width_func: Optional[Callable[[str], float]] = None) -> List[str]:
     """
     Split `line` into multi-lines if width exceeds `max_width`.
 
@@ -744,8 +746,8 @@ def split_line(line, max_width, get_width_func=None):
                            according to font and font size.
     :return: list of lines
     """
-    result = []
-    total_width = 0
+    result: List[str] = []
+    total_width: float = 0
     tmp_str = ""
     get_text_width = (
         get_width_func
@@ -770,8 +772,8 @@ def split_line(line, max_width, get_width_func=None):
 
 
 def split_text(
-    text, font_name, font_size, max_width, keep_leading_whitespace=False
-):
+    text: str, font_name: str, font_size: int, max_width: int, keep_leading_whitespace: bool = False
+) -> str:
     """
     Wraps `text` within given `max_width` limit (measured in px), keeping
     initial indentation of each line (and generated lines) if
@@ -786,8 +788,8 @@ def split_text(
     :return: list of lines
     """
 
-    def get_text_width(text, name=font_name, size=font_size):
-        return stringWidth(text, name, size)
+    def get_text_width(text: str, name: str = font_name, size: int = font_size) -> float:
+        return stringWidth(text, name, size)  # type: ignore[no-any-return]
 
     result = []
     lines = [line for line in re.split(r"[\r\n]+", text) if line]

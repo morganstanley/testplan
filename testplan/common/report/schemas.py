@@ -4,6 +4,8 @@ Base schemas for report serialization.
 
 import datetime
 
+from typing import Any, Dict, List
+
 from marshmallow import Schema, fields, post_dump, post_load, pre_load
 from marshmallow.utils import EXCLUDE
 
@@ -29,7 +31,7 @@ class IntervalSchema(Schema):
     end = fields.DateTime("timestamp", allow_none=True)
 
     @pre_load
-    def accept_old_isoformat(self, data, **kwargs):
+    def accept_old_isoformat(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         try:
             if data.get("start", None) and isinstance(data["start"], str):
                 data["start"] = datetime.datetime.fromisoformat(
@@ -45,7 +47,7 @@ class IntervalSchema(Schema):
             raise ValueError("Invalid value when loading Interval.") from e
 
     @post_load
-    def make_interval(self, data, **kwargs):
+    def make_interval(self, data: Dict[str, Any], **kwargs: Any) -> timing.Interval:
         """Create an Interal object."""
         return timing.Interval(**data)
 
@@ -56,12 +58,12 @@ class TimerField(fields.Field):
     of ``timer.Interval``.
     """
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Dict[str, List[Dict[str, Any]]]:
         return {
             k: [IntervalSchema().dump(v) for v in l] for k, l in value.items()
         }
 
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(self, value: Any, attr: Any, data: Any, **kwargs: Any) -> timing.Timer:
         return timing.Timer(
             {
                 k: [IntervalSchema().load(v) for v in l]
@@ -93,7 +95,7 @@ class ReportLogSchema(Schema):
     uid = fields.UUID()
 
     @pre_load
-    def accept_old_isoformat(self, data, **kwargs):
+    def accept_old_isoformat(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         try:
             if data.get("created", None) and isinstance(data["created"], str):
                 data["created"] = datetime.datetime.fromisoformat(
@@ -111,7 +113,7 @@ class ReportSchema(schemas.TreeNodeSchema):
     class Meta:
         unknown = EXCLUDE
 
-    source_class = Report
+    source_class = Report  # type: ignore[assignment]
 
     name = fields.String()
     description = fields.String(allow_none=True)
@@ -140,7 +142,7 @@ class ReportSchema(schemas.TreeNodeSchema):
     timer = TimerField(required=True)
 
     @post_load
-    def make_report(self, data, **kwargs):
+    def make_report(self, data: Dict[str, Any], **kwargs: Any) -> Report:
         """Create report object, attach log list."""
 
         # We can discard the type field since we know what kind of report we
@@ -151,14 +153,14 @@ class ReportSchema(schemas.TreeNodeSchema):
         logs = data.pop("logs", [])
         timer = data.pop("timer")
 
-        rep = self.get_source_class()(**data)
+        rep: Report = self.get_source_class()(**data)
 
         rep.logs = logs
         rep.timer = timer
         return rep
 
     @post_dump
-    def strip_none(self, data, **kwargs):
+    def strip_none(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         if data["status_override"] is None:
             del data["status_override"]
         if data["status_reason"] is None:
@@ -169,9 +171,9 @@ class ReportSchema(schemas.TreeNodeSchema):
 class BaseReportGroupSchema(ReportSchema):
     """Schema for ``base.BaseReportGroup``."""
 
-    source_class = BaseReportGroup
+    source_class = BaseReportGroup  # type: ignore[assignment]
 
-    entries = custom_fields.GenericNested(
+    entries = custom_fields.GenericNested(  # type: ignore[assignment]
         schema_context={
             "Report": ReportSchema,
             "BaseReportGroup": lambda: BaseReportGroupSchema(),
@@ -182,7 +184,7 @@ class BaseReportGroupSchema(ReportSchema):
     children = fields.List(fields.Nested(ReportLinkSchema))
 
     @post_load
-    def make_report(self, data, **kwargs):
+    def make_report(self, data: Dict[str, Any], **kwargs: Any) -> BaseReportGroup:
         """Create report group object"""
 
         children = data.pop("children", [])
@@ -190,9 +192,9 @@ class BaseReportGroupSchema(ReportSchema):
         status = data.pop("status")
         runtime_status = data.pop("runtime_status")
 
-        rep = super(BaseReportGroupSchema, self).make_report(data)
+        rep: BaseReportGroup = super(BaseReportGroupSchema, self).make_report(data)
         rep.children = children
-        rep.host = host
+        rep.host = host  # type: ignore[attr-defined]
         rep.status = status
         rep.runtime_status = runtime_status
 

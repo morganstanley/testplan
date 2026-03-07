@@ -1,6 +1,6 @@
 """FixServer driver classes."""
 
-from typing import Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import select
 import platform
@@ -34,7 +34,7 @@ class FixServerConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -98,8 +98,8 @@ class FixServer(Driver):
         port: int = 0,
         version: str = "FIX.4.2",
         tls_config: Optional[TLSConfig] = None,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
 
@@ -110,35 +110,35 @@ class FixServer(Driver):
             )
 
         super(FixServer, self).__init__(**options)
-        self._host: str = None
-        self._port: int = None
-        self._server = None
+        self._host: Optional[str] = None
+        self._port: Optional[int] = None
+        self._server: Optional[Server] = None
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         """Input host provided."""
         return self._host
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def port(self):
+    def port(self) -> Optional[int]:
         """Port retrieved after binding."""
         return self._port
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_port(self):
+    def local_port(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_host(self):
+    def local_host(self) -> Optional[str]:
         return self.host
 
-    def starting(self):
+    def starting(self) -> None:
         """Starts the TCP server."""
         super(FixServer, self).starting()
         self._server = Server(
@@ -156,6 +156,7 @@ class FixServer(Driver):
 
         # use parent.logger here so that this goes to stdout
         # self.logger is writing to file_logger
+        assert self.parent is not None
         self.parent.logger.debug(
             "%s[%s] listening on %s:%s",
             type(self).__name__,
@@ -164,31 +165,34 @@ class FixServer(Driver):
             self._port,
         )
 
-    def active_connections(self):
+    def active_connections(self) -> Any:
         """
         Docstring from Server.active_connections
         """
+        assert self._server is not None
         return self._server.active_connections()
 
     active_connections.__doc__ = Server.active_connections.__doc__
 
-    def is_connection_active(self, conn_name):
+    def is_connection_active(self, conn_name: Tuple[Optional[str], Optional[str]]) -> bool:
         """
         Docstring from Server.is_connection_active
         """
-        return self._server.is_connection_active(conn_name)
+        assert self._server is not None
+        return self._server.is_connection_active(conn_name)  # type: ignore[arg-type]
 
     is_connection_active.__doc__ = Server.is_connection_active.__doc__
 
-    def send(self, msg, conn_name=(None, None)):
+    def send(self, msg: Any, conn_name: Tuple[Optional[str], Optional[str]] = (None, None)) -> Any:
         """
         Docstring from Server.send
         """
+        assert self._server is not None
         return self._server.send(msg, conn_name)
 
     send.__doc__ = Server.send.__doc__
 
-    def receive(self, conn_name=(None, None), timeout=60):
+    def receive(self, conn_name: Tuple[Optional[str], Optional[str]] = (None, None), timeout: Optional[int] = 60) -> Any:
         """
         Receive a FIX message from the given connection.
 
@@ -218,6 +222,7 @@ class FixServer(Driver):
         timeout_info = TimeoutExceptionInfo()
         timeout_ = timeout or 0
         try:
+            assert self._server is not None
             received = self._server.receive(conn_name, timeout=timeout_)
         except queue.Empty:
             self.logger.debug(
@@ -235,22 +240,23 @@ class FixServer(Driver):
         )
         return received
 
-    def flush(self):
+    def flush(self) -> None:
         """
         Flush the receive queues
         """
+        assert self._server is not None
         self._server.flush()
 
-    def _stop_logic(self):
+    def _stop_logic(self) -> None:
         if self._server:
             self._server.stop()
 
-    def stopping(self):
+    def stopping(self) -> None:
         """Stops the FIX server."""
         super(FixServer, self).stopping()
         self._stop_logic()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the FIX server."""
         super(FixServer, self).aborting()
         self._stop_logic()

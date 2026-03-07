@@ -1,7 +1,7 @@
 from copy import copy
 from dataclasses import dataclass, field
 from itertools import product
-from typing import TYPE_CHECKING, Iterable, List, Set, Union
+from typing import Any, Dict, TYPE_CHECKING, Iterable, List, Optional, Set, Union
 from typing_extensions import TypeAlias
 
 from testplan.common.utils.graph import DirectedGraph
@@ -20,16 +20,16 @@ def _type_err(msg: str) -> TypeError:
 
 
 @dataclass
-class DriverDepGraph(DirectedGraph[str, D, bool]):
+class DriverDepGraph(DirectedGraph[int, D, Optional[bool]]):
     """
     An always acyclic directed graph, also bookkeeping driver starting status.
     """
 
-    processing: Set[str] = field(default_factory=set)
-    processed: List[str] = field(default_factory=list)
+    processing: Set[int] = field(default_factory=set)
+    processed: List[int] = field(default_factory=list)
 
     @classmethod
-    def from_directed_graph(cls, g: DirectedGraph) -> "DriverDepGraph":
+    def from_directed_graph(cls, g: DirectedGraph[int, D, Optional[bool]]) -> "DriverDepGraph":
         cycles = g.cycles()
         if len(cycles):
             raise ValueError(
@@ -39,15 +39,15 @@ class DriverDepGraph(DirectedGraph[str, D, bool]):
         g_ = copy(g)
         return cls(g_.vertices, g_.edges, g_.indegrees, g_.outdegrees)
 
-    def mark_processing(self, driver: D):
+    def mark_processing(self, driver: D) -> None:
         self.processing.add(id(driver))
 
-    def mark_processed(self, driver: D):
+    def mark_processed(self, driver: D) -> None:
         self.processing.remove(id(driver))
         self.remove_vertex(id(driver))
         self.processed.append(id(driver))
 
-    def mark_failed_to_process(self, driver: D):
+    def mark_failed_to_process(self, driver: D) -> None:
         self.processing.remove(id(driver))
         self.remove_vertex(id(driver))
 
@@ -64,7 +64,7 @@ class DriverDepGraph(DirectedGraph[str, D, bool]):
     def all_drivers_processed(self) -> bool:
         return not len(self)
 
-    def purge_drivers_to_process(self):
+    def purge_drivers_to_process(self) -> None:
         """
         A graph operation which purges everything in the graph except for the
         drivers still in processing status.
@@ -74,7 +74,7 @@ class DriverDepGraph(DirectedGraph[str, D, bool]):
         self.indegrees = {d: 0 for d in self.vertices}
         self.outdegrees = {d: 0 for d in self.vertices}
 
-    def __copy__(self):
+    def __copy__(self) -> "DriverDepGraph":
         obj = self.__class__(
             vertices=copy(self.vertices),
             edges={src: copy(dst) for src, dst in self.edges.items()},
@@ -112,7 +112,7 @@ def parse_dependency(input: dict) -> DriverDepGraph:
     if not isinstance(input, dict):
         raise _type_err("Python dict expected.")
 
-    g = DirectedGraph.new()
+    g: DirectedGraph[int, D, Optional[bool]] = DirectedGraph.new()
 
     for k, v in input.items():
         if not (

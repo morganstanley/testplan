@@ -10,7 +10,7 @@ import re
 import warnings
 from enum import Enum, auto
 from signal import Signals
-from typing import IO, Any, Callable, List, Union, Optional
+from typing import IO, Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import psutil
 
@@ -23,7 +23,7 @@ from testplan.common.utils.timing import (
 )
 
 
-def _log_proc(msg: Any, warn=False, output: IO = None):
+def _log_proc(msg: Any, warn: bool = False, output: Optional[IO[Any]] = None) -> None:
     if output is not None:
         try:
             output.write("{}{}".format(msg, "\n"))
@@ -38,14 +38,15 @@ def process_is_alive(proc_id: int) -> bool:
     try:
         with open(stat_file_path, "r") as stat_file:
             stat_content = stat_file.read()
-        if re.match(r"\d+\s\(.*\)\s(\S+)\s.+", stat_content).group(1) != "Z":
+        m = re.match(r"\d+\s\(.*\)\s(\S+)\s.+", stat_content)
+        if m and m.group(1) != "Z":
             return False
         return True
     except:
         return True
 
 
-def wait_process_clean(proc_id: int, timeout: int = 5, output: IO = None):
+def wait_process_clean(proc_id: int, timeout: int = 5, output: Optional[IO[Any]] = None) -> None:
     if platform.system() != "Linux":
         return
     try:
@@ -118,7 +119,7 @@ def kill_process(
         except (RuntimeError, OSError, TimeoutException) as error:
             _log(msg="Could not kill process - {}".format(error), warn=True)
 
-    def _log_child_exc(exc):
+    def _log_child_exc(exc: BaseException) -> None:
         _log(msg="While killing child process - {}".format(exc), warn=True)
 
     cleanup_child_procs(child_procs, timeout, _log_child_exc)
@@ -181,13 +182,13 @@ def kill_process_psutil(
                 _log(msg="Could not kill process - {}".format(exc), warn=True)
         _, alive = psutil.wait_procs(alive, timeout=timeout)
 
-    return alive
+    return list(alive)
 
 
 def kill_proc_and_child_procs(
     proc: subprocess.Popen,
     child_procs: List[psutil.Process],
-    log: Callable[[BaseException], None] = None,
+    log: Optional[Callable[[BaseException], None]] = None,
     timeout: int = 5,
 ) -> None:
     """
@@ -215,7 +216,7 @@ def kill_proc_and_child_procs(
             proc.wait()
             wait_process_clean(proc.pid, timeout=timeout)
         except Exception as exc:
-            if log:
+            if log is not None:
                 log(exc)
 
     if child_procs:
@@ -229,7 +230,7 @@ def kill_proc_and_child_procs(
             except psutil.NoSuchProcess:
                 pass  # already reaped
             except Exception as exc:
-                if log:
+                if log is not None:
                     log(exc)
 
 
@@ -259,21 +260,21 @@ DEFAULT_CLOSE_FDS = platform.system() != "Windows"
 
 
 def subprocess_popen(
-    args,
-    bufsize=0,  # unbuffered (`io.DEFAULT_BUFFER_SIZE` for Python 3 by default)
-    executable=None,
-    stdin=None,
-    stdout=None,
-    stderr=None,
-    preexec_fn=None,
-    close_fds=DEFAULT_CLOSE_FDS,
-    shell=False,
-    cwd=None,
-    env=None,
-    universal_newlines=False,
-    startupinfo=None,
-    creationflags=0,
-):
+    args: Union[str, Sequence[Any]],
+    bufsize: int = 0,  # unbuffered (`io.DEFAULT_BUFFER_SIZE` for Python 3 by default)
+    executable: Optional[str] = None,
+    stdin: Optional[int] = None,
+    stdout: Optional[int] = None,
+    stderr: Optional[int] = None,
+    preexec_fn: Optional[Callable[[], Any]] = None,
+    close_fds: bool = DEFAULT_CLOSE_FDS,
+    shell: bool = False,
+    cwd: Optional[str] = None,
+    env: Optional[Dict[str, str]] = None,
+    universal_newlines: bool = False,
+    startupinfo: Any = None,
+    creationflags: int = 0,
+) -> subprocess.Popen[Any]:
     """
     Wrapper for Subprocess.Popen, which defaults close_fds=True on Linux.
     It's the behaviour we nearly always want,
@@ -308,7 +309,7 @@ def subprocess_popen(
         raise
 
 
-def _log_subprocess_output(logger, stdout, stderr):
+def _log_subprocess_output(logger: Any, stdout: Optional[str], stderr: Optional[str]) -> None:
     if stdout:
         logger.debug("Stdout:\n%s", stdout)
     if stderr:
@@ -322,15 +323,15 @@ class LogDetailsOption(Enum):
 
 
 def execute_cmd(
-    cmd,
-    label=None,
-    check=True,
-    stdout=None,
-    stderr=None,
-    logger=None,
-    env=None,
+    cmd: Union[str, List[Any]],
+    label: Optional[str] = None,
+    check: bool = True,
+    stdout: Optional[int] = None,
+    stderr: Optional[int] = None,
+    logger: Any = None,
+    env: Optional[Dict[str, str]] = None,
     detailed_log: LogDetailsOption = LogDetailsOption.LOG_ON_ERROR,
-):
+) -> Tuple[int, Optional[str], Optional[str]]:
     """
     Execute a subprocess command.
 
@@ -410,10 +411,10 @@ def execute_cmd(
     return handler.returncode, output, error
 
 
-def enforce_timeout(process, timeout=1, callback=None, output=None):
+def enforce_timeout(process: subprocess.Popen[Any], timeout: float = 1, callback: Optional[Callable[[], None]] = None, output: Optional[IO[Any]] = None) -> threading.Thread:
     _log = functools.partial(_log_proc, output=output)
 
-    def _inner():
+    def _inner() -> None:
         begin = time.time()
         intervals = exponential_interval(maximum=10)
 

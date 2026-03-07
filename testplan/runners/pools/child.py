@@ -12,9 +12,10 @@ import sys
 import threading
 import time
 import traceback
+from typing import Any, List, Optional, Type
 
 
-def parse_cmdline():
+def parse_cmdline() -> argparse.Namespace:
     """Child worker command line parsing"""
     parser = argparse.ArgumentParser(description="Remote runner parser")
     parser.add_argument("--address", action="store")
@@ -40,21 +41,21 @@ class ChildLoop:
 
     def __init__(
         self,
-        index,
-        transport,
-        pool_type,
-        pool_size,
-        worker_type,
-        logger,
-        otel_traceparent,
-        otel_logs,
-        runpath=None,
-    ):
-        self._metadata = {"index": index, "pid": os.getpid()}
+        index: Any,
+        transport: Any,
+        pool_type: Any,
+        pool_size: Any,
+        worker_type: Any,
+        logger: logging.Logger,
+        otel_traceparent: str,
+        otel_logs: bool,
+        runpath: Optional[str] = None,
+    ) -> None:
+        self._metadata: dict[str, Any] = {"index": index, "pid": os.getpid()}
         self._transport = transport
         self._pool_type = pool_type
         self._pool_size = int(pool_size)
-        self._pool_cfg = None
+        self._pool_cfg: Any = None
         self._worker_type = worker_type
         self._to_heartbeat = float(0)
         self._otel_traceparent = otel_traceparent
@@ -65,13 +66,13 @@ class ChildLoop:
         self._discard_pending = False
 
     @property
-    def metadata(self):
+    def metadata(self) -> dict[str, Any]:
         """Metadata information."""
         return self._metadata
 
-    def _child_pool(self):
+    def _child_pool(self) -> Any:
         # Local thread pool will not cleanup the previous layer runpath.
-        self._pool: Pool = self._pool_type(
+        self._pool: Any = self._pool_type(
             name=f"Pool_{self._metadata['pid']}",
             worker_type=self._worker_type,
             size=self._pool_size,
@@ -82,7 +83,7 @@ class ChildLoop:
         self._pool.cfg.parent = self._pool_cfg
         return self._pool
 
-    def _handle_abort(self, signum, frame):
+    def _handle_abort(self, signum: Any, frame: Any) -> None:
         self.logger.debug(
             "Signal handler called for signal %s from %s",
             signum,
@@ -95,9 +96,10 @@ class ChildLoop:
             os.kill(os.getpid(), 9)
             self.logger.debug("Pool %s aborted.", self._pool)
 
-    def _setup_logfiles(self):
+    def _setup_logfiles(self) -> None:
         from testplan.common.utils.logger import LOGFILE_FORMAT
 
+        assert self.runpath is not None
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
@@ -129,7 +131,7 @@ class ChildLoop:
         fhandler.setLevel(self.logger.level)
         self.logger.addHandler(fhandler)
 
-    def _send_and_expect(self, message, send, expect):
+    def _send_and_expect(self, message: Any, send: str, expect: List[str]) -> Any:
         try:
             return self._transport.send_and_receive(
                 message.make(send), expect=expect
@@ -138,7 +140,7 @@ class ChildLoop:
             self.logger.critical("Pool seems dead, child exits.")
             raise
 
-    def _pre_loop_setup(self, message):
+    def _pre_loop_setup(self, message: Any) -> None:
         response = self._send_and_expect(
             message,
             message.ConfigRequest,
@@ -171,7 +173,7 @@ class ChildLoop:
             self.runpath = pool_metadata["runpath"]
         self._setup_logfiles()
 
-    def worker_loop(self):
+    def worker_loop(self) -> None:
         """
         Child process worker loop. Manages an underlying thread pool, pulls and
         sends back results to the main pool.
@@ -198,9 +200,9 @@ class ChildLoop:
 
         with self._child_pool():
             message = Message(**self.metadata)
-            next_possible_request = 0
-            next_heartbeat = 0
-            request_delay = self._pool_cfg.active_loop_sleep
+            next_possible_request: float = 0
+            next_heartbeat: float = 0
+            request_delay: float = self._pool_cfg.active_loop_sleep
 
             while True:
                 # TODO: SHALL CHECK CHILD POOL ALIVE HERE
@@ -289,7 +291,7 @@ class ChildLoop:
                 time.sleep(self._pool_cfg.active_loop_sleep)
         self.logger.info("Local pool %s stopped.", self._pool)
 
-    def exit_loop(self):
+    def exit_loop(self) -> None:
         self._pool.abort()
 
 
@@ -299,11 +301,11 @@ class RemoteChildLoop(ChildLoop):
     This involved exchange of metadata for additional functionality.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super(RemoteChildLoop, self).__init__(*args, **kwargs)
-        self._setup_metadata = None
+        self._setup_metadata: Any = None
 
-    def _pre_loop_setup(self, message):
+    def _pre_loop_setup(self, message: Any) -> None:
         super(RemoteChildLoop, self)._pre_loop_setup(message)
 
         response = self._send_and_expect(
@@ -329,7 +331,7 @@ class RemoteChildLoop(ChildLoop):
                 raise RuntimeError("Setup script exited with non 0 code.")
 
 
-def child_logic(args):
+def child_logic(args: argparse.Namespace) -> None:
     """Able to be imported child logic."""
 
     import psutil
@@ -363,7 +365,7 @@ def child_logic(args):
         """
 
         # To eliminate a not needed runpath layer.
-        def make_runpath_dirs(self):
+        def make_runpath_dirs(self) -> None:
             self._runpath = self.cfg.runpath
 
     # FIXME: dedup
@@ -375,7 +377,7 @@ def child_logic(args):
         """
 
         # To eliminate a not needed runpath layer.
-        def make_runpath_dirs(self):
+        def make_runpath_dirs(self) -> None:
             self._runpath = self.cfg.runpath
 
     class NoRunpathProcessPool(ProcessPool):
@@ -386,7 +388,7 @@ def child_logic(args):
         """
 
         # To eliminate a not needed runpath layer.
-        def make_runpath_dirs(self):
+        def make_runpath_dirs(self) -> None:
             self._runpath = self.cfg.runpath
 
     transport = ZMQClient(address=args.address, recv_timeout=30)
@@ -406,8 +408,8 @@ def child_logic(args):
 
     elif args.type == "remote_worker":
         if args.remote_pool_type == "process":
-            pool_type = NoRunpathProcessPool
-            worker_type = ProcessWorker
+            pool_type: Any = NoRunpathProcessPool
+            worker_type: Any = ProcessWorker
         else:
             pool_type = NoRunpathThreadPool
             worker_type = Worker
@@ -426,7 +428,7 @@ def child_logic(args):
         loop.worker_loop()
 
 
-def process_syspath_file(filename, working_dir=None):
+def process_syspath_file(filename: str, working_dir: Optional[str] = None) -> List[str]:
     """
     Process the syspath file, which should contain one sys.path entry per line
     Since we might be on a remote host, we need to check the accessibility of

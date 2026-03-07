@@ -4,14 +4,17 @@ Base classes for rendering.
 
 import collections
 import functools
+from collections import OrderedDict
 from html import escape
+from typing import Any, Iterator, List, Optional, Sequence, Tuple, Union
 
 from reportlab.platypus import Paragraph
-from testplan.common.exporters.pdf import RowData
+from reportlab.lib.styles import ParagraphStyle
+from testplan.common.exporters.pdf import RowData as _RowData
 
 from . import constants
 
-RowData = functools.partial(RowData, num_columns=constants.NUM_COLUMNS)
+RowData = functools.partial(_RowData, num_columns=constants.NUM_COLUMNS)
 
 
 class SlicedParagraph:
@@ -32,12 +35,12 @@ class SlicedParagraph:
 
     def __init__(
         self,
-        parts,
-        width,
-        height=constants.MAX_CELL_HEIGHT,
-        style=constants.PARAGRAPH_STYLE,
-        **kwargs,
-    ):
+        parts: Union[List[Tuple[str, str]], Tuple[str, str]],
+        width: int,
+        height: int = constants.MAX_CELL_HEIGHT,
+        style: ParagraphStyle = constants.PARAGRAPH_STYLE,
+        **kwargs: Any,
+    ) -> None:
         self.width = width
         self.height = height
 
@@ -56,7 +59,7 @@ class SlicedParagraph:
 
         self.para = Paragraph(text="".join(text_parts), style=style, **kwargs)
 
-    def __next__(self):
+    def __next__(self) -> Any:
         if self.para:
             paras = self.para.split(self.width, self.height)
             # paras == [] for empty line
@@ -66,11 +69,11 @@ class SlicedParagraph:
         else:
             raise StopIteration
 
-    def __iter__(self):
+    def __iter__(self) -> "SlicedParagraph":
         return self
 
 
-def format_duration(seconds):
+def format_duration(seconds: float) -> str:
     """
     Format a duration into a human-readable string.
     """
@@ -87,10 +90,10 @@ class BaseRowRenderer:
 
     always_display = False
 
-    def __init__(self, style):
+    def __init__(self, style: Any) -> None:
         self.style = style
 
-    def get_row_data(self, source, depth, row_idx):
+    def get_row_data(self, source: Any, depth: int, row_idx: int) -> Any:
         """
         Return `RowData` to be rendered on the pdf.
 
@@ -106,10 +109,10 @@ class BaseRowRenderer:
         """
         raise NotImplementedError
 
-    def get_style(self, source):
+    def get_style(self, source: Any) -> Any:
         return self.style.passing
 
-    def should_display(self, source):
+    def should_display(self, source: Any) -> bool:
         """Use class attribute by default."""
         return (
             self.always_display
@@ -126,13 +129,13 @@ class MetadataMixin:
     information stored in `meta` dictionary, with readable labels.
     """
 
-    metadata_labels = ()
+    metadata_labels: Sequence[Tuple[str, str]] = ()
 
-    def get_metadata_labels(self):
+    def get_metadata_labels(self) -> Sequence[Tuple[str, str]]:
         """Wrapper around class attribute, so we can support inheritance."""
         return self.metadata_labels
 
-    def get_metadata_context(self, source):
+    def get_metadata_context(self, source: Any) -> OrderedDict[str, str]:
         """
         Return metadata context to be rendered
         on the PDF with readable labels.

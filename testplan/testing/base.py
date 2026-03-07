@@ -8,6 +8,7 @@ import warnings
 from datetime import datetime, timezone
 from enum import Enum
 from typing import (
+    Any,
     Callable,
     Dict,
     Generator,
@@ -118,8 +119,8 @@ class TestConfig(RunnableConfig):
     """Configuration object for :py:class:`~testplan.testing.base.Test`."""
 
     @classmethod
-    def get_options(cls):
-        start_stop_signature = Or(
+    def get_options(cls) -> Dict[Any, Any]:
+        start_stop_signature: Any = Or(
             None, validate_func("env"), validate_func("env", "result")
         )
 
@@ -209,7 +210,7 @@ class Test(Runnable):
 
     CONFIG = TestConfig
     RESULT = TestResult
-    ENVIRONMENT = TestEnvironment
+    ENVIRONMENT = TestEnvironment  # type: ignore[assignment]
 
     # Base test class only allows Test (top level) filtering
     filter_levels = [filtering.FilterLevel.TEST]
@@ -217,22 +218,22 @@ class Test(Runnable):
     def __init__(
         self,
         name: str,
-        description: str = None,
-        environment: Union[list, Callable] = None,
-        dependencies: Union[dict, Callable] = None,
-        initial_context: Union[dict, Callable] = None,
-        before_start: callable = None,
-        after_start: callable = None,
-        before_stop: callable = None,
-        after_stop: callable = None,
-        error_handler: callable = None,
-        test_filter: filtering.BaseFilter = None,
-        test_sorter: ordering.BaseSorter = None,
-        stdout_style: test_styles.Style = None,
-        tags: Union[str, Iterable[str]] = None,
+        description: Optional[str] = None,
+        environment: Optional[Union[list, Callable]] = None,
+        dependencies: Optional[Union[dict, Callable]] = None,
+        initial_context: Optional[Union[dict, Callable]] = None,
+        before_start: Optional[Callable] = None,
+        after_start: Optional[Callable] = None,
+        before_stop: Optional[Callable] = None,
+        after_stop: Optional[Callable] = None,
+        error_handler: Optional[Callable] = None,
+        test_filter: Optional[filtering.BaseFilter] = None,
+        test_sorter: Optional[ordering.BaseSorter] = None,
+        stdout_style: Optional[test_styles.Style] = None,
+        tags: Optional[Union[str, Iterable[str]]] = None,
         result: Type[result.Result] = result.Result,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(Test, self).__init__(**options)
 
@@ -241,8 +242,8 @@ class Test(Runnable):
                 "Multitest object contains colon in name: {self.cfg.name}"
             )
 
-        self._test_context = None
-        self._discover_path = None
+        self._test_context: Optional[List[Any]] = None
+        self._discover_path: Optional[str] = None
 
         self._init_test_report()
         self._env_built = False
@@ -253,7 +254,7 @@ class Test(Runnable):
         self.log_testcase_status = functools.partial(
             self._log_status, indent=TESTCASE_INDENT
         )
-        self._spans = {}
+        self._spans: Dict[str, Any] = {}
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}[{self.name}]"
@@ -283,7 +284,7 @@ class Test(Runnable):
         )
 
     def _init_test_report(self) -> None:
-        self.result.report = self._new_test_report()
+        self.result.report = self._new_test_report()  # type: ignore[attr-defined]
 
     def get_tags_index(self) -> Union[str, Iterable[str], Dict]:
         """
@@ -303,24 +304,24 @@ class Test(Runnable):
     @property
     def name(self) -> str:
         """Instance name."""
-        return self.cfg.name
+        return self.cfg.name  # type: ignore[no-any-return]
 
     @property
-    def description(self) -> str:
-        return self.cfg.description
+    def description(self) -> Optional[str]:
+        return self.cfg.description  # type: ignore[no-any-return]
 
     @property
-    def report(self) -> TestGroupReport:
+    def report(self) -> TestGroupReport:  # type: ignore[override]
         """Shortcut for the test report."""
-        return self.result.report
+        return self.result.report  # type: ignore[attr-defined, no-any-return]
 
     @property
-    def stdout_style(self):
+    def stdout_style(self) -> test_styles.Style:
         """Stdout style input."""
-        return self.cfg.stdout_style
+        return self.cfg.stdout_style  # type: ignore[no-any-return]
 
     @property
-    def test_context(self):
+    def test_context(self) -> List[Any]:
         if self._test_context is None:
             self._test_context = self.get_test_context()
         return self._test_context
@@ -328,10 +329,10 @@ class Test(Runnable):
     def reset_context(self) -> None:
         self._test_context = None
 
-    def get_test_context(self):
+    def get_test_context(self) -> List:
         raise NotImplementedError
 
-    def get_stdout_style(self, passed: bool):
+    def get_stdout_style(self, passed: bool) -> Any:
         """Stdout style for status."""
         return self.stdout_style.get_style(passing=passed)
 
@@ -340,10 +341,10 @@ class Test(Runnable):
 
     def uid(self) -> str:
         """Instance name uid."""
-        return self.cfg.name
+        return self.cfg.name  # type: ignore[no-any-return]
 
     def should_run(self) -> bool:
-        return (
+        return bool(
             self.cfg.test_filter.filter(
                 test=self,
                 # Instance level shallow filtering is applied by default
@@ -354,7 +355,7 @@ class Test(Runnable):
         )
 
     def should_log_test_result(
-        self, depth: int, test_obj, style
+        self, depth: int, test_obj: Any, style: Any
     ) -> Tuple[bool, int]:
         """
         Whether to log test result and if yes, then with what indent.
@@ -384,18 +385,18 @@ class Test(Runnable):
             return style.display_assertion, ASSERTION_INDENT
         raise TypeError(f"Unsupported test object: {test_obj}")
 
-    def log_test_results(self, top_down: bool = True):
+    def log_test_results(self, top_down: bool = True) -> None:
         """
         Log test results. i.e. ProcessRunnerTest or PyTest.
 
         :param top_down: Flag logging test results using a top-down approach
             or a bottom-up approach.
         """
-        report = self.result.report
+        report = self.result.report  # type: ignore[attr-defined]
         items = report.flatten(depths=True)
-        entries = []  # Composed of (depth, report obj)
+        entries: List[Any] = []  # Composed of (depth, report obj)
 
-        def log_entry(depth, obj):
+        def log_entry(depth: int, obj: Any) -> None:
             name = obj["description"] if isinstance(obj, dict) else obj.name
             try:
                 passed = obj["passed"] if isinstance(obj, dict) else obj.passed
@@ -502,7 +503,7 @@ class Test(Runnable):
         pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_START}:{ResourceHooks.STARTING}"
         self._xfail(pattern, case_report)
 
-    def _stop_resource(self, is_reversed=True) -> None:
+    def _stop_resource(self, is_reversed: bool = True) -> None:
         if len(self.resources) == 0:
             return
         case_report = self._create_case_or_override(
@@ -523,9 +524,9 @@ class Test(Runnable):
         pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_STOP}:{ResourceHooks.STOPPING}"
         self._xfail(pattern, case_report)
 
-    def _finish_resource_report(self, suite_name):
-        if self.result.report.has_uid(suite_name):
-            self.result.report[
+    def _finish_resource_report(self, suite_name: str) -> None:
+        if self.result.report.has_uid(suite_name):  # type: ignore[attr-defined]
+            self.result.report[  # type: ignore[attr-defined]
                 suite_name
             ].runtime_status = RuntimeStatus.FINISHED
 
@@ -546,15 +547,16 @@ class Test(Runnable):
         if span := self._spans.get(span_key):
             tracing.end_span(span, end_time=end_time)
 
-    def _get_error_logs(self) -> Dict:
+    def _get_error_logs(self) -> Optional[List[Dict[str, Any]]]:
         if "run_tests" in self.result.step_results:
             return [
                 log
                 for log in self.result.step_results["run_tests"].flattened_logs
                 if log["levelname"] == "ERROR"
             ]
+        return None
 
-    def skip_step(self, step) -> bool:
+    def skip_step(self, step: Callable) -> bool:
         """Check if a step should be skipped."""
         if step == self._run_error_handler:
             return not (
@@ -660,8 +662,8 @@ class Test(Runnable):
         )
 
     def run_testcases_iter(
-        self, testsuite_pattern: str = "*", testcase_pattern: str = "*"
-    ) -> None:
+        self, testsuite_pattern: str = "*", testcase_pattern: str = "*", **kwargs: Any
+    ) -> Optional[Generator]:
         """
         For a Test to be run interactively, it must implement this method.
 
@@ -715,10 +717,10 @@ class Test(Runnable):
 
     # TODO: this just for API compatibility
     # move RuntimeEnv to Test, or get rid of it?
-    def _get_runtime_environment(self, testcase_name, testcase_report):
-        return self.resources
+    def _get_runtime_environment(self, testcase_name: str, testcase_report: TestCaseReport) -> TestEnvironment:
+        return self.resources  # type: ignore[return-value]
 
-    def _get_hook_context(self, case_report):
+    def _get_hook_context(self, case_report: TestCaseReport) -> Tuple:
         return (
             case_report.timer.record("run"),
             case_report.logged_exceptions(),
@@ -737,15 +739,15 @@ class Test(Runnable):
             )
 
     def _get_suite_or_create(self, suite_name: str) -> TestGroupReport:
-        if self.result.report.has_uid(suite_name):
-            suite_report = self.result.report[suite_name]
+        if self.result.report.has_uid(suite_name):  # type: ignore[attr-defined]
+            suite_report = self.result.report[suite_name]  # type: ignore[attr-defined]
         else:
             suite_report = TestGroupReport(
                 name=suite_name,
                 category=ReportCategories.SYNTHESIZED,
             )
-            self.result.report.append(suite_report)
-        return suite_report
+            self.result.report.append(suite_report)  # type: ignore[attr-defined]
+        return suite_report  # type: ignore[no-any-return]
 
     def _create_case_or_override(
         self, suite_name: str, case_name: str, description: str = ""
@@ -764,7 +766,7 @@ class Test(Runnable):
 
     def _run_resource_hook(
         self, hook: Optional[Callable], hook_name: str, suite_name: str
-    ) -> None:
+    ) -> Any:
         # TODO: env or env, result signature is mandatory not an "if"
         """
         This method runs post/pre_start/stop hooks. User can optionally make
@@ -794,7 +796,7 @@ class Test(Runnable):
         case_report.pass_if_empty()
         try:
             interface.check_signature(hook, ["env", "result"])
-            hook_args = (runtime_env, case_result)
+            hook_args: tuple = (runtime_env, case_result)
         except interface.MethodSignatureMismatch:
             interface.check_signature(hook, ["env"])
             hook_args = (runtime_env,)
@@ -812,7 +814,7 @@ class Test(Runnable):
             if hasattr(self, "log_multitest_status"):
                 self.log_multitest_status(case_report)
             else:
-                self.log_testcase_status(case_report)
+                self.log_testcase_status(case_report)  # type: ignore[arg-type]
 
         pattern = ":".join([self.name, suite_name, hook_name])
         self._xfail(pattern, case_report)
@@ -844,9 +846,9 @@ class Test(Runnable):
                 testcase_report = TestCaseReport(name=testcase)
                 testsuite_report.append(testcase_report)
 
-            self.result.report.append(testsuite_report)
+            self.result.report.append(testsuite_report)  # type: ignore[attr-defined]
 
-    def dry_run(self, with_filter: bool = True) -> RunnableResult:
+    def dry_run(self, with_filter: bool = True) -> TestResult:  # type: ignore[override]
         """
         Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
@@ -862,7 +864,7 @@ class Test(Runnable):
             self.reset_context()
 
         try:
-            self.result.report = self._new_test_report()
+            self.result.report = self._new_test_report()  # type: ignore[attr-defined]
 
             for hook, hook_name, suite_name in (
                 (
@@ -903,7 +905,7 @@ class Test(Runnable):
             ):
                 self._dry_run_resource_hook(hook, hook_name, suite_name)
 
-            return self.result
+            return self.result  # type: ignore[return-value]
         finally:
             if original_filter is not None:
                 self.cfg.set_local("test_filter", original_filter)
@@ -918,7 +920,7 @@ class Test(Runnable):
 
         self._discover_path = path
 
-    def _xfail(self, pattern: str, report) -> None:
+    def _xfail(self, pattern: str, report: Any) -> None:
         """Utility xfail a report entry if found in xfail_tests"""
         if getattr(self.cfg, "xfail_tests", None):
             found = self.cfg.xfail_tests.get(pattern)
@@ -948,7 +950,7 @@ class Test(Runnable):
         table = [
             {
                 D_CLASS: driver.__class__.__name__,
-                D_NAME: driver.name,
+                D_NAME: driver.name,  # type: ignore[attr-defined]
                 START_TIME: _try_asutc(
                     driver.timer.last(setup_or_teardown).start
                 ),
@@ -960,7 +962,7 @@ class Test(Runnable):
         ]
         table.sort(key=lambda entry: entry[START_TIME])
 
-        def _format_start_stop_time(d):
+        def _format_start_stop_time(d: Dict) -> Dict:
             # format tablelog entries to be human readable
             st = (
                 d[START_TIME].strftime("%H:%M:%S.%f")
@@ -985,7 +987,7 @@ class Test(Runnable):
             )
         else:
             # input for plotly
-            px_input = {
+            px_input: Dict[str, List[Any]] = {
                 D_NAME: [],
                 START_TIME: [],
                 END_TIME: [],
@@ -1025,7 +1027,7 @@ class Test(Runnable):
         )
         graph = DriverConnectionGraph(self.resources)
         for driver in self.resources:
-            for conn_info in driver.get_connections():
+            for conn_info in driver.get_connections():  # type: ignore[attr-defined]
                 graph.add_connection(str(driver), conn_info)
         graph.set_nodes_and_edges()
         case_result.flow_chart(
@@ -1038,7 +1040,7 @@ class Test(Runnable):
         # handle possibly missing ``driver_info``
         if not hasattr(self.cfg, "driver_info"):
             return False
-        return self.cfg.driver_info
+        return self.cfg.driver_info  # type: ignore[no-any-return]
 
     @property
     def collect_code_context(self) -> bool:
@@ -1049,13 +1051,13 @@ class Test(Runnable):
         return getattr(self.cfg, "collect_code_context", False)
 
     @property
-    def otel_traces(self) -> bool:
+    def otel_traces(self) -> TraceLevel:
         # handle possibly missing ``otel_traces``
         if not hasattr(self.cfg, "otel_traces"):
             return TraceLevel.NONE
-        return self.cfg.otel_traces
+        return self.cfg.otel_traces  # type: ignore[no-any-return]
 
-    def _run_batch_steps(self):
+    def _run_batch_steps(self) -> None:
         with (
             tracing.attach_to_root_context(),  # this is needed for Plan level
             tracing.conditional_span(
@@ -1077,7 +1079,7 @@ class ProcessRunnerTestConfig(TestConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict:
         return {
             "binary": str,
             ConfigOption("proc_env", default=None): Or(dict, None),
@@ -1136,35 +1138,39 @@ class ProcessRunnerTest(Test):
     _VERIFICATION_TESTCASE_NAME = "ExitCodeCheck"
     _MAX_RETAINED_LOG_SIZE = 4096
 
-    def __init__(self, **options) -> None:
+    def __init__(self, **options: Any) -> None:
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
-        self._test_process = None  # will be set by `self.run_tests`
-        self._test_process_retcode = None  # will be set by `self.run_tests`
+        self._test_process: Optional[subprocess.Popen] = None  # will be set by `self.run_tests`
+        self._test_process_retcode: Optional[int] = None  # will be set by `self.run_tests`
         self._test_process_killed = False
         self._test_has_run = False
-        self._resolved_bin = None  # resolved binary path
+        self._resolved_bin: Optional[str] = None  # resolved binary path
 
     @property
     def stderr(self) -> Optional[str]:
         if self._runpath:
             return os.path.join(self._runpath, "stderr")
+        return None
 
     @property
     def stdout(self) -> Optional[str]:
         if self._runpath:
             return os.path.join(self._runpath, "stdout")
+        return None
 
     @property
     def timeout_log(self) -> Optional[str]:
         if self._runpath:
             return os.path.join(self._runpath, "timeout.log")
+        return None
 
     @property
     def report_path(self) -> Optional[str]:
         if self._runpath:
             return os.path.join(self._runpath, "report.xml")
+        return None
 
     @property
     def resolved_bin(self) -> str:
@@ -1180,10 +1186,10 @@ class ProcessRunnerTest(Test):
         # Need to use the binary's absolute path if `proc_cwd` is specified,
         # otherwise won't be able to find the binary.
         if self.cfg.proc_cwd:
-            return os.path.abspath(self.cfg.binary)
+            return os.path.abspath(self.cfg.binary)  # type: ignore[no-any-return]
         # use user-specified binary as-is, override if more sophisticated binary resolution is needed.
         else:
-            return self.cfg.binary
+            return self.cfg.binary  # type: ignore[no-any-return]
 
     def test_command(self) -> List[str]:
         """
@@ -1230,7 +1236,7 @@ class ProcessRunnerTest(Test):
         """
         return []
 
-    def get_test_context(self, list_cmd=None):
+    def get_test_context(self, list_cmd: Optional[List[str]] = None) -> List:
         """
         Run the shell command generated by `list_command` in a subprocess,
         parse and return the stdout generated via `parse_test_context`.
@@ -1284,7 +1290,7 @@ class ProcessRunnerTest(Test):
         """
         raise NotImplementedError
 
-    def timeout_callback(self):
+    def timeout_callback(self) -> None:
         """
         Callback function that will be called by the daemon thread if a timeout
         occurs (e.g. process runs longer than specified timeout value).
@@ -1293,7 +1299,7 @@ class ProcessRunnerTest(Test):
         """
 
         self._test_process_killed = True
-        with self.result.report.logged_exceptions():
+        with self.result.report.logged_exceptions():  # type: ignore[attr-defined]
             raise RuntimeError(
                 "Timeout while running {instance} after {timeout}.".format(
                     instance=self, timeout=format_duration(self.cfg.timeout)
@@ -1340,7 +1346,7 @@ class ProcessRunnerTest(Test):
 
         return env
 
-    def run_tests(self) -> None:
+    def run_tests(self) -> TestGroupReport:
         """
         Run the tests in a subprocess, record stdout & stderr on runpath.
         Optionally enforce a timeout and log timeout related messages in
@@ -1357,8 +1363,8 @@ class ProcessRunnerTest(Test):
         ):
             with (
                 self.report.logged_exceptions(),
-                open(self.stderr, "w") as stderr,
-                open(self.stdout, "w") as stdout,
+                open(self.stderr, "w") as stderr,  # type: ignore[arg-type]
+                open(self.stdout, "w") as stdout,  # type: ignore[arg-type]
             ):
                 test_cmd = self.test_command()
                 if not test_cmd:
@@ -1371,14 +1377,14 @@ class ProcessRunnerTest(Test):
                 )
                 self._test_process = subprocess_popen(
                     test_cmd,
-                    stderr=stderr,
-                    stdout=stdout,
+                    stderr=stderr,  # type: ignore[arg-type]
+                    stdout=stdout,  # type: ignore[arg-type]
                     cwd=self.cfg.proc_cwd,
                     env=self.get_proc_env(),
                 )
 
                 if self.cfg.timeout:
-                    with open(self.timeout_log, "w") as timeout_log:
+                    with open(self.timeout_log, "w") as timeout_log:  # type: ignore[arg-type]
                         timeout_checker = enforce_timeout(
                             process=self._test_process,
                             timeout=self.cfg.timeout,
@@ -1394,7 +1400,7 @@ class ProcessRunnerTest(Test):
 
         return self.report
 
-    def read_test_data(self):
+    def read_test_data(self) -> Any:
         """
         Parse output generated by the 3rd party testing tool, and then
         the parsed content will be handled by ``process_test_data``.
@@ -1404,7 +1410,7 @@ class ProcessRunnerTest(Test):
         """
         raise NotImplementedError
 
-    def process_test_data(self, test_data):
+    def process_test_data(self, test_data: Any) -> List:
         """
         Process raw test data that was collected and return a list of
         entries (e.g. TestGroupReport, TestCaseReport) that will be
@@ -1418,7 +1424,7 @@ class ProcessRunnerTest(Test):
         raise NotImplementedError
 
     def get_process_check_report(
-        self, retcode: int, stdout: str, stderr: str
+        self, retcode: Optional[int], stdout: Optional[str], stderr: Optional[str]
     ) -> TestGroupReport:
         """
         When running a process fails (e.g. binary crash, timeout etc)
@@ -1477,31 +1483,31 @@ class ProcessRunnerTest(Test):
         """
         if self._test_process_killed or not self._test_has_run:
             # Return code is `None` if process was killed or test has not run
-            self.result.report.append(
+            self.result.report.append(  # type: ignore[attr-defined]
                 self.get_process_check_report(
                     self._test_process_retcode, self.stdout, self.stderr
                 )
             )
             return
 
-        if len(self.result.report):
-            for suite in self.result.report:
+        if len(self.result.report):  # type: ignore[attr-defined]
+            for suite in self.result.report:  # type: ignore[attr-defined]
                 if suite.name not in [
                     member.value for member in ResourceHooks
                 ]:
                     raise ValueError(
-                        f"Cannot update test report, it already has a children: {self.result.report}"
+                        f"Cannot update test report, it already has a children: {self.result.report}"  # type: ignore[attr-defined]
                     )
 
-        with self.result.report.logged_exceptions():
-            self.result.report.extend(
+        with self.result.report.logged_exceptions():  # type: ignore[attr-defined]
+            self.result.report.extend(  # type: ignore[attr-defined]
                 self.process_test_data(self.read_test_data())
             )
 
         # Check process exit code as last step, as we don't want to create
         # an error log if the report was populated
         # (with possible failures) already
-        self.result.report.append(
+        self.result.report.append(  # type: ignore[attr-defined]
             self.get_process_check_report(
                 self._test_process_retcode, self.stdout, self.stderr
             )
@@ -1512,7 +1518,7 @@ class ProcessRunnerTest(Test):
         Apply xfail tests specified via --xfail-tests or @test_plan(xfail_tests=...).
         """
 
-        test_report = self.result.report
+        test_report = self.result.report  # type: ignore[attr-defined]
         pattern = f"{test_report.name}:*:*"
         self._xfail(pattern, test_report)
 
@@ -1558,13 +1564,14 @@ class ProcessRunnerTest(Test):
             category=ReportCategories.SYNTHESIZED,
             entries=[testcase_report],
         )
-        self.result.report.append(testsuite_report)
+        self.result.report.append(testsuite_report)  # type: ignore[attr-defined]
 
     def run_testcases_iter(
         self,
         testsuite_pattern: str = "*",
         testcase_pattern: str = "*",
-        shallow_report: Dict = None,
+        shallow_report: Optional[Dict] = None,
+        **kwargs: Any,
     ) -> Generator:
         """
         Runs testcases as defined by the given filter patterns and yields
@@ -1633,8 +1640,8 @@ class ProcessRunnerTest(Test):
         self.logger.debug("test_cmd = %s", test_cmd)
 
         with (
-            open(self.stdout, mode="w+") as stdout,
-            open(self.stderr, mode="w+") as stderr,
+            open(self.stdout, mode="w+") as stdout,  # type: ignore[arg-type]
+            open(self.stderr, mode="w+") as stderr,  # type: ignore[arg-type]
         ):
             exit_code = subprocess.call(
                 test_cmd,
@@ -1664,7 +1671,7 @@ class ProcessRunnerTest(Test):
 
     def test_command_filter(
         self, testsuite_pattern: str, testcase_pattern: str
-    ):
+    ) -> List[str]:
         """
         Return the base test command with additional filtering to run a
         specific set of testcases. To be implemented by concrete subclasses.
@@ -1673,7 +1680,7 @@ class ProcessRunnerTest(Test):
 
     def list_command_filter(
         self, testsuite_pattern: str, testcase_pattern: str
-    ):
+    ) -> Optional[List[str]]:
         """
         Return the base list command with additional filtering to list a
         specific set of testcases. To be implemented by concrete subclasses.

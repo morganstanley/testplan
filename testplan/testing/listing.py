@@ -8,7 +8,7 @@ import os
 from argparse import Action, ArgumentParser, Namespace
 from enum import Enum
 from os import PathLike
-from typing import TYPE_CHECKING, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
 from urllib.parse import urlparse
 
 from testplan.common.utils.json import json_dumps
@@ -27,15 +27,15 @@ MAX_TESTCASES = 25
 
 
 class Listertype:
-    NAME = None
-    DESCRIPTION = None
+    NAME: Optional[str] = None
+    DESCRIPTION: Optional[str] = None
 
     metadata_based = False
 
-    def name(self):
+    def name(self) -> Optional[str]:
         return self.NAME
 
-    def description(self):
+    def description(self) -> Optional[str]:
         return self.DESCRIPTION
 
 
@@ -47,12 +47,12 @@ class BaseLister(Listertype):
     added to :py:data:`listing_registry`.
     """
 
-    def log_test_info(self, instance):
+    def log_test_info(self, instance: "Test") -> None:
         output = self.get_output(instance)
         if output:
             TESTPLAN_LOGGER.user_info(output)
 
-    def get_output(self, instance):
+    def get_output(self, instance: "Test") -> str:
         raise NotImplementedError
 
 
@@ -75,16 +75,16 @@ class ExpandedNameLister(BaseLister):
     NAME = "NAME_FULL"
     DESCRIPTION = "List tests in readable format."
 
-    def format_instance(self, instance):
+    def format_instance(self, instance: "Test") -> str:
         return instance.uid()
 
-    def format_suite(self, instance, suite):
+    def format_suite(self, instance: "Test", suite: Any) -> str:
         return suite if isinstance(suite, str) else suite.name
 
-    def format_testcase(self, instance, suite, testcase):
+    def format_testcase(self, instance: "Test", suite: Any, testcase: Any) -> str:
         return testcase if isinstance(testcase, str) else testcase.name
 
-    def get_testcase_outputs(self, instance, suite, testcases):
+    def get_testcase_outputs(self, instance: "Test", suite: Any, testcases: List[Any]) -> str:
         result = ""
         for testcase in testcases:
             result += "{}{}{}".format(
@@ -96,7 +96,7 @@ class ExpandedNameLister(BaseLister):
             )
         return result
 
-    def get_output(self, instance):
+    def get_output(self, instance: "Test") -> str:
         result = ""
         test_context = instance.test_context
 
@@ -148,24 +148,24 @@ class ExpandedPatternLister(ExpandedNameLister):
     NAME = "PATTERN_FULL"
     DESCRIPTION = "List tests in `--patterns` / `--tags` compatible format."
 
-    def format_instance(self, instance):
+    def format_instance(self, instance: "Test") -> str:
         return test_pattern(instance)
 
-    def apply_tag_label(self, pattern, obj):
+    def apply_tag_label(self, pattern: str, obj: Any) -> str:
         if obj.__tags__:
             return "{}  --tags {}".format(
                 pattern, tagging.tag_label(obj.__tags__)
             )
         return pattern
 
-    def format_suite(self, instance, suite):
+    def format_suite(self, instance: "Test", suite: Any) -> str:
         if not isinstance(instance, MultiTest):
             return "{}:{}".format(test_pattern(instance), suite)
 
         pattern = "{}:{}".format(test_pattern(instance), suite.name)
         return self.apply_tag_label(pattern, suite)
 
-    def format_testcase(self, instance, suite, testcase):
+    def format_testcase(self, instance: "Test", suite: Any, testcase: Any) -> str:
         if not isinstance(instance, MultiTest):
             return "{}:{}:{}".format(test_pattern(instance), suite, testcase)
 
@@ -180,7 +180,7 @@ class TrimMixin:
         MAX_TESTCASES
     )
 
-    def get_testcase_outputs(self, instance, suite, testcases):
+    def get_testcase_outputs(self, instance: "Test", suite: Any, testcases: List[Any]) -> str:
         result = ""
         testcases_to_display = testcases[:MAX_TESTCASES]
         rest_testcases = testcases[MAX_TESTCASES:]
@@ -190,7 +190,7 @@ class TrimMixin:
         for testcase in testcases_to_display:
             result += "{}{}".format(
                 prefix,
-                self.format_testcase(
+                self.format_testcase(  # type: ignore[attr-defined]
                     instance=instance, suite=suite, testcase=testcase
                 ),
             )
@@ -231,7 +231,7 @@ class CountLister(BaseLister):
     NAME = "COUNT"
     DESCRIPTION = "Lists top level instances and total number of suites & testcases per instance."
 
-    def get_output(self, instance):
+    def get_output(self, instance: "Test") -> str:
         test_context = instance.test_context
         if test_context:
             suites, testcase_lists = zip(*test_context)
@@ -256,26 +256,26 @@ class store_lister_and_path(Action):
         self,
         parser: ArgumentParser,
         namespace: Namespace,
-        values: Tuple[Listertype, PathLike],
+        values: Union[str, Sequence[Any], None],
         option_string: Union[str, None] = None,
     ) -> None:
-        setattr(namespace, self.dest, values[0])
-        setattr(namespace, f"{self.dest}_output", values[1])
+        setattr(namespace, self.dest, values[0])  # type: ignore[index]
+        setattr(namespace, f"{self.dest}_output", values[1])  # type: ignore[index]
 
 
 class ListingArgMixin(ArgMixin):
     @classmethod
-    def parse(cls, arg):
+    def parse(cls, arg: str) -> Any:
         uri = urlparse(arg)
         lister, path = (uri.scheme, uri.path) if uri.scheme else (arg, None)
         return super().parse(lister), path
 
     @classmethod
-    def get_descriptions(cls):
-        return dict([(lister, lister.value.description()) for lister in cls])
+    def get_descriptions(cls) -> Dict[Any, Any]:
+        return dict([(lister, lister.value.description()) for lister in cls])  # type: ignore[attr-defined]
 
     @classmethod
-    def get_parser_context(cls, default=None, **kwargs):
+    def get_parser_context(cls, default: Optional[Any] = None, **kwargs: Any) -> Dict[str, Any]:
         return dict(
             **super().get_parser_context(default, **kwargs),
             action=store_lister_and_path,
@@ -292,12 +292,12 @@ class MetadataBasedLister(Listertype):
 
     metadata_based = True
 
-    def log_test_info(self, metadata: TestPlanMetadata):
+    def log_test_info(self, metadata: TestPlanMetadata) -> None:
         output = self.get_output(metadata)
         if output:
             TESTPLAN_LOGGER.user_info(output)
 
-    def get_output(self, metadata: TestPlanMetadata):
+    def get_output(self, metadata: TestPlanMetadata) -> str:
         raise NotImplementedError
 
 
@@ -308,7 +308,7 @@ class SimpleJsonLister(MetadataBasedLister):
         "Can take json:/path/to/output.json as well, then the result is dumped to the file"
     )
 
-    def get_output(self, metadata: TestPlanMetadata):
+    def get_output(self, metadata: TestPlanMetadata) -> str:
         return json_dumps(dataclasses.asdict(metadata), indent_2=True)
 
 
@@ -318,17 +318,17 @@ class ListingRegistry:
     instance which is used to create the commandline parser.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.listers: List[Listertype] = []
 
-    def add_lister(self, lister):
+    def add_lister(self, lister: Listertype) -> None:
         self.listers.append(lister)
 
     @staticmethod
-    def get_arg_name(lister):
+    def get_arg_name(lister: Listertype) -> Optional[str]:
         return lister.name()
 
-    def to_arg(self):
+    def to_arg(self) -> Any:
         return Enum(
             "ListingArg",
             [(self.get_arg_name(lister), lister) for lister in self.listers],

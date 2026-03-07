@@ -6,7 +6,7 @@ import signal
 import socket
 from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
-from typing import Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from schema import Or
 
@@ -24,10 +24,13 @@ from testplan.common.utils.process import kill_process
 from testplan.common.utils.remote import copy_cmd, ssh_cmd
 from testplan.common.utils.timing import get_sleeper, wait
 
+from testplan.testing.base import TestResult
+
 from .base import Pool, PoolConfig
 from .communication import Message
 from .connection import ZMQServer
 from .process import ProcessWorker, ProcessWorkerConfig
+from .tasks import Task
 
 
 class UnboundRemoteWorkerConfig(
@@ -43,7 +46,7 @@ class UnboundRemoteWorkerConfig(
     ignore_extra_keys = True
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -73,14 +76,14 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
     CONFIG = RemoteWorkerConfig
 
-    def __init__(self, **options) -> None:
+    def __init__(self, **options: Any) -> None:
         if options["workers"] == 1:
             options["pool_type"] = "thread"
         super().__init__(**options)
 
     @property
     def host(self) -> str:
-        return self.cfg.remote_host
+        return self.cfg.remote_host  # type: ignore[no-any-return]
 
     def _set_child_script(self) -> None:
         """Specify the remote worker executable file."""
@@ -89,8 +92,8 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         self._child_paths.local = fix_home_prefix(self._child_path())
         self._child_paths.remote = rebase_path(
             self._child_paths.local,
-            self._testplan_import_path.local,
-            self._testplan_import_path.remote,
+            self._testplan_import_path.local,  # type: ignore[arg-type]
+            self._testplan_import_path.remote,  # type: ignore[arg-type]
         )
 
     def _proc_cmd_impl(self) -> List[str]:
@@ -101,7 +104,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             "--index",
             str(self.cfg.index),
             "--address",
-            self.transport.address,
+            self.transport.address,  # type: ignore[attr-defined]
             "--type",
             "remote_worker",
             "--log-level",
@@ -121,23 +124,24 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
         if self.otel_logs:
             cmd.append("--otel-logs")
-        if self.parent.resource_monitor_address:
+        assert self.parent is not None
+        if self.parent.resource_monitor_address:  # type: ignore[attr-defined]
             cmd.extend(
                 [
                     "--resource-monitor-server",
-                    self.parent.resource_monitor_address,
+                    self.parent.resource_monitor_address,  # type: ignore[attr-defined]
                 ]
             )
 
         return cmd
 
-    def _proc_cmd(self) -> str:
+    def _proc_cmd(self) -> str:  # type: ignore[override]
         """Command to start child process."""
 
         cmd = self._proc_cmd_impl()
-        return self.cfg.ssh_cmd(self.ssh_cfg, " ".join(cmd))
+        return self.cfg.ssh_cmd(self.ssh_cfg, " ".join(cmd))  # type: ignore[no-any-return]
 
-    def _write_syspath(self) -> None:
+    def _write_syspath(self) -> None:  # type: ignore[override]
         """
         Write our current sys.path to a file and transfer it to the remote
         host.
@@ -215,33 +219,33 @@ class RemoteWorker(ProcessWorker, RemoteResource):
     def post_stop(self) -> None:
         self._clean_remote()
 
-    def _rebase_assertion(self, result) -> None:
+    def _rebase_assertion(self, result: Any) -> None:
         if isinstance(result, dict) and "source_path" in result:
             result["source_path"] = rebase_path(
                 result["source_path"],
                 self._remote_plan_runpath,
-                self._get_plan().runpath,
+                self._get_plan().runpath,  # type: ignore[arg-type]
             )
         else:
             entries = getattr(result, "entries", [])
             for entry in entries:
                 self._rebase_assertion(entry)
 
-    def rebase_attachment(self, result) -> None:
+    def rebase_attachment(self, result: TestResult) -> None:
         """Rebase the path of attachment from remote to local"""
 
-        for attachment in result.report.attachments:
+        for attachment in result.report.attachments:  # type: ignore[attr-defined]
             attachment.source_path = rebase_path(
                 attachment.source_path,
                 self._remote_plan_runpath,
-                self._get_plan().runpath,
+                self._get_plan().runpath,  # type: ignore[arg-type]
             )
         self._rebase_assertion(result.report)
 
-    def rebase_task_path(self, task) -> None:
+    def rebase_task_path(self, task: Task) -> None:
         """Rebase the path of task from local to remote"""
         task.rebase_path(
-            self._workspace_paths.local, self._workspace_paths.remote
+            self._workspace_paths.local, self._workspace_paths.remote  # type: ignore[arg-type]
         )
 
 
@@ -259,7 +263,7 @@ class RemotePoolConfig(PoolConfig):
     default_hostname = socket.gethostbyname(socket.gethostname())
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -323,7 +327,7 @@ class RemotePool(Pool):
     """
 
     CONFIG = RemotePoolConfig
-    CONN_MANAGER = ZMQServer
+    CONN_MANAGER = ZMQServer  # type: ignore[assignment]
     QUEUE_WAIT_INTERVAL = 3
     MAX_THREAD_POOL_SIZE = 5
 
@@ -331,7 +335,7 @@ class RemotePool(Pool):
         self,
         name: str,
         hosts: Dict[str, int],
-        abort_signals: List[int] = None,
+        abort_signals: Optional[List[int]] = None,
         worker_type: Type = RemoteWorker,
         pool_type: str = "process",
         host: str = CONFIG.default_hostname,
@@ -340,33 +344,33 @@ class RemotePool(Pool):
         ssh_port: int = 22,
         ssh_cmd: Callable = ssh_cmd,
         copy_cmd: Callable = copy_cmd,
-        workspace: str = None,
-        workspace_exclude: List[str] = None,
-        remote_runpath: str = None,
-        remote_workspace: str = None,
+        workspace: Optional[str] = None,
+        workspace_exclude: Optional[List[str]] = None,
+        remote_runpath: Optional[str] = None,
+        remote_workspace: Optional[str] = None,
         clean_remote: bool = False,
-        push: List[Union[str, Tuple[str, str]]] = None,
-        push_exclude: List[str] = None,
+        push: Optional[List[Union[str, Tuple[str, str]]]] = None,
+        push_exclude: Optional[List[str]] = None,
         delete_pushed: bool = False,
         fetch_runpath: bool = True,
-        fetch_runpath_exclude: List[str] = None,
-        pull: List[str] = None,
-        pull_exclude: List[str] = None,
-        env: Dict[str, str] = None,
-        setup_script: List[str] = None,
+        fetch_runpath_exclude: Optional[List[str]] = None,
+        pull: Optional[List[str]] = None,
+        pull_exclude: Optional[List[str]] = None,
+        env: Optional[Dict[str, str]] = None,
+        setup_script: Optional[List[str]] = None,
         paramiko_config: Optional[dict] = None,
         remote_runtime_builder: Optional[RuntimeBuilder] = None,
-        **options,
+        **options: Any,
     ) -> None:
-        self.pool = None
+        self.pool: Optional[ThreadPool] = None
         options.update(self.filter_locals(locals()))
         super(RemotePool, self).__init__(**options)
         self._options = options  # pass to remote worker later
         self._request_handlers[Message.MetadataPull] = (
-            self._worker_setup_metadata
+            self._worker_setup_metadata  # type: ignore[assignment]
         )
 
-        self._instances = {}
+        self._instances: Dict[str, Dict[str, Any]] = {}
 
         for host, number_of_workers in self.cfg.hosts.items():
             self._instances[host] = {
@@ -376,8 +380,10 @@ class RemotePool(Pool):
 
     @property
     def resource_monitor_address(self) -> Optional[str]:
-        if self.parent.resource_monitor_server:
-            return self.parent.resource_monitor_server.address
+        assert self.parent is not None
+        if self.parent.resource_monitor_server:  # type: ignore[attr-defined]
+            return self.parent.resource_monitor_server.address  # type: ignore[attr-defined, no-any-return]
+        return None
 
     @staticmethod
     def _worker_setup_metadata(
@@ -388,7 +394,6 @@ class RemotePool(Pool):
         )
 
     def _add_workers(self) -> None:
-        """TODO."""
         rtb = self._options.get("remote_runtime_builder")
         for instance in self._instances.values():
             worker = self.cfg.worker_type(
@@ -408,7 +413,7 @@ class RemotePool(Pool):
     def _start_workers(self) -> None:
         """Start all workers of the pool"""
         for worker in self._workers:
-            self._conn.register(worker)
+            self._conn.register(worker)  # type: ignore[arg-type]
         if self.pool:
             self._workers.start_in_pool(
                 self.pool,
@@ -437,10 +442,10 @@ class RemotePool(Pool):
                     "Please upgrade to the suggested python interpreter."
                 )
 
-    def _early_stop_worker(self, worker: RemoteWorker) -> bool:
+    def _early_stop_worker(self, worker: RemoteWorker) -> bool:  # type: ignore[override]
         if len(worker.assigned) != 0:
             return False
-        worker_uid = worker.uid()
+        worker_uid: str = worker.uid()  # type: ignore[assignment]
         with self._pool_lock:
             if self.pool and (worker_uid not in self._stopping_queue):
                 alive_worker_ids = set(
@@ -466,7 +471,7 @@ class RemotePool(Pool):
 
     def stopping(self) -> None:
         for worker in self._workers:
-            if worker.status == worker.status.STARTING:
+            if worker.status == worker.status.STARTING:  # type: ignore[attr-defined]
                 try:
                     wait(
                         lambda: (

@@ -8,7 +8,7 @@ import inspect
 import itertools
 import types
 import warnings
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from testplan import defaults
 from testplan.common.utils import interface, strings
@@ -24,16 +24,16 @@ from .test_metadata import (
 )
 
 # Global variables
-__TESTCASES__ = []
-__PARAMETRIZATION_TEMPLATE__ = []
-__GENERATED_TESTCASES__ = []
+__TESTCASES__: List[str] = []
+__PARAMETRIZATION_TEMPLATE__: List[str] = []
+__GENERATED_TESTCASES__: List[Any] = []
 
 
 TESTCASE_METADATA_ATTRIBUTE = "__testcase_metadata__"
 TESTSUITE_METADATA_ATTRIBUTE = "__testsuite_metadata__"
 
 
-def _reset_globals():
+def _reset_globals() -> None:
     # pylint: disable=global-statement
     global __TESTCASES__
     global __PARAMETRIZATION_TEMPLATE__
@@ -44,7 +44,7 @@ def _reset_globals():
     __GENERATED_TESTCASES__ = []
 
 
-def update_tag_index(obj, tag_dict):
+def update_tag_index(obj: Any, tag_dict: Dict[str, Any]) -> None:
     """
     Utility for updating ``__tags_index__`` attribute of an object.
     """
@@ -56,7 +56,7 @@ def update_tag_index(obj, tag_dict):
     )
 
 
-def propagate_tag_indices(suite, tag_dict):
+def propagate_tag_indices(suite: Any, tag_dict: Dict[str, Any]) -> None:
     """
     Update tag indices of the suite instance / class and its children (e.g.
     testcases, parametrization templates).
@@ -114,7 +114,7 @@ def propagate_tag_indices(suite, tag_dict):
         update_tag_index(child, tag_dict)
 
 
-def get_testsuite_name(suite):
+def get_testsuite_name(suite: Any) -> str:
     """
     Returns the name to be used for the given testsuite. This is made of
     either the class name or the result of `name` (can be a normal string
@@ -163,7 +163,7 @@ def get_testsuite_name(suite):
     return suite.name
 
 
-def get_testsuite_desc(suite):
+def get_testsuite_desc(suite: Any) -> Optional[str]:
     """
     Return the description of the testsuite.
 
@@ -174,7 +174,7 @@ def get_testsuite_desc(suite):
     return strings.format_description(desc.rstrip()) if desc else None
 
 
-def set_testsuite_testcases(suite):
+def set_testsuite_testcases(suite: Any) -> None:
     """
     Build the list of testcases to run for the given testsuite. The name of
     each testcase should be unique.
@@ -231,21 +231,21 @@ def set_testsuite_testcases(suite):
     setattr(suite, "__testcases__", testcases)
 
 
-def _gen_skipped_case(skip_reason, orig_case):
+def _gen_skipped_case(skip_reason: str, orig_case: Any) -> Any:
     """
     Generate a new testcase with body replaced by "result.skip".
     """
 
-    def _f(_, result):
+    def _f(_: Any, result: Any) -> None:
         result.skip(skip_reason)
 
     # since the original name has been already validated
-    _f.name = orig_case.name
+    _f.name = orig_case.name  # type: ignore[attr-defined]
     _f.__name__ = orig_case.__name__
     _f.__doc__ = orig_case.__doc__
-    _f.__tags__ = orig_case.__tags__
-    _f.__tags_index__ = orig_case.__tags_index__
-    _f.__should_skip__ = True
+    _f.__tags__ = orig_case.__tags__  # type: ignore[attr-defined]
+    _f.__tags_index__ = orig_case.__tags_index__  # type: ignore[attr-defined]
+    _f.__should_skip__ = True  # type: ignore[attr-defined]
     setattr(
         _f,
         TESTCASE_METADATA_ATTRIBUTE,
@@ -253,12 +253,12 @@ def _gen_skipped_case(skip_reason, orig_case):
     )
     # NOTE: interactive reloader will regenerate the skipped testcase
     #             so it will need the __skip__ attribute.
-    _f.__skip__ = orig_case.__skip__
+    _f.__skip__ = orig_case.__skip__  # type: ignore[attr-defined]
     _mark_function_as_testcase(_f)
     return _f
 
 
-def get_testcase_desc(suite, testcase_name):
+def get_testcase_desc(suite: Any, testcase_name: str) -> str:
     """
     Return the description of the testcase with the given name of the
     given testsuite.
@@ -270,7 +270,7 @@ def get_testcase_desc(suite, testcase_name):
     return strings.format_description(desc.rstrip()) if desc else ""
 
 
-def get_testcase_methods(suite):
+def get_testcase_methods(suite: Any) -> List[Any]:
     """
     Return the unbound method objects marked as a testcase
     from a testsuite class.
@@ -282,7 +282,7 @@ def get_testcase_methods(suite):
     ]
 
 
-def _selective_call(decorator_func, meta_func, wrapper_func):
+def _selective_call(decorator_func: Callable[..., Any], meta_func: Callable[..., Any], wrapper_func: Callable[..., Any]) -> Callable[..., Any]:
     """
     This hacky higher order function gives us the flexibility of using the
     'same' decorator with or without extra arguments. So both declarations will
@@ -307,7 +307,7 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
     argument and calls the original ``decorator_func`` with that arg.
     """
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         """
         Only allow 2 scenarios:
 
@@ -336,14 +336,14 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
     return wrapper
 
 
-def _number_of_testcases():
+def _number_of_testcases() -> int:
     """
     Number of testcases in a test suite.
     """
     return len(__TESTCASES__) + len(__GENERATED_TESTCASES__)
 
 
-def _ensure_unique_generated_testcase_names(names, functions):
+def _ensure_unique_generated_testcase_names(names: List[str], functions: List[Any]) -> None:
     """
     If function generation ends up with functions with duplicate names, this
     last step will make sure that they are differentiated by number suffixes.
@@ -356,7 +356,7 @@ def _ensure_unique_generated_testcase_names(names, functions):
     if len(dupe_names) == 0:
         return
 
-    dupe_counter = collections.defaultdict(int)
+    dupe_counter: Dict[str, int] = collections.defaultdict(int)
     valid_names = set(names)
 
     for func in functions:
@@ -385,7 +385,7 @@ def _ensure_unique_generated_testcase_names(names, functions):
         )
 
 
-def _testsuite(klass):
+def _testsuite(klass: Any) -> Any:
     """
     Actual decorator that transforms a class into a suite and registers
     testcases.
@@ -462,14 +462,14 @@ def _testsuite(klass):
     return klass
 
 
-def _testsuite_meta(name=None, tags=None, strict_order=False):
+def _testsuite_meta(name: Optional[Union[str, Callable[..., str]]] = None, tags: Any = None, strict_order: bool = False) -> Callable[..., Any]:
     """
     Wrapper function that allows us to call :py:func:`@testsuite <testsuite>`
     decorator with extra arguments.
     """
 
     @functools.wraps(_testsuite)
-    def wrapper(klass):
+    def wrapper(klass: Any) -> Any:
         """Meta logic for suite goes here."""
         klass.name = name
 
@@ -487,7 +487,7 @@ def _testsuite_meta(name=None, tags=None, strict_order=False):
     return wrapper
 
 
-def testsuite(*args, **kwargs):
+def testsuite(*args: Any, **kwargs: Any) -> Any:
     """
     Annotate a class as being a test suite.
 
@@ -522,10 +522,10 @@ def testsuite(*args, **kwargs):
     )(*args, **kwargs)
 
 
-testsuite.__test__ = False
+testsuite.__test__ = False  # type: ignore[attr-defined]
 
 
-def _validate_function_name(func):
+def _validate_function_name(func: Any) -> None:
     """Validate the function name is valid for a testcase."""
     reserved_words = (
         "name",
@@ -566,7 +566,7 @@ def _validate_function_name(func):
             raise ValueError(errmsg)
 
 
-def _validate_testcase(func):
+def _validate_testcase(func: Any) -> None:
     """Validate the expected function signature of a testcase."""
     try:
         interface.check_signature(func, ["self", "env", "result"])
@@ -591,41 +591,41 @@ def _validate_testcase(func):
         )
 
 
-def _mark_function_as_testcase(func):
+def _mark_function_as_testcase(func: Any) -> None:
     func.__testcase__ = True
 
 
-def _testcase(function):
+def _testcase(function: Any) -> Any:
     return _testcase_meta()(function)
 
 
-def add_testcase_metadata(func: Callable, metadata: TestCaseStaticMetadata):
+def add_testcase_metadata(func: Callable[..., Any], metadata: TestCaseStaticMetadata) -> None:
     setattr(func, TESTCASE_METADATA_ATTRIBUTE, metadata)
 
 
 def _testcase_meta(
-    name=None,
-    tags=None,
-    parameters=None,
-    sparse=False,
-    name_func=parametrization.default_name_func,
-    tag_func=None,
-    docstring_func=None,
-    custom_wrappers=None,
-    summarize=False,
-    num_passing=defaults.SUMMARY_NUM_PASSING,
-    num_failing=defaults.SUMMARY_NUM_FAILING,
-    key_combs_limit=defaults.SUMMARY_KEY_COMB_LIMIT,
-    execution_group=None,
-    timeout=None,
-):
+    name: Optional[str] = None,
+    tags: Any = None,
+    parameters: Any = None,
+    sparse: bool = False,
+    name_func: Optional[Callable[..., str]] = parametrization.default_name_func,
+    tag_func: Optional[Callable[..., Any]] = None,
+    docstring_func: Optional[Callable[..., Optional[str]]] = None,
+    custom_wrappers: Any = None,
+    summarize: bool = False,
+    num_passing: int = defaults.SUMMARY_NUM_PASSING,
+    num_failing: int = defaults.SUMMARY_NUM_FAILING,
+    key_combs_limit: int = defaults.SUMMARY_KEY_COMB_LIMIT,
+    execution_group: Optional[str] = None,
+    timeout: Optional[int] = None,
+) -> Callable[..., Any]:
     """
     Wrapper function that allows us to call :py:func:`@testcase <testcase>`
     decorator with extra arguments.
     """
 
     @functools.wraps(_testcase)
-    def wrapper(function):
+    def wrapper(function: Any) -> Any:
         """Actual decorator that validates & registers a method as a testcase."""
         global __TESTCASES__
         global __GENERATED_TESTCASES__
@@ -737,7 +737,7 @@ def _testcase_meta(
     return wrapper
 
 
-def is_testcase(func):
+def is_testcase(func: Any) -> bool:
     """
     Returns true if the given function is a testcase.
     :param func: Function object.
@@ -747,7 +747,7 @@ def is_testcase(func):
     return hasattr(func, "__testcase__")
 
 
-def testcase(*args, **kwargs):
+def testcase(*args: Any, **kwargs: Any) -> Any:
     """
     Annotate a member function as being a testcase.
 
@@ -837,10 +837,10 @@ def testcase(*args, **kwargs):
     )(*args, **kwargs)
 
 
-testcase.__test__ = False
+testcase.__test__ = False  # type: ignore[attr-defined]
 
 
-def _validate_skip_if_predicates(predicates):
+def _validate_skip_if_predicates(predicates: Tuple[Callable[..., bool], ...]) -> None:
     """
     Check for signature of functions, which  are used to set / extend
     ``skip_funcs`` attribute of the testcase method.
@@ -853,7 +853,7 @@ def _validate_skip_if_predicates(predicates):
             raise err
 
 
-def skip_if(*predicates):
+def skip_if(*predicates: Callable[..., bool]) -> Callable[..., Any]:
     """
     Annotate a testcase with skip predicate(s). The skip predicates will be
     evaluated before the testsuite is due to be executed and passed the
@@ -866,7 +866,7 @@ def skip_if(*predicates):
     MultiTest instead of being normally executed.
     """
 
-    def skipper(testcase_method):
+    def skipper(testcase_method: Any) -> Any:
         """
         Inner implementation of skip
         """
@@ -877,7 +877,7 @@ def skip_if(*predicates):
     return skipper
 
 
-def skip_if_testcase(*predicates):
+def skip_if_testcase(*predicates: Callable[..., bool]) -> Callable[..., Any]:
     """
     Annotate a suite with skip predicate(s). The skip predicates will be
     evaluated against each test case method before the testsuite is due
@@ -890,7 +890,7 @@ def skip_if_testcase(*predicates):
     then the method will be skipped.
     """
 
-    def _skip_if_testcase_inner(klass):
+    def _skip_if_testcase_inner(klass: Any) -> Any:
         _validate_skip_if_predicates(predicates)
         for testcase_method in get_testcase_methods(klass):
             testcase_method.__skip__ += predicates
@@ -899,7 +899,7 @@ def skip_if_testcase(*predicates):
     return _skip_if_testcase_inner
 
 
-def xfail(reason, strict=False):
+def xfail(reason: str, strict: bool = False) -> Callable[..., Any]:
     """
     Mark a testcase/testsuit as XFail(known to fail) when not possible to fix
     immediately. This decorator mandates a reason that explains why the test is
@@ -917,14 +917,14 @@ def xfail(reason, strict=False):
     :type strict: ``bool``
     """
 
-    def _xfail_test(test):
+    def _xfail_test(test: Any) -> Any:
         test.__xfail__ = {"reason": reason, "strict": strict}
         return test
 
     return _xfail_test
 
 
-def timeout(seconds):
+def timeout(seconds: int) -> Callable[..., Any]:
     """
     Decorator for non-testcase method in a test suite, can be used for
     setup, teardown, pre_testcase and post_testcase.
@@ -934,14 +934,14 @@ def timeout(seconds):
         "Invalid use of `suite.timeout`, argument must be a positive integer"
     )
 
-    def inner(function):
+    def inner(function: Any) -> Any:
         function.timeout = seconds
         return function
 
     return inner
 
 
-def get_testcase_metadata(testcase: object):
+def get_testcase_metadata(testcase: Any) -> TestCaseMetadata:
     static_metadata = getattr(
         testcase,
         TESTCASE_METADATA_ATTRIBUTE,
@@ -955,7 +955,7 @@ def get_testcase_metadata(testcase: object):
 
 
 def get_suite_metadata(
-    suite: object, include_testcases: bool = True
+    suite: Any, include_testcases: bool = True
 ) -> TestSuiteMetadata:
     static_metadata: TestSuiteStaticMetadata = getattr(
         suite, TESTSUITE_METADATA_ATTRIBUTE

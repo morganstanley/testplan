@@ -5,7 +5,7 @@ import concurrent.futures
 import functools
 import itertools
 import warnings
-from typing import Callable, Dict, Generator, List, Optional, Tuple
+from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, OrderedDict, Sequence, Tuple, Union
 
 from schema import And, Or, Use
 
@@ -40,9 +40,9 @@ from testplan.testing.multitest.test_metadata import TestMetadata
 from testplan.testing.base import TestLifecycle
 
 
-def iterable_suites(obj):
+def iterable_suites(obj: Any) -> List[Any]:
     """Create an iterable suites object."""
-    suites = [obj] if not isinstance(obj, collections.abc.Iterable) else obj
+    suites: List[Any] = [obj] if not isinstance(obj, collections.abc.Iterable) else list(obj)
 
     # If multiple objects from one test suite class are added into a Multitest,
     # it's better provide naming function to avoid duplicate test suite names.
@@ -137,10 +137,10 @@ class MultiTestRuntimeInfo:
     """
 
     class TestcaseInfo:
-        name = None
-        report = None
+        name: Optional[str] = None
+        report: Optional[TestCaseReport] = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.testcase = self.TestcaseInfo()
 
 
@@ -164,26 +164,26 @@ class RuntimeEnvironment:
         self.__dict__["_environment"] = environment
         self.__dict__["runtime_info"] = runtime_info
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         return getattr(self._environment, attr)
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         setattr(self._environment, name, value)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         return self._environment[item]
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         return item in self._environment
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         return iter(self._environment)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._environment)
 
 
-def deprecate_stop_on_error(user_input):
+def deprecate_stop_on_error(user_input: bool) -> Optional[bool]:
     if user_input == False:
         warnings.warn(
             "``stop_on_error`` in MultiTest constructor has been deprecated, "
@@ -209,7 +209,7 @@ class MultiTestConfig(testing_base.TestConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             "suites": Use(iterable_suites),
             config.ConfigOption("thread_pool_size", default=0): int,
@@ -286,25 +286,25 @@ class MultiTest(testing_base.Test):
     def __init__(
         self,
         name: str,
-        suites,
-        description=None,
-        initial_context={},
-        environment=[],
-        dependencies=None,
-        thread_pool_size=0,
-        max_thread_pool_size=10,
-        part=None,
-        before_start=None,
-        after_start=None,
-        before_stop=None,
-        after_stop=None,
-        stdout_style=None,
-        tags=None,
-        result=result.Result,
-        testcase_report_target=True,
-        testcase_timeout=None,
-        **options,
-    ):
+        suites: Any,
+        description: Optional[str] = None,
+        initial_context: Any = {},
+        environment: Any = [],
+        dependencies: Any = None,
+        thread_pool_size: int = 0,
+        max_thread_pool_size: int = 10,
+        part: Optional[Tuple[int, int]] = None,
+        before_start: Optional[Callable] = None,
+        after_start: Optional[Callable] = None,
+        before_stop: Optional[Callable] = None,
+        after_stop: Optional[Callable] = None,
+        stdout_style: Any = None,
+        tags: Any = None,
+        result: Any = result.Result,
+        testcase_report_target: bool = True,
+        testcase_timeout: Optional[int] = None,
+        **options: Any,
+    ) -> None:
         self._tags_index = None
 
         if "multi_part_uid" in options:
@@ -333,7 +333,7 @@ class MultiTest(testing_base.Test):
 
         # MultiTest may start a thread pool for running testcases concurrently,
         # if they are marked with an execution group.
-        self._thread_pool = None
+        self._thread_pool: Optional[concurrent.futures.ThreadPoolExecutor] = None
 
         self.log_suite_lifecycle = functools.partial(
             self._log_lifecycle, indent=testing_base.SUITE_INDENT
@@ -348,11 +348,11 @@ class MultiTest(testing_base.Test):
         self.watcher = watcher.Watcher()
 
     @property
-    def suites(self):
+    def suites(self) -> List[Any]:
         """Input list of suites."""
-        return self.cfg.suites
+        return self.cfg.suites  # type: ignore[no-any-return]
 
-    def uid(self):
+    def uid(self) -> str:
         """
         Instance name uid.
         A Multitest part instance should not have the same uid as its name.
@@ -362,9 +362,9 @@ class MultiTest(testing_base.Test):
                 self.cfg.name, self.cfg.part[0], self.cfg.part[1]
             )
         else:
-            return self.cfg.name
+            return self.cfg.name  # type: ignore[no-any-return]
 
-    def setup(self):
+    def setup(self) -> None:
         """
         Multitest pre-running routines.
 
@@ -390,7 +390,7 @@ class MultiTest(testing_base.Test):
                 "skip_strategy", self.cfg.skip_strategy.union(o_skip)
             )
 
-    def get_test_context(self):
+    def get_test_context(self) -> List[Tuple[Any, List[Any]]]:
         """
         Return filtered & sorted list of suites & testcases
         via `cfg.test_filter` & `cfg.test_sorter`.
@@ -475,7 +475,7 @@ class MultiTest(testing_base.Test):
 
         return ctx
 
-    def _dry_run_testsuites(self):
+    def _dry_run_testsuites(self) -> None:
         suites_to_run = self.test_context
 
         for testsuite, testcases in suites_to_run:
@@ -485,15 +485,15 @@ class MultiTest(testing_base.Test):
                 testsuite_report.append(self._suite_related_report("setup"))
 
             testsuite_report.extend(
-                self._testcase_reports(testsuite, testcases)
+                self._testcase_reports(testsuite, testcases)  # type: ignore[arg-type]
             )
 
             if getattr(testsuite, "teardown", None):
                 testsuite_report.append(self._suite_related_report("teardown"))
 
-            self.result.report.append(testsuite_report)
+            self.result.report.append(testsuite_report)  # type: ignore[attr-defined]
 
-    def run_tests(self):
+    def run_tests(self) -> TestGroupReport:
         """Run all tests as a batch and return the results."""
         testsuites = self.test_context
         report = self.report
@@ -549,6 +549,7 @@ class MultiTest(testing_base.Test):
         testsuite_pattern: str = "*",
         testcase_pattern: str = "*",
         shallow_report: Optional[Dict] = None,
+        **kwargs: Any,
     ) -> Generator:
         """
         Run all testcases and yield testcase reports.
@@ -590,7 +591,7 @@ class MultiTest(testing_base.Test):
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)
 
-    def get_tags_index(self):
+    def get_tags_index(self) -> Dict[str, Any]:
         """
         Tags index for a multitest is its native tags merged with tag indices
         from all of its suites. (Suite tag indices will also contain tag
@@ -600,30 +601,30 @@ class MultiTest(testing_base.Test):
             self._tags_index = tagging.merge_tag_dicts(
                 self.cfg.tags or {}, *[s.__tags_index__ for s in self.suites]
             )
-        return self._tags_index
+        return self._tags_index  # type: ignore[return-value]
 
-    def skip_step(self, step) -> bool:
+    def skip_step(self, step: Callable) -> bool:
         if step == self.apply_xfail_tests:
             return False
         return super().skip_step(step)
 
-    def add_pre_resource_steps(self):
+    def add_pre_resource_steps(self) -> None:
         """Runnable steps to be executed before environment starts."""
 
         super(MultiTest, self).add_pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
 
-    def add_post_resource_steps(self):
+    def add_post_resource_steps(self) -> None:
         """Runnable steps to run after environment stopped."""
         self._add_step(self.apply_xfail_tests)
         super(MultiTest, self).add_post_resource_steps()
 
-    def add_main_batch_steps(self):
+    def add_main_batch_steps(self) -> None:
         """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.propagate_tag_indices)
 
-    def should_run(self):
+    def should_run(self) -> bool:
         """
         MultiTest filters are applied in `get_test_context`
         so we check if `test_context` is not empty.
@@ -635,7 +636,7 @@ class MultiTest(testing_base.Test):
             self
         )
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Suppressing not implemented debug log from parent class."""
 
     def get_metadata(self) -> TestMetadata:
@@ -653,14 +654,14 @@ class MultiTest(testing_base.Test):
             test_suites=suites,
         )
 
-    def apply_xfail_tests(self):
+    def apply_xfail_tests(self) -> None:
         """
         Apply xfail tests specified via --xfail-tests or @test_plan(xfail_tests=...).
         For MultiTest, we only apply MT:*:* & MT:TS:* here.
         Testcase level xfail already applied during test execution.
         """
 
-        test_report = self.result.report
+        test_report = self.result.report  # type: ignore[attr-defined]
         pattern = f"{test_report.name}:*:*"
         self._xfail(pattern, test_report)
 
@@ -669,21 +670,21 @@ class MultiTest(testing_base.Test):
             self._xfail(pattern, suite_report)
 
     @property
-    def _thread_pool_size(self):
+    def _thread_pool_size(self) -> int:
         """
         :return: the size of thread pool to use, based on configured limits
         """
         if self.cfg.thread_pool_size > 0:
-            return min(
+            return min(  # type: ignore[no-any-return]
                 self.cfg.thread_pool_size, self.cfg.max_thread_pool_size
             )
         else:
-            return max(
+            return max(  # type: ignore[no-any-return]
                 self.cfg.max_thread_pool_size // 2,
                 self.DEFAULT_THREAD_POOL_SIZE,
             )
 
-    def _suite_related_report(self, name):
+    def _suite_related_report(self, name: str) -> TestCaseReport:
         """
         Return a report for a testsuite-related action, such as setup or
         teardown.
@@ -692,13 +693,13 @@ class MultiTest(testing_base.Test):
             name=name, uid=name, category=ReportCategories.SYNTHESIZED
         )
 
-    def _testcase_reports(self, testsuite, testcases, status=None):
+    def _testcase_reports(self, testsuite: Any, testcases: List[Any], status: Optional[Status] = None) -> List[Union[TestCaseReport, TestGroupReport]]:
         """
         Generate a list of reports for testcases, including parametrization
         groups.
         """
-        testcase_reports = []
-        parametrization_reports = {}
+        testcase_reports: List[Union[TestCaseReport, TestGroupReport]] = []
+        parametrization_reports: Dict[str, TestGroupReport] = {}
 
         for testcase in testcases:
             testcase_report = self._new_testcase_report(testcase)
@@ -722,7 +723,7 @@ class MultiTest(testing_base.Test):
 
         return testcase_reports
 
-    def _new_test_report(self):
+    def _new_test_report(self) -> TestGroupReport:
         """
         :return: A new and empty test report object for this MultiTest.
         """
@@ -737,7 +738,7 @@ class MultiTest(testing_base.Test):
             env_status=entity.ResourceStatus.STOPPED,
         )
 
-    def _new_testsuite_report(self, testsuite):
+    def _new_testsuite_report(self, testsuite: Any) -> TestGroupReport:
         """
         :return: A new and empty report for a testsuite.
         """
@@ -751,7 +752,7 @@ class MultiTest(testing_base.Test):
             strict_order=testsuite.strict_order,
         )
 
-    def _new_testcase_report(self, testcase):
+    def _new_testcase_report(self, testcase: Any) -> TestCaseReport:
         """
         :return: A new and empty report for a testcase.
         """
@@ -763,7 +764,7 @@ class MultiTest(testing_base.Test):
             tags=testcase.__tags__,
         )
 
-    def _new_parametrized_group_report(self, param_template, param_method):
+    def _new_parametrized_group_report(self, param_template: str, param_method: Any) -> TestGroupReport:
         """
         :return: A new and empty report for a parametrization group.
         """
@@ -779,7 +780,7 @@ class MultiTest(testing_base.Test):
             strict_order=param_method.strict_order,
         )
 
-    def _execute_step(self, step, *args, **kwargs):
+    def _execute_step(self, step: Callable, *args: Any, **kwargs: Any) -> None:
         """
         Full override of the base class, as we can rely on report object
         for logging exceptions.
@@ -794,7 +795,7 @@ class MultiTest(testing_base.Test):
                 self.status.update_metadata(**{str(step): exc})
                 raise
 
-    def _run_suite(self, testsuite, testcases):
+    def _run_suite(self, testsuite: Any, testcases: List[Any]) -> TestGroupReport:
         """Runs a testsuite object and returns its report."""
 
         self.log_suite_lifecycle(testsuite, TestLifecycle.SUITE_START)
@@ -821,15 +822,17 @@ class MultiTest(testing_base.Test):
                     tracing.set_span_as_failed(testsuite_span)
                     return testsuite_report
 
-            serial_cases, parallel_cases = (
-                (testcases, [])
-                if getattr(testsuite, "strict_order", False)
-                else _split_by_exec_group(testcases)
-            )
+            serial_cases: List[Any]
+            parallel_cases: OrderedDict[str, List[Any]]
+            if getattr(testsuite, "strict_order", False):
+                serial_cases = testcases
+                parallel_cases = collections.OrderedDict()
+            else:
+                serial_cases, parallel_cases = _split_by_exec_group(testcases)
             testcase_reports = self._run_serial_testcases(
                 testsuite, serial_cases
             )
-            testsuite_report.extend(testcase_reports)
+            testsuite_report.extend(testcase_reports)  # type: ignore[arg-type]
 
             # If there was any error in running the serial testcases, we will
             # not continue to run the parallel testcases if configured to
@@ -847,7 +850,7 @@ class MultiTest(testing_base.Test):
                     testcase_reports = self._run_parallel_testcases(
                         testsuite, parallel_cases
                     )
-                    testsuite_report.extend(testcase_reports)
+                    testsuite_report.extend(testcase_reports)  # type: ignore[arg-type]
             if should_stop:
                 self.logger.debug(
                     "Skipping all parallel cases in %s due to "
@@ -875,10 +878,10 @@ class MultiTest(testing_base.Test):
 
         return testsuite_report
 
-    def _run_serial_testcases(self, testsuite, testcases):
+    def _run_serial_testcases(self, testsuite: Any, testcases: List[Any]) -> List[Union[TestCaseReport, TestGroupReport]]:
         """Run testcases serially and return a list of test reports."""
-        testcase_reports = []
-        parametrization_reports = {}
+        testcase_reports: List[Union[TestCaseReport, TestGroupReport]] = []
+        parametrization_reports: Dict[str, TestGroupReport] = {}
         pre_testcase = getattr(testsuite, "pre_testcase", None)
         post_testcase = getattr(testsuite, "post_testcase", None)
 
@@ -926,12 +929,12 @@ class MultiTest(testing_base.Test):
 
         return testcase_reports
 
-    def _run_parallel_testcases(self, testsuite, execution_groups):
+    def _run_parallel_testcases(self, testsuite: Any, execution_groups: OrderedDict[str, List[Any]]) -> List[Union[TestCaseReport, TestGroupReport]]:
         """
         Schedule parallel testcases to a threadpool, wait for them to complete
         and return a list of testcase reports.
         """
-        testcase_reports = []
+        testcase_reports: List[Union[TestCaseReport, TestGroupReport]] = []
         all_testcases = itertools.chain.from_iterable(
             execution_groups.values()
         )
@@ -946,6 +949,7 @@ class MultiTest(testing_base.Test):
                 break
 
             self.logger.debug('Running execution group "%s"', exec_group)
+            assert self._thread_pool is not None
             results = [
                 self._thread_pool.submit(
                     self._run_testcase,
@@ -1000,7 +1004,7 @@ class MultiTest(testing_base.Test):
 
         return testcase_reports
 
-    def _parametrization_reports(self, testsuite, testcases):
+    def _parametrization_reports(self, testsuite: Any, testcases: Any) -> OrderedDict[str, TestGroupReport]:
         """
         Generate parametrization reports for any parametrized testcases.
         """
@@ -1022,13 +1026,13 @@ class MultiTest(testing_base.Test):
 
         return parametrization_reports
 
-    def _get_runtime_environment(self, testcase_name, testcase_report):
+    def _get_runtime_environment(self, testcase_name: str, testcase_report: TestCaseReport) -> RuntimeEnvironment:  # type: ignore[override]
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase_name
         runtime_info.testcase.report = testcase_report
         return RuntimeEnvironment(self.resources, runtime_info)
 
-    def _get_hook_context(self, case_report):
+    def _get_hook_context(self, case_report: TestCaseReport) -> Tuple[Any, ...]:
         return (
             case_report.timer.record("run"),
             case_report.logged_exceptions(),
@@ -1036,21 +1040,21 @@ class MultiTest(testing_base.Test):
             self.watcher.save_covered_lines_to(self.report),
         )
 
-    def _setup_testsuite(self, testsuite):
+    def _setup_testsuite(self, testsuite: Any) -> Optional[TestCaseReport]:
         """
         Run the setup for a testsuite, logging any exceptions.
         Return Testcase report for setup, or None if no setup is required.
         """
         return self._run_suite_related(testsuite, "setup")
 
-    def _teardown_testsuite(self, testsuite):
+    def _teardown_testsuite(self, testsuite: Any) -> Optional[TestCaseReport]:
         """
         Run the teardown for a testsuite, logging any exceptions.
         Return Testcase report for teardown, or None if no setup is required.
         """
         return self._run_suite_related(testsuite, "teardown")
 
-    def _run_suite_related(self, testsuite, method_name):
+    def _run_suite_related(self, testsuite: Any, method_name: str) -> Optional[TestCaseReport]:
         """Runs testsuite related special methods setup/teardown/etc."""
         testsuite_method = getattr(testsuite, method_name, None)
         if testsuite_method is None:
@@ -1077,6 +1081,7 @@ class MultiTest(testing_base.Test):
             testcase_name=method_name, testcase_report=method_report
         )
 
+        method_args: Tuple[Any, ...]
         try:
             interface.check_signature(testsuite_method, ["env", "result"])
             method_args = (resources, case_result)
@@ -1122,10 +1127,11 @@ class MultiTest(testing_base.Test):
     def _run_case_related(
         self,
         method: Callable,
-        testcase,
+        testcase: Any,
         resources: RuntimeEnvironment,
         case_result: result.Result,
-    ):
+    ) -> None:
+        method_args: Tuple[Any, ...]
         try:
             interface.check_signature(method, ["name", "env", "result"])
             method_args = (testcase.name, resources, case_result)
@@ -1155,12 +1161,12 @@ class MultiTest(testing_base.Test):
 
     def _run_testcase(
         self,
-        testcase,
-        testsuite,
-        pre_testcase: Callable,
-        post_testcase: Callable,
+        testcase: Any,
+        testsuite: Any,
+        pre_testcase: Optional[Callable],
+        post_testcase: Optional[Callable],
         testcase_report: Optional[TestCaseReport] = None,
-    ):
+    ) -> TestCaseReport:
         """Runs a testcase method and returns its report."""
 
         self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_START)
@@ -1202,7 +1208,7 @@ class MultiTest(testing_base.Test):
             testcase_report.extend(case_result.serialized_entries)
             testcase_report.runtime_status = RuntimeStatus.FINISHED
             if self.get_stdout_style(testcase_report.passed).display_testcase:
-                self.log_testcase_status(testcase_report)
+                self.log_testcase_status(testcase_report)  # type: ignore[arg-type]
 
             self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_END)
             return testcase_report
@@ -1220,7 +1226,7 @@ class MultiTest(testing_base.Test):
                 testcase_report.logged_exceptions(),
                 self.watcher.save_covered_lines_to(testcase_report),
             ):
-                if pre_testcase and callable(pre_testcase):
+                if pre_testcase is not None and callable(pre_testcase):
                     self.log_testcase_lifecycle(
                         testcase, TestLifecycle.PRE_TESTCASE_START
                     )
@@ -1254,7 +1260,7 @@ class MultiTest(testing_base.Test):
                 testcase_report.logged_exceptions(),
                 self.watcher.save_covered_lines_to(testcase_report),
             ):
-                if post_testcase and callable(post_testcase):
+                if post_testcase is not None and callable(post_testcase):
                     self.log_testcase_lifecycle(
                         testcase, TestLifecycle.POST_TESTCASE_START
                     )
@@ -1291,13 +1297,13 @@ class MultiTest(testing_base.Test):
         testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         if self.get_stdout_style(testcase_report.passed).display_testcase:
-            self.log_testcase_status(testcase_report)
+            self.log_testcase_status(testcase_report)  # type: ignore[arg-type]
 
         self.log_testcase_lifecycle(testcase, TestLifecycle.TESTCASE_END)
 
         return testcase_report
 
-    def _run_testsuite_iter(self, testsuite, testcases):
+    def _run_testsuite_iter(self, testsuite: Any, testcases: List[Any]) -> Generator[Tuple[Any, List[str]], None, None]:
         """Runs a testsuite object and returns its report."""
         _check_testcases(testcases)
         setup_report = self._setup_testsuite(testsuite)
@@ -1325,7 +1331,7 @@ class MultiTest(testing_base.Test):
         if teardown_report is not None:
             yield teardown_report, [self.uid(), testsuite.uid()]
 
-    def _get_parent_uids(self, testsuite, testcase):
+    def _get_parent_uids(self, testsuite: Any, testcase: Any) -> List[str]:
         """
         Utility method to get parent UIDs of a particular testcase.
 
@@ -1345,7 +1351,7 @@ class MultiTest(testing_base.Test):
             parent_uids = [self.uid(), testsuite.uid()]
         return parent_uids
 
-    def _skip_testcases(self, testsuite, testcases):
+    def _skip_testcases(self, testsuite: Any, testcases: List[Any]) -> Generator[Tuple[Dict[str, RuntimeStatus], List[str]], None, None]:
         """
         Utility to forcefully skip testcases and modify their runtime status to not
         run. Used during the failed setup scenario to update the runtime status.
@@ -1365,7 +1371,7 @@ class MultiTest(testing_base.Test):
                 parent_uids + [testcase.__name__],
             )
 
-    def _run_testcases_iter(self, testsuite, testcases):
+    def _run_testcases_iter(self, testsuite: Any, testcases: List[Any]) -> Generator[Tuple[Any, List[str]], None, None]:
         """
         Run testcases serially and yield testcase reports.
 
@@ -1401,14 +1407,14 @@ class MultiTest(testing_base.Test):
         :param part: Enable the part feature and execute only a part of the
             total testcases for an existing Multitest.
         """
-        self._cfg.part = part
+        self._cfg.part = part  # type: ignore[attr-defined]
         self._init_test_report()
 
     def unset_part(self) -> None:
         """Disable part feature, "sanitise" patterns as well"""
-        self._cfg.part = None
+        self._cfg.part = None  # type: ignore[attr-defined]
 
-        def _drop_parts(f):
+        def _drop_parts(f: Any) -> Any:
             if isinstance(f, filtering.Pattern):
                 if isinstance(f.test_pattern, tuple):
                     f.test_pattern = f.test_pattern[0]
@@ -1418,7 +1424,7 @@ class MultiTest(testing_base.Test):
         self._init_test_report()
 
 
-def _need_threadpool(testsuites):
+def _need_threadpool(testsuites: List[Tuple[Any, List[Any]]]) -> bool:
     """
     :return: if we need to start a thread pool to run a set of testsuites
         and testcases.
@@ -1432,7 +1438,7 @@ def _need_threadpool(testsuites):
     )
 
 
-def _check_testcases(testcases):
+def _check_testcases(testcases: List[Any]) -> None:
     """Check that all testcases are correctly marked as such."""
     for tc in testcases:
         if not getattr(tc, "__testcase__", False):
@@ -1441,13 +1447,13 @@ def _check_testcases(testcases):
             )
 
 
-def _split_by_exec_group(testcases):
+def _split_by_exec_group(testcases: List[Any]) -> Tuple[List[Any], OrderedDict[str, List[Any]]]:
     """
     Split testcases into those with an execution group and those without
     one.
     """
-    serial_cases = []
-    parallel_cases = collections.OrderedDict()
+    serial_cases: List[Any] = []
+    parallel_cases: OrderedDict[str, List[Any]] = collections.OrderedDict()
 
     for testcase in testcases:
         exec_group = getattr(testcase, "execution_group", None)
@@ -1462,7 +1468,7 @@ def _split_by_exec_group(testcases):
     return serial_cases, parallel_cases
 
 
-def _add_runtime_info(param_report):
+def _add_runtime_info(param_report: TestGroupReport) -> None:
     """
     Add runtime information to parametrized group report.
     :param param_report: parametrized group report

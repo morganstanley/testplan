@@ -3,8 +3,8 @@ Implements reader commands of the TPS command line tool.
 """
 
 from glob import glob
-from urllib.parse import urlparse, parse_qs
-from typing import Callable, Type, List
+from urllib.parse import urlparse, parse_qs, ParseResult
+from typing import Any, Callable, Dict, Type, List
 
 import click
 from boltons.iterutils import flatten
@@ -63,7 +63,7 @@ class ReaderAction(ParseSingleAction):
     """
 
     def __init__(
-        self, importer: Type[ResultImporter], *args, **kwargs
+        self, importer: Type[ResultImporter], *args: Any, **kwargs: Any
     ) -> None:
         """
         :param importer: test result importer type
@@ -81,7 +81,7 @@ class ReaderAction(ParseSingleAction):
 @with_input
 @with_plan_options
 def from_cppunit(
-    source: click.Path, name: str, description: str
+    source: str, name: str, description: str
 ) -> ReaderAction:
     """
     Reads a CppUnit XML result.
@@ -97,7 +97,7 @@ def from_cppunit(
 @with_input
 @with_plan_options
 def from_gtest(
-    source: click.Path, name: str, description: str
+    source: str, name: str, description: str
 ) -> ReaderAction:
     """
     Reads a GoogleTest XML result.
@@ -111,7 +111,7 @@ def from_gtest(
 
 @single_reader_commands.command(name="fromjson")
 @with_input
-def from_json(source: click.Path) -> ReaderAction:
+def from_json(source: str) -> ReaderAction:
     """
     Reads a Testplan JSON result.
 
@@ -124,7 +124,7 @@ def from_json(source: click.Path) -> ReaderAction:
 @with_input
 @with_plan_options
 def from_junit(
-    source: click.Path, name: str, description: str
+    source: str, name: str, description: str
 ) -> ReaderAction:
     """
     Reads a JUnit result.
@@ -158,7 +158,7 @@ _IMPORTERS = {
 }
 
 
-def get_actions_for_uri(uri: str) -> List[ReaderAction]:
+def get_actions_for_uri(uri: ParseResult) -> List[ReaderAction]:
     """
     Selects and instantiates actions for URI.
 
@@ -168,9 +168,9 @@ def get_actions_for_uri(uri: str) -> List[ReaderAction]:
     # TODO: Error handling
 
     files = glob(uri.path, recursive=True)
-    importer_args = parse_qs(uri.query) if uri.query else {}
+    importer_args: Dict[str, Any] = parse_qs(uri.query) if uri.query else {}
 
-    return [ReaderAction(importer, file, **importer_args) for file in files]
+    return [ReaderAction(importer, file, **importer_args) for file in files]  # type: ignore[arg-type]
 
 
 multi_reader_commands = CommandList()

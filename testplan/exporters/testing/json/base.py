@@ -8,7 +8,7 @@ import os
 import pathlib
 
 from shutil import copyfile
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
@@ -28,6 +28,7 @@ def save_resource_data(
     report: TestReport, directory: pathlib.Path
 ) -> pathlib.Path:
     directory.mkdir(parents=True, exist_ok=True)
+    assert report.resource_meta_path is not None
     with open(report.resource_meta_path) as meta_file:
         meta_info = json_loads(meta_file.read())
     for host_meta in meta_info["entries"]:
@@ -37,13 +38,13 @@ def save_resource_data(
             )
             copyfile(src=host_meta["resource_file"], dst=dist_path)
             host_meta["resource_file"] = dist_path.name
-    meta_path = directory / pathlib.Path(report.resource_meta_path).name
+    meta_path: pathlib.Path = directory / pathlib.Path(report.resource_meta_path).name
     with open(meta_path, "w") as meta_file:
         meta_file.write(json_dumps(meta_info))
     return meta_path
 
 
-def get_structure_file_name(json_path) -> str:
+def get_structure_file_name(json_path: Any) -> str:
     """
     Generate file names of structure JSON report and assertions JSON report.
     """
@@ -63,7 +64,7 @@ class JSONExporterConfig(ExporterConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("json_path"): str,
             # By default a single JSON file should be exported, with cfg option
@@ -88,7 +89,7 @@ class JSONExporter(Exporter):
 
     CONFIG = JSONExporterConfig
 
-    def __init__(self, name="JSON exporter", **options):
+    def __init__(self, name: str = "JSON exporter", **options: Any) -> None:
         super(JSONExporter, self).__init__(name=name, **options)
 
     def export(
@@ -211,7 +212,7 @@ class JSONExporter(Exporter):
         return moved_attachments
 
     @staticmethod
-    def split_assertions(entries, assertions):
+    def split_assertions(entries: List[Dict[str, Any]], assertions: Dict[str, Any]) -> None:
         """Remove assertions from report and place them in a dictionary."""
         for entry in entries:
             if entry["type"] == TestCaseReport.__name__:
@@ -221,13 +222,11 @@ class JSONExporter(Exporter):
                 JSONExporter.split_assertions(entry["entries"], assertions)
 
     @staticmethod
-    def split_json_report(data):
+    def split_json_report(data: Dict[str, Any]) -> Any:
         """Split a single Json into several parts."""
-        (
-            meta,
-            structure,
-            assertions_map,
-        ) = data, data["entries"], {}
+        meta = data
+        structure = data["entries"]
+        assertions_map: Dict[str, Any] = {}
         meta["entries"] = []
         for test in structure:
             test_key = f"assertions_{test['uid']}"
@@ -238,7 +237,7 @@ class JSONExporter(Exporter):
         return meta, structure, assertions_map
 
     @staticmethod
-    def merge_assertions(entries, assertions, strict=True):
+    def merge_assertions(entries: List[Dict[str, Any]], assertions: Dict[str, Any], strict: bool = True) -> None:
         """Fill assertions into report by the unique id."""
         for entry in entries:
             if entry["type"] == TestCaseReport.__name__:
@@ -254,7 +253,7 @@ class JSONExporter(Exporter):
                 )
 
     @staticmethod
-    def merge_json_report(meta, structure, assertions_map, strict=True):
+    def merge_json_report(meta: Dict[str, Any], structure: List[Dict[str, Any]], assertions_map: Dict[str, Any], strict: bool = True) -> Dict[str, Any]:
         """Merge parts of json report into a single one."""
         for test in structure:
             test_key = f"assertions_{test['uid']}"

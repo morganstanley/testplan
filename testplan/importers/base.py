@@ -2,7 +2,7 @@
 Implements base importer classes.
 """
 
-from typing import TypeVar, Generic, List
+from typing import Any, TypeVar, Generic, List, Optional
 
 from testplan.report import TestGroupReport, TestReport
 
@@ -27,7 +27,7 @@ class ResultImporter:
     Base class for result importer.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     def import_result(self) -> ImportedResult:
@@ -43,7 +43,7 @@ class ThreePhaseFileImporter(ResultImporter, Generic[T]):
     """
 
     def __init__(
-        self, path: str, name: str = None, description: str = None
+        self, path: str, name: Optional[str] = None, description: Optional[str] = None
     ) -> None:
         """
         :param path: path to source file

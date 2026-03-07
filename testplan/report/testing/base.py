@@ -47,7 +47,7 @@ import os
 import platform
 import sys
 from collections import Counter
-from typing import Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from typing_extensions import Self
 
 from testplan.common.report import (
@@ -71,16 +71,16 @@ class TestReport(BaseReportGroup):
 
     def __init__(
         self,
-        name,
-        meta=None,
-        attachments=None,
-        information=None,
-        timeout=None,
-        label=None,
-        timezone=None,
-        **kwargs,
-    ):
-        self._tags_index = None
+        name: str,
+        meta: Optional[Dict[str, Any]] = None,
+        attachments: Optional[Dict[str, str]] = None,
+        information: Optional[List[Tuple[str, str]]] = None,
+        timeout: Optional[int] = None,
+        label: Optional[str] = None,
+        timezone: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        self._tags_index: Optional[Dict[str, Any]] = None
         self.meta = meta or {}
         self.label = label
         self.information = information or []
@@ -105,7 +105,7 @@ class TestReport(BaseReportGroup):
                 ("python_version", platform.python_version())
             )
         if self.label and "label" not in info_keys:
-            self.information.append(("label", label))
+            self.information.append(("label", self.label))
 
         # Report attachments: Dict[dst: str, src: str].
         # Maps from destination path (relative from attachments root dir)
@@ -121,7 +121,7 @@ class TestReport(BaseReportGroup):
         super(TestReport, self).__init__(name=name, **kwargs)
 
     @property
-    def tags_index(self):
+    def tags_index(self) -> Dict[str, Any]:
         """
         Root report only has tag indexes, which is only useful when
         we run searches against multiple test reports.
@@ -135,7 +135,7 @@ class TestReport(BaseReportGroup):
             )
         return self._tags_index
 
-    def propagate_tag_indices(self):
+    def propagate_tag_indices(self) -> None:
         """
         TestReport does not have native tag data,
         so it just triggers children's tag updates.
@@ -146,7 +146,7 @@ class TestReport(BaseReportGroup):
         # reset tags index, so it gets repopulated on the next call
         self._tags_index = None
 
-    def bubble_up_attachments(self):
+    def bubble_up_attachments(self) -> None:
         """
         Attachments are saved at various levels of the report:
 
@@ -161,52 +161,52 @@ class TestReport(BaseReportGroup):
             for attachment in child.attachments:
                 self.attachments[attachment.dst_path] = attachment.source_path
 
-    def _get_comparison_attrs(self):
+    def _get_comparison_attrs(self) -> List[str]:
         return super(TestReport, self)._get_comparison_attrs() + [
             "tags_index",
             "meta",
         ]
 
-    def serialize(self):
+    def serialize(self) -> Dict[str, Any]:
         """
         Shortcut for serializing test report data
         to nested python dictionaries.
         """
         from .schemas import TestReportSchema
 
-        return TestReportSchema().dump(self)
+        return TestReportSchema().dump(self)  # type: ignore[no-any-return]
 
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, data: Dict[str, Any]) -> "TestReport":
         """
         Shortcut for instantiating ``TestReport`` object (and its children)
         from nested python dictionaries.
         """
         from .schemas import TestReportSchema
 
-        return TestReportSchema().load(data)
+        return TestReportSchema().load(data)  # type: ignore[no-any-return]
 
-    def shallow_serialize(self):
+    def shallow_serialize(self) -> Dict[str, Any]:
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestReportSchema
 
-        return ShallowTestReportSchema().dump(self)
+        return ShallowTestReportSchema().dump(self)  # type: ignore[no-any-return]
 
     @classmethod
-    def shallow_deserialize(cls, data, old_report):
+    def shallow_deserialize(cls, data: Dict[str, Any], old_report: "TestReport") -> "TestReport":
         """
         Shortcut for deserializing a ``TestReport`` object from its shallow
         serialized representation.
         """
         from .schemas import ShallowTestReportSchema
 
-        deserialized = ShallowTestReportSchema().load(data)
+        deserialized: TestReport = ShallowTestReportSchema().load(data)
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
 
         return deserialized
 
-    def filter(self, *functions, **kwargs) -> Self:
+    def filter(self, *functions: Callable[..., bool], **kwargs: Any) -> Self:
         """
         Tag indices are updated after filter operations.
         """
@@ -248,15 +248,15 @@ class TestGroupReport(BaseReportGroup):
 
     def __init__(
         self,
-        name,
-        category=ReportCategories.TESTGROUP,
-        tags=None,
-        part=None,
-        env_status=None,
-        strict_order=False,
-        timezone=None,
-        **kwargs,
-    ):
+        name: str,
+        category: str = ReportCategories.TESTGROUP,
+        tags: Optional[Union[Dict[str, Any], str]] = None,
+        part: Optional[Tuple[int, int]] = None,
+        env_status: Optional[str] = None,
+        strict_order: bool = False,
+        timezone: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         super(TestGroupReport, self).__init__(name=name, **kwargs)
 
         # This will be used for distinguishing test type (Multitest, GTest
@@ -271,7 +271,7 @@ class TestGroupReport(BaseReportGroup):
         # can be hold back for merging (if necessary)
         # this is a multitest only feature
         self.part = part  # i.e. (m, n), while 0 <= m < n and n > 1
-        self.part_report_lookup = {}
+        self.part_report_lookup: Dict[int, "TestGroupReport"] = {}
 
         if self.entries:
             self.propagate_tag_indices()
@@ -291,70 +291,70 @@ class TestGroupReport(BaseReportGroup):
 
         self.covered_lines: Optional[dict] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f'{self.__class__.__name__}(name="{self.name}", category="{self.category}",'
             f' id="{self.uid}"), tags={self.tags or None})'
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'{self.__class__.__name__}(name="{self.name}", category="{self.category}",'
             f' id="{self.uid}", entries={repr(self.entries)}, tags={self.tags or None})'
         )
 
-    def _get_comparison_attrs(self):
+    def _get_comparison_attrs(self) -> List[str]:
         return super(TestGroupReport, self)._get_comparison_attrs() + [
             "category",
             "tags",
             "tags_index",
         ]
 
-    def append(self, item):
+    def append(self, item: Report) -> None:
         """Update tag indices if item or self has tag data."""
         super(TestGroupReport, self).append(item)
-        if self.tags_index or item.tags_index:
+        if self.tags_index or getattr(item, "tags_index", None):
             self.propagate_tag_indices()
 
-    def serialize(self):
+    def serialize(self) -> Dict[str, Any]:
         """
         Shortcut for serializing TestGroupReport data to nested python
         dictionaries.
         """
         from .schemas import TestGroupReportSchema
 
-        return TestGroupReportSchema().dump(self)
+        return TestGroupReportSchema().dump(self)  # type: ignore[no-any-return]
 
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, data: Dict[str, Any]) -> "TestGroupReport":
         """
         Shortcut for instantiating ``TestGroupReport`` object
         (and its children) from nested python dictionaries.
         """
         from .schemas import TestGroupReportSchema
 
-        return TestGroupReportSchema().load(data)
+        return TestGroupReportSchema().load(data)  # type: ignore[no-any-return]
 
-    def shallow_serialize(self):
+    def shallow_serialize(self) -> Dict[str, Any]:
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestGroupReportSchema
 
-        return ShallowTestGroupReportSchema().dump(self)
+        return ShallowTestGroupReportSchema().dump(self)  # type: ignore[no-any-return]
 
     @classmethod
-    def shallow_deserialize(cls, data, old_report):
+    def shallow_deserialize(cls, data: Dict[str, Any], old_report: "TestGroupReport") -> "TestGroupReport":
         """
         Shortcut for deserializing a ``TestGroupReport`` object from its
         shallow serialized representation.
         """
         from .schemas import ShallowTestGroupReportSchema
 
-        deserialized = ShallowTestGroupReportSchema().load(data)
+        deserialized: TestGroupReport = ShallowTestGroupReportSchema().load(data)
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
         return deserialized
 
-    def _collect_tag_indices(self):
+    def _collect_tag_indices(self) -> Dict[str, Any]:
         """
         Recursively collect tag indices from children (and their children etc)
         """
@@ -365,9 +365,9 @@ class TestGroupReport(BaseReportGroup):
                 tag_dicts.append(child._collect_tag_indices())
             elif isinstance(child, TestCaseReport):
                 tag_dicts.append(child.tags)
-        return tagging.merge_tag_dicts(*tag_dicts)
+        return tagging.merge_tag_dicts(*tag_dicts)  # type: ignore[no-any-return]
 
-    def propagate_tag_indices(self, parent_tags=None):
+    def propagate_tag_indices(self, parent_tags: Optional[Dict[str, Any]] = None) -> None:
         """
         Distribute native tag data onto `tags_index` attributes on the nodes
         of the test report. This distribution happens 2 ways.
@@ -387,7 +387,7 @@ class TestGroupReport(BaseReportGroup):
             tags_index, self._collect_tag_indices()
         )
 
-    def merge(self, report: "TestGroupReport", strict: bool = True):
+    def merge(self, report: "TestGroupReport", strict: bool = True) -> None:  # type: ignore[override]
         """Propagate tag indices after merge operations."""
         super().merge(report, strict=strict)
         self.propagate_tag_indices()
@@ -399,14 +399,14 @@ class TestGroupReport(BaseReportGroup):
             self.timezone = report.timezone
 
     @property
-    def attachments(self):
+    def attachments(self) -> "itertools.chain[Any]":
         """Return all attachments from child reports."""
         return itertools.chain.from_iterable(
             child.attachments for child in self
         )
 
     @property
-    def hash(self):
+    def hash(self) -> int:
         """
         Generate a hash of this report object, including its entries. This
         hash is used to detect when changes are made under particular nodes
@@ -429,7 +429,7 @@ class TestGroupReport(BaseReportGroup):
             )
         )
 
-    def filter(self, *functions, **kwargs) -> Self:
+    def filter(self, *functions: Callable[..., bool], **kwargs: Any) -> Self:
         """
         Tag indices are updated after filter operations.
         """
@@ -466,7 +466,7 @@ class TestGroupReport(BaseReportGroup):
 
         return self
 
-    def annotate_part_num(self):
+    def annotate_part_num(self) -> None:
         # NOTE: part is only set at mt level, meth is for mt-level report only
         if not self.part:
             return
@@ -494,20 +494,20 @@ class TestCaseReport(Report):
 
     def __init__(
         self,
-        name,
-        tags=None,
-        category=ReportCategories.TESTCASE,
-        **kwargs,
-    ):
+        name: str,
+        tags: Optional[Union[Dict[str, Any], str]] = None,
+        category: str = ReportCategories.TESTCASE,
+        **kwargs: Any,
+    ) -> None:
         super(TestCaseReport, self).__init__(name=name, **kwargs)
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
         self.tags_index = copy.deepcopy(self.tags)
-        self.attachments = []
+        self.attachments: List[Any] = []
         self.category = category
         self.covered_lines: Optional[dict] = None
 
-    def _get_comparison_attrs(self):
+    def _get_comparison_attrs(self) -> List[str]:
         return super(TestCaseReport, self)._get_comparison_attrs() + [
             "status_override",
             "timer",
@@ -515,7 +515,7 @@ class TestCaseReport(Report):
             "tags_index",
         ]
 
-    @Report.status.getter
+    @Report.status.getter  # type: ignore[attr-defined]
     def status(self) -> Status:
         """
         Entries in this context correspond to serialized (raw)
@@ -531,8 +531,8 @@ class TestCaseReport(Report):
 
         return self._status
 
-    @Report.runtime_status.setter
-    def runtime_status(self, new_status):
+    @Report.runtime_status.setter  # type: ignore[attr-defined]
+    def runtime_status(self, new_status: RuntimeStatus) -> None:
         """
         Set the runtime status. As a special case, when a testcase is re-run
         we clear out the assertion entries from any previous run.
@@ -563,14 +563,14 @@ class TestCaseReport(Report):
         """
         self.runtime_status = new_status
 
-    def _assertions_status(self):
+    def _assertions_status(self) -> Status:
         # entries already serialized here
         for entry in self:
             if entry.get("passed") is False:
                 return Status.FAILED
         return Status.PASSED
 
-    def merge(self, report, strict=True):
+    def merge(self, report: "TestCaseReport", strict: bool = True) -> None:  # type: ignore[override]
         """
         TestCaseReport merge overwrites everything in place, as assertions of
         a test case won't be split among different runners. For some special
@@ -592,10 +592,10 @@ class TestCaseReport(Report):
         self.timer = report.timer
         self.status_reason = report.status_reason
 
-    def flattened_entries(self, depth):
+    def flattened_entries(self, depth: int) -> List[Tuple[int, Dict[str, Any]]]:
         """Need to take assertion groups into account."""
 
-        def flatten_dicts(dicts, _depth):
+        def flatten_dicts(dicts: List[Dict[str, Any]], _depth: int) -> List[Tuple[int, Dict[str, Any]]]:
             """Recursively flatten serialized entry list."""
             result = []
             for d in dicts:
@@ -606,27 +606,27 @@ class TestCaseReport(Report):
 
         return flatten_dicts(self.entries, depth)
 
-    def serialize(self):
+    def serialize(self) -> Dict[str, Any]:
         """
         Shortcut for serializing test report data
         to nested python dictionaries.
         """
         from .schemas import TestCaseReportSchema
 
-        return TestCaseReportSchema().dump(self)
+        return TestCaseReportSchema().dump(self)  # type: ignore[no-any-return]
 
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, data: Dict[str, Any]) -> "TestCaseReport":
         """
         Shortcut for instantiating ``TestCaseReport`` object
         from nested python dictionaries.
         """
         from .schemas import TestCaseReportSchema
 
-        return TestCaseReportSchema().load(data)
+        return TestCaseReportSchema().load(data)  # type: ignore[no-any-return]
 
     @property
-    def hash(self):
+    def hash(self) -> int:
         """
         Generate a hash of this report object, including its entries. This
         hash is used to detect when changes are made under particular nodes
@@ -648,7 +648,7 @@ class TestCaseReport(Report):
             )
         )
 
-    def xfail(self, strict):
+    def xfail(self, strict: bool) -> None:
         """
         Override report status for test that is marked xfail by user
         :param strict: whether consider XPASS as failure
@@ -662,7 +662,7 @@ class TestCaseReport(Report):
                 self.status_override = Status.XPASS
 
     @property
-    def counter(self):
+    def counter(self) -> Counter:
         """
         Return counts for current status.
         """
@@ -676,7 +676,7 @@ class TestCaseReport(Report):
         counter.update({self.status.to_json_compatible(): 1, "total": 1})
         return counter
 
-    def pass_if_empty(self):
+    def pass_if_empty(self) -> None:
         """Mark as PASSED if this testcase contains no entries."""
         if not self.entries:
             self._status = Status.PASSED

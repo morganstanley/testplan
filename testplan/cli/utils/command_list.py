@@ -2,7 +2,7 @@
 Implements command list type.
 """
 
-from typing import List, Callable
+from typing import Any, List, Callable, Optional
 
 import click
 
@@ -12,21 +12,21 @@ class CommandList:
     Utility class, used for creating, storing, and registering Click commands.
     """
 
-    def __init__(self, commands: List[click.Command] = None) -> None:
+    def __init__(self, commands: Optional[List[click.Command]] = None) -> None:
         """
         :param commands: list of Click commands
         """
         self.commands = commands or []
 
-    def command(self, *args, **kwargs) -> Callable:
+    def command(self, *args: Any, **kwargs: Any) -> Callable[..., click.Command]:
         """
         Decorator that creates new Click command and adds it to command list.
         """
 
-        def inner(func):
-            command = click.command(*args, **kwargs)(func)
-            self.commands.append(command)
-            return command
+        def inner(func: Callable[..., Any]) -> click.Command:
+            cmd: click.Command = click.command(*args, **kwargs)(func)
+            self.commands.append(cmd)
+            return cmd
 
         return inner
 

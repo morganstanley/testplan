@@ -6,7 +6,7 @@ import abc
 import pprint
 
 from datetime import timezone, datetime
-from typing import Optional
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from lxml import etree
 
@@ -27,7 +27,7 @@ COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 
 class Serializable(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def serialize(self):
+    def serialize(self) -> Any:
         pass
 
 
@@ -36,7 +36,7 @@ class LogLink(Serializable):
     Save an HTML link in WebUI
     """
 
-    def __init__(self, link, title=None, new_window=True, inner=False):
+    def __init__(self, link: str, title: Optional[str] = None, new_window: bool = True, inner: bool = False) -> None:
         """
         :param link: The URL of the page the link goes to.
         :type link: ``str``
@@ -52,7 +52,7 @@ class LogLink(Serializable):
         self.new_window = new_window
         self.inner = inner
 
-    def serialize(self):
+    def serialize(self) -> Dict[str, Any]:
         return {
             "link": self.link,
             "title": self.title,
@@ -67,7 +67,7 @@ class FormattedValue(Serializable):
     Save a formatted value in WebUI
     """
 
-    def __init__(self, value, display):
+    def __init__(self, value: Any, display: str) -> None:
         """
         :param value: The value of the data for sorting in the report.
         :type value: ``Union[str, numbers.Real]``
@@ -77,7 +77,7 @@ class FormattedValue(Serializable):
         self.value = value
         self.display = display
 
-    def serialize(self):
+    def serialize(self) -> Dict[str, Any]:
         return {
             "value": self.value,
             "display": self.display,
@@ -85,7 +85,7 @@ class FormattedValue(Serializable):
         }
 
 
-def _repr_obj(obj):
+def _repr_obj(obj: object) -> str:
     # copypasta from unittest code
     try:
         return repr(obj)
@@ -93,7 +93,7 @@ def _repr_obj(obj):
         return object.__repr__(obj)
 
 
-def native_or_pformat(value):
+def native_or_pformat(value: Any) -> Any:
     """Generic serialization compatible value formatter."""
     if comparison.is_regex(value):
         value = "REGEX({})".format(value.pattern)
@@ -112,7 +112,7 @@ def native_or_pformat(value):
     return result
 
 
-def native_or_pformat_dict(value):
+def native_or_pformat_dict(value: Dict[str, Any]) -> Dict[str, Any]:
     """
     Converter utility for dictionaries,
     converts values to JSON friendly format
@@ -120,7 +120,7 @@ def native_or_pformat_dict(value):
     return {k: native_or_pformat(v) for k, v in value.items()}
 
 
-def native_or_pformat_list(value):
+def native_or_pformat_list(value: List[Any]) -> List[Any]:
     """Converter utility for lists, converts values to JSON friendly format"""
     return [native_or_pformat(v) for v in value]
 
@@ -138,7 +138,7 @@ class Unicode(fields.Field):
 
     codecs = ["utf-8", "latin-1"]  # Ideally we will let users override this
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Optional[str]:
         if isinstance(value, str) or value is None:
             return value
 
@@ -149,7 +149,7 @@ class Unicode(fields.Field):
                 except UnicodeDecodeError:
                     pass
             raise ValueError(
-                "Could not decode {value} to unicode"
+                "Could not decode {value!r} to unicode"
                 " with the given codecs: {codecs}".format(
                     value=value, codecs=self.codecs
                 )
@@ -164,7 +164,7 @@ class NativeOrPretty(fields.Field):
     or pretty formatted str representation.
     """
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
         if isinstance(value, Serializable):
             return value.serialize()
         else:
@@ -178,7 +178,7 @@ class NativeOrPrettyDict(fields.Field):
     should be used for flat dicts only.
     """
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         if not isinstance(value, dict):
             raise TypeError(
                 "`value` ({value}) should be"
@@ -201,7 +201,7 @@ class NativeOrPrettyDict(fields.Field):
 class RowComparisonField(fields.Field):
     """Serialization logic for RowComparison"""
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Tuple[Any, List[Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
         idx, row, diff, errors, extra = value
         return (
             idx,
@@ -218,8 +218,8 @@ class SliceComparisonField(fields.Field):
     # TODO: strip actual & expected to save more space, as these value could
     # TODO: be retrieved from context
 
-    def _serialize(self, value, attr, obj, **kwargs):
-        def str_or_iterable(val):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Tuple[str, Any, Any, Any, Any]:
+        def str_or_iterable(val: Any) -> Any:
             return val if isinstance(val, str) else native_or_pformat_list(val)
 
         slice_obj, comp_indices, mismatch_indices, actual, expected = value
@@ -236,15 +236,15 @@ class SliceComparisonField(fields.Field):
 class ColumnContainComparisonField(fields.Field):
     """Serialization logic for ColumnContainComparison"""
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Tuple[Any, Any, Any]:
         return (value.idx, native_or_pformat(value.value), value.passed)
 
 
 class XMLElementField(fields.Field):
     """Custom field for `lxml.etree.Element serialization`."""
 
-    def _serialize(self, value, attr, obj, **kwargs):
-        return etree.tostring(value, pretty_print=True).decode("utf-8")
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> str:
+        return str(etree.tostring(value, pretty_print=True).decode("utf-8"))
 
 
 class ClassName(fields.Field):
@@ -255,12 +255,12 @@ class ClassName(fields.Field):
     class Meta:  # pylint: disable=bad-option-value,old-style-class,missing-docstring,no-init
         dump_only = True
 
-    def _serialize(self, value, attr, obj, **kwargs):
-        return obj.__class__.__name__
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> str:
+        return str(obj.__class__.__name__)
 
 
 class DictMatch(fields.Field):
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         keys = ("value", "ignore", "only")
         return {key: getattr(value, key) for key in keys}
 
@@ -281,14 +281,14 @@ class GenericNested(fields.Field):
     """
 
     def __init__(
-        self, schema_context, type_field="type", default=missing_, **kwargs
-    ):
+        self, schema_context: Dict[Any, Any], type_field: str = "type", default: Any = missing_, **kwargs: Any
+    ) -> None:
         self.schema_context = schema_context
         self.type_field = type_field
         self.many = kwargs.get("many", False)
         super(GenericNested, self).__init__(default=default, metadata=kwargs)
 
-    def _get_schema_obj(self, schema_value):
+    def _get_schema_obj(self, schema_value: Any) -> Schema:
         parent_ctx = getattr(self.parent, "context", {})
 
         if callable(schema_value) and not isinstance(schema_value, type):
@@ -305,7 +305,9 @@ class GenericNested(fields.Field):
 
         elif isinstance(schema_value, str):
             if schema_value == "self":
-                return self.parent.__class__(
+                if self.parent is None:
+                    raise ValueError("Cannot use 'self' schema without a parent")
+                return self.parent.__class__(  # type: ignore[return-value]
                     many=self.many, context=parent_ctx
                 )
             else:
@@ -319,9 +321,9 @@ class GenericNested(fields.Field):
         )
 
     @property
-    def schemas(self):
+    def schemas(self) -> Dict[str, Schema]:
         """Return schema mapping in `<CLASS_NAME>: <SCHEMA_OBJECT>` format."""
-        result = {}
+        result: Dict[str, Schema] = {}
         for object_type, schema_value in self.schema_context.items():
             if isinstance(object_type, str):
                 key = object_type
@@ -336,16 +338,16 @@ class GenericNested(fields.Field):
             result[key] = self._get_schema_obj(schema_value)
         return result
 
-    def _serialize(self, nested_obj, attr, obj, **kwargs):
-        if nested_obj is None:
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+        if value is None:
             return None
 
         schemas = self.schemas
 
-        if isinstance(nested_obj, (list, tuple)):
-            return [self._serialize(nobj, attr, obj) for nobj in nested_obj]
+        if isinstance(value, (list, tuple)):
+            return [self._serialize(nobj, attr, obj) for nobj in value]
 
-        class_name = nested_obj.__class__.__name__
+        class_name = value.__class__.__name__
 
         if class_name not in schemas:
             raise KeyError(
@@ -354,7 +356,7 @@ class GenericNested(fields.Field):
             )
 
         schema_obj = schemas[class_name]
-        return schema_obj.dump(nested_obj, many=False)
+        return schema_obj.dump(value, many=False)
 
 
 class UTCDateTime(fields.DateTime):
@@ -364,7 +366,7 @@ class UTCDateTime(fields.DateTime):
     Example: 2014-12-22T03:12:58.019077+00:00  (always ends with '+00:00')
     """
 
-    def _serialize(self, value: Optional[datetime], attr, obj, **kwargs):
+    def _serialize(self, value: Optional[datetime], attr: Any, obj: Any, **kwargs: Any) -> Optional[str]:
         if value is None:
             return None
 
@@ -375,7 +377,7 @@ class UTCDateTime(fields.DateTime):
 
         return value.isoformat()
 
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(self, value: Any, attr: Any, data: Any, **kwargs: Any) -> Optional[datetime]:  # type: ignore[override]
         if value is None:
             return None
 
@@ -397,10 +399,10 @@ class LocalDateTime(fields.DateTime):
     on naive instances that are presumed to represent system local time.
     """
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Optional[str]:
         return None if value is None else value.astimezone().isoformat()
 
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(self, value: Any, attr: Any, data: Any, **kwargs: Any) -> Optional[datetime]:  # type: ignore[override]
         return (
             None
             if value is None
@@ -413,5 +415,5 @@ class ExceptionField(fields.Field):
     Serialize exceptions type and message.
     """
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Tuple[str, str]:
         return (str(type(value)), str(value))

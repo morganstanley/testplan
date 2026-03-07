@@ -12,19 +12,19 @@ class LocationMetadata:
     line_no: int
 
     @classmethod
-    def from_object(cls, obj) -> "LocationMetadata":
+    def from_object(cls, obj: object) -> Optional["LocationMetadata"]:
         # some cases where testcases /suites generated on the fly user can provide meaningfull metadata
         # with attaching one to the object
         if hasattr(obj, LOCATION_METADATA_ATTRIBUTE):
-            return getattr(obj, LOCATION_METADATA_ATTRIBUTE)
+            return getattr(obj, LOCATION_METADATA_ATTRIBUTE)  # type: ignore[no-any-return]
         try:
-            object_name = obj.__name__
-            file = getsourcefile(obj)
-            _, line_no = getsourcelines(obj)
+            object_name = obj.__name__  # type: ignore[attr-defined]
+            file = getsourcefile(obj)  # type: ignore[arg-type]
+            _, line_no = getsourcelines(obj)  # type: ignore[arg-type]
         except Exception:
             return None  # we do best effort here
         else:
-            return cls(object_name, file, line_no)
+            return cls(object_name, file or "", line_no)
 
 
 @dataclass
@@ -58,13 +58,13 @@ class TestSuiteMetadata(TestSuiteStaticMetadata, BasicInfo):
 class TestMetadata(BasicInfo):
     test_suites: List[TestSuiteMetadata]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # computing ids propagating parent ids, this assume that the metadat is used in an
         # immutable manner. If it is used in a mutable way compute_ids need to be called to
         # recalculate ids for all siblings
         self.compute_ids()
 
-    def compute_ids(self):
+    def compute_ids(self) -> None:
         self.id = self.name
         for suite in self.test_suites:
             suite.id = f"{self.id}:{suite.name}"

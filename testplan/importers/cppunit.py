@@ -4,7 +4,7 @@ Implements three-phase importer for CppUnit format.
 
 import datetime
 import socket
-from typing import List
+from typing import List, Union
 
 from lxml import objectify, etree
 from lxml.builder import E
@@ -192,7 +192,7 @@ class CPPUnitResultImporter(ThreePhaseFileImporter[Element]):
     # TODO: can be moved to `testplan.common.util.xml module` if we add more
     #       similar functions that are needed by unit test binaries.
     @staticmethod
-    def cppunit_to_junit(report: str, name: str) -> str:
+    def cppunit_to_junit(report: Union[str, bytes], name: str) -> bytes:
         """
         Transforms CppUnit XML report into JUnit XML format.
 
@@ -231,4 +231,5 @@ class CPPUnitResultImporter(ThreePhaseFileImporter[Element]):
             if testcase.get("time") is None:
                 testcase.set("time", "0")
 
-        return etree.tostring(junit_report)
+        result: bytes = etree.tostring(junit_report)
+        return result

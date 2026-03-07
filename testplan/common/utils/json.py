@@ -1,14 +1,14 @@
 from pathlib import Path
-from typing import Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import orjson
 
 
-def json_loads(data: str):
+def json_loads(data: str) -> Any:
     return orjson.loads(data)
 
 
-def json_dumps(data, indent_2=False, default=None) -> str:
+def json_dumps(data: Any, indent_2: bool = False, default: Optional[Callable[[Any], Any]] = None) -> str:
     return orjson.dumps(
         data,
         default=default,
@@ -18,6 +18,7 @@ def json_dumps(data, indent_2=False, default=None) -> str:
     ).decode()
 
 
-def json_load_from_path(path: Union[str, Path]) -> dict:
+def json_load_from_path(path: Union[str, Path]) -> Dict[str, Any]:
     with open(path) as fp:
-        return json_loads(fp.read())
+        result: Dict[str, Any] = json_loads(fp.read())
+        return result

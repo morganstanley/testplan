@@ -4,6 +4,7 @@ Module containing configuration objects and utilities.
 
 import copy
 import inspect
+from typing import Any, Callable, Dict, Tuple, Type
 
 from schema import Optional, Schema
 
@@ -17,26 +18,26 @@ ABSENT = Optional._MARKER  # pylint: disable=protected-access
 
 # Another sentinel object indicating a default but falsy value.
 class UNSET_T:
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         # This is for configuration check of RemoteDriver. Netref from RPyC
         # overrides "__instancecheck__".
         if isinstance(other, self.__class__):
             return True
         return False
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return False
 
 
 UNSET = UNSET_T()
 
 
-def validate_func(*arg_names):
+def validate_func(*arg_names: str) -> Callable[[Any], bool]:
     """Validate given function signature."""
     return lambda x: callable(x) and check_signature(x, list(arg_names))
 
 
-def ConfigOption(key: str, default=ABSENT) -> Optional:
+def ConfigOption(key: str, default: Any = ABSENT) -> Optional:
     """
     Wrapper around Optional, subclassing is not an option
     as Schema library does internal type checks as `type(obj) is Optional`.
@@ -79,7 +80,7 @@ def ConfigOption(key: str, default=ABSENT) -> Optional:
     # named `custom_default` to avoid confusion, at last we can deal with them.
     # Refer to :py:meth:`~testplan.common.config.Config.__init__`.
     if default is not ABSENT:
-        optional.custom_default = default
+        optional.custom_default = default  # type: ignore[attr-defined]
     return optional
 
 
@@ -89,14 +90,14 @@ class Configurable(logger.Loggable):
     """
 
     @classmethod
-    def with_config(cls, **config):
+    def with_config(cls, **config: Any) -> Tuple[Type["Configurable"], Dict[str, Any]]:
         """
         Returns a tuple of class and configuration.
         """
         return cls, config
 
 
-def update_options(target, source):
+def update_options(target: Dict[Any, Any], source: Dict[Any, Any]) -> None:
     """
     Given a target and source dictionary, update the target dict in place
     using the keys in source dict, if the keys do not exist in target.
@@ -108,7 +109,7 @@ def update_options(target, source):
     keys are the same, even if they don't have the same hash.
     """
 
-    def get_key_str(option):
+    def get_key_str(option: Any) -> Any:
         """Will be used for getting name from ConfigOption keys."""
         return option._schema if isinstance(option, Optional) else option
 
@@ -131,8 +132,8 @@ class Config:
 
     ignore_extra_keys = False
 
-    def __init__(self, **options):
-        self._parent = None
+    def __init__(self, **options: Any) -> None:
+        self._parent: "Config | None" = None
         self._cfg_input = options
 
         # Validate input and apply default values of config options
@@ -150,7 +151,7 @@ class Config:
                 }
             )
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         options = self.__getattribute__("_options")
 
         # this option is defined in current entity
@@ -167,10 +168,10 @@ class Config:
                 'Attribute "{}" not found in {}'.format(name, self)
             )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}{}".format(self.__class__.__name__, self._options)
 
-    def get_local(self, name, default=None):
+    def get_local(self, name: str, default: Any = None) -> Any:
         """Returns a local config setting (not from container)"""
         options = self.__getattribute__("_options")
 
@@ -183,18 +184,18 @@ class Config:
         else:
             return default
 
-    def set_local(self, name, value):
+    def set_local(self, name: str, value: Any) -> None:
         """set without any check"""
         options = self.__getattribute__("_options")
         options[name] = value
 
     @property
-    def parent(self):
+    def parent(self) -> "Config | None":
         """Returns the parent configuration."""
         return self._parent
 
     @parent.setter
-    def parent(self, value):
+    def parent(self, value: "Config") -> None:
         """Set the parent configuration relation."""
         if self._parent is not None:
             raise AttributeError(
@@ -202,7 +203,7 @@ class Config:
             )
         self._parent = value
 
-    def denormalize(self):
+    def denormalize(self) -> "Config":
         """
         Create new config object that inherits all explicit attributes from
         its parents as well.
@@ -226,12 +227,12 @@ class Config:
         return new
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """Override this classmethod to provide extra config arguments."""
         raise NotImplementedError
 
     @classmethod
-    def build_schema(cls):
+    def build_schema(cls) -> Schema:
         """
         Build a validation schema using the config options defined in
         this class and its parent classes.
@@ -247,7 +248,8 @@ class Config:
 
         for p in parents:
             update_options(
-                target=config_options, source=p.get_options.__func__(cls)
+                target=config_options,
+                source=p.get_options.__func__(cls),  # type: ignore[attr-defined]
             )
 
         return Schema(config_options, ignore_extra_keys=cls.ignore_extra_keys)
