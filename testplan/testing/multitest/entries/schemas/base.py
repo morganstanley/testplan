@@ -132,7 +132,7 @@ class GraphSchema(BaseSchema):
     series_options = fields.Dict(
         keys=fields.String(), values=fields.Dict(), allow_none=True
     )
-    type = fields.String()
+    type = fields.String()  # type: ignore[assignment]
     graph_options = fields.Dict(allow_none=True)
     discrete_chart = fields.Bool()
 
@@ -155,7 +155,7 @@ class DirectorySchema(BaseSchema):
     source_path = fields.String()
     dst_path = fields.String()
     ignore = fields.List(fields.String(), allow_none=True)
-    only = fields.List(fields.String(), allow_none=True)
+    only = fields.List(fields.String(), allow_none=True)  # type: ignore[assignment]
     recursive = fields.Boolean()
     file_list = fields.List(fields.String())
 

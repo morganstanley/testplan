@@ -125,7 +125,7 @@ class LineDiffSchema(AssertionSchema):
     ignore_whitespaces = custom_fields.NativeOrPretty()
     ignore_blank_lines = custom_fields.NativeOrPretty()
     unified = custom_fields.NativeOrPretty()
-    context = custom_fields.NativeOrPretty()
+    context = custom_fields.NativeOrPretty()  # type: ignore[assignment]
     delta = fields.List(custom_fields.NativeOrPretty())
 
 

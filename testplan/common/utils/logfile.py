@@ -318,7 +318,7 @@ class RemoteRotatedFileLogStream(RotatedFileLogStream[T]):
     def _open_file(self, path: str) -> None:
         self.close()
         try:
-            self._file = self._ssh_client.open_file(
+            self._file = self._ssh_client.open_file(  # type: ignore[assignment]
                 path, self._file_open_mode()
             )
         except FileNotFoundError:

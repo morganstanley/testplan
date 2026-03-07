@@ -185,7 +185,7 @@ class BaseReportGroupSchema(ReportSchema):
 
     source_class = BaseReportGroup  # type: ignore[assignment]
 
-    entries = custom_fields.GenericNested(
+    entries = custom_fields.GenericNested(  # type: ignore[assignment]
         schema_context={
             "Report": ReportSchema,
             "BaseReportGroup": lambda: BaseReportGroupSchema(),

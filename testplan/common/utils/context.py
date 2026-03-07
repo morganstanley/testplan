@@ -118,7 +118,7 @@ def render(
     if isinstance(template, str):
         template = parse_template(template)
 
-    return (  # type: ignore[no-any-return]
+    return (
         template.substitute(context)
         if isinstance(template, TempitaTemplate)
         else template.render(context)
