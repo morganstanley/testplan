@@ -174,7 +174,9 @@ class App(Driver):
         self._resolved_bin: Optional[str] = None
         self._env: Optional[Dict[str, str]] = None
 
-        self._alive_child_procs: List[psutil.Process] = []  # for orphaned procs elimination
+        self._alive_child_procs: List[
+            psutil.Process
+        ] = []  # for orphaned procs elimination
 
     @emphasized  # type: ignore[prop-decorator]
     @property
@@ -596,7 +598,9 @@ class App(Driver):
             self.logger.info(
                 "Killing process id %s of %s", self.proc.pid, self
             )
-            kill_process(self.proc, int(self.stop_timeout), self.cfg.stop_signal)
+            kill_process(
+                self.proc, int(self.stop_timeout), self.cfg.stop_signal
+            )
             self.proc = None
         if self.std:
             self.std.close()

@@ -8,8 +8,12 @@ def json_loads(data: str) -> Any:
     return orjson.loads(data)
 
 
-def json_dumps(data: Any, indent_2: bool = False, default: Optional[Callable[[Any], Any]] = None) -> str:
-    return orjson.dumps(
+def json_dumps(
+    data: Any,
+    indent_2: bool = False,
+    default: Optional[Callable[[Any], Any]] = None,
+) -> str:
+    return orjson.dumps(  # type: ignore[no-any-return]
         data,
         default=default,
         option=(orjson.OPT_INDENT_2 if indent_2 else 0)

@@ -125,7 +125,7 @@ class LineDiffSchema(AssertionSchema):
     ignore_whitespaces = custom_fields.NativeOrPretty()
     ignore_blank_lines = custom_fields.NativeOrPretty()
     unified = custom_fields.NativeOrPretty()
-    context = custom_fields.NativeOrPretty()  # type: ignore[assignment]
+    context = custom_fields.NativeOrPretty()
     delta = fields.List(custom_fields.NativeOrPretty())
 
 
@@ -189,7 +189,9 @@ class DictMatchSchema(AssertionSchema):
     comparison = fields.Raw()
 
     @post_dump
-    def compress_level(self, data: Dict[str, Any], many: bool, **kw: Any) -> Dict[str, Any]:
+    def compress_level(
+        self, data: Dict[str, Any], many: bool, **kw: Any
+    ) -> Dict[str, Any]:
         data["comparison"] = delta_encode_level(data["comparison"])
         return data
 
@@ -200,7 +202,9 @@ class DictMatchAllSchema(AssertionSchema):
     matches = fields.Raw()
 
     @post_dump
-    def compress_level(self, data: Dict[str, Any], many: bool, **kw: Any) -> Dict[str, Any]:
+    def compress_level(
+        self, data: Dict[str, Any], many: bool, **kw: Any
+    ) -> Dict[str, Any]:
         for d in data["matches"]:
             d["comparison"] = delta_encode_level(d["comparison"])
         return data
@@ -214,14 +218,18 @@ class LogfileMatchResultSchema(Schema):
 
 
 class AtMostOneList(fields.List):
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
         if not isinstance(value, list) or len(value) > 1:
             raise TypeError(
                 f"Unexpected value {value} passed to AtMostOneList field."
             )
         return super()._serialize(value, attr, obj, **kwargs)
 
-    def _deserialize(self, value: Any, attr: Any, data: Any, **kwargs: Any) -> Any:
+    def _deserialize(
+        self, value: Any, attr: Any, data: Any, **kwargs: Any
+    ) -> Any:
         if not isinstance(value, list) or len(value) > 1:
             raise TypeError(
                 f"Unexpected value {value} passed to AtMostOneList field."

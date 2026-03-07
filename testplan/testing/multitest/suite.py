@@ -282,7 +282,11 @@ def get_testcase_methods(suite: Any) -> List[Any]:
     ]
 
 
-def _selective_call(decorator_func: Callable[..., Any], meta_func: Callable[..., Any], wrapper_func: Callable[..., Any]) -> Callable[..., Any]:
+def _selective_call(
+    decorator_func: Callable[..., Any],
+    meta_func: Callable[..., Any],
+    wrapper_func: Callable[..., Any],
+) -> Callable[..., Any]:
     """
     This hacky higher order function gives us the flexibility of using the
     'same' decorator with or without extra arguments. So both declarations will
@@ -343,7 +347,9 @@ def _number_of_testcases() -> int:
     return len(__TESTCASES__) + len(__GENERATED_TESTCASES__)
 
 
-def _ensure_unique_generated_testcase_names(names: List[str], functions: List[Any]) -> None:
+def _ensure_unique_generated_testcase_names(
+    names: List[str], functions: List[Any]
+) -> None:
     """
     If function generation ends up with functions with duplicate names, this
     last step will make sure that they are differentiated by number suffixes.
@@ -462,7 +468,11 @@ def _testsuite(klass: Any) -> Any:
     return klass
 
 
-def _testsuite_meta(name: Optional[Union[str, Callable[..., str]]] = None, tags: Any = None, strict_order: bool = False) -> Callable[..., Any]:
+def _testsuite_meta(
+    name: Optional[Union[str, Callable[..., str]]] = None,
+    tags: Any = None,
+    strict_order: bool = False,
+) -> Callable[..., Any]:
     """
     Wrapper function that allows us to call :py:func:`@testsuite <testsuite>`
     decorator with extra arguments.
@@ -599,7 +609,9 @@ def _testcase(function: Any) -> Any:
     return _testcase_meta()(function)
 
 
-def add_testcase_metadata(func: Callable[..., Any], metadata: TestCaseStaticMetadata) -> None:
+def add_testcase_metadata(
+    func: Callable[..., Any], metadata: TestCaseStaticMetadata
+) -> None:
     setattr(func, TESTCASE_METADATA_ATTRIBUTE, metadata)
 
 
@@ -608,7 +620,9 @@ def _testcase_meta(
     tags: Any = None,
     parameters: Any = None,
     sparse: bool = False,
-    name_func: Optional[Callable[..., str]] = parametrization.default_name_func,
+    name_func: Optional[
+        Callable[..., str]
+    ] = parametrization.default_name_func,
     tag_func: Optional[Callable[..., Any]] = None,
     docstring_func: Optional[Callable[..., Optional[str]]] = None,
     custom_wrappers: Any = None,
@@ -840,7 +854,9 @@ def testcase(*args: Any, **kwargs: Any) -> Any:
 testcase.__test__ = False  # type: ignore[attr-defined]
 
 
-def _validate_skip_if_predicates(predicates: Tuple[Callable[..., bool], ...]) -> None:
+def _validate_skip_if_predicates(
+    predicates: Tuple[Callable[..., bool], ...],
+) -> None:
     """
     Check for signature of functions, which  are used to set / extend
     ``skip_funcs`` attribute of the testcase method.

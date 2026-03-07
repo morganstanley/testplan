@@ -15,7 +15,17 @@ import collections
 from collections import Counter
 from enum import Enum, auto
 from functools import total_ordering, reduce
-from typing import Any, Dict, Iterator, List, Optional, Callable, Tuple, Type, Union
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Callable,
+    Tuple,
+    Type,
+    Union,
+)
 from typing_extensions import Self
 
 from testplan.common.utils import strings, timing
@@ -36,14 +46,23 @@ class ExceptionLoggerBase:
     A context manager used for suppressing & logging an exception.
     """
 
-    def __init__(self, *exception_classes: Type[BaseException], **kwargs: Any) -> None:
+    def __init__(
+        self, *exception_classes: Type[BaseException], **kwargs: Any
+    ) -> None:
         self.report: "Report" = kwargs["report"]
-        self.exception_classes: Tuple[Type[BaseException], ...] = exception_classes or (Exception,)
+        self.exception_classes: Tuple[Type[BaseException], ...] = (
+            exception_classes or (Exception,)
+        )
 
     def __enter__(self) -> None:
         pass
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], _: Any) -> Optional[bool]:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        _: Any,
+    ) -> Optional[bool]:
         if exc_type is not None and issubclass(
             exc_type, self.exception_classes
         ):
@@ -59,11 +78,18 @@ class ExceptionLogger(ExceptionLoggerBase):
     exception is raised (unless kwargs['fail'] is `False`).
     """
 
-    def __init__(self, *exception_classes: Type[BaseException], **kwargs: Any) -> None:
+    def __init__(
+        self, *exception_classes: Type[BaseException], **kwargs: Any
+    ) -> None:
         self.fail: bool = kwargs.get("fail", True)
         super(ExceptionLogger, self).__init__(*exception_classes, **kwargs)
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], tb: Any) -> Optional[bool]:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        tb: Any,
+    ) -> Optional[bool]:
         if exc_type is not None:
             if exc_type is SkipTestcaseException:
                 self.report.logger.critical(
@@ -354,7 +380,9 @@ class Report:
         data["logger"] = create_logging_adapter(report=self)
         self.__dict__.update(data)
 
-    def logged_exceptions(self, *exception_classes: Type[BaseException], **kwargs: Any) -> ExceptionLoggerBase:
+    def logged_exceptions(
+        self, *exception_classes: Type[BaseException], **kwargs: Any
+    ) -> ExceptionLoggerBase:
         """
         Wrapper around `ExceptionRecorder`, passing `report` arg implicitly.
 
@@ -414,7 +442,9 @@ class Report:
         """Extend ``self.entries`` with ``items``, no restrictions."""
         self.entries.extend(items)
 
-    def filter(self, *functions: Callable[..., bool], **kwargs: Any) -> "Report":
+    def filter(
+        self, *functions: Callable[..., bool], **kwargs: Any
+    ) -> "Report":
         """
         Filtering report's entries in place using the given functions.
         If any of the functions return ``True``
@@ -699,7 +729,9 @@ class BaseReportGroup(Report):
         """Return the UIDs of all entries in this report group."""
         return [entry.uid for entry in self]
 
-    def merge_entries(self, report: "BaseReportGroup", strict: bool = True) -> None:
+    def merge_entries(
+        self, report: "BaseReportGroup", strict: bool = True
+    ) -> None:
         """
         For report groups, we call `merge` on each child report
         and later merge basic attributes.
@@ -834,7 +866,9 @@ class BaseReportGroup(Report):
                 entry.reset_uid()
         self.build_index()
 
-    def flatten(self, depths: bool = False) -> Union[List[Tuple[int, Report]], List[Report]]:
+    def flatten(
+        self, depths: bool = False
+    ) -> Union[List[Tuple[int, Report]], List[Report]]:
         """
         Depth-first traverse the report tree starting on the leftmost
         node (smallest index), return a list of `(depth, obj)` tuples or
@@ -927,9 +961,11 @@ class BaseReportGroup(Report):
             else:
                 match_func = tagging.check_any_matching_tags
 
-            return bool(match_func(
-                tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index
-            ))
+            return bool(
+                match_func(
+                    tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index
+                )
+            )
 
         return self.filter(_filter_func)
 

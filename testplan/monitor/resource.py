@@ -411,7 +411,9 @@ class ResourceMonitorServer:
                         process.io_write,
                         process.cmdline,
                     )
-                    self._file_handler[client_id]["detailed_csv"].writerow(detail_row)
+                    self._file_handler[client_id]["detailed_csv"].writerow(
+                        detail_row
+                    )
                 self._file_handler[client_id]["detailed_file"].flush()
         else:
             self.logger.info(

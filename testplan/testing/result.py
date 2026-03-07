@@ -14,7 +14,17 @@ import re
 import threading
 from functools import wraps
 from types import TracebackType
-from typing import Callable, Optional, Dict, Hashable, Iterator, List, Any, Type, Union
+from typing import (
+    Callable,
+    Optional,
+    Dict,
+    Hashable,
+    Iterator,
+    List,
+    Any,
+    Type,
+    Union,
+)
 import functools
 
 from testplan import defaults
@@ -82,7 +92,12 @@ class ExceptionCapture:
     def __enter__(self) -> "ExceptionCapture":
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], tb: Optional[TracebackType]) -> bool:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> bool:
         """
         Exiting the block and reporting what was thrown if anything.
         """
@@ -117,7 +132,9 @@ class ExceptionCapture:
 assertion_state = threading.local()
 
 
-def report_target(func: Callable[..., Any], ref_func: Optional[Callable[..., Any]] = None) -> Callable[..., Any]:
+def report_target(
+    func: Callable[..., Any], ref_func: Optional[Callable[..., Any]] = None
+) -> Callable[..., Any]:
     """
     Sets the decorated function's filepath and line-range in assertion state.
     If the target function is a parametrized function, should refer to its
@@ -242,7 +259,14 @@ class RegexNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
     @assertion
-    def match(self, regexp: Any, value: str, description: Optional[str] = None, category: Optional[str] = None, flags: int = 0) -> assertions.RegexMatch:
+    def match(
+        self,
+        regexp: Any,
+        value: str,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        flags: int = 0,
+    ) -> assertions.RegexMatch:
         """
         Checks if the given ``regexp`` matches the ``value``
         via ``re.match`` operation.
@@ -275,7 +299,13 @@ class RegexNamespace(AssertionNamespace):
         return entry
 
     @assertion
-    def multiline_match(self, regexp: Any, value: str, description: Optional[str] = None, category: Optional[str] = None) -> assertions.RegexMatch:
+    def multiline_match(
+        self,
+        regexp: Any,
+        value: str,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.RegexMatch:
         """
         Checks if the given ``regexp`` matches the ``value``
         via ``re.match`` operation, uses ``re.MULTILINE`` and ``re.DOTALL``
@@ -315,7 +345,12 @@ class RegexNamespace(AssertionNamespace):
 
     @assertion
     def not_match(
-        self, regexp: Any, value: str, description: Optional[str] = None, category: Optional[str] = None, flags: int = 0
+        self,
+        regexp: Any,
+        value: str,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        flags: int = 0,
     ) -> assertions.RegexMatchNotExists:
         """
         Checks if the given ``regexp`` does not match the ``value``
@@ -351,7 +386,11 @@ class RegexNamespace(AssertionNamespace):
 
     @assertion
     def multiline_not_match(
-        self, regexp: Any, value: str, description: Optional[str] = None, category: Optional[str] = None
+        self,
+        regexp: Any,
+        value: str,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
     ) -> assertions.RegexMatchNotExists:
         """
         Checks if the given ``regexp`` does not match the ``value``
@@ -391,7 +430,14 @@ class RegexNamespace(AssertionNamespace):
         return entry
 
     @assertion
-    def search(self, regexp: Any, value: str, description: Optional[str] = None, category: Optional[str] = None, flags: int = 0) -> assertions.RegexSearch:
+    def search(
+        self,
+        regexp: Any,
+        value: str,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        flags: int = 0,
+    ) -> assertions.RegexSearch:
         """
         Checks if the given ``regexp`` exists in the ``value``
         via ``re.search`` operation.
@@ -426,7 +472,12 @@ class RegexNamespace(AssertionNamespace):
 
     @assertion
     def search_empty(
-        self, regexp: Any, value: str, description: Optional[str] = None, category: Optional[str] = None, flags: int = 0
+        self,
+        regexp: Any,
+        value: str,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        flags: int = 0,
     ) -> assertions.RegexSearchNotExists:
         """
         Checks if the given ``regexp`` does not exist in the ``value``
@@ -513,7 +564,12 @@ class RegexNamespace(AssertionNamespace):
 
     @assertion
     def matchline(
-        self, regexp: Any, value: str, description: Optional[str] = None, category: Optional[str] = None, flags: int = 0
+        self,
+        regexp: Any,
+        value: str,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        flags: int = 0,
     ) -> assertions.RegexMatchLine:
         r"""
         Checks if the given ``regexp`` returns a match
@@ -800,7 +856,12 @@ class TableNamespace(AssertionNamespace):
         return entry
 
     @assertion
-    def log(self, table: Any, display_index: bool = False, description: Optional[str] = None) -> base.TableLog:
+    def log(
+        self,
+        table: Any,
+        display_index: bool = False,
+        description: Optional[str] = None,
+    ) -> base.TableLog:
         """
         Logs a table to the report.
 
@@ -1107,7 +1168,9 @@ class DictNamespace(AssertionNamespace):
         return entry
 
     @assertion
-    def log(self, dictionary: Dict[Any, Any], description: Optional[str] = None) -> base.DictLog:
+    def log(
+        self, dictionary: Dict[Any, Any], description: Optional[str] = None
+    ) -> base.DictLog:
         """
         Logs a dictionary to the report.
 
@@ -1326,7 +1389,9 @@ class FixNamespace(AssertionNamespace):
         return entry
 
     @assertion
-    def log(self, msg: Dict[Any, Any], description: Optional[str] = None) -> base.FixLog:
+    def log(
+        self, msg: Dict[Any, Any], description: Optional[str] = None
+    ) -> base.FixLog:
         """
         Logs a fix message to the report.
 
@@ -1374,7 +1439,12 @@ class LogfileExpect(ScopedLogfileMatch):
         self.category = category
         super().__init__(log_matcher, regex, timeout)
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if exc_type is not None:
             return
         super().__exit__(exc_type, exc_value, traceback)
@@ -1602,7 +1672,12 @@ class Result:
             )
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]) -> bool:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> bool:
         entry_group: base.Group
         if self._summarize:
             entry_group = base.Summary(
@@ -1695,7 +1770,12 @@ class Result:
         return all(getattr(entry, "passed", True) for entry in self.entries)
 
     @assertion
-    def log(self, message: Any, description: Optional[str] = None, flag: Optional[str] = None) -> base.Log:
+    def log(
+        self,
+        message: Any,
+        description: Optional[str] = None,
+        flag: Optional[str] = None,
+    ) -> base.Log:
         """
         Create a string message entry, can be used for providing additional
         context related to test steps.
@@ -1720,7 +1800,12 @@ class Result:
         return entry
 
     @assertion
-    def markdown(self, message: str, description: Optional[str] = None, escape: bool = True) -> base.Markdown:
+    def markdown(
+        self,
+        message: str,
+        description: Optional[str] = None,
+        escape: bool = True,
+    ) -> base.Markdown:
         """
         Create a markdown message entry, can be used for providing additional
         context related to test steps.
@@ -1749,7 +1834,9 @@ class Result:
         return entry
 
     @assertion
-    def log_html(self, code: str, description: str = "Embedded HTML") -> base.Markdown:
+    def log_html(
+        self, code: str, description: str = "Embedded HTML"
+    ) -> base.Markdown:
         """
         Create a markdown message entry without escape, can be used for
         providing additional context related to test steps.
@@ -1764,7 +1851,12 @@ class Result:
         return self.markdown(code, description=description, escape=False)  # type: ignore[no-any-return]
 
     @assertion
-    def log_code(self, code: str, language: str = "python", description: Optional[str] = None) -> base.CodeLog:
+    def log_code(
+        self,
+        code: str,
+        language: str = "python",
+        description: Optional[str] = None,
+    ) -> base.CodeLog:
         """
         Create a codelog message entry which contains code snippet, can
         be used for providing additional context related to test steps.
@@ -1873,7 +1965,12 @@ class Result:
             return self.fail(fail_description, flag=flag)
 
     @assertion
-    def true(self, value: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.IsTrue:
+    def true(
+        self,
+        value: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.IsTrue:
         """
         Boolean assertion, checks if ``value`` is truthy.
 
@@ -1897,7 +1994,12 @@ class Result:
         return entry
 
     @assertion
-    def false(self, value: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.IsFalse:
+    def false(
+        self,
+        value: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.IsFalse:
         """
         Boolean assertion, checks if ``value`` is falsy.
 
@@ -1921,7 +2023,13 @@ class Result:
         return entry
 
     @assertion
-    def equal(self, actual: Any, expected: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.Equal:
+    def equal(
+        self,
+        actual: Any,
+        expected: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.Equal:
         """
         Equality assertion, checks if ``actual == expected``.
         Can be used via shortcut: ``result.eq``.
@@ -1948,7 +2056,13 @@ class Result:
         return entry
 
     @assertion
-    def not_equal(self, actual: Any, expected: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.NotEqual:
+    def not_equal(
+        self,
+        actual: Any,
+        expected: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.NotEqual:
         """
         Inequality assertion, checks if ``actual != expected``.
         Can be used via shortcut: ``result.ne``.
@@ -1975,7 +2089,13 @@ class Result:
         return entry
 
     @assertion
-    def less(self, first: Any, second: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.Less:
+    def less(
+        self,
+        first: Any,
+        second: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.Less:
         """
         Checks if ``first < second``.
         Can be used via shortcut: ``result.lt``
@@ -2002,7 +2122,13 @@ class Result:
         return entry
 
     @assertion
-    def greater(self, first: Any, second: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.Greater:
+    def greater(
+        self,
+        first: Any,
+        second: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.Greater:
         """
         Checks if ``first > second``.
         Can be used via shortcut: ``result.gt``
@@ -2029,7 +2155,13 @@ class Result:
         return entry
 
     @assertion
-    def less_equal(self, first: Any, second: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.LessEqual:
+    def less_equal(
+        self,
+        first: Any,
+        second: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.LessEqual:
         """
         Checks if ``first <= second``.
         Can be used via shortcut: ``result.le``
@@ -2056,7 +2188,13 @@ class Result:
         return entry
 
     @assertion
-    def greater_equal(self, first: Any, second: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.GreaterEqual:
+    def greater_equal(
+        self,
+        first: Any,
+        second: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.GreaterEqual:
         """
         Checks if ``first >= second``.
         Can be used via shortcut: ``result.ge``
@@ -2130,7 +2268,13 @@ class Result:
         return entry
 
     @assertion
-    def contain(self, member: Any, container: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.Contain:
+    def contain(
+        self,
+        member: Any,
+        container: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.Contain:
         """
         Checks if ``member in container``.
 
@@ -2157,7 +2301,13 @@ class Result:
         return entry
 
     @assertion
-    def not_contain(self, member: Any, container: Any, description: Optional[str] = None, category: Optional[str] = None) -> assertions.NotContain:
+    def not_contain(
+        self,
+        member: Any,
+        container: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> assertions.NotContain:
         """
         Checks if ``member not in container``.
 
@@ -2185,7 +2335,12 @@ class Result:
 
     @assertion
     def equal_slices(
-        self, actual: Any, expected: Any, slices: List[slice], description: Optional[str] = None, category: Optional[str] = None
+        self,
+        actual: Any,
+        expected: Any,
+        slices: List[slice],
+        description: Optional[str] = None,
+        category: Optional[str] = None,
     ) -> assertions.EqualSlices:
         """
         Checks if given slices of ``actual`` and ``expected`` are equal.
@@ -2225,7 +2380,12 @@ class Result:
 
     @assertion
     def equal_exclude_slices(
-        self, actual: Any, expected: Any, slices: List[slice], description: Optional[str] = None, category: Optional[str] = None
+        self,
+        actual: Any,
+        expected: Any,
+        slices: List[slice],
+        description: Optional[str] = None,
+        category: Optional[str] = None,
     ) -> assertions.EqualExcludeSlices:
         """
         Checks if items that exist outside the given slices of
@@ -2490,7 +2650,12 @@ class Result:
 
     @assertion
     def attach(
-        self, path: str, description: Optional[str] = None, ignore: Optional[List[str]] = None, only: Optional[List[str]] = None, recursive: bool = False
+        self,
+        path: str,
+        description: Optional[str] = None,
+        ignore: Optional[List[str]] = None,
+        only: Optional[List[str]] = None,
+        recursive: bool = False,
     ) -> Union[base.Attachment, base.Directory]:
         """
         Attaches a file to the report.
@@ -2545,7 +2710,13 @@ class Result:
             raise FileNotFoundError(f"Path {path} not exist")
 
     @assertion
-    def matplot(self, pyplot: Any, width: Optional[int] = None, height: Optional[int] = None, description: Optional[str] = None) -> base.MatPlot:
+    def matplot(
+        self,
+        pyplot: Any,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        description: Optional[str] = None,
+    ) -> base.MatPlot:
         """
         Displays a Matplotlib plot in the report.
 
@@ -2576,7 +2747,12 @@ class Result:
         return matplot
 
     @assertion
-    def plotly(self, fig: Any, description: Optional[str] = None, style: Optional[Dict[str, Any]] = None) -> base.Plotly:
+    def plotly(
+        self,
+        fig: Any,
+        description: Optional[str] = None,
+        style: Optional[Dict[str, Any]] = None,
+    ) -> base.Plotly:
         # NOTE: input ``fig`` should be a plotly(-related) object, thus
         # NOTE: we skip plotly availablity check here
 
@@ -2594,7 +2770,12 @@ class Result:
         return chart
 
     @assertion
-    def flow_chart(self, nodes: List[str], edges: List[Dict[str, Any]], description: Optional[str] = None) -> base.FlowChart:
+    def flow_chart(
+        self,
+        nodes: List[str],
+        edges: List[Dict[str, Any]],
+        description: Optional[str] = None,
+    ) -> base.FlowChart:
         """
         Displays a flow chart in the report.
 

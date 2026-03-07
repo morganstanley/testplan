@@ -1,7 +1,17 @@
 """Conversion utilities."""
 
 import itertools
-from typing import Any, Callable, Generator, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from .comparison import is_match_res
 from .reporting import Absent
@@ -177,7 +187,9 @@ def flatten_formatted_object(formatted_obj: Tuple[Any, ...]) -> List[Any]:
     :rtype: ``list``
     """
 
-    def flatten(obj: Any, level: int = 0, ignore_key: bool = True) -> Generator[Tuple[Any, ...], None, None]:
+    def flatten(
+        obj: Any, level: int = 0, ignore_key: bool = True
+    ) -> Generator[Tuple[Any, ...], None, None]:
         if ignore_key:
             key = ""
         else:
@@ -228,7 +240,9 @@ def flatten_formatted_object(formatted_obj: Tuple[Any, ...]) -> List[Any]:
         return result_table[1:]
 
 
-def flatten_dict_comparison(comparison: List[Tuple[Any, ...]]) -> List[List[Any]]:
+def flatten_dict_comparison(
+    comparison: List[Tuple[Any, ...]],
+) -> List[List[Any]]:
     """
     Flatten the comparison object from dictionary match into a tabular format.
 

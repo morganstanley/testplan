@@ -18,7 +18,9 @@ class CommandList:
         """
         self.commands = commands or []
 
-    def command(self, *args: Any, **kwargs: Any) -> Callable[..., click.Command]:
+    def command(
+        self, *args: Any, **kwargs: Any
+    ) -> Callable[..., click.Command]:
         """
         Decorator that creates new Click command and adds it to command list.
         """

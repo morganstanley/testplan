@@ -346,7 +346,9 @@ class TaskTargetInformation:
 
 
 def task_target(
-    parameters: Optional[Union[Callable, Sequence[Union[Sequence, dict]]]] = None,
+    parameters: Optional[
+        Union[Callable, Sequence[Union[Sequence, dict]]]
+    ] = None,
     multitest_parts: Union[int, Literal["auto"], None] = None,
     **kwargs: Any,
 ) -> Any:

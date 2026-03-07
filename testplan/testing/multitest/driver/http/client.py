@@ -10,7 +10,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-import requests
+import requests  # type: ignore[import-untyped]
 from schema import Use, Or
 
 from testplan.common.config import ConfigOption
@@ -144,7 +144,14 @@ class HTTPClient(Driver):
         """Abort logic that stops the client."""
         super(HTTPClient, self).aborting()
 
-    def _send_request(self, method: str, api: str, drop_response: Event, timeout: int, **kwargs: Any) -> None:
+    def _send_request(
+        self,
+        method: str,
+        api: str,
+        drop_response: Event,
+        timeout: int,
+        **kwargs: Any,
+    ) -> None:
         """
         Send a request using the requests module.
 
@@ -211,7 +218,9 @@ class HTTPClient(Driver):
         """
         self.send("head", api, **kwargs)
 
-    def get(self, api: str, params: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
+    def get(
+        self, api: str, params: Optional[Dict[str, Any]] = None, **kwargs: Any
+    ) -> None:
         """
         Send GET request.
 
@@ -225,7 +234,13 @@ class HTTPClient(Driver):
         """
         self.send("get", api, params=params, **kwargs)
 
-    def post(self, api: str, data: Optional[Any] = None, json: Optional[Any] = None, **kwargs: Any) -> None:
+    def post(
+        self,
+        api: str,
+        data: Optional[Any] = None,
+        json: Optional[Any] = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Send POST request.
 
@@ -267,7 +282,9 @@ class HTTPClient(Driver):
         """
         self.send("delete", api, **kwargs)
 
-    def patch(self, api: str, data: Optional[Any] = None, **kwargs: Any) -> None:
+    def patch(
+        self, api: str, data: Optional[Any] = None, **kwargs: Any
+    ) -> None:
         """
         Send PATCH request.
 
@@ -293,7 +310,9 @@ class HTTPClient(Driver):
         """
         self.send("options", api, **kwargs)
 
-    def receive(self, timeout: Optional[int] = None) -> Optional[requests.Response]:
+    def receive(
+        self, timeout: Optional[int] = None
+    ) -> Optional[requests.Response]:
         """
         Wait to receive a response.
 
@@ -304,7 +323,9 @@ class HTTPClient(Driver):
         :return: A request response or ``None``
         :rtype: ``requests.models.Response`` or ``NoneType``
         """
-        effective_timeout: int = timeout if timeout is not None else self.timeout  # type: ignore[assignment]
+        effective_timeout: int = (
+            timeout if timeout is not None else self.timeout  # type: ignore[assignment]
+        )
         deadline = effective_timeout + time.time()
         response = None
 

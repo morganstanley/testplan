@@ -262,7 +262,9 @@ class PyTest(testing.Test):
                         "Unexpected report type: {}".format(type(child_report))
                     )
 
-    def _build_iter_pytest_args(self, testsuite_pattern: str, testcase_pattern: str) -> Tuple[List[str], List[str]]:
+    def _build_iter_pytest_args(
+        self, testsuite_pattern: str, testcase_pattern: str
+    ) -> Tuple[List[str], List[str]]:
         """
         Build the PyTest args for running a particular set of testsuites and
         testcases as specified.
@@ -324,7 +326,9 @@ class _ReportPlugin:
     report with the status of testcases.
     """
 
-    def __init__(self, parent: "PyTest", report: TestGroupReport, quiet: bool) -> None:
+    def __init__(
+        self, parent: "PyTest", report: TestGroupReport, quiet: bool
+    ) -> None:
         self._parent = parent
         self._report = report
         self._quiet = quiet
@@ -365,7 +369,9 @@ class _ReportPlugin:
         """Set up environment as required."""
         self._suite_reports = collections.defaultdict(collections.OrderedDict)
 
-    def case_report(self, suite_name: str, case_name: str, case_params: Optional[str]) -> TestCaseReport:
+    def case_report(
+        self, suite_name: str, case_name: str, case_params: Optional[str]
+    ) -> TestCaseReport:
         """
         Return the case report for the specified suite and case name, creating
         it first if necessary.
@@ -424,7 +430,9 @@ class _ReportPlugin:
         if func_doc is not None:
             report.description = os.linesep.join(
                 "    {}".format(line)
-                for line in (inspect.getdoc(item.function) or "").split(os.linesep)
+                for line in (inspect.getdoc(item.function) or "").split(
+                    os.linesep
+                )
             )
 
         self._current_case_report = report
@@ -505,7 +513,9 @@ class _ReportPlugin:
         elif report.when == "teardown":
             pass
 
-    def pytest_exception_interact(self, node: Any, call: Any, report: Any) -> None:
+    def pytest_exception_interact(
+        self, node: Any, call: Any, report: Any
+    ) -> None:
         """
         Hook called when an exception raised and it can be handled. This hook
         is only called if the exception is not an PyTest internal exception.
@@ -696,7 +706,9 @@ def _short_suite_name(suite_name: str) -> str:
     return os.path.basename(suite_name)
 
 
-def _add_empty_testcase_report(item: Any, test_report: TestGroupReport, nodeids: Dict[str, Any]) -> None:
+def _add_empty_testcase_report(
+    item: Any, test_report: TestGroupReport, nodeids: Dict[str, Any]
+) -> None:
     """Add an empty testcase report to the test report."""
     full_suite_name, case_name, case_params = _split_nodeid(item.nodeid)
     suite_name = _short_suite_name(full_suite_name)

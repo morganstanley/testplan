@@ -38,7 +38,9 @@ def save_resource_data(
             )
             copyfile(src=host_meta["resource_file"], dst=dist_path)
             host_meta["resource_file"] = dist_path.name
-    meta_path: pathlib.Path = directory / pathlib.Path(report.resource_meta_path).name
+    meta_path: pathlib.Path = (
+        directory / pathlib.Path(report.resource_meta_path).name
+    )
     with open(meta_path, "w") as meta_file:
         meta_file.write(json_dumps(meta_info))
     return meta_path
@@ -212,7 +214,9 @@ class JSONExporter(Exporter):
         return moved_attachments
 
     @staticmethod
-    def split_assertions(entries: List[Dict[str, Any]], assertions: Dict[str, Any]) -> None:
+    def split_assertions(
+        entries: List[Dict[str, Any]], assertions: Dict[str, Any]
+    ) -> None:
         """Remove assertions from report and place them in a dictionary."""
         for entry in entries:
             if entry["type"] == TestCaseReport.__name__:
@@ -237,7 +241,11 @@ class JSONExporter(Exporter):
         return meta, structure, assertions_map
 
     @staticmethod
-    def merge_assertions(entries: List[Dict[str, Any]], assertions: Dict[str, Any], strict: bool = True) -> None:
+    def merge_assertions(
+        entries: List[Dict[str, Any]],
+        assertions: Dict[str, Any],
+        strict: bool = True,
+    ) -> None:
         """Fill assertions into report by the unique id."""
         for entry in entries:
             if entry["type"] == TestCaseReport.__name__:
@@ -253,7 +261,12 @@ class JSONExporter(Exporter):
                 )
 
     @staticmethod
-    def merge_json_report(meta: Dict[str, Any], structure: List[Dict[str, Any]], assertions_map: Dict[str, Any], strict: bool = True) -> Dict[str, Any]:
+    def merge_json_report(
+        meta: Dict[str, Any],
+        structure: List[Dict[str, Any]],
+        assertions_map: Dict[str, Any],
+        strict: bool = True,
+    ) -> Dict[str, Any]:
         """Merge parts of json report into a single one."""
         for test in structure:
             test_key = f"assertions_{test['uid']}"

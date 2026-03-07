@@ -174,7 +174,9 @@ class FixServer(Driver):
 
     active_connections.__doc__ = Server.active_connections.__doc__
 
-    def is_connection_active(self, conn_name: Tuple[Optional[str], Optional[str]]) -> bool:
+    def is_connection_active(
+        self, conn_name: Tuple[Optional[str], Optional[str]]
+    ) -> bool:
         """
         Docstring from Server.is_connection_active
         """
@@ -183,7 +185,11 @@ class FixServer(Driver):
 
     is_connection_active.__doc__ = Server.is_connection_active.__doc__
 
-    def send(self, msg: Any, conn_name: Tuple[Optional[str], Optional[str]] = (None, None)) -> Any:
+    def send(
+        self,
+        msg: Any,
+        conn_name: Tuple[Optional[str], Optional[str]] = (None, None),
+    ) -> Any:
         """
         Docstring from Server.send
         """
@@ -192,7 +198,11 @@ class FixServer(Driver):
 
     send.__doc__ = Server.send.__doc__
 
-    def receive(self, conn_name: Tuple[Optional[str], Optional[str]] = (None, None), timeout: Optional[int] = 60) -> Any:
+    def receive(
+        self,
+        conn_name: Tuple[Optional[str], Optional[str]] = (None, None),
+        timeout: Optional[int] = 60,
+    ) -> Any:
         """
         Receive a FIX message from the given connection.
 

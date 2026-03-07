@@ -80,7 +80,7 @@ def ConfigOption(key: str, default: Any = ABSENT) -> Optional:
     # named `custom_default` to avoid confusion, at last we can deal with them.
     # Refer to :py:meth:`~testplan.common.config.Config.__init__`.
     if default is not ABSENT:
-        optional.custom_default = default  # type: ignore[attr-defined]
+        optional.custom_default = default
     return optional
 
 
@@ -90,7 +90,9 @@ class Configurable(logger.Loggable):
     """
 
     @classmethod
-    def with_config(cls, **config: Any) -> Tuple[Type["Configurable"], Dict[str, Any]]:
+    def with_config(
+        cls, **config: Any
+    ) -> Tuple[Type["Configurable"], Dict[str, Any]]:
         """
         Returns a tuple of class and configuration.
         """

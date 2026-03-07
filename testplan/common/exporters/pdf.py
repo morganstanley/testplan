@@ -10,7 +10,17 @@ from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
-from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from testplan.common.exporters import constants, _limit_cell_length
 
@@ -19,7 +29,9 @@ from testplan.common.exporters import constants, _limit_cell_length
 MAX_TABLE_ROWS = 1000
 
 
-def _partition_data(data: List[List[Any]], max_rows: int) -> Generator[List[List[Any]], None, None]:
+def _partition_data(
+    data: List[List[Any]], max_rows: int
+) -> Generator[List[List[Any]], None, None]:
     """
     Partition a table's data, each partition
     containing at most ``max_rows`` rows.
@@ -36,7 +48,9 @@ def _partition_data(data: List[List[Any]], max_rows: int) -> Generator[List[List
     )
 
 
-def _partition_style(style: List[Tuple[Any, ...]], num_rows: int, max_rows: int) -> Generator[List[Tuple[Any, ...]], None, None]:
+def _partition_style(
+    style: List[Tuple[Any, ...]], num_rows: int, max_rows: int
+) -> Generator[List[Tuple[Any, ...]], None, None]:
     """
     Partition a table's style commands.
 
@@ -88,7 +102,12 @@ def _partition_style(style: List[Tuple[Any, ...]], num_rows: int, max_rows: int)
         yield partition
 
 
-def create_base_tables(data: List[List[Any]], style: List[Tuple[Any, ...]], col_widths: List[Any], max_rows: int = MAX_TABLE_ROWS) -> List[Table]:
+def create_base_tables(
+    data: List[List[Any]],
+    style: List[Tuple[Any, ...]],
+    col_widths: List[Any],
+    max_rows: int = MAX_TABLE_ROWS,
+) -> List[Table]:
     """
     Create tables for the specified data and style
     commands, partitioning where necessary.
@@ -115,7 +134,9 @@ def create_base_tables(data: List[List[Any]], style: List[Tuple[Any, ...]], col_
     ]
 
 
-def _add_row_index(columns: List[Any], rows: List[List[Any]], indices: List[Any]) -> Tuple[List[Any], List[List[Any]]]:
+def _add_row_index(
+    columns: List[Any], rows: List[List[Any]], indices: List[Any]
+) -> Tuple[List[Any], List[List[Any]]]:
     """
     Add row indices as the first column to the columns and rows data.
 
@@ -135,7 +156,9 @@ def _add_row_index(columns: List[Any], rows: List[List[Any]], indices: List[Any]
     return indexed_columns, indexed_rows
 
 
-def _create_cell_styles(colour_matrix: List[List[str]], display_index: bool) -> List["RowStyle"]:
+def _create_cell_styles(
+    colour_matrix: List[List[str]], display_index: bool
+) -> List["RowStyle"]:
     """
     Create a list of cell styles indicating whether the cell should be black,
     green or red based on whether the cell result is ignored (I), passed (P) or
@@ -383,7 +406,9 @@ def create_table(
     return tables
 
 
-def format_table_style(table_styles: List["RowStyle"]) -> List[Tuple[Any, ...]]:
+def format_table_style(
+    table_styles: List["RowStyle"],
+) -> List[Tuple[Any, ...]]:
     """
     Convert table style into a format ReportLab will accept.
 
@@ -588,7 +613,13 @@ class RowData:
     via `RowStyle` objects.
     """
 
-    def __init__(self, num_columns: int, start: int = 0, content: Optional[Union[str, List[Any]]] = None, style: Optional[Union["RowStyle", List["RowStyle"]]] = None) -> None:
+    def __init__(
+        self,
+        num_columns: int,
+        start: int = 0,
+        content: Optional[Union[str, List[Any]]] = None,
+        style: Optional[Union["RowStyle", List["RowStyle"]]] = None,
+    ) -> None:
         self._start = start
         self.num_columns = num_columns
 
@@ -677,7 +708,11 @@ class RowData:
         """
         return self.start + len(self)
 
-    def append(self, content: Union[str, List[Any]], style: Optional[Union[RowStyle, List[RowStyle]]] = None) -> None:
+    def append(
+        self,
+        content: Union[str, List[Any]],
+        style: Optional[Union[RowStyle, List[RowStyle]]] = None,
+    ) -> None:
         """
         Append one or more rows to the current row data,
         with the given styles.
@@ -736,7 +771,11 @@ class RowData:
         self.content.extend(content)  # type: ignore[arg-type]
 
 
-def split_line(line: str, max_width: int, get_width_func: Optional[Callable[[str], float]] = None) -> List[str]:
+def split_line(
+    line: str,
+    max_width: int,
+    get_width_func: Optional[Callable[[str], float]] = None,
+) -> List[str]:
     """
     Split `line` into multi-lines if width exceeds `max_width`.
 
@@ -772,7 +811,11 @@ def split_line(line: str, max_width: int, get_width_func: Optional[Callable[[str
 
 
 def split_text(
-    text: str, font_name: str, font_size: int, max_width: int, keep_leading_whitespace: bool = False
+    text: str,
+    font_name: str,
+    font_size: int,
+    max_width: int,
+    keep_leading_whitespace: bool = False,
 ) -> str:
     """
     Wraps `text` within given `max_width` limit (measured in px), keeping
@@ -788,7 +831,9 @@ def split_text(
     :return: list of lines
     """
 
-    def get_text_width(text: str, name: str = font_name, size: int = font_size) -> float:
+    def get_text_width(
+        text: str, name: str = font_name, size: int = font_size
+    ) -> float:
         return stringWidth(text, name, size)  # type: ignore[no-any-return]
 
     result = []

@@ -26,7 +26,9 @@ class RegExParser(Parser):
     def match(self, sentence: str) -> Optional[re.Match[str]]:
         return self.expression.match(sentence)
 
-    def bind(self, func: Callable[..., Any], match: re.Match[str]) -> Callable[..., Any]:
+    def bind(
+        self, func: Callable[..., Any], match: re.Match[str]
+    ) -> Callable[..., Any]:
         return lambda env, result, context, *args: func(
             env, result, context, *args, **match.groupdict()
         )

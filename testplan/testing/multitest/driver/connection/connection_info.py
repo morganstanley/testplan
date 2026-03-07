@@ -96,7 +96,9 @@ class DriverConnectionGraph:
     def edges(self) -> List[Dict[str, Any]]:
         return self._edges
 
-    def add_connection(self, driver_name: str, conn_info: BaseConnectionInfo) -> None:
+    def add_connection(
+        self, driver_name: str, conn_info: BaseConnectionInfo
+    ) -> None:
         added = False
         for existing_connection in self.connections:
             added = existing_connection.add_driver_if_in_connection(

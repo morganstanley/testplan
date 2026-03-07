@@ -245,7 +245,8 @@ class RemoteWorker(ProcessWorker, RemoteResource):
     def rebase_task_path(self, task: Task) -> None:
         """Rebase the path of task from local to remote"""
         task.rebase_path(
-            self._workspace_paths.local, self._workspace_paths.remote  # type: ignore[arg-type]
+            self._workspace_paths.local,  # type: ignore[arg-type]
+            self._workspace_paths.remote,  # type: ignore[arg-type]
         )
 
 

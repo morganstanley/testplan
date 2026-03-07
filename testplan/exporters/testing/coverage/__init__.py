@@ -6,7 +6,15 @@ import pathlib
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, MutableMapping, Optional, TextIO, Tuple
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    MutableMapping,
+    Optional,
+    TextIO,
+    Tuple,
+)
 
 from testplan.common.exporters import (
     ExportContext,
@@ -29,7 +37,9 @@ class CoveredTestsExporter(Exporter):
 
     CONFIG = ExporterConfig
 
-    def __init__(self, name: str = "Covered Tests Exporter", **options: Any) -> None:
+    def __init__(
+        self, name: str = "Covered Tests Exporter", **options: Any
+    ) -> None:
         super(CoveredTestsExporter, self).__init__(name=name, **options)
 
     def export(

@@ -112,7 +112,9 @@ class Environment:
         """
         return next(uid for uid in self._resources.keys())
 
-    def get(self, key: str, default: Optional["Resource"] = None) -> Optional["Resource"]:
+    def get(
+        self, key: str, default: Optional["Resource"] = None
+    ) -> Optional["Resource"]:
         # For compatibility reason, acts like a dictionary which has
         # a `get` method that returns `None` if no attribute found.
         try:
@@ -186,7 +188,12 @@ class Environment:
             for resource in self._resources
         )
 
-    def _record_resource_exception(self, message: str, resource: "Resource", msg_store: "OrderedDict[Resource, str]") -> None:
+    def _record_resource_exception(
+        self,
+        message: str,
+        resource: "Resource",
+        msg_store: "OrderedDict[Resource, str]",
+    ) -> None:
         tb = traceback.format_exc()
         try:
             fetch_msg = "\n".join(resource.fetch_error_log())
@@ -389,7 +396,9 @@ class Environment:
             )
 
     def _apply_resource_exception_logged(
-        self, exception_record: "OrderedDict[Resource, str]", func: Callable[["Resource"], None]
+        self,
+        exception_record: "OrderedDict[Resource, str]",
+        func: Callable[["Resource"], None],
     ) -> Callable[["Resource"], None]:
         """
         Applying ``func`` to resource and log possible exception at environment level.
@@ -416,7 +425,12 @@ class Environment:
         self.start()
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[Any]) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[Any],
+    ) -> None:
         self.stop()
 
 
@@ -695,7 +709,9 @@ class Entity(logger.Loggable):
         return
         yield
 
-    def _abort_entity(self, entity: "Entity", wait_timeout: Optional[int] = None) -> None:
+    def _abort_entity(
+        self, entity: "Entity", wait_timeout: Optional[int] = None
+    ) -> None:
         """
         Method to abort an entity and log exceptions.
 
@@ -745,7 +761,9 @@ class Entity(logger.Loggable):
     def resuming(self) -> None:
         raise NotImplementedError()
 
-    def wait(self, target_status: Optional[str], timeout: Optional[int] = None) -> None:
+    def wait(
+        self, target_status: Optional[str], timeout: Optional[int] = None
+    ) -> None:
         """
         Wait until objects status becomes target status.
 
@@ -958,7 +976,9 @@ class Runnable(Entity):
     # Shortcut for interactive handler
     i = interactive
 
-    def add_resource(self, resource: "Resource", uid: Optional[str] = None) -> str:
+    def add_resource(
+        self, resource: "Resource", uid: Optional[str] = None
+    ) -> str:
         """
         Adds a :py:class:`resource <testplan.common.entity.base.Resource>`
         in the runnable environment.
@@ -1056,7 +1076,9 @@ class Runnable(Entity):
         self._post_run_checks(start_threads, start_procs)
 
     @staticmethod
-    def _get_process_info(recursive: bool = False) -> Tuple[List[threading.Thread], List[Any]]:
+    def _get_process_info(
+        recursive: bool = False,
+    ) -> Tuple[List[threading.Thread], List[Any]]:
         """
         :return: lists of threads and child processes, to be passed to the
             _post_run_checks method after the run has finished.
@@ -1067,7 +1089,9 @@ class Runnable(Entity):
 
         return threads, children
 
-    def _post_run_checks(self, start_threads: List[threading.Thread], start_procs: List[Any]) -> None:
+    def _post_run_checks(
+        self, start_threads: List[threading.Thread], start_procs: List[Any]
+    ) -> None:
         """
         Compare the current running threads and processes to those that were
         alive before we were run. If there are any differences that indicates
@@ -1393,7 +1417,9 @@ class Resource(Entity):
     def __init__(self, **options: Any) -> None:
         super(Resource, self).__init__(**options)
         self._context: Optional[Environment] = None
-        self._failovers: List[Dict[str, Any]] = []  # failover resources if start fails
+        self._failovers: List[
+            Dict[str, Any]
+        ] = []  # failover resources if start fails
         self._wait_handlers.update(
             {
                 self.STATUS.STARTED: self._wait_started,
@@ -1638,7 +1664,12 @@ class Resource(Entity):
             self.wait(self.STATUS.STARTED)
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[Any]) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[Any],
+    ) -> None:
         self.stop()
         if self.async_start:
             self.wait(self.STATUS.STOPPED)

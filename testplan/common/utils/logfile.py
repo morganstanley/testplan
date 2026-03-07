@@ -259,7 +259,9 @@ class TextFileOpenMode:
         return ""
 
 
-def get_remote_file_inode(ssh_client: SSHClient, path: Union[PathLike, str]) -> int:
+def get_remote_file_inode(
+    ssh_client: SSHClient, path: Union[PathLike, str]
+) -> int:
     path_string = os.fspath(path)
     _, inode_string, _ = ssh_client.exec_command(
         f"/usr/bin/stat -c %i '{path_string}'"
@@ -316,7 +318,7 @@ class RemoteRotatedFileLogStream(RotatedFileLogStream[T]):
     def _open_file(self, path: str) -> None:
         self.close()
         try:
-            self._file = self._ssh_client.open_file(  # type: ignore[assignment]
+            self._file = self._ssh_client.open_file(
                 path, self._file_open_mode()
             )
         except FileNotFoundError:

@@ -372,7 +372,9 @@ class Tracing(Loggable):
             description,
         )
 
-    def set_span_attrs(self, span: Optional["Span"] = None, **kwargs: Any) -> None:
+    def set_span_attrs(
+        self, span: Optional["Span"] = None, **kwargs: Any
+    ) -> None:
         """
         Set attributes on a span.
 

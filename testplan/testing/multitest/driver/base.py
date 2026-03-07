@@ -170,7 +170,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):  # type: ig
         """Driver stopped check interval."""
         return DEFAULT_INTERVAL
 
-    def wait(self, target_status: Optional[str], timeout: Optional[int] = None) -> None:
+    def wait(
+        self, target_status: Optional[str], timeout: Optional[int] = None
+    ) -> None:
         """
         Wait until objects status becomes target status.
 

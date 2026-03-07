@@ -179,7 +179,9 @@ class StdFiles:
         self.out.close()
 
 
-def instantiate(template: str, values: Dict[str, Any], destination: str) -> None:
+def instantiate(
+    template: str, values: Dict[str, Any], destination: str
+) -> None:
     """
     Instantiate a templated file with a set of values and
     place it in a target destination.

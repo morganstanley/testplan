@@ -6,7 +6,18 @@ import fnmatch
 import operator
 import re
 from enum import Enum, IntEnum, auto
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 from testplan.testing import tagging
 from testplan.testing.common import (
@@ -440,7 +451,13 @@ class PatternAction(argparse.Action):
         [Pattern('foo'), Pattern('bar'), Pattern('baz')]
     """
 
-    def __call__(self, parser: argparse.ArgumentParser, namespace: argparse.Namespace, values: Any, option_string: Optional[str] = None) -> None:
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: Optional[str] = None,
+    ) -> None:
         items = getattr(namespace, self.dest) or []
 
         items.extend([Pattern(value) for value in values])
@@ -475,7 +492,13 @@ class TagsAction(argparse.Action):
 
     filter_class: Type[BaseTagFilter] = Tags
 
-    def __call__(self, parser: argparse.ArgumentParser, namespace: argparse.Namespace, values: Any, option_string: Optional[str] = None) -> None:
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: Optional[str] = None,
+    ) -> None:
         items = getattr(namespace, self.dest) or []
         items.append(self.filter_class(tagging.parse_tag_arguments(*values)))
         setattr(namespace, self.dest, items)
@@ -510,7 +533,9 @@ class TagsAllAction(TagsAction):
     filter_class: Type[BaseTagFilter] = TagsAll
 
 
-def parse_filter_args(parsed_args: Dict[str, Any], arg_names: Sequence[str]) -> Optional[BaseFilter]:
+def parse_filter_args(
+    parsed_args: Dict[str, Any], arg_names: Sequence[str]
+) -> Optional[BaseFilter]:
     """
     Utility function that's used for grouping filters of the same category
     together. Will be used while parsing command line arguments for

@@ -26,7 +26,9 @@ registry = AssertionSchemaRegistry()
 
 
 class GenericEntryList(fields.Field):
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> List[Any]:
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> List[Any]:
         return [registry.serialize(entry) for entry in value]
 
 
@@ -53,7 +55,9 @@ class BaseSchema(Schema):
         raise NotImplementedError("Only serialization is supported.")
 
     @post_dump
-    def streamline(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+    def streamline(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
         # since source code is always available,
         # none-test on file_path should be reliable
         if data["file_path"] is None:
@@ -112,7 +116,9 @@ class DictLogSchema(BaseSchema):
     flattened_dict = fields.Raw()
 
     @post_dump
-    def compress_level(self, data: Dict[str, Any], many: bool, **kw: Any) -> Dict[str, Any]:
+    def compress_level(
+        self, data: Dict[str, Any], many: bool, **kw: Any
+    ) -> Dict[str, Any]:
         data["flattened_dict"] = delta_encode_level(data["flattened_dict"])
         return data
 
@@ -126,7 +132,7 @@ class GraphSchema(BaseSchema):
     series_options = fields.Dict(
         keys=fields.String(), values=fields.Dict(), allow_none=True
     )
-    type = fields.String()  # type: ignore[assignment]
+    type = fields.String()
     graph_options = fields.Dict(allow_none=True)
     discrete_chart = fields.Bool()
 
@@ -149,7 +155,7 @@ class DirectorySchema(BaseSchema):
     source_path = fields.String()
     dst_path = fields.String()
     ignore = fields.List(fields.String(), allow_none=True)
-    only = fields.List(fields.String(), allow_none=True)  # type: ignore[assignment]
+    only = fields.List(fields.String(), allow_none=True)
     recursive = fields.Boolean()
     file_list = fields.List(fields.String())
 

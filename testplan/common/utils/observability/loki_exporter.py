@@ -1,5 +1,5 @@
 import logging
-import requests
+import requests  # type: ignore[import-untyped]
 import sys
 import time
 from typing import Sequence

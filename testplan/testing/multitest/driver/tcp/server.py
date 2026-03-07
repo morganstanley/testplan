@@ -123,7 +123,9 @@ class TCPServer(Driver):
 
     close_connection.__doc__ = Server.close_connection.__doc__
 
-    def send_text(self, msg: str, standard: str = "utf-8", **kwargs: Any) -> Any:
+    def send_text(
+        self, msg: str, standard: str = "utf-8", **kwargs: Any
+    ) -> Any:
         """
         Encodes to bytes and calls
         :py:meth:`TCPServer.send
@@ -131,7 +133,9 @@ class TCPServer(Driver):
         """
         return self.send(bytes(msg.encode(standard)), **kwargs)
 
-    def send(self, msg: bytes, conn_idx: Optional[int] = None, timeout: int = 30) -> Any:
+    def send(
+        self, msg: bytes, conn_idx: Optional[int] = None, timeout: int = 30
+    ) -> Any:
         """Doc from Server."""
         assert self._server is not None
         return self._server.send(msg=msg, conn_idx=conn_idx, timeout=timeout)
@@ -149,7 +153,12 @@ class TCPServer(Driver):
         assert received is not None
         return received.decode(standard)
 
-    def receive(self, size: Optional[int] = None, conn_idx: Optional[int] = None, timeout: Optional[int] = 30) -> Optional[bytes]:
+    def receive(
+        self,
+        size: Optional[int] = None,
+        conn_idx: Optional[int] = None,
+        timeout: Optional[int] = 30,
+    ) -> Optional[bytes]:
         """Receive bytes from the given connection."""
         received = None
         timeout_info = TimeoutExceptionInfo()

@@ -5,7 +5,19 @@ import concurrent.futures
 import functools
 import itertools
 import warnings
-from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, OrderedDict, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterator,
+    List,
+    Optional,
+    OrderedDict,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from schema import And, Or, Use
 
@@ -42,7 +54,9 @@ from testplan.testing.base import TestLifecycle
 
 def iterable_suites(obj: Any) -> List[Any]:
     """Create an iterable suites object."""
-    suites: List[Any] = [obj] if not isinstance(obj, collections.abc.Iterable) else list(obj)
+    suites: List[Any] = (
+        [obj] if not isinstance(obj, collections.abc.Iterable) else list(obj)
+    )
 
     # If multiple objects from one test suite class are added into a Multitest,
     # it's better provide naming function to avoid duplicate test suite names.
@@ -333,7 +347,9 @@ class MultiTest(testing_base.Test):
 
         # MultiTest may start a thread pool for running testcases concurrently,
         # if they are marked with an execution group.
-        self._thread_pool: Optional[concurrent.futures.ThreadPoolExecutor] = None
+        self._thread_pool: Optional[concurrent.futures.ThreadPoolExecutor] = (
+            None
+        )
 
         self.log_suite_lifecycle = functools.partial(
             self._log_lifecycle, indent=testing_base.SUITE_INDENT
@@ -693,7 +709,12 @@ class MultiTest(testing_base.Test):
             name=name, uid=name, category=ReportCategories.SYNTHESIZED
         )
 
-    def _testcase_reports(self, testsuite: Any, testcases: List[Any], status: Optional[Status] = None) -> List[Union[TestCaseReport, TestGroupReport]]:
+    def _testcase_reports(
+        self,
+        testsuite: Any,
+        testcases: List[Any],
+        status: Optional[Status] = None,
+    ) -> List[Union[TestCaseReport, TestGroupReport]]:
         """
         Generate a list of reports for testcases, including parametrization
         groups.
@@ -764,7 +785,9 @@ class MultiTest(testing_base.Test):
             tags=testcase.__tags__,
         )
 
-    def _new_parametrized_group_report(self, param_template: str, param_method: Any) -> TestGroupReport:
+    def _new_parametrized_group_report(
+        self, param_template: str, param_method: Any
+    ) -> TestGroupReport:
         """
         :return: A new and empty report for a parametrization group.
         """
@@ -795,7 +818,9 @@ class MultiTest(testing_base.Test):
                 self.status.update_metadata(**{str(step): exc})
                 raise
 
-    def _run_suite(self, testsuite: Any, testcases: List[Any]) -> TestGroupReport:
+    def _run_suite(
+        self, testsuite: Any, testcases: List[Any]
+    ) -> TestGroupReport:
         """Runs a testsuite object and returns its report."""
 
         self.log_suite_lifecycle(testsuite, TestLifecycle.SUITE_START)
@@ -878,7 +903,9 @@ class MultiTest(testing_base.Test):
 
         return testsuite_report
 
-    def _run_serial_testcases(self, testsuite: Any, testcases: List[Any]) -> List[Union[TestCaseReport, TestGroupReport]]:
+    def _run_serial_testcases(
+        self, testsuite: Any, testcases: List[Any]
+    ) -> List[Union[TestCaseReport, TestGroupReport]]:
         """Run testcases serially and return a list of test reports."""
         testcase_reports: List[Union[TestCaseReport, TestGroupReport]] = []
         parametrization_reports: Dict[str, TestGroupReport] = {}
@@ -929,7 +956,9 @@ class MultiTest(testing_base.Test):
 
         return testcase_reports
 
-    def _run_parallel_testcases(self, testsuite: Any, execution_groups: OrderedDict[str, List[Any]]) -> List[Union[TestCaseReport, TestGroupReport]]:
+    def _run_parallel_testcases(
+        self, testsuite: Any, execution_groups: OrderedDict[str, List[Any]]
+    ) -> List[Union[TestCaseReport, TestGroupReport]]:
         """
         Schedule parallel testcases to a threadpool, wait for them to complete
         and return a list of testcase reports.
@@ -1004,7 +1033,9 @@ class MultiTest(testing_base.Test):
 
         return testcase_reports
 
-    def _parametrization_reports(self, testsuite: Any, testcases: Any) -> OrderedDict[str, TestGroupReport]:
+    def _parametrization_reports(
+        self, testsuite: Any, testcases: Any
+    ) -> OrderedDict[str, TestGroupReport]:
         """
         Generate parametrization reports for any parametrized testcases.
         """
@@ -1026,13 +1057,17 @@ class MultiTest(testing_base.Test):
 
         return parametrization_reports
 
-    def _get_runtime_environment(self, testcase_name: str, testcase_report: TestCaseReport) -> RuntimeEnvironment:  # type: ignore[override]
+    def _get_runtime_environment(  # type: ignore[override]
+        self, testcase_name: str, testcase_report: TestCaseReport
+    ) -> RuntimeEnvironment:
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase_name
         runtime_info.testcase.report = testcase_report
         return RuntimeEnvironment(self.resources, runtime_info)
 
-    def _get_hook_context(self, case_report: TestCaseReport) -> Tuple[Any, ...]:
+    def _get_hook_context(
+        self, case_report: TestCaseReport
+    ) -> Tuple[Any, ...]:
         return (
             case_report.timer.record("run"),
             case_report.logged_exceptions(),
@@ -1054,7 +1089,9 @@ class MultiTest(testing_base.Test):
         """
         return self._run_suite_related(testsuite, "teardown")
 
-    def _run_suite_related(self, testsuite: Any, method_name: str) -> Optional[TestCaseReport]:
+    def _run_suite_related(
+        self, testsuite: Any, method_name: str
+    ) -> Optional[TestCaseReport]:
         """Runs testsuite related special methods setup/teardown/etc."""
         testsuite_method = getattr(testsuite, method_name, None)
         if testsuite_method is None:
@@ -1303,7 +1340,9 @@ class MultiTest(testing_base.Test):
 
         return testcase_report
 
-    def _run_testsuite_iter(self, testsuite: Any, testcases: List[Any]) -> Generator[Tuple[Any, List[str]], None, None]:
+    def _run_testsuite_iter(
+        self, testsuite: Any, testcases: List[Any]
+    ) -> Generator[Tuple[Any, List[str]], None, None]:
         """Runs a testsuite object and returns its report."""
         _check_testcases(testcases)
         setup_report = self._setup_testsuite(testsuite)
@@ -1351,7 +1390,9 @@ class MultiTest(testing_base.Test):
             parent_uids = [self.uid(), testsuite.uid()]
         return parent_uids
 
-    def _skip_testcases(self, testsuite: Any, testcases: List[Any]) -> Generator[Tuple[Dict[str, RuntimeStatus], List[str]], None, None]:
+    def _skip_testcases(
+        self, testsuite: Any, testcases: List[Any]
+    ) -> Generator[Tuple[Dict[str, RuntimeStatus], List[str]], None, None]:
         """
         Utility to forcefully skip testcases and modify their runtime status to not
         run. Used during the failed setup scenario to update the runtime status.
@@ -1371,7 +1412,9 @@ class MultiTest(testing_base.Test):
                 parent_uids + [testcase.__name__],
             )
 
-    def _run_testcases_iter(self, testsuite: Any, testcases: List[Any]) -> Generator[Tuple[Any, List[str]], None, None]:
+    def _run_testcases_iter(
+        self, testsuite: Any, testcases: List[Any]
+    ) -> Generator[Tuple[Any, List[str]], None, None]:
         """
         Run testcases serially and yield testcase reports.
 
@@ -1447,7 +1490,9 @@ def _check_testcases(testcases: List[Any]) -> None:
             )
 
 
-def _split_by_exec_group(testcases: List[Any]) -> Tuple[List[Any], OrderedDict[str, List[Any]]]:
+def _split_by_exec_group(
+    testcases: List[Any],
+) -> Tuple[List[Any], OrderedDict[str, List[Any]]]:
     """
     Split testcases into those with an execution group and those without
     one.

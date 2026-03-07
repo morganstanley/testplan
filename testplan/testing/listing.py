@@ -8,7 +8,16 @@ import os
 from argparse import Action, ArgumentParser, Namespace
 from enum import Enum
 from os import PathLike
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 from urllib.parse import urlparse
 
 from testplan.common.utils.json import json_dumps
@@ -81,10 +90,14 @@ class ExpandedNameLister(BaseLister):
     def format_suite(self, instance: "Test", suite: Any) -> str:
         return suite if isinstance(suite, str) else suite.name
 
-    def format_testcase(self, instance: "Test", suite: Any, testcase: Any) -> str:
+    def format_testcase(
+        self, instance: "Test", suite: Any, testcase: Any
+    ) -> str:
         return testcase if isinstance(testcase, str) else testcase.name
 
-    def get_testcase_outputs(self, instance: "Test", suite: Any, testcases: List[Any]) -> str:
+    def get_testcase_outputs(
+        self, instance: "Test", suite: Any, testcases: List[Any]
+    ) -> str:
         result = ""
         for testcase in testcases:
             result += "{}{}{}".format(
@@ -165,7 +178,9 @@ class ExpandedPatternLister(ExpandedNameLister):
         pattern = "{}:{}".format(test_pattern(instance), suite.name)
         return self.apply_tag_label(pattern, suite)
 
-    def format_testcase(self, instance: "Test", suite: Any, testcase: Any) -> str:
+    def format_testcase(
+        self, instance: "Test", suite: Any, testcase: Any
+    ) -> str:
         if not isinstance(instance, MultiTest):
             return "{}:{}:{}".format(test_pattern(instance), suite, testcase)
 
@@ -180,7 +195,9 @@ class TrimMixin:
         MAX_TESTCASES
     )
 
-    def get_testcase_outputs(self, instance: "Test", suite: Any, testcases: List[Any]) -> str:
+    def get_testcase_outputs(
+        self, instance: "Test", suite: Any, testcases: List[Any]
+    ) -> str:
         result = ""
         testcases_to_display = testcases[:MAX_TESTCASES]
         rest_testcases = testcases[MAX_TESTCASES:]
@@ -275,7 +292,9 @@ class ListingArgMixin(ArgMixin):
         return dict([(lister, lister.value.description()) for lister in cls])  # type: ignore[attr-defined]
 
     @classmethod
-    def get_parser_context(cls, default: Optional[Any] = None, **kwargs: Any) -> Dict[str, Any]:
+    def get_parser_context(
+        cls, default: Optional[Any] = None, **kwargs: Any
+    ) -> Dict[str, Any]:
         return dict(
             **super().get_parser_context(default, **kwargs),
             action=store_lister_and_path,

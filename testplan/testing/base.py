@@ -662,7 +662,10 @@ class Test(Runnable):
         )
 
     def run_testcases_iter(
-        self, testsuite_pattern: str = "*", testcase_pattern: str = "*", **kwargs: Any
+        self,
+        testsuite_pattern: str = "*",
+        testcase_pattern: str = "*",
+        **kwargs: Any,
     ) -> Optional[Generator]:
         """
         For a Test to be run interactively, it must implement this method.
@@ -717,7 +720,9 @@ class Test(Runnable):
 
     # TODO: this just for API compatibility
     # move RuntimeEnv to Test, or get rid of it?
-    def _get_runtime_environment(self, testcase_name: str, testcase_report: TestCaseReport) -> TestEnvironment:
+    def _get_runtime_environment(
+        self, testcase_name: str, testcase_report: TestCaseReport
+    ) -> TestEnvironment:
         return self.resources  # type: ignore[return-value]
 
     def _get_hook_context(self, case_report: TestCaseReport) -> Tuple:
@@ -1142,8 +1147,12 @@ class ProcessRunnerTest(Test):
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
-        self._test_process: Optional[subprocess.Popen] = None  # will be set by `self.run_tests`
-        self._test_process_retcode: Optional[int] = None  # will be set by `self.run_tests`
+        self._test_process: Optional[subprocess.Popen] = (
+            None  # will be set by `self.run_tests`
+        )
+        self._test_process_retcode: Optional[int] = (
+            None  # will be set by `self.run_tests`
+        )
         self._test_process_killed = False
         self._test_has_run = False
         self._resolved_bin: Optional[str] = None  # resolved binary path
@@ -1424,7 +1433,10 @@ class ProcessRunnerTest(Test):
         raise NotImplementedError
 
     def get_process_check_report(
-        self, retcode: Optional[int], stdout: Optional[str], stderr: Optional[str]
+        self,
+        retcode: Optional[int],
+        stdout: Optional[str],
+        stderr: Optional[str],
     ) -> TestGroupReport:
         """
         When running a process fails (e.g. binary crash, timeout etc)

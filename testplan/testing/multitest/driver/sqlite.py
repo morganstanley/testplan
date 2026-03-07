@@ -66,7 +66,11 @@ class Sqlite3(Driver):
     CONFIG = Sqlite3Config
 
     def __init__(
-        self, name: str, db_path: str, connect_at_start: bool = True, **options: Any
+        self,
+        name: str,
+        db_path: str,
+        connect_at_start: bool = True,
+        **options: Any,
     ) -> None:
         options.update(self.filter_locals(locals()))
         super(Sqlite3, self).__init__(**options)
@@ -144,7 +148,9 @@ class Sqlite3(Driver):
         assert self.cursor is not None
         return self.cursor.fetchall()
 
-    def fetch_table(self, table: str, columns: Optional[List[str]] = None) -> List[List[Any]]:
+    def fetch_table(
+        self, table: str, columns: Optional[List[str]] = None
+    ) -> List[List[Any]]:
         """
         Fetch a table from the db. The first row will be the column names
         and the following rows will be the table rows. Returns a table like:

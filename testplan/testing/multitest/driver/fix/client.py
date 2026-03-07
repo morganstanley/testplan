@@ -296,7 +296,9 @@ class FixClient(Driver):
         assert self._client is not None
         return self._client.send(msg)  # type: ignore[no-any-return]
 
-    def receive(self, timeout: Optional[Union[int, float]] = None) -> FixMessage:
+    def receive(
+        self, timeout: Optional[Union[int, float]] = None
+    ) -> FixMessage:
         """
         Receive message.
 

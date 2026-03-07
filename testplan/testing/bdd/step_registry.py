@@ -14,7 +14,12 @@ class _StepImporterPathContext:
     def __enter__(self) -> None:
         StepRegistry.get_load_steps_path_stack().append(self.path)
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Any,
+    ) -> None:
         StepRegistry.get_load_steps_path_stack().pop()
 
 
@@ -46,7 +51,9 @@ class StepRegistry:
         else:
             raise TypeError("actual_parser need to be a subcalss of Parser")
 
-    def register(self, sentence_or_parser: Union[str, Parser], func: Callable[..., Any]) -> None:
+    def register(
+        self, sentence_or_parser: Union[str, Parser], func: Callable[..., Any]
+    ) -> None:
         if isinstance(sentence_or_parser, str):
             parser_class = self.default_parser
             if self._actual_parser:
@@ -65,7 +72,9 @@ class StepRegistry:
                 return parser.bind(func, match)
         return None
 
-    def load_steps(self, definition_file: str, step_parser_class: Type[Parser]) -> None:
+    def load_steps(
+        self, definition_file: str, step_parser_class: Type[Parser]
+    ) -> None:
         self.local.target_registry = self
         path, filename = os.path.split(definition_file)
         basename, ext = os.path.splitext(filename)
@@ -114,7 +123,9 @@ def set_actual_parser(parser: Type[Parser]) -> None:
     StepRegistry.get_target_registry().actual_parser = parser
 
 
-def step(sentence_or_parser: Union[str, Parser]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def step(
+    sentence_or_parser: Union[str, Parser],
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Step Decorator
 

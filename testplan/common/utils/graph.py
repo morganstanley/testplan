@@ -198,9 +198,15 @@ class DirectedGraph(Generic[T, U, V]):
         """
         index = 0
         stack: List[T] = []
-        indices: Dict[T, Optional[int]] = dict(map(lambda x: (x, None), self.vertices.keys()))
-        lowlink: Dict[T, Optional[int]] = dict(map(lambda x: (x, None), self.vertices.keys()))
-        onstack: Dict[T, bool] = dict(map(lambda x: (x, False), self.vertices.keys()))
+        indices: Dict[T, Optional[int]] = dict(
+            map(lambda x: (x, None), self.vertices.keys())
+        )
+        lowlink: Dict[T, Optional[int]] = dict(
+            map(lambda x: (x, None), self.vertices.keys())
+        )
+        onstack: Dict[T, bool] = dict(
+            map(lambda x: (x, False), self.vertices.keys())
+        )
         ret_scc = defaultdict(list)
 
         def _strongly_connect(v: T) -> None:
