@@ -678,7 +678,7 @@ class TestRunner(Runnable):
                 es.append(e)
         if es:
             if len(es) > 1:
-                return ExceptionGroup(  # type: ignore[no-any-return]
+                return ExceptionGroup(
                     "multiple remote services failed to stop", es
                 )
             return es[0]
