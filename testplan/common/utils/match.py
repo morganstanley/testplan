@@ -19,7 +19,7 @@ from typing import (
     Tuple,
     Union,
 )
-import paramiko  # type: ignore[import-untyped]
+import paramiko
 from typing_extensions import TypeAlias
 
 from . import logger, timing

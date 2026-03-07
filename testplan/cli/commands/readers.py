@@ -26,7 +26,7 @@ def with_input(func: Callable) -> Callable:
     """
     Attaches a "source" argument to the command.
     """
-    return click.argument(  # type: ignore[no-any-return]
+    return click.argument(
         "source", type=click.Path(exists=True), required=True
     )(func)
 

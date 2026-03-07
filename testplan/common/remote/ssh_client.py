@@ -4,7 +4,7 @@ import os
 import time
 import shlex
 import logging
-import paramiko  # type: ignore[import-untyped]
+import paramiko
 import getpass
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple, Union

@@ -10,7 +10,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-import requests  # type: ignore[import-untyped]
+import requests
 from schema import Use, Or
 
 from testplan.common.config import ConfigOption

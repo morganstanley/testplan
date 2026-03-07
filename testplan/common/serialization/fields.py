@@ -337,7 +337,7 @@ class GenericNested(fields.Field):
                     raise ValueError(
                         "Cannot use 'self' schema without a parent"
                     )
-                return self.parent.__class__(
+                return self.parent.__class__(  # type: ignore[return-value]
                     many=self.many, context=parent_ctx
                 )
             else:
@@ -411,7 +411,7 @@ class UTCDateTime(fields.DateTime):
 
         return value.isoformat()
 
-    def _deserialize(
+    def _deserialize(  # type: ignore[override]
         self, value: Any, attr: Any, data: Any, **kwargs: Any
     ) -> Optional[datetime]:
         if value is None:
@@ -440,7 +440,7 @@ class LocalDateTime(fields.DateTime):
     ) -> Optional[str]:
         return None if value is None else value.astimezone().isoformat()
 
-    def _deserialize(
+    def _deserialize(  # type: ignore[override]
         self, value: Any, attr: Any, data: Any, **kwargs: Any
     ) -> Optional[datetime]:
         return (

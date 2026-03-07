@@ -80,7 +80,7 @@ def ConfigOption(key: str, default: Any = ABSENT) -> Optional:
     # named `custom_default` to avoid confusion, at last we can deal with them.
     # Refer to :py:meth:`~testplan.common.config.Config.__init__`.
     if default is not ABSENT:
-        optional.custom_default = default
+        optional.custom_default = default  # type: ignore[attr-defined]
     return optional
 
 
