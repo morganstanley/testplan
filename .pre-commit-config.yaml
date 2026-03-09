@@ -12,4 +12,3 @@ repos:
     entry: uv export
     args: ["--no-editable", "--no-emit-project", "--no-hashes", "--all-groups", "--all-extras", "-o", "constraints.txt"]
     pass_filenames: false
-    files: ^(pyproject\.toml|constraints\.txt)$
