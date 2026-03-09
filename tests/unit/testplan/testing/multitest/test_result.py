@@ -983,8 +983,10 @@ class TestLogfileNamespace:
         assert len(e.results) == 1
         assert all(
             map(
-                lambda x: x.start_pos.startswith("<position")
-                and x.end_pos.startswith("<position"),
+                lambda x: (
+                    x.start_pos.startswith("<position")
+                    and x.end_pos.startswith("<position")
+                ),
                 e.results,
             )
         )
