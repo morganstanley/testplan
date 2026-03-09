@@ -469,8 +469,10 @@ class RemotePool(Pool):
             if worker.status == worker.status.STARTING:
                 try:
                     wait(
-                        lambda: worker.status
-                        in (worker.STATUS.STARTED, worker.STATUS.STOPPED),
+                        lambda: (
+                            worker.status
+                            in (worker.STATUS.STARTED, worker.STATUS.STOPPED)
+                        ),
                         worker.cfg.status_wait_timeout,
                     )
                 except Exception:

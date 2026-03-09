@@ -340,8 +340,10 @@ def test_env_operate():
         )
 
         wait(
-            lambda: plan.interactive.report["Test2"].env_status
-            == entity.ResourceStatus.STARTED,
+            lambda: (
+                plan.interactive.report["Test2"].env_status
+                == entity.ResourceStatus.STARTED
+            ),
             5,
             raise_on_timeout=True,
         )
@@ -367,8 +369,10 @@ def test_env_operate():
             entity.ResourceStatus.STOPPED,
         )
         wait(
-            lambda: plan.interactive.report["Test2"].env_status
-            == entity.ResourceStatus.STOPPED,
+            lambda: (
+                plan.interactive.report["Test2"].env_status
+                == entity.ResourceStatus.STOPPED
+            ),
             5,
             raise_on_timeout=True,
         )
