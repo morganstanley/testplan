@@ -80,7 +80,9 @@ class ReaderAction(ParseSingleAction):
 @single_reader_commands.command(name="fromcppunit")
 @with_input
 @with_plan_options
-def from_cppunit(source: str, name: str, description: str) -> ReaderAction:
+def from_cppunit(
+    source: click.Path, name: str, description: str
+) -> ReaderAction:
     """
     Reads a CppUnit XML result.
 
@@ -94,7 +96,9 @@ def from_cppunit(source: str, name: str, description: str) -> ReaderAction:
 @single_reader_commands.command(name="fromgtest")
 @with_input
 @with_plan_options
-def from_gtest(source: str, name: str, description: str) -> ReaderAction:
+def from_gtest(
+    source: click.Path, name: str, description: str
+) -> ReaderAction:
     """
     Reads a GoogleTest XML result.
 
@@ -107,7 +111,7 @@ def from_gtest(source: str, name: str, description: str) -> ReaderAction:
 
 @single_reader_commands.command(name="fromjson")
 @with_input
-def from_json(source: str) -> ReaderAction:
+def from_json(source: click.Path) -> ReaderAction:
     """
     Reads a Testplan JSON result.
 
@@ -119,7 +123,9 @@ def from_json(source: str) -> ReaderAction:
 @single_reader_commands.command(name="fromjunit")
 @with_input
 @with_plan_options
-def from_junit(source: str, name: str, description: str) -> ReaderAction:
+def from_junit(
+    source: click.Path, name: str, description: str
+) -> ReaderAction:
     """
     Reads a JUnit result.
 
