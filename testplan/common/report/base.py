@@ -961,11 +961,9 @@ class BaseReportGroup(Report):
             else:
                 match_func = tagging.check_any_matching_tags
 
-            return bool(
-                match_func(
-                    tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index
-                )
-            )
+            return bool(match_func(
+                tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index
+            ))
 
         return self.filter(_filter_func)
 

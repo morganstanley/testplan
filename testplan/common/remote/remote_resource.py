@@ -279,7 +279,8 @@ class RemoteResource(Entity):
             self._remote_plan_runpath, self._get_plan().runid_filename
         )
 
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("runpath is not set")
         self._remote_resource_runpath = rebase_path(
             self.runpath,
             plan_runpath,
@@ -306,9 +307,12 @@ class RemoteResource(Entity):
 
     def _remote_working_dir(self) -> str:
         """Choose a working directory to use on the remote host."""
-        assert self._working_dirs.local is not None
-        assert self._workspace_paths.local is not None
-        assert self._workspace_paths.remote is not None
+        if self._working_dirs.local is None:
+            raise RuntimeError("local working directory is not set")
+        if self._workspace_paths.local is None:
+            raise RuntimeError("local workspace path is not set")
+        if self._workspace_paths.remote is None:
+            raise RuntimeError("remote workspace path is not set")
         if not is_subdir(
             self._working_dirs.local, self._workspace_paths.local
         ):
@@ -372,7 +376,8 @@ class RemoteResource(Entity):
         setup remote python runtime environment with RuntimeBuilder
         """
 
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("runpath is not set")
         self._remote_runtime_builder.bootstrap(
             local_runpath=self.runpath,
             remote_runpath=self._remote_plan_runpath,
@@ -388,7 +393,8 @@ class RemoteResource(Entity):
         self.logger.info(
             "%s: picking remote python %s", self, self._remote_pybin
         )
-        assert self._remote_pybin is not None
+        if self._remote_pybin is None:
+            raise RuntimeError("remote python binary is not set")
         self._log_remote_python_ver(self._remote_pybin)
         paths_to_transfer = self._remote_runtime_builder.local_export_pyenv()
         remote_paths = self._push_files_to_dst(
@@ -529,7 +535,7 @@ class RemoteResource(Entity):
                 self,
                 self.ssh_cfg["host"],
             )
-            rmt_non_existing: Optional[str] = None
+            rmt_non_existing = None
             # TODO: uncomment later
             # TODO: there is another issue related to created dir cleanup
             # TODO: if push given, pushed files under created dir and delete_pushed
@@ -652,8 +658,10 @@ class RemoteResource(Entity):
         directory.
 
         """
-        assert self._working_dirs.local is not None
-        assert self._working_dirs.remote is not None
+        if self._working_dirs.local is None:
+            raise RuntimeError("local working directory is not set")
+        if self._working_dirs.remote is None:
+            raise RuntimeError("remote working directory is not set")
         push_locations = []
 
         if IS_WIN:
@@ -740,7 +748,8 @@ class RemoteResource(Entity):
             )
         self.logger.debug("Fetch results stage - %s", self.ssh_cfg["host"])
         try:
-            assert self.parent is not None
+            if self.parent is None:
+                raise RuntimeError("parent is not set")
             self._transfer_data(
                 source=self._remote_resource_runpath,
                 remote_source=True,
@@ -788,7 +797,8 @@ class RemoteResource(Entity):
     def _pull_files(self) -> None:
         """Pull custom files from remote host."""
 
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("runpath is not set")
         pull_dst = os.path.join(self.runpath, "pulled_files")
         makedirs(pull_dst)
 
@@ -809,8 +819,10 @@ class RemoteResource(Entity):
                 )
 
     def _remote_sys_path(self) -> List[str]:
-        assert self._workspace_paths.local is not None
-        assert self._workspace_paths.remote is not None
+        if self._workspace_paths.local is None:
+            raise RuntimeError("local workspace path is not set")
+        if self._workspace_paths.remote is None:
+            raise RuntimeError("remote workspace path is not set")
         sys_path: List[str] = [cast(str, self._testplan_import_path.remote)]
 
         for path in sys.path:

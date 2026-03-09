@@ -39,7 +39,8 @@ def run_actions(
     result = parse()
 
     for process in processors:
-        assert isinstance(process, ProcessResultAction)
+        if not isinstance(process, ProcessResultAction):
+            raise TypeError(f"Expected ProcessResultAction, got {type(process)}")
         result = process(result)
 
 

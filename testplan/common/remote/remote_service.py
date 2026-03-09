@@ -112,7 +112,8 @@ class RemoteService(Resource, RemoteResource):
         Before service start.
         """
         self.make_runpath_dirs()
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("runpath is not set")
         self.std = StdFiles(self.runpath)
         self._prepare_remote()
 
@@ -142,7 +143,8 @@ class RemoteService(Resource, RemoteResource):
             ),
         )
 
-        assert self.std is not None
+        if self.std is None:
+            raise RuntimeError("std files not initialized, was pre_start called?")
         self.proc = subprocess_popen(
             cmd,
             stdin=subprocess.PIPE,
@@ -172,7 +174,8 @@ class RemoteService(Resource, RemoteResource):
         :param timeout: timeout in seconds
         :raises RuntimeError: if server startup fails
         """
-        assert self.std is not None
+        if self.std is None:
+            raise RuntimeError("std files not initialized, was pre_start called?")
         effective_timeout: float = (
             timeout if timeout is not None else self.cfg.status_wait_timeout
         )
@@ -250,7 +253,8 @@ class RemoteService(Resource, RemoteResource):
         Stops remote rpyc process.
         """
         try:
-            assert self.rpyc_connection is not None
+            if self.rpyc_connection is None:
+                raise RuntimeError("rpyc connection is not established")
             self.rpyc_connection.modules.os.kill(self.rpyc_pid, signal.SIGTERM)
         except EOFError:
             pass

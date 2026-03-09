@@ -7,6 +7,7 @@ import multiprocessing.pool as mp
 import os
 import signal
 import sys
+import types
 import threading
 import time
 import traceback
@@ -958,7 +959,7 @@ class Runnable(Entity):
         )
         self.result: RunnableResult = self.__class__.RESULT()
         self._steps: Deque[Tuple[Callable, tuple, Dict[str, Any]]] = deque()
-        self._ihandler: Optional[Any] = None
+        self._ihandler: Optional["TestRunnerIHandler"] = None
 
     @property
     def resources(self) -> Environment:
@@ -970,7 +971,7 @@ class Runnable(Entity):
         return self._environment
 
     @property
-    def interactive(self) -> Optional[Any]:
+    def interactive(self) -> Optional["TestRunnerIHandler"]:
         return self._ihandler
 
     # Shortcut for interactive handler
@@ -1078,7 +1079,7 @@ class Runnable(Entity):
     @staticmethod
     def _get_process_info(
         recursive: bool = False,
-    ) -> Tuple[List[threading.Thread], List[Any]]:
+    ) -> Tuple[List[threading.Thread], List[psutil.Process]]:
         """
         :return: lists of threads and child processes, to be passed to the
             _post_run_checks method after the run has finished.
@@ -1090,7 +1091,7 @@ class Runnable(Entity):
         return threads, children
 
     def _post_run_checks(
-        self, start_threads: List[threading.Thread], start_procs: List[Any]
+        self, start_threads: List[threading.Thread], start_procs: List[psutil.Process]
     ) -> None:
         """
         Compare the current running threads and processes to those that were
@@ -1417,9 +1418,7 @@ class Resource(Entity):
     def __init__(self, **options: Any) -> None:
         super(Resource, self).__init__(**options)
         self._context: Optional[Environment] = None
-        self._failovers: List[
-            Dict[str, Any]
-        ] = []  # failover resources if start fails
+        self._failovers: List[Dict[str, Any]] = []  # failover resources if start fails
         self._wait_handlers.update(
             {
                 self.STATUS.STARTED: self._wait_started,
@@ -1861,7 +1860,7 @@ class RunnableManager(Entity):
             raise self._runnable.result
         return self._runnable.result
 
-    def _handle_abort(self, signum: int, frame: Any) -> None:
+    def _handle_abort(self, signum: int, frame: Optional[types.FrameType]) -> None:
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
         self.logger.debug(

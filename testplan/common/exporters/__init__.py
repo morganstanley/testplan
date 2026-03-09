@@ -27,9 +27,7 @@ class ExporterResult:
         return not self.traceback
 
     @classmethod
-    def run_exporter(
-        cls, exporter: "BaseExporter", source: TestReport, type: str
-    ) -> "ExporterResult":
+    def run_exporter(cls, exporter: "BaseExporter", source: TestReport, type: str) -> "ExporterResult":
         "Putting this back for compatibility reasons"
 
         result = run_exporter(
