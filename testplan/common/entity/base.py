@@ -15,6 +15,7 @@ from collections import OrderedDict, deque
 from contextlib import suppress
 from multiprocessing import TimeoutError
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Deque,
@@ -27,6 +28,9 @@ from typing import (
     Type,
     Union,
 )
+
+if TYPE_CHECKING:
+    from testplan.runnable.interactive.base import TestRunnerIHandler
 
 import psutil
 from schema import Or
