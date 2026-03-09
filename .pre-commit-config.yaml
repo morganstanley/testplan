@@ -6,6 +6,7 @@ repos:
     language: system
     entry: ruff format --check
     types: [python]
+    exclude: ^testplan/vendor
   - id: uv-export
     name: uv export
     language: system
