@@ -348,10 +348,7 @@ class TestExceptionThrown:
             env.add(d_)
         env.set_dependency(parse_dependency({a: b}))
         env.start()
-        assert len(env.start_exceptions) == 1
-        assert (
-            "Timeout when starting MockDriver[a] despite it's probably started now."
-            in str(list(env.start_exceptions.values())[0])
-        )
-        assert a.status == a.status.STARTING
-        assert b.status == b.status.NONE
+        assert len(env.start_exceptions) == 0
+        assert a.status == a.status.STARTED
+        assert b.status == b.status.STARTED
+        env.stop()
