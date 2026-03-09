@@ -144,7 +144,9 @@ class RemoteService(Resource, RemoteResource):
         )
 
         if self.std is None:
-            raise RuntimeError("std files not initialized, was pre_start called?")
+            raise RuntimeError(
+                "std files not initialized, was pre_start called?"
+            )
         self.proc = subprocess_popen(
             cmd,
             stdin=subprocess.PIPE,
@@ -175,7 +177,9 @@ class RemoteService(Resource, RemoteResource):
         :raises RuntimeError: if server startup fails
         """
         if self.std is None:
-            raise RuntimeError("std files not initialized, was pre_start called?")
+            raise RuntimeError(
+                "std files not initialized, was pre_start called?"
+            )
         effective_timeout: float = (
             timeout if timeout is not None else self.cfg.status_wait_timeout
         )

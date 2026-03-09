@@ -40,7 +40,9 @@ def run_actions(
 
     for process in processors:
         if not isinstance(process, ProcessResultAction):
-            raise TypeError(f"Expected ProcessResultAction, got {type(process)}")
+            raise TypeError(
+                f"Expected ProcessResultAction, got {type(process)}"
+            )
         result = process(result)
 
 

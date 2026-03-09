@@ -1091,7 +1091,9 @@ class Runnable(Entity):
         return threads, children
 
     def _post_run_checks(
-        self, start_threads: List[threading.Thread], start_procs: List[psutil.Process]
+        self,
+        start_threads: List[threading.Thread],
+        start_procs: List[psutil.Process],
     ) -> None:
         """
         Compare the current running threads and processes to those that were
@@ -1418,7 +1420,9 @@ class Resource(Entity):
     def __init__(self, **options: Any) -> None:
         super(Resource, self).__init__(**options)
         self._context: Optional[Environment] = None
-        self._failovers: List[Dict[str, Any]] = []  # failover resources if start fails
+        self._failovers: List[
+            Dict[str, Any]
+        ] = []  # failover resources if start fails
         self._wait_handlers.update(
             {
                 self.STATUS.STARTED: self._wait_started,
@@ -1860,7 +1864,9 @@ class RunnableManager(Entity):
             raise self._runnable.result
         return self._runnable.result
 
-    def _handle_abort(self, signum: int, frame: Optional[types.FrameType]) -> None:
+    def _handle_abort(
+        self, signum: int, frame: Optional[types.FrameType]
+    ) -> None:
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
         self.logger.debug(
