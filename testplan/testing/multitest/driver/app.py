@@ -414,9 +414,12 @@ class App(Driver):
         if self.proc is not None and self.retcode is None:
             # take a snapshot of all child procs
             # so that we can check if they all terminate later
-            self._alive_child_procs = psutil.Process(self.pid).children(
-                recursive=True
-            )
+            try:
+                self._alive_child_procs = psutil.Process(self.pid).children(
+                    recursive=True
+                )
+            except psutil.NoSuchProcess:
+                self._alive_child_procs = []
 
             if self.cfg.stop_signal is None:
                 self.proc.terminate()
