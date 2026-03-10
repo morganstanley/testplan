@@ -1,0 +1,1 @@
+The ``--patterns`` filter will run a Multitest as long as the test name matches even if the Multitest is empty.

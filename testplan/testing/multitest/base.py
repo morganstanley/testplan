@@ -626,8 +626,14 @@ class MultiTest(testing_base.Test):
     def should_run(self):
         """
         MultiTest filters are applied in `get_test_context`
-        so we just check if `test_context` is not empty."""
-        return bool(self.test_context)
+        so we check if `test_context` is not empty.
+        If there's no parts, MultiTest should still be ran even if it is empty, add a filter just for the test
+        """
+        if self.cfg.part:
+            return bool(self.test_context)
+        return bool(self.test_context) or self.cfg.test_filter.filter_test(
+            self
+        )
 
     def aborting(self):
         """Suppressing not implemented debug log from parent class."""

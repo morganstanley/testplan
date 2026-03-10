@@ -48,6 +48,9 @@ class BaseFilter:
     def map(self, f):
         raise NotImplementedError
 
+    def filter_test(self, test) -> bool:
+        raise NotImplementedError
+
     def filter(self, test, suite, case) -> bool:
         raise NotImplementedError
 
@@ -169,6 +172,9 @@ class Or(MetaFilter):
 
     operator_str = "|"
 
+    def filter_test(self, test):
+        return any(f.filter_test(test) for f in self.filters)
+
     def composed_filter(self, test, suite, case):
         return any(f.filter(test, suite, case) for f in self.filters)
 
@@ -179,6 +185,9 @@ class And(MetaFilter):
     """
 
     operator_str = "&"
+
+    def filter_test(self, test):
+        return all(f.filter_test(test) for f in self.filters)
 
     def composed_filter(self, test, suite, case):
         return all(f.filter(test, suite, case) for f in self.filters)
@@ -203,6 +212,9 @@ class Not(BaseFilter):
     def map(self, f):
         self.filter_obj = f(self.filter_obj)
         return self
+
+    def filter_test(self, test):
+        return not self.filter_obj.filter_test(test)
 
     def filter(self, test, suite, case):
         return not self.filter_obj.filter(test, suite, case)
