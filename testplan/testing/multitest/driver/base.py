@@ -329,6 +329,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         Installs the files specified in the install_files parameter at the install target.
         """
         context = self.context_input()
+        self.logger.debug("%s: context gathered for installing files", self)
         for install_file in self.cfg.install_files:
             if isinstance(install_file, str):
                 # may have jinja2/tempita template in file path

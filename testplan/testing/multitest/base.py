@@ -221,9 +221,9 @@ class MultiTestConfig(testing_base.TestConfig):
                 None,
                 And(
                     (int,),
-                    lambda tup: len(tup) == 2
-                    and 0 <= tup[0] < tup[1]
-                    and tup[1] > 1,
+                    lambda tup: (
+                        len(tup) == 2 and 0 <= tup[0] < tup[1] and tup[1] > 1
+                    ),
                 ),
             ),
             config.ConfigOption("testcase_report_target", default=True): bool,

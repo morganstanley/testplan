@@ -146,22 +146,22 @@ class TestEnvironment(Environment):
                     res = None
                     if watch.should_check():
                         res = driver.started_check()
-                    if time.time() >= watch.start_time + watch.total_wait:
-                        # we got a timed-out here
-                        if res:
-                            raise TimeoutException(
-                                f"Timeout when starting {driver} despite it's probably started now. "
-                                f"{TimeoutExceptionInfo(watch.start_time).msg()}"
-                            )
-                        else:
-                            raise TimeoutException(
-                                f"Timeout when starting {driver}. "
-                                f"{TimeoutExceptionInfo(watch.start_time).msg()}"
-                            )
                     if res:
+                        if time.time() >= watch.start_time + watch.total_wait:
+                            driver.logger.error(
+                                "Timeout when starting %s despite"
+                                " it's probably started now. %s",
+                                driver,
+                                TimeoutExceptionInfo(watch.start_time).msg(),
+                            )
                         driver._after_started()
                         driver.logger.info("%s started", driver)
                         self._rt_dependency.mark_processed(driver)
+                    elif time.time() >= watch.start_time + watch.total_wait:
+                        raise TimeoutException(
+                            f"Timeout when starting {driver}. "
+                            f"{TimeoutExceptionInfo(watch.start_time).msg()}"
+                        )
                 except Exception:
                     self._record_resource_exception(
                         message="While waiting for driver {resource} to start:\n"

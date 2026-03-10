@@ -76,8 +76,9 @@ class AppConfig(DriverConfig):
             ConfigOption("args", default=None): Or(None, list),
             ConfigOption("shell", default=False): bool,
             ConfigOption("env", default=None): Or(None, dict),
-            ConfigOption("binary_strategy", default="link"): lambda s: s
-            in ("copy", "link", "noop"),
+            ConfigOption("binary_strategy", default="link"): lambda s: (
+                s in ("copy", "link", "noop")
+            ),
             ConfigOption("logname", default=None): Or(None, str),
             ConfigOption("app_dir_name", default=None): Or(None, str),
             ConfigOption("working_dir", default=None): Or(None, str),
