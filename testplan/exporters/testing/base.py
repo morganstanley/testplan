@@ -2,10 +2,7 @@
 Implements base exporter objects.
 """
 
-try:
-    from typing import TypeAlias  # >= 3.10
-except ImportError:
-    from typing_extensions import TypeAlias  # < 3.10
+from typing_extensions import TypeAlias
 
 from testplan.common.exporters import BaseExporter
 

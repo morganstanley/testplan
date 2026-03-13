@@ -2,7 +2,7 @@
 
 import threading
 import time
-from typing import List
+from typing import List, Optional
 
 from testplan.common.utils import selector
 from testplan.report import ReportCategories, Status, TestGroupReport
@@ -20,14 +20,14 @@ class LocalRunner(Executor):
     options.
     """
 
-    def __init__(self, uid="local_runner", **options) -> None:
+    def __init__(self, uid: str = "local_runner", **options: object) -> None:
         super(LocalRunner, self).__init__(**options)
         self._uid = uid
 
         # ``_loop`` & ``discard_pending_tasks`` are triggered in different
         # threads
         self._curr_runnable_lock = threading.Lock()
-        self._curr_runnable = None
+        self._curr_runnable: Optional[Test] = None
 
     def execute(self, uid: str) -> TestResult:
         """Execute item implementation."""
@@ -66,14 +66,14 @@ class LocalRunner(Executor):
         with self._curr_runnable_lock:
             self._curr_runnable = None
 
-        return result
+        return result  # type: ignore[return-value]
 
     def _loop(self) -> None:
         """Execution loop implementation for local runner."""
         while self.active:
-            if self.status == self.status.STARTING:
-                self.status.change(self.status.STARTED)
-            elif self.status == self.status.STARTED:
+            if self.status == self.status.STARTING:  # type: ignore[attr-defined]
+                self.status.change(self.status.STARTED)  # type: ignore[attr-defined]
+            elif self.status == self.status.STARTED:  # type: ignore[attr-defined]
                 try:
                     next_uid = self.ongoing[0]
                 except IndexError:
@@ -83,11 +83,11 @@ class LocalRunner(Executor):
                         result = self.execute(next_uid)
                     except Exception as exc:
                         result = TestResult()
-                        result.report = TestGroupReport(
+                        result.report = TestGroupReport(  # type: ignore[assignment]
                             name=next_uid, category=ReportCategories.ERROR
                         )
-                        result.report.status_override = Status.ERROR
-                        result.report.logger.exception(
+                        result.report.status_override = Status.ERROR  # type: ignore[attr-defined]
+                        result.report.logger.exception(  # type: ignore[attr-defined]
                             "Exception for %s on %s execution: %s",
                             next_uid,
                             self,
@@ -101,7 +101,7 @@ class LocalRunner(Executor):
                                 self.ongoing.pop(0)
 
                     if self.cfg.skip_strategy.should_skip_rest_tests(
-                        result.report.status
+                        result.report.status  # type: ignore[attr-defined]
                     ):
                         self.bubble_up_discard_tasks(
                             selector.Not(selector.Eq(self.uid())),
@@ -111,8 +111,8 @@ class LocalRunner(Executor):
                             report_reason="per skip strategy"
                         )
 
-            elif self.status == self.status.STOPPING:
-                self.status.change(self.status.STOPPED)
+            elif self.status == self.status.STOPPING:  # type: ignore[attr-defined]
+                self.status.change(self.status.STOPPED)  # type: ignore[attr-defined]
                 return
             time.sleep(self.cfg.active_loop_sleep)
 
@@ -121,12 +121,12 @@ class LocalRunner(Executor):
         if self.parent:
             self._runpath = self.parent.runpath
         super(LocalRunner, self).starting()  # start the loop
-        self.status.change(self.status.STARTED)  # Start is async
+        self.status.change(self.status.STARTED)  # type: ignore[attr-defined]  # Start is async
 
     def stopping(self) -> None:
         """Stopping the local runner."""
         super(LocalRunner, self).stopping()  # stop the loop
-        self.status.change(self.status.STOPPED)  # Stop is async
+        self.status.change(self.status.STOPPED)  # type: ignore[attr-defined]  # Stop is async
 
     def aborting(self) -> None:
         """Aborting logic."""
@@ -139,7 +139,7 @@ class LocalRunner(Executor):
         self,
         report_status: Status = Status.INCOMPLETE,
         report_reason: str = "",
-    ):
+    ) -> None:
         with self._curr_runnable_lock:
             self._discard_pending = True
             if self._curr_runnable:
@@ -153,11 +153,11 @@ class LocalRunner(Executor):
                     result.report.status_override = report_status
                 except (KeyError, AttributeError):
                     result = TestResult()
-                    result.report = TestGroupReport(
+                    result.report = TestGroupReport(  # type: ignore[assignment]
                         name=uid,
                         category=ReportCategories.ERROR,
                     )
-                    result.report.status_override = report_status
+                    result.report.status_override = report_status  # type: ignore[attr-defined]
                 else:
                     result.report.logger.warning(
                         "Test[%s] discarded%s.",

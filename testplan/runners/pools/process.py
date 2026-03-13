@@ -6,7 +6,7 @@ import signal
 import subprocess
 import sys
 import tempfile
-from typing import List, Type, Union, Optional
+from typing import Any, Dict, List, Optional, Type, Union
 
 from schema import Or
 
@@ -29,7 +29,7 @@ class ProcessWorkerConfig(WorkerConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -50,15 +50,16 @@ class ProcessWorker(Worker):
 
     CONFIG = ProcessWorkerConfig
 
-    def __init__(self, **options) -> None:
+    def __init__(self, **options: Any) -> None:
         options.update(self.filter_locals(locals()))
         super(ProcessWorker, self).__init__(**options)
+        self._handler: Optional[subprocess.Popen[bytes]] = None  # type: ignore[assignment]
 
     def _child_path(self) -> str:
         dirname = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(dirname, "child.py")
 
-    def _proc_cmd(self) -> List[str]:
+    def _proc_cmd(self) -> List[Union[str, int]]:
         """Command to start child process."""
         from testplan.common.utils.path import fix_home_prefix
 
@@ -68,7 +69,7 @@ class ProcessWorker(Worker):
             "--index",
             self.cfg.index,
             "--address",
-            self.transport.address,
+            self.transport.address,  # type: ignore[attr-defined]
             "--type",
             "process_worker",
             "--log-level",
@@ -82,8 +83,9 @@ class ProcessWorker(Worker):
             cmd.append("--otel-logs")
         return cmd
 
-    def _write_syspath(self, sys_path: Optional[list[str]] = None) -> None:
+    def _write_syspath(self, sys_path: Optional[List[str]] = None) -> None:
         """Write out our current sys.path to a file and return the filename."""
+        assert self.parent is not None
         sys_path = sys_path or sys.path
         with tempfile.NamedTemporaryFile(
             mode="w", dir=self.parent.runpath, delete=False
@@ -110,13 +112,15 @@ class ProcessWorker(Worker):
                 stdin=subprocess.PIPE,
             )
         self.logger.debug("Started child process - output at %s", self.outfile)
+        assert self._handler is not None
+        assert self._handler.stdin is not None
         self._handler.stdin.write(bytes("y\n".encode("utf-8")))
 
-    def _wait_started(self, timeout: float = None) -> None:
+    def _wait_started(self, timeout: Optional[float] = None) -> None:
         """"""
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
-            timeout=timeout,
+            timeout=timeout,  # type: ignore[arg-type]
             raise_timeout_with_msg=f"Worker start timeout, logfile = {self.outfile}",
         )
         while next(sleeper):
@@ -158,7 +162,7 @@ class ProcessWorker(Worker):
         self._transport.disconnect()
         self.stop()
 
-    def discard_running_tasks(self):
+    def discard_running_tasks(self) -> None:
         # discard logic handled by pool in heartbeat & taskpull responses
         # if bubbled up to all executors then testrunner will initiate stop
         pass
@@ -172,7 +176,7 @@ class ProcessPoolConfig(PoolConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -205,7 +209,7 @@ class ProcessPool(Pool):
     """
 
     CONFIG = ProcessPoolConfig
-    CONN_MANAGER = ZMQServer
+    CONN_MANAGER = ZMQServer  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -213,15 +217,15 @@ class ProcessPool(Pool):
         size: Union[int, str] = 4,
         host: str = "127.0.0.1",
         port: int = 0,
-        abort_signals: List[int] = None,
+        abort_signals: Optional[List[int]] = None,
         worker_type: Type = ProcessWorker,
         worker_heartbeat: Union[int, float] = 5,
-        **options,
+        **options: Any,
     ) -> None:
         options.update(self.filter_locals(locals()))
         super(ProcessPool, self).__init__(**options)
 
-    def add(self, task: tasks.Task, uid: str) -> None:
+    def add(self, task: tasks.Task, uid: str) -> None:  # type: ignore[override]
         """
         Before adding Tasks to a ProcessPool, check that the Task target does
         not come from __main__.

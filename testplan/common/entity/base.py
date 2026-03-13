@@ -7,6 +7,7 @@ import multiprocessing.pool as mp
 import os
 import signal
 import sys
+import types
 import threading
 import time
 import traceback
@@ -14,16 +15,22 @@ from collections import OrderedDict, deque
 from contextlib import suppress
 from multiprocessing import TimeoutError
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Deque,
     Dict,
+    Generator,
     Iterator,
     List,
     Optional,
     Tuple,
+    Type,
     Union,
 )
+
+if TYPE_CHECKING:
+    from testplan.runnable.interactive.base import TestRunnerIHandler
 
 import psutil
 from schema import Or
@@ -44,7 +51,7 @@ class ReportLink:
     A recursive linkage that will be available to all Entity object.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.timer = Timer()
         self.children: List["ReportLink"] = []
@@ -58,7 +65,13 @@ class Environment:
     :type parent: :py:class:`Entity <testplan.common.entity.base.Entity>`
     """
 
-    def __init__(self, parent: Optional["Entity"] = None):
+    parent: Optional["Entity"]
+    _initial_context: Dict[str, Any]
+    _resources: "OrderedDict[str, Resource]"
+    start_exceptions: "OrderedDict[Resource, str]"
+    stop_exceptions: "OrderedDict[Resource, str]"
+
+    def __init__(self, parent: Optional["Entity"] = None) -> None:
         self.__dict__["parent"] = parent
         self.__dict__["_initial_context"] = {}
         self.__dict__["_resources"] = OrderedDict()
@@ -104,7 +117,9 @@ class Environment:
         """
         return next(uid for uid in self._resources.keys())
 
-    def get(self, key: str, default=None) -> "Resource":
+    def get(
+        self, key: str, default: Optional["Resource"] = None
+    ) -> Optional["Resource"]:
         # For compatibility reason, acts like a dictionary which has
         # a `get` method that returns `None` if no attribute found.
         try:
@@ -112,7 +127,7 @@ class Environment:
         except AttributeError:
             return default
 
-    def __getattr__(self, name: str) -> "Resource":
+    def __getattr__(self, name: str) -> Any:
         resources = self.__getattribute__("_resources")
         initial_context = self.__getattribute__("_initial_context")
 
@@ -126,7 +141,7 @@ class Environment:
             f'"{self.__class__.__name__}" object has no attribute "{name}"'
         )
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         if name in self.__dict__:
             self.__dict__[name] = value
         elif name in self.__getattribute__("_resources"):
@@ -140,10 +155,10 @@ class Environment:
         else:
             super(Environment, self).__setattr__(name, value)
 
-    def __getitem__(self, item):
-        return self.__getattr__(item)
+    def __getitem__(self, item: str) -> "Resource":
+        return self.__getattr__(item)  # type: ignore[no-any-return]
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         if item in self.__getattribute__(
             "_resources"
         ) or item in self.__getattribute__("_initial_context"):
@@ -154,19 +169,19 @@ class Environment:
     def __iter__(self) -> Iterator["Resource"]:
         return iter(self._resources.values())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         initial = {key: val for key, val in self._initial_context.items()}
         res = {key: val for key, val in self._resources.items()}
         initial.update(res)
         return f"{self.__class__.__name__}[{initial}]"
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._resources)
 
-    def items(self):
-        return self._resources.items()
+    def items(self) -> "Iterator[Tuple[str, Resource]]":
+        return self._resources.items()  # type: ignore[return-value]
 
-    def all_status(self, target) -> bool:
+    def all_status(self, target: Optional[str]) -> bool:
         """
         Checks whether all resources have target status.
 
@@ -178,7 +193,12 @@ class Environment:
             for resource in self._resources
         )
 
-    def _record_resource_exception(self, message, resource, msg_store):
+    def _record_resource_exception(
+        self,
+        message: str,
+        resource: "Resource",
+        msg_store: "OrderedDict[Resource, str]",
+    ) -> None:
         tb = traceback.format_exc()
         try:
             fetch_msg = "\n".join(resource.fetch_error_log())
@@ -194,7 +214,7 @@ class Environment:
         resource.logger.error(msg)
         msg_store[resource] = "ERROR: " + msg
 
-    def start(self):
+    def start(self) -> None:
         """
         Starts all resources sequentially and log errors.
         """
@@ -247,7 +267,7 @@ class Environment:
 
     def start_in_pool(
         self, pool: mp.ThreadPool, timeout: Optional[float] = None
-    ):
+    ) -> None:
         """
         Start all resources concurrently in thread pool and log exceptions.
 
@@ -272,7 +292,7 @@ class Environment:
                 f"{self._resources.values()} in internal threading pool."
             )
 
-    def sync_stop_resource(self, resource: "Resource"):
+    def sync_stop_resource(self, resource: "Resource") -> None:
         """
         Stop a resource and log exceptions.
         """
@@ -300,7 +320,7 @@ class Environment:
                 resource.wait(resource.STATUS.STOPPED)
         resource.logger.info("%s stopped", resource)
 
-    def stop(self, is_reversed: bool = False):
+    def stop(self, is_reversed: bool = False) -> None:
         """
         Stop all resources, optionally in reverse order, and log exceptions.
 
@@ -354,7 +374,7 @@ class Environment:
 
     def stop_in_pool(
         self, pool: mp.ThreadPool, timeout: Optional[float] = None
-    ):
+    ) -> None:
         """
         Stop all resources concurrently in thread pool and log exceptions.
 
@@ -381,7 +401,9 @@ class Environment:
             )
 
     def _apply_resource_exception_logged(
-        self, exception_record, func: Callable[["Resource"], None]
+        self,
+        exception_record: "OrderedDict[Resource, str]",
+        func: Callable[["Resource"], None],
     ) -> Callable[["Resource"], None]:
         """
         Applying ``func`` to resource and log possible exception at environment level.
@@ -392,7 +414,7 @@ class Environment:
         :param func: function to catch exception for
         """
 
-        def wrapper(resource: "Resource"):
+        def wrapper(resource: "Resource") -> None:
             try:
                 func(resource)
             except Exception:
@@ -404,11 +426,16 @@ class Environment:
 
         return wrapper
 
-    def __enter__(self):
+    def __enter__(self) -> "Environment":
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[Any],
+    ) -> None:
         self.stop()
 
 
@@ -431,35 +458,38 @@ class EntityStatus:
     PAUSED = "PAUSED"
     RESUMING = "RESUMING"
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         TODO
         """
-        self._current: str = self.NONE
-        self._metadata = OrderedDict()
+        self._current: Optional[str] = self.NONE
+        self._metadata: OrderedDict[str, Any] = OrderedDict()
         self._transitions = self.transitions()
 
     @property
-    def tag(self):
+    def tag(self) -> Optional[str]:
         """
         Current status value.
         """
         return self._current
 
-    def __eq__(self, other: Union[None, str, "EntityStatus"]) -> bool:
+    def __eq__(self, other: object) -> bool:
         if other is None or isinstance(other, str):
             return self._current == other
 
-        return self._current == other._current
+        if isinstance(other, EntityStatus):
+            return self._current == other._current
+
+        return NotImplemented
 
     @property
-    def metadata(self):
+    def metadata(self) -> OrderedDict[str, Any]:
         """
         TODO
         """
         return self._metadata
 
-    def change(self, new):
+    def change(self, new: Optional[str]) -> None:
         """
         Transition to new status.
 
@@ -477,13 +507,13 @@ class EntityStatus:
             msg = f"On status change from {current} to {new} - {exc}"
             raise StatusTransitionException(msg)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset status as None.
         """
         self._current = self.NONE
 
-    def update_metadata(self, **metadata):
+    def update_metadata(self, **metadata: Any) -> None:
         """
         Updates metadata.
 
@@ -492,13 +522,13 @@ class EntityStatus:
         """
         self._metadata.update(metadata)
 
-    def clear_metadata(self):
+    def clear_metadata(self) -> None:
         """
         Re-initializes metadata as empty.
         """
         self._metadata = OrderedDict()
 
-    def transitions(self):
+    def transitions(self) -> Dict[Optional[str], set]:
         """
         Returns all legal transitions of the status of the
         :py:class:`Entity <testplan.common.entity.base.Entity>`.
@@ -517,7 +547,7 @@ class EntityConfig(Config):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Config options for base Entity class.
         """
@@ -552,80 +582,80 @@ class Entity(logger.Loggable):
     CONFIG = EntityConfig
     STATUS = EntityStatus
 
-    def __init__(self, **options):
+    def __init__(self, **options: Any) -> None:
         super(Entity, self).__init__()
-        self._cfg = self.__class__.CONFIG(**options)
-        self._status = self.__class__.STATUS()
-        self._wait_handlers = {}
-        self._runpath = None
-        self._scratch = None
-        self._parent = None
-        self._uid = None
-        self._should_abort = False
-        self._aborted = False
-        self._report = None
+        self._cfg: Config = self.__class__.CONFIG(**options)
+        self._status: EntityStatus = self.__class__.STATUS()
+        self._wait_handlers: Dict[Optional[str], Callable[..., Any]] = {}
+        self._runpath: Optional[str] = None
+        self._scratch: Optional[str] = None
+        self._parent: Optional["Entity"] = None
+        self._uid: Optional[str] = None
+        self._should_abort: bool = False
+        self._aborted: bool = False
+        self._report: Optional[ReportLink] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}[{self.uid()}]"
 
     @property
-    def cfg(self):
+    def cfg(self) -> Config:
         """
         Configuration object.
         """
         return self._cfg
 
     @property
-    def status(self):
+    def status(self) -> EntityStatus:
         """
         Status object.
         """
         return self._status
 
     @property
-    def aborted(self):
+    def aborted(self) -> bool:
         """
         Returns if entity was aborted.
         """
         return self._aborted
 
     @property
-    def active(self):
+    def active(self) -> bool:
         """
         Entity not aborting/aborted.
         """
         return self._should_abort is False and self._aborted is False
 
     @property
-    def runpath(self):
+    def runpath(self) -> Optional[str]:
         """
         Path to be used for temp/output files by entity.
         """
         return self._runpath
 
     @property
-    def scratch(self):
+    def scratch(self) -> Optional[str]:
         """
         Path to be used for temp files by entity.
         """
         return self._scratch
 
     @property
-    def parent(self):
+    def parent(self) -> Optional["Entity"]:
         """
         Returns parent :py:class:`Entity <testplan.common.entity.base.Entity>`.
         """
         return self._parent
 
     @parent.setter
-    def parent(self, value):
+    def parent(self, value: Optional["Entity"]) -> None:
         """
         Reference to parent object.
         """
         self._parent = value
 
     @property
-    def report(self):
+    def report(self) -> ReportLink:
         """
         A handle to access the report via recursive parent
         """
@@ -643,24 +673,24 @@ class Entity(logger.Loggable):
         return self._report
 
     @property
-    def timer(self):
+    def timer(self) -> Timer:
         return self.report.timer
 
-    def pause(self):
+    def pause(self) -> None:
         """
         Pauses entity execution.
         """
         self.status.change(self.STATUS.PAUSING)
         self.pausing()
 
-    def resume(self):
+    def resume(self) -> None:
         """
         Resumes entity execution.
         """
         self.status.change(self.STATUS.RESUMING)
         self.resuming()
 
-    def abort(self):
+    def abort(self) -> None:
         """
         Default abort policy. First abort all dependencies and then itself.
         """
@@ -674,17 +704,19 @@ class Entity(logger.Loggable):
         self.logger.info("Aborting %s", self)
         self.aborting()
         self._aborted = True
-        self.report.status_override = Status.INCOMPLETE
+        self.report.status_override = Status.INCOMPLETE  # type: ignore[attr-defined]
         self.logger.info("Aborted %s", self)
 
-    def abort_dependencies(self):
+    def abort_dependencies(self) -> Generator["Entity", None, None]:
         """
         Returns an empty generator.
         """
         return
         yield
 
-    def _abort_entity(self, entity, wait_timeout=None):
+    def _abort_entity(
+        self, entity: "Entity", wait_timeout: Optional[int] = None
+    ) -> None:
         """
         Method to abort an entity and log exceptions.
 
@@ -718,7 +750,7 @@ class Entity(logger.Loggable):
                     timeout,
                 )
 
-    def aborting(self):
+    def aborting(self) -> None:
         """
         Aborting logic for self.
         """
@@ -728,13 +760,15 @@ class Entity(logger.Loggable):
             )
         )
 
-    def pausing(self):
+    def pausing(self) -> None:
         raise NotImplementedError()
 
-    def resuming(self):
+    def resuming(self) -> None:
         raise NotImplementedError()
 
-    def wait(self, target_status, timeout=None):
+    def wait(
+        self, target_status: Optional[str], timeout: Optional[int] = None
+    ) -> None:
         """
         Wait until objects status becomes target status.
 
@@ -751,7 +785,7 @@ class Entity(logger.Loggable):
         else:
             wait(lambda: self.status == target_status, timeout=timeout)
 
-    def uid(self):
+    def uid(self) -> str:
         """
         Unique identifier of self.
         """
@@ -759,7 +793,7 @@ class Entity(logger.Loggable):
             self._uid = uuid4()
         return self._uid
 
-    def define_runpath(self):
+    def define_runpath(self) -> None:
         """
         Define runpath directory based on parent object and configuration.
         """
@@ -775,7 +809,7 @@ class Entity(logger.Loggable):
         else:
             self._runpath = default_runpath(self)
 
-    def make_runpath_dirs(self):
+    def make_runpath_dirs(self) -> None:
         """
         Creates runpath related directories.
         """
@@ -799,7 +833,7 @@ class Entity(logger.Loggable):
             makeemptydirs(self._scratch)
 
     @classmethod
-    def filter_locals(cls, local_vars):
+    def filter_locals(cls, local_vars: Dict[str, Any]) -> Dict[str, Any]:
         """
         Filter out init params of None value, they will take default value
         defined in its ConfigOption object; also filter out special vars that
@@ -815,7 +849,7 @@ class Entity(logger.Loggable):
             if key not in EXCLUDE and value is not None
         }
 
-    def context_input(self, exclude: list = None) -> Dict[str, Any]:
+    def context_input(self, exclude: Optional[list] = None) -> Dict[str, Any]:
         """All attr of self in a dict for context resolution"""
         ctx = {}
         exclude = exclude or []
@@ -838,7 +872,7 @@ class RunnableStatus(EntityStatus):
     PAUSING = "PAUSING"
     PAUSED = "PAUSED"
 
-    def transitions(self):
+    def transitions(self) -> Dict[Optional[str], set]:
         """
         Defines the status transitions of a
         :py:class:`Runnable <testplan.common.entity.base.Runnable>` entity.
@@ -864,7 +898,7 @@ class RunnableConfig(EntityConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Runnable specific config options.
         """
@@ -887,11 +921,11 @@ class RunnableResult:
     :py:class:`~testplan.common.entity.base.Runnable` entity.
     """
 
-    def __init__(self):
-        self.step_results = OrderedDict()
+    def __init__(self) -> None:
+        self.step_results: OrderedDict[str, Any] = OrderedDict()
         self.run: Union[bool, Exception] = False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}[{vars(self)}]"
 
 
@@ -922,14 +956,14 @@ class Runnable(Entity):
     RESULT = RunnableResult
     ENVIRONMENT = Environment
 
-    def __init__(self, **options):
+    def __init__(self, **options: Any) -> None:
         super(Runnable, self).__init__(**options)
         self._environment: Environment = self.__class__.ENVIRONMENT(
             parent=self
         )
         self.result: RunnableResult = self.__class__.RESULT()
-        self._steps: Deque[Tuple[Callable, List, Dict]] = deque()
-        self._ihandler = None
+        self._steps: Deque[Tuple[Callable, tuple, Dict[str, Any]]] = deque()
+        self._ihandler: Optional["TestRunnerIHandler"] = None
 
     @property
     def resources(self) -> Environment:
@@ -941,13 +975,15 @@ class Runnable(Entity):
         return self._environment
 
     @property
-    def interactive(self):
+    def interactive(self) -> Optional["TestRunnerIHandler"]:
         return self._ihandler
 
     # Shortcut for interactive handler
     i = interactive
 
-    def add_resource(self, resource: "Resource", uid: Optional[str] = None):
+    def add_resource(
+        self, resource: "Resource", uid: Optional[str] = None
+    ) -> str:
         """
         Adds a :py:class:`resource <testplan.common.entity.base.Resource>`
         in the runnable environment.
@@ -964,31 +1000,31 @@ class Runnable(Entity):
         resource.cfg.parent = self.cfg
         return self.resources.add(resource, uid=uid or uuid4())
 
-    def _add_step(self, step: Callable, *args, **kwargs):
+    def _add_step(self, step: Callable, *args: Any, **kwargs: Any) -> None:
         """
         Adds a step to the queue.
         """
         self._steps.append((step, args, kwargs))
 
-    def pre_step_call(self, step):
+    def pre_step_call(self, step: Callable) -> None:
         """
         Callable to be invoked before each step.
         """
         pass
 
-    def skip_step(self, step):
+    def skip_step(self, step: Callable) -> bool:
         """
         Callable to determine if step should be skipped.
         """
         return False
 
-    def post_step_call(self, step):
+    def post_step_call(self, step: Callable) -> None:
         """
         Callable to be invoked after each step.
         """
         pass
 
-    def _run(self):
+    def _run(self) -> None:
         """
         Runs the runnable object by executing a step.
         """
@@ -1022,7 +1058,7 @@ class Runnable(Entity):
                     break
             time.sleep(self.cfg.active_loop_sleep)
 
-    def _run_batch_steps(self):
+    def _run_batch_steps(self) -> None:
         """
         Runs the runnable object by executing a batch of steps.
         """
@@ -1045,7 +1081,9 @@ class Runnable(Entity):
         self._post_run_checks(start_threads, start_procs)
 
     @staticmethod
-    def _get_process_info(recursive=False):
+    def _get_process_info(
+        recursive: bool = False,
+    ) -> Tuple[List[threading.Thread], List[psutil.Process]]:
         """
         :return: lists of threads and child processes, to be passed to the
             _post_run_checks method after the run has finished.
@@ -1056,7 +1094,11 @@ class Runnable(Entity):
 
         return threads, children
 
-    def _post_run_checks(self, start_threads, start_procs):
+    def _post_run_checks(
+        self,
+        start_threads: List[threading.Thread],
+        start_procs: List[psutil.Process],
+    ) -> None:
         """
         Compare the current running threads and processes to those that were
         alive before we were run. If there are any differences that indicates
@@ -1098,7 +1140,7 @@ class Runnable(Entity):
                 "Child processes have died during run: %s", dead_procs
             )
 
-    def _execute_step(self, step, *args, **kwargs):
+    def _execute_step(self, step: Callable, *args: Any, **kwargs: Any) -> None:
         """
         Executes a particular step.
 
@@ -1123,49 +1165,49 @@ class Runnable(Entity):
             self.result.step_results[step.__name__] = res
             self.status.update_metadata(**{str(step): res})
 
-    def add_pre_resource_steps(self):
+    def add_pre_resource_steps(self) -> None:
         """
         Runnable steps to run before environment started.
         """
         pass
 
-    def add_start_resource_steps(self):
+    def add_start_resource_steps(self) -> None:
         """
         Runnable steps to start environment
         """
         self._add_step(self.resources.start)
 
-    def add_pre_main_steps(self):
+    def add_pre_main_steps(self) -> None:
         """
         Runnable steps to run after environment started.
         """
         pass
 
-    def add_main_batch_steps(self):
+    def add_main_batch_steps(self) -> None:
         """
         Runnable steps to be executed while environment is running.
         """
         pass
 
-    def add_post_main_steps(self):
+    def add_post_main_steps(self) -> None:
         """
         Runnable steps to run before environment stopped.
         """
         pass
 
-    def add_stop_resource_steps(self):
+    def add_stop_resource_steps(self) -> None:
         """
         Runnable steps to stop environment
         """
         self._add_step(self.resources.stop, is_reversed=True)
 
-    def add_post_resource_steps(self):
+    def add_post_resource_steps(self) -> None:
         """
         Runnable steps to run after environment stopped.
         """
         pass
 
-    def pausing(self):
+    def pausing(self) -> None:
         """
         Pauses the resource.
         """
@@ -1173,7 +1215,7 @@ class Runnable(Entity):
             resource.pause()
         self.status.change(RunnableStatus.PAUSED)
 
-    def resuming(self):
+    def resuming(self) -> None:
         """
         Resumes the resource.
         """
@@ -1181,32 +1223,32 @@ class Runnable(Entity):
             resource.resume()
         self.status.change(RunnableStatus.RUNNING)
 
-    def abort_dependencies(self):
+    def abort_dependencies(self) -> Generator["Resource", None, None]:
         """
         Yield all dependencies to be aborted before self abort.
         """
         for resource in self.resources:
             yield resource
 
-    def setup(self):
+    def setup(self) -> None:
         """
         Setup step to be executed first.
         """
         pass
 
-    def teardown(self):
+    def teardown(self) -> None:
         """
         Teardown step to be executed last.
         """
         pass
 
-    def should_run(self):
+    def should_run(self) -> bool:
         """
         Determines if current object should run.
         """
         return True
 
-    def run(self):
+    def run(self) -> Optional[RunnableResult]:
         """
         Executes the defined steps and populates the result object.
         """
@@ -1251,7 +1293,7 @@ class Runnable(Entity):
                         # this abort will wait ihandler to be aborted
                         # if we abort by ^C, testrunner.abort is already called, this will be noop
                         self.abort()
-                return self._ihandler
+                return self._ihandler  # type: ignore[return-value]
             else:
                 self._run_batch_steps()
         except Exception as exc:
@@ -1265,7 +1307,7 @@ class Runnable(Entity):
             )
         return self.result
 
-    def run_result(self):
+    def run_result(self) -> bool:
         """
         Returns if a run was successful.
         """
@@ -1274,7 +1316,7 @@ class Runnable(Entity):
             for val in self.result.step_results.values()
         )
 
-    def dry_run(self):
+    def dry_run(self) -> None:
         """
         A testing process that creates result for each step.
         """
@@ -1289,10 +1331,10 @@ class FailedAction:
     The `error_msg` can later on be used for enriching the error messages.
     """
 
-    def __init__(self, error_msg):
+    def __init__(self, error_msg: str) -> None:
         self.error_msg = error_msg
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return False
 
 
@@ -1306,7 +1348,7 @@ class ResourceConfig(EntityConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Resource specific config options.
         """
@@ -1331,7 +1373,7 @@ class ResourceStatus(EntityStatus):
     STOPPING = "STOPPING"
     STOPPED = "STOPPED"
 
-    def transitions(self):
+    def transitions(self) -> Dict[Optional[str], set]:
         """
         Defines the status transitions of a
         :py:class:`Resource <testplan.common.entity.base.Resource>` entity.
@@ -1379,10 +1421,12 @@ class Resource(Entity):
     CONFIG = ResourceConfig
     STATUS = ResourceStatus
 
-    def __init__(self, **options):
+    def __init__(self, **options: Any) -> None:
         super(Resource, self).__init__(**options)
-        self._context = None
-        self._failovers = []  # failover resources if start fails
+        self._context: Optional[Environment] = None
+        self._failovers: List[
+            Dict[str, Any]
+        ] = []  # failover resources if start fails
         self._wait_handlers.update(
             {
                 self.STATUS.STARTED: self._wait_started,
@@ -1391,36 +1435,36 @@ class Resource(Entity):
         )
 
     @property
-    def context(self):
+    def context(self) -> Optional[Environment]:
         """
         Key/value pair information of a Resource.
         """
         return self._context
 
     @context.setter
-    def context(self, context):
+    def context(self, context: Optional[Environment]) -> None:
         """
         Set the Resource context.
         """
         self._context = context
 
     @property
-    def async_start(self):
+    def async_start(self) -> bool:
         """
         If True, the resource's parent will take the responsibility
         to check that the resource has already STARTED or STOPPED.
         """
-        return self.cfg.async_start
+        return self.cfg.async_start  # type: ignore[no-any-return]
 
     @property
-    def auto_start(self):
+    def auto_start(self) -> bool:
         """
         If False, the resource will not be automatically started by its parent
         (generally, a `Environment` object) while the parent is starting.
         """
-        return self.cfg.auto_start
+        return self.cfg.auto_start  # type: ignore[no-any-return]
 
-    def start(self):
+    def start(self) -> None:
         """
         Triggers the start logic of a Resource by executing
         :py:meth:
@@ -1454,7 +1498,7 @@ class Resource(Entity):
             self.wait(self.STATUS.STARTED)
             self.logger.info("%s started", self)
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Triggers the stop logic of a Resource by executing
         :py:meth:
@@ -1490,25 +1534,25 @@ class Resource(Entity):
             self.logger.info("%s stopped", self)
         self.timer.end("lifespan")
 
-    def pre_start(self):
+    def pre_start(self) -> None:
         """
         Steps to be executed right before resource starts.
         """
         pass
 
-    def post_start(self):
+    def post_start(self) -> None:
         """
         Steps to be executed right after resource is started.
         """
         pass
 
-    def pre_stop(self):
+    def pre_stop(self) -> None:
         """
         Steps to be executed right before resource stops.
         """
         pass
 
-    def post_stop(self):
+    def post_stop(self) -> None:
         """
         Steps to be executed right after resource is stopped.
         """
@@ -1523,7 +1567,7 @@ class Resource(Entity):
         """
         return []
 
-    def _wait_started(self, timeout: Optional[float] = None):
+    def _wait_started(self, timeout: Optional[float] = None) -> None:
         """
         Changes status to STARTED, if possible.
 
@@ -1531,7 +1575,7 @@ class Resource(Entity):
         """
         self._after_started()
 
-    def _after_started(self):
+    def _after_started(self) -> None:
         """
         Common logic after a successful Resource start.
         """
@@ -1548,7 +1592,7 @@ class Resource(Entity):
         if self.cfg.post_start:
             self.cfg.post_start(self)
 
-    def _wait_stopped(self, timeout: Optional[float] = None):
+    def _wait_stopped(self, timeout: Optional[float] = None) -> None:
         """
         Changes status to STOPPED, if possible.
 
@@ -1556,7 +1600,7 @@ class Resource(Entity):
         """
         self._mark_stopped()
 
-    def _mark_stopped(self):
+    def _mark_stopped(self) -> None:
         """
         Common logic after a successful Resource stop.
         """
@@ -1573,31 +1617,31 @@ class Resource(Entity):
         if self.cfg.post_stop:
             self.cfg.post_stop(self)
 
-    def starting(self):
+    def starting(self) -> None:
         """
         Start logic for Resource that also sets the status to *STARTED*.
         """
         raise NotImplementedError()
 
-    def stopping(self):
+    def stopping(self) -> None:
         """
         Stop logic for Resource that also sets the status to *STOPPED*.
         """
         raise NotImplementedError()
 
-    def pausing(self):
+    def pausing(self) -> None:
         """
         Pause the resource.
         """
         self.status.change(self.STATUS.PAUSED)
 
-    def resuming(self):
+    def resuming(self) -> None:
         """
         Resume the resource.
         """
         self.status.change(self.STATUS.STARTED)
 
-    def restart(self):
+    def restart(self) -> None:
         """
         Stop and start the resource.
         """
@@ -1609,44 +1653,49 @@ class Resource(Entity):
         if self.async_start:
             self.wait(self.STATUS.STARTED)
 
-    def force_stop(self):
+    def force_stop(self) -> None:
         """
         Change the status to STOPPED (e.g. exception raised).
         """
         self.status.change(self.STATUS.STOPPED)
 
-    def force_started(self):
+    def force_started(self) -> None:
         """
         Change the status to STARTED (e.g. exception raised).
         """
         self.status.change(self.STATUS.STARTED)
 
-    def __enter__(self):
+    def __enter__(self) -> "Resource":
         self.start()
         if self.async_start:
             self.wait(self.STATUS.STARTED)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[Any],
+    ) -> None:
         self.stop()
         if self.async_start:
             self.wait(self.STATUS.STOPPED)
 
     @property
-    def is_alive(self):
+    def is_alive(self) -> bool:
         """
         Called to periodically poll the resource health. Default implementation
         assumes the resource is always healthy.
         """
         return True
 
-    def pending_work(self):
+    def pending_work(self) -> bool:
         """
         Resource has pending work.
         """
         return False
 
-    def register_failover(self, klass: Entity, params: dict) -> None:
+    def register_failover(self, klass: Type[Entity], params: dict) -> None:
         """
         Register a failover class to instantiate if resource start fails.
 
@@ -1655,7 +1704,7 @@ class Resource(Entity):
         """
         self._failovers.append({"klass": klass, "params": params})
 
-    def failover(self) -> None:
+    def failover(self) -> Optional["Resource"]:
         """
         API to create the failover resource, to be implemented in derived class
         """
@@ -1673,7 +1722,7 @@ class RunnableManagerConfig(EntityConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         RunnableManager specific config options.
         """
@@ -1709,10 +1758,10 @@ class RunnableManager(Entity):
 
     CONFIG = RunnableManagerConfig
 
-    def __init__(self, **options):
+    def __init__(self, **options: Any) -> None:
         super(RunnableManager, self).__init__(**options)
 
-        self._default_options = options
+        self._default_options: Dict[str, Any] = options
         if self._cfg.parse_cmdline is True:
             options = self.enrich_options(self._default_options)
 
@@ -1721,10 +1770,10 @@ class RunnableManager(Entity):
             self._runnable.add_resource(resource)
 
     @property
-    def aborted(self):
+    def aborted(self) -> bool:
         return self._runnable.aborted
 
-    def enrich_options(self, options):
+    def enrich_options(self, options: Dict[str, Any]) -> Dict[str, Any]:
         """
         Enrich the options using parsed command line arguments.
         Override this method to add extra argument processing logic.
@@ -1735,7 +1784,7 @@ class RunnableManager(Entity):
         """
         return options
 
-    def _initialize_runnable(self, **options):
+    def _initialize_runnable(self, **options: Any) -> Runnable:
         """
         Instantiates runnable object as per configuration options.
 
@@ -1743,13 +1792,13 @@ class RunnableManager(Entity):
         :type options: ``Mapping``
         """
         runnable_class = self._cfg.runnable
-        return runnable_class(**options)
+        return runnable_class(**options)  # type: ignore[no-any-return]
 
     @property
-    def report(self):
+    def report(self) -> ReportLink:
         return self.runnable.report
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> Any:
         try:
             return self.__getattribute__(item)
         except AttributeError:
@@ -1758,41 +1807,41 @@ class RunnableManager(Entity):
             raise
 
     @property
-    def runnable(self):
+    def runnable(self) -> Runnable:
         """
         Runnable instance.
         """
         return self._runnable
 
     @property
-    def runpath(self):
+    def runpath(self) -> Optional[str]:
         """
         Expose the runnable runpath.
         """
         return self._runnable.runpath
 
     @property
-    def cfg(self):
+    def cfg(self) -> Config:
         """
         Expose the runnable configuration object.
         """
         return self._runnable.cfg
 
     @property
-    def status(self):
+    def status(self) -> EntityStatus:
         """
         Expose the runnable status.
         """
         return self._runnable.status
 
     @property
-    def active(self):
+    def active(self) -> bool:
         """
         Expose the runnable active attribute.
         """
         return self._runnable.active
 
-    def run(self):
+    def run(self) -> Union[RunnableResult, Any]:
         """
         Executes target runnable defined in configuration in a separate thread.
 
@@ -1819,7 +1868,9 @@ class RunnableManager(Entity):
             raise self._runnable.result
         return self._runnable.result
 
-    def _handle_abort(self, signum, frame):
+    def _handle_abort(
+        self, signum: int, frame: Optional[types.FrameType]
+    ) -> None:
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
         self.logger.debug(
@@ -1830,25 +1881,25 @@ class RunnableManager(Entity):
 
         self.abort()
 
-    def pausing(self):
+    def pausing(self) -> None:
         """
         Pause the runnable execution.
         """
         self._runnable.pause()
 
-    def resuming(self):
+    def resuming(self) -> None:
         """
         Resume the runnable execution.
         """
         self._runnable.resume()
 
-    def abort_dependencies(self):
+    def abort_dependencies(self) -> Generator[Runnable, None, None]:
         """
         Dependencies to be aborted first.
         """
         yield self._runnable
 
-    def aborting(self):
+    def aborting(self) -> None:
         """
         Suppressing not implemented debug log by parent class.
         """

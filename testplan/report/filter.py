@@ -1,7 +1,6 @@
-try:
-    from typing import Self  # >= 3.11
-except ImportError:
-    from typing_extensions import Self  # < 3.11
+from typing import Set
+
+from typing_extensions import Self
 
 from schema import And
 
@@ -16,7 +15,7 @@ from testplan.report.testing.base import TestReport
 
 class ReportingFilterConfig(EntityConfig):
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> dict:
         # we only handle simple situations right now,
         # see docstring for ReportingFilter
         return {
