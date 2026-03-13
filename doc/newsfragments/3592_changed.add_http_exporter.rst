@@ -1,0 +1,1 @@
+Added support for HTTP OTLP exporter in the tracing module. Exporter type is configured to be HTTP if the ``OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`` environment variable starts with "http://" or "https://", else it will default to use the gRPC exporter.
