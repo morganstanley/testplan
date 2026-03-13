@@ -174,9 +174,6 @@ def test_unwanted_testsuite_name(mockplan, suite_name):
         mockplan.add(multitest)
         mockplan.run()
 
-    # On Windows, the long suite name can trigger additional warnings
-    # (e.g. from path operations), so check that at least one warning
-    # matches the expected suite name issue rather than exact count.
     assert len(record) >= 1
     if ":" in suite_name:
         assert any("colon" in str(w.message) for w in record)
