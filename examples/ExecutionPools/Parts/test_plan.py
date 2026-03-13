@@ -49,7 +49,6 @@ class CustomParser(TestplanParser):
     pdf_path="report.pdf",
     stdout_style=OUTPUT_STYLE,
     pdf_style=OUTPUT_STYLE,
-    merge_scheduled_parts=False,
 )
 def main(plan):
     """
