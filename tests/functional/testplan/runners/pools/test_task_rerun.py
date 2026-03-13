@@ -316,9 +316,7 @@ def test_task_rerun_with_more_times_2(mockplan):
 
 def test_task_rerun_with_parts():
     with tempfile.TemporaryDirectory() as runpath:
-        mockplan = TestplanMock(
-            "plan", runpath=runpath, merge_scheduled_parts=True
-        )
+        mockplan = TestplanMock("plan", runpath=runpath)
 
         pool_name = ThreadPool.__name__
         pool = ThreadPool(name=pool_name, size=1)
@@ -341,11 +339,11 @@ def test_task_rerun_with_parts():
             "failed": 1,
         }
 
-        # Run2 of part0 are merged with part1 and part2
-        assert mockplan.report.entries[0].name == "MultiTestParts"
+        # Parts are no longer merged - each appears as a separate entry
+        part_names = [e.name for e in mockplan.report.entries]
+        assert "MultiTestParts - part(0/3)" in part_names
+        assert "MultiTestParts - part(1/3)" in part_names
+        assert "MultiTestParts - part(2/3)" in part_names
 
-        # Run1 of part0 (task_rerun) are left unmerged
-        assert (
-            mockplan.report.entries[1].name
-            == "MultiTestParts - part(0/3) => Run 1"
-        )
+        # Run1 of part0 (task_rerun) is also a separate entry
+        assert "MultiTestParts - part(0/3) => Run 1" in part_names

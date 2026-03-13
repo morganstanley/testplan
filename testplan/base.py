@@ -8,6 +8,7 @@ import sys
 import tempfile
 import traceback
 import threading
+import warnings
 
 from typing import (
     Optional,
@@ -142,8 +143,9 @@ class Testplan(entity.RunnableManager):
     :param report_tags: Matches tests marked with any of the given tags.
     :param report_tags_all: Match tests marked with all of the given tags.
     :param resource_monitor: Enable resource monitor.
-    :param merge_scheduled_parts: Merge reports of scheduled MultiTest
-        parts.
+    :param merge_scheduled_parts: Deprecated. Use the merge parts toggle in the UI
+        to merge part reports. This parameter is a no-op and will be removed
+        in a future release.
     :param browse: Open web browser to display the test report.
     :param ui_port: Port of web server for displaying test report.
     :param web_server_startup_timeout: Timeout for starting web server.
@@ -248,6 +250,15 @@ class Testplan(entity.RunnableManager):
         if report_tags_all is None:
             report_tags_all = []
 
+        if merge_scheduled_parts:
+            warnings.warn(
+                "merge_scheduled_parts is deprecated and has no effect. "
+                "Use the merge parts toggle in the UI to merge part reports. "
+                "This parameter will be removed in a future release.",
+                FutureWarning,
+                stacklevel=2,
+            )
+
         # Define instance attributes
         self._parsed_args = argparse.Namespace()
         self._processed_args = {}
@@ -280,7 +291,6 @@ class Testplan(entity.RunnableManager):
             report_tags=report_tags,
             report_tags_all=report_tags_all,
             resource_monitor=resource_monitor,
-            merge_scheduled_parts=merge_scheduled_parts,
             browse=browse,
             ui_port=ui_port,
             web_server_startup_timeout=web_server_startup_timeout,
