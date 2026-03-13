@@ -1615,6 +1615,7 @@ class TestRunner(Runnable):
         step_result = True
         test_results = self.result.test_results
         plan_report = self.result.report
+        assert plan_report is not None
 
         for uid, resource in self._tests.items():
             if not isinstance(self.resources[resource], Executor):
