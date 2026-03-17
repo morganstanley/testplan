@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from opentelemetry.sdk.trace import _Span
 from opentelemetry.trace import (
@@ -11,7 +11,10 @@ from opentelemetry.trace import (
     set_span_in_context,
 )
 
-from testplan.common.utils.observability.tracing import RootTraceIdGenerator
+from testplan.common.utils.observability.tracing import (
+    RootTraceIdGenerator,
+    Tracing,
+)
 
 
 def test_root_trace_id_generator_with_traceparent():
@@ -269,3 +272,22 @@ def test_get_root_context_enabled(monkeypatch, unit_test_tracing):
         "traceparent": "00-deadbeefcafebabe-ffee112233445566-01"
     }
     assert tracing._get_root_context() == fake_extracted
+
+
+def test_setup_selects_http_exporter_for_http_endpoint(monkeypatch):
+    """Test that HTTP endpoints use the HTTP OTLP exporter."""
+    monkeypatch.setenv(
+        "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+        "https://collector.example.com:4318/v1/traces",
+    )
+    monkeypatch.setenv("OTEL_RESOURCE_ATTRIBUTES", "service.name=test")
+
+    tracing = Tracing()
+    with patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    ) as mock_http_exporter:
+        mock_http_exporter.return_value = MagicMock()
+        tracing._setup()
+
+    mock_http_exporter.assert_called_once_with()
+    assert tracing._tracing_enabled is True

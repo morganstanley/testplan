@@ -30,25 +30,32 @@ Configuration
 Environment Variables
 +++++++++++++++++++++
 
-To enable OpenTelemetry tracing, set the following environment variables:
+To enable OpenTelemetry tracing, set the following environment variables.
 
-**Required Variables for Tracing:**
+The exporter type is auto-detected from the endpoint URL: endpoints starting with
+``http://`` or ``https://`` use the HTTP exporter, otherwise the gRPC exporter is used.
+
+**Required Variables (all exporters):**
 
 .. code-block:: bash
 
     # OTLP exporter endpoint
-    export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://your-otlp-endpoint:4317
-
-    # Headers for the endpoint
-    export OTEL_EXPORTER_OTLP_HEADERS="header1=value1"
-
-    # TLS certificates for gRPC connection
-    export OTEL_EXPORTER_OTLP_CERTIFICATE=/path/to/ca-cert.pem
-    export OTEL_EXPORTER_OTLP_CLIENT_KEY=/path/to/client-key.pem
-    export OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE=/path/to/client-cert.pem
+    # HTTP endpoint (uses HTTP exporter):
+    export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://your-otlp-endpoint:4318/v1/traces
+    # gRPC endpoint (uses gRPC exporter):
+    export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=your-otlp-endpoint:4317
 
     # Resource attributes (key-value format)
     export OTEL_RESOURCE_ATTRIBUTES="service.name=my-testplan,environment=staging,team=qa"
+
+**Additional Required Variables (gRPC exporter only):**
+
+.. code-block:: bash
+
+    # TLS certificates for gRPC mTLS connection
+    export OTEL_EXPORTER_OTLP_CERTIFICATE=/path/to/ca-cert.pem
+    export OTEL_EXPORTER_OTLP_CLIENT_KEY=/path/to/client-key.pem
+    export OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE=/path/to/client-cert.pem
 
 **Additional Variables for Logging:**
 

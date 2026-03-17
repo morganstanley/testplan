@@ -35,7 +35,7 @@ cfgv==3.4.0 ; python_full_version < '3.10'
     # via pre-commit
 cfgv==3.5.0 ; python_full_version >= '3.10'
     # via pre-commit
-charset-normalizer==3.4.4
+charset-normalizer==3.4.5
     # via
     #   reportlab
     #   requests
@@ -107,7 +107,7 @@ filelock==3.19.1 ; python_full_version < '3.10'
     # via
     #   python-discovery
     #   virtualenv
-filelock==3.25.0 ; python_full_version >= '3.10'
+filelock==3.25.1 ; python_full_version >= '3.10'
     # via
     #   python-discovery
     #   virtualenv
@@ -122,7 +122,7 @@ flask-restx==1.3.2
     # via testplan
 fonttools==4.60.2 ; python_full_version < '3.10'
     # via matplotlib
-fonttools==4.61.1 ; python_full_version >= '3.10'
+fonttools==4.62.0 ; python_full_version >= '3.10'
     # via matplotlib
 gherkin-official==39.0.0
     # via testplan
@@ -130,8 +130,10 @@ gitdb==4.0.12
     # via gitpython
 gitpython==3.1.46
     # via releaseherald
-googleapis-common-protos==1.72.0
-    # via opentelemetry-exporter-otlp-proto-grpc
+googleapis-common-protos==1.73.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
 grpcio==1.78.1
     # via opentelemetry-exporter-otlp-proto-grpc
 gssapi==1.11.1 ; sys_platform != 'win32'
@@ -142,7 +144,9 @@ identify==2.6.17 ; python_full_version >= '3.10'
     # via pre-commit
 idna==3.11
     # via requests
-imagesize==1.4.1
+imagesize==1.5.0 ; python_full_version < '3.10'
+    # via sphinx
+imagesize==2.0.0 ; python_full_version >= '3.10'
     # via sphinx
 importlib-metadata==8.7.1
     # via
@@ -184,7 +188,7 @@ jsonschema-specifications==2025.9.1
 kazoo==2.10.0
 kiwisolver==1.4.7 ; python_full_version < '3.10'
     # via matplotlib
-kiwisolver==1.4.9 ; python_full_version >= '3.10'
+kiwisolver==1.5.0 ; python_full_version >= '3.10'
     # via matplotlib
 lxml==6.0.2
     # via testplan
@@ -205,7 +209,7 @@ more-itertools==10.8.0
     # via
     #   cheroot
     #   jaraco-functools
-narwhals==2.17.0
+narwhals==2.18.0
     # via plotly
 nodeenv==1.10.0
     # via pre-commit
@@ -219,7 +223,7 @@ numpy==2.2.6 ; python_full_version == '3.10.*'
     #   contourpy
     #   matplotlib
     #   pandas
-numpy==2.4.2 ; python_full_version >= '3.11'
+numpy==2.4.3 ; python_full_version >= '3.11'
     # via
     #   contourpy
     #   matplotlib
@@ -227,13 +231,18 @@ numpy==2.4.2 ; python_full_version >= '3.11'
 opentelemetry-api==1.38.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-instrumentation
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
     #   testplan
 opentelemetry-exporter-otlp-proto-common==1.38.0
-    # via opentelemetry-exporter-otlp-proto-grpc
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-exporter-otlp-proto-grpc==1.38.0
+    # via testplan
+opentelemetry-exporter-otlp-proto-http==1.38.0
     # via testplan
 opentelemetry-instrumentation==0.59b0
     # via testplan
@@ -241,9 +250,11 @@ opentelemetry-proto==1.38.0
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-sdk==1.38.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
     #   testplan
 opentelemetry-semantic-conventions==0.59b0
     # via
@@ -290,7 +301,7 @@ platformdirs==4.4.0 ; python_full_version < '3.10'
     #   pylint
     #   python-discovery
     #   virtualenv
-platformdirs==4.9.2 ; python_full_version >= '3.10'
+platformdirs==4.9.4 ; python_full_version >= '3.10'
     # via
     #   pylint
     #   python-discovery
@@ -345,13 +356,13 @@ python-dateutil==2.9.0.post0
     # via
     #   matplotlib
     #   pandas
-python-discovery==1.1.0
+python-discovery==1.1.3
     # via virtualenv
 python-dotenv==1.2.1 ; python_full_version < '3.10'
     # via pytest-dotenv
 python-dotenv==1.2.2 ; python_full_version >= '3.10'
     # via pytest-dotenv
-pytz==2025.2 ; python_full_version < '3.11'
+pytz==2026.1.post1 ; python_full_version < '3.11'
     # via pandas
 pywin32==311 ; sys_platform == 'win32'
     # via
@@ -376,6 +387,7 @@ reportlab==4.4.10
     # via testplan
 requests==2.32.5
     # via
+    #   opentelemetry-exporter-otlp-proto-http
     #   sphinx
     #   testplan
 roman-numerals==4.1.0 ; python_full_version >= '3.11'
@@ -390,14 +402,14 @@ rpds-py==0.30.0 ; python_full_version >= '3.10'
     #   referencing
 rpyc==6.0.2
     # via testplan
-ruff==0.15.4
+ruff==0.15.5
 schema==0.7.8
     # via testplan
-setuptools==82.0.0
+setuptools==82.0.1
     # via testplan
 six==1.17.0
     # via python-dateutil
-smmap==5.0.2
+smmap==5.0.3
     # via gitdb
 snowballstemmer==3.0.1
     # via sphinx
@@ -462,6 +474,7 @@ typing-extensions==4.15.0
     #   grpcio
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
     #   pydantic
@@ -478,11 +491,11 @@ tzlocal==5.3.1
     # via testplan
 urllib3==2.6.3
     # via requests
-uv==0.10.7
+uv==0.10.9
     # via testplan
 validators==0.20.0
     # via testplan
-virtualenv==21.1.0
+virtualenv==21.2.0
     # via pre-commit
 werkzeug==3.1.6
     # via
