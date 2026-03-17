@@ -375,7 +375,7 @@ class Timer(dict):
                 self[key] = timer[key]
 
     def first(self, key):
-        return self[key][1]
+        return self[key][0]
 
     def last(self, key):
         return self[key][-1]
