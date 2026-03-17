@@ -17,7 +17,6 @@ def test_auto_parts_discover():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -47,7 +46,6 @@ def test_auto_parts_discover_interactive(runpath):
     mockplan = TestplanMock(
         "plan",
         runpath=runpath,
-        merge_scheduled_parts=True,
         auto_part_runtime_limit=45,
         plan_runtime_target=200,
         interactive_port=0,
@@ -80,7 +78,6 @@ def test_auto_weight_discover():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             plan_runtime_target=300,
             runtime_data={
                 "Proj1-suite": {
@@ -110,7 +107,6 @@ def test_auto_parts_zero_neg_parts():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -141,7 +137,6 @@ def test_auto_parts_cap_parts():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -172,7 +167,6 @@ def test_auto_parts_discover_with_teardown_time():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -202,7 +196,6 @@ def test_auto_parts_discover_interactive_with_teardown_time(runpath):
     mockplan = TestplanMock(
         "plan",
         runpath=runpath,
-        merge_scheduled_parts=True,
         auto_part_runtime_limit=45,
         plan_runtime_target=200,
         interactive_port=0,
@@ -235,7 +228,6 @@ def test_auto_weight_discover_with_teardown_time():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             plan_runtime_target=300,
             runtime_data={
                 "Proj1-suite": {
@@ -265,7 +257,6 @@ def test_auto_parts_zero_neg_parts_with_teardown_time():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -296,7 +287,6 @@ def test_auto_parts_cap_parts_with_teardown_time():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -327,7 +317,6 @@ def test_auto_part_runtime_limit():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit="auto",
             plan_runtime_target=2400,
             runtime_data={
@@ -358,7 +347,6 @@ def test_auto_plan_runtime_target():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit="auto",
             plan_runtime_target="auto",
             runtime_data={
@@ -402,7 +390,6 @@ def test_multitest_weight_adjusted_by_relative_testcase_count(
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=40,
             plan_runtime_target=80,
             runtime_data={
@@ -456,7 +443,6 @@ def test_auto_parts_capped_by_testcase_count():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -485,7 +471,6 @@ def test_auto_parts_run_with_zero_testcases():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             runtime_data={
@@ -516,7 +501,6 @@ def test_auto_parts_with_part_pattern_filter():
         mockplan = TestplanMock(
             "plan",
             runpath=runpath,
-            merge_scheduled_parts=True,
             auto_part_runtime_limit=45,
             plan_runtime_target=200,
             test_filter=part_filter,

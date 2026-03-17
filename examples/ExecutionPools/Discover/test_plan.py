@@ -20,7 +20,6 @@ OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
     pdf_path="report.pdf",
     stdout_style=OUTPUT_STYLE,
     pdf_style=OUTPUT_STYLE,
-    merge_scheduled_parts=True,
 )
 def main(plan):
     """
@@ -46,6 +45,6 @@ def main(plan):
 if __name__ == "__main__":
     res = main()
     if res.report.entries:
-        assert len(res.report.entries) == 5
+        assert len(res.report.entries) == 7
     print("Exiting code: {}".format(res.exit_code))
     sys.exit(res.exit_code)

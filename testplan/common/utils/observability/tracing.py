@@ -71,11 +71,12 @@ class Tracing(Loggable):
 
     Required Environment Variables:
         - ``OTEL_EXPORTER_OTLP_TRACES_ENDPOINT``: OTLP traces endpoint URL
-        - ``OTEL_EXPORTER_OTLP_HEADERS``: OTLP headers
+        - ``OTEL_RESOURCE_ATTRIBUTES``: Resource attributes as comma-separated key=value pairs
+
+    Additional Required Environment Variables (gRPC exporter only):
         - ``OTEL_EXPORTER_OTLP_CERTIFICATE``: Path to CA certificate
         - ``OTEL_EXPORTER_OTLP_CLIENT_KEY``: Path to client private key
         - ``OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE``: Path to client certificate
-        - ``OTEL_RESOURCE_ATTRIBUTES``: Resource attributes as comma-separated key=value pairs
 
     Optional Environment Variables:
         - ``OTEL_BSP_SCHEDULE_DELAY``: Batch span processor delay in milliseconds (default: 200)
@@ -96,23 +97,35 @@ class Tracing(Loggable):
         """
         Called internally to initialize OpenTelemetry tracing based on environment variables.
 
-        Tracing is enabled when any environment variable starting with ``OTEL_``
-        is detected. Required TLS certificates must be provided for gRPC exporter.
+        Tracing is enabled with the --otel-traces flag.
 
-        :param root_trace: Optional root trace context in W3C traceparent format
+        The exporter type is auto-detected from ``OTEL_EXPORTER_OTLP_TRACES_ENDPOINT``:
+        endpoints starting with ``http://`` or ``https://`` use the HTTP exporter,
+        otherwise the gRPC exporter is used (which requires mTLS certificates).
+
+        :param traceparent: Optional root trace context in W3C traceparent format
         :type traceparent: Optional[str]
         """
         if traceparent:
             self._root_context = {"traceparent": traceparent}
 
+        endpoint = os.environ.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", "")
+        use_http = endpoint.lower().startswith(("http://", "https://"))
+
         try:
-            import grpc
             from opentelemetry import trace
             from opentelemetry.sdk.trace import TracerProvider
             from opentelemetry.sdk.trace.export import BatchSpanProcessor
-            from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
-                OTLPSpanExporter,
-            )
+
+            if use_http:
+                from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
+                    OTLPSpanExporter,
+                )
+            else:
+                import grpc
+                from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+                    OTLPSpanExporter,
+                )
         except ImportError as e:
             raise RuntimeError(
                 "Certain packages failed to import, please consider install Testplan "
@@ -121,38 +134,53 @@ class Tracing(Loggable):
 
         required = [
             "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
-            "OTEL_EXPORTER_OTLP_HEADERS",
-            "OTEL_EXPORTER_OTLP_CERTIFICATE",
-            "OTEL_EXPORTER_OTLP_CLIENT_KEY",
-            "OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE",
             "OTEL_RESOURCE_ATTRIBUTES",
         ]
+        if not use_http:
+            required.extend(
+                [
+                    "OTEL_EXPORTER_OTLP_CERTIFICATE",
+                    "OTEL_EXPORTER_OTLP_CLIENT_KEY",
+                    "OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE",
+                ]
+            )
+
         missing = [name for name in required if not os.environ.get(name)]
         if missing:
             raise RuntimeError(
                 f"Missing required OTEL environment variables: {', '.join(missing)}"
             )
 
-        root_cert = os.environ["OTEL_EXPORTER_OTLP_CERTIFICATE"]
-        private_key = os.environ["OTEL_EXPORTER_OTLP_CLIENT_KEY"]
-        certificate_chain = os.environ["OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE"]
-        with (
-            open(root_cert, "rb") as rc,
-            open(private_key, "rb") as pk,
-            open(certificate_chain, "rb") as cc,
-        ):
-            credentials = grpc.ssl_channel_credentials(
-                root_certificates=rc.read(),
-                private_key=pk.read(),
-                certificate_chain=cc.read(),
-            )
+        if use_http:
+            exporter = OTLPSpanExporter()  # auto-fetch required vars from env
+            self.logger.debug(f"Using HTTP exporter for endpoint: {endpoint}")
+        else:
+            # gRPC exporter - requires explicit mTLS setup
+            root_cert = os.environ["OTEL_EXPORTER_OTLP_CERTIFICATE"]
+            private_key = os.environ["OTEL_EXPORTER_OTLP_CLIENT_KEY"]
+            certificate_chain = os.environ[
+                "OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE"
+            ]
+
+            with (
+                open(root_cert, "rb") as rc,
+                open(private_key, "rb") as pk,
+                open(certificate_chain, "rb") as cc,
+            ):
+                credentials = grpc.ssl_channel_credentials(
+                    root_certificates=rc.read(),
+                    private_key=pk.read(),
+                    certificate_chain=cc.read(),
+                )
+            exporter = OTLPSpanExporter(credentials=credentials)
+            self.logger.debug(f"Using gRPC exporter for endpoint: {endpoint}")
 
         provider = TracerProvider(id_generator=RootTraceIdGenerator(self))
         # Tune BatchSpanProcessor for short-lived worker processes:
         # Allow overriding via environment, else use more aggressive default.
         schedule_delay = int(os.getenv("OTEL_BSP_SCHEDULE_DELAY", 200))
         processor = BatchSpanProcessor(
-            OTLPSpanExporter(credentials=credentials),
+            exporter,
             schedule_delay_millis=schedule_delay,
         )
         provider.add_span_processor(processor)
