@@ -15,10 +15,10 @@ runs:
         python-version: "3.11"
     - uses: actions/setup-node@v4
       with:
-        node-version: "20"
+        node-version: "24"
     - uses: pnpm/action-setup@v4
       with:
-        version: 9
+        version: 10.32.1
     - run: uv pip install doit setuptools -c constraints.txt
       shell: bash
     - run: CI=false doit -v2 build${{ (inputs.is_dev_build == 'true' && '_dev') || '' }}
