@@ -16,9 +16,8 @@ import webbrowser
 import shutil
 
 from collections import OrderedDict
-from copy import copy, deepcopy
+from copy import deepcopy
 from dataclasses import dataclass
-from itertools import zip_longest
 from traceback import format_stack
 from typing import (
     TYPE_CHECKING,
@@ -57,7 +56,6 @@ if TYPE_CHECKING:
         ResourceMonitorClient,
     )
 
-from testplan.common.report import MergeError
 from testplan.common.utils import logger, strings
 from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.common.utils.package import import_tmp_module
@@ -179,35 +177,6 @@ def check_local_server(browse):
     return True
 
 
-def collate_for_merging(
-    es: List[Union[TestGroupReport, TestCaseReport]],
-) -> List[List[Union[TestGroupReport, TestCaseReport]]]:
-    """
-    Group report entries into buckets, where synthesized ones in the same
-    bucket containing the previous non-synthesized one.
-    """
-    res = []
-    i, j = 0, 0
-    while i < len(es):
-        if i < j:
-            i += 1
-            continue
-
-        grp = [es[i]]
-        j = i + 1
-        while j < len(es):
-            if es[j].category == ReportCategories.SYNTHESIZED:
-                grp.append(es[j])
-                j += 1
-            else:
-                break
-
-        res.append(grp)
-        i += 1
-
-    return res
-
-
 class TestRunnerConfig(RunnableConfig):
     """
     Configuration object for
@@ -254,7 +223,6 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("report_tags_all", default=[]): [
                 Use(tagging.validate_tag_value)
             ],
-            ConfigOption("merge_scheduled_parts", default=False): bool,
             ConfigOption("browse", default=False): bool,
             ConfigOption("ui_port", default=None): Or(
                 None, And(int, check_local_server)
@@ -426,8 +394,6 @@ class TestRunner(Runnable):
     :type report_tags: ``list``
     :param report_tags_all: Match tests marked with all of the given tags.
     :type report_tags_all: ``list``
-    :param merge_scheduled_parts: Merge report of scheduled MultiTest parts.
-    :type merge_scheduled_parts: ``bool``
     :param browse: Open web browser to display the test report.
     :type browse: ``bool`` or ``NoneType``
     :param ui_port: Port of web server for displaying test report.
@@ -1604,7 +1570,6 @@ class TestRunner(Runnable):
         step_result = True
         test_results = self.result.test_results
         plan_report = self.result.report
-        test_rep_lookup = {}
 
         for uid, resource in self._tests.items():
             if not isinstance(self.resources[resource], Executor):
@@ -1626,40 +1591,8 @@ class TestRunner(Runnable):
 
             run, report = test_results[uid].run, test_results[uid].report
 
-            if report.part:
-                if (
-                    report.category != ReportCategories.TASK_RERUN
-                    and self.cfg.merge_scheduled_parts
-                ):
-                    # Save the report temporarily and later will merge it
-                    test_rep_lookup.setdefault(
-                        report.definition_name, []
-                    ).append((test_results[uid].run, report))
-                    if report.definition_name not in plan_report.entry_uids:
-                        # Create a placeholder for merging sibling reports
-
-                        # here `report` must be an empty MultiTest report since
-                        # parting is mt-only feature, directly creating an original-
-                        # compatible mt report would reduce mt materialize overhead
-
-                        # while currently the only parting strategy is case-level
-                        # round-robin, more complicated parting strategy could make
-                        # it hard to obtain the defined mt/ts/tc order, since then
-                        # ref report from dry_run will become necessary
-
-                        report = TestGroupReport(
-                            name=report.definition_name,
-                            description=report.description,
-                            category=ReportCategories.MULTITEST,
-                            tags=report.tags,
-                        )
-                    else:
-                        continue  # Wait all sibling reports collected
-
             plan_report.append(report)
             step_result = step_result and run is True  # boolean or exception
-
-        step_result = self._merge_reports(test_rep_lookup) and step_result
 
         if hasattr(self, "_timeout_info"):
             msg = f"Testplan timed out after {self.cfg.timeout} seconds"
@@ -1703,101 +1636,6 @@ class TestRunner(Runnable):
             plan_report.reset_uid()
 
         return step_result
-
-    def _merge_reports(
-        self, test_report_lookup: Dict[str, List[Tuple[bool, Any]]]
-    ):
-        """
-        Merge report of MultiTest parts into test runner report.
-        Return True if all parts are found and can be successfully merged.
-
-        Format of test_report_lookup:
-        {
-            'report_uid_1': [
-                (True, report_1_part_1), (True, report_1_part_2), ...
-            ],
-            'report_uid_2': [
-                (True, report_2_part_1), (False, report_2_part_2), ...
-            ],
-            ...
-        }
-        """
-        merge_result = True
-
-        for uid, result in test_report_lookup.items():
-            placeholder_report: TestGroupReport = (
-                self.result.report.get_by_uid(uid)
-            )
-            num_of_parts = 0
-            part_indexes = set()
-            merged = False
-
-            # XXX: should we continue merging on exception raised?
-            with placeholder_report.logged_exceptions():
-                disassembled = []
-                for run, report in result:
-                    report: TestGroupReport
-                    if num_of_parts and num_of_parts != report.part[1]:
-                        raise ValueError(
-                            "Cannot merge parts for child report with"
-                            " `uid`: {uid}, invalid parameter of part"
-                            " provided.".format(uid=uid)
-                        )
-                    elif report.part[0] in part_indexes:
-                        raise ValueError(
-                            "Cannot merge parts for child report with"
-                            " `uid`: {uid}, duplicate MultiTest parts"
-                            " had been scheduled.".format(uid=uid)
-                        )
-                    else:
-                        part_indexes.add(report.part[0])
-                        num_of_parts = report.part[1]
-
-                    if run:
-                        if isinstance(run, Exception):
-                            raise run
-                        else:
-                            report.annotate_part_num()
-                            flatten = list(report.pre_order_disassemble())
-                            disassembled.append(collate_for_merging(flatten))
-                    else:
-                        raise MergeError(
-                            f"While merging parts of report `uid`: {uid}, "
-                            f"part {report.part[0]} didn't run. Merge of this part was skipped"
-                        )
-                for it in zip_longest(*disassembled, fillvalue=()):
-                    for es in it:
-                        for e in es:
-                            if not e.parent_uids:
-                                # specially handle mt entry
-                                placeholder_report.merge(e)
-                            else:
-                                placeholder_report.graft_entry(
-                                    e, copy(e.parent_uids[1:])
-                                )
-                placeholder_report.build_index(recursive=True)
-                merged = True
-
-            # If fail to merge sibling reports, clear the placeholder report
-            # but keep error logs, sibling reports will be appended at the end.
-            if not merged:
-                placeholder_report.entries = []
-                placeholder_report._index = {}
-                placeholder_report.status_override = Status.ERROR
-                for _, report in result:
-                    report.name = (
-                        common.TEST_PART_PATTERN_FORMAT_STRING.format(
-                            report.name, report.part[0], report.part[1]
-                        )
-                    )
-                    report.uid = strings.uuid4()  # considered as error report
-                    self.result.report.append(report)
-
-            merge_result = (
-                merge_result and placeholder_report.status != Status.ERROR
-            )
-
-        return merge_result
 
     def uid(self):
         """Entity uid."""

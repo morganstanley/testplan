@@ -1,0 +1,1 @@
+``merge_scheduled_parts`` is deprecated and has no effect. Use the merge parts toggle in the UI to merge part reports. This parameter will be removed in a future release.
