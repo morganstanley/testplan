@@ -97,6 +97,7 @@ all = ["testplan[interactive,observability,plotly]"]
     namespaces = false
 
 [tool.setuptools.package-data]
+    "testplan" = ["py.typed"]
     "testplan.web_ui" = ["testing/build/**/*"]
 [tool.setuptools.exclude-package-data]
     "testplan.web_ui" = ["testing/build/**/*.map"]
@@ -148,6 +149,9 @@ releaseherald = { git = "https://github.com/morganstanley/releaseherald.git", re
 [dependency-groups]
 dev = [
     "doit>=0.34.2",
+    "mypy>=1.9.0",
+    "types-paramiko>=3.0.0",
+    "types-requests>=2.28.0",
     "pre-commit>=2.21.0",
     "pylint>=2.13.9",
     "pytest-dotenv>=0.5.2",
@@ -166,6 +170,86 @@ test = [
     "kazoo>=2.10.0",
     "numpy>=1.21.6",
 ]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+# Start permissive - enable strict per-module as typing progresses
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+# Ignore missing stubs for third-party libraries without type information
+ignore_missing_imports = true
+
+# Exclude vendored code from type checking
+[[tool.mypy.overrides]]
+module = "testplan.vendor.*"
+ignore_errors = true
+
+# Skip type checking of third-party internals (match statements require Python 3.10+)
+[[tool.mypy.overrides]]
+module = [
+    "_pytest.*",
+    "coverage.*",
+]
+follow_imports = "skip"
+
+# Strictly typed modules - enforced per-module as typing progresses
+[[tool.mypy.overrides]]
+module = [
+    "testplan.common.utils.timing",
+    "testplan.common.utils.logger",
+    "testplan.common.config.base",
+    "testplan.common.entity.base",
+    "testplan.testing.base",
+    "testplan.testing.multitest.base",
+    "testplan.runnable.base",
+    "testplan.report.testing.base",
+    "testplan.runners.pools.base",
+    "testplan.testing.multitest.driver.base",
+    "testplan.common.remote.remote_resource",
+    "testplan.base",
+    "testplan.parser",
+    "testplan.testing.result",
+    "testplan.runners.local",
+    "testplan.common.utils.comparison",
+    "testplan.testing.multitest.driver.app",
+    "testplan.runners.pools.remote",
+    "testplan.testing.multitest.entries.assertions",
+    "testplan.runners.pools.connection",
+    "testplan.runners.pools.process",
+    "testplan.testing.multitest.driver.http.server",
+    "testplan.testing.multitest.driver.connection.connection_extractor",
+    "testplan.exporters.testing.pdf.renderers.reports",
+    "testplan.monitor.resource",
+    "testplan.common.utils.logfile",
+    "testplan.common.utils.process",
+    "testplan.common.utils.helper",
+    "testplan.common.utils.convert",
+    "testplan.testing.multitest.driver.fix.client",
+    "testplan.testing.multitest.driver.tcp.client",
+    "testplan.testing.multitest.driver.kafka",
+    "testplan.common.utils.sockets.client",
+    "testplan.common.utils.match",
+    "testplan.common.remote.remote_runtime",
+    "testplan.testing.listing",
+    "testplan.common.remote.ssh_client",
+    "testplan.common.exporters.pdf",
+    "testplan.runners.pools.tasks.base",
+    "testplan.testing.filtering",
+    "testplan.testing.pyunit",
+    "testplan.testing.py_test",
+    "testplan.exporters.testing.xml",
+    "testplan.testing.multitest.driver.http.client",
+    "testplan.testing.multitest.driver.connection.connection_info",
+    "testplan.runnable.interactive.base",
+    "testplan.common.utils.observability.tracing",
+]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
 
 [tool.ruff]
 line-length = 79

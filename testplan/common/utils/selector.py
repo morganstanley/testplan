@@ -17,11 +17,12 @@ from typing import Any, Callable, Generic, Set, TypeVar
 from typing_extensions import Protocol, Self
 
 T = TypeVar("T")
+T_co = TypeVar("T_co", covariant=True)
 U = TypeVar("U")
 
 
-class Functor(Protocol, Generic[T]):
-    def map(self, f: Callable[[T], U]) -> Self:
+class Functor(Protocol, Generic[T_co]):
+    def map(self, f: Callable[[Any], Any]) -> Self:
         # map :: f t -> (t -> u) -> f u
         ...
 
@@ -32,7 +33,7 @@ class And2(Generic[T]):
     lterm: T
     rterm: T
 
-    def map(self, f):
+    def map(self, f: Callable[[T], Any]) -> "And2[Any]":
         return And2(f(self.lterm), f(self.rterm))
 
 
@@ -42,7 +43,7 @@ class Or2(Generic[T]):
     lterm: T
     rterm: T
 
-    def map(self, f):
+    def map(self, f: Callable[[T], Any]) -> "Or2[Any]":
         return Or2(f(self.lterm), f(self.rterm))
 
 
@@ -50,7 +51,7 @@ class Or2(Generic[T]):
 class Not(Generic[T]):
     term: T
 
-    def map(self, f):
+    def map(self, f: Callable[[T], Any]) -> "Not[Any]":
         return Not(f(self.term))
 
 
@@ -58,7 +59,7 @@ class Not(Generic[T]):
 class Eq(Generic[U]):
     val: U
 
-    def map(self, _):
+    def map(self, _: Callable[[Any], Any]) -> "Eq[U]":
         return self
 
 
@@ -66,21 +67,21 @@ class Eq(Generic[U]):
 class Const(Generic[T]):
     val: bool
 
-    def map(self, _):
+    def map(self, _: Callable[[Any], Any]) -> "Const[T]":
         return self
 
 
 Expr = TypeVar("Expr", bound=Functor)
 
 
-def cata(f: Callable, rep: Expr):
+def cata(f: Callable[[Any], Any], rep: Any) -> Any:
     # i.e. catamorphism
     # cata :: (f t -> t) -> f (f (f ...)) -> t
     return f(rep.map(lambda x: cata(f, x)))
 
 
-def eval_on_set(s: Set) -> Callable:
-    def _(x):
+def eval_on_set(s: Set[Any]) -> Callable[[Any], Any]:
+    def _(x: Any) -> Any:
         if isinstance(x, Const):
             return {i for i in s if x.val}
         if isinstance(x, Eq):
@@ -96,12 +97,13 @@ def eval_on_set(s: Set) -> Callable:
     return _
 
 
-def apply_on_set(rep: Expr, s: Set) -> Set:
-    return cata(eval_on_set(s), rep)
+def apply_on_set(rep: Any, s: Set[Any]) -> Set[Any]:
+    result: Set[Any] = cata(eval_on_set(s), rep)
+    return result
 
 
-def apply_single(rep: Expr, i: Any) -> bool:
-    def _(x):
+def apply_single(rep: Any, i: Any) -> bool:
+    def _(x: Any) -> Any:
         if isinstance(x, Const):
             return x.val
         if isinstance(x, Eq):
@@ -114,4 +116,5 @@ def apply_single(rep: Expr, i: Any) -> bool:
             return not x.term
         raise TypeError(f"unexpected {x}")
 
-    return cata(_, rep)
+    result: bool = cata(_, rep)
+    return result

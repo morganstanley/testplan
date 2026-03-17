@@ -1,6 +1,6 @@
 """ZMQClient Driver."""
 
-from typing import List
+from typing import Any, Dict, List, Optional, Union
 
 from schema import Or
 import zmq
@@ -15,6 +15,7 @@ from ..base import (
     DriverConfig,
 )
 from ..connection import (
+    BaseConnectionInfo,
     Direction,
     Protocol,
     PortConnectionInfo,
@@ -28,7 +29,7 @@ class ZMQClientConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -77,33 +78,34 @@ class ZMQClient(Driver):
     def __init__(
         self,
         name: str,
-        hosts,
-        ports,
-        message_pattern=zmq.PAIR,
+        hosts: Union[List[Union[str, ContextValue]], str, ContextValue],
+        ports: Union[List[Union[int, ContextValue]], int, ContextValue],
+        message_pattern: int = zmq.PAIR,
         connect_at_start: bool = True,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(ZMQClient, self).__init__(**options)
         self._hosts: List[str] = []
         self._ports: List[str] = []
-        self._zmq_context = None
-        self._socket = None
+        self._zmq_context: Optional[zmq.Context[Any]] = None
+        self._socket: Optional[zmq.Socket[Any]] = None
 
     @property
-    def hosts(self):
+    def hosts(self) -> List[str]:
         """Hosts client connects to."""
         return self._hosts
 
     @property
-    def ports(self):
+    def ports(self) -> List[str]:
         """Ports of the associated hosts."""
         return self._ports
 
-    def connect(self):
+    def connect(self) -> None:
         """
         Connect the client socket to all configured connections.
         """
+        assert self._socket is not None
         for i, host in enumerate(self.cfg.hosts):
             self._hosts.append(expand(host, self.context))
             self._ports.append(expand(self.cfg.ports[i], self.context, int))
@@ -113,12 +115,12 @@ class ZMQClient(Driver):
                 )
             )
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """
         Disconnect the client socket from all configured connections if still
         connected.
         """
-        if self._socket.closed:
+        if self._socket is None or self._socket.closed:
             return
         for i, host in enumerate(self._hosts):
             try:
@@ -131,14 +133,14 @@ class ZMQClient(Driver):
                 if str(exc) != "No such file or directory":
                     raise exc
 
-    def reconnect(self):
+    def reconnect(self) -> None:
         """
         Disconnect and reconnect the client.
         """
         self.disconnect()
         self.connect()
 
-    def send(self, data, timeout=30):
+    def send(self, data: Any, timeout: int = 30) -> Any:
         """
         Try to send the message until it either sends or hits timeout.
 
@@ -150,6 +152,7 @@ class ZMQClient(Driver):
         :return: ``None``
         :rtype: ``NoneType``
         """
+        assert self._socket is not None
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.send,
@@ -158,7 +161,7 @@ class ZMQClient(Driver):
             raise_on_timeout=True,
         )
 
-    def receive(self, timeout=30):
+    def receive(self, timeout: int = 30) -> Any:
         """
         Try to receive the message until it has either been received or
         hits timeout.
@@ -169,6 +172,7 @@ class ZMQClient(Driver):
         :return: The received message.
         :rtype: ``bytes`` or ``zmq.sugar.frame.Frame`` or ``memoryview``
         """
+        assert self._socket is not None
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.recv,
@@ -177,7 +181,7 @@ class ZMQClient(Driver):
             raise_on_timeout=True,
         )
 
-    def subscribe(self, topic_filter):
+    def subscribe(self, topic_filter: Any) -> None:
         """
         Subscribe the client to receive messages where the prefix of the
         message matches the topic filter. Only for SUBSCRIBE clients.
@@ -186,9 +190,10 @@ class ZMQClient(Driver):
         :type topic_filter: ``str``
         """
         if self.cfg.message_pattern == zmq.SUB:
+            assert self._socket is not None
             self._socket.setsockopt(zmq.SUBSCRIBE, topic_filter)
 
-    def unsubscribe(self, topic_filter):
+    def unsubscribe(self, topic_filter: Any) -> None:
         """
         Unsubscribe the client from a particular filter. Only for
         SUBSCRIBE clients.
@@ -197,9 +202,10 @@ class ZMQClient(Driver):
         :type topic_filter: ``str``
         """
         if self.cfg.message_pattern == zmq.SUB:
+            assert self._socket is not None
             self._socket.setsockopt(zmq.UNSUBSCRIBE, topic_filter)
 
-    def starting(self):
+    def starting(self) -> None:
         """
         Start the ZMQ client.
         """
@@ -210,30 +216,30 @@ class ZMQClient(Driver):
         if self.cfg.connect_at_start:
             self.connect()
 
-    def stopping(self):
+    def stopping(self) -> None:
         """
         Stop the ZMQ client.
         """
         super(ZMQClient, self).stopping()
-        if not self._socket.closed:
+        if self._socket is not None and not self._socket.closed:
             self._socket.close()
-        if not self._zmq_context.closed:
+        if self._zmq_context is not None and not self._zmq_context.closed:
             self._zmq_context.term()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the client."""
-        if not self._socket.closed:
+        if self._socket is not None and not self._socket.closed:
             self._socket.close()
-        if not self._zmq_context.closed:
+        if self._zmq_context is not None and not self._zmq_context.closed:
             self._zmq_context.term()
 
-    def flush(self):
+    def flush(self) -> None:
         """
         Flush the clients queue of messages by reconnecting.
         """
         self.reconnect()
 
-    def get_connections(self) -> List[PortConnectionInfo]:
+    def get_connections(self) -> List[BaseConnectionInfo]:
         return [
             PortConnectionInfo(
                 protocol=Protocol.TCP,

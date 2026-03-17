@@ -19,7 +19,19 @@ import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
-from typing import Dict, Hashable, List, Optional
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Hashable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
@@ -74,16 +86,21 @@ __all__ = [
 class Assertion(BaseEntry):
     meta_type = "assertion"
 
-    def __init__(self, description=None, category=None, flag=None):
+    def __init__(
+        self,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        flag: Optional[str] = None,
+    ) -> None:
         super(Assertion, self).__init__(
             description=description, category=category, flag=flag
         )
         self.passed = bool(self.evaluate())
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         raise NotImplementedError
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.passed
 
 
@@ -96,37 +113,52 @@ class RawAssertion(Assertion):
     integration with 3rd party testing libraries (unittest, qunit etc).
     """
 
-    def __init__(self, passed, content, description=None, category=None):
+    def __init__(
+        self,
+        passed: bool,
+        content: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self._passed_override = passed
         self.content = content
         super(RawAssertion, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return self._passed_override
 
 
 class IsTrue(Assertion):
-    def __init__(self, expr, description=None, category=None):
+    def __init__(
+        self,
+        expr: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.expr = expr
         super(IsTrue, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return bool(self.expr)
 
 
 class IsFalse(IsTrue):
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return not bool(self.expr)
 
 
 class Fail(Assertion):
     def __init__(
-        self, description=None, category=None, flag=None, message=None
-    ):
+        self,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        flag: Optional[str] = None,
+        message: Any = None,
+    ) -> None:
         if isinstance(message, str):
             self.message = message
         elif isinstance(message, bytes):
@@ -143,14 +175,21 @@ class Fail(Assertion):
             description=description, category=category, flag=flag
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return False
 
 
 class FuncAssertion(Assertion):
-    func = None
+    label: str
+    func: Optional[Callable[..., Any]] = None
 
-    def __init__(self, first, second, description=None, category=None):
+    def __init__(
+        self,
+        first: Any,
+        second: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.first = first
         self.second = second
         if not description:
@@ -168,9 +207,9 @@ class FuncAssertion(Assertion):
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         # pylint: disable=not-callable
-        return self.func(self.first, self.second)
+        return self.func(self.first, self.second)  # type: ignore[no-any-return, misc]
         # pylint: enable=not-callable
 
 
@@ -178,7 +217,13 @@ class Equal(FuncAssertion):
     label = "=="
     func = operator.eq
 
-    def __init__(self, first, second, description=None, category=None):
+    def __init__(
+        self,
+        first: Any,
+        second: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.type_actual = type(first).__name__
         self.type_expected = type(second).__name__
         super(Equal, self).__init__(
@@ -219,13 +264,18 @@ class IsClose(Assertion):
 
     def __init__(
         self,
-        first,
-        second,
-        rel_tol=1e-09,
-        abs_tol=0.0,
-        description=None,
-        category=None,
-    ):
+        first: Any,
+        second: Any,
+        rel_tol: Any = 1e-09,
+        abs_tol: Any = 0.0,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
+        self.first = first
+        self.second = second
+        self.rel_tol = rel_tol
+        self.abs_tol = abs_tol
+
         if not isinstance(first, numbers.Number) or not isinstance(
             second, numbers.Number
         ):
@@ -238,11 +288,6 @@ class IsClose(Assertion):
         ):
             raise ValueError("`rel_tol` and `abs_tol` must be non-negative.")
 
-        self.first = first
-        self.second = second
-        self.rel_tol = rel_tol
-        self.abs_tol = abs_tol
-
         if not description:
             description = "{} {} {}".format(
                 self.first, self.label, self.second
@@ -251,40 +296,52 @@ class IsClose(Assertion):
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         if self.first == self.second:
             return True
         if cmath.isinf(self.first) or cmath.isinf(self.second):
             return False
 
         diff = abs(self.second - self.first)
-        return (
+        return bool(
             (diff <= abs(self.rel_tol * self.first))
             or (diff <= abs(self.rel_tol * self.second))
-        ) or (diff <= self.abs_tol)
+            or (diff <= self.abs_tol)
+        )
 
 
 class Contain(Assertion):
-    def __init__(self, member, container, description=None, category=None):
+    def __init__(
+        self,
+        member: Any,
+        container: Any,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.member = member
         self.container = container
         super(Contain, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return self.member in self.container
 
 
 class NotContain(Contain):
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return self.member not in self.container
 
 
 class RegexAssertion(Assertion):
     def __init__(
-        self, regexp, string, flags=0, description=None, category=None
-    ):
+        self,
+        regexp: Union[str, bytes, re.Pattern[Any]],
+        string: Union[str, bytes],
+        flags: int = 0,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         if isinstance(regexp, re.Pattern):
             if flags != 0:
                 raise ValueError(
@@ -299,7 +356,7 @@ class RegexAssertion(Assertion):
             self.regexp = re.compile(regexp, flags=flags)
 
         self.string = string
-        self.match_indexes = []
+        self.match_indexes: List[Tuple[int, ...]] = []
 
         super(RegexAssertion, self).__init__(
             description=description, category=category
@@ -309,10 +366,10 @@ class RegexAssertion(Assertion):
         self.string = map_to_str(self.string)
         self.pattern = map_to_str(self.pattern)
 
-    def get_regex_result(self):
+    def get_regex_result(self) -> Optional[re.Match[Any]]:
         raise NotImplementedError
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         result = self.get_regex_result()
         if result:
             self.match_indexes.append((result.start(), result.end()))
@@ -320,42 +377,44 @@ class RegexAssertion(Assertion):
 
 
 class RegexMatch(RegexAssertion):
-    def get_regex_result(self):
+    def get_regex_result(self) -> Optional[re.Match[Any]]:
         return self.regexp.match(self.string)
 
 
 class RegexMatchNotExists(RegexMatch):
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return not super(RegexMatchNotExists, self).evaluate()
 
 
 class RegexSearch(RegexAssertion):
-    def get_regex_result(self):
+    def get_regex_result(self) -> Optional[re.Match[Any]]:
         return self.regexp.search(self.string)
 
 
 class RegexSearchNotExists(RegexSearch):
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return not super(RegexSearchNotExists, self).evaluate()
 
 
 class RegexFindIter(RegexAssertion):
     def __init__(
         self,
-        regexp,
-        string,
-        flags=0,
-        condition=None,
-        description=None,
-        category=None,
-    ):
+        regexp: Union[str, bytes, re.Pattern[Any]],
+        string: Union[str, bytes],
+        flags: int = 0,
+        condition: Optional[Callable[[int], bool]] = None,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.condition = condition
-        self.condition_match = None  # may be set by self.evaluate
+        self.condition_match: Optional[bool] = (
+            None  # may be set by self.evaluate
+        )
         super(RegexFindIter, self).__init__(
             regexp, string, flags, description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         result = list(self.regexp.finditer(self.string))
 
         for match in result:
@@ -375,9 +434,14 @@ class RegexMatchLine(RegexAssertion):
     """
 
     def __init__(
-        self, regexp, string, flags=0, description=None, category=None
-    ):
-        self.lines = None
+        self,
+        regexp: Union[str, bytes, re.Pattern[Any]],
+        string: Union[str, bytes],
+        flags: int = 0,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
+        self.lines: Any = None
         super(RegexMatchLine, self).__init__(
             regexp,
             string,
@@ -385,9 +449,9 @@ class RegexMatchLine(RegexAssertion):
             description=description,
             category=category,
         )
-        self.lines = map(map_to_str, self.lines)
+        self.lines = map(map_to_str, self.lines)  # type: ignore[call-overload]
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         if isinstance(self.string, bytes):
             self.lines = self.string.split(os.linesep.encode())
         else:
@@ -399,7 +463,7 @@ class RegexMatchLine(RegexAssertion):
                 self.match_indexes.append(
                     (line_num, match.start(), match.end())
                 )
-        return self.match_indexes
+        return bool(self.match_indexes)
 
 
 class ExceptionRaised(Assertion):
@@ -407,13 +471,13 @@ class ExceptionRaised(Assertion):
 
     def __init__(
         self,
-        raised_exception,
-        expected_exceptions,
-        pattern=None,
-        func=None,
-        description=None,
-        category=None,
-    ):
+        raised_exception: Optional[BaseException],
+        expected_exceptions: Any,
+        pattern: Optional[str] = None,
+        func: Optional[Callable[..., bool]] = None,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         expected_exceptions = make_tuple(expected_exceptions)
         assert expected_exceptions, "`expected_exceptions` cannot be empty."
         assert [issubclass(exc, Exception) for exc in expected_exceptions], (
@@ -434,15 +498,15 @@ class ExceptionRaised(Assertion):
         self.func = func
 
         # These will be set by `evaluate`
-        self.exception_match = None
-        self.pattern_match = None
-        self.func_match = None
+        self.exception_match: Optional[bool] = None
+        self.pattern_match: Any = None
+        self.func_match: Any = None
 
         super(ExceptionRaised, self).__init__(
             description=description, category=category
         )
 
-    def get_match_context(self):
+    def get_match_context(self) -> Tuple[bool, Any, Any]:
         exception_match = isinstance(
             self.raised_exception, self.expected_exceptions
         )
@@ -452,14 +516,14 @@ class ExceptionRaised(Assertion):
         func_match = self.func is None or self.func(self.raised_exception)
         return exception_match, pattern_match, func_match
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         match_ctx = self.get_match_context()
         self.exception_match, self.pattern_match, self.func_match = match_ctx
         return all(match_ctx)
 
 
 class ExceptionNotRaised(ExceptionRaised):
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return not super(ExceptionNotRaised, self).evaluate()
 
 
@@ -489,7 +553,7 @@ class SliceComparison(_SliceComparison):
     """
 
     @property
-    def passed(self):
+    def passed(self) -> bool:
         return not self.mismatch_indices
 
 
@@ -500,27 +564,40 @@ class EqualSlices(Assertion):
     """
 
     def __init__(
-        self, actual, expected, slices, description=None, category=None
-    ):
+        self,
+        actual: Sequence[Any],
+        expected: Sequence[Any],
+        slices: Union[List[slice], Tuple[slice, ...]],
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         assert slices and isinstance(slices, (list, tuple))
         self.actual = actual
         self.expected = expected
         self.slices = slices
 
-        self.data = []  # will be populated via self.evaluate
-        self.included_indices = set()
+        self.data: List[
+            SliceComparison
+        ] = []  # will be populated via self.evaluate
+        self.included_indices: Set[int] = set()
         super(EqualSlices, self).__init__(
             description=description, category=category
         )
 
-    def get_comparison_indices(self, slice_obj, iterable):
+    def get_comparison_indices(
+        self, slice_obj: slice, iterable: Sequence[Any]
+    ) -> Union[range, Set[int]]:
         """
         Generate a list of indices to be used
         for comparison for the given slice and iterable.
         """
         return range(*slice_obj.indices(len(iterable)))
 
-    def get_iterable(self, iterable, comparison_indices):
+    def get_iterable(
+        self,
+        iterable: Sequence[Any],
+        comparison_indices: Union[range, Set[int]],
+    ) -> Any:
         """
         Generate the iterable that is being used
         for the current slice comparison
@@ -531,11 +608,16 @@ class EqualSlices(Assertion):
 
         if isinstance(iterable, str):
             return "".join(items)
-        return type(iterable)(items)
+        return type(iterable)(items)  # type: ignore[call-arg]
 
-    def generate_data(self, slices, actual, expected):
+    def generate_data(
+        self,
+        slices: Union[List[slice], Tuple[slice, ...]],
+        actual: Sequence[Any],
+        expected: Sequence[Any],
+    ) -> List[SliceComparison]:
         """Build a list of ``SliceComparison`` objects, for each slice."""
-        result = []
+        result: List[SliceComparison] = []
 
         for slice_ in slices:
             indices = self.get_comparison_indices(slice_, expected)
@@ -554,7 +636,7 @@ class EqualSlices(Assertion):
             )
         return result
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         """Equal slices assertion passes if all slice comparisons pass."""
         actual, expected = self.actual, self.expected
 
@@ -573,13 +655,15 @@ class EqualExcludeSlices(EqualSlices):
     Generates a list of SliceComparison objects as data.
     """
 
-    def get_comparison_indices(self, slice_obj, iterable):
+    def get_comparison_indices(
+        self, slice_obj: slice, iterable: Sequence[Any]
+    ) -> Union[range, Set[int]]:
         indices = super(EqualExcludeSlices, self).get_comparison_indices(
             slice_obj, iterable
         )
         return set(range(len(iterable))) - set(indices)
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         """
         Slice exclusion evaluation generates SliceComparison data and
         explicitly checks if items in the merged exclusion indices match or not.
@@ -631,16 +715,16 @@ class LineDiff(Assertion):
 
     def __init__(
         self,
-        first,
-        second,
-        ignore_space_change=False,
-        ignore_whitespaces=False,
-        ignore_blank_lines=False,
-        unified=False,
-        context=False,
-        description=None,
-        category=None,
-    ):
+        first: Union[str, List[str]],
+        second: Union[str, List[str]],
+        ignore_space_change: bool = False,
+        ignore_whitespaces: bool = False,
+        ignore_blank_lines: bool = False,
+        unified: Union[bool, int] = False,
+        context: Union[bool, int] = False,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         if (not isinstance(first, (str, list))) or (
             not isinstance(second, (str, list))
         ):
@@ -661,20 +745,20 @@ class LineDiff(Assertion):
         self.ignore_blank_lines = ignore_blank_lines
         self.unified = unified
         self.context = context
-        self.delta = []  # will be populated via self.evaluate
+        self.delta: List[str] = []  # will be populated via self.evaluate
 
         super(LineDiff, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         if sys.platform != "win32":
             self.delta = self._diff_process().splitlines(True)
         else:
             self.delta = list(self._diff_difflib())
         return self.delta == []
 
-    def _diff_difflib(self):
+    def _diff_difflib(self) -> Any:
         out = difflib.diff(
             self.first,
             self.second,
@@ -686,7 +770,7 @@ class LineDiff(Assertion):
         )
         return out
 
-    def _diff_process(self):
+    def _diff_process(self) -> str:
         first = "".join(self.first)
         second = "".join(self.second)
         with tempfile.NamedTemporaryFile(
@@ -726,7 +810,7 @@ class LineDiff(Assertion):
         os.unlink(first_file.name)
         os.unlink(second_file.name)
 
-        return out
+        return out  # type: ignore[no-any-return]
 
 
 ColumnContainComparison = collections.namedtuple(
@@ -742,26 +826,28 @@ class ColumnContain(Assertion):
 
     def __init__(
         self,
-        table,
-        values,
-        column,
-        limit=0,
-        report_fails_only=False,
-        description=None,
-        category=None,
-    ):
+        table: Any,
+        values: Any,
+        column: str,
+        limit: int = 0,
+        report_fails_only: bool = False,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.table = TableEntry(table).as_list_of_dict()
         self.values = values
         self.column = column
         self.limit = limit
         self.report_fails_only = report_fails_only
 
-        self.data = []  # will be set by evaluate
+        self.data: List[
+            ColumnContainComparison
+        ] = []  # will be set by evaluate
         super(ColumnContain, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         passed = True
 
         for idx, row in enumerate(self.table):
@@ -814,11 +900,13 @@ class RowComparison(_RowComparison):
     """
 
     @property
-    def passed(self):
+    def passed(self) -> bool:
         """Row comparison passes if there are no diffs or errors."""
         return not (self.diff or self.errors)
 
-    def get_comparison_value(self, column, column_idx):
+    def get_comparison_value(
+        self, column: str, column_idx: int
+    ) -> Tuple[Any, Optional[bool]]:
         """
         Return the comparison value (e.g. other
         side of the match) and match status.
@@ -833,8 +921,11 @@ class RowComparison(_RowComparison):
 
 
 def get_comparison_columns(
-    columns_1, columns_2, include_columns, exclude_columns
-):
+    columns_1: List[str],
+    columns_2: List[str],
+    include_columns: Optional[List[str]],
+    exclude_columns: Optional[List[str]],
+) -> List[str]:
     """
     Given two tables and inclusion / exclusion rules, return a
     list of columns that will be used for comparison.
@@ -852,7 +943,7 @@ def get_comparison_columns(
     :type exclude_columns: ``list`` of ``str``
     """
 
-    def check_missing_columns(columns, lookup):
+    def check_missing_columns(columns: List[str], lookup: List[str]) -> None:
         """Check if ``columns`` have any missing elements from ``lookup``."""
         diff = set(lookup) - set(columns)
         if diff:
@@ -902,14 +993,14 @@ def get_comparison_columns(
 
 
 def compare_rows(
-    table,
-    expected_table,
-    comparison_columns,
-    display_columns,
-    strict=True,
-    fail_limit=0,
-    report_fails_only=False,
-):
+    table: List[Dict[str, Any]],
+    expected_table: List[Dict[str, Any]],
+    comparison_columns: List[str],
+    display_columns: List[str],
+    strict: bool = True,
+    fail_limit: int = 0,
+    report_fails_only: bool = False,
+) -> Tuple[bool, List[RowComparison]]:
     """
     Apply row by row comparison of two tables,
     creating a ``RowComparison`` for each row couple.
@@ -1017,17 +1108,17 @@ class TableMatch(Assertion):
 
     def __init__(
         self,
-        table,
-        expected_table,
-        include_columns=None,
-        exclude_columns=None,
-        report_all=True,
-        fail_limit=0,
-        report_fail_only=False,
-        strict=False,
-        description=None,
-        category=None,
-    ):
+        table: Any,
+        expected_table: Any,
+        include_columns: Optional[List[str]] = None,
+        exclude_columns: Optional[List[str]] = None,
+        report_all: bool = True,
+        fail_limit: int = 0,
+        report_fail_only: bool = False,
+        strict: bool = False,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         table_entry = TableEntry(table)
         expected_table_entry = TableEntry(expected_table)
 
@@ -1044,15 +1135,15 @@ class TableMatch(Assertion):
         self.report_fails_only = report_fail_only
 
         # these will populated by self.evaluate
-        self.display_columns = []
-        self.message = None
-        self.data = []
+        self.display_columns: List[str] = []
+        self.message: Optional[str] = None
+        self.data: List[RowComparison] = []
 
         super(TableMatch, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         len_table, len_expected = len(self.table), len(self.expected_table)
 
         if len_table != len_expected:
@@ -1114,12 +1205,12 @@ class XMLTagComparison(_XMLTagComparison):
     """
 
     @property
-    def passed(self):
+    def passed(self) -> bool:
         """Tag comparison passes if there are no diff or error."""
         return not (self.diff or self.error)
 
     @property
-    def comparison_value(self):
+    def comparison_value(self) -> Any:
         result = self.error or self.diff or self.extra or self.tag
         if comparison.is_regex(result):
             result = "REGEX('{}')".format(result.pattern)
@@ -1134,13 +1225,13 @@ class XMLCheck(Assertion):
 
     def __init__(
         self,
-        element,
-        xpath,
-        tags=None,
-        namespaces=None,
-        description=None,
-        category=None,
-    ):
+        element: Any,
+        xpath: str,
+        tags: Optional[List[Any]] = None,
+        namespaces: Optional[Dict[str, str]] = None,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.xpath = xpath
         self.tags = tags
 
@@ -1157,13 +1248,13 @@ class XMLCheck(Assertion):
 
         self.element = element
         self.namespaces = namespaces
-        self.data = []  # will be populated by evaluate
-        self.message = None  # will be populated by evaluate
+        self.data: List[XMLTagComparison] = []  # will be populated by evaluate
+        self.message: Optional[str] = None  # will be populated by evaluate
         super(XMLCheck, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         element, namespaces = self.element, self.namespaces
         xpath, tags = self.xpath, self.tags
 
@@ -1242,24 +1333,24 @@ class DictCheck(Assertion):
 
     def __init__(
         self,
-        dictionary,
-        has_keys=None,
-        absent_keys=None,
-        description=None,
-        category=None,
-    ):
+        dictionary: Dict[Any, Any],
+        has_keys: Optional[List[Hashable]] = None,
+        absent_keys: Optional[List[Hashable]] = None,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         self.dictionary = dictionary
         self.has_keys = has_keys
         self.absent_keys = absent_keys
 
-        self.has_keys_diff = None  # will be set by evaluate
-        self.absent_keys_diff = None  # will be set by evaluate
+        self.has_keys_diff: Any = None  # will be set by evaluate
+        self.absent_keys_diff: Any = None  # will be set by evaluate
 
         super(DictCheck, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         result = comparison.check_dict_keys(
             data=self.dictionary,
             has_keys=self.has_keys,
@@ -1277,12 +1368,12 @@ class FixCheck(DictCheck):
 
     def __init__(
         self,
-        msg,
-        has_tags=None,
-        absent_tags=None,
-        description=None,
-        category=None,
-    ):
+        msg: Dict[Any, Any],
+        has_tags: Optional[List[Hashable]] = None,
+        absent_tags: Optional[List[Hashable]] = None,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         super(FixCheck, self).__init__(
             dictionary=msg,
             has_keys=has_tags,
@@ -1300,18 +1391,20 @@ class DictMatch(Assertion):
 
     def __init__(
         self,
-        value: Dict,
-        expected: Dict,
+        value: Dict[Any, Any],
+        expected: Dict[Any, Any],
         include_only_expected: bool = False,
-        include_keys: List[Hashable] = None,
-        exclude_keys: List[Hashable] = None,
-        report_mode=comparison.ReportOptions.ALL,
-        description: str = None,
-        category: str = None,
-        actual_description: str = None,
-        expected_description: str = None,
-        value_cmp_func=comparison.COMPARE_FUNCTIONS["native_equality"],
-    ):
+        include_keys: Optional[List[Hashable]] = None,
+        exclude_keys: Optional[List[Hashable]] = None,
+        report_mode: Any = comparison.ReportOptions.ALL,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        actual_description: Optional[str] = None,
+        expected_description: Optional[str] = None,
+        value_cmp_func: Callable[..., Any] = comparison.COMPARE_FUNCTIONS[
+            "native_equality"
+        ],
+    ) -> None:
         self.value = value
         self.expected = expected
         self.include_only_expected = include_only_expected
@@ -1322,12 +1415,14 @@ class DictMatch(Assertion):
         self._report_mode = report_mode
         self._value_cmp_func = value_cmp_func
 
-        self.comparison = None  # will be set by evaluate
+        self.comparison: Optional[List[List[Any]]] = (
+            None  # will be set by evaluate
+        )
         super(DictMatch, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         """Evaluate the dict match."""
         passed, cmp_result = comparison.compare(
             lhs=self.value,
@@ -1350,17 +1445,17 @@ class FixMatch(DictMatch):
 
     def __init__(
         self,
-        value: Dict,
-        expected: Dict,
+        value: Dict[Any, Any],
+        expected: Dict[Any, Any],
         include_only_expected: bool = False,
-        include_tags: List[Hashable] = None,
-        exclude_tags: List[Hashable] = None,
-        report_mode=comparison.ReportOptions.ALL,
-        description: str = None,
-        category: str = None,
-        actual_description: str = None,
-        expected_description: str = None,
-    ):
+        include_tags: Optional[List[Hashable]] = None,
+        exclude_tags: Optional[List[Hashable]] = None,
+        report_mode: Any = comparison.ReportOptions.ALL,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        actual_description: Optional[str] = None,
+        expected_description: Optional[str] = None,
+    ) -> None:
         """
         If both FIX messages are typed, we enable strict type checking.
         Otherwise, if either side is untyped we will compare the values as
@@ -1392,25 +1487,27 @@ class FixMatch(DictMatch):
 class DictMatchAll(Assertion):
     def __init__(
         self,
-        values,
-        comparisons,
-        key_weightings=None,
-        description=None,
-        category=None,
-        value_cmp_func=comparison.COMPARE_FUNCTIONS["native_equality"],
-    ):
+        values: List[Dict[Any, Any]],
+        comparisons: Any,
+        key_weightings: Optional[Dict[str, int]] = None,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+        value_cmp_func: Callable[..., Any] = comparison.COMPARE_FUNCTIONS[
+            "native_equality"
+        ],
+    ) -> None:
         self.comparisons = comparisons
         self.values = values
         self.key_weightings = key_weightings
         self.value_cmp_func = value_cmp_func
 
-        self.matches = None
-        self.result = None  # will be set by evaluate
+        self.matches: Optional[List[Dict[str, Any]]] = None
+        self.result: Any = None  # will be set by evaluate
         super(DictMatchAll, self).__init__(
             description=description, category=category
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         self.matches, self.result = comparison.dictmatch_all_compat(
             match_name=self.__class__.__name__,
             comparisons=self.comparisons,
@@ -1423,7 +1520,7 @@ class DictMatchAll(Assertion):
         for match in self.matches:
             match["comparison"] = flatten_dict_comparison(match["comparison"])
 
-        return self.result.passed
+        return self.result.passed  # type: ignore[no-any-return]
 
 
 class FixMatchAll(DictMatchAll):
@@ -1434,12 +1531,12 @@ class FixMatchAll(DictMatchAll):
 
     def __init__(
         self,
-        values,
-        comparisons,
-        tag_weightings=None,
-        description=None,
-        category=None,
-    ):
+        values: List[Dict[Any, Any]],
+        comparisons: Any,
+        tag_weightings: Optional[Dict[str, int]] = None,
+        description: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> None:
         """
         If all input FIX messages are typed, we enable strict type checking.
         Otherwise, if any entry of either side is untyped we will compare the
@@ -1503,13 +1600,15 @@ class LogfileMatch(Assertion):
         super().__init__(description=description, category=category)
 
     @staticmethod
-    def _truncate_str(s):
+    def _truncate_str(s: str) -> str:
         if len(s) <= 50:
             return s
         return f"{s[:50]} ... ({len(s) - 50} chars omitted)"
 
     @classmethod
-    def _handle_quadruple(cls, tup):
+    def _handle_quadruple(
+        cls, tup: Tuple[Any, ...]
+    ) -> "LogfileMatch.ResultRep":
         m, r, s, e = tup
         r = re.compile(r).pattern
         return cls.ResultRep(
@@ -1519,5 +1618,5 @@ class LogfileMatch(Assertion):
             e,
         )
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         return not self.failure

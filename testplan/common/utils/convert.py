@@ -1,7 +1,17 @@
 """Conversion utilities."""
 
 import itertools
-from typing import Callable, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from .comparison import is_match_res
 from .reporting import Absent
@@ -71,7 +81,7 @@ def make_iterables(values: Iterable) -> List[Union[List, Tuple]]:
     :param values: an iterable of values
     :return: list containing one list and tuple for each value
     """
-    iterables = []
+    iterables: List[Union[List[Any], Tuple[Any, ...]]] = []
     for value in values:
         iterables.append([value])
         iterables.append((value,))
@@ -79,11 +89,11 @@ def make_iterables(values: Iterable) -> List[Union[List, Tuple]]:
 
 
 def expand_match_res(
-    rows: List[Tuple],
+    rows: Iterable[Tuple[Any, ...]],
     level: int = 0,
     ignore_key: bool = False,
-    key_path: List = None,
-):
+    key_path: Optional[List[Any]] = None,
+) -> Generator[Tuple[Any, ...], None, None]:
     """
     Recursively expands and yields all rows of items to display.
 
@@ -134,12 +144,12 @@ def expand_match_res(
 
 
 def expand_fmt_res(
-    rows: List[Tuple],
+    rows: List[Tuple[Any, ...]],
     level: int,
     ignore_key: bool,
-    key_path: List[str],
-    match: str,
-):
+    key_path: List[Any],
+    match: Any,
+) -> Generator[Tuple[Any, ...], None, None]:
     for row in rows:
         key = row[0] if ignore_key is False else Absent
         if key is not Absent:  # `None` or empty string can also be used as key
@@ -166,7 +176,7 @@ def expand_fmt_res(
             key_path.pop()
 
 
-def flatten_formatted_object(formatted_obj):
+def flatten_formatted_object(formatted_obj: Tuple[Any, ...]) -> List[Any]:
     """
     Flatten the formatted object which is the result of function
     ``testplan.common.utils.reporting.fmt``.
@@ -177,7 +187,9 @@ def flatten_formatted_object(formatted_obj):
     :rtype: ``list``
     """
 
-    def flatten(obj, level=0, ignore_key=True):
+    def flatten(
+        obj: Any, level: int = 0, ignore_key: bool = True
+    ) -> Generator[Tuple[Any, ...], None, None]:
         if ignore_key:
             key = ""
         else:
@@ -228,7 +240,9 @@ def flatten_formatted_object(formatted_obj):
         return result_table[1:]
 
 
-def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
+def flatten_dict_comparison(
+    comparison: List[Tuple[Any, ...]],
+) -> List[List[Any]]:
     """
     Flatten the comparison object from dictionary match into a tabular format.
 
@@ -272,13 +286,13 @@ def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
         elif right:
             rpart = right.pop(0)
 
-        level = lpart[1] if lpart else rpart[1]
-        key = lpart[2] if lpart else rpart[2]
+        level = lpart[1] if lpart else rpart[1]  # type: ignore[index]
+        key = lpart[2] if lpart else rpart[2]  # type: ignore[index]
         if key is Absent:
             level -= 1
             # key = '(group)'
 
-        status = lpart[3] if lpart else rpart[3]
+        status = lpart[3] if lpart else rpart[3]  # type: ignore[index]
         lval = lpart[4] if lpart else None
         rval = rpart[4] if rpart else None
         result_table.append(
@@ -304,7 +318,7 @@ def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
     return result_table
 
 
-def delta_encode_level(homo):
+def delta_encode_level(homo: List[List[Any]]) -> List[Any]:
     prev = 0
     hetero = []
     for r in homo:
@@ -319,7 +333,7 @@ def delta_encode_level(homo):
     return hetero
 
 
-def delta_decode_level(hetero):
+def delta_decode_level(hetero: List[Any]) -> List[List[Any]]:
     level = 0
     homo = []
     for r in hetero:
