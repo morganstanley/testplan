@@ -7,7 +7,7 @@ and analyze test execution across distributed systems.
 
 from contextlib import contextmanager
 import os
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Optional
 from functools import wraps
 
 from testplan.common.utils.logger import Loggable
@@ -47,7 +47,7 @@ class RootTraceIdGenerator:
             # Format: 00-{trace_id}-{span_id}-{flags}
             trace_id_hex = traceparent.split("-")[1]
             return int(trace_id_hex, 16)
-        return self._random_generator.generate_trace_id()
+        return self._random_generator.generate_trace_id()  # type: ignore[no-any-return]
 
     def generate_span_id(self) -> int:
         """
@@ -56,7 +56,7 @@ class RootTraceIdGenerator:
         :return: Span ID as integer
         :rtype: int
         """
-        return self._random_generator.generate_span_id()
+        return self._random_generator.generate_span_id()  # type: ignore[no-any-return]
 
 
 class Tracing(Loggable):
@@ -82,15 +82,15 @@ class Tracing(Loggable):
         - ``OTEL_BSP_SCHEDULE_DELAY``: Batch span processor delay in milliseconds (default: 200)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._tracing_enabled = False
-        self._root_context = {}
-        self._tracer = None
-        self._tracer_provider = None
-        self._root_span = None
+        self._root_context: Dict[str, str] = {}
+        self._tracer: Any = None
+        self._tracer_provider: Any = None
+        self._root_span: Optional["Span"] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Tracing"
 
     def _setup(self, traceparent: Optional[str] = None) -> None:
@@ -194,7 +194,7 @@ class Tracing(Loggable):
         self,
         name: str,
         context: Optional[Dict[str, Any]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Iterator[Optional["Span"]]:
         """
         Create a span using context manager (recommended approach).
@@ -215,7 +215,7 @@ class Tracing(Loggable):
             ...     pass
         """
         if not self._tracing_enabled:
-            yield
+            yield None
             return
         with self._tracer.start_as_current_span(
             name, context=context, attributes=kwargs
@@ -228,7 +228,7 @@ class Tracing(Loggable):
         name: str,
         context: Optional[Dict[str, Any]] = None,
         condition: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Iterator[Optional["Span"]]:
         """
         Utility function to create a span conditionally.
@@ -251,7 +251,7 @@ class Tracing(Loggable):
             ...     pass
         """
         if not self._tracing_enabled or not condition:
-            yield
+            yield None
             return
         with self.span(name, context=context, **kwargs) as span:
             yield span
@@ -261,7 +261,7 @@ class Tracing(Loggable):
         span_name: str,
         context: Optional[Dict[str, Any]] = None,
         start_time: Optional[int] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Optional["Span"]:
         """
         Manually start a span (use when context manager is not suitable).
@@ -400,7 +400,9 @@ class Tracing(Loggable):
             description,
         )
 
-    def set_span_attrs(self, span: Optional["Span"] = None, **kwargs) -> None:
+    def set_span_attrs(
+        self, span: Optional["Span"] = None, **kwargs: Any
+    ) -> None:
         """
         Set attributes on a span.
 
@@ -429,7 +431,7 @@ class Tracing(Loggable):
         if self._tracer_provider:
             self._tracer_provider.force_flush()
 
-    def trace(self, func):
+    def trace(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """
         A decorator that wraps a function with a span.
 
@@ -441,7 +443,7 @@ class Tracing(Loggable):
         """
 
         @wraps(func)
-        def _wrapped(instance_self, *args, **kwargs):
+        def _wrapped(instance_self: Any, *args: Any, **kwargs: Any) -> Any:
             with self.span(
                 name=func.__name__, level=instance_self.__class__.__name__
             ):

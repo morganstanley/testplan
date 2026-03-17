@@ -7,7 +7,7 @@ from glob import glob
 from io import TextIOWrapper
 from itertools import dropwhile
 from os import SEEK_END, PathLike
-from typing import Generic, List, Optional, TypeVar, Union
+from typing import IO, Generic, List, Optional, TypeVar, Union
 from testplan.common.remote.ssh_client import SSHClient
 
 
@@ -48,10 +48,10 @@ class LogStream(ABC, Generic[T]):
     def flush(self) -> LogPosition:
         pass
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
-    def reached_position(self, position):
+    def reached_position(self, position: LogPosition) -> bool:
         return self.compare(self.position, position) >= 0
 
 
@@ -102,20 +102,21 @@ class RotatedFileLogStream(LogStream[T]):
         self._log_rotation_strategy = rotation_strategy
         self._binary = binary
         self._files: List[LogfileInfo]
-        self._file = None
+        self._file: Optional[IO[T]] = None
 
     @property
-    def file(self) -> TextIOWrapper:
+    def file(self) -> IO[T]:
         if self._file is None:
             self._open_first_file()
 
-        return self._file
+        return self._file  # type: ignore[return-value]
 
-    def seek(self, position: Optional[FileLogPosition] = None) -> None:
+    def seek(self, position: Optional[LogPosition] = None) -> None:
         if position is None:
             self._open_first_file()
             return
 
+        assert isinstance(position, self.FileLogPosition)
         if self._file is None or self.inode != position.inode:
             files = self._get_files()
             for file in files:
@@ -139,7 +140,7 @@ class RotatedFileLogStream(LogStream[T]):
             if remaining:
                 if not self._open_next_file():
                     break
-        return self._empty_string().join(chunks)
+        return self._empty_string().join(chunks)  # type: ignore[arg-type, return-value]
 
     def readline(self, size: int = -1) -> T:
         line = self.file.readline()
@@ -166,7 +167,7 @@ class RotatedFileLogStream(LogStream[T]):
             self._file.close()
             self._file = None
 
-    def compare(
+    def compare(  # type: ignore[override]
         self, position1: FileLogPosition, position2: FileLogPosition
     ) -> int:
         if position1.inode == position2.inode:
@@ -190,19 +191,19 @@ class RotatedFileLogStream(LogStream[T]):
             return 1
 
     @property
-    def inode(self):
+    def inode(self) -> int:
         return os.fstat(self.file.fileno()).st_ino
 
     @staticmethod
     @abstractmethod
-    def _file_open_mode():
+    def _file_open_mode() -> str:
         pass
 
-    def _open_file(self, path):
+    def _open_file(self, path: str) -> None:
         self.close()
         self._file = open(path, self._file_open_mode())
 
-    def _open_first_file(self):
+    def _open_first_file(self) -> None:
         files = self._get_files()
         if files:
             self._open_file(files[0].path)
@@ -223,42 +224,44 @@ class RotatedFileLogStream(LogStream[T]):
         self._open_file(files[1].path)
         return True
 
-    def _get_files(self):
+    def _get_files(self) -> List[LogfileInfo]:
         return self._log_rotation_strategy.get_files(self._path_pattern)
 
-    def _readall(self):
+    def _readall(self) -> T:
         chunks = [self.file.read(-1)]
         while self._open_next_file():
             chunks.append(self.file.read(-1))
-        return self._empty_string().join(chunks)
+        return self._empty_string().join(chunks)  # type: ignore[arg-type, return-value]
 
     @staticmethod
     @abstractmethod
-    def _empty_string():
+    def _empty_string() -> Union[str, bytes]:
         pass
 
 
 class BinaryFileOpenMode:
     @staticmethod
-    def _file_open_mode():
+    def _file_open_mode() -> str:
         return "rb"
 
     @staticmethod
-    def _empty_string():
+    def _empty_string() -> bytes:
         return b""
 
 
 class TextFileOpenMode:
     @staticmethod
-    def _file_open_mode():
+    def _file_open_mode() -> str:
         return "rt"
 
     @staticmethod
-    def _empty_string():
+    def _empty_string() -> str:
         return ""
 
 
-def get_remote_file_inode(ssh_client: SSHClient, path: Union[PathLike, str]):
+def get_remote_file_inode(
+    ssh_client: SSHClient, path: Union[PathLike, str]
+) -> int:
     path_string = os.fspath(path)
     _, inode_string, _ = ssh_client.exec_command(
         f"/usr/bin/stat -c %i '{path_string}'"
@@ -312,10 +315,10 @@ class RemoteRotatedFileLogStream(RotatedFileLogStream[T]):
         self._file_ino = 0
         super().__init__(path_pattern, rotation_strategy, binary)
 
-    def _open_file(self, path):
+    def _open_file(self, path: str) -> None:
         self.close()
         try:
-            self._file = self._ssh_client.open_file(
+            self._file = self._ssh_client.open_file(  # type: ignore[assignment]
                 path, self._file_open_mode()
             )
         except FileNotFoundError:
@@ -323,11 +326,11 @@ class RemoteRotatedFileLogStream(RotatedFileLogStream[T]):
         self._file_ino = get_remote_file_inode(self._ssh_client, path)
 
     @property
-    def position(self) -> LogPosition:
+    def position(self) -> RotatedFileLogStream.FileLogPosition:
         return self.FileLogPosition(self._file_ino, self.file.tell())
 
     @property
-    def inode(self):
+    def inode(self) -> int:
         return self._file_ino
 
 

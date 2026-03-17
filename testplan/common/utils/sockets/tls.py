@@ -54,11 +54,11 @@ class SimpleTLSConfig(TLSConfig):
         self,
         key: Union[PathLike, str],
         cert: Union[PathLike, str],
-        cacert: OPTIONAL_PATH,
+        cacert: OPTIONAL_PATH = None,
     ):
         self.key = Path(key)
         self.cert = Path(cert)
-        self.cacert = Path(cacert)
+        self.cacert = Path(cacert) if cacert is not None else None
 
     def get_context(self, purpose: ssl.Purpose) -> ssl.SSLContext:
         context = ssl.create_default_context(
