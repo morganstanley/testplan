@@ -51,7 +51,7 @@ def run_actions(actions) -> None:
     """ """
     # phase1 read inputs
 
-    results = []
+    results: list = []
 
     parse_actions = list(takewhile(is_parse_action, actions))
     process_actions = list(dropwhile(is_parse_action, actions))

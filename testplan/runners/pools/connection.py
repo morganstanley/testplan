@@ -4,7 +4,7 @@ import abc
 import queue
 import time
 import warnings
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 import zmq
 
@@ -27,7 +27,7 @@ class Client(logger.Loggable, metaclass=abc.ABCMeta):
         self.active = False
 
     @abc.abstractmethod
-    def connect(self, server) -> None:
+    def connect(self, server: Any) -> None:
         """Connect client to server"""
         self.active = True
 
@@ -105,7 +105,7 @@ class QueueClient(Client):
         self.requests: Optional[queue.Queue] = None
 
         # single-producer(pool) single-consumer(worker) FIFO queue
-        self.responses = []
+        self.responses: List[Message] = []
 
     def connect(self, requests: queue.Queue) -> None:
         """
@@ -128,9 +128,10 @@ class QueueClient(Client):
         :param message: Message to be sent.
         """
         if self.active:
+            assert self.requests is not None
             self.requests.put(message)
 
-    def receive(self) -> Message:
+    def receive(self) -> Optional[Message]:
         """
         Worker receives response to the message sent, this method blocks.
 
@@ -141,6 +142,7 @@ class QueueClient(Client):
                 return self.responses.pop()
             except IndexError:
                 time.sleep(self._recv_sleep)
+        return None
 
     def respond(self, message: Message) -> None:
         """
@@ -171,29 +173,32 @@ class ZMQClient(Client):
         recv_timeout: float = 5,
     ) -> None:
         super(ZMQClient, self).__init__()
-        self._address = address
+        self._address: Optional[str] = address
         self._recv_sleep = recv_sleep
         self._recv_timeout = recv_timeout
-        self._context = None
-        self._sock = None
+        self._context: Optional[zmq.Context] = None
+        self._sock: Optional[zmq.Socket] = None
 
         self.connect()  # auto connect
 
-    def connect(self) -> None:
+    def connect(self, server: Any = None) -> None:
         """Connect to a ZMQ Server"""
         # pylint: disable=abstract-class-instantiated
         self._context = zmq.Context()
         self._sock = self._context.socket(zmq.REQ)
+        assert self._address is not None
         self._sock.connect("tcp://{}".format(self._address))
         self.active = True
 
     def disconnect(self) -> None:
         """Disconnect from Server"""
         self.active = False
-        self._sock.close()
-        self._sock = None
-        self._context.destroy()
-        self._context = None
+        if self._sock is not None:
+            self._sock.close()
+            self._sock = None
+        if self._context is not None:
+            self._context.destroy()
+            self._context = None
         self._address = None
 
     def send(self, message: Message) -> None:
@@ -203,6 +208,7 @@ class ZMQClient(Client):
         :param message: Message to be sent.
         """
         if self.active:
+            assert self._sock is not None
             self._sock.send(serialize(message))
 
     def receive(self) -> Optional[Message]:
@@ -213,11 +219,12 @@ class ZMQClient(Client):
         """
         start_time = time.time()
 
+        assert self._sock is not None
         while self.active:
             try:
                 received = self._sock.recv(flags=zmq.NOBLOCK)
                 try:
-                    loaded = deserialize(received)
+                    loaded: Message = deserialize(received)
                 except Exception as exc:
                     print(f"Deserialization error. - {exc}")
                     raise
@@ -241,10 +248,10 @@ class ZMQClientProxy:
 
     def __init__(self) -> None:
         self.active = False
-        self.connection = None
-        self.address = None
+        self.connection: Optional[zmq.Socket] = None
+        self.address: Optional[str] = None
 
-    def connect(self, server) -> None:
+    def connect(self, server: "ZMQServer") -> None:
         self.connection = server.sock
         self.address = server.address
         self.active = True
@@ -262,6 +269,7 @@ class ZMQClientProxy:
         :param message: Respond message.
         """
         if self.active:
+            assert self.connection is not None
             self.connection.send(serialize(message))
         else:
             raise RuntimeError("Responding to inactive worker")
@@ -277,11 +285,11 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
 
     def starting(self) -> None:
         """Server starting logic."""
-        self.status.change(self.status.STARTED)  # Start is async
+        self.status.change(self.status.STARTED)  # type: ignore[attr-defined]
 
     def stopping(self) -> None:
         """Server stopping logic."""
-        self.status.change(self.status.STOPPED)  # Stop is async
+        self.status.change(self.status.STOPPED)  # type: ignore[attr-defined]
 
     def aborting(self) -> None:
         """Abort policy - no abort actions are required in the base class."""
@@ -294,7 +302,7 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
         connection manager is started and will be automatically unregistered
         when it is stopped.
         """
-        if self.status != self.status.STARTED:
+        if self.status != self.status.STARTED:  # type: ignore[attr-defined]
             raise RuntimeError(
                 "Can only register workers when started."
                 f" Current state is {self.status.tag}."
@@ -321,15 +329,15 @@ class QueueServer(Server):
         super(QueueServer, self).__init__()
 
         # multi-producer(workers) single-consumer(pool) FIFO queue
-        self.requests = None
+        self.requests: Optional[queue.Queue[Message]] = None
 
     def starting(self) -> None:
-        self.requests = queue.Queue()
+        self.requests = queue.Queue[Message]()
         super(QueueServer, self).starting()
 
-    def register(self, worker) -> None:
+    def register(self, worker: "Worker") -> None:
         super(QueueServer, self).register(worker)
-        worker.transport.connect(self.requests)
+        worker.transport.connect(self.requests)  # type: ignore[arg-type]
 
     def accept(self) -> Optional[Message]:
         """
@@ -337,6 +345,7 @@ class QueueServer(Server):
 
         :return: Message received from worker transport, or None.
         """
+        assert self.requests is not None
         try:
             return self.requests.get_nowait()
         except queue.Empty:
@@ -355,19 +364,19 @@ class ZMQServer(Server):
         # Here, context is a factory class provided by ZMQ that creates
         # sockets. Context and other attributes below are set when starting
         # and cleaned up when stopping.
-        self._zmq_context = None
-        self._sock = None
-        self._address = None
+        self._zmq_context: Optional[zmq.Context] = None
+        self._sock: Optional[zmq.Socket] = None
+        self._address: Optional[str] = None
 
     @property
-    def sock(self):
+    def sock(self) -> Optional[zmq.Socket]:
         return self._sock
 
     @property
-    def address(self):
+    def address(self) -> Optional[str]:
         return self._address
 
-    def starting(self):
+    def starting(self) -> None:
         """Create a ZMQ context and socket to handle TCP communication."""
         if self.parent is None:
             raise RuntimeError("Parent pool was not set - cannot start.")
@@ -416,10 +425,10 @@ class ZMQServer(Server):
             self._close()
         super(ZMQServer, self).aborting()
 
-    def register(self, worker) -> None:
+    def register(self, worker: "Worker") -> None:
         """Register a new worker."""
         super(ZMQServer, self).register(worker)
-        worker.transport.connect(self)
+        worker.transport.connect(self)  # type: ignore[arg-type]
 
     def accept(self) -> Optional[Message]:
         """
@@ -428,8 +437,10 @@ class ZMQServer(Server):
 
         :return: Message received from worker transport, or None.
         """
+        assert self._sock is not None
         try:
-            return deserialize(self._sock.recv(flags=zmq.NOBLOCK))
+            result: Message = deserialize(self._sock.recv(flags=zmq.NOBLOCK))
+            return result
         except zmq.Again:
             return None
 

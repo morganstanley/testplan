@@ -4,22 +4,34 @@ import operator
 import traceback
 from collections.abc import Mapping, Iterable, Container
 from itertools import zip_longest
-from typing import Any, List, Tuple, Dict, Hashable, Union
+from typing import (
+    Any,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Dict,
+    Hashable,
+    Union,
+)
 from typing import Callable as typing_Callable
+
+import re
 
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
 
-def is_regex(obj):
+def is_regex(obj: object) -> bool:
     """
     Cannot do type check against SRE_Pattern, so we use duck typing.
     """
-    import re
-
     return isinstance(obj, re.Pattern)
 
 
-def basic_compare(first, second, strict=False):
+def basic_compare(
+    first: Any, second: Any, strict: bool = False
+) -> Tuple[Optional[bool], Optional[str]]:
     """
     Comparison used for custom match functions,
     can do pattern matching, function evaluation or simple equality.
@@ -40,12 +52,16 @@ def basic_compare(first, second, strict=False):
         return None, traceback.format_exc()
 
 
-def is_comparator(value):
+def is_comparator(value: object) -> bool:
     """Utility for finding out a value is a custom comparator or not."""
     return callable(value) or is_regex(value)
 
 
-def check_dict_keys(data, has_keys=None, absent_keys=None):
+def check_dict_keys(
+    data: Dict[Hashable, Any],
+    has_keys: Optional[Sequence[Hashable]] = None,
+    absent_keys: Optional[Sequence[Hashable]] = None,
+) -> Tuple["set[Hashable]", "set[Hashable]"]:
     """
     Check if a dictionary contains given
     keys and/or has given keys missing.
@@ -57,11 +73,11 @@ def check_dict_keys(data, has_keys=None, absent_keys=None):
         )
 
     keys = set(data.keys())
-    has_keys = set(has_keys) if has_keys else set()
-    absent_keys = set(absent_keys) if absent_keys else set()
+    has_keys_set: set[Hashable] = set(has_keys) if has_keys else set()
+    absent_keys_set: set[Hashable] = set(absent_keys) if absent_keys else set()
 
-    existing_diff = has_keys - keys
-    absent_intersection = absent_keys & keys
+    existing_diff = has_keys_set - keys
+    absent_intersection = absent_keys_set & keys
 
     return existing_diff, absent_intersection
 
@@ -74,41 +90,43 @@ class Callable:  # TODO: This should not be called Callable - needs refactoring
     or meta callables) and reporting friendly.
     """
 
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         raise NotImplementedError
 
-    def __or__(self, other):
+    def __or__(self, other: "Callable") -> "Or":
         return Or(self, other)
 
-    def __and__(self, other):
+    def __and__(self, other: "Callable") -> "And":
         return And(self, other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
-    def __invert__(self):
+    def __invert__(self) -> "Not":
         return Not(self)
 
 
 class OperatorCallable(Callable):
     """Base class for simple operator based callables."""
 
-    func = None
-    func_repr = None
+    func: Optional[typing_Callable[..., bool]] = None
+    func_repr: Optional[str] = None
 
-    def __init__(self, reference):
+    def __init__(self, reference: object) -> None:
         self.reference = reference
 
-    def __call__(self, value):
-        return self.func(value, self.reference)  # pylint: disable=not-callable
+    def __call__(self, value: object) -> bool:
+        return self.func(value, self.reference)  # type: ignore[misc]  # pylint: disable=not-callable
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__, repr(self.reference))
 
-    def __eq__(self, other):
-        return self.reference == other.reference
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, OperatorCallable):
+            return NotImplemented
+        return bool(self.reference == other.reference)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "VAL {} {}".format(self.func_repr, self.reference)
 
 
@@ -143,67 +161,71 @@ class NotEqual(OperatorCallable):
 
 
 class In(Callable):
-    def __init__(self, container):
+    def __init__(self, container: Container) -> None:
         self.container = container
 
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         return value in self.container
 
-    def __eq__(self, other):
-        return self.container == other.container
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, In):
+            return NotImplemented
+        return bool(self.container == other.container)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "VAL in {}".format(self.container)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__, self.container)
 
 
 class NotIn(In):
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         return value not in self.container
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "VAL not in {}".format(self.container)
 
 
 class IsTrue(Callable):
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         return bool(value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "bool(VAL) is True"
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.__class__ == other.__class__
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}()".format(self.__class__.__name__)
 
 
 class IsFalse(IsTrue):
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         return not bool(value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "bool(VAL) is False"
 
 
 class MetaCallable(Callable):
-    delimiter = None
+    delimiter: Optional[str] = None
 
-    def __init__(self, *callables):
+    def __init__(self, *callables: Callable) -> None:
         assert [isinstance(clb, Callable) for clb in callables]
         self.callables = callables
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MetaCallable):
+            return NotImplemented
         return self.callables == other.callables
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         args = ", ".join(repr(clb) for clb in self.callables)
         return "{}({})".format(self.__class__.__name__, args)
 
-    def __str__(self):
+    def __str__(self) -> str:
         delimiter = " {} ".format(self.delimiter)
         return "({})".format(
             delimiter.join(str(clb) for clb in self.callables)
@@ -213,7 +235,7 @@ class MetaCallable(Callable):
 class Or(MetaCallable):
     delimiter = "or"
 
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         for clb in self.callables:
             if clb(value):
                 return True
@@ -223,7 +245,7 @@ class Or(MetaCallable):
 class And(MetaCallable):
     delimiter = "and"
 
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         for clb in self.callables:
             if not clb(value):
                 return False
@@ -231,26 +253,25 @@ class And(MetaCallable):
 
 
 class Not(Callable):
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}({})".format(
             self.__class__.__name__, repr(self.callable_obj)
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "not ({})".format(self.callable_obj)
 
-    def __init__(self, callable_obj):
+    def __init__(self, callable_obj: Callable) -> None:
         assert isinstance(callable_obj, Callable)
         self.callable_obj = callable_obj
 
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         return not self.callable_obj(value)
 
-    def __eq__(self, other):
-        return (
-            self.__class__ == other.__class__
-            and self.callable_obj == other.callable_obj
-        )
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Not):
+            return NotImplemented
+        return self.callable_obj == other.callable_obj
 
 
 class Custom(Callable):
@@ -270,25 +291,28 @@ class Custom(Callable):
         )
     """
 
-    def __init__(self, callable_obj, description):
+    def __init__(
+        self, callable_obj: typing_Callable[..., bool], description: str
+    ) -> None:
         self.callable_obj = callable_obj
         self.description = description
 
-    def __call__(self, value):
+    def __call__(self, value: object) -> bool:
         return self.callable_obj(value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.description
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}({}, description={})".format(
             self.__class__.__name__, repr(self.callable_obj), self.description
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Custom):
+            return NotImplemented
         return all(
             [
-                self.__class__ == other.__class__,
                 self.callable_obj == other.callable_obj,
                 self.description == other.description,
             ]
@@ -308,7 +332,9 @@ class Custom(Callable):
 MAX_UNORDERED_COMPARE = 16
 
 
-def compare_with_callable(callable_obj, value):
+def compare_with_callable(
+    callable_obj: typing_Callable[..., Any], value: object
+) -> Tuple[bool, Optional[str]]:
     try:
         return bool(callable_obj(value)), None
     except Exception:
@@ -319,16 +345,16 @@ class RegexAdapter:
     """This is being used for internal compatibility."""
 
     @classmethod
-    def check(cls, obj):
+    def check(cls, obj: object) -> bool:
         return is_regex(obj)
 
     @classmethod
-    def serialize(cls, obj):
+    def serialize(cls, obj: "re.Pattern[str]") -> Tuple[int, str, str]:
         # TODO: add distinction for flags (e.g. multiline)
         return 0, "REGEX", obj.pattern
 
     @classmethod
-    def match(cls, regex, value):
+    def match(cls, regex: "re.Pattern[str]", value: Any) -> str:
         try:
             ret = bool(regex.match(value))
         except TypeError:
@@ -336,7 +362,7 @@ class RegexAdapter:
         return Match.from_bool(ret)
 
     @staticmethod
-    def compare(lhs, rhs):
+    def compare(lhs: object, rhs: object) -> str:
         """Compare two regular expressions - just do string equality."""
         return Match.from_bool(lhs == rhs)
 
@@ -354,7 +380,7 @@ class Category:
     DICT = 5
 
 
-def _categorise(obj, _regex_adapter=RegexAdapter):
+def _categorise(obj: object, _regex_adapter: Any = RegexAdapter) -> int:
     """
     Check type of the object
     """
@@ -387,7 +413,7 @@ class Match:
     PASS = "p"
 
     @staticmethod
-    def combine(lhs_match, rhs_match):
+    def combine(lhs_match: Optional[str], rhs_match: Optional[str]) -> str:
         """
         Combines to match levels into a single match level
         """
@@ -404,7 +430,7 @@ class Match:
         return Match.PASS
 
     @staticmethod
-    def from_bool(passed):
+    def from_bool(passed: bool) -> str:
         """
         Constructs a match description from a boolean value
         """
@@ -414,7 +440,7 @@ class Match:
             return Match.FAIL
 
     @staticmethod
-    def to_bool(match):
+    def to_bool(match: str) -> bool:
         """
         Converts a match value to a bool
         """
@@ -424,26 +450,30 @@ class Match:
             return True
 
 
-def to_match_res(couple):
+def to_match_res(couple: Tuple[int, List[Any]]) -> Tuple[int, List[Any]]:
     # so that we can tell match/_rec_compare result from fmt output in later
     # expand steps
     # NOTE: couple[0] should be either 1 or 2, other value is unexpected
     return couple[0] + 10, couple[1]
 
 
-def is_match_res(type_num):
+def is_match_res(type_num: int) -> bool:
     # see ``to_match_res``
     return type_num in (11, 12)
 
 
-def _build_res(key, match, lhs, rhs):
+def _build_res(
+    key: Optional[Hashable], match: str, lhs: Any, rhs: Any
+) -> Tuple[Optional[Hashable], str, Any, Any]:
     """
     Builds a result tuple object for CouchDB.
     """
     return key, match[0], lhs, rhs
 
 
-def _idictzip_all(lhs_dict, rhs_dict, default=Absent):
+def _idictzip_all(
+    lhs_dict: Mapping, rhs_dict: Mapping, default: object = Absent
+) -> Iterator[Tuple[Hashable, Any, Any]]:
     """
     .. warning::
 
@@ -464,7 +494,7 @@ def _idictzip_all(lhs_dict, rhs_dict, default=Absent):
             yield key, default, rhs_val
 
 
-def _partition(results):
+def _partition(results: List[Tuple[Any, ...]]) -> Tuple[List[Any], List[Any]]:
     """
     .. warning::
 
@@ -490,14 +520,14 @@ def _partition(results):
 
 
 def _cmp_dicts(
-    lhs: Dict,
-    rhs: Dict,
-    ignore: Container,
-    include: Container,
-    report_mode: int,
-    value_cmp_func: Union[Callable, None],
+    lhs: Dict[Any, Any],
+    rhs: Dict[Any, Any],
+    ignore: Container[Hashable],
+    include: Optional[Container[Hashable]],
+    report_mode: Any,
+    value_cmp_func: Optional[typing_Callable[..., bool]],
     include_only_rhs: bool = False,
-) -> Tuple[str, List]:
+) -> Tuple[str, List[Any]]:
     """
     Compares two dictionaries with optional restriction to keys,
 
@@ -574,16 +604,16 @@ def _cmp_dicts(
 
 
 def _rec_compare(
-    lhs,
-    rhs,
-    ignore,
-    include,
-    key,
-    report_mode,
-    value_cmp_func,
-    _regex_adapter=RegexAdapter,
-    include_only_rhs=False,
-):
+    lhs: Any,
+    rhs: Any,
+    ignore: Container,
+    include: Optional[Container],
+    key: Optional[Hashable],
+    report_mode: Any,
+    value_cmp_func: Optional[typing_Callable[..., bool]],
+    _regex_adapter: Any = RegexAdapter,
+    include_only_rhs: bool = False,
+) -> Tuple[Any, ...]:
     """
     Recursive deep comparison implementation
     """
@@ -623,10 +653,10 @@ def _rec_compare(
         )
 
     if lhs_cat == Category.CALLABLE:
-        result, error = compare_with_callable(callable_obj=lhs, value=rhs)
+        cmp_result, error = compare_with_callable(callable_obj=lhs, value=rhs)
         return _build_res(
             key=key,
-            match=Match.IGNORED if ignored else Match.from_bool(result),
+            match=Match.IGNORED if ignored else Match.from_bool(cmp_result),
             lhs=(0, "func", callable_name(lhs)),
             rhs=fmt("Value: {}, Error: {}".format(rhs, error))
             if error
@@ -634,10 +664,10 @@ def _rec_compare(
         )
 
     if rhs_cat == Category.CALLABLE:
-        result, error = compare_with_callable(callable_obj=rhs, value=lhs)
+        cmp_result, error = compare_with_callable(callable_obj=rhs, value=lhs)
         return _build_res(
             key=key,
-            match=Match.IGNORED if ignored else Match.from_bool(result),
+            match=Match.IGNORED if ignored else Match.from_bool(cmp_result),
             lhs=fmt("Value: {}, Error: {}".format(lhs, error))
             if error
             else fmt(lhs),
@@ -685,7 +715,7 @@ def _rec_compare(
         match = (
             Match.IGNORED
             if ignored
-            else Match.from_bool(value_cmp_func(lhs, rhs))
+            else Match.from_bool(value_cmp_func(lhs, rhs))  # type: ignore[misc]
         )
         return _build_res(key=key, match=match, lhs=fmt(lhs), rhs=fmt(rhs))
 
@@ -775,7 +805,7 @@ def _rec_compare(
     )
 
 
-def untyped_fixtag(x, y):
+def untyped_fixtag(x: object, y: object) -> bool:
     """
     Custom stringify logic for fix msg tag value, strips off insignificant
     trailing 0s when converting float, so that 0.0 can be compared
@@ -837,16 +867,16 @@ class ReportOptions(enum.Enum):
 
 
 def compare(
-    lhs: Dict,
-    rhs: Dict,
-    ignore: List[Hashable] = None,
-    include: List[Hashable] = None,
-    report_mode=ReportOptions.ALL,
+    lhs: Dict[Any, Any],
+    rhs: Dict[Any, Any],
+    ignore: Optional[List[Hashable]] = None,
+    include: Optional[List[Hashable]] = None,
+    report_mode: ReportOptions = ReportOptions.ALL,
     value_cmp_func: typing_Callable[[Any, Any], bool] = COMPARE_FUNCTIONS[
         "native_equality"
     ],
     include_only_rhs: bool = False,
-) -> Tuple[bool, List[Tuple]]:
+) -> Tuple[bool, List[Any]]:
     """
     Compare two iterable key, value objects (e.g. dict or dict-like mapping)
     and return a status and a detailed comparison table, useful for reporting.
@@ -921,7 +951,7 @@ def compare(
     return Match.to_bool(match), comparisons
 
 
-def _best_permutation(grid):
+def _best_permutation(grid: List[List[int]]) -> List[int]:
     """
     Given a square matrix of errors comparing actual
     value vs. expected value, finds the permutation which
@@ -953,7 +983,13 @@ def _best_permutation(grid):
 
     """
 
-    def bp_loop(outstanding, level, grid, grid_len, cache):
+    def bp_loop(
+        outstanding: "frozenset[int]",
+        level: int,
+        grid: List[List[int]],
+        grid_len: int,
+        cache: "Dict[frozenset[int], Tuple[int, List[int]]]",
+    ) -> Tuple[int, List[int]]:
         """
         Recursively finds a solution by
         progressively excluding poor permutations "paths"
@@ -982,18 +1018,21 @@ def _best_permutation(grid):
             if (min_cost is None) or (this_cost < min_cost):
                 min_cost = this_cost
                 min_path = this_path
+        assert min_cost is not None and min_path is not None
         return min_cost, min_path
 
     grid_len = len(grid)
 
-    cache = {}
+    cache: "Dict[frozenset[int], Tuple[int, List[int]]]" = {}
 
     # list of int indices
     return bp_loop(frozenset(range(grid_len)), 0, grid, grid_len, cache)[1]
 
 
 # helper func, used to generate errors matrix
-def _to_error(cmpr_tuple, weights):
+def _to_error(
+    cmpr_tuple: Tuple[bool, List[Any]], weights: Dict[str, int]
+) -> int:
     """
     Converts a comparison tuple (as returned by compare) to an error.
 
@@ -1001,7 +1040,7 @@ def _to_error(cmpr_tuple, weights):
     however this may be otherwise specified in the "weights" dict.
     """
 
-    def is_missed_message(comparisons):
+    def is_missed_message(comparisons: List[Any]) -> bool:
         """
         Returns True if all lhs or rhs values of a dict match are Absent
         """
@@ -1057,7 +1096,12 @@ class Expected:
     Input to the "unordered_compare" function.
     """
 
-    def __init__(self, value, ignore=None, include=None):
+    def __init__(
+        self,
+        value: Any,
+        ignore: Optional[List[Hashable]] = None,
+        include: Optional[List[Hashable]] = None,
+    ) -> None:
         """
         :param value: object compared against
                         each actual value in unordered_compare
@@ -1073,13 +1117,15 @@ class Expected:
 
 
 def unordered_compare(
-    match_name,
-    values,
-    comparisons,
-    description=None,
-    tag_weightings=None,
-    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
-):
+    match_name: str,
+    values: Iterable[Any],
+    comparisons: List[Expected],
+    description: Optional[str] = None,
+    tag_weightings: Optional[Dict[str, int]] = None,
+    value_cmp_func: typing_Callable[[Any, Any], bool] = COMPARE_FUNCTIONS[
+        "native_equality"
+    ],
+) -> List[Dict[str, Any]]:
     """
     Matches a list of expected values against a list of expected comparisons.
 
@@ -1204,7 +1250,9 @@ def unordered_compare(
     # construct a list of report entries
     base_descr = description or "unordered {}".format(match_name)
 
-    def build_descr(msg_indx, cmp_indx, expected_msg, received_msg):
+    def build_descr(
+        msg_indx: int, cmp_indx: int, expected_msg: Any, received_msg: Any
+    ) -> str:
         """
         Build an additional description that indicates
          if the message was missed or unexpected.
@@ -1238,7 +1286,9 @@ def unordered_compare(
     ]
 
 
-def tuplefy_item(item, list_entry=False):
+def tuplefy_item(
+    item: Dict[str, Any], list_entry: bool = False
+) -> Tuple[Any, ...]:
     """
     Convert a dictionary report item in order to
     consume less space in json representation.
@@ -1246,6 +1296,7 @@ def tuplefy_item(item, list_entry=False):
 
     # TODO: Replace magical numbers with constants
 
+    ret: Tuple[Any, ...]
     if "list" in item:
         ret = (1, [tuplefy_item(obj, list_entry=True) for obj in item["list"]])
         match = item.get("match")
@@ -1276,7 +1327,9 @@ def tuplefy_item(item, list_entry=False):
         return ret
 
 
-def tuplefy_comparisons(comparisons, table=False):
+def tuplefy_comparisons(
+    comparisons: List[Dict[str, Any]], table: bool = False
+) -> List[Any]:
     """
     Convert dictionary report comparisons to list and tuples composition.
     """
@@ -1382,7 +1435,7 @@ class DictmatchAllResult:
     If any entry in index_match_levels is RHS_NONE, then passed is ``False``.
     """
 
-    def __init__(self, passed, index_match_levels):
+    def __init__(self, passed: bool, index_match_levels: Any) -> None:
         """
         Constructs a new DictmatchAllResult object.
         :param passed: Set to True if the assertion passed on
@@ -1397,7 +1450,7 @@ class DictmatchAllResult:
         self.passed = passed
         self.index_match_levels = index_match_levels
 
-    def __bool__(self):  # python 3 bool()
+    def __bool__(self) -> bool:  # python 3 bool()
         """
         :return: True if assertion passed, False otherwise
         :rtype: ``bool``
@@ -1406,13 +1459,15 @@ class DictmatchAllResult:
 
 
 def dictmatch_all_compat(
-    match_name,
-    comparisons,
-    values,
-    description,
-    key_weightings,
-    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
-):
+    match_name: str,
+    comparisons: List[Expected],
+    values: Sequence[Any],
+    description: Optional[str],
+    key_weightings: Optional[Dict[str, int]],
+    value_cmp_func: typing_Callable[[Any, Any], bool] = COMPARE_FUNCTIONS[
+        "native_equality"
+    ],
+) -> Tuple[List[Dict[str, Any]], DictmatchAllResult]:
     """This is being used for internal compatibility."""
     matches = unordered_compare(
         match_name=match_name,

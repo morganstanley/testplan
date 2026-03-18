@@ -9,7 +9,7 @@ import contextlib
 import tempfile
 import hashlib
 from functools import lru_cache
-from io import TextIOWrapper
+from typing import Any, Dict, Generator, IO, List, Optional, Set
 
 from testplan.common.utils.context import render
 from .strings import slugify
@@ -18,7 +18,7 @@ VAR_TMP = os.path.join(os.sep, "var", "tmp")
 
 
 @lru_cache(None)
-def fix_home_prefix(path):
+def fix_home_prefix(path: str) -> str:
     """
     Try to replace a real path (/a/path/user) with a symlink
     path (/symlink/path/user), with clue from userhome and current working
@@ -41,17 +41,17 @@ def fix_home_prefix(path):
     return path
 
 
-def module_abspath(module):
+def module_abspath(module: Any) -> str:
     """Returns file path of a python module."""
     return fix_home_prefix(module.__file__)
 
 
-def pwd():
+def pwd() -> str:
     """Working directory path."""
     return fix_home_prefix(os.getcwd())
 
 
-def default_runpath(entity):
+def default_runpath(entity: Any) -> str:
     """
     Returns default runpath for an
     :py:class:`Entity <testplan.common.entity.base.Entity>` object.
@@ -72,7 +72,7 @@ PWD = "PWD"
 
 
 @contextlib.contextmanager
-def change_directory(directory):
+def change_directory(directory: Optional[str]) -> Generator[None, None, None]:
     """
     A context manager that changes working directory and returns to original on
     exit.
@@ -99,7 +99,7 @@ def change_directory(directory):
                 del os.environ[PWD]
 
 
-def makedirs(path):
+def makedirs(path: str) -> None:
     """
     A trivial wrapper for os.makedirs that doesn't raise
     when the directory already exists.
@@ -116,7 +116,7 @@ def makedirs(path):
             raise
 
 
-def makeemptydirs(path):
+def makeemptydirs(path: str) -> None:
     """
     Make an empty directory at a location.
 
@@ -133,7 +133,7 @@ def makeemptydirs(path):
     makedirs(path)
 
 
-def removeemptydir(path):
+def removeemptydir(path: str) -> None:
     """
     Remove a directory if it does exist and is empty.
 
@@ -153,7 +153,7 @@ class StdFiles:
     stderr and stdout file creation and management
     """
 
-    def __init__(self, directory) -> None:
+    def __init__(self, directory: str) -> None:
         """
         Create files and initialize fds
         """
@@ -163,11 +163,11 @@ class StdFiles:
         self.err = open(self.err_path, "w")
         self.out = open(self.out_path, "w")
 
-    def open_out(self, mode: str = "r") -> TextIOWrapper:
+    def open_out(self, mode: str = "r") -> IO[Any]:
         """Open the stdout file with the defined access"""
         return open(self.out_path, mode)
 
-    def open_err(self, mode: str = "r") -> TextIOWrapper:
+    def open_err(self, mode: str = "r") -> IO[Any]:
         """Open the stderr file with the defined access"""
         return open(self.err_path, mode)
 
@@ -179,7 +179,9 @@ class StdFiles:
         self.out.close()
 
 
-def instantiate(template, values, destination):
+def instantiate(
+    template: str, values: Dict[str, Any], destination: str
+) -> None:
     """
     Instantiate a templated file with a set of values and
     place it in a target destination.
@@ -213,7 +215,7 @@ def instantiate(template, values, destination):
                 )
 
 
-def unique_name(name, names):
+def unique_name(name: str, names: Set[str]) -> str:
     """
     Takes a file or directory name and set of other file or directory names
 
@@ -248,7 +250,7 @@ def unique_name(name, names):
     return name
 
 
-def rebase_path(path, old_base, new_base):
+def rebase_path(path: str, old_base: str, new_base: str) -> str:
     """
     Rebase path from old_base to new_base and convert to Linux form.
     """
@@ -257,7 +259,7 @@ def rebase_path(path, old_base, new_base):
     return os.path.join(new_base, *rel_path)
 
 
-def is_subdir(child, parent):
+def is_subdir(child: str, parent: str) -> bool:
     """
     Check whether "parent" is a sub-directory of "child".
 
@@ -274,7 +276,7 @@ def is_subdir(child, parent):
     )
 
 
-def hash_file(filepath):
+def hash_file(filepath: str) -> str:
     """
     Hashes the contents of a file. SHA1 algorithm is used.
 
@@ -295,7 +297,7 @@ def hash_file(filepath):
     return hasher.hexdigest()
 
 
-def archive(path, timestamp):
+def archive(path: str, timestamp: str) -> str:
     """
     Append a timestamp to an existing file's name.
 
@@ -314,13 +316,13 @@ def archive(path, timestamp):
 
 
 def traverse_dir(
-    directory,
-    topdown=True,
-    ignore=None,
-    only=None,
-    recursive=True,
-    include_subdir=True,
-):
+    directory: str,
+    topdown: bool = True,
+    ignore: Optional[List[str]] = None,
+    only: Optional[List[str]] = None,
+    recursive: bool = True,
+    include_subdir: bool = True,
+) -> List[str]:
     """
     Recursively traverse all files and sub directories in a directory and
     get a list of relative paths.
@@ -346,7 +348,7 @@ def traverse_dir(
     ignore = ignore or []
     only = only or []
 
-    def should_ignore(filename):
+    def should_ignore(filename: str) -> bool:
         """Decide if a file should be ignored by its name."""
         for pattern in ignore:
             if fnmatch.fnmatch(filename, pattern):
