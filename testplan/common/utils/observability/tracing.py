@@ -119,12 +119,12 @@ class Tracing(Loggable):
 
             if use_http:
                 from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
-                    OTLPSpanExporter,
+                    OTLPSpanExporter as HttpSpanExporter,
                 )
             else:
                 import grpc
                 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
-                    OTLPSpanExporter,
+                    OTLPSpanExporter as GrpcSpanExporter,
                 )
         except ImportError as e:
             raise RuntimeError(
@@ -152,7 +152,7 @@ class Tracing(Loggable):
             )
 
         if use_http:
-            exporter = OTLPSpanExporter()  # auto-fetch required vars from env
+            exporter = HttpSpanExporter()  # auto-fetch required vars from env
             self.logger.debug(f"Using HTTP exporter for endpoint: {endpoint}")
         else:
             # gRPC exporter - requires explicit mTLS setup
@@ -172,7 +172,7 @@ class Tracing(Loggable):
                     private_key=pk.read(),
                     certificate_chain=cc.read(),
                 )
-            exporter = OTLPSpanExporter(credentials=credentials)
+            exporter = GrpcSpanExporter(credentials=credentials)
             self.logger.debug(f"Using gRPC exporter for endpoint: {endpoint}")
 
         provider = TracerProvider(id_generator=RootTraceIdGenerator(self))
