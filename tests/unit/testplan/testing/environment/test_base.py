@@ -196,7 +196,7 @@ class TestSlowDrivers:
         m = mocker.Mock()
         env = TestEnvironment()
         a = MockDriver("a", m, total_wait=0.5)
-        b = MockDriver("b", m, total_wait=1)
+        b = MockDriver("b", m, total_wait=2)
         c = MockDriver("c", m)
         d = MockDriver("d", m)
         for d_ in [a, b, c, d]:
