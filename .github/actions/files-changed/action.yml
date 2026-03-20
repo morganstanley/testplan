@@ -23,8 +23,8 @@ runs:
         ${{ inputs.paths }}
         """.strip().split("\n")
         cmd = "git --no-pager diff --name-only ${{ github.sha }} refs/remotes/origin/${{ github.base_ref }} --".split()
-        files = subprocess.check_output([*cmd, *paths], text=True)        
-        print(files)        
+        files = subprocess.check_output([*cmd, *paths], text=True)
+        print(files)
         output = os.environ["GITHUB_OUTPUT"]
         with open(output,"at") as gh_output:
           gh_output.write("files={}\n".format(json.dumps(files.split('\n'))))
