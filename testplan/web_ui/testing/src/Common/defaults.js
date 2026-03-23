@@ -262,6 +262,19 @@ const LOG_TYPE = {
 
 const LOCALHOST = "localhost";
 
+//All possible test entry statuses used for filtering.
+const FILTER_STATUSES = [
+  "error",
+  "failed",
+  "incomplete",
+  "passed",
+  "skipped",
+  "xfail",
+  "xpass",
+  "xpass-strict",
+  "unknown",
+];
+
 export {
   BLUE,
   DARK_BLUE,
@@ -310,4 +323,5 @@ export {
   defaultFixSpec,
   LOG_TYPE,
   LOCALHOST,
+  FILTER_STATUSES,
 };

@@ -27,6 +27,7 @@ import {
   STATUS_CATEGORY,
   EXPAND_STATUS,
   VIEW_TYPE,
+  FILTER_STATUSES,
 } from "../Common/defaults";
 import { timeToTimestamp } from "../Common/utils";
 
@@ -282,12 +283,31 @@ const ToolbarFilterButton = ({
   updateFilterFunc,
   updateEmptyDisplayFunc,
 }) => {
-  const [filter, setFilter] = useState("all");
+  const [selectedStatuses, setSelectedStatuses] = useState(
+    new Set(FILTER_STATUSES)
+  );
 
-  const filterOnClick = (e) => {
-    let checkedValue = e.currentTarget.value;
-    updateFilterFunc(checkedValue);
-    setFilter(checkedValue);
+  const allSelected = selectedStatuses.size === FILTER_STATUSES.length;
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedStatuses(new Set());
+      updateFilterFunc([]);
+    } else {
+      setSelectedStatuses(new Set(FILTER_STATUSES));
+      updateFilterFunc([...FILTER_STATUSES]);
+    }
+  };
+
+  const toggleStatus = (status) => {
+    const next = new Set(selectedStatuses);
+    if (next.has(status)) {
+      next.delete(status);
+    } else {
+      next.add(status);
+    }
+    setSelectedStatuses(next);
+    updateFilterFunc([...next]);
   };
 
   return (
@@ -303,42 +323,34 @@ const ToolbarFilterButton = ({
         </DropdownToggle>
       </div>
       <DropdownMenu className={css(styles.dropdown)}>
+        <DropdownItem header>Filter by status</DropdownItem>
         <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
           <Label check className={css(styles.filterLabel)}>
             <Input
-              type="radio"
-              name="filter"
-              value="all"
-              checked={filter === "all"}
-              onChange={filterOnClick}
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleSelectAll}
             />{" "}
-            All
+            {allSelected ? "Unselect all" : "Select all"}
           </Label>
         </DropdownItem>
-        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-          <Label check className={css(styles.filterLabel)}>
-            <Input
-              type="radio"
-              name="filter"
-              value="fail"
-              checked={filter === "fail"}
-              onChange={filterOnClick}
-            />{" "}
-            Failed only
-          </Label>
-        </DropdownItem>
-        <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
-          <Label check className={css(styles.filterLabel)}>
-            <Input
-              type="radio"
-              name="filter"
-              value="pass"
-              checked={filter === "pass"}
-              onChange={filterOnClick}
-            />{" "}
-            Passed only
-          </Label>
-        </DropdownItem>
+        <DropdownItem divider />
+        {FILTER_STATUSES.map((status) => (
+          <DropdownItem
+            key={status}
+            toggle={false}
+            className={css(styles.dropdownItem)}
+          >
+            <Label check className={css(styles.filterLabel)}>
+              <Input
+                type="checkbox"
+                checked={selectedStatuses.has(status)}
+                onChange={() => toggleStatus(status)}
+              />{" "}
+              {status}
+            </Label>
+          </DropdownItem>
+        ))}
       </DropdownMenu>
     </UncontrolledDropdown>
   );

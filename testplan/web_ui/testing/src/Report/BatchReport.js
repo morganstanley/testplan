@@ -210,7 +210,7 @@ class BatchReportComponent extends BaseReport {
   /**
    * Update the global filter state of the entry.
    *
-   * @param {string} filter - null, all, pass or fail.
+   * @param {Array} filter - array of status strings to include.
    * @public
    */
   updateFilter(filter) {
