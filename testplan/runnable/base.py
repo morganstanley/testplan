@@ -1474,6 +1474,25 @@ class TestRunner(Runnable):
 
         self.logger.user_info(f"Runpath archived to {self._archive_path}")
 
+    def _remove_pidfile(self):
+        """
+        Remove the PID file after testplan finishes.
+
+        Prevents stale PID files from causing false RunpathInUseError on
+        subsequent runs when OS PID recycling reassigns the old PID to an
+        unrelated process.
+        """
+        pidfile_path = getattr(self, "_pidfile_path", None)
+        if not pidfile_path or not os.path.exists(pidfile_path):
+            return
+        try:
+            with open(pidfile_path, "r") as f:
+                pid = f.read().strip()
+            if pid == str(os.getpid()):
+                os.remove(pidfile_path)
+        except OSError:
+            pass
+
     def add_pre_resource_steps(self):
         """Runnable steps to be executed before resources started."""
         self._add_step(self.timer.start, "run")
@@ -1500,6 +1519,7 @@ class TestRunner(Runnable):
         self._add_step(self._stop_remote_services)
         self._add_step(self._stop_resource_monitor)
         self._add_step(self._archive_runpath)
+        self._add_step(self._remove_pidfile)
 
     def _collect_timeout_info(self):
         threads, processes = self._get_process_info(recursive=True)
