@@ -50,57 +50,48 @@ describe("navUtils", () => {
     });
   });
 
-  describe("FilterFailedOrError", () => {
-    it("filters failed or error", () => {
-      const entries = [
-        {
-          counter: {
-            passed: 1,
-            failed: 0,
-            total: 1,
-          },
-          status: "passed",
-        },
-        {
-          counter: {
-            passed: 0,
-            failed: 1,
-            total: 1,
-          },
-          status: "failed",
-        },
-        {
-          counter: {
-            passed: 0,
-            failed: 0,
-            total: 1,
-            error: 1,
-          },
-          status: "error",
-        },
-      ];
+  describe("FilterByStatus", () => {
+    const entries = [
+      {
+        counter: { passed: 1, failed: 0, total: 1 },
+        status: "passed",
+      },
+      {
+        counter: { passed: 0, failed: 1, total: 1 },
+        status: "failed",
+      },
+      {
+        counter: { passed: 0, failed: 0, total: 1, error: 1 },
+        status: "error",
+      },
+      {
+        counter: { passed: 1, failed: 0, total: 1 },
+        status: "passed",
+        entries: [{ status: "xfail", entries: [] }],
+      },
+    ];
 
-      const filteredResult = applyNamedFilter(entries, "fail");
-      const expectedfilteredResult = [
-        {
-          counter: {
-            passed: 0,
-            failed: 1,
-            total: 1,
-          },
-          status: "failed",
-        },
-        {
-          counter: {
-            passed: 0,
-            failed: 0,
-            total: 1,
-            error: 1,
-          },
-          status: "error",
-        },
-      ];
-      expect(filteredResult).toStrictEqual(expectedfilteredResult);
+    it("returns empty list when filter array is empty", () => {
+      expect(applyNamedFilter(entries, [])).toStrictEqual([]);
+    });
+
+    it("returns all entries when filter is null", () => {
+      expect(applyNamedFilter(entries, null)).toStrictEqual(entries);
+    });
+
+    it("filters to failed and error entries", () => {
+      const result = applyNamedFilter(entries, ["failed", "error"]);
+      expect(result).toStrictEqual([entries[1], entries[2]]);
+    });
+
+    it("filters to passed entries", () => {
+      const result = applyNamedFilter(entries, ["passed"]);
+      expect(result).toStrictEqual([entries[0], entries[3]]);
+    });
+
+    it("shows parent entry when a descendant matches the filter", () => {
+      const result = applyNamedFilter(entries, ["xfail"]);
+      expect(result).toStrictEqual([entries[3]]);
     });
   });
 });
