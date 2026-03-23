@@ -1,5 +1,6 @@
 """Test the interactive test runner."""
 
+import os
 from copy import deepcopy
 from unittest import mock
 
@@ -16,7 +17,7 @@ from testplan.testing import ordering
 from testplan.testing.multitest import driver
 from testplan.runnable.interactive import base
 from testplan.common.report.base import Status as ReportStatus
-from testplan.common.utils.path import default_runpath
+from testplan.base import default_runpath_mock
 from testplan.common.utils.testing import check_report
 from testplan.runners.local import LocalRunner
 
@@ -81,7 +82,9 @@ class FailedSetupSuite:
 
 def test_startup():
     """Test initializing and running the interactive runner."""
-    target = runnable.TestRunner(name="TestRunner")
+    target = runnable.TestRunner(
+        name="TestRunner", runpath=default_runpath_mock
+    )
     mock_server = mock.MagicMock()
 
     with (
@@ -95,7 +98,7 @@ def test_startup():
         irunner = base.TestRunnerIHandler(target)
 
         irunner.setup()
-        assert irunner.target.runpath == default_runpath(target)
+        assert os.path.isdir(irunner.target.runpath)
 
         mock_server.prepare.assert_called_once()
         mock_server.bind_addr = ("hostname", 1234)
@@ -110,7 +113,9 @@ def test_startup():
 @pytest.fixture
 def irunner():
     """Set up an irunner instance for testing."""
-    target = runnable.TestRunner(name="TestRunner")
+    target = runnable.TestRunner(
+        name="TestRunner", runpath=default_runpath_mock
+    )
 
     local_runner = LocalRunner()
     test_uids = ["test_1", "test_2", "test_3"]
@@ -194,7 +199,9 @@ def test_run_suite(irunner, sync):
 
 
 def test_run_suite_with_failed_setup():
-    target = runnable.TestRunner(name="TestRunner")
+    target = runnable.TestRunner(
+        name="TestRunner", runpath=default_runpath_mock
+    )
 
     local_runner = LocalRunner()
     test = multitest.MultiTest(
@@ -311,7 +318,9 @@ def test_environment_control(irunner, sync):
 )
 def test_run_all_tagged_tests(tags, num_of_suite_entries):
     """Test running all tests whose testcases are selected by tags."""
-    target = runnable.TestRunner(name="TestRunner")
+    target = runnable.TestRunner(
+        name="TestRunner", runpath=default_runpath_mock
+    )
 
     local_runner = LocalRunner()
     test_uids = ["test_1", "test_2", "test_3"]
