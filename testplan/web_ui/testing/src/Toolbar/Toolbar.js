@@ -27,6 +27,7 @@ import {
   STATUS_CATEGORY,
   EXPAND_STATUS,
   VIEW_TYPE,
+  FILTER_STATUS_GROUPS,
   FILTER_STATUSES,
 } from "../Common/defaults";
 import { timeToTimestamp } from "../Common/utils";
@@ -335,22 +336,69 @@ const ToolbarFilterButton = ({
           </Label>
         </DropdownItem>
         <DropdownItem divider />
-        {FILTER_STATUSES.map((status) => (
-          <DropdownItem
-            key={status}
-            toggle={false}
-            className={css(styles.dropdownItem)}
-          >
-            <Label check className={css(styles.filterLabel)}>
-              <Input
-                type="checkbox"
-                checked={selectedStatuses.has(status)}
-                onChange={() => toggleStatus(status)}
-              />{" "}
-              {status}
-            </Label>
-          </DropdownItem>
-        ))}
+        {FILTER_STATUS_GROUPS.map((group, groupIdx) => {
+          const allGroupSelected = group.statuses.every((s) =>
+            selectedStatuses.has(s)
+          );
+          const toggleGroup = () => {
+            const next = new Set(selectedStatuses);
+            if (allGroupSelected) {
+              group.statuses.forEach((s) => next.delete(s));
+            } else {
+              group.statuses.forEach((s) => next.add(s));
+            }
+            setSelectedStatuses(next);
+            updateFilterFunc([...next]);
+          };
+          return (
+            <React.Fragment key={group.label}>
+              <DropdownItem
+                toggle={false}
+                className={css(styles.dropdownItem)}
+              >
+                <Label
+                  check
+                  className={css(
+                    styles.filterLabel,
+                    styles[group.colorStyle]
+                  )}
+                >
+                  <Input
+                    type="checkbox"
+                    checked={allGroupSelected}
+                    onChange={toggleGroup}
+                  />{" "}
+                  {group.label}
+                </Label>
+              </DropdownItem>
+              {group.statuses.map((status) => (
+                <DropdownItem
+                  key={status}
+                  toggle={false}
+                  className={css(styles.dropdownItem)}
+                >
+                  <Label
+                    check
+                    className={css(
+                      styles.filterLabel,
+                      styles.filterLabel_indent2
+                    )}
+                  >
+                    <Input
+                      type="checkbox"
+                      checked={selectedStatuses.has(status)}
+                      onChange={() => toggleStatus(status)}
+                    />{" "}
+                    {status}
+                  </Label>
+                </DropdownItem>
+              ))}
+              {groupIdx < FILTER_STATUS_GROUPS.length - 1 && (
+                <DropdownItem divider />
+              )}
+            </React.Fragment>
+          );
+        })}
       </DropdownMenu>
     </UncontrolledDropdown>
   );

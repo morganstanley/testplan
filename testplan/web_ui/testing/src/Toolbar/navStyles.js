@@ -39,6 +39,25 @@ const styles = StyleSheet.create({
   filterLabel_indent1: {
     "margin-left": "3em",
   },
+  filterGroupRed: {
+    color: RED,
+    fontWeight: "bold",
+  },
+  filterGroupBlack: {
+    color: BLACK,
+    fontWeight: "bold",
+  },
+  filterGroupGreen: {
+    color: GREEN,
+    fontWeight: "bold",
+  },
+  filterGroupAmber: {
+    color: DARK_ORANGE,
+    fontWeight: "bold",
+  },
+  filterLabel_indent2: {
+    "margin-left": "4em",
+  },
   dropdownItem: {
     overflow: "hidden",
     padding: "0",

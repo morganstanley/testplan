@@ -262,18 +262,31 @@ const LOG_TYPE = {
 
 const LOCALHOST = "localhost";
 
-//All possible test entry statuses used for filtering.
-const FILTER_STATUSES = [
-  "error",
-  "failed",
-  "incomplete",
-  "passed",
-  "skipped",
-  "xfail",
-  "xpass",
-  "xpass-strict",
-  "unknown",
+//Status groups used for UI filtering, ordered by severity.
+const FILTER_STATUS_GROUPS = [
+  {
+    label: "Failed",
+    colorStyle: "filterGroupRed",
+    statuses: ["error", "incomplete", "xpass-strict", "failed"],
+  },
+  {
+    label: "Unknown",
+    colorStyle: "filterGroupBlack",
+    statuses: ["unknown"],
+  },
+  {
+    label: "Passed",
+    colorStyle: "filterGroupGreen",
+    statuses: ["passed"],
+  },
+  {
+    label: "Unstable",
+    colorStyle: "filterGroupAmber",
+    statuses: ["skipped", "xfail", "xpass"],
+  },
 ];
+
+const FILTER_STATUSES = FILTER_STATUS_GROUPS.flatMap((g) => g.statuses);
 
 export {
   BLUE,
@@ -323,5 +336,6 @@ export {
   defaultFixSpec,
   LOG_TYPE,
   LOCALHOST,
+  FILTER_STATUS_GROUPS,
   FILTER_STATUSES,
 };
