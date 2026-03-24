@@ -73,6 +73,29 @@ class TestTimer:
         with pytest.raises(KeyError):
             timer.end("my_key")
 
+    def test_first_and_last(self):
+        """`Timer.first` and `Timer.last` should return the first and last intervals for a given key."""
+        timer = Timer()
+
+        with timer.record("my_key"):
+            time.sleep(0.001)
+
+        first_interval = timer.first(key="my_key")
+        last_interval = timer.last(key="my_key")
+        assert first_interval is last_interval
+
+        for _ in range(2):
+            with timer.record("my_key"):
+                time.sleep(0.001)
+
+        assert len(timer["my_key"]) == 3
+        assert timer.first(key="my_key") is not timer.last(key="my_key")
+        assert (
+            timer.first(key="my_key").start
+            < timer["my_key"][1].start
+            < timer.last(key="my_key").start
+        )
+
     def test_record(self):
         """`Timer.record` should record an interval for the given context."""
         sleep_duration = 1
