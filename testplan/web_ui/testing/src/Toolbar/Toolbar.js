@@ -371,28 +371,29 @@ const ToolbarFilterButton = ({
                   {group.label}
                 </Label>
               </DropdownItem>
-              {group.statuses.map((status) => (
-                <DropdownItem
-                  key={status}
-                  toggle={false}
-                  className={css(styles.dropdownItem)}
-                >
-                  <Label
-                    check
-                    className={css(
-                      styles.filterLabel,
-                      styles.filterLabel_indent2
-                    )}
+              {group.statuses.length > 1 &&
+                group.statuses.map((status) => (
+                  <DropdownItem
+                    key={status}
+                    toggle={false}
+                    className={css(styles.dropdownItem)}
                   >
-                    <Input
-                      type="checkbox"
-                      checked={selectedStatuses.has(status)}
-                      onChange={() => toggleStatus(status)}
-                    />{" "}
-                    {status}
-                  </Label>
-                </DropdownItem>
-              ))}
+                    <Label
+                      check
+                      className={css(
+                        styles.filterLabel,
+                        styles.filterLabel_indent2
+                      )}
+                    >
+                      <Input
+                        type="checkbox"
+                        checked={selectedStatuses.has(status)}
+                        onChange={() => toggleStatus(status)}
+                      />{" "}
+                      {status}
+                    </Label>
+                  </DropdownItem>
+                ))}
               {groupIdx < FILTER_STATUS_GROUPS.length - 1 && (
                 <DropdownItem divider />
               )}

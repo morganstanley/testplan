@@ -267,17 +267,17 @@ const FILTER_STATUS_GROUPS = [
   {
     label: "Failed",
     colorStyle: "filterGroupRed",
-    statuses: ["error", "incomplete", "xpass-strict", "failed"],
-  },
-  {
-    label: "Unknown",
-    colorStyle: "filterGroupBlack",
-    statuses: ["unknown"],
+    statuses: ["error", "failed", "incomplete", "xpass-strict"],
   },
   {
     label: "Passed",
     colorStyle: "filterGroupGreen",
     statuses: ["passed"],
+  },
+  {
+    label: "Unknown",
+    colorStyle: "filterGroupBlack",
+    statuses: ["unknown"],
   },
   {
     label: "Unstable",
