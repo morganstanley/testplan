@@ -68,7 +68,7 @@ class BaseRenderer:
             failures=str(counter["failed"]),
             time=str(
                 sum(
-                    source.timer.last(key=key).elapsed
+                    source.timer.last(key=key).elapsed or 0
                     for key in ("setup", "run", "teardown")
                     if key in source.timer
                 )
@@ -122,7 +122,7 @@ class BaseRenderer:
             errors=str(testsuite_report.counter["error"]),
             failures=str(testsuite_report.counter["failed"]),
             tests=str(testsuite_report.counter["total"]),
-            time=str(testsuite_report.timer.last(key="run").elapsed)
+            time=str(testsuite_report.timer.last(key="run").elapsed or 0)
             if "run" in testsuite_report.timer
             else "0",
         )
@@ -155,7 +155,7 @@ class BaseRenderer:
             classname="{}:{}:{}".format(
                 test_report.name, testsuite_report.name, testcase_report.name
             ),
-            time=str(testcase_report.timer.last(key="run").elapsed)
+            time=str(testcase_report.timer.last(key="run").elapsed or 0)
             if "run" in testcase_report.timer
             else "0",
         )

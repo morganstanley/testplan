@@ -21,7 +21,7 @@ function calcElapsedTime(timerField) {
     const interval = timerField[timerField.length - 1];
     elapsed = timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
   }
-  return elapsed < 0 ? null : elapsed;
+  return elapsed < 0 || isNaN(elapsed) ? null : elapsed;
 }
 
 /**
