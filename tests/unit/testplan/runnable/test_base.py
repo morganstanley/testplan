@@ -193,3 +193,45 @@ class TestPidFileCheck:
             match=f"Another testplan instance on {active_conn.raddr.ip}",
         ):
             plan._check_pidfile()
+
+
+class TestRemovePidFile:
+    """Tests for PID file removal on testplan exit."""
+
+    def test_remove_pidfile_current_process(self, tmpdir):
+        """PID file containing our own PID is deleted."""
+        plan = TestRunner(name="test", parse_cmdline=False)
+        plan._runpath = str(tmpdir)
+        plan._pidfile_path = os.path.join(plan._runpath, "testplan.pid")
+
+        with open(plan._pidfile_path, "w") as f:
+            f.write(str(os.getpid()))
+
+        plan._remove_pidfile()
+        assert not os.path.exists(plan._pidfile_path)
+
+    def test_remove_pidfile_different_pid_not_removed(self, tmpdir):
+        """PID file containing a different PID is left untouched."""
+        plan = TestRunner(name="test", parse_cmdline=False)
+        plan._runpath = str(tmpdir)
+        plan._pidfile_path = os.path.join(plan._runpath, "testplan.pid")
+
+        other_pid = os.getpid() + 1
+        with open(plan._pidfile_path, "w") as f:
+            f.write(str(other_pid))
+
+        plan._remove_pidfile()
+        assert os.path.exists(plan._pidfile_path)
+
+    def test_remove_pidfile_no_file(self, tmpdir):
+        """No error when PID file does not exist."""
+        plan = TestRunner(name="test", parse_cmdline=False)
+        plan._runpath = str(tmpdir)
+        plan._pidfile_path = os.path.join(plan._runpath, "testplan.pid")
+
+        plan._remove_pidfile()  # must not raise
+
+    def test_remove_pidfile_no_attribute(self):
+        """No error when _pidfile_path attribute was never set."""
+        plan = TestRunner(name="test", parse_cmdline=False)
+        plan._remove_pidfile()  # must not raise
