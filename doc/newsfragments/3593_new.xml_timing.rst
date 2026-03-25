@@ -1,0 +1,1 @@
+Add MultiTest and TestSuite timing to JUnit XML report

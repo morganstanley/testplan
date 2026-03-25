@@ -9,15 +9,7 @@ import _ from "lodash";
  * Calculate execution time of an entry with timer field
  */
 function calcExecutionTime(entry) {
-  let elapsed = null;
-  if (entry.timer && entry.timer.run) {
-    elapsed = 0;
-    entry.timer.run.forEach((interval) => {
-      elapsed +=
-        timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
-    });
-  }
-  return elapsed;
+  return calcElapsedTime(entry.timer && entry.timer.run);
 }
 
 /**
@@ -26,13 +18,10 @@ function calcExecutionTime(entry) {
 function calcElapsedTime(timerField) {
   let elapsed = null;
   if (timerField && Array.isArray(timerField) && !_.isEmpty(timerField)) {
-    elapsed = 0;
-    timerField.forEach((interval) => {
-      elapsed +=
-        timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
-    });
+    const interval = timerField[timerField.length - 1];
+    elapsed = timeToTimestamp(interval.end) - timeToTimestamp(interval.start);
   }
-  return elapsed < 0 ? null : elapsed;
+  return elapsed < 0 || isNaN(elapsed) ? null : elapsed;
 }
 
 /**

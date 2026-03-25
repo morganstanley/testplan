@@ -61,6 +61,7 @@ def test_xml_exporter(tmpdir):
 
     xml_primary_comparison = XC(
         tag="testsuites",
+        time=re.compile(r"\d+\.?\d*"),
         children=[
             XC(
                 tag="testsuite",
@@ -71,6 +72,7 @@ def test_xml_exporter(tmpdir):
                 hostname=re.compile(".+"),
                 failures="0",
                 id="0",
+                time=re.compile(r"\d+\.?\d*"),
                 children=[
                     XC(
                         tag="testcase",
@@ -91,6 +93,7 @@ def test_xml_exporter(tmpdir):
 
     xml_secondary_comparison = XC(
         tag="testsuites",
+        time=re.compile(r"\d+\.?\d*"),
         children=[
             XC(
                 tag="testsuite",
@@ -101,6 +104,7 @@ def test_xml_exporter(tmpdir):
                 hostname=re.compile(".+"),
                 failures="1",
                 id="0",
+                time=re.compile(r"\d+\.?\d*"),
                 children=[
                     XC(
                         tag="testcase",
