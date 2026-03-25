@@ -12,17 +12,18 @@ import { ErrorBoundary } from "../Common/ErrorBoundary";
 const AssertionGroup = (props) => {
   const assertionStatus = useContext(AssertionContext);
 
+  const filter = props.filter || [];
+  const showPassed = filter.includes("passed");
+  const showFailed = filter.some((s) => s === "failed" || s === "error");
+  const assertionPassFilter =
+    showPassed && !showFailed
+      ? (a) => a.passed !== false
+      : showFailed && !showPassed
+      ? (a) => a.passed !== true
+      : () => true;
+
   return props.entries
-    .filter((assertion) => {
-      if (props.filter === "pass") {
-        // Log assertion will be displayed
-        if (assertion.passed === false) return false;
-      } else if (props.filter === "fail") {
-        // Log assertion will be displayed
-        if (assertion.passed === true) return false;
-      }
-      return true;
-    })
+    .filter((assertion) => assertionPassFilter(assertion))
     .map((assertion, index) => {
       // Determine expand status for one assertion
       let expand;

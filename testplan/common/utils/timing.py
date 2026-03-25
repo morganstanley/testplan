@@ -385,7 +385,7 @@ class Timer(dict):
                 self[key] = timer[key]
 
     def first(self, key: str) -> Interval:
-        return self[key][1]  # type: ignore[no-any-return]
+        return self[key][0]  # type: ignore[no-any-return]
 
     def last(self, key: str) -> Interval:
         return self[key][-1]  # type: ignore[no-any-return]

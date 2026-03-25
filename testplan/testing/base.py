@@ -484,24 +484,25 @@ class Test(Runnable):
         case_report = self._create_case_or_override(
             ResourceHooks.ENVIRONMENT_START.value, ResourceHooks.STARTING
         )
-        self.resources.start()
-        if self.driver_info:
-            self._record_driver_timing(
-                ResourceTimings.RESOURCE_SETUP, case_report
-            )
-            self._record_driver_connection(case_report)
-        case_report.pass_if_empty()
+        with case_report.timer.record("run"):
+            self.resources.start()
+            if self.driver_info:
+                self._record_driver_timing(
+                    ResourceTimings.RESOURCE_SETUP, case_report
+                )
+                self._record_driver_connection(case_report)
+            case_report.pass_if_empty()
 
-        if self.resources.start_exceptions:
-            for msg in self.resources.start_exceptions.values():
-                self.logger.error(msg)
-                case_report.logger.error(msg)
-            case_report.status_override = ReportStatus.ERROR
-            case_report.runtime_status = RuntimeStatus.NOT_RUN
-        else:
-            case_report.runtime_status = RuntimeStatus.FINISHED
-        pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_START}:{ResourceHooks.STARTING}"
-        self._xfail(pattern, case_report)
+            if self.resources.start_exceptions:
+                for msg in self.resources.start_exceptions.values():
+                    self.logger.error(msg)
+                    case_report.logger.error(msg)
+                case_report.status_override = ReportStatus.ERROR
+                case_report.runtime_status = RuntimeStatus.NOT_RUN
+            else:
+                case_report.runtime_status = RuntimeStatus.FINISHED
+            pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_START}:{ResourceHooks.STARTING}"
+            self._xfail(pattern, case_report)
 
     def _stop_resource(self, is_reversed: bool = True) -> None:
         if len(self.resources) == 0:
@@ -509,26 +510,35 @@ class Test(Runnable):
         case_report = self._create_case_or_override(
             ResourceHooks.ENVIRONMENT_STOP.value, ResourceHooks.STOPPING.value
         )
-        self.resources.stop(is_reversed=is_reversed)
-        if self.driver_info:
-            self._record_driver_timing(
-                ResourceTimings.RESOURCE_TEARDOWN, case_report
-            )
-        case_report.pass_if_empty()
+        with case_report.timer.record("run"):
+            self.resources.stop(is_reversed=is_reversed)
+            if self.driver_info:
+                self._record_driver_timing(
+                    ResourceTimings.RESOURCE_TEARDOWN, case_report
+                )
+            case_report.pass_if_empty()
 
-        if self.resources.stop_exceptions:
-            for msg in self.resources.stop_exceptions.values():
-                self.logger.error(msg)
-                case_report.logger.error(msg)
-            case_report.status_override = ReportStatus.ERROR
-        pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_STOP}:{ResourceHooks.STOPPING}"
-        self._xfail(pattern, case_report)
+            if self.resources.stop_exceptions:
+                for msg in self.resources.stop_exceptions.values():
+                    self.logger.error(msg)
+                    case_report.logger.error(msg)
+                case_report.status_override = ReportStatus.ERROR
+            pattern = f"{self.name}:{ResourceHooks.ENVIRONMENT_STOP}:{ResourceHooks.STOPPING}"
+            self._xfail(pattern, case_report)
 
     def _finish_resource_report(self, suite_name: str) -> None:
         if self.result.report.has_uid(suite_name):  # type: ignore[attr-defined]
             self.result.report[  # type: ignore[attr-defined]
                 suite_name
             ].runtime_status = RuntimeStatus.FINISHED
+            timer_key = {
+                ResourceHooks.ENVIRONMENT_START.value: "setup",
+                ResourceHooks.ENVIRONMENT_STOP.value: "teardown",
+            }.get(suite_name)
+            if timer_key and timer_key in self.timer:
+                self.result.report[suite_name].timer["run"] = self.timer[
+                    timer_key
+                ]
 
     def start_span_and_timer(self, timer_key: str, span_key: str) -> None:
         self.timer.start(timer_key)

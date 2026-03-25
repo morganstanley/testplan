@@ -101,8 +101,7 @@ const nonSkippedEntry = (entry) => {
 /**
  * Apply all filters to a list of entries
  *
- *  * Apply the "named" filter (currently just filters out passed or failed
- *    entries).
+ *  * Apply the status filter (array of statuses to include).
  *  * Filter out empty testcases if required.
  */
 const applyAllFilters = (filter, entries, displayEmpty, displaySkipped) => {
@@ -120,30 +119,63 @@ const applyAllFilters = (filter, entries, displayEmpty, displaySkipped) => {
 };
 
 /**
- * Apply the named filter to a list of entries. The filter string may be:
+ * Apply the named filter to a list of entries.
  *
- *  * 'pass' to filter out failed entries
- *  * 'fail' to filter out passed entries
+ * @param {Array|null} filter - null means show all entries; empty array shows
+ *   nothing; a non-empty array shows only entries (or descendants) whose
+ *   status matches one of the values in the array.
  */
-const applyNamedFilter = (entries, filter) => {
-  switch (filter) {
-    case "pass":
-      return entries.filter(
-        (entry) => (entry.counter ? entry.counter.passed | 0 : 0) > 0
-      );
-    case "fail":
-      return entries.filter(
-        (entry) =>
-          entry.status === "error" ||
-          entry.status === "failed" ||
-          (entry.counter ? entry.counter.failed | 0 : 0) +
-            (entry.counter ? entry.counter.error | 0 : 0) >
-            0
-      );
 
-    default:
-      return entries;
+/**
+ * Counter fields cover only these statuses. All others require tree recursion.
+ */
+const COUNTER_MAP = {
+  passed: (c) => (c.passed | 0) > 0,
+  failed: (c) => (c.failed | 0) > 0,
+  error: (c) => (c.error | 0) > 0,
+};
+
+/**
+ * Return true if `entry` itself, or any descendant entry, has a status that
+ * is in `filterSet`.
+ *
+ * For statuses tracked by `counter` (passed/failed/error/incomplete) we use
+ * the aggregated counter as a fast shortcut. For all other statuses (xfail,
+ * xpass, xpass-strict, skipped, unknown …) we recurse into `entry.entries`.
+ */
+const entryMatchesFilter = (entry, filterSet) => {
+  // 1. Direct status match
+  if (filterSet.has(entry.status)) return true;
+
+  // 2. Counter shortcuts for aggregated container nodes
+  if (entry.counter) {
+    for (const status of filterSet) {
+      const check = COUNTER_MAP[status];
+      if (check && check(entry.counter)) return true;
+    }
   }
+
+  // 3. Recurse into children for statuses not (fully) captured by the counter
+  if (entry.entries && entry.entries.length > 0) {
+    const needsRecurse = [...filterSet].some((s) => !COUNTER_MAP[s]);
+    if (needsRecurse) {
+      if (entry.entries.some((child) => entryMatchesFilter(child, filterSet)))
+        return true;
+    }
+  }
+
+  return false;
+};
+
+const applyNamedFilter = (entries, filter) => {
+  if (filter === null) {
+    return entries;
+  }
+  if (filter.length === 0) {
+    return [];
+  }
+  const filterSet = new Set(filter);
+  return entries.filter((entry) => entryMatchesFilter(entry, filterSet));
 };
 
 /**
