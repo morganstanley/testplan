@@ -19,17 +19,18 @@ export default function MatchAllBaseAssertion(props) {
 
   const description = props.assertion.description;
 
+  const filter = props.filter || [];
+  const showPassed = filter.includes("passed");
+  const showFailed = filter.some((s) => s === "failed" || s === "error");
+  const matchPassFilter =
+    showPassed && !showFailed
+      ? (c) => c.passed !== false
+      : showFailed && !showPassed
+      ? (c) => c.passed !== true
+      : () => true;
+
   return props.assertion.matches
-    .filter((comparison) => {
-      if (props.filter === "pass") {
-        // Log assertion will be displayed
-        if (comparison.passed === false) return false;
-      } else if (props.filter === "fail") {
-        // Log assertion will be displayed
-        if (comparison.passed === true) return false;
-      }
-      return true;
-    })
+    .filter((comparison) => matchPassFilter(comparison))
     .map((match, matchIndex) => {
       // Determine expand status for one comparison
       let expand;
