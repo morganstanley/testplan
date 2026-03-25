@@ -270,9 +270,9 @@ const FILTER_STATUS_GROUPS = [
     statuses: ["error", "failed", "incomplete", "xpass-strict"],
   },
   {
-    label: "Passed",
-    colorStyle: "filterGroupGreen",
-    statuses: ["passed"],
+    label: "Unstable",
+    colorStyle: "filterGroupAmber",
+    statuses: ["skipped", "xfail", "xpass"],
   },
   {
     label: "Unknown",
@@ -280,9 +280,9 @@ const FILTER_STATUS_GROUPS = [
     statuses: ["unknown"],
   },
   {
-    label: "Unstable",
-    colorStyle: "filterGroupAmber",
-    statuses: ["skipped", "xfail", "xpass"],
+    label: "Passed",
+    colorStyle: "filterGroupGreen",
+    statuses: ["passed"],
   },
 ];
 
