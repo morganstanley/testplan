@@ -44,7 +44,8 @@ class Client:
         """
         Returns the host and port information of socket.
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.getsockname()  # type: ignore[no-any-return]
 
     @property
@@ -68,7 +69,8 @@ class Client:
         :return: Timestamp when msg sent (in microseconds from epoch) and
                  number of bytes sent
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         tsp = time.time() * 1000000
         size = self._client.send(msg)
         return tsp, size
@@ -81,7 +83,8 @@ class Client:
         :param timeout: Timeout in seconds.
         :return: message received
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         if timeout != self._timeout:
             self._timeout = timeout
         self._client.settimeout(timeout)
@@ -101,7 +104,8 @@ class Client:
         :param flags: Defaults to zero.
         :return: message received
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.recv(bufsize, flags)
 
     def close(self) -> None:

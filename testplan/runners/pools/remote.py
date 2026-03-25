@@ -124,7 +124,8 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             cmd.extend(["--otel-traceparent", tracing._get_traceparent()])
         if self.otel_logs:
             cmd.append("--otel-logs")
-        assert self.parent is not None
+        if self.parent is None:
+            raise RuntimeError("self.parent must not be None")
         if self.parent.resource_monitor_address:  # type: ignore[attr-defined]
             cmd.extend(
                 [
@@ -381,7 +382,8 @@ class RemotePool(Pool):
 
     @property
     def resource_monitor_address(self) -> Optional[str]:
-        assert self.parent is not None
+        if self.parent is None:
+            raise RuntimeError("self.parent must not be None")
         if self.parent.resource_monitor_server:  # type: ignore[attr-defined]
             return self.parent.resource_monitor_server.address  # type: ignore[attr-defined, no-any-return]
         return None

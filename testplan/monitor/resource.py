@@ -197,7 +197,8 @@ class ResourceMonitorClient:
         }
 
     def collect_process_data(self) -> None:
-        assert self.parent_process is not None
+        if self.parent_process is None:
+            raise RuntimeError("self.parent_process must not be None")
         processes = self.parent_process.children(recursive=True)
         processes.append(self.parent_process)
         # Prime cpu_percent for all processes (first call always returns 0.0)
@@ -421,7 +422,8 @@ class ResourceMonitorServer:
             )
 
     async def collector_service(self) -> None:
-        assert self._zmq_socket is not None
+        if self._zmq_socket is None:
+            raise RuntimeError("self._zmq_socket must not be None")
         while True:
             msg = await self._zmq_socket.recv_multipart()
             for m in msg:

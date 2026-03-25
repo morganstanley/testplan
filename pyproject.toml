@@ -223,7 +223,6 @@ module = [
     "testplan.runners.pools.process",
     "testplan.testing.multitest.driver.http.server",
     "testplan.testing.multitest.driver.connection.connection_extractor",
-    "testplan.exporters.testing.pdf.renderers.reports",
     "testplan.monitor.resource",
     "testplan.common.utils.logfile",
     "testplan.common.utils.process",

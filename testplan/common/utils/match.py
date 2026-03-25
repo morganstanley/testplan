@@ -122,8 +122,10 @@ class ScopedLogfileMatch:
         m = self.log_matcher.match(
             self.regex, self.timeout, raise_on_timeout=False
         )
-        assert self.log_matcher._debug_info_s is not None
-        assert self.log_matcher._debug_info_e is not None
+        if self.log_matcher._debug_info_s is None:
+            raise RuntimeError("self.log_matcher._debug_info_s must not be None")
+        if self.log_matcher._debug_info_e is None:
+            raise RuntimeError("self.log_matcher._debug_info_e must not be None")
         s_pos = self.log_matcher._debug_info_s[0]
         e_pos = self.log_matcher._debug_info_e[0]
         if m is not None:
@@ -326,8 +328,10 @@ class LogMatcher(logger.Loggable):
         m = self._match(regex, timeout=timeout)
 
         if m is None:
-            assert self._debug_info_s is not None
-            assert self._debug_info_e is not None
+            if self._debug_info_s is None:
+                raise RuntimeError("self._debug_info_s must not be None")
+            if self._debug_info_e is None:
+                raise RuntimeError("self._debug_info_e must not be None")
             self.logger.debug(
                 "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
@@ -368,8 +372,10 @@ class LogMatcher(logger.Loggable):
         m = self._match(regex, timeout)
 
         if m is not None:
-            assert self._debug_info_s is not None
-            assert self._debug_info_e is not None
+            if self._debug_info_s is None:
+                raise RuntimeError("self._debug_info_s must not be None")
+            if self._debug_info_e is None:
+                raise RuntimeError("self._debug_info_e must not be None")
             self.logger.debug(
                 "%s: unexpected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
@@ -421,8 +427,10 @@ class LogMatcher(logger.Loggable):
                 break
 
         if not matches:
-            assert self._debug_info_s is not None
-            assert self._debug_info_e is not None
+            if self._debug_info_s is None:
+                raise RuntimeError("self._debug_info_s must not be None")
+            if self._debug_info_e is None:
+                raise RuntimeError("self._debug_info_e must not be None")
             self.logger.debug(
                 "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"

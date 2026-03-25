@@ -110,7 +110,8 @@ class TCPClient(Driver):
         """
         Connect client.
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         self._client.connect()
         self._host, self._port = self._client.address
 
@@ -130,7 +131,8 @@ class TCPClient(Driver):
 
         :return: Number of bytes sent
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.send(msg)[1]
 
     def send_tsp(self, msg: bytes) -> Tuple[float, int]:
@@ -142,7 +144,8 @@ class TCPClient(Driver):
         :return: Timestamp when msg sent (in microseconds from epoch)
                  and number of bytes sent
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.send(msg)
 
     def receive_text(self, standard: str = "utf-8", **kwargs: Any) -> str:
@@ -153,7 +156,8 @@ class TCPClient(Driver):
         and decodes received bytes.
         """
         received = self.receive(**kwargs)
-        assert received is not None
+        if received is None:
+            raise RuntimeError("received must not be None")
         return received.decode(standard)
 
     def receive(self, size: int = 1024, timeout: int = 30) -> Optional[bytes]:
@@ -161,7 +165,8 @@ class TCPClient(Driver):
         received = None
         timeout_info = TimeoutExceptionInfo()
         try:
-            assert self._client is not None
+            if self._client is None:
+                raise RuntimeError("self._client must not be None")
             received = self._client.receive(size, timeout=timeout or 0)
         except socket.timeout:
             if timeout is not None:

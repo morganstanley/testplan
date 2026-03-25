@@ -85,7 +85,8 @@ class ProcessWorker(Worker):
 
     def _write_syspath(self, sys_path: Optional[List[str]] = None) -> None:
         """Write out our current sys.path to a file and return the filename."""
-        assert self.parent is not None
+        if self.parent is None:
+            raise RuntimeError("self.parent must not be None")
         sys_path = sys_path or sys.path
         with tempfile.NamedTemporaryFile(
             mode="w", dir=self.parent.runpath, delete=False
@@ -112,8 +113,10 @@ class ProcessWorker(Worker):
                 stdin=subprocess.PIPE,
             )
         self.logger.debug("Started child process - output at %s", self.outfile)
-        assert self._handler is not None
-        assert self._handler.stdin is not None
+        if self._handler is None:
+            raise RuntimeError("self._handler must not be None")
+        if self._handler.stdin is None:
+            raise RuntimeError("self._handler.stdin must not be None")
         self._handler.stdin.write(bytes("y\n".encode("utf-8")))
 
     def _wait_started(self, timeout: Optional[float] = None) -> None:

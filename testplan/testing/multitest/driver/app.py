@@ -262,14 +262,16 @@ class App(Driver):
     @property
     def outpath(self) -> str:
         """Path for stdout file regex matching."""
-        assert self.std is not None
+        if self.std is None:
+            raise RuntimeError("self.std must not be None")
         return self.std.out_path
 
     @emphasized  # type: ignore[prop-decorator]
     @property
     def errpath(self) -> str:
         """Path for stderr file regex matching."""
-        assert self.std is not None
+        if self.std is None:
+            raise RuntimeError("self.std must not be None")
         return self.std.err_path
 
     @emphasized  # type: ignore[prop-decorator]
@@ -362,7 +364,8 @@ class App(Driver):
         cmd = " ".join(self.cmd) if self.cfg.shell else self.cmd
         cwd = self.cfg.working_dir or self.runpath
         try:
-            assert self.std is not None
+            if self.std is None:
+                raise RuntimeError("self.std must not be None")
             self.logger.info(
                 "%(driver)s driver command: %(cmd)s\n"
                 "\tRunpath: %(runpath)s\n"
@@ -402,7 +405,8 @@ class App(Driver):
         finished execution, otherwise tests if user-specified pattern exists in
         driver logs.
         """
-        assert self.proc is not None
+        if self.proc is None:
+            raise RuntimeError("self.proc must not be None")
         proc_result = self.proc.poll()
         extract_values_result = self.extract_values()
         if proc_result is not None and not extract_values_result:
@@ -456,7 +460,8 @@ class App(Driver):
                 self,
                 self.stop_timeout,
             )
-            assert self.proc is not None
+            if self.proc is None:
+                raise RuntimeError("self.proc must not be None")
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
@@ -466,7 +471,8 @@ class App(Driver):
                 return self.stopped_check()
             except OrphanedProcessException as exc:
                 self.logger.warning(exc)
-                assert self.proc is not None
+                if self.proc is None:
+                    raise RuntimeError("self.proc must not be None")
                 kill_proc_and_child_procs(
                     self.proc, self.alive_child_procs, log_fn
                 )
@@ -488,14 +494,16 @@ class App(Driver):
                 self,
                 self.stop_timeout,
             )
-            assert self.proc is not None
+            if self.proc is None:
+                raise RuntimeError("self.proc must not be None")
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
             self._mark_stopped()
         except OrphanedProcessException as exc:
             self.logger.warning(exc)
-            assert self.proc is not None
+            if self.proc is None:
+                raise RuntimeError("self.proc must not be None")
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
@@ -531,7 +539,8 @@ class App(Driver):
         """
         super(App, self).make_runpath_dirs()
 
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("self.runpath must not be None")
         bin_dir = os.path.join(self.runpath, "bin")
         etc_dir = os.path.join(self.runpath, "etc")
         for directory in (bin_dir, etc_dir, self.app_path):

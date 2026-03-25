@@ -231,7 +231,8 @@ class Worker(WorkerBase):
     @property
     def is_alive(self) -> bool:
         """Poll the loop handler thread to check it is running as expected."""
-        assert self._handler is not None
+        if self._handler is None:
+            raise RuntimeError("self._handler must not be None")
         return self._handler.is_alive()
 
     def _loop(self, transport: QueueClient) -> None:
@@ -264,7 +265,8 @@ class Worker(WorkerBase):
                     message.make(message.TaskResults, data=results),
                     expect=(message.Ack, message.Stop),
                 )
-                assert received_ is not None
+                if received_ is None:
+                    raise RuntimeError("received_ must not be None")
                 if received_.cmd == Message.Stop:
                     break
                 if received_.cmd == Message.DiscardPending:
@@ -994,10 +996,13 @@ class Pool(Executor):
 
     def _append_temporary_task_result(self, task_result: TaskResult) -> None:
         """If a task should rerun, append the task result already fetched."""
-        assert task_result.result is not None
-        assert task_result.result.report is not None
+        if task_result.result is None:
+            raise RuntimeError("task_result.result must not be None")
+        if task_result.result.report is None:
+            raise RuntimeError("task_result.result.report must not be None")
         test_report = task_result.result.report
-        assert task_result.task is not None
+        if task_result.task is None:
+            raise RuntimeError("task_result.task must not be None")
         uid = task_result.task.uid()
         if uid not in self._task_reassign_cnt:
             return
@@ -1009,7 +1014,8 @@ class Pool(Executor):
         test_report.status_override = Status.XFAIL
         new_uuid = strings.uuid4()
         self._results[new_uuid] = task_result
-        assert self.parent is not None
+        if self.parent is None:
+            raise RuntimeError("self.parent must not be None")
         self.parent._tests[new_uuid] = self.cfg.name
         self.record_execution(new_uuid)
 

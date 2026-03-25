@@ -70,7 +70,8 @@ class SSHClient:
         """
         if not self._ssh_client:
             self.connect()
-        assert self._ssh_client is not None
+        if self._ssh_client is None:
+            raise RuntimeError("self._ssh_client must not be None")
         return self._ssh_client
 
     @property
@@ -83,7 +84,8 @@ class SSHClient:
         """
         if not self._sftp_client:
             self.open_sftp()
-        assert self._sftp_client is not None
+        if self._sftp_client is None:
+            raise RuntimeError("self._sftp_client must not be None")
         return self._sftp_client
 
     def connect(self) -> paramiko.SSHClient:

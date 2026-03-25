@@ -1018,7 +1018,8 @@ def _best_permutation(grid: List[List[int]]) -> List[int]:
             if (min_cost is None) or (this_cost < min_cost):
                 min_cost = this_cost
                 min_path = this_path
-        assert min_cost is not None and min_path is not None
+        if min_cost is None or min_path is None:
+            raise RuntimeError("min_cost and min_path must not be None")
         return min_cost, min_path
 
     grid_len = len(grid)

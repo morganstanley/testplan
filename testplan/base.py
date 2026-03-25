@@ -424,7 +424,8 @@ class Testplan(entity.RunnableManager):
                 testplan_result.__dict__ = result.__dict__
                 if not testplan_result.success:
                     tracing.set_span_as_failed(tp_span)
-                assert testplan_result.report is not None
+                if testplan_result.report is None:
+                    raise RuntimeError("testplan_result.report must not be None")
                 for info in testplan_result.report.information:
                     tracing.set_span_attrs(tp_span, **{info[0]: info[1]})
                 if self.cfg.label:

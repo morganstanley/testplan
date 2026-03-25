@@ -118,7 +118,8 @@ class ZMQServer(Driver):
         :param timeout: Timeout to retry sending the message
         :type timeout: ``int``
         """
-        assert self._socket is not None
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.send,
@@ -138,7 +139,8 @@ class ZMQServer(Driver):
         :return: The received message
         :rtype: ``object`` or ``str`` or ``zmq.sugar.frame.Frame``
         """
-        assert self._socket is not None
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.recv,

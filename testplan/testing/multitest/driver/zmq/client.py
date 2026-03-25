@@ -105,7 +105,8 @@ class ZMQClient(Driver):
         """
         Connect the client socket to all configured connections.
         """
-        assert self._socket is not None
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         for i, host in enumerate(self.cfg.hosts):
             self._hosts.append(expand(host, self.context))
             self._ports.append(expand(self.cfg.ports[i], self.context, int))
@@ -152,7 +153,8 @@ class ZMQClient(Driver):
         :return: ``None``
         :rtype: ``NoneType``
         """
-        assert self._socket is not None
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.send,
@@ -172,7 +174,8 @@ class ZMQClient(Driver):
         :return: The received message.
         :rtype: ``bytes`` or ``zmq.sugar.frame.Frame`` or ``memoryview``
         """
-        assert self._socket is not None
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.recv,
@@ -190,7 +193,8 @@ class ZMQClient(Driver):
         :type topic_filter: ``str``
         """
         if self.cfg.message_pattern == zmq.SUB:
-            assert self._socket is not None
+            if self._socket is None:
+                raise RuntimeError("self._socket must not be None")
             self._socket.setsockopt(zmq.SUBSCRIBE, topic_filter)
 
     def unsubscribe(self, topic_filter: Any) -> None:
@@ -202,7 +206,8 @@ class ZMQClient(Driver):
         :type topic_filter: ``str``
         """
         if self.cfg.message_pattern == zmq.SUB:
-            assert self._socket is not None
+            if self._socket is None:
+                raise RuntimeError("self._socket must not be None")
             self._socket.setsockopt(zmq.UNSUBSCRIBE, topic_filter)
 
     def starting(self) -> None:

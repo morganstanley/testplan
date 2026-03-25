@@ -137,7 +137,8 @@ def result_for_failed_task(original_result: TaskResult) -> TestResult:
     Create a new result entry for invalid result retrieved from a resource.
     """
     result = TestResult()
-    assert original_result.task is not None
+    if original_result.task is None:
+        raise RuntimeError("original_result.task must not be None")
     report = TestGroupReport(
         name=original_result.task.uid(), category=ReportCategories.ERROR
     )
@@ -320,7 +321,8 @@ class TestRunnerResult(RunnableResult):
     @property
     def success(self) -> bool:
         """Run was successful."""
-        assert self.report is not None
+        if self.report is None:
+            raise RuntimeError("self.report must not be None")
         return not self.report.failed and all(
             [
                 exporter_result.success
@@ -479,8 +481,10 @@ class TestRunner(Runnable):
         self.remote_services: Dict[str, "RemoteService"] = {}
         self.runid_filename: str = uuid.uuid4().hex
         self.define_runpath()
-        assert self.result.report is not None
-        assert self.runpath is not None
+        if self.result.report is None:
+            raise RuntimeError("self.result.report must not be None")
+        if self.runpath is None:
+            raise RuntimeError("self.runpath must not be None")
         self.result.report.information.append(("runpath", self.runpath))
         self._archive_path: Optional[str] = None
         self._define_archive_path()
@@ -504,7 +508,8 @@ class TestRunner(Runnable):
     @property
     def report(self) -> TestReport:  # type: ignore[override]
         """Tests report."""
-        assert self.result.report is not None
+        if self.result.report is None:
+            raise RuntimeError("self.result.report must not be None")
         return self.result.report
 
     @property
@@ -688,7 +693,8 @@ class TestRunner(Runnable):
         self, task_info: TaskInformation, part_tuple: Tuple[int, int]
     ) -> TaskInformation:
         task_arguments = task_info.task_arguments
-        assert task_arguments is not None
+        if task_arguments is None:
+            raise RuntimeError("task_arguments must not be None")
         task_arguments["part"] = part_tuple
         self.logger.debug(
             "Task re-created with arguments: %s",
@@ -1129,7 +1135,8 @@ class TestRunner(Runnable):
 
             # by now we shall have a valid num_of_part, user specified or auto derived
             task_arguments = task_info.task_arguments
-            assert task_arguments is not None
+            if task_arguments is None:
+                raise RuntimeError("task_arguments must not be None")
             if "weight" not in task_arguments:
                 task_arguments["weight"] = (
                     math.ceil(
@@ -1146,7 +1153,8 @@ class TestRunner(Runnable):
                 num_of_parts,
                 task_arguments["weight"],
             )
-            assert isinstance(task_info.target, Task)
+            if not isinstance(task_info.target, Task):
+                raise TypeError(f"Expected Task, got {type(task_info.target)!r}")
             if num_of_parts == 1:
                 task_info.target.weight = task_arguments["weight"]
                 partitioned.append(task_info)
@@ -1159,7 +1167,8 @@ class TestRunner(Runnable):
                     partitioned.append(new_task_info)
 
         else:
-            assert isinstance(task_info.target, Task)
+            if not isinstance(task_info.target, Task):
+                raise TypeError(f"Expected Task, got {type(task_info.target)!r}")
             if time_info and not task_info.target.weight:
                 task_info.target.weight = math.ceil(
                     time_info["execution_time"]
@@ -1421,7 +1430,8 @@ class TestRunner(Runnable):
             pass
 
         if self.cfg.resource_monitor:
-            assert self.scratch is not None
+            if self.scratch is None:
+                raise RuntimeError("self.scratch must not be None")
             self.resource_monitor_server_file_path = os.path.join(
                 self.scratch, "resource_monitor"
             )
@@ -1440,7 +1450,8 @@ class TestRunner(Runnable):
         )
 
         if self.cfg.resource_monitor:
-            assert self.resource_monitor_server_file_path is not None
+            if self.resource_monitor_server_file_path is None:
+                raise RuntimeError("self.resource_monitor_server_file_path must not be None")
             self.resource_monitor_server = ResourceMonitorServer(
                 self.resource_monitor_server_file_path,
                 detailed=self.cfg.logger_level == logger.DEBUG,
@@ -1467,13 +1478,16 @@ class TestRunner(Runnable):
             os.path.expandvars(os.path.expanduser(self.cfg.archive_runpath))
         )
         timestamp = time.strftime("%Y%m%d-%H%M%S")
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("self.runpath must not be None")
         self._archive_path = os.path.join(
             archive_dir,
             f"{os.path.basename(self.runpath)}_{timestamp}.tar.zst",
         )
-        assert self.result.report is not None
-        assert self._archive_path is not None
+        if self.result.report is None:
+            raise RuntimeError("self.result.report must not be None")
+        if self._archive_path is None:
+            raise RuntimeError("self._archive_path must not be None")
         self.result.report.information.append(
             ("runpath_archive", self._archive_path)
         )
@@ -1485,13 +1499,16 @@ class TestRunner(Runnable):
         if not self.cfg.archive_runpath:
             return
 
-        assert self.result.report is not None
+        if self.result.report is None:
+            raise RuntimeError("self.result.report must not be None")
         if self.result.report.passed:
             self.logger.user_info("Testplan passed, skipping runpath archive")
             return
 
-        assert self._archive_path is not None
-        assert self.runpath is not None
+        if self._archive_path is None:
+            raise RuntimeError("self._archive_path must not be None")
+        if self.runpath is None:
+            raise RuntimeError("self.runpath must not be None")
         archive_dir = os.path.dirname(self._archive_path)
         if not os.path.exists(archive_dir):
             os.makedirs(archive_dir, exist_ok=True)
@@ -1635,7 +1652,8 @@ class TestRunner(Runnable):
         step_result = True
         test_results = self.result.test_results
         plan_report = self.result.report
-        assert plan_report is not None
+        if plan_report is None:
+            raise RuntimeError("plan_report must not be None")
 
         for uid, resource in self._tests.items():
             if not isinstance(self.resources[resource], Executor):

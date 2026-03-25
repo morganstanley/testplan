@@ -168,7 +168,8 @@ class ZookeeperStandalone(Driver):
         """Starts the Zookeeper instance."""
         super(ZookeeperStandalone, self).starting()
         start_cmd = [self.cfg.binary, "start", self.config]
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("self.runpath must not be None")
         self.std = StdFiles(self.runpath)
 
         execute_cmd(
@@ -189,7 +190,8 @@ class ZookeeperStandalone(Driver):
         """Stops the Zookeeper instance."""
         stop_cmd = [self.cfg.binary, "stop", self.config]
         try:
-            assert self.std is not None
+            if self.std is None:
+                raise RuntimeError("self.std must not be None")
             execute_cmd(
                 stop_cmd,
                 label=self.uid(),

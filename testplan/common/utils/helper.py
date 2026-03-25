@@ -39,7 +39,8 @@ from testplan.testing.result import Result
 
 
 def _prev_all_green(env: Environment, result: Result) -> bool:
-    assert env.parent is not None
+    if env.parent is None:
+        raise RuntimeError("env.parent must not be None")
     return env.parent.report.passed and reduce(  # type: ignore[attr-defined]
         lambda x, y: x and y.get("passed", True),
         result.serialized_entries,

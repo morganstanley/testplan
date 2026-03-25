@@ -226,7 +226,8 @@ class Server:
         Listen for new inbound connections and messages from existing
         connections.
         """
-        assert self._socket is not None
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         self._socket.listen(1)
         self._listening = True
 
@@ -266,7 +267,8 @@ class Server:
         """
         Accept new inbound connection from socket.
         """
-        assert self._socket is not None
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         connection, _ = self._socket.accept()
         if self._ssl_context is not None:
             connection = self._ssl_context.wrap_socket(
@@ -397,7 +399,8 @@ class Server:
                 )
                 conn_detail = self._conndetails_by_name[conn_name]
                 conn_detail.in_seqno += 1
-                assert conn_detail.queue is not None
+                if conn_detail.queue is None:
+                    raise RuntimeError("conn_detail.queue must not be None")
                 conn_detail.queue.put(msg, True, 1)
         elif _has_logon_tag(msg):
             self._logon_connection(fdesc, conn_name)
@@ -506,7 +509,8 @@ class Server:
                 )
             (sender, target) = (self._first_sender, self._first_target)
 
-        assert sender is not None and target is not None
+        if sender is None or target is None:
+            raise RuntimeError("sender and target must not be None")
         if not self.is_connection_active((sender, target)):
             raise Exception(
                 "Connection {} not active".format((sender, target))
@@ -633,7 +637,8 @@ class Server:
         """
         validated_name = self._validate_connection_name(conn_name)
         conn_detail = self._conndetails_by_name[validated_name]
-        assert conn_detail.queue is not None
+        if conn_detail.queue is None:
+            raise RuntimeError("conn_detail.queue must not be None")
         return conn_detail.queue.get(True, timeout)
 
     def flush(self) -> None:

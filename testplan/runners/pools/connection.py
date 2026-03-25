@@ -128,7 +128,8 @@ class QueueClient(Client):
         :param message: Message to be sent.
         """
         if self.active:
-            assert self.requests is not None
+            if self.requests is None:
+                raise RuntimeError("self.requests must not be None")
             self.requests.put(message)
 
     def receive(self) -> Optional[Message]:
@@ -186,7 +187,8 @@ class ZMQClient(Client):
         # pylint: disable=abstract-class-instantiated
         self._context = zmq.Context()
         self._sock = self._context.socket(zmq.REQ)
-        assert self._address is not None
+        if self._address is None:
+            raise RuntimeError("self._address must not be None")
         self._sock.connect("tcp://{}".format(self._address))
         self.active = True
 
@@ -208,7 +210,8 @@ class ZMQClient(Client):
         :param message: Message to be sent.
         """
         if self.active:
-            assert self._sock is not None
+            if self._sock is None:
+                raise RuntimeError("self._sock must not be None")
             self._sock.send(serialize(message))
 
     def receive(self) -> Optional[Message]:
@@ -219,7 +222,8 @@ class ZMQClient(Client):
         """
         start_time = time.time()
 
-        assert self._sock is not None
+        if self._sock is None:
+            raise RuntimeError("self._sock must not be None")
         while self.active:
             try:
                 received = self._sock.recv(flags=zmq.NOBLOCK)
@@ -269,7 +273,8 @@ class ZMQClientProxy:
         :param message: Respond message.
         """
         if self.active:
-            assert self.connection is not None
+            if self.connection is None:
+                raise RuntimeError("self.connection must not be None")
             self.connection.send(serialize(message))
         else:
             raise RuntimeError("Responding to inactive worker")
@@ -345,7 +350,8 @@ class QueueServer(Server):
 
         :return: Message received from worker transport, or None.
         """
-        assert self.requests is not None
+        if self.requests is None:
+            raise RuntimeError("self.requests must not be None")
         try:
             return self.requests.get_nowait()
         except queue.Empty:
@@ -437,7 +443,8 @@ class ZMQServer(Server):
 
         :return: Message received from worker transport, or None.
         """
-        assert self._sock is not None
+        if self._sock is None:
+            raise RuntimeError("self._sock must not be None")
         try:
             result: Message = deserialize(self._sock.recv(flags=zmq.NOBLOCK))
             return result

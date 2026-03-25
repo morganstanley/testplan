@@ -28,7 +28,8 @@ def save_resource_data(
     report: TestReport, directory: pathlib.Path
 ) -> pathlib.Path:
     directory.mkdir(parents=True, exist_ok=True)
-    assert report.resource_meta_path is not None
+    if report.resource_meta_path is None:
+        raise RuntimeError("report.resource_meta_path must not be None")
     with open(report.resource_meta_path) as meta_file:
         meta_info = json_loads(meta_file.read())
     for host_meta in meta_info["entries"]:

@@ -978,7 +978,8 @@ class MultiTest(testing_base.Test):
                 break
 
             self.logger.debug('Running execution group "%s"', exec_group)
-            assert self._thread_pool is not None
+            if self._thread_pool is None:
+                raise RuntimeError("self._thread_pool must not be None")
             results = [
                 self._thread_pool.submit(
                     self._run_testcase,

@@ -1535,8 +1535,10 @@ class LogfileNamespace(AssertionNamespace):
         results = []
         failure = None
         m = log_matcher.match(regex, timeout, raise_on_timeout=False)
-        assert log_matcher._debug_info_s is not None
-        assert log_matcher._debug_info_e is not None
+        if log_matcher._debug_info_s is None:
+            raise RuntimeError("log_matcher._debug_info_s must not be None")
+        if log_matcher._debug_info_e is None:
+            raise RuntimeError("log_matcher._debug_info_e must not be None")
         s_pos = log_matcher._debug_info_s[0]
         e_pos = log_matcher._debug_info_e[0]
         if m is not None:
@@ -1690,7 +1692,8 @@ class Result:
             entry_group = base.Group(
                 entries=self.entries, description=self._group_description
             )
-        assert self._parent is not None
+        if self._parent is None:
+            raise RuntimeError("self._parent must not be None")
         self._parent.entries.append(entry_group)
         self._parent.attachments.extend(self.attachments)
         return exc_type is None  # re-raise errors if there is any
@@ -2733,7 +2736,8 @@ class Result:
         :rtype: ``bool``
         """
         filename = "{0}.png".format(strings.uuid4())
-        assert self._scratch is not None
+        if self._scratch is None:
+            raise RuntimeError("self._scratch must not be None")
         image_file_path = os.path.join(self._scratch, filename)
         matplot = base.MatPlot(
             pyplot=pyplot,
@@ -2757,7 +2761,8 @@ class Result:
         # NOTE: we skip plotly availablity check here
 
         filename = "{0}.json".format(strings.uuid4())
-        assert self._scratch is not None
+        if self._scratch is None:
+            raise RuntimeError("self._scratch must not be None")
         data_file_path = os.path.join(self._scratch, filename)
         chart = base.Plotly(
             fig,

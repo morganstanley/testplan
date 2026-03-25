@@ -156,7 +156,8 @@ class FixServer(Driver):
 
         # use parent.logger here so that this goes to stdout
         # self.logger is writing to file_logger
-        assert self.parent is not None
+        if self.parent is None:
+            raise RuntimeError("self.parent must not be None")
         self.parent.logger.debug(
             "%s[%s] listening on %s:%s",
             type(self).__name__,
@@ -169,7 +170,8 @@ class FixServer(Driver):
         """
         Docstring from Server.active_connections
         """
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         return self._server.active_connections()
 
     active_connections.__doc__ = Server.active_connections.__doc__
@@ -180,7 +182,8 @@ class FixServer(Driver):
         """
         Docstring from Server.is_connection_active
         """
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         return self._server.is_connection_active(conn_name)  # type: ignore[arg-type]
 
     is_connection_active.__doc__ = Server.is_connection_active.__doc__
@@ -193,7 +196,8 @@ class FixServer(Driver):
         """
         Docstring from Server.send
         """
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         return self._server.send(msg, conn_name)
 
     send.__doc__ = Server.send.__doc__
@@ -232,7 +236,8 @@ class FixServer(Driver):
         timeout_info = TimeoutExceptionInfo()
         timeout_ = timeout or 0
         try:
-            assert self._server is not None
+            if self._server is None:
+                raise RuntimeError("self._server must not be None")
             received = self._server.receive(conn_name, timeout=timeout_)
         except queue.Empty:
             self.logger.debug(
@@ -254,7 +259,8 @@ class FixServer(Driver):
         """
         Flush the receive queues
         """
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         self._server.flush()
 
     def _stop_logic(self) -> None:

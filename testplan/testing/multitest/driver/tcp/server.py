@@ -92,7 +92,8 @@ class TCPServer(Driver):
         """
         Returns the underlying ``socket`` object
         """
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         return self._server.socket
 
     @property
@@ -109,7 +110,8 @@ class TCPServer(Driver):
 
     def accept_connection(self, timeout: int = 10) -> Any:
         """Doc from Server."""
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         return self._server.accept_connection(timeout=timeout)
 
     accept_connection.__doc__ = Server.accept_connection.__doc__
@@ -118,7 +120,8 @@ class TCPServer(Driver):
         """
         Docstring from Server.close_connection
         """
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         self._server.close_connection(conn_idx)
 
     close_connection.__doc__ = Server.close_connection.__doc__
@@ -137,7 +140,8 @@ class TCPServer(Driver):
         self, msg: bytes, conn_idx: Optional[int] = None, timeout: int = 30
     ) -> Any:
         """Doc from Server."""
-        assert self._server is not None
+        if self._server is None:
+            raise RuntimeError("self._server must not be None")
         return self._server.send(msg=msg, conn_idx=conn_idx, timeout=timeout)
 
     send.__doc__ = Server.send.__doc__
@@ -150,7 +154,8 @@ class TCPServer(Driver):
         and decodes received bytes.
         """
         received = self.receive(**kwargs)
-        assert received is not None
+        if received is None:
+            raise RuntimeError("received must not be None")
         return received.decode(standard)
 
     def receive(
@@ -171,7 +176,8 @@ class TCPServer(Driver):
                 receive_kwargs["size"] = size
                 receive_kwargs["wait_full_size"] = True
 
-            assert self._server is not None
+            if self._server is None:
+                raise RuntimeError("self._server must not be None")
             received = self._server.receive(**receive_kwargs)
         except socket.timeout:
             if timeout is not None:

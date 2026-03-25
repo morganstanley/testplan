@@ -99,7 +99,8 @@ class ChildLoop:
     def _setup_logfiles(self) -> None:
         from testplan.common.utils.logger import LOGFILE_FORMAT
 
-        assert self.runpath is not None
+        if self.runpath is None:
+            raise RuntimeError("self.runpath must not be None")
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 

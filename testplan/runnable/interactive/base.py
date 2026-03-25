@@ -122,7 +122,8 @@ class TestRunnerIHandler(entity.Entity):
 
     @property
     def exporters(self) -> Any:
-        assert self.parent is not None
+        if self.parent is None:
+            raise RuntimeError("self.parent must not be None")
         return (
             self.parent.exporters if hasattr(self.parent, "exporters") else []
         )
@@ -932,7 +933,8 @@ class TestRunnerIHandler(entity.Entity):
         callback to ensure that all async exceptions are logged, for debugging
         purposes.
         """
-        assert self._pool is not None
+        if self._pool is None:
+            raise RuntimeError("self._pool must not be None")
         future = self._pool.submit(func, *args, **kwargs)
         future.add_done_callback(self._log_async_exceptions)
         return future  # type: ignore[return-value]

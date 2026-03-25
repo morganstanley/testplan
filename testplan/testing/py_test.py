@@ -480,7 +480,8 @@ class _ReportPlugin:
                     "object was created."
                 )
 
-            assert self._current_result_obj is not None
+            if self._current_result_obj is None:
+                raise RuntimeError("self._current_result_obj must not be None")
             if self._current_result_obj.entries:
                 # Add the assertion entry to the case report
                 for entry in self._current_result_obj.entries:

@@ -177,7 +177,8 @@ class FixClient(Driver):
 
     @property
     def connection_identifier(self) -> Optional[int]:
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.port
 
     @property
@@ -205,7 +206,8 @@ class FixClient(Driver):
         """
         Connect client.
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         self._client.connect()
         self._host, self._port = self._client.address
 
@@ -247,7 +249,8 @@ class FixClient(Driver):
         """
         Logon to server.
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         self._client.sendlogon(custom_tags=self.cfg.custom_logon_tags)
         rcv = self._client.receive(timeout=self.cfg.logon_timeout)
         self.logger.info("Received logon response %s.", rcv)
@@ -259,7 +262,8 @@ class FixClient(Driver):
         """
         Logoff from server.
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         self._client.sendlogoff()
         rcv = self._client.receive(timeout=self.cfg.logoff_timeout)
         self.logger.info("Received logoff response %s.", rcv)
@@ -280,7 +284,8 @@ class FixClient(Driver):
         :return: msg
         :rtype: ``FixMessage``
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.send(msg)[1]  # type: ignore[no-any-return]
 
     def send_tsp(self, msg: FixMessage) -> Tuple[float, FixMessage]:
@@ -293,7 +298,8 @@ class FixClient(Driver):
         :return: Timestamp when msg sent (in microseconds from epoch) and msg.
         :rtype: ``tuple`` of ``long`` and ``FixMessage``
         """
-        assert self._client is not None
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.send(msg)  # type: ignore[no-any-return]
 
     def receive(
@@ -311,7 +317,8 @@ class FixClient(Driver):
         timeout = timeout if timeout is not None else self.cfg.receive_timeout
         timeout_info = TimeoutExceptionInfo()
         try:
-            assert self._client is not None
+            if self._client is None:
+                raise RuntimeError("self._client must not be None")
             received = self._client.receive(timeout=timeout)
         except socket.timeout:
             self.logger.error(

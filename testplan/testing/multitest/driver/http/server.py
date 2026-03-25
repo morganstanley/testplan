@@ -377,7 +377,8 @@ class HTTPServer(Driver):
         """
         if not isinstance(response, HTTPResponse):
             raise TypeError("Response must be of type HTTPResponse")
-        assert self.responses is not None
+        if self.responses is None:
+            raise RuntimeError("self.responses must not be None")
         self.responses.put(response)
         self.logger.debug("Added response to HTTPServer response queue.")
 
@@ -397,7 +398,8 @@ class HTTPServer(Driver):
 
         :return: A request from the queue or ``None``
         """
-        assert self.requests is not None
+        if self.requests is None:
+            raise RuntimeError("self.requests must not be None")
         try:
             return self.requests.get(False).path_url
         except queue.Empty:
@@ -410,7 +412,8 @@ class HTTPServer(Driver):
 
         :return: A request from the queue or ``None``
         """
-        assert self.requests is not None
+        if self.requests is None:
+            raise RuntimeError("self.requests must not be None")
         try:
             return self.requests.get(False)
         except queue.Empty:
@@ -426,8 +429,10 @@ class HTTPServer(Driver):
           overrides timeout from init.
         :return: A request or ``None``
         """
-        assert self.requests is not None
-        assert self.interval is not None
+        if self.requests is None:
+            raise RuntimeError("self.requests must not be None")
+        if self.interval is None:
+            raise RuntimeError("self.interval must not be None")
         effective_timeout: float = (
             timeout if timeout is not None else (self.timeout or 5)
         )
@@ -473,7 +478,8 @@ class HTTPServer(Driver):
 
         while not hasattr(self._server_thread.server, "server_port"):
             time.sleep(0.1)
-        assert self._server_thread.server is not None
+        if self._server_thread.server is None:
+            raise RuntimeError("self._server_thread.server must not be None")
         self._host, self._port = self._server_thread.server.server_address  # type: ignore[misc, assignment]
         self.logger.info(
             "Started HTTPServer listening on http://%s:%s",
@@ -498,7 +504,8 @@ class HTTPServer(Driver):
 
     def flush_request_queue(self) -> None:
         """Flush the received messages queue."""
-        assert self.requests is not None
+        if self.requests is None:
+            raise RuntimeError("self.requests must not be None")
         deadline = time.time() + (5 * (self.timeout or 5))
         while not self.requests.empty() and time.time() < deadline:
             try:

@@ -27,7 +27,8 @@ def parse_template(template: str) -> Union[TempitaTemplate, Template]:
                 # raise the original jinja exception so user will fix it for jinja
                 raise
 
-    assert parsed_template is not None
+    if parsed_template is None:
+        raise RuntimeError("parsed_template must not be None")
     return parsed_template
 
 

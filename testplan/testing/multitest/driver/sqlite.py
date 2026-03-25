@@ -118,34 +118,40 @@ class Sqlite3(Driver):
         Context manager to perform operations and .commit() at exit.
         """
         yield
-        assert self.db is not None
+        if self.db is None:
+            raise RuntimeError("self.db must not be None")
         self.db.commit()
 
     def commit(self) -> None:
         """Commit db changes."""
-        assert self.db is not None
+        if self.db is None:
+            raise RuntimeError("self.db must not be None")
         self.db.commit()
 
     @_rollback_on_error
     def execute(self, *args: Any, **kwargs: Any) -> None:
         """Invoke cursor execute."""
-        assert self.cursor is not None
+        if self.cursor is None:
+            raise RuntimeError("self.cursor must not be None")
         self.cursor.execute(*args, **kwargs)
 
     @_rollback_on_error
     def executemany(self, *args: Any) -> None:
         """Invoke cursor executemany."""
-        assert self.cursor is not None
+        if self.cursor is None:
+            raise RuntimeError("self.cursor must not be None")
         self.cursor.executemany(*args)
 
     def fetchone(self) -> Optional[Any]:
         """Invoke cursor fetchone."""
-        assert self.cursor is not None
+        if self.cursor is None:
+            raise RuntimeError("self.cursor must not be None")
         return self.cursor.fetchone()
 
     def fetchall(self) -> List[Any]:
         """Invoke cursor fetchall."""
-        assert self.cursor is not None
+        if self.cursor is None:
+            raise RuntimeError("self.cursor must not be None")
         return self.cursor.fetchall()
 
     def fetch_table(
@@ -175,12 +181,14 @@ class Sqlite3(Driver):
         """
         if columns is None:
             self.execute("PRAGMA table_info({})".format(table))
-            assert self.cursor is not None
+            if self.cursor is None:
+                raise RuntimeError("self.cursor must not be None")
             columns = [str(col[1]) for col in self.cursor.fetchall()]
 
         self.execute("SELECT {} FROM {}".format(", ".join(columns), table))
 
-        assert self.cursor is not None
+        if self.cursor is None:
+            raise RuntimeError("self.cursor must not be None")
         result: List[List[Any]] = [columns]
         for row in self.cursor.fetchall():
             result.append([item for item in row])
