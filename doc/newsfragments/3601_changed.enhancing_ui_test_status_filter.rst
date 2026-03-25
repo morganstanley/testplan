@@ -1,0 +1,1 @@
+Replaced the toolbar pass/fail radio filter with a multi-select checkbox filter supporting all test statuses (passed, failed, error, skipped, xfail, xpass, xpass-strict, incomplete, unknown), including correct filtering through nested entry hierarchies.
