@@ -149,7 +149,7 @@ def test_testplan_decorator():
     pdf_path = "mypdf.pdf"
     with argv_overridden("--pdf", pdf_path):
 
-        @test_plan(name="MyPlan2", port=800)
+        @test_plan(name="MyPlan2", port=800, runpath=default_runpath_mock)
         def main2(plan, parser):
             args = parser.parse_args()
 

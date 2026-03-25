@@ -367,6 +367,12 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -378,11 +384,29 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -391,15 +415,14 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -408,15 +431,154 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -1457,6 +1619,12 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -1468,11 +1636,29 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -1481,15 +1667,14 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -1498,15 +1683,154 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -2496,6 +2820,12 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -2507,11 +2837,29 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -2520,15 +2868,14 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -2537,15 +2884,154 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -3657,6 +4143,12 @@ exports[`BatchReport loads a more complex error report 1`] = `
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -3668,11 +4160,29 @@ exports[`BatchReport loads a more complex error report 1`] = `
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -3681,15 +4191,14 @@ exports[`BatchReport loads a more complex error report 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -3698,15 +4207,154 @@ exports[`BatchReport loads a more complex error report 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -4630,6 +5278,12 @@ exports[`BatchReport loads a more complex report 1`] = `
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -4641,11 +5295,29 @@ exports[`BatchReport loads a more complex report 1`] = `
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -4654,15 +5326,14 @@ exports[`BatchReport loads a more complex report 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -4671,15 +5342,154 @@ exports[`BatchReport loads a more complex report 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -5895,6 +6705,12 @@ exports[`BatchReport loads a passed simple report 1`] = `
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -5906,11 +6722,29 @@ exports[`BatchReport loads a passed simple report 1`] = `
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -5919,15 +6753,14 @@ exports[`BatchReport loads a passed simple report 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -5936,15 +6769,154 @@ exports[`BatchReport loads a passed simple report 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -6618,6 +7590,12 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -6629,11 +7607,29 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -6642,15 +7638,14 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -6659,15 +7654,154 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -7457,6 +8591,12 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -7468,11 +8608,29 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -7481,15 +8639,14 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -7498,15 +8655,154 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -8758,6 +10054,12 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -8769,11 +10071,29 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -8782,15 +10102,14 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -8799,15 +10118,154 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -10135,6 +11593,12 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -10146,11 +11610,29 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -10159,15 +11641,14 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -10176,15 +11657,154 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -11477,6 +13097,12 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -11488,11 +13114,29 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -11501,15 +13145,14 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -11518,15 +13161,154 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
@@ -12520,6 +14302,12 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
               role="menu"
               tabindex="-1"
             >
+              <h6
+                class="dropdown-header"
+                tabindex="-1"
+              >
+                Filter by status
+              </h6>
               <button
                 class="dropdownItem_1h5fos4 dropdown-item"
                 role="menuitem"
@@ -12531,11 +14319,29 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
                   <input
                     checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="all"
+                    type="checkbox"
                   />
-                   All
+                   Unselect all
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupRed_1gzxq5j form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Failed
                 </label>
               </button>
               <button
@@ -12544,15 +14350,14 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="fail"
+                    type="checkbox"
                   />
-                   Failed only
+                   error
                 </label>
               </button>
               <button
@@ -12561,15 +14366,154 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
                 tabindex="0"
               >
                 <label
-                  class="filterLabel_1wpifct form-check-label"
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
                 >
                   <input
+                    checked=""
                     class="form-check-input"
-                    name="filter"
-                    type="radio"
-                    value="pass"
+                    type="checkbox"
                   />
-                   Passed only
+                   failed
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   incomplete
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass-strict
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupAmber_ajeqmf form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unstable
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   skipped
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xfail
+                </label>
+              </button>
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterLabel_indent2_1yeirxp form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   xpass
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupBlack_709877 form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Unknown
+                </label>
+              </button>
+              <div
+                class="dropdown-divider"
+                tabindex="-1"
+              />
+              <button
+                class="dropdownItem_1h5fos4 dropdown-item"
+                role="menuitem"
+                tabindex="0"
+              >
+                <label
+                  class="filterLabel_1wpifct-o_O-filterGroupGreen_1164vg form-check-label"
+                >
+                  <input
+                    checked=""
+                    class="form-check-input"
+                    type="checkbox"
+                  />
+                   Passed
                 </label>
               </button>
             </div>
