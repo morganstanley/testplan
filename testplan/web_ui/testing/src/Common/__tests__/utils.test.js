@@ -6,6 +6,8 @@ import {
   formatMilliseconds,
   formatShortDuration,
   getNavEntryDisplayData,
+  calcElapsedTime,
+  calcExecutionTime,
 } from "../utils";
 
 describe("Common/utils", () => {
@@ -108,6 +110,54 @@ describe("Common/utils", () => {
       expect(millisecondsFormatted).toEqual("59h 0m 59.999s");
       expect(secondsFormatted).toEqual("59h 0m 59.999s");
       expect(shortFormatted).toEqual("59h:1m");
+    });
+  });
+
+  describe("calcElapsedTime", () => {
+    it("returns elapsed time from the last interval", () => {
+      const timerField = [{ start: 1.0, end: 3.5 }];
+      expect(calcElapsedTime(timerField)).toEqual(2500);
+    });
+
+    it("uses the last interval when multiple are present", () => {
+      const timerField = [
+        { start: 1.0, end: 2.0 },
+        { start: 10.0, end: 14.0 },
+      ];
+      expect(calcElapsedTime(timerField)).toEqual(4000);
+    });
+
+    it("returns null when end is null", () => {
+      const timerField = [{ start: 1.0, end: null }];
+      expect(calcElapsedTime(timerField)).toBeNull();
+    });
+
+    it("returns null for null input", () => {
+      expect(calcElapsedTime(null)).toBeNull();
+    });
+
+    it("returns null for undefined input", () => {
+      expect(calcElapsedTime(undefined)).toBeNull();
+    });
+
+    it("returns null for empty array", () => {
+      expect(calcElapsedTime([])).toBeNull();
+    });
+  });
+
+  describe("calcExecutionTime", () => {
+    it("returns elapsed time from entry timer run field", () => {
+      const entry = { timer: { run: [{ start: 1.0, end: 3.0 }] } };
+      expect(calcExecutionTime(entry)).toEqual(2000);
+    });
+
+    it("returns null when timer is missing", () => {
+      expect(calcExecutionTime({})).toBeNull();
+    });
+
+    it("returns null when run has null end", () => {
+      const entry = { timer: { run: [{ start: 1.0, end: null }] } };
+      expect(calcExecutionTime(entry)).toBeNull();
     });
   });
 });
