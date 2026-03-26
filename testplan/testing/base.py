@@ -536,7 +536,7 @@ class Test(Runnable):
                 ResourceHooks.ENVIRONMENT_STOP.value: "teardown",
             }.get(suite_name)
             if timer_key and timer_key in self.timer:
-                self.result.report[suite_name].timer["run"] = self.timer[
+                self.result.report[suite_name].timer["run"] = self.timer[  # type: ignore[attr-defined]
                     timer_key
                 ]
 

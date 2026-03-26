@@ -22,6 +22,15 @@ from testplan.report.testing.styles import StyleFlag
 from testplan.testing import tagging
 
 from . import constants as const
+
+# Import the actual RowData class for use in type annotations.  The RowData
+# re-exported by .base is ``functools.partial(_RowData, num_columns=NUM_COLUMNS)``
+# — a *callable* that produces _RowData instances with a baked-in column count.
+# Because functools.partial is not a class, mypy rejects it in positions that
+# expect a type (return annotations, variable annotations, Optional[...], etc.).
+# At runtime we still call the partial ``RowData(...)`` to construct rows; only
+# the *annotations* use the underlying class.
+from testplan.common.exporters.pdf import RowData as _RowData
 from .base import BaseRowRenderer, MetadataMixin, RowData, format_duration
 
 
@@ -112,7 +121,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         source: TestReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Render Testplan header & metadata
 
@@ -185,7 +194,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         depth: int,
         row_idx: int,
         lvl: int = logging.ERROR,
-    ) -> Optional[RowData]:
+    ) -> Optional[_RowData]:
         """
         Get logs created by the `report.logger` object.
         Only select the logs with severity level equal to or higher than `lvl`.
@@ -226,7 +235,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         source: TestGroupReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Display test name/description, passed status & logs (if enabled).
 
@@ -259,7 +268,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         source: TestGroupReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Assuming we have 4 columns per row, render the header in the format:
 
@@ -313,7 +322,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         description: str,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Description for a test object,
         this will generally be docstring text.
@@ -344,7 +353,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         depth: int,
         row_idx: int,
         lvl: int = logging.ERROR,
-    ) -> Optional[RowData]:
+    ) -> Optional[_RowData]:
         """
         Get logs created by the `report.logger` object.
         Only select the logs with severity level equal to or higher than `lvl`.
@@ -435,7 +444,7 @@ class MultiTestRowBuilder(TestRowRenderer):
         source: TestGroupReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Display short summary & run times along with pass/fail status.
 
@@ -443,7 +452,7 @@ class MultiTestRowBuilder(TestRowRenderer):
         :param depth: Depth of the source object on report tree. Used for indentation.
         :param row_idx: Index of the current table row to be rendered.
         """
-        row_data: RowData = RowData(
+        row_data: _RowData = RowData(
             start=row_idx,
             content=const.EMPTY_ROW,  # type: ignore[arg-type]
             style=RowStyle(line_below=(1, colors.black)),

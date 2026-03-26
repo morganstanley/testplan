@@ -47,7 +47,7 @@ class RootTraceIdGenerator:
             # Format: 00-{trace_id}-{span_id}-{flags}
             trace_id_hex = traceparent.split("-")[1]
             return int(trace_id_hex, 16)
-        return self._random_generator.generate_trace_id()  # type: ignore[no-any-return]
+        return self._random_generator.generate_trace_id()
 
     def generate_span_id(self) -> int:
         """
@@ -56,7 +56,7 @@ class RootTraceIdGenerator:
         :return: Span ID as integer
         :rtype: int
         """
-        return self._random_generator.generate_span_id()  # type: ignore[no-any-return]
+        return self._random_generator.generate_span_id()
 
 
 class Tracing(Loggable):
@@ -175,7 +175,7 @@ class Tracing(Loggable):
             exporter = GrpcSpanExporter(credentials=credentials)
             self.logger.debug(f"Using gRPC exporter for endpoint: {endpoint}")
 
-        provider = TracerProvider(id_generator=RootTraceIdGenerator(self))
+        provider = TracerProvider(id_generator=RootTraceIdGenerator(self))  # type: ignore[arg-type]
         # Tune BatchSpanProcessor for short-lived worker processes:
         # Allow overriding via environment, else use more aggressive default.
         schedule_delay = int(os.getenv("OTEL_BSP_SCHEDULE_DELAY", 200))
@@ -290,7 +290,7 @@ class Tracing(Loggable):
         """
         if not self._tracing_enabled:
             return None
-        return self._tracer.start_span(
+        return self._tracer.start_span(  # type: ignore[no-any-return]
             span_name,
             context=context,
             start_time=start_time,
@@ -346,7 +346,7 @@ class Tracing(Loggable):
         :rtype: Dict[str, object]
         """
         if not self._tracing_enabled:
-            return {}
+            return {}  # type: ignore[return-value]
         from opentelemetry.propagate import extract  # pylint: disable=import-error
 
         return extract(self._root_context)
