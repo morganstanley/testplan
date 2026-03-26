@@ -123,9 +123,13 @@ class ScopedLogfileMatch:
             self.regex, self.timeout, raise_on_timeout=False
         )
         if self.log_matcher._debug_info_s is None:
-            raise RuntimeError("self.log_matcher._debug_info_s must not be None")
+            raise RuntimeError(
+                "self.log_matcher._debug_info_s must not be None"
+            )
         if self.log_matcher._debug_info_e is None:
-            raise RuntimeError("self.log_matcher._debug_info_e must not be None")
+            raise RuntimeError(
+                "self.log_matcher._debug_info_e must not be None"
+            )
         s_pos = self.log_matcher._debug_info_s[0]
         e_pos = self.log_matcher._debug_info_e[0]
         if m is not None:

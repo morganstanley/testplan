@@ -117,7 +117,9 @@ class RotatedFileLogStream(LogStream[T]):
             return
 
         if not isinstance(position, self.FileLogPosition):
-            raise TypeError(f"Expected self.FileLogPosition, got {type(position)!r}")
+            raise TypeError(
+                f"Expected self.FileLogPosition, got {type(position)!r}"
+            )
         if self._file is None or self.inode != position.inode:
             files = self._get_files()
             for file in files:

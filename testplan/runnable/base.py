@@ -1154,7 +1154,9 @@ class TestRunner(Runnable):
                 task_arguments["weight"],
             )
             if not isinstance(task_info.target, Task):
-                raise TypeError(f"Expected Task, got {type(task_info.target)!r}")
+                raise TypeError(
+                    f"Expected Task, got {type(task_info.target)!r}"
+                )
             if num_of_parts == 1:
                 task_info.target.weight = task_arguments["weight"]
                 partitioned.append(task_info)
@@ -1168,7 +1170,9 @@ class TestRunner(Runnable):
 
         else:
             if not isinstance(task_info.target, Task):
-                raise TypeError(f"Expected Task, got {type(task_info.target)!r}")
+                raise TypeError(
+                    f"Expected Task, got {type(task_info.target)!r}"
+                )
             if time_info and not task_info.target.weight:
                 task_info.target.weight = math.ceil(
                     time_info["execution_time"]
@@ -1451,7 +1455,9 @@ class TestRunner(Runnable):
 
         if self.cfg.resource_monitor:
             if self.resource_monitor_server_file_path is None:
-                raise RuntimeError("self.resource_monitor_server_file_path must not be None")
+                raise RuntimeError(
+                    "self.resource_monitor_server_file_path must not be None"
+                )
             self.resource_monitor_server = ResourceMonitorServer(
                 self.resource_monitor_server_file_path,
                 detailed=self.cfg.logger_level == logger.DEBUG,

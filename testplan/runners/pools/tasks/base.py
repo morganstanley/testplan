@@ -244,7 +244,9 @@ class Task(SelectiveSerializable):
         if self._module is None:
             try:
                 if not isinstance(self._target, str):
-                    raise TypeError(f"Expected str, got {type(self._target)!r}")
+                    raise TypeError(
+                        f"Expected str, got {type(self._target)!r}"
+                    )
                 module, target = self._target.rsplit(".", 1)
             except ValueError:
                 raise TaskMaterializationError(
