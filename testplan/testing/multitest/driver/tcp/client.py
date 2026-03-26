@@ -1,7 +1,7 @@
 """TCPClient driver classes."""
 
 import socket
-from typing import Union, Tuple, Optional
+from typing import Any, Dict, Union, Tuple, Optional
 
 from schema import Or
 from testplan.common.utils import networking
@@ -24,7 +24,7 @@ class TCPClientConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -70,46 +70,48 @@ class TCPClient(Driver):
         port: Union[int, str, ContextValue],
         interface: Union[Tuple[str, int], None] = None,
         connect_at_start: bool = True,
-        **options,
-    ):
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(TCPClient, self).__init__(**options)
         self._host: Optional[str] = None
         self._port: Optional[int] = None
-        self._client = None
-        self._server_host = None
-        self._server_port = None
+        self._client: Optional[Client] = None
+        self._server_host: Optional[str] = None
+        self._server_port: Optional[int] = None
 
     @property
-    def host(self) -> str:
+    def host(self) -> Optional[str]:
         """Target host name."""
         return self._host
 
     @property
-    def port(self) -> int:
+    def port(self) -> Optional[int]:
         """Client port number assigned."""
         return self._port
 
     @property
-    def server_port(self) -> int:
+    def server_port(self) -> Optional[int]:
         return self._server_port
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> Optional[int]:
         return self.server_port
 
     @property
-    def local_port(self):
+    def local_port(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_host(self):
+    def local_host(self) -> Optional[str]:
         return self.host
 
     def connect(self) -> None:
         """
         Connect client.
         """
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         self._client.connect()
         self._host, self._port = self._client.address
 
@@ -129,6 +131,8 @@ class TCPClient(Driver):
 
         :return: Number of bytes sent
         """
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.send(msg)[1]
 
     def send_tsp(self, msg: bytes) -> Tuple[float, int]:
@@ -140,22 +144,29 @@ class TCPClient(Driver):
         :return: Timestamp when msg sent (in microseconds from epoch)
                  and number of bytes sent
         """
+        if self._client is None:
+            raise RuntimeError("self._client must not be None")
         return self._client.send(msg)
 
-    def receive_text(self, standard: str = "utf-8", **kwargs) -> str:
+    def receive_text(self, standard: str = "utf-8", **kwargs: Any) -> str:
         """
         Calls
         :py:meth:`TCPClient.receive
         <testplan.testing.multitest.driver.tcp.server.TCPClient.receive>`
         and decodes received bytes.
         """
-        return self.receive(**kwargs).decode(standard)
+        received = self.receive(**kwargs)
+        if received is None:
+            raise RuntimeError("received must not be None")
+        return received.decode(standard)
 
     def receive(self, size: int = 1024, timeout: int = 30) -> Optional[bytes]:
         """Receive bytes from the given connection."""
         received = None
         timeout_info = TimeoutExceptionInfo()
         try:
+            if self._client is None:
+                raise RuntimeError("self._client must not be None")
             received = self._client.receive(size, timeout=timeout or 0)
         except socket.timeout:
             if timeout is not None:

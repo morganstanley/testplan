@@ -1,7 +1,7 @@
 """PyUnit test runner."""
 
 import unittest
-from typing import Generator, Dict
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 
 from testplan.testing import base as testing
 from testplan.common.utils.observability import TraceLevel, tracing
@@ -23,7 +23,7 @@ class PyUnitConfig(testing.TestConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {"testcases": [type(unittest.TestCase)]}
 
 
@@ -44,20 +44,26 @@ class PyUnit(testing.Test):
     CONFIG = PyUnitConfig
     _TESTCASE_NAME = "PyUnit test results"
 
-    def __init__(self, name, testcases, description=None, **kwargs):
+    def __init__(
+        self,
+        name: str,
+        testcases: List[Type[unittest.TestCase]],
+        description: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         super(PyUnit, self).__init__(
             name=name, testcases=testcases, description=description, **kwargs
         )
-        self._pyunit_testcases = {
+        self._pyunit_testcases: Dict[str, Type[unittest.TestCase]] = {
             testcase.__name__: testcase for testcase in self.cfg.testcases
         }
 
-    def add_main_batch_steps(self):
+    def add_main_batch_steps(self) -> None:
         """Specify the test steps: run the tests, then log the results."""
         self._add_step(self.run_tests)
         self._add_step(self.log_test_results)
 
-    def run_tests(self):
+    def run_tests(self) -> TestGroupReport:
         """Run PyUnit and wait for it to terminate."""
         with (
             tracing.conditional_span(
@@ -66,13 +72,13 @@ class PyUnit(testing.Test):
             ) as pyunit_span,
             self.report.timer.record("run"),
         ):
-            self.result.report.extend(self._run_tests())
+            self.result.report.extend(self._run_tests())  # type: ignore[attr-defined]
             if self.report.failed:
                 tracing.set_span_as_failed(pyunit_span)
 
         return self.report
 
-    def get_test_context(self):
+    def get_test_context(self) -> List[Tuple[str, List[str]]]:
         """
         Currently we do not inspect individual PyUnit testcases - only allow
         the whole suite to be run.
@@ -82,7 +88,7 @@ class PyUnit(testing.Test):
             for testcase in self._pyunit_testcases.keys()
         ]
 
-    def _dry_run_testsuites(self):
+    def _dry_run_testsuites(self) -> None:
         for pyunit_testcase in self.cfg.testcases:
             testsuite_report = TestGroupReport(
                 name=pyunit_testcase.__name__,
@@ -94,13 +100,14 @@ class PyUnit(testing.Test):
                     )
                 ],
             )
-            self.result.report.append(testsuite_report)
+            self.result.report.append(testsuite_report)  # type: ignore[attr-defined]
 
     def run_testcases_iter(
         self,
         testsuite_pattern: str = "*",
         testcase_pattern: str = "*",
-        shallow_report: Dict = None,
+        shallow_report: Optional[Dict] = None,
+        **kwargs: Any,
     ) -> Generator:
         """
         Run all testcases and yield testcase reports.
@@ -139,12 +146,14 @@ class PyUnit(testing.Test):
                 ],
             )
 
-    def _run_tests(self):
+    def _run_tests(self) -> Generator[TestGroupReport, None, None]:
         """Run tests and yield testsuite reports."""
         for pyunit_testcase in self.cfg.testcases:
             yield self._run_testsuite(pyunit_testcase)
 
-    def _run_testsuite(self, pyunit_testcase):
+    def _run_testsuite(
+        self, pyunit_testcase: Type[unittest.TestCase]
+    ) -> TestGroupReport:
         """Run a single PyUnit Testcase as a suite and return a testsuite report."""
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(
             pyunit_testcase

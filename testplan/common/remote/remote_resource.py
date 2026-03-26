@@ -4,7 +4,7 @@ import re
 import sys
 from collections.abc import Iterable, Iterator
 from functools import partial
-from typing import Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 from schema import And, Or
 
@@ -48,14 +48,16 @@ class WorkerSetupMetadata:
     """
 
     def __init__(self) -> None:
-        self.setup_script = None
-        self.env = None
+        self.setup_script: Optional[List[str]] = None
+        self.env: Optional[Dict[str, str]] = None
 
 
 class _LocationPaths:
     """Store local and remote equivalent paths."""
 
-    def __init__(self, local: str = None, remote: str = None) -> None:
+    def __init__(
+        self, local: Optional[str] = None, remote: Optional[str] = None
+    ) -> None:
         self.local = local
         self.remote = remote
 
@@ -65,7 +67,7 @@ class _LocationPaths:
 
 class UnboundRemoteResourceConfig(EntityConfig):
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -105,7 +107,7 @@ class UnboundRemoteResourceConfig(EntityConfig):
 
 class RemoteResourceConfig(UnboundRemoteResourceConfig):
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -155,24 +157,24 @@ class RemoteResource(Entity):
         ssh_port: int = 22,
         ssh_cmd: Callable = ssh_cmd,
         copy_cmd: Callable = copy_cmd,
-        workspace: str = None,
-        workspace_exclude: List[str] = None,
-        remote_runpath: str = None,
-        remote_workspace: str = None,
+        workspace: Optional[str] = None,
+        workspace_exclude: Optional[List[str]] = None,
+        remote_runpath: Optional[str] = None,
+        remote_workspace: Optional[str] = None,
         clean_remote: bool = False,
-        push: List[Union[str, Tuple]] = None,
-        push_exclude: List[str] = None,
+        push: Optional[List[Union[str, Tuple]]] = None,
+        push_exclude: Optional[List[str]] = None,
         delete_pushed: bool = False,
         fetch_runpath: bool = True,
-        fetch_runpath_exclude: List[str] = None,
-        pull: List[str] = None,
-        pull_exclude: List[str] = None,
-        env: Dict[str, str] = None,
-        setup_script: List[str] = None,
+        fetch_runpath_exclude: Optional[List[str]] = None,
+        pull: Optional[List[str]] = None,
+        pull_exclude: Optional[List[str]] = None,
+        env: Optional[Dict[str, str]] = None,
+        setup_script: Optional[List[str]] = None,
         paramiko_config: Optional[dict] = None,
         remote_runtime_builder: Optional[RuntimeBuilder] = None,
         status_wait_timeout: int = 600,
-        **options,
+        **options: Any,
     ) -> None:
         if not worker_is_remote(remote_host):
             # TODO: allow connecting to local for testing purpose?
@@ -204,12 +206,12 @@ class RemoteResource(Entity):
         self._workspace_paths = _LocationPaths()
         self._working_dirs = _LocationPaths()
 
-        self._error_exec = []
+        self._error_exec: List[Exception] = []
 
         # remote file system obj outside runpath that needs to be cleaned upon
         # exit when clean_remote is True, otherwise it will break workspace
         # detect etc. in next run
-        self._dangling_remote_fs_obj = (
+        self._dangling_remote_fs_obj: Optional[str] = (
             None  # TODO: merge into _pushed_remote_paths
         )
 
@@ -220,12 +222,12 @@ class RemoteResource(Entity):
         )
 
         # used in subclasses, see remote_python_bin
-        self._remote_pybin = None
+        self._remote_pybin: Optional[str] = None
         self._remote_runtime_builder: RuntimeBuilder = (
             self.cfg.remote_runtime_builder or SourceTransferBuilder()
         )
 
-        self._pushed_remote_paths = []
+        self._pushed_remote_paths: List[str] = []
 
     @property
     def error_exec(self) -> list:
@@ -277,6 +279,8 @@ class RemoteResource(Entity):
             self._remote_plan_runpath, self._get_plan().runid_filename
         )
 
+        if self.runpath is None:
+            raise RuntimeError("runpath is not set")
         self._remote_resource_runpath = rebase_path(
             self.runpath,
             plan_runpath,
@@ -303,6 +307,12 @@ class RemoteResource(Entity):
 
     def _remote_working_dir(self) -> str:
         """Choose a working directory to use on the remote host."""
+        if self._working_dirs.local is None:
+            raise RuntimeError("local working directory is not set")
+        if self._workspace_paths.local is None:
+            raise RuntimeError("local workspace path is not set")
+        if self._workspace_paths.remote is None:
+            raise RuntimeError("remote workspace path is not set")
         if not is_subdir(
             self._working_dirs.local, self._workspace_paths.local
         ):
@@ -361,15 +371,17 @@ class RemoteResource(Entity):
             label="create remote resource runpath",
         )
 
-    def _setup_remote_pyenv(self):
+    def _setup_remote_pyenv(self) -> None:
         """
         setup remote python runtime environment with RuntimeBuilder
         """
 
+        if self.runpath is None:
+            raise RuntimeError("runpath is not set")
         self._remote_runtime_builder.bootstrap(
             local_runpath=self.runpath,
             remote_runpath=self._remote_plan_runpath,
-            local_cmd_exec=partial(
+            local_cmd_exec=partial(  # type: ignore[arg-type]
                 execute_cmd, logger=self._remote_runtime_builder.logger
             ),
             remote_cmd_exec=self._ssh_client.exec_command,
@@ -381,6 +393,8 @@ class RemoteResource(Entity):
         self.logger.info(
             "%s: picking remote python %s", self, self._remote_pybin
         )
+        if self._remote_pybin is None:
+            raise RuntimeError("remote python binary is not set")
         self._log_remote_python_ver(self._remote_pybin)
         paths_to_transfer = self._remote_runtime_builder.local_export_pyenv()
         remote_paths = self._push_files_to_dst(
@@ -393,7 +407,7 @@ class RemoteResource(Entity):
             self._remote_runtime_builder.remote_setup_pyenv(remote_paths)
         )
 
-    def _log_remote_python_ver(self, remote_python_bin: str):
+    def _log_remote_python_ver(self, remote_python_bin: str) -> None:
         _, stdout, _ = self._ssh_client.exec_command(
             cmd=f'{remote_python_bin} -c "import sys; print(tuple(sys.version_info))"',
             label="detect remote python version",
@@ -502,8 +516,8 @@ class RemoteResource(Entity):
             self._transfer_data(
                 # join with "" to add trailing "/" to source
                 # this will copy everything under local workspace path to fetched_workspace
-                source=os.path.join(self._workspace_paths.local, ""),
-                target=self._workspace_paths.remote,
+                source=os.path.join(self._workspace_paths.local, ""),  # type: ignore[arg-type]
+                target=self._workspace_paths.remote,  # type: ignore[arg-type]
                 remote_target=True,
                 exclude=self.cfg.workspace_exclude,
             )
@@ -548,7 +562,7 @@ class RemoteResource(Entity):
                 0
                 == self._ssh_client.exec_command(
                     cmd=mkdir_cmd(
-                        os.path.dirname(self._workspace_paths.local)
+                        os.path.dirname(self._workspace_paths.local)  # type: ignore[type-var]
                     ),
                     label="imitate local workspace path on remote - mkdir",
                     check=False,  # just best effort
@@ -575,19 +589,23 @@ class RemoteResource(Entity):
                     self._dangling_remote_fs_obj,
                 )
 
-    def _push_files(self, paths, exclude_patterns=None):
+    def _push_files(
+        self, paths: list, exclude_patterns: Optional[list] = None
+    ) -> List[str]:
         """Push files and directories to remote host."""
 
         # First enumerate the paths to be pushed, including
         # both their local source and remote destinations.
         push_pairs = self._build_push_lists(paths)
 
-        self._pushed_remote_paths.extend([path.remote for path in push_pairs])
+        self._pushed_remote_paths.extend([path.remote for path in push_pairs])  # type: ignore[misc]
 
         # Now actually push the files to the remote host.
         return self._push_files_to_dst(push_pairs, exclude_patterns)
 
-    def _build_push_lists(self, push_sources) -> List[_LocationPaths]:
+    def _build_push_lists(
+        self, push_sources: Union[List[str], List[Tuple[str, str]]]
+    ) -> List[_LocationPaths]:
         """
         Create lists of the source and destination paths of files and
         directories to be pushed. Eliminate duplication of sub-directories.
@@ -640,6 +658,10 @@ class RemoteResource(Entity):
         directory.
 
         """
+        if self._working_dirs.local is None:
+            raise RuntimeError("local working directory is not set")
+        if self._working_dirs.remote is None:
+            raise RuntimeError("remote working directory is not set")
         push_locations = []
 
         if IS_WIN:
@@ -685,10 +707,10 @@ class RemoteResource(Entity):
 
     def _push_files_to_dst(
         self,
-        loc_paths: Iterable[Union[_LocationPaths, tuple[str, str]]],
-        exclude: Optional[list[str]],
-        **copy_args,
-    ) -> list[str]:
+        loc_paths: Iterable[Union[_LocationPaths, Tuple[str, str]]],
+        exclude: Optional[List[str]],
+        **copy_args: Any,
+    ) -> List[str]:
         """
         Push files and directories to the remote host. Both the source and
         destination paths should be specified.
@@ -726,10 +748,12 @@ class RemoteResource(Entity):
             )
         self.logger.debug("Fetch results stage - %s", self.ssh_cfg["host"])
         try:
+            if self.parent is None:
+                raise RuntimeError("parent is not set")
             self._transfer_data(
                 source=self._remote_resource_runpath,
                 remote_source=True,
-                target=self.parent.runpath,
+                target=cast(str, self.parent.runpath),
                 exclude=self.cfg.fetch_runpath_exclude,
             )
             if self.cfg.pull:
@@ -773,6 +797,8 @@ class RemoteResource(Entity):
     def _pull_files(self) -> None:
         """Pull custom files from remote host."""
 
+        if self.runpath is None:
+            raise RuntimeError("runpath is not set")
         pull_dst = os.path.join(self.runpath, "pulled_files")
         makedirs(pull_dst)
 
@@ -793,7 +819,11 @@ class RemoteResource(Entity):
                 )
 
     def _remote_sys_path(self) -> List[str]:
-        sys_path = [self._testplan_import_path.remote]
+        if self._workspace_paths.local is None:
+            raise RuntimeError("local workspace path is not set")
+        if self._workspace_paths.remote is None:
+            raise RuntimeError("remote workspace path is not set")
+        sys_path: List[str] = [cast(str, self._testplan_import_path.remote)]
 
         for path in sys.path:
             if path.startswith(sys.base_prefix):
@@ -813,7 +843,7 @@ class RemoteResource(Entity):
 
         return sys_path
 
-    def _get_plan(self):
+    def _get_plan(self) -> "testplan.runnable.TestRunner":
         """traverse upwards to find TestRunner"""
 
         parent = getattr(self, "parent", None)
@@ -826,7 +856,7 @@ class RemoteResource(Entity):
             "impossible: no TestRunner ancestor, caller side bug"
         )
 
-    def _remote_copy_path(self, path):
+    def _remote_copy_path(self, path: str) -> str:
         """
         Return a path on the remote host in the format user@host:path,
         suitable for use in a copy command such as `scp`.
@@ -837,12 +867,12 @@ class RemoteResource(Entity):
 
     def _transfer_data(
         self,
-        source,
-        target,
-        remote_source=False,
-        remote_target=False,
-        **copy_args,
-    ):
+        source: str,
+        target: str,
+        remote_source: bool = False,
+        remote_target: bool = False,
+        **copy_args: Any,
+    ) -> None:
         if remote_source:
             source = self._remote_copy_path(source)
         if remote_target:
@@ -855,11 +885,11 @@ class RemoteResource(Entity):
             execute_cmd(
                 cmd,
                 "transfer data [..{}]".format(os.path.basename(source)),
-                stdout=devnull,
+                stdout=devnull,  # type: ignore[arg-type]
                 logger=self.logger,
             )
 
-    def _check_remote_os(self):
+    def _check_remote_os(self) -> None:
         if "REMOTE_OS" not in os.environ:
             _, stdout, _ = self._ssh_client.exec_command(
                 cmd="cat /etc/os-release",
