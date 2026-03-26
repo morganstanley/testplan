@@ -47,7 +47,7 @@ class RootTraceIdGenerator:
             # Format: 00-{trace_id}-{span_id}-{flags}
             trace_id_hex = traceparent.split("-")[1]
             return int(trace_id_hex, 16)
-        return self._random_generator.generate_trace_id()
+        return self._random_generator.generate_trace_id()  # type: ignore[no-any-return]
 
     def generate_span_id(self) -> int:
         """
@@ -56,7 +56,7 @@ class RootTraceIdGenerator:
         :return: Span ID as integer
         :rtype: int
         """
-        return self._random_generator.generate_span_id()
+        return self._random_generator.generate_span_id()  # type: ignore[no-any-return]
 
 
 class Tracing(Loggable):

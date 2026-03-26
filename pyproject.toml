@@ -184,6 +184,15 @@ disallow_incomplete_defs = false
 # Ignore missing stubs for third-party libraries without type information
 ignore_missing_imports = true
 
+# Opentelemetry stubs vary across versions; suppress unused-ignore so that
+# type: ignore comments needed on CI (older stubs) don't error locally (newer stubs).
+[[tool.mypy.overrides]]
+module = [
+    "testplan.common.utils.observability.tracing",
+    "testplan.common.utils.observability.loki_exporter",
+]
+warn_unused_ignores = false
+
 # Exclude vendored code from type checking
 [[tool.mypy.overrides]]
 module = "testplan.vendor.*"
