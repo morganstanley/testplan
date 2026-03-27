@@ -24,7 +24,7 @@ class ToJsonAction(ProcessResultAction):
     Writer action for exporting JSON format.
     """
 
-    def __init__(self, output: str) -> None:
+    def __init__(self, output: click.Path) -> None:
         """
         :param output: path to write output to
         """
@@ -43,7 +43,7 @@ class ToJsonAction(ProcessResultAction):
 
 @writer_commands.command(name="tojson")
 @click.argument("output", type=click.Path())
-def to_json(output: str) -> ToJsonAction:
+def to_json(output: click.Path) -> ToJsonAction:
     """
     Writer command for exporting JSON format.
 
@@ -57,7 +57,7 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
     Writer action for exporting PDF format.
     """
 
-    def __init__(self, filename: str, style: StyleArg) -> None:
+    def __init__(self, filename: click.Path, style: StyleArg) -> None:
         """
         :param filename: filename to write to
         :param style: report style to use
@@ -94,7 +94,7 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
              while failing tests will include assertion detail\n
         """,
 )
-def to_pdf(filename: str, pdf_style: str) -> ToPDFAction:
+def to_pdf(filename: click.Path, pdf_style: click.Choice) -> ToPDFAction:
     """
     Writer command for exporting PDF format.
 

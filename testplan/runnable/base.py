@@ -33,6 +33,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 import psutil
@@ -106,7 +107,7 @@ class TaskInformation:
     target: TestTask
     materialized_test: Test
     uid: str
-    task_arguments: Optional[dict]
+    task_arguments: dict
     num_of_parts: Union[None, int, Literal["auto"]]
 
 
@@ -491,11 +492,9 @@ class TestRunner(Runnable):
         self.remote_services: Dict[str, "RemoteService"] = {}
         self.runid_filename: str = uuid.uuid4().hex
         self.define_runpath()
-        if self.result.report is None:
-            raise RuntimeError("self.result.report must not be None")
-        if self.runpath is None:
-            raise RuntimeError("self.runpath must not be None")
-        self.result.report.information.append(("runpath", self.runpath))
+        self.result.report.information.append(
+            ("runpath", cast(str, self.runpath))
+        )
         self._archive_path: Optional[str] = None
         self._define_archive_path()
         self._runnable_uids: Set[str] = set()
@@ -705,8 +704,6 @@ class TestRunner(Runnable):
         self, task_info: TaskInformation, part_tuple: Tuple[int, int]
     ) -> TaskInformation:
         task_arguments = task_info.task_arguments
-        if task_arguments is None:
-            raise RuntimeError("task_arguments must not be None")
         task_arguments["part"] = part_tuple
         self.logger.debug(
             "Task re-created with arguments: %s",
@@ -1147,8 +1144,6 @@ class TestRunner(Runnable):
 
             # by now we shall have a valid num_of_part, user specified or auto derived
             task_arguments = task_info.task_arguments
-            if task_arguments is None:
-                raise RuntimeError("task_arguments must not be None")
             if "weight" not in task_arguments:
                 task_arguments["weight"] = (
                     math.ceil(
@@ -1297,7 +1292,7 @@ class TestRunner(Runnable):
             target._uid = uid
 
         return TaskInformation(
-            target, materialized_test, uid, task_arguments, num_of_parts
+            target, materialized_test, uid, task_arguments or {}, num_of_parts
         )
 
     def _register_task_for_interactive(

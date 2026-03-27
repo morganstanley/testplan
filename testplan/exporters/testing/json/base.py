@@ -6,21 +6,23 @@ for `dict` serialization and JSON conversion.
 import hashlib
 import os
 import pathlib
-
 from shutil import copyfile
 from typing import Any, Dict, List, Optional
 
+from schema import Or
+
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import (
-    ExporterConfig,
     ExportContext,
+    ExporterConfig,
     verify_export_context,
 )
 from testplan.common.utils.json import json_dumps, json_loads
 from testplan.common.utils.path import makedirs
 from testplan.defaults import ATTACHMENTS, RESOURCE_DATA
-from testplan.report.testing.base import TestReport, TestCaseReport
+from testplan.report.testing.base import TestCaseReport, TestReport
 from testplan.report.testing.schemas import TestReportSchema
+
 from ..base import Exporter
 
 
@@ -69,7 +71,7 @@ class JSONExporterConfig(ExporterConfig):
     @classmethod
     def get_options(cls) -> Dict[Any, Any]:
         return {
-            ConfigOption("json_path"): str,
+            ConfigOption("json_path"): Or(str, pathlib.Path),
             # By default a single JSON file should be exported, with cfg option
             # `split_json_report` enabled it generates a main JSON file with 2
             # attachments, this is useful when there's some limit on file size.

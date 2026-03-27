@@ -129,7 +129,7 @@ class PDFExporterConfig(BasePDFExporterConfig):
 
     @classmethod
     def get_options(cls) -> Dict[Any, Any]:
-        return {ConfigOption("pdf_path"): str}
+        return {ConfigOption("pdf_path"): Or(str, pathlib.Path)}
 
 
 class TagFilteredPDFExporterConfig(
