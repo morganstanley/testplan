@@ -602,8 +602,11 @@ def test_tag_func(tag_func, expected_tags, expected_tags_index):
         (None, "Original docstring"),
         (lambda docstring, kwargs: "foo", "foo"),
         (
-            lambda docstring, kwargs: "{docstring} "
-            "- {first} - {second}".format(docstring=docstring, **kwargs),
+            lambda docstring, kwargs: (
+                "{docstring} - {first} - {second}".format(
+                    docstring=docstring, **kwargs
+                )
+            ),
             "Original docstring - foo - bar",
         ),
     ),
