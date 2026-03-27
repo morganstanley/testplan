@@ -38,13 +38,13 @@ from testplan.common.report import Status as ReportStatus
 from testplan.common.utils import interface, strings, validation
 from testplan.common.utils.composer import compose_contexts
 from testplan.common.utils.context import render
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.common.utils.process import (
     enforce_timeout,
     kill_process,
     subprocess_popen,
 )
 from testplan.common.utils.timing import format_duration, parse_duration
-from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report import TestCaseReport, TestGroupReport, test_styles
 from testplan.testing import common, filtering, ordering, result, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
@@ -940,7 +940,7 @@ class Test(Runnable):
         if getattr(self.cfg, "xfail_tests", None):
             found = self.cfg.xfail_tests.get(pattern)
             if found:
-                report.xfail(strict=found["strict"])
+                report.xfail(strict=found["strict"], when=found.get("when"))
 
     def _record_driver_timing(
         self, setup_or_teardown: str, case_report: TestCaseReport

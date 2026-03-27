@@ -3,19 +3,20 @@
 Web application for Testplan & Monitor UIs,
 """
 
+import argparse
 import os
 import pathlib
-import argparse
 from threading import Thread
 
 import orjson
 
 try:
     import werkzeug.exceptions
-    from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
-    from flask import Flask, send_from_directory, redirect, jsonify
+    from cheroot.wsgi import PathInfoDispatcher
+    from cheroot.wsgi import Server as WSGIServer
+    from flask import Flask, jsonify, redirect, send_from_directory
     from flask_orjson import OrjsonProvider
-    from flask_restx import Resource, Api
+    from flask_restx import Api, Resource
 except ImportError as e:
     raise RuntimeError(
         "Certain packages failed to import, please consider installing Testplan "
@@ -24,6 +25,7 @@ except ImportError as e:
 
 from testplan import defaults
 from testplan.common.utils.path import pwd
+
 from .fix_spec import FIX_SPEC
 
 TESTPLAN_UI_STATIC_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -33,7 +35,7 @@ MONITOR_REPORT = "monitor_report.json"
 
 app = Flask(__name__)
 _provider = OrjsonProvider(app)
-_provider.option |= orjson.OPT_NON_STR_KEYS
+_provider.option |= orjson.OPT_NON_STR_KEYS  # type: ignore[operator]
 app.json = _provider
 _api = Api(app)
 

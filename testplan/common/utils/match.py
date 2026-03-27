@@ -122,16 +122,8 @@ class ScopedLogfileMatch:
         m = self.log_matcher.match(
             self.regex, self.timeout, raise_on_timeout=False
         )
-        if self.log_matcher._debug_info_s is None:
-            raise RuntimeError(
-                "self.log_matcher._debug_info_s must not be None"
-            )
-        if self.log_matcher._debug_info_e is None:
-            raise RuntimeError(
-                "self.log_matcher._debug_info_e must not be None"
-            )
-        s_pos = self.log_matcher._debug_info_s[0]
-        e_pos = self.log_matcher._debug_info_e[0]
+        s_pos = self.log_matcher._debug_info_s[0]  # type: ignore[misc]
+        e_pos = self.log_matcher._debug_info_e[0]  # type: ignore[misc]
         if m is not None:
             self.match_results.append((m, self.regex, s_pos, e_pos))
         else:
@@ -160,8 +152,8 @@ class LogMatcher(logger.Loggable):
         self.position: Optional[LogPosition] = None
         self.log_stream: RotatedFileLogStream = self._create_log_stream()
 
-        self._debug_info_s: Optional[Tuple[str, float, str]] = ()  # type: ignore[assignment]
-        self._debug_info_e: Optional[Tuple[str, float, str]] = ()  # type: ignore[assignment]
+        self._debug_info_s = ()
+        self._debug_info_e = ()
 
         # deprecation helpers
         self.had_transformed = False
@@ -325,17 +317,13 @@ class LogMatcher(logger.Loggable):
         :param raise_on_timeout: To raise TimeoutException or not
         :return: The regex match or None if no match is found
         """
-        self._debug_info_s = None
-        self._debug_info_e = None
+        self._debug_info_s = None  # type: ignore[assignment]
+        self._debug_info_e = None  # type: ignore[assignment]
         regex = self._prepare_regexp(regex)
 
         m = self._match(regex, timeout=timeout)
 
         if m is None:
-            if self._debug_info_s is None:
-                raise RuntimeError("self._debug_info_s must not be None")
-            if self._debug_info_e is None:
-                raise RuntimeError("self._debug_info_e must not be None")
             self.logger.debug(
                 "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
@@ -369,17 +357,13 @@ class LogMatcher(logger.Loggable):
             0 means should not wait and return whatever matched on initial
             scan, defaults to 5 seconds
         """
-        self._debug_info_s = None
-        self._debug_info_e = None
+        self._debug_info_s = None  # type: ignore[assignment]
+        self._debug_info_e = None  # type: ignore[assignment]
         regex = self._prepare_regexp(regex)
 
         m = self._match(regex, timeout)
 
         if m is not None:
-            if self._debug_info_s is None:
-                raise RuntimeError("self._debug_info_s must not be None")
-            if self._debug_info_e is None:
-                raise RuntimeError("self._debug_info_e must not be None")
             self.logger.debug(
                 "%s: unexpected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
@@ -413,7 +397,6 @@ class LogMatcher(logger.Loggable):
         matches = []
         end_time = time.time() + timeout
 
-        self._debug_info_s = None
         regex = self._prepare_regexp(regex)
 
         while True:
@@ -423,7 +406,8 @@ class LogMatcher(logger.Loggable):
                 t = end_time - time.time()
                 if t <= 0:
                     break
-            self._debug_info_e = None
+            self._debug_info_s = None  # type: ignore[assignment]
+            self._debug_info_e = None  # type: ignore[assignment]
             m = self._match(regex, t)
             if m is not None:
                 matches.append(m)
@@ -431,10 +415,6 @@ class LogMatcher(logger.Loggable):
                 break
 
         if not matches:
-            if self._debug_info_s is None:
-                raise RuntimeError("self._debug_info_s must not be None")
-            if self._debug_info_e is None:
-                raise RuntimeError("self._debug_info_e must not be None")
             self.logger.debug(
                 "%s: no expected match[%s] found,\nsearch starting from %s (around %s), "
                 "where first line seen as:\n%s"
