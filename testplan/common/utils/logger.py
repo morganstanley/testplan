@@ -14,6 +14,7 @@ The logging facility is used for:
 import logging
 import os
 import sys
+from typing import Any, Optional
 
 from testplan.common.report import Status
 from testplan.common.utils.strings import Color
@@ -59,7 +60,7 @@ class TestplanLogger(logging.Logger):
         }
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initialise the logger and add our custom log levels and methods to
         log at each level.
@@ -70,9 +71,9 @@ class TestplanLogger(logging.Logger):
         # log at each level, but by defining these methods statically on the
         # class they can be included in the API docs.
         for level_name, level in self._CUSTOM_LEVELS.items():
-            logging.addLevelName(level_name, level)
+            logging.addLevelName(level, level_name)
 
-    def user_info(self, msg, *args, **kwargs):
+    def user_info(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log 'msg % args' with severity 'USER_INFO'"""
         self._custom_log(USER_INFO, msg, *args, **kwargs)
 
@@ -82,7 +83,7 @@ class TestplanLogger(logging.Logger):
         message: str,
         indent: int = 0,
         level: int = DEBUG,
-    ):
+    ) -> None:
         indent_str = indent * " "
         msg = self._TEST_MESSAGE_FORMAT
         self._custom_log(
@@ -97,7 +98,7 @@ class TestplanLogger(logging.Logger):
         status: Status,
         indent: int = 0,
         level: int = USER_INFO,
-    ):
+    ) -> None:
         """Shortcut to log a pass/fail status for a test."""
         if status.normalised() == Status.PASSED:
             pass_label = Color.green(status.name.title())
@@ -116,13 +117,15 @@ class TestplanLogger(logging.Logger):
             {"name": name, "pass_label": pass_label, "indent": indent_str},
         )
 
-    def _custom_log(self, level, msg, *args, **kwargs):
+    def _custom_log(
+        self, level: int, msg: str, *args: Any, **kwargs: Any
+    ) -> None:
         """Log 'msg % args' with severity 'level'."""
         if self.isEnabledFor(level):
             self._log(level, msg, args, **kwargs)
 
 
-def _initial_setup() -> tuple[TestplanLogger, logging.StreamHandler]:
+def _initial_setup() -> "tuple[TestplanLogger, logging.StreamHandler[Any]]":
     """
     Perform initial setup for the logger. Creates and adds a handler to log
     to stdout with default level USER_INFO.
@@ -131,7 +134,7 @@ def _initial_setup() -> tuple[TestplanLogger, logging.StreamHandler]:
     :type: ``tuple``
     """
     logging.setLoggerClass(TestplanLogger)
-    root_logger = logging.getLogger(LOGGER_NAME)
+    root_logger: TestplanLogger = logging.getLogger(LOGGER_NAME)  # type: ignore[assignment]
 
     # Set the level of the root logger to DEBUG so that nothing is filtered out
     # by the logger itself - the handlers will perform filtering.
@@ -159,7 +162,9 @@ def _initial_setup() -> tuple[TestplanLogger, logging.StreamHandler]:
 TESTPLAN_LOGGER, STDOUT_HANDLER = _initial_setup()
 
 
-def configure_file_logger(level, runpath):
+def configure_file_logger(
+    level: int, runpath: str
+) -> Optional[logging.FileHandler]:
     """
     Configure the file logger.
 
@@ -211,7 +216,7 @@ class Loggable:
     logger and its associated handlers.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Adds a new logger to this object. The logger name must begin with
         "testplan." to ensure that the logs bubble up to the root testplan
@@ -222,7 +227,7 @@ class Loggable:
         # "testplan.<class name>" as the logger name, since class names are
         # mostly unique.
 
-        self._logger = None
+        self._logger: Optional[TestplanLogger] = None
         super(Loggable, self).__init__()
 
     @property
@@ -233,14 +238,15 @@ class Loggable:
         # pickled/deepcopied, but we need to do that for task target which
         # could be a multitest object.
 
-        if self._logger:
+        if self._logger is not None:
             return self._logger
 
-        self._logger = logging.getLogger(f"{LOGGER_NAME}.{self}")
-        return self._logger
+        logger = logging.getLogger(f"{LOGGER_NAME}.{self}")
+        self._logger = logger  # type: ignore[assignment]
+        return self._logger  # type: ignore[return-value]
 
     @property
-    def _debug_logging_enabled(self):
+    def _debug_logging_enabled(self) -> bool:
         """
         :return: True if the logging level is DEBUG (or lower) for the stdout
             handler. We don't consider the file handler because that always

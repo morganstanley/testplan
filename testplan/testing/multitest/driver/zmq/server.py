@@ -1,5 +1,7 @@
 """ZMQServer Driver."""
 
+from typing import Any, Dict, Optional
+
 from schema import Use, Or
 import zmq
 
@@ -25,7 +27,7 @@ class ZMQServerConfig(DriverConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         """
         Schema for options validation and assignment of default values.
         """
@@ -68,54 +70,56 @@ class ZMQServer(Driver):
         name: str,
         host: str = "localhost",
         port: int = 0,
-        message_pattern=zmq.PAIR,
-        **options,
-    ):
+        message_pattern: int = zmq.PAIR,
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(ZMQServer, self).__init__(**options)
-        self._host: str = None
-        self._port: int = None
-        self._zmq_context = None
-        self._socket = None
+        self._host: Optional[str] = None
+        self._port: Optional[int] = None
+        self._zmq_context: Optional[zmq.Context[Any]] = None
+        self._socket: Optional[zmq.Socket[Any]] = None
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         """Target host name."""
         return self._host
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
-    def port(self):
+    def port(self) -> Optional[int]:
         """Port number assigned."""
         return self._port
 
     @property
-    def socket(self):
+    def socket(self) -> Optional[zmq.Socket[Any]]:
         """
         Returns the underlying ``zmq.sugar.socket.Socket`` object.
         """
         return self._socket
 
     @property
-    def connection_identifier(self):
+    def connection_identifier(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_port(self):
+    def local_port(self) -> Optional[int]:
         return self.port
 
     @property
-    def local_host(self):
+    def local_host(self) -> Optional[str]:
         return self.host
 
-    def send(self, data, timeout=30):
+    def send(self, data: Any, timeout: int = 30) -> Any:
         """
         Try to send the message until it either sends or hits timeout.
 
         :param timeout: Timeout to retry sending the message
         :type timeout: ``int``
         """
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.send,
@@ -124,7 +128,7 @@ class ZMQServer(Driver):
             raise_on_timeout=True,
         )
 
-    def receive(self, timeout=30):
+    def receive(self, timeout: int = 30) -> Any:
         """
         Try to send the message until it either has been received or
         hits timeout.
@@ -135,6 +139,8 @@ class ZMQServer(Driver):
         :return: The received message
         :rtype: ``object`` or ``str`` or ``zmq.sugar.frame.Frame``
         """
+        if self._socket is None:
+            raise RuntimeError("self._socket must not be None")
         return retry_until_timeout(
             exception=zmq.ZMQError,
             item=self._socket.recv,
@@ -143,7 +149,7 @@ class ZMQServer(Driver):
             raise_on_timeout=True,
         )
 
-    def starting(self):
+    def starting(self) -> None:
         """
         Start the ZMQServer.
         """
@@ -165,19 +171,19 @@ class ZMQServer(Driver):
         self._host = self.cfg.host
         self._port = port
 
-    def stopping(self):
+    def stopping(self) -> None:
         """
         Stop the ZMQServer.
         """
         super(ZMQServer, self).stopping()
-        if not self._socket.closed:
+        if self._socket is not None and not self._socket.closed:
             self._socket.close()
-        if not self._zmq_context.closed:
+        if self._zmq_context is not None and not self._zmq_context.closed:
             self._zmq_context.term()
 
-    def aborting(self):
+    def aborting(self) -> None:
         """Abort logic that stops the server."""
-        if not self._socket.closed:
+        if self._socket is not None and not self._socket.closed:
             self._socket.close()
-        if not self._zmq_context.closed:
+        if self._zmq_context is not None and not self._zmq_context.closed:
             self._zmq_context.term()

@@ -4,7 +4,7 @@ Implements one-phase importer for Testplan JSON format.
 
 import os
 import pathlib
-from typing import List
+from typing import Any, Dict, List, Optional
 
 from testplan.common.utils.json import json_loads
 from testplan.defaults import ATTACHMENTS
@@ -53,13 +53,13 @@ class TestplanResultImporter(ResultImporter):
 
     def fix_attachments_path(
         self,
-        report: dict,
-        attachment_dir: pathlib.Path = None,
-    ):
+        report: Dict[str, Any],
+        attachment_dir: Optional[pathlib.Path] = None,
+    ) -> Dict[str, Any]:
         """
         Best effort fix attachment path in case report.json and _attachments are copied around
         """
-        attachment_dir = (
+        resolved_dir: str = (
             str(attachment_dir)
             if attachment_dir
             else os.path.join(os.path.dirname(self.path), ATTACHMENTS)
@@ -71,12 +71,12 @@ class TestplanResultImporter(ResultImporter):
                     break
                 else:
                     # attempt to fix attachment path
-                    alt_src = os.path.join(attachment_dir, dst)
+                    alt_src = os.path.join(resolved_dir, dst)
                     if os.path.isfile(alt_src):
                         report["attachments"][dst] = alt_src
 
         # recursively fix entries
-        def _fix_attachments_path(report):
+        def _fix_attachments_path(report: Dict[str, Any]) -> None:
             if report.get("entries"):
                 for entry in report["entries"]:
                     _fix_attachments_path(entry)
@@ -84,7 +84,7 @@ class TestplanResultImporter(ResultImporter):
                 if os.path.isfile(report["source_path"]):
                     # attachment path is correct
                     return
-                alt_src = os.path.join(attachment_dir, report["dst_path"])
+                alt_src = os.path.join(resolved_dir, report["dst_path"])
                 if os.path.isfile(alt_src):
                     report["source_path"] = alt_src
 

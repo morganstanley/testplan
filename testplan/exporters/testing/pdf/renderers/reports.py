@@ -4,7 +4,7 @@ PDF Renderer classes for test report objects.
 
 import logging
 from collections import OrderedDict
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Type, Union
 
 from reportlab.lib import colors, styles
 from reportlab.platypus import Paragraph
@@ -22,18 +22,29 @@ from testplan.report.testing.styles import StyleFlag
 from testplan.testing import tagging
 
 from . import constants as const
+
+# Import the actual RowData class for use in type annotations.  The RowData
+# re-exported by .base is ``functools.partial(_RowData, num_columns=NUM_COLUMNS)``
+# — a *callable* that produces _RowData instances with a baked-in column count.
+# Because functools.partial is not a class, mypy rejects it in positions that
+# expect a type (return annotations, variable annotations, Optional[...], etc.).
+# At runtime we still call the partial ``RowData(...)`` to construct rows; only
+# the *annotations* use the underlying class.
+from testplan.common.exporters.pdf import RowData as _RowData
 from .base import BaseRowRenderer, MetadataMixin, RowData, format_duration
 
 
 class ReportRendererRegistry(Registry):
-    def __getitem__(self, item):
+    def __getitem__(
+        self, item: Union[TestReport, TestGroupReport, TestCaseReport]
+    ) -> Type[BaseRowRenderer]:
         """Try to get renderers for TestGroupReports by category first"""
         if isinstance(item, TestGroupReport):
             try:
-                return self.data[(type(item), item.category)]
+                return self.data[(type(item), item.category)]  # type: ignore[no-any-return]
             except KeyError:
                 pass
-        return super(ReportRendererRegistry, self).__getitem__(item)
+        return super(ReportRendererRegistry, self).__getitem__(item)  # type: ignore[no-any-return]
 
 
 registry = ReportRendererRegistry()
@@ -76,7 +87,9 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
 
         :param source: Source object for the renderer. Report for a Testplan test run.
         """
-        ctx = super(TestReportRenderer, self).get_metadata_context(source)
+        ctx: OrderedDict[str, str] = super(
+            TestReportRenderer, self
+        ).get_metadata_context(source)
 
         ctx.update(
             [
@@ -98,7 +111,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
                         run_interval.start.strftime(self.datetime_fmt),
                     ),
                     ("End time", run_interval.end.strftime(self.datetime_fmt)),
-                    ("Elapsed", format_duration(run_interval.elapsed)),
+                    ("Elapsed", format_duration(run_interval.elapsed)),  # type: ignore[arg-type]
                 ]
             )
         return ctx
@@ -108,7 +121,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         source: TestReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Render Testplan header & metadata
 
@@ -181,7 +194,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         depth: int,
         row_idx: int,
         lvl: int = logging.ERROR,
-    ) -> Optional[RowData]:
+    ) -> Optional[_RowData]:
         """
         Get logs created by the `report.logger` object.
         Only select the logs with severity level equal to or higher than `lvl`.
@@ -222,7 +235,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         source: TestGroupReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Display test name/description, passed status & logs (if enabled).
 
@@ -246,7 +259,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
 
         return row_data
 
-    def get_header_linestyle(self) -> Tuple[int, colors.HexColor]:
+    def get_header_linestyle(self) -> Tuple[float, colors.HexColor]:
         """Styling for the line below test header."""
         return 1, colors.lightgrey
 
@@ -255,7 +268,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         source: TestGroupReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Assuming we have 4 columns per row, render the header in the format:
 
@@ -309,7 +322,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         description: str,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Description for a test object,
         this will generally be docstring text.
@@ -340,7 +353,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         depth: int,
         row_idx: int,
         lvl: int = logging.ERROR,
-    ) -> Optional[RowData]:
+    ) -> Optional[_RowData]:
         """
         Get logs created by the `report.logger` object.
         Only select the logs with severity level equal to or higher than `lvl`.
@@ -371,10 +384,12 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
             else None
         )
 
-    def get_style(self, source) -> StyleFlag:
+    def get_style(
+        self, source: Union[TestGroupReport, TestCaseReport]
+    ) -> StyleFlag:
         if source.passed:
-            return self.style.passing
-        return self.style.failing
+            return self.style.passing  # type: ignore[no-any-return]
+        return self.style.failing  # type: ignore[no-any-return]
 
     def should_display(self, source: TestGroupReport) -> bool:
         """
@@ -387,10 +402,10 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
             ReportCategories.TESTSUITE,
             ReportCategories.SYNTHESIZED,
         ):
-            return style.display_testsuite
+            return style.display_testsuite  # type: ignore[attr-defined, no-any-return]
         elif source.category == ReportCategories.PARAMETRIZATION:
-            return style.display_testcase
-        return style.display_test
+            return style.display_testcase  # type: ignore[attr-defined, no-any-return]
+        return style.display_test  # type: ignore[attr-defined, no-any-return]
 
 
 @registry.bind(TestCaseReport)
@@ -400,22 +415,24 @@ class TestCaseRowBuilder(TestRowRenderer):
     to a testcase method / function.
     """
 
-    def get_header_linestyle(self) -> Tuple[int, colors.HexColor]:
+    def get_header_linestyle(self) -> Tuple[float, colors.HexColor]:
         """
         Testcase line separators are a little bit
         thinner, as there are many testcases per test run.
         """
         return 0.5, colors.lightgrey
 
-    def should_display(self, source: TestCaseReport) -> bool:
-        return self.get_style(source).display_testcase
+    def should_display(
+        self, source: Union[TestGroupReport, TestCaseReport]
+    ) -> bool:
+        return self.get_style(source).display_testcase  # type: ignore[attr-defined, no-any-return]
 
 
 @registry.bind((TestGroupReport, ReportCategories.MULTITEST))
 class MultiTestRowBuilder(TestRowRenderer):
     """Multitests get special treatment with extra formatting & summary."""
 
-    def get_header_linestyle(self) -> Tuple[int, colors.HexColor]:
+    def get_header_linestyle(self) -> Tuple[float, colors.HexColor]:
         """
         More distinctive line separator for Multitests,
         as they are high level test containers.
@@ -427,7 +444,7 @@ class MultiTestRowBuilder(TestRowRenderer):
         source: TestGroupReport,
         depth: int,
         row_idx: int,
-    ) -> RowData:
+    ) -> _RowData:
         """
         Display short summary & run times along with pass/fail status.
 
@@ -435,9 +452,9 @@ class MultiTestRowBuilder(TestRowRenderer):
         :param depth: Depth of the source object on report tree. Used for indentation.
         :param row_idx: Index of the current table row to be rendered.
         """
-        row_data = RowData(
+        row_data: _RowData = RowData(
             start=row_idx,
-            content=const.EMPTY_ROW,
+            content=const.EMPTY_ROW,  # type: ignore[arg-type]
             style=RowStyle(line_below=(1, colors.black)),
         )
 
@@ -455,7 +472,7 @@ class MultiTestRowBuilder(TestRowRenderer):
 
         if "run" in source.timer:
             summary += ", total run time: {}.".format(
-                format_duration(source.timer.last(key="run").elapsed)
+                format_duration(source.timer.last(key="run").elapsed)  # type: ignore[arg-type]
             )
 
         row_data.append(

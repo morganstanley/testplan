@@ -7,7 +7,7 @@ import pathlib
 import shutil
 import socket
 from collections import Counter
-from typing import Generator, List, Dict, Union, Optional
+from typing import Any, Generator, List, Dict, Type, Union, Optional
 
 from lxml import etree
 from lxml.etree import Element
@@ -54,7 +54,7 @@ class BaseRenderer:
         :return: testsuites element
         """
         testsuites = []
-        counter = Counter({})
+        counter: Counter[str] = Counter({})
 
         for index, suite_report in enumerate(source):
             counter += suite_report.counter
@@ -96,7 +96,10 @@ class BaseRenderer:
                 raise TypeError("Unsupported report type: {}".format(child))
 
     def render_testsuite(
-        self, index, test_report, testsuite_report
+        self,
+        index: int,
+        test_report: TestGroupReport,
+        testsuite_report: TestGroupReport,
     ) -> Element:
         """
         Renders a single testsuite with its testcases within a `testsuite` tag.
@@ -129,7 +132,7 @@ class BaseRenderer:
 
     def render_testcase(
         self,
-        test_report: TestReport,
+        test_report: TestGroupReport,
         testsuite_report: TestGroupReport,
         testcase_report: TestCaseReport,
     ) -> Element:
@@ -234,7 +237,7 @@ class MultiTestRenderer(BaseRenderer):
     Final XML will have flattened testcase data from parametrization groups.
     """
 
-    def get_testcase_reports(
+    def get_testcase_reports(  # type: ignore[override]
         self, testsuite_report: Union[TestCaseReport, TestGroupReport]
     ) -> List[TestCaseReport]:
         """
@@ -265,7 +268,7 @@ class XMLExporterConfig(ExporterConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {ConfigOption("xml_dir"): str}
 
 
@@ -277,13 +280,13 @@ class XMLExporter(Exporter):
     :param xml_dir: Directory for saving xml reports.
     """
 
-    CONFIG: XMLExporterConfig = XMLExporterConfig
+    CONFIG = XMLExporterConfig
 
-    renderer_map: Dict[ReportCategories, BaseRenderer] = {
+    renderer_map: Dict[str, Type[BaseRenderer]] = {
         ReportCategories.MULTITEST: MultiTestRenderer
     }
 
-    def __init__(self, name="XML exporter", **options):
+    def __init__(self, name: str = "XML exporter", **options: Any) -> None:
         super(XMLExporter, self).__init__(name=name, **options)
 
     def export(

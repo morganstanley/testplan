@@ -42,7 +42,7 @@ class TimeoutExceptionInfo:
     Holds timeout exception information.
     """
 
-    def __init__(self, start_time=None):
+    def __init__(self, start_time: Optional[float] = None) -> None:
         """
         Mark the time for started waiting.
         """
@@ -51,7 +51,7 @@ class TimeoutExceptionInfo:
         else:
             self.started = start_time
 
-    def msg(self):
+    def msg(self) -> str:
         """
         Return a message to be used by TimeoutException containing
         timing information.
@@ -74,32 +74,32 @@ class KThread(threading.Thread):
     A subclass of threading.Thread, with a kill() method.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         threading.Thread.__init__(self, *args, **kwargs)
         self._will_kill = False
 
-    def start(self):
+    def start(self) -> None:
         """Start the thread."""
         self.__run_backup = self.run
-        self.run = self.__run  # Force the Thread to install the trace
+        self.run = self.__run  # type: ignore[method-assign]  # Force the Thread to install the trace
         threading.Thread.start(self)
 
-    def __run(self):
+    def __run(self) -> None:
         """Hacked run function, which installs the trace."""
         sys.settrace(self.globaltrace)
         self.__run_backup()
-        self.run = self.__run_backup
+        self.run = self.__run_backup  # type: ignore[method-assign]
 
-    def globaltrace(self, frame, event, arg):
+    def globaltrace(self, frame: Any, event: str, arg: Any) -> Any:
         return self.localtrace if event == "call" else None
 
-    def localtrace(self, frame, event, arg):
+    def localtrace(self, frame: Any, event: str, arg: Any) -> Any:
         if self._will_kill and event == "line":
             raise SystemExit()
 
         return self.localtrace
 
-    def kill(self):
+    def kill(self) -> None:
         self._will_kill = True
 
 
@@ -117,18 +117,23 @@ def timeout(
     :rtype: ``callable``
     """
 
-    def timeout_decorator(func):
+    def timeout_decorator(func: Callable) -> Callable:
         """The real decorator used for setup, teardown and testcase methods."""
 
-        def _new_func(result, old_func, old_func_args, old_func_kwargs):
+        def _new_func(
+            result: list,
+            old_func: Callable,
+            old_func_args: tuple,
+            old_func_kwargs: dict,
+        ) -> None:
             try:
                 result.append(old_func(*old_func_args, **old_func_kwargs))
             except Exception:
                 result[0] = False
                 result.append(traceback.format_exc())
 
-        def wrapper(*args, **kwargs):
-            result = [True]
+        def wrapper(*args: Any, **kwargs: Any) -> list:
+            result: list = [True]
             new_kwargs = {
                 "result": result,
                 "old_func": func,
@@ -192,7 +197,7 @@ def wait(
 
 def wait_until_predicate(
     predicate: Callable[[], bool], timeout: int, interval: float = 1.0
-):
+) -> None:
     """
     Inverting wait() method behavior to raise if predicate() is True
     instead of raising on timeout.
@@ -221,8 +226,8 @@ def retry_until_timeout(
     exception: Type[Exception],
     item: Callable[..., Any],
     timeout: int,
-    args: List[Any] = None,
-    kwargs: Mapping[str, Any] = None,
+    args: Optional[List[Any]] = None,
+    kwargs: Optional[Mapping[str, Any]] = None,
     interval: float = 0.05,
     raise_on_timeout: bool = True,
 ) -> Any:
@@ -303,10 +308,10 @@ class Interval(_Interval):
     """Class that represents a block of time."""
 
     @property
-    def elapsed(self):
+    def elapsed(self) -> Optional[float]:
         """Return duration in seconds."""
         if self.start and self.end:
-            return (self.end - self.start).total_seconds()
+            return (self.end - self.start).total_seconds()  # type: ignore[no-any-return]
         return None
 
 
@@ -316,15 +321,20 @@ class TimerCtxManager:
     Uses tz aware utc timestamps.
     """
 
-    def __init__(self, timer, key):
+    def __init__(self, timer: "Timer", key: str) -> None:
         self.timer = timer
         self.key = key
-        self.start_ts = None
+        self.start_ts: Optional[datetime.datetime] = None
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.start_ts = now()
 
-    def __exit__(self, exc_type, exc_value, _):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        _: Any,
+    ) -> None:
         if self.key in self.timer:
             self.timer[self.key].append(
                 Interval(start=self.start_ts, end=now())
@@ -336,7 +346,7 @@ class TimerCtxManager:
 class Timer(dict):
     """Dict wrapper with a method for recording durations."""
 
-    def record(self, key):
+    def record(self, key: str) -> TimerCtxManager:
         """
         Records duration for the given `key`.
 
@@ -351,14 +361,14 @@ class Timer(dict):
         """
         return TimerCtxManager(timer=self, key=key)
 
-    def start(self, key):
+    def start(self, key: str) -> None:
         """Record the start timestamp for the given key."""
         if key in self:
             self[key].append(Interval(now(), None))
         else:
             self[key] = [Interval(now(), None)]
 
-    def end(self, key):
+    def end(self, key: str) -> None:
         """
         Record the end timestamp for the given key.
         """
@@ -367,18 +377,18 @@ class Timer(dict):
 
         self[key][-1] = Interval(self[key][-1].start, now())
 
-    def merge(self, timer):
+    def merge(self, timer: "Timer") -> None:
         for key in timer:
             if key in self:
                 self[key].extend(timer[key])
             else:
                 self[key] = timer[key]
 
-    def first(self, key):
-        return self[key][0]
+    def first(self, key: str) -> Interval:
+        return self[key][0]  # type: ignore[no-any-return]
 
-    def last(self, key):
-        return self[key][-1]
+    def last(self, key: str) -> Interval:
+        return self[key][-1]  # type: ignore[no-any-return]
 
 
 DURATION_REGEX = re.compile(
@@ -405,7 +415,7 @@ def parse_duration(duration: str) -> int:
 
     """
 
-    def _get_value(match_obj, group_name):
+    def _get_value(match_obj: re.Match, group_name: str) -> int:
         val = match_obj.group(group_name)
         return int(val) if val is not None else 0
 
@@ -419,12 +429,12 @@ def parse_duration(duration: str) -> int:
     minutes = _get_value(match, "minutes")
     seconds = _get_value(match, "seconds")
 
-    result = (hours * 3600) + (minutes * 60) + seconds
+    result: int = (hours * 3600) + (minutes * 60) + seconds
 
     if result <= 0:
         raise ValueError(err_msg)
 
-    return (hours * 3600) + (minutes * 60) + seconds
+    return result
 
 
 def format_duration(duration: int) -> str:
@@ -552,7 +562,7 @@ def with_timer(func: Callable) -> Callable:
     """
 
     @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
         with self.timer.record(func.__name__):
             return func(self, *args, **kwargs)
 

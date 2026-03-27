@@ -13,7 +13,7 @@ class ParseSingleAction:
     """
 
     def __call__(self) -> TestReport:
-        pass
+        raise NotImplementedError
 
 
 class ParseMultipleAction:
@@ -22,7 +22,7 @@ class ParseMultipleAction:
     """
 
     def __call__(self) -> Iterable[TestReport]:
-        pass
+        raise NotImplementedError
 
 
 class ProcessResultAction:
@@ -31,4 +31,4 @@ class ProcessResultAction:
     """
 
     def __call__(self, result: TestReport) -> TestReport:
-        pass
+        raise NotImplementedError

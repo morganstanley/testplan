@@ -6,7 +6,18 @@ import numbers
 import threading
 import warnings
 from concurrent import futures
-from typing import Awaitable, Dict, Optional, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from testplan.common import config, entity
 from testplan.common.report import Report
@@ -21,7 +32,7 @@ from testplan.runnable.interactive import http, reloader, resource_loader
 from testplan.testing.base import ResourceHooks
 
 
-def _exclude_assertions_filter(obj: object) -> bool:
+def _exclude_assertions_filter(obj: Any) -> bool:
     try:
         return obj["meta_type"] not in ("entry", "assertion")
     except Exception:
@@ -36,7 +47,7 @@ class TestRunnerIHandlerConfig(config.Config):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             "target": lambda obj: isinstance(obj, entity.Runnable),
             config.ConfigOption("startup_timeout", default=10): int,
@@ -50,26 +61,26 @@ class TestRunnerIHandler(entity.Entity):
     :py:class:`TestRunner <testplan.runnable.TestRunner>` runnable object.
     """
 
-    CONFIG = TestRunnerIHandlerConfig
+    CONFIG = TestRunnerIHandlerConfig  # type: ignore[assignment]
     STATUS = entity.RunnableStatus
 
     def __init__(
         self,
-        target,
-        startup_timeout=10,
-        http_port=0,
-        pre_start_environments=None,
-    ):
+        target: Any,
+        startup_timeout: int = 10,
+        http_port: int = 0,
+        pre_start_environments: Optional[List[str]] = None,
+    ) -> None:
         super(TestRunnerIHandler, self).__init__(
             target=target, startup_timeout=startup_timeout, http_port=http_port
         )
         self.cfg.parent = self.target.cfg
         self.parent = self.target
-        self._report = self._initial_report()
+        self._report = self._initial_report()  # type: ignore[assignment]
         self.report_mutex = threading.Lock()
-        self._pool = None
-        self._http_handler = None
-        self._created_environments = {}
+        self._pool: Optional[futures.ThreadPoolExecutor] = None
+        self._http_handler: Optional[http.TestRunnerHTTPHandler] = None
+        self._created_environments: Dict[str, Any] = {}
         self.pre_start_environments = pre_start_environments
 
         try:
@@ -80,10 +91,10 @@ class TestRunnerIHandler(entity.Entity):
                 ),
             )
         except RuntimeError:
-            self._reloader = None
+            self._reloader = None  # type: ignore[assignment]
         self._resource_loader = resource_loader.ResourceLoader()
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> None:
         """
         Shortcut to setup, run the interactive handler until interrupted, then
         teardown.
@@ -96,33 +107,35 @@ class TestRunnerIHandler(entity.Entity):
             self.teardown()
 
     @property
-    def report(self):
-        return self._report
+    def report(self) -> TestReport:  # type: ignore[override]
+        return self._report  # type: ignore[return-value]
 
     @property
-    def target(self):
+    def target(self) -> Any:
         """The test runner instance."""
         return self.cfg.target
 
     @property
-    def exit_code(self):
+    def exit_code(self) -> int:
         """Code to indicate success or failure."""
         return int(not self.report.passed)
 
     @property
-    def exporters(self):
+    def exporters(self) -> Any:
+        if self.parent is None:
+            raise RuntimeError("self.parent must not be None")
         return (
             self.parent.exporters if hasattr(self.parent, "exporters") else []
         )
 
     @property
-    def http_handler_info(self):
+    def http_handler_info(self) -> Any:
         if self._http_handler is None:
             return None, None
         else:
             return self._http_handler.bind_addr
 
-    def setup(self):
+    def setup(self) -> None:
         """Set up the task pool and HTTP handler."""
         self.target.make_runpath_dirs()
         self.report.information.append(("runpath", self.target.runpath))
@@ -135,7 +148,7 @@ class TestRunnerIHandler(entity.Entity):
         self._http_handler = self._setup_http_handler()
         self._pool = futures.ThreadPoolExecutor(max_workers=1)
 
-    def run(self):
+    def run(self) -> None:
         """
         Setup and run the HTTP handler. Logs connection information to the
         terminal.
@@ -159,7 +172,7 @@ class TestRunnerIHandler(entity.Entity):
         for test_uid in self.all_tests():
             self.test(test_uid).stop_test_resources()
 
-    def teardown(self):
+    def teardown(self) -> None:
         """Close the task pool."""
         self.logger.user_info("Stopping %s for %s", self, self.target)
 
@@ -170,11 +183,11 @@ class TestRunnerIHandler(entity.Entity):
         self._pool = None
         self._http_handler = None
 
-    def abort_dependencies(self):
+    def abort_dependencies(self) -> Generator[Any, None, None]:
         """Http service to be aborted at first."""
         yield self._http_handler
 
-    def test(self, test_uid):
+    def test(self, test_uid: str) -> Any:
         """
         Get a test instance with the specified UID.
 
@@ -183,7 +196,9 @@ class TestRunnerIHandler(entity.Entity):
         runner = self.target.resources[self.target.resources.first()]
         return runner.added_item(test_uid)
 
-    def reset_all_tests(self, await_results=True):
+    def reset_all_tests(
+        self, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Reset the Testplan report.
 
@@ -200,8 +215,11 @@ class TestRunnerIHandler(entity.Entity):
 
         for test_uid in self.all_tests():
             self.reset_test(test_uid)
+        return None
 
-    def reset_test(self, test_uid, await_results=True):
+    def reset_test(
+        self, test_uid: str, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Reset the report of a single Test instance.
 
@@ -230,12 +248,13 @@ class TestRunnerIHandler(entity.Entity):
             self.logger.debug('Reset test ["%s"]', test_uid)
             # After reset the runtime_status will be 'READY'
             self._update_reports([(self.test(test_uid).dry_run().report, [])])
+        return None
 
     def run_all_tests(
         self,
         shallow_report: Optional[Dict] = None,
         await_results: bool = True,
-    ) -> Union[TestReport, Awaitable]:
+    ) -> Optional[Awaitable[Any]]:
         """
         Runs all tests.
 
@@ -261,13 +280,14 @@ class TestRunnerIHandler(entity.Entity):
             self.logger.debug("Interactive mode: Run all tests")
             for test_uid in self.all_tests():
                 self.run_test(test_uid=test_uid)
+        return None
 
     def run_test(
         self,
         test_uid: str,
         shallow_report: Optional[Dict] = None,
         await_results: bool = True,
-    ) -> Union[TestReport, Awaitable]:
+    ) -> Optional[Awaitable[Any]]:
         """
         Run a single Test instance.
 
@@ -300,6 +320,7 @@ class TestRunnerIHandler(entity.Entity):
                     shallow_report=shallow_report
                 )
             )
+        return None
 
     def run_test_suite(
         self,
@@ -307,7 +328,7 @@ class TestRunnerIHandler(entity.Entity):
         suite_uid: str,
         shallow_report: Optional[Dict] = None,
         await_results: bool = True,
-    ) -> Union[TestReport, Awaitable]:
+    ) -> Optional[Awaitable[Any]]:
         """
         Run a single test suite.
 
@@ -349,6 +370,7 @@ class TestRunnerIHandler(entity.Entity):
                     testsuite_pattern=suite_uid, shallow_report=shallow_report
                 )
             )
+        return None
 
     def run_test_case(
         self,
@@ -357,7 +379,7 @@ class TestRunnerIHandler(entity.Entity):
         case_uid: str,
         shallow_report: Optional[Dict] = None,
         await_results: bool = True,
-    ) -> Union[TestReport, Awaitable]:
+    ) -> Optional[Awaitable[Any]]:
         """
         Run a single testcase.
 
@@ -408,6 +430,7 @@ class TestRunnerIHandler(entity.Entity):
                     shallow_report=shallow_report,
                 )
             )
+        return None
 
     def run_test_case_param(
         self,
@@ -417,7 +440,7 @@ class TestRunnerIHandler(entity.Entity):
         param_uid: str,
         shallow_report: Optional[Dict] = None,
         await_results: bool = True,
-    ):
+    ) -> Optional[Awaitable[Any]]:
         """
         Run a single parametrization of a testcase.
 
@@ -471,8 +494,11 @@ class TestRunnerIHandler(entity.Entity):
                     shallow_report=shallow_report,
                 )
             )
+        return None
 
-    def start_test_resources(self, test_uid, await_results=True):
+    def start_test_resources(
+        self, test_uid: str, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Start all test resources.
 
@@ -507,8 +533,11 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self._set_env_status(test_uid, entity.ResourceStatus.STARTED)
+        return None
 
-    def stop_test_resources(self, test_uid, await_results=True):
+    def stop_test_resources(
+        self, test_uid: str, await_results: bool = True
+    ) -> Optional[Awaitable[Any]]:
         """
         Stop all test resources.
 
@@ -540,8 +569,11 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
+        return None
 
-    def get_driver_info_report(self, test_uid, start_or_stop):
+    def get_driver_info_report(
+        self, test_uid: str, start_or_stop: str
+    ) -> None:
         # get the plotly graph attachment
         if (
             len(self.test(test_uid).resources) > 0
@@ -563,20 +595,25 @@ class TestRunnerIHandler(entity.Entity):
                 ]
             )
 
-    def get_environment(self, env_uid):
+    def get_environment(self, env_uid: str) -> Any:
         """Get an environment."""
         return self.target.resources.environments[env_uid]
 
-    def get_environment_resource(self, env_uid, resource_uid):
+    def get_environment_resource(self, env_uid: str, resource_uid: str) -> Any:
         """Get a resource from an environment."""
         return self.target.resources.environments[env_uid][resource_uid]
 
-    def test_resource(self, test_uid, resource_uid):
+    def test_resource(self, test_uid: str, resource_uid: str) -> Any:
         """Get a resource of a Test instance."""
         test = self.test(test_uid)
         return test.resources[resource_uid]
 
-    def test_report(self, test_uid, serialized=True, exclude_assertions=False):
+    def test_report(
+        self,
+        test_uid: str,
+        serialized: bool = True,
+        exclude_assertions: bool = False,
+    ) -> Any:
         """Get a test report."""
         test = self.test(test_uid)
         report = test.result.report
@@ -586,17 +623,23 @@ class TestRunnerIHandler(entity.Entity):
             return report.serialize()
         return report
 
-    def test_case_report(self, test_uid, suite_uid, case_uid, serialized=True):
+    def test_case_report(
+        self,
+        test_uid: str,
+        suite_uid: str,
+        case_uid: str,
+        serialized: bool = True,
+    ) -> Any:
         """Get a testcase report."""
         report = self.test_report(test_uid, serialized=False)
 
-        def is_assertion(obj):
+        def is_assertion(obj: Any) -> bool:
             try:
                 return obj["meta_type"] in ("entry", "assertion")
             except Exception:
                 return False
 
-        def case_filter(obj):
+        def case_filter(obj: Any) -> bool:
             try:
                 if obj.uid == case_uid:
                     return True
@@ -612,58 +655,58 @@ class TestRunnerIHandler(entity.Entity):
             return report.serialize()
         return report
 
-    def start_environment(self, env_uid):
+    def start_environment(self, env_uid: str) -> Dict[str, Any]:
         """Start the specified environment."""
         env = self.get_environment(env_uid)
         env.start()
         return {item.uid(): item.status.tag for item in env}
 
-    def stop_environment(self, env_uid):
+    def stop_environment(self, env_uid: str) -> Dict[str, Any]:
         """Stop the specified environment."""
         env = self.get_environment(env_uid)
         env.stop(is_reversed=True)
         return {item.uid(): item.status.tag for item in env}
 
-    def start_resource(self, resource):
+    def start_resource(self, resource: Any) -> None:
         """Start a resource."""
         resource.start()
         resource._wait_started()
 
-    def stop_resource(self, resource):
+    def stop_resource(self, resource: Any) -> None:
         """Stop a resource."""
         resource.stop()
         resource._wait_stopped()
 
     def test_resource_operation(
-        self, test_uid, resource_uid, operation, **kwargs
-    ):
+        self, test_uid: str, resource_uid: str, operation: str, **kwargs: Any
+    ) -> Any:
         """Perform an operation on a test environment resource."""
         test = self.test(test_uid)
         resource = getattr(test.resources, resource_uid)
         func = getattr(resource, operation)
         return func(**kwargs)
 
-    def test_resource_start(self, test_uid, resource_uid):
+    def test_resource_start(self, test_uid: str, resource_uid: str) -> None:
         """Start a resource of a Test instance."""
         resource = self.test_resource(test_uid, resource_uid)
         self.start_resource(resource)
 
-    def test_resource_stop(self, test_uid, resource_uid):
+    def test_resource_stop(self, test_uid: str, resource_uid: str) -> None:
         """Stop a resource of a Test instance."""
         resource = self.test_resource(test_uid, resource_uid)
         self.stop_resource(resource)
 
     def get_environment_context(
         self,
-        env_uid,
-        resource_uid=None,
-        exclude_callables=True,
-        exclude_protected=True,
-        exclude_private=True,
-    ):
+        env_uid: str,
+        resource_uid: Optional[str] = None,
+        exclude_callables: bool = True,
+        exclude_protected: bool = True,
+        exclude_private: bool = True,
+    ) -> Dict[str, Dict[str, Any]]:
         """Get the context information of an environment."""
         env = self.get_environment(env_uid)
-        result = {}
+        result: Dict[str, Dict[str, Any]] = {}
         for item in env:
             if resource_uid is not None and item.uid() != resource_uid:
                 continue
@@ -689,8 +732,12 @@ class TestRunnerIHandler(entity.Entity):
         return result
 
     def environment_resource_context(
-        self, env_uid, resource_uid, context_item=None, **kwargs
-    ):
+        self,
+        env_uid: str,
+        resource_uid: str,
+        context_item: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Any:
         """Get the context info of an environment resource."""
         result = self.get_environment_context(
             env_uid=env_uid, resource_uid=resource_uid, **kwargs
@@ -699,19 +746,23 @@ class TestRunnerIHandler(entity.Entity):
             return result[context_item]
         return result
 
-    def environment_resource_start(self, env_uid, resource_uid):
+    def environment_resource_start(
+        self, env_uid: str, resource_uid: str
+    ) -> None:
         """Start an environment resource."""
         resource = self.get_environment_resource(env_uid, resource_uid)
         self.start_resource(resource)
 
-    def environment_resource_stop(self, env_uid, resource_uid):
+    def environment_resource_stop(
+        self, env_uid: str, resource_uid: str
+    ) -> None:
         """Stop an environment resource."""
         resource = self.get_environment_resource(env_uid, resource_uid)
         self.stop_resource(resource)
 
     def environment_resource_operation(
-        self, env_uid, resource_uid, res_op, **kwargs
-    ):
+        self, env_uid: str, resource_uid: str, res_op: str, **kwargs: Any
+    ) -> Any:
         """Perform an operation on an environment resource."""
         if hasattr(self, "environment_resource_{}".format(res_op)):
             method = getattr(self, "environment_resource_{}".format(res_op))
@@ -721,7 +772,7 @@ class TestRunnerIHandler(entity.Entity):
             func = getattr(resource, res_op)
             return func(**kwargs)
 
-    def all_tests(self):
+    def all_tests(self) -> Generator[str, None, None]:
         """Get all added tests."""
         try:
             runner = self.target.resources[self.target.resources.first()]
@@ -730,15 +781,17 @@ class TestRunnerIHandler(entity.Entity):
         for test_uid in runner.added_items:
             yield test_uid
 
-    def start_tests(self):
+    def start_tests(self) -> None:
         """Start all tests environments."""
         self.all_tests_operation("start")
 
-    def stop_tests(self, runner_uid=None):
+    def stop_tests(self, runner_uid: Optional[str] = None) -> None:
         """Stop all tests environments."""
         self.all_tests_operation("stop")
 
-    def all_tests_operation(self, operation, await_results=True):
+    def all_tests_operation(
+        self, operation: str, await_results: bool = True
+    ) -> None:
         """Perform an operation in all tests."""
         all_tests = self.all_tests()
 
@@ -759,19 +812,19 @@ class TestRunnerIHandler(entity.Entity):
             else:
                 raise ValueError("Unknown operation: {}".format(operation))
 
-    def reload(self, rebuild_dependencies=False):
+    def reload(self, rebuild_dependencies: bool = False) -> None:
         """Reload test suites."""
         if self._reloader is None:
             raise RuntimeError("Reloader failed to initialize.")
         tests = (self.test(test) for test in self.all_tests())
         self._reloader.reload(tests, rebuild_dependencies)
 
-    def reload_report(self):
+    def reload_report(self) -> None:
         """Update report with added/removed testcases"""
         new_report = self._initial_report()
-        self._report = new_report.inherit(self.report)
+        self._report = new_report.inherit(self.report)  # type: ignore[assignment]
 
-    def _setup_http_handler(self):
+    def _setup_http_handler(self) -> http.TestRunnerHTTPHandler:
         """
         Initialises the interactive HTTP handler.
 
@@ -793,7 +846,7 @@ class TestRunnerIHandler(entity.Entity):
 
         return http_handler
 
-    def _display_connection_info(self):
+    def _display_connection_info(self) -> None:
         """
         Log information for how to connect to the interactive runner.
         Currently only the API is implemented so we log how to access the
@@ -826,9 +879,9 @@ class TestRunnerIHandler(entity.Entity):
 
         return report
 
-    def _auto_start_environment(self, test_uid):
+    def _auto_start_environment(self, test_uid: str) -> None:
         """Start environment if required."""
-        env_status = self.report[test_uid].env_status
+        env_status = self.report[test_uid].env_status  # type: ignore[attr-defined]
 
         if env_status is None:
             return
@@ -840,9 +893,9 @@ class TestRunnerIHandler(entity.Entity):
                 "Cannot auto start environment in state {}".format(env_status)
             )
 
-    def _auto_stop_environment(self, test_uid):
+    def _auto_stop_environment(self, test_uid: str) -> None:
         """Start environment if required."""
-        env_status = self.report[test_uid].env_status
+        env_status = self.report[test_uid].env_status  # type: ignore[attr-defined]
 
         if env_status is None:
             return
@@ -854,15 +907,15 @@ class TestRunnerIHandler(entity.Entity):
                 "Cannot auto stop environment in state {}".format(env_status)
             )
 
-    def _set_env_status(self, test_uid, new_status):
+    def _set_env_status(self, test_uid: str, new_status: str) -> None:
         """Set the environment status for a given test."""
         with self.report_mutex:
             self.logger.debug(
                 'Setting env status of "%s" to %s', test_uid, new_status
             )
-            self.report[test_uid].env_status = new_status
+            self.report[test_uid].env_status = new_status  # type: ignore[attr-defined]
 
-    def _clear_env_errors(self, test_uid):
+    def _clear_env_errors(self, test_uid: str) -> None:
         """Remove error logs about environment start/stop for a given test."""
         test = self.test(test_uid)
         test_report = self.report[test_uid]
@@ -870,29 +923,33 @@ class TestRunnerIHandler(entity.Entity):
             test.resources.start_exceptions.clear()
             test.resources.stop_exceptions.clear()
             test_report.logs.clear()
-            test_report.status_override = None
+            test_report.status_override = None  # type: ignore[assignment]
 
-    def _run_async(self, func, *args, **kwargs) -> Awaitable:
+    def _run_async(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Awaitable[Any]:
         """
         Schedule a function to run asynchronously in our task pool. We add a
         callback to ensure that all async exceptions are logged, for debugging
         purposes.
         """
+        if self._pool is None:
+            raise RuntimeError("self._pool must not be None")
         future = self._pool.submit(func, *args, **kwargs)
         future.add_done_callback(self._log_async_exceptions)
-        return future
+        return future  # type: ignore[return-value]
 
-    def _log_async_exceptions(self, future):
+    def _log_async_exceptions(self, future: futures.Future[Any]) -> None:
         """Log any exceptions that occur while running async."""
         try:
             future.result()
         except Exception:
             self.logger.exception("Exception caught in async function")
 
-    def _merge_report(self, report, parent_uids):
+    def _merge_report(self, report: Report, parent_uids: List[str]) -> None:
         """Merge test report from a test run."""
         with self.report_mutex:
-            parent_entry = self.report
+            parent_entry: Any = self.report
             for uid in parent_uids:
                 parent_entry = parent_entry[uid]
 
@@ -901,16 +958,18 @@ class TestRunnerIHandler(entity.Entity):
                 report,
                 parent_uids,
             )
-            for attachment in report.attachments:
+            for attachment in report.attachments:  # type: ignore[attr-defined]
                 self.report.attachments[attachment.dst_path] = (
                     attachment.source_path
                 )
             parent_entry[report.uid] = report
 
-    def _merge_attributes(self, attribs, parent_uids):
+    def _merge_attributes(
+        self, attribs: Dict[str, Any], parent_uids: List[str]
+    ) -> None:
         """Merge attributes of test report from a test run."""
         with self.report_mutex:
-            parent_entry = self.report
+            parent_entry: Any = self.report
             for uid in parent_uids:
                 parent_entry = parent_entry[uid]
 
@@ -924,7 +983,7 @@ class TestRunnerIHandler(entity.Entity):
                 if hasattr(parent_entry, key):
                     setattr(parent_entry, key, value)
 
-    def _update_reports(self, items):
+    def _update_reports(self, items: Iterable[Tuple[Any, List[str]]]) -> None:
         """Merges test report or attributes of test reports from a test run."""
         for item, parent_uids in items:
             if isinstance(item, Report):
