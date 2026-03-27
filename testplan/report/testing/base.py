@@ -43,11 +43,13 @@ import copy
 import getpass
 import hashlib
 import itertools
-import os
 import platform
+import re
 import sys
 from collections import Counter
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+import schema
 from typing_extensions import Self
 
 from testplan.common.report import (
@@ -61,6 +63,20 @@ from testplan.common.report import (
 from testplan.common.utils.timing import iana_tz
 from testplan.testing import tagging
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
+
+TESTCASE_XFAIL_WHEN_SCHEMA = schema.Schema(
+    schema.And(
+        {
+            schema.Optional("logs"): schema.Use(re.compile),
+            schema.Optional("assertions"): {
+                schema.Optional("type"): str,
+                schema.Optional("message"): schema.Use(re.compile),
+                schema.Optional("description"): schema.Use(re.compile),
+            },
+        },
+        lambda d: ("logs" in d or "assertions" in d) and len(d) == 1,
+    )
+)
 
 
 class TestReport(BaseReportGroup):
@@ -660,11 +676,14 @@ class TestCaseReport(Report):
             )
         )
 
-    def xfail(self, strict: bool) -> None:
+    def xfail(self, strict: bool, when: Optional[dict]) -> None:
         """
         Override report status for test that is marked xfail by user
         :param strict: whether consider XPASS as failure
         """
+        if not self._xfail_match_when(when):
+            return
+
         if self.failed:
             self.status_override = Status.XFAIL
         elif self.passed:
@@ -672,6 +691,41 @@ class TestCaseReport(Report):
                 self.status_override = Status.XPASS_STRICT
             else:
                 self.status_override = Status.XPASS
+
+    def _xfail_match_when(self, when: Optional[dict]) -> bool:
+        def _match(exp: dict, val: dict) -> bool:
+            if not isinstance(val, dict):
+                return False
+            for k, v in exp.items():
+                if k not in val:
+                    return False
+                actual = val[k]
+                if isinstance(v, re.Pattern):
+                    if not isinstance(actual, str) or not v.search(actual):
+                        return False
+                elif isinstance(v, dict):
+                    if not _match(v, actual):
+                        return False
+                elif actual != v:
+                    return False
+            return True
+
+        if when is None:
+            return True
+
+        if "logs" in when:
+            return any(
+                when["logs"].search(log_record.get("message", ""))
+                for log_record in self.logs
+            )
+
+        if "assertions" in when:
+            return any(
+                _match(when["assertions"], entry)
+                for entry in self.entries
+                if entry.get("passed") is False
+            )
+        return False
 
     @property
     def counter(self) -> Counter:

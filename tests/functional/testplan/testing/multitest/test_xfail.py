@@ -1,6 +1,18 @@
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+import pytest
+from schema import SchemaError
+
 from testplan import TestplanMock
+from testplan.common.report.base import Status
 from testplan.testing.multitest import MultiTest, testcase, testsuite, xfail
-from .test_multitest_drivers import VulnerableDriver1
+
+from .test_multitest_drivers import BaseDriver, VulnerableDriver1
 
 
 @testsuite
@@ -63,6 +75,20 @@ class SetupFailSuite:
 
 def error_hook(env, result):
     raise RuntimeError("hook raise on purpose")
+
+
+class LogEmittingStartupFailureDriver(BaseDriver):
+    def __init__(self, *args, marker, **kwargs):
+        self._marker = marker
+        super().__init__(*args, **kwargs)
+
+    def starting(self):
+        super().starting()
+        self.std.out.write(f"{self._marker}\n")
+        self.std.out.flush()
+        self.std.err.write(f"{self._marker}\n")
+        self.std.err.flush()
+        raise Exception("Startup error")
 
 
 def test_dynamic_xfail():
@@ -130,6 +156,189 @@ def test_dynamic_xfail():
     assert result.report.entries[2].entries[1].entries[2].unstable is True
 
 
+def test_dynamic_xfail_environment_start_when_logs():
+    plan = TestplanMock(
+        name="dynamic_xfail_environment_start_when_logs",
+        xfail_tests={
+            "First Startup Error:Environment Start:Starting": {
+                "reason": "known startup failure with matching logs",
+                "strict": False,
+                "when": {"logs": "hahaha"},
+            },
+            "Second Startup Error:Environment Start:Starting": {
+                "reason": "known startup failure with non-matching logs",
+                "strict": False,
+                "when": {"logs": "hahaha"},
+            },
+        },
+    )
+    plan.add(
+        MultiTest(
+            name="First Startup Error",
+            suites=SetupFailSuite(),
+            environment=[
+                LogEmittingStartupFailureDriver(
+                    name="failing_driver_1",
+                    marker="hahaha",
+                    report_errors_from_logs=True,
+                )
+            ],
+        )
+    )
+    plan.add(
+        MultiTest(
+            name="Second Startup Error",
+            suites=SetupFailSuite(),
+            environment=[
+                LogEmittingStartupFailureDriver(
+                    name="failing_driver_2",
+                    marker="hohoho",
+                    report_errors_from_logs=True,
+                )
+            ],
+        )
+    )
+
+    result = plan.run()
+
+    first_env_start = result.report["First Startup Error"][
+        "Environment Start"
+    ]["Starting"]
+    second_env_start = result.report["Second Startup Error"][
+        "Environment Start"
+    ]["Starting"]
+
+    assert first_env_start.unstable is True
+    assert first_env_start.status == Status.XFAIL
+    assert second_env_start.failed is True
+    assert second_env_start.status == Status.ERROR
+
+
+@testsuite
+class AssertionXfailSuite:
+    @testcase
+    def only_a1_fails(self, env, result):
+        """a1 fails, b1 passes; xfail when=b1 should not match."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 2},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 1},
+            description="b1 dict match",
+        )
+
+    @testcase
+    def both_fail_when_b1(self, env, result):
+        """Both a1 and b1 fail."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 2},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 2},
+            description="b1 dict match",
+        )
+
+    @testcase
+    def both_fail_when_a1(self, env, result):
+        """Both a1 and b1 fail."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 2},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 2},
+            description="b1 dict match",
+        )
+
+
+def test_dynamic_xfail_testcase_when_assertions():
+    plan = TestplanMock(
+        name="dynamic_xfail_testcase_when_assertions",
+        xfail_tests={
+            "Assertion Xfail MT:AssertionXfailSuite:only_a1_fails": {
+                "reason": "b1 not present so when should not match",
+                "strict": False,
+                "when": {
+                    "assertions": {
+                        "type": "DictMatch",
+                        "description": "b1 dict match",
+                    }
+                },
+            },
+            "Assertion Xfail MT:AssertionXfailSuite:both_fail_when_b1": {
+                "reason": "b1 present and failed so when should match",
+                "strict": False,
+                "when": {
+                    "assertions": {
+                        "type": "DictMatch",
+                        "description": "b1 dict match",
+                    }
+                },
+            },
+            "Assertion Xfail MT:AssertionXfailSuite:both_fail_when_a1": {
+                "reason": "a1 present and failed so when should match",
+                "strict": False,
+                "when": {
+                    "assertions": {
+                        "type": "DictMatch",
+                        "description": "a1 dict match",
+                    }
+                },
+            },
+        },
+    )
+    plan.add(
+        MultiTest(
+            name="Assertion Xfail MT",
+            suites=[AssertionXfailSuite()],
+        )
+    )
+
+    result = plan.run()
+
+    suite_report = result.report["Assertion Xfail MT"]["AssertionXfailSuite"]
+    only_a1 = suite_report["only_a1_fails"]
+    both_b1 = suite_report["both_fail_when_b1"]
+    both_a1 = suite_report["both_fail_when_a1"]
+
+    # only_a1_fails: a1 fails but xfail when=b1 desc -> no b1 -> not xfail
+    assert only_a1.status == Status.FAILED
+    # both_fail_when_b1: a1+b1 fail, xfail when=b1 desc -> match -> xfail
+    assert both_b1.status == Status.XFAIL
+    # both_fail_when_a1: a1+b1 fail, xfail when=a1 desc -> match -> xfail
+    assert both_a1.status == Status.XFAIL
+
+
+@pytest.mark.parametrize(
+    "bad_when",
+    [
+        {"assertions": {"passed": False}},
+        {"assertions": {"type": "DictMatch"}, "logs": "some pattern"},
+    ],
+    ids=["invalid_assertions_key", "both_assertions_and_logs"],
+)
+def test_dynamic_xfail_bad_when_schema(bad_when):
+    with pytest.raises(SchemaError, match="Key 'xfail_tests' error"):
+        _ = TestplanMock(
+            name="dynamic_xfail_bad_when_schema",
+            xfail_tests={
+                "Assertion Xfail MT:AssertionXfailSuite:both_fail_when_b1": {
+                    "reason": "invalid when schema should fail plan",
+                    "strict": False,
+                    "when": bad_when,
+                },
+            },
+        )
+
+
 def test_xfail(mockplan):
     mockplan.add(
         MultiTest(
@@ -164,3 +373,122 @@ def test_xfail(mockplan):
     assert no_strict_xfail_suite_report.unstable is True
     assert no_strict_xfail_suite_report.entries[0].unstable is True
     assert no_strict_xfail_suite_report.entries[1].unstable is True
+
+
+EXAMPLE_PLAN = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "examples",
+    "App",
+    "Basic",
+    "test_plan.py",
+)
+
+
+def test_xfail_cli():
+    """
+    End-to-end test for --xfail-tests CLI argument.
+
+    1. Generates a failing plan script from examples/App/Basic/test_plan.py
+       by replacing ``testplan`` with ``testplannn`` inside re.compile().
+    2. First run: produces a JSON report from the failing plan.
+    3. Extracts xfail entries from the report, including a ``when.logs``
+       pattern from the first log entry containing "While starting".
+    4. Second run: feeds the xfail JSON via --xfail-tests and verifies
+       the resulting report has xfail status overrides.
+    """
+    content = open(EXAMPLE_PLAN).read()
+    content = re.sub(
+        r'(re\.compile\(r")testplan(")',
+        r"\1testplannn\2",
+        content,
+    )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        plan_script = os.path.join(tmpdir, "test_plan.py")
+        with open(plan_script, "w") as f:
+            f.write(content)
+
+        # --- First run: collect the failure report ---
+        first_json = os.path.join(tmpdir, "first_report.json")
+        proc1 = subprocess.run(
+            [sys.executable, plan_script, "--json", first_json],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        assert os.path.exists(first_json), (
+            f"First run JSON report not produced.\n"
+            f"stdout: {proc1.stdout}\nstderr: {proc1.stderr}"
+        )
+
+        with open(first_json) as f:
+            first_report = json.load(f)
+
+        # Sanity: the plan should have failed
+        assert first_report["status"] == "error"
+
+        # --- Extract xfail entries from the first report ---
+        xfail_tests = {}
+        for mt in first_report["entries"]:
+            mt_name = mt["name"]
+            for suite in mt["entries"]:
+                suite_name = suite["name"]
+                for case in suite["entries"]:
+                    case_name = case["name"]
+                    if case["status"] == "error":
+                        pattern = f"{mt_name}:{suite_name}:{case_name}"
+                        msg = case["logs"][0].get("message", "")
+                        # Extract "when" from first log containing
+                        # "While starting"
+                        assert "While starting" in msg
+                        entry = {
+                            "reason": "known failure",
+                            "strict": False,
+                            "when": {"logs": "While starting"},
+                        }
+                        xfail_tests[pattern] = entry
+
+        assert xfail_tests, "No xfail patterns extracted from first report"
+
+        # --- Second run: apply xfail and verify ---
+        xfail_json_path = os.path.join(tmpdir, "xfail.json")
+        with open(xfail_json_path, "w") as f:
+            json.dump(xfail_tests, f)
+
+        second_json = os.path.join(tmpdir, "second_report.json")
+        proc2 = subprocess.run(
+            [
+                sys.executable,
+                plan_script,
+                "--xfail-tests",
+                xfail_json_path,
+                "--json",
+                second_json,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        assert os.path.exists(second_json), (
+            f"Second run JSON report not produced.\n"
+            f"stdout: {proc2.stdout}\nstderr: {proc2.stderr}"
+        )
+
+        with open(second_json) as f:
+            second_report = json.load(f)
+
+        mt = second_report["entries"][0]
+        assert mt["name"] == "TestEcho"
+
+        # Find the Starting case under Environment Start
+        env_start = next(
+            s for s in mt["entries"] if s["name"] == "Environment Start"
+        )
+        starting = env_start["entries"][0]
+        assert starting["name"] == "Starting"
+        assert starting["status_override"] == "xfail"
