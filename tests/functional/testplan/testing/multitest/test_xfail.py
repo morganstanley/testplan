@@ -1,6 +1,11 @@
+import pytest
+from schema import SchemaError
+
 from testplan import TestplanMock
+from testplan.common.report.base import Status
 from testplan.testing.multitest import MultiTest, testcase, testsuite, xfail
-from .test_multitest_drivers import VulnerableDriver1
+
+from .test_multitest_drivers import BaseDriver, VulnerableDriver1
 
 
 @testsuite
@@ -61,8 +66,37 @@ class SetupFailSuite:
         raise RuntimeError("raise in testsuite teardown on purpose")
 
 
+@testsuite
+class AssertionXfailSuite:
+    @testcase
+    def runtime_error_case(self, env, result):
+        raise RuntimeError("raise in testcase on purpose")
+
+    @testcase
+    def dict_match_case(self, env, result):
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 2},
+            description="custom dict match description",
+        )
+
+
 def error_hook(env, result):
     raise RuntimeError("hook raise on purpose")
+
+
+class LogEmittingStartupFailureDriver(BaseDriver):
+    def __init__(self, *args, marker, **kwargs):
+        self._marker = marker
+        super().__init__(*args, **kwargs)
+
+    def starting(self):
+        super().starting()
+        self.std.out.write(f"{self._marker}\n")
+        self.std.out.flush()
+        self.std.err.write(f"{self._marker}\n")
+        self.std.err.flush()
+        raise Exception("Startup error")
 
 
 def test_dynamic_xfail():
@@ -128,6 +162,125 @@ def test_dynamic_xfail():
     assert result.report.entries[2].entries[1].entries[0].unstable is True
     # teardown
     assert result.report.entries[2].entries[1].entries[2].unstable is True
+
+
+def test_dynamic_xfail_environment_start_when_logs():
+    plan = TestplanMock(
+        name="dynamic_xfail_environment_start_when_logs",
+        xfail_tests={
+            "First Startup Error:Environment Start:Starting": {
+                "reason": "known startup failure with matching logs",
+                "strict": False,
+                "when": {"logs": "hahaha"},
+            },
+            "Second Startup Error:Environment Start:Starting": {
+                "reason": "known startup failure with non-matching logs",
+                "strict": False,
+                "when": {"logs": "hahaha"},
+            },
+        },
+    )
+    plan.add(
+        MultiTest(
+            name="First Startup Error",
+            suites=SetupFailSuite(),
+            environment=[
+                LogEmittingStartupFailureDriver(
+                    name="failing_driver_1",
+                    marker="hahaha",
+                    report_errors_from_logs=True,
+                )
+            ],
+        )
+    )
+    plan.add(
+        MultiTest(
+            name="Second Startup Error",
+            suites=SetupFailSuite(),
+            environment=[
+                LogEmittingStartupFailureDriver(
+                    name="failing_driver_2",
+                    marker="hohoho",
+                    report_errors_from_logs=True,
+                )
+            ],
+        )
+    )
+
+    result = plan.run()
+
+    first_env_start = result.report["First Startup Error"][
+        "Environment Start"
+    ]["Starting"]
+    second_env_start = result.report["Second Startup Error"][
+        "Environment Start"
+    ]["Starting"]
+
+    assert first_env_start.unstable is True
+    assert first_env_start.status == Status.XFAIL
+    assert second_env_start.failed is True
+    assert second_env_start.status == Status.ERROR
+
+
+def test_dynamic_xfail_testcase_when_assertions():
+    plan = TestplanMock(
+        name="dynamic_xfail_testcase_when_assertions",
+        xfail_tests={
+            "Assertion Xfail MT:AssertionXfailSuite:runtime_error_case": {
+                "reason": "runtime error should not match assertion filter",
+                "strict": False,
+                "when": {
+                    "assertions": {
+                        "type": "DictMatch",
+                        "description": "custom dict match description",
+                    }
+                },
+            },
+            "Assertion Xfail MT:AssertionXfailSuite:dict_match_case": {
+                "reason": "dict match failure should match assertion filter",
+                "strict": False,
+                "when": {
+                    "assertions": {
+                        "type": "DictMatch",
+                        "description": "custom dict match description",
+                    }
+                },
+            },
+        },
+    )
+    plan.add(
+        MultiTest(
+            name="Assertion Xfail MT",
+            suites=[AssertionXfailSuite()],
+        )
+    )
+
+    result = plan.run()
+
+    suite_report = result.report["Assertion Xfail MT"]["AssertionXfailSuite"]
+    runtime_error_case = suite_report["runtime_error_case"]
+    dict_match_case = suite_report["dict_match_case"]
+
+    assert runtime_error_case.status == Status.ERROR
+    assert dict_match_case.status == Status.XFAIL
+
+
+def test_dynamic_xfail_bad_when_schema():
+    with pytest.raises(SchemaError, match="Key 'xfail_tests' error"):
+        _ = TestplanMock(
+            name="dynamic_xfail_bad_when_schema",
+            xfail_tests={
+                "Assertion Xfail MT:AssertionXfailSuite:dict_match_case": {
+                    "reason": "invalid assertions matcher should fail plan",
+                    "strict": False,
+                    "when": {
+                        "assertions": {
+                            "passed": False,
+                        }
+                    },
+                },
+            },
+        )
 
 
 def test_xfail(mockplan):

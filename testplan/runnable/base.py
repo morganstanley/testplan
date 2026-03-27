@@ -4,17 +4,15 @@ import inspect
 import ipaddress
 import math
 import os
-import psutil
 import random
 import re
+import shutil
 import sys
 import tarfile
 import time
 import traceback
 import uuid
 import webbrowser
-import shutil
-
 from collections import OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass
@@ -36,9 +34,11 @@ from typing import (
     Type,
     Union,
 )
-import zstandard as zstd
 
+import psutil
+import zstandard as zstd
 from schema import And, Or, Use
+from schema import Optional as schemaOptional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -51,12 +51,13 @@ from testplan.common.entity import (
 )
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
 from testplan.common.utils.observability import TraceLevel, tracing
+from testplan.report.testing.base import TESTCASE_XFAIL_WHEN_SCHEMA
 
 if TYPE_CHECKING:
     from testplan.common.remote.remote_service import RemoteService
     from testplan.monitor.resource import (
-        ResourceMonitorServer,
         ResourceMonitorClient,
+        ResourceMonitorServer,
     )
 
 from testplan.common.utils import logger, strings
@@ -86,10 +87,10 @@ from testplan.runners.pools.tasks.base import (
     is_task_target,
 )
 from testplan.testing import common, filtering, listing, ordering, tagging
-from testplan.testing.result import Result
 from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
+from testplan.testing.result import Result
 
 if sys.version_info < (3, 11):
     from exceptiongroup import ExceptionGroup
@@ -276,7 +277,16 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("reporting_exclude_filter", default=None): Or(
                 And(str, Use(ReportingFilter.parse)), None
             ),
-            ConfigOption("xfail_tests", default=None): Or(dict, None),
+            ConfigOption("xfail_tests", default=None): Or(
+                {
+                    str: {
+                        "reason": str,
+                        "strict": bool,
+                        schemaOptional("when"): TESTCASE_XFAIL_WHEN_SCHEMA,
+                    },
+                },
+                None,
+            ),
             ConfigOption("runtime_data", default={}): Or(dict, None),
             ConfigOption(
                 "auto_part_runtime_limit",
@@ -668,8 +678,10 @@ class TestRunner(Runnable):
                 return e
         return None
 
-    def _stop_remote_services(self) -> Optional[Exception]:
-        es: List[Exception] = []
+    def _stop_remote_services(
+        self,
+    ) -> Optional[Union[Exception, ExceptionGroup]]:
+        es = []
         for rmt_svc in self.remote_services.values():
             try:
                 rmt_svc.stop()
