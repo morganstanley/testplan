@@ -14,3 +14,6 @@ enableHooks(jest, { dontMockByDefault: true });
 if (typeof window !== "undefined") {
   window.URL.createObjectURL = function () {};
 }
+
+// jsdom does not implement scrollIntoView
+Element.prototype.scrollIntoView = jest.fn();
