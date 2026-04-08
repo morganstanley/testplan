@@ -442,9 +442,9 @@ def test_xfail_cli():
                     case_name = case["name"]
                     if case["status"] == "error":
                         pattern = f"{mt_name}:{suite_name}:{case_name}"
+                        # "when" from first log containing "While starting"
+                        # we already know that so we hardcode it here
                         msg = case["logs"][0].get("message", "")
-                        # Extract "when" from first log containing
-                        # "While starting"
                         assert "While starting" in msg
                         entry = {
                             "reason": "known failure",

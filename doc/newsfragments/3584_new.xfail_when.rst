@@ -1,0 +1,1 @@
+:ref:`Xfail` now supports a ``when`` parameter for conditional xfail based on log messages or assertion entries.

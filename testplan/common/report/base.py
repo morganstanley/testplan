@@ -12,6 +12,7 @@ import collections
 import copy
 import itertools
 import traceback
+import warnings
 from collections import Counter
 from enum import Enum, auto
 from functools import reduce, total_ordering
@@ -913,7 +914,7 @@ class BaseReportGroup(Report):
         :param strict: whether consider XPASS as failure
         """
         if when:
-            raise NotImplementedError(
+            warnings.warn(
                 "Conditional xfail is not supported on entries other than testcases, "
                 f"passed-in `when`: {when}."
             )

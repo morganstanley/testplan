@@ -340,7 +340,36 @@ Command line
       --trace-tests         Enable the tracing tests feature. A JSON file containing file names and line numbers to be watched by the tracer must be specified.
       --trace-tests-output
                             Specify output file for tests impacted by change in Testplan pattern format (see --trace-tests). Will be ignored if --trace-tests is not specified. Default to standard output.
-      --xfail-tests         Read a list of known to fail testcases from a JSON file with each entry looks like: {"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>} }
+      --xfail-tests         Read a list of testcase name patterns from a JSON files, and mark matching testcases as xfail.
+                            This feature works for MultiTest, GTest and CPPUnit.
+                            A typical input JSON looks like below:
+                            {
+                                "Fatal GTest:\*:\*": {
+                                    "reason": "test known to crash",
+                                    "strict": true
+                                },
+                                "Flaky GTest:SuiteName:CaseName": {
+                                    "reason": "test not stable",
+                                    "strict": false,
+                                    "when": {
+                                        "assertions": {
+                                            "type": "Equal",
+                                            "description": "some part of description of that failed assertion"
+                                        }
+                                    }
+                                },
+                                "Fatal MultiTest:\*:\*": {
+                                    "reason": "env does not start",
+                                    "strict": true
+                                },
+                                "Flaky MultiTest:Suite Name:\*": {
+                                    "reason": "everything under that suite flaky",
+                                    "strict": true
+                                }
+                            }
+
+                            with each entry looks like:
+                            '{"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>[, "when": <value>]} }'
       --runtime-data PATH   Historical runtime data which will be used for Multitest auto-part and weight-based Task smart-scheduling with entries looks like:
 
                             {

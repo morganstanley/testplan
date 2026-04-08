@@ -191,7 +191,13 @@ A typical input JSON looks like below:
     },
     "Flaky GTest:SuiteName:CaseName": {
         "reason": "test not stable",
-        "strict": false
+        "strict": false,
+        "when": {
+            "assertions": {
+                "type": "Equal",
+                "description": "some part of description of that failed assertion"
+            }
+        }
     },
     "Fatal MultiTest:*:*": {
         "reason": "env does not start",
@@ -203,9 +209,8 @@ A typical input JSON looks like below:
     }
 }
 
-"with each entry looks like: "
-'{"<Multitest>:<TestSuite>:<testcase>": '
-'{"reason": <value>, "strict": <value>} }',
+with each entry looks like:
+'{"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>[, "when": <value>]} }'
 """,
         )
 

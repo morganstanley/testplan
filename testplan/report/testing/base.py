@@ -74,7 +74,10 @@ TESTCASE_XFAIL_WHEN_SCHEMA = schema.Schema(
                 schema.Optional("description"): schema.Use(re.compile),
             },
         },
-        lambda d: ("logs" in d or "assertions" in d) and len(d) == 1,
+        schema.Or(
+            lambda d: "logs" in d and len(d) == 1,
+            lambda d: "assertions" in d and len(d) == 1 and d["assertions"],
+        ),
     )
 )
 

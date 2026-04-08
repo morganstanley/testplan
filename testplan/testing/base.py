@@ -935,7 +935,9 @@ class Test(Runnable):
 
         self._discover_path = path
 
-    def _xfail(self, pattern: str, report: Any) -> None:
+    def _xfail(
+        self, pattern: str, report: "TestCaseReport | TestGroupReport"
+    ) -> None:
         """Utility xfail a report entry if found in xfail_tests"""
         if getattr(self.cfg, "xfail_tests", None):
             found = self.cfg.xfail_tests.get(pattern)
