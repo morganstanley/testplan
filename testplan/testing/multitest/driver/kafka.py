@@ -5,7 +5,7 @@ Driver for Kafka server
 import os
 import re
 import socket
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from schema import Or
 
@@ -28,7 +28,7 @@ class KafkaStandaloneConfig(app.AppConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("cfg_template"): str,
             ConfigOption("host"): str,
@@ -70,9 +70,9 @@ class KafkaStandalone(app.App):
         controller_port: int = 0,
         controller_quorum_voters: Optional[str] = None,
         kafka_storage: str = KAFKA_STORAGE,
-        cluster_id: str = None,
-        **options,
-    ):
+        cluster_id: Optional[str] = None,
+        **options: Any,
+    ) -> None:
         stdout_regexps = [
             re.compile(
                 rf".*Awaiting socket connections on\s*(?P<host>[^:]+):(?P<port>(?!{controller_port}\b)[0-9]+).*"
@@ -102,30 +102,30 @@ class KafkaStandalone(app.App):
         self._controller_port = controller_port
         self._controller_quorum_voters = controller_quorum_voters
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def host(self) -> str:
         return self._host
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def port(self) -> int:
         """Port to listen on."""
         return self._port
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def node_id(self) -> int:
         """Node ID."""
-        return self.cfg.node_id
+        return self.cfg.node_id  # type: ignore[no-any-return]
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def controller_port(self) -> int:
         """Controller port."""
         return self._controller_port
 
-    @emphasized
+    @emphasized  # type: ignore[prop-decorator]
     @property
     def controller_quorum_voters(self) -> str:
         if not self._controller_quorum_voters:
@@ -136,7 +136,7 @@ class KafkaStandalone(app.App):
 
     @property
     def log_path(self) -> str:
-        return os.path.join(self.runpath, "etc")
+        return os.path.join(self.runpath, "etc")  # type: ignore[arg-type]
 
     @property
     def etc_path(self) -> str:
@@ -151,7 +151,7 @@ class KafkaStandalone(app.App):
             self.etcpath, os.path.basename(self.cfg.cfg_template)
         )
 
-    def pre_start(self):
+    def pre_start(self) -> None:
         super(KafkaStandalone, self).pre_start()
         makedirs(self.log_path)
         with open(self.config_path) as config_file:
@@ -159,7 +159,7 @@ class KafkaStandalone(app.App):
             if "controller.quorum.voter" in config_data:
                 self.format_meta()
 
-    def format_meta(self):
+    def format_meta(self) -> None:
         cmd = [
             self.cfg.kafka_storage,
             "format",
@@ -177,7 +177,7 @@ class KafkaStandalone(app.App):
     def cmd(self) -> List[str]:
         return [self.cfg.binary, self.config_path]
 
-    def post_start(self):
+    def post_start(self) -> None:
         super().post_start()
         self._port = int(self.extracts["port"])
         self.logger.info("%s listening on %s:%s", self, self._host, self._port)

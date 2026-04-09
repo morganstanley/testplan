@@ -1,22 +1,22 @@
 import re
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from testplan.testing.multitest import xfail
 
 
 class XFailAdapter:
-    def __init__(self, comment):
+    def __init__(self, comment: str) -> None:
         self.comment = comment
 
-    def apply(self, suite_or_case):
+    def apply(self, suite_or_case: Any) -> Any:
         return xfail(reason=self.comment, strict=True)(suite_or_case)
 
 
 @dataclass
 class TagParams:
-    xfail: XFailAdapter = None
-    execution_group: str = None
+    xfail: Optional[XFailAdapter] = None
+    execution_group: Optional[str] = None
 
 
 class TagProcessor:
@@ -35,6 +35,7 @@ class XFailTagProcessor(TagProcessor):
         match = self.KNOWN_TO_FAIL_REGEX.match(tag)
         if match:
             return XFailAdapter(comment=match.group(4))
+        return None
 
     def process_tags(
         self, tags: List[str], tag_params: TagParams

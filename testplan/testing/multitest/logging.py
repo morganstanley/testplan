@@ -4,6 +4,7 @@ from logging import StreamHandler
 from collections import namedtuple
 from contextlib import contextmanager
 from tempfile import NamedTemporaryFile
+from typing import Any, Generator, List, Optional, Union
 
 from testplan.common.utils.logger import LOGFILE_FORMAT, Loggable
 
@@ -45,42 +46,43 @@ class LogCaptureConfig:
 
     """
 
-    def __init__(self):
-        self.capture_level = CaptureLevel.TESTSUITE
-        self.attach_log = False
-        self.format = LOGFILE_FORMAT
+    def __init__(self) -> None:
+        self.capture_level: Any = CaptureLevel.TESTSUITE
+        self.attach_log: bool = False
+        self.format: str = LOGFILE_FORMAT
 
 
 class LogCaptureMixin(Loggable):
     """Mixin to add easy logging support to any @multitest.testsuite"""
 
     _LogCaptureInfo = namedtuple(
-        "LogCaptureInfo", ["result", "handler", "attach_file", "capture_level"]
+        "_LogCaptureInfo",
+        ["result", "handler", "attach_file", "capture_level"],
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(LogCaptureMixin, self).__init__()
         self.__log_capture_config = LogCaptureConfig()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}"
 
     @property
-    def log_capture_config(self):
+    def log_capture_config(self) -> LogCaptureConfig:
         return self.__log_capture_config
 
     @log_capture_config.setter
-    def log_capture_config(self, value):
-        return self.__log_capture_config == value
+    def log_capture_config(self, value: LogCaptureConfig) -> None:
+        self.__log_capture_config = value
 
     def _attach_handler(
         self,
-        result,
-        capture_level_override=None,
-        attach_log_override=None,
-        format_override=None,
-    ):
-        def override(value, _with):
+        result: Any,
+        capture_level_override: Any = None,
+        attach_log_override: Optional[bool] = None,
+        format_override: Optional[str] = None,
+    ) -> "_LogCaptureInfo":
+        def override(value: Any, _with: Any) -> Any:
             return value if _with is None else _with
 
         capture_level = override(
@@ -93,6 +95,7 @@ class LogCaptureMixin(Loggable):
             self.log_capture_config.format, format_override
         )
 
+        stream: Any
         if save_to_file:
             stream = NamedTemporaryFile(
                 "w+t", dir=result._scratch, suffix=".log", delete=False
@@ -110,7 +113,7 @@ class LogCaptureMixin(Loggable):
             result, handler, save_to_file, capture_level
         )
 
-    def _detach_handler(self, log_capture_info):
+    def _detach_handler(self, log_capture_info: "_LogCaptureInfo") -> None:
         for logger in self.select_loggers(log_capture_info.capture_level):
             logger.removeHandler(log_capture_info.handler)
 
@@ -129,8 +132,12 @@ class LogCaptureMixin(Loggable):
 
     @contextmanager
     def capture_log(
-        self, result, capture_level=None, attach_log=None, format=None
-    ):
+        self,
+        result: Any,
+        capture_level: Any = None,
+        attach_log: Optional[bool] = None,
+        format: Optional[str] = None,
+    ) -> Generator[logging.Logger, None, None]:
         """Context manager to capture logs, capture the log in the provided result.
 
         :param result: The result where to inject the log
@@ -154,7 +161,7 @@ class LogCaptureMixin(Loggable):
             if info:
                 self._detach_handler(info)
 
-    def select_loggers(self, capture_level):
+    def select_loggers(self, capture_level: Any) -> List[logging.Logger]:
         if isinstance(capture_level, (tuple, list)):
             return [
                 level.__get__(None, CaptureLevel)(self)
@@ -165,12 +172,14 @@ class LogCaptureMixin(Loggable):
 
 
 class AutoLogCaptureMixin(LogCaptureMixin):
-    def __init__(self):
+    def __init__(self) -> None:
         super(AutoLogCaptureMixin, self).__init__()
-        self._state = None
+        self._state: Optional[LogCaptureMixin._LogCaptureInfo] = None
 
-    def pre_testcase(self, name, env, result):
+    def pre_testcase(self, name: str, env: Any, result: Any) -> None:
         self._state = self._attach_handler(result)
 
-    def post_testcase(self, name, env, result):
+    def post_testcase(self, name: str, env: Any, result: Any) -> None:
+        if self._state is None:
+            raise RuntimeError("self._state must not be None")
         self._detach_handler(self._state)

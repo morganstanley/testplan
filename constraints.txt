@@ -74,7 +74,9 @@ coverage==7.10.7 ; python_full_version < '3.10'
 coverage==7.13.4 ; python_full_version >= '3.10'
     # via testplan
 cryptography==46.0.5
-    # via paramiko
+    # via
+    #   paramiko
+    #   types-paramiko
 cycler==0.12.1
     # via matplotlib
 decorator==5.2.1
@@ -107,7 +109,7 @@ filelock==3.19.1 ; python_full_version < '3.10'
     # via
     #   python-discovery
     #   virtualenv
-filelock==3.25.1 ; python_full_version >= '3.10'
+filelock==3.25.0 ; python_full_version >= '3.10'
     # via
     #   python-discovery
     #   virtualenv
@@ -122,7 +124,7 @@ flask-restx==1.3.2
     # via testplan
 fonttools==4.60.2 ; python_full_version < '3.10'
     # via matplotlib
-fonttools==4.62.0 ; python_full_version >= '3.10'
+fonttools==4.61.1 ; python_full_version >= '3.10'
     # via matplotlib
 gherkin-official==39.0.0
     # via testplan
@@ -134,7 +136,7 @@ googleapis-common-protos==1.73.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-grpcio==1.78.1
+grpcio==1.78.0
     # via opentelemetry-exporter-otlp-proto-grpc
 gssapi==1.11.1 ; sys_platform != 'win32'
     # via paramiko
@@ -188,8 +190,10 @@ jsonschema-specifications==2025.9.1
 kazoo==2.10.0
 kiwisolver==1.4.7 ; python_full_version < '3.10'
     # via matplotlib
-kiwisolver==1.5.0 ; python_full_version >= '3.10'
+kiwisolver==1.4.9 ; python_full_version >= '3.10'
     # via matplotlib
+librt==0.8.1 ; platform_python_implementation != 'PyPy'
+    # via mypy
 lxml==6.0.2
     # via testplan
 markupsafe==3.0.3
@@ -209,7 +213,10 @@ more-itertools==10.8.0
     # via
     #   cheroot
     #   jaraco-functools
-narwhals==2.18.0
+mypy==1.19.1
+mypy-extensions==1.1.0
+    # via mypy
+narwhals==2.17.0
     # via plotly
 nodeenv==1.10.0
     # via pre-commit
@@ -223,7 +230,7 @@ numpy==2.2.6 ; python_full_version == '3.10.*'
     #   contourpy
     #   matplotlib
     #   pandas
-numpy==2.4.3 ; python_full_version >= '3.11'
+numpy==2.4.2 ; python_full_version >= '3.11'
     # via
     #   contourpy
     #   matplotlib
@@ -286,6 +293,8 @@ parse==1.21.1
     # via
     #   releaseherald
     #   testplan
+pathspec==1.0.4
+    # via mypy
 pillow==11.3.0 ; python_full_version < '3.10'
     # via
     #   matplotlib
@@ -356,7 +365,7 @@ python-dateutil==2.9.0.post0
     # via
     #   matplotlib
     #   pandas
-python-discovery==1.1.3
+python-discovery==1.1.1
     # via virtualenv
 python-dotenv==1.2.1 ; python_full_version < '3.10'
     # via pytest-dotenv
@@ -405,11 +414,11 @@ rpyc==6.0.2
 ruff==0.15.5
 schema==0.7.8
     # via testplan
-setuptools==82.0.1
+setuptools==82.0.0
     # via testplan
 six==1.17.0
     # via python-dateutil
-smmap==5.0.3
+smmap==5.0.2
     # via gitdb
 snowballstemmer==3.0.1
     # via sphinx
@@ -458,12 +467,15 @@ terminaltables==3.1.10
     # via testplan
 tomli==2.4.0
     # via
+    #   mypy
     #   pylint
     #   pytest
     #   releaseherald
     #   sphinx
 tomlkit==0.14.0
     # via pylint
+types-paramiko==4.0.0.20250822
+types-requests==2.32.4.20260107
 typing-extensions==4.15.0
     # via
     #   astroid
@@ -472,6 +484,7 @@ typing-extensions==4.15.0
     #   gherkin-official
     #   gitpython
     #   grpcio
+    #   mypy
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
@@ -490,12 +503,14 @@ tzdata==2025.3 ; python_full_version < '3.11' or sys_platform == 'emscripten' or
 tzlocal==5.3.1
     # via testplan
 urllib3==2.6.3
-    # via requests
+    # via
+    #   requests
+    #   types-requests
 uv==0.10.9
     # via testplan
 validators==0.20.0
     # via testplan
-virtualenv==21.2.0
+virtualenv==21.1.0
     # via pre-commit
 werkzeug==3.1.6
     # via

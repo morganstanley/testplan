@@ -2,6 +2,7 @@
 """
 Installs & Builds the Testplan UI code.
 """
+
 import argparse
 import logging
 import os
@@ -57,9 +58,7 @@ def is_manager_installed(command: str) -> bool:
     with open(os.devnull, "w") as FNULL:
         try:
             subprocess.check_call(
-                f"{command} --version",
-                shell=True,
-                stdout=FNULL
+                f"{command} --version", shell=True, stdout=FNULL
             )
         except subprocess.CalledProcessError:
             return False
@@ -68,9 +67,7 @@ def is_manager_installed(command: str) -> bool:
 
 
 def install_and_build_ui(
-    path: str = TESTPLAN_UI_DIR,
-    dev: bool = False,
-    verbose: bool = False
+    path: str = TESTPLAN_UI_DIR, dev: bool = False, verbose: bool = False
 ) -> None:
     """
     Installs dependencies & builds the UI code.
@@ -83,11 +80,12 @@ def install_and_build_ui(
     :type verbose: ``bool``
     """
 
-    if not is_manager_installed('pnpm'):
+    if not is_manager_installed("pnpm"):
         logging.warning("=" * 54)
         logging.warning("PNPM IS NOT INSTALLED.")
         logging.warning(
-            "Testplan UI is built using PNPM, follow instructions at:")
+            "Testplan UI is built using PNPM, follow instructions at:"
+        )
         logging.warning("https://pnpm.io/installation")
         logging.warning("=" * 54)
         sys.exit(1)

@@ -5,7 +5,7 @@ import inspect
 import os
 import re
 import traceback
-from typing import Dict, Generator
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union
 
 import pytest
 from schema import Or
@@ -46,7 +46,7 @@ class PyTestConfig(testing.TestConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             "target": Or(str, [str]),
             ConfigOption("select", default=""): str,
@@ -82,14 +82,14 @@ class PyTest(testing.Test):
 
     def __init__(
         self,
-        name,
-        target,
-        description=None,
-        select="",
-        extra_args=None,
-        result=Result,
-        **options,
-    ):
+        name: str,
+        target: Union[str, List[str]],
+        description: Optional[str] = None,
+        select: str = "",
+        extra_args: Optional[List[str]] = None,
+        result: Type[Result] = Result,
+        **options: Any,
+    ) -> None:
         options.update(self.filter_locals(locals()))
         super(PyTest, self).__init__(**options)
 
@@ -103,18 +103,18 @@ class PyTest(testing.Test):
 
         # Map from testsuite/testcase name to nodeid. Filled out after
         # tests are collected via dry_run().
-        self._nodeids = None
+        self._nodeids: Optional[Dict[str, Any]] = None
 
-    def add_main_batch_steps(self):
+    def add_main_batch_steps(self) -> None:
         """Specify the test steps: run the tests, then log the results."""
         self._add_step(self.run_tests)
         self._add_step(self.log_test_results, top_down=False)
 
-    def setup(self):
+    def setup(self) -> None:
         """Setup the PyTest plugin for the suite."""
         self._pytest_plugin.setup()
 
-    def run_tests(self):
+    def run_tests(self) -> TestGroupReport:
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
         with (
@@ -129,10 +129,10 @@ class PyTest(testing.Test):
             )
 
             if return_code == 5:
-                self.result.report.status_override = Status.UNSTABLE
+                self.result.report.status_override = Status.UNSTABLE  # type: ignore[attr-defined]
                 self.logger.info("No tests were run")
             elif return_code != 0:
-                self.result.report.status_override = Status.FAILED
+                self.result.report.status_override = Status.FAILED  # type: ignore[attr-defined]
                 self.logger.info(
                     "pytest exited with return code %d", return_code
                 )
@@ -141,7 +141,7 @@ class PyTest(testing.Test):
 
         return self.report
 
-    def _collect_tests(self):
+    def _collect_tests(self) -> Any:
         """Collect test items but do not run any."""
 
         # We shall restore sys.path after calling pytest.main
@@ -159,7 +159,7 @@ class PyTest(testing.Test):
 
         return self._collect_plugin.collected
 
-    def get_test_context(self):
+    def get_test_context(self) -> List[Tuple[str, List[str]]]:
         """
         Inspect the test suites and cases by running PyTest with the
         --collect-only flag and passing in our collection plugin.
@@ -170,7 +170,7 @@ class PyTest(testing.Test):
         try:
             collected = self._collect_tests()
         except RuntimeError:
-            self.result.report.status_override = Status.ERROR
+            self.result.report.status_override = Status.ERROR  # type: ignore[attr-defined]
             self.logger.exception("Failed to collect tests.")
             return []
 
@@ -185,20 +185,21 @@ class PyTest(testing.Test):
             (suite, list(testcases)) for suite, testcases in suites.items()
         ]
 
-    def _dry_run_testsuites(self):
+    def _dry_run_testsuites(self) -> None:
         self._nodeids = {
             "testsuites": {},
             "testcases": collections.defaultdict(dict),
         }
 
         for item in self._collect_tests():
-            _add_empty_testcase_report(item, self.result.report, self._nodeids)
+            _add_empty_testcase_report(item, self.result.report, self._nodeids)  # type: ignore[attr-defined]
 
     def run_testcases_iter(
         self,
         testsuite_pattern: str = "*",
         testcase_pattern: str = "*",
-        shallow_report: Dict = None,
+        shallow_report: Optional[Dict] = None,
+        **kwargs: Any,
     ) -> Generator:
         """
         Run all testcases and yield testcase reports.
@@ -261,7 +262,9 @@ class PyTest(testing.Test):
                         "Unexpected report type: {}".format(type(child_report))
                     )
 
-    def _build_iter_pytest_args(self, testsuite_pattern, testcase_pattern):
+    def _build_iter_pytest_args(
+        self, testsuite_pattern: str, testcase_pattern: str
+    ) -> Tuple[List[str], List[str]]:
         """
         Build the PyTest args for running a particular set of testsuites and
         testcases as specified.
@@ -298,7 +301,7 @@ class PyTest(testing.Test):
 
         return pytest_args, current_uids
 
-    def _build_pytest_args(self):
+    def _build_pytest_args(self) -> List[str]:
         """
         :return: a list of the args to be passed to PyTest
         :rtype: List[str]
@@ -323,25 +326,27 @@ class _ReportPlugin:
     report with the status of testcases.
     """
 
-    def __init__(self, parent, report, quiet):
+    def __init__(
+        self, parent: "PyTest", report: TestGroupReport, quiet: bool
+    ) -> None:
         self._parent = parent
         self._report = report
         self._quiet = quiet
 
         # Collection of suite reports - will be initialised by the setup()
         # method.
-        self._suite_reports = None
+        self._suite_reports: Any = None
 
         # The current working testcase report. It needs to be stored on this
         # object since it is set and read by different callback hooks.
-        self._current_case_report = None
+        self._current_case_report: Optional[TestCaseReport] = None
 
         # Result object which supports various assertions like in MultiTest.
         # Its entries will later be added to current testcase report.
-        self._current_result_obj = None
+        self._current_result_obj: Optional[Result] = None
 
     @pytest.fixture
-    def result(self):
+    def result(self) -> Optional[Result]:
         """
         Return the result object for the current test case.
 
@@ -351,7 +356,7 @@ class _ReportPlugin:
         return self._current_result_obj
 
     @pytest.fixture
-    def env(self):
+    def env(self) -> Any:
         """
         Return the testing environment.
 
@@ -360,11 +365,13 @@ class _ReportPlugin:
         """
         return self._parent.resources
 
-    def setup(self):
+    def setup(self) -> None:
         """Set up environment as required."""
         self._suite_reports = collections.defaultdict(collections.OrderedDict)
 
-    def case_report(self, suite_name, case_name, case_params):
+    def case_report(
+        self, suite_name: str, case_name: str, case_params: Optional[str]
+    ) -> TestCaseReport:
         """
         Return the case report for the specified suite and case name, creating
         it first if necessary.
@@ -383,7 +390,7 @@ class _ReportPlugin:
             if report is None:
                 report = TestCaseReport(case_name, uid=case_name)
                 self._suite_reports[suite_name][case_name] = report
-            return report
+            return report  # type: ignore[no-any-return]
 
         else:
             group_report = self._suite_reports[suite_name].get(case_name)
@@ -403,9 +410,9 @@ class _ReportPlugin:
                 # create report of parametrized testcase
                 report = TestCaseReport(name=case_name, uid=case_name)
                 group_report.append(report)
-            return report
+            return report  # type: ignore[no-any-return]
 
-    def pytest_runtest_setup(self, item):
+    def pytest_runtest_setup(self, item: Any) -> None:
         """
         Hook called by pytest to set up a test.
 
@@ -423,7 +430,9 @@ class _ReportPlugin:
         if func_doc is not None:
             report.description = os.linesep.join(
                 "    {}".format(line)
-                for line in inspect.getdoc(item.function).split(os.linesep)
+                for line in (inspect.getdoc(item.function) or "").split(
+                    os.linesep
+                )
             )
 
         self._current_case_report = report
@@ -432,7 +441,7 @@ class _ReportPlugin:
             _scratch=self._parent.scratch,
         )
 
-    def pytest_runtest_teardown(self, item):
+    def pytest_runtest_teardown(self, item: Any) -> None:
         """
         Hook called by pytest to tear down a test.
 
@@ -441,7 +450,7 @@ class _ReportPlugin:
         self._current_case_report = None
         self._current_result_obj = None
 
-    def pytest_runtest_logreport(self, report):
+    def pytest_runtest_logreport(self, report: Any) -> None:
         """
         Hook called by pytest to report on the result of a test.
 
@@ -471,6 +480,8 @@ class _ReportPlugin:
                     "object was created."
                 )
 
+            if self._current_result_obj is None:
+                raise RuntimeError("self._current_result_obj must not be None")
             if self._current_result_obj.entries:
                 # Add the assertion entry to the case report
                 for entry in self._current_result_obj.entries:
@@ -503,7 +514,9 @@ class _ReportPlugin:
         elif report.when == "teardown":
             pass
 
-    def pytest_exception_interact(self, node, call, report):
+    def pytest_exception_interact(
+        self, node: Any, call: Any, report: Any
+    ) -> None:
         """
         Hook called when an exception raised and it can be handled. This hook
         is only called if the exception is not an PyTest internal exception.
@@ -574,10 +587,10 @@ class _ReportPlugin:
             ):
                 message = getattr(report, capture)
                 if message:
-                    assertion_obj = entries_base.Log(
+                    log_obj = entries_base.Log(
                         message, description=description
                     )
-                    serialized_obj = schema_registry.serialize(assertion_obj)
+                    serialized_obj = schema_registry.serialize(log_obj)
                     self._current_case_report.append(serialized_obj)
 
         else:
@@ -593,7 +606,7 @@ class _ReportPlugin:
             )
 
     @pytest.hookimpl(trylast=True)
-    def pytest_configure(self, config):
+    def pytest_configure(self, config: Any) -> None:
         """
         Hook called by pytest upon startup. Disable output to terminal.
 
@@ -602,7 +615,7 @@ class _ReportPlugin:
         if self._quiet:
             config.pluginmanager.unregister(name="terminalreporter")
 
-    def pytest_unconfigure(self, config):
+    def pytest_unconfigure(self, config: Any) -> None:
         """
         Hook called by pytest before exiting. Collate suite reports.
 
@@ -628,12 +641,12 @@ class _CollectPlugin:
     test suites and testcases via the `collected` property.
     """
 
-    def __init__(self, quiet):
+    def __init__(self, quiet: bool) -> None:
         self._quiet = quiet
-        self.collected = None
+        self.collected: Any = None
 
     @pytest.hookimpl(trylast=True)
-    def pytest_configure(self, config):
+    def pytest_configure(self, config: Any) -> None:
         """
         Hook called by pytest upon startup. Disable output to terminal.
 
@@ -642,14 +655,14 @@ class _CollectPlugin:
         if self._quiet:
             config.pluginmanager.unregister(name="terminalreporter")
 
-    def pytest_collection_finish(self, session):
+    def pytest_collection_finish(self, session: Any) -> None:
         """
         PyTest hook, called after collection is finished.
         """
         self.collected = session.items
 
 
-def _case_parse(nodeid):
+def _case_parse(nodeid: str) -> Tuple[str, str, Optional[str]]:
     """
     Parse a nodeid into a shorterned URL-safe suite name, case name, and case
     parameters.
@@ -664,7 +677,7 @@ def _case_parse(nodeid):
     return (_short_suite_name(suite_name), case_name, case_params)
 
 
-def _split_nodeid(nodeid):
+def _split_nodeid(nodeid: str) -> Tuple[str, str, Optional[str]]:
     """
     Split a nodeid into its full suite name, case name, and case parameters.
 
@@ -684,7 +697,7 @@ def _split_nodeid(nodeid):
     return suite_name, case_name, case_params
 
 
-def _short_suite_name(suite_name):
+def _short_suite_name(suite_name: str) -> str:
     """
     Remove any path elements or .py extensions from the suite name.
     E.g. "tests/my_test.py" -> "my_test"
@@ -694,7 +707,9 @@ def _short_suite_name(suite_name):
     return os.path.basename(suite_name)
 
 
-def _add_empty_testcase_report(item, test_report, nodeids):
+def _add_empty_testcase_report(
+    item: Any, test_report: TestGroupReport, nodeids: Dict[str, Any]
+) -> None:
     """Add an empty testcase report to the test report."""
     full_suite_name, case_name, case_params = _split_nodeid(item.nodeid)
     suite_name = _short_suite_name(full_suite_name)
@@ -712,7 +727,7 @@ def _add_empty_testcase_report(item, test_report, nodeids):
 
     if case_params:
         try:
-            param_report = suite_report[case_name]
+            param_report = suite_report[case_name]  # type: ignore[index]
         except KeyError:
             param_report = TestGroupReport(
                 name=case_name,

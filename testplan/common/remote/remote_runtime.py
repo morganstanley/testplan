@@ -11,7 +11,7 @@ import os.path
 import shlex
 import sys
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Any, Callable, Dict, List, Tuple
 
 from schema import Or, And
 from typing_extensions import TypeAlias  # available in Python 3.10+
@@ -40,7 +40,7 @@ class RuntimeBuilder(Entity, ABC):
     methods prefixed with "local_" are executed on local
     """
 
-    def __init__(self, **options):
+    def __init__(self, **options: Any) -> None:
         """
         common constructor for config setting only
         """
@@ -57,7 +57,7 @@ class RuntimeBuilder(Entity, ABC):
         local_cmd_exec: CmdExecF,
         remote_cmd_exec: CmdExecF,
         parent_cfg: Config,  # TestRunnerConfig
-    ):
+    ) -> None:
         """
         runtime initialization with info from parent ``RemoteResource``
         """
@@ -99,7 +99,7 @@ class RuntimeBuilder(Entity, ABC):
         # NOTE: builder now, this method cannot return None
 
     @abstractmethod
-    def remote_teardown_pyenv(self):
+    def remote_teardown_pyenv(self) -> None:
         """
         teardown pyenv on remote side
         """
@@ -117,7 +117,7 @@ class RuntimeBuilderConfig(Config):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("transfer_exclude", default=[]): Or(
                 And(list, lambda x: all(isinstance(i, str) for i in x)), None
@@ -131,7 +131,7 @@ class PipBasedBuilderConfig(RuntimeBuilderConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("python_base_bin", default="python3"): str,
             # NOTE: validation postponed to py detect
@@ -183,9 +183,9 @@ class PipBasedBuilder(RuntimeBuilder):
         "packageC", "packageA!=1.2.3+local", ...]``
     """
 
-    CONFIG = PipBasedBuilderConfig
+    CONFIG = PipBasedBuilderConfig  # type: ignore[assignment]
 
-    def __init__(self, **options):
+    def __init__(self, **options: Any) -> None:
         super().__init__(**options)
         self._upstream_pkgs: list[str]
         self._local_pkgs: list[str]  # local from the perspective of remote
@@ -193,7 +193,7 @@ class PipBasedBuilder(RuntimeBuilder):
         self._skip_install_deps = False
 
     @staticmethod
-    def group_freezed(packages: list):
+    def group_freezed(packages: List[str]) -> Tuple[List[str], List[str]]:
         # NOTE: impl relies on behaviour of "uv pip freeze"
         upstream = []
         local = []
@@ -220,7 +220,7 @@ class PipBasedBuilder(RuntimeBuilder):
         # TODO: windows
         return os.path.join(env_prefix, "bin", "python3")
 
-    def bootstrap(self, *args, **kwargs):
+    def bootstrap(self, *args: Any, **kwargs: Any) -> None:
         super().bootstrap(*args, **kwargs)
         if env_python_bin := os.environ.get(OVERRIDDEN_PYTHON_BIN):
             self.cfg.set_local("python_base_bin", env_python_bin)
@@ -230,7 +230,7 @@ class PipBasedBuilder(RuntimeBuilder):
 
         if self.cfg.use_sys_env:
             self._remote_python_bin = remote_base_bin
-            return remote_base_bin
+            return remote_base_bin  # type: ignore[no-any-return]
 
         if self.cfg.venv_path:
             if (
@@ -276,7 +276,7 @@ class PipBasedBuilder(RuntimeBuilder):
         self._remote_python_bin = self.deduce_python_bin(venv_path)
         return self._remote_python_bin
 
-    def local_export_pyenv(self):
+    def local_export_pyenv(self) -> List[Tuple[str, str]]:
         if self.cfg.overridden_deps:
             # NOTE: here we don't perform any check upon user input
             self._upstream_pkgs, local_paths = self.group_freezed(
@@ -315,7 +315,7 @@ class PipBasedBuilder(RuntimeBuilder):
             )
         )
 
-    def remote_setup_pyenv(self, remote_paths):
+    def remote_setup_pyenv(self, remote_paths: List[str]) -> str:
         import uv
 
         if not self._skip_install_deps:
@@ -364,7 +364,7 @@ class PipBasedBuilder(RuntimeBuilder):
         )
         return r_testplan_parent
 
-    def remote_teardown_pyenv(self):
+    def remote_teardown_pyenv(self) -> None:
         # everything under runpath, should be auto removed
         pass
 
@@ -381,7 +381,7 @@ class SourceTransferBuilderConfig(RuntimeBuilderConfig):
     """
 
     @classmethod
-    def get_options(cls):
+    def get_options(cls) -> Dict[Any, Any]:
         return {
             ConfigOption("python_bin", default=sys.executable): str,
             ConfigOption("existing_testplan_parent", default=None): str,
@@ -404,14 +404,14 @@ class SourceTransferBuilder(RuntimeBuilder):
         be transferred to remote
     """
 
-    CONFIG = SourceTransferBuilderConfig
+    CONFIG = SourceTransferBuilderConfig  # type: ignore[assignment]
 
-    def __init__(self, **options):
+    def __init__(self, **options: Any) -> None:
         super().__init__(**options)
         self._l_testplan_ppath: str
         self._r_testplan_ppath: str
 
-    def bootstrap(self, *args, **kwargs):
+    def bootstrap(self, *args: Any, **kwargs: Any) -> None:
         super().bootstrap(*args, **kwargs)
         if env_python_bin := os.environ.get(OVERRIDDEN_PYTHON_BIN):
             self.cfg.set_local("python_bin", env_python_bin)
@@ -426,9 +426,9 @@ class SourceTransferBuilder(RuntimeBuilder):
         )
 
     def remote_prepare_pybin(self) -> str:
-        return self.cfg.python_bin
+        return self.cfg.python_bin  # type: ignore[no-any-return]
 
-    def local_export_pyenv(self) -> list:
+    def local_export_pyenv(self) -> List[Tuple[str, str]]:
         if self.cfg.existing_testplan_parent:
             # remote path specified, no need to transfer files
             return []
@@ -454,9 +454,9 @@ class SourceTransferBuilder(RuntimeBuilder):
             )
         ]
 
-    def remote_setup_pyenv(self, remote_paths):
+    def remote_setup_pyenv(self, remote_paths: List[str]) -> str:
         if self.cfg.existing_testplan_parent:
-            remote_src = self.cfg.existing_testplan_parent
+            remote_src: str = self.cfg.existing_testplan_parent
             self._rcmd_exec(
                 link_cmd(remote_src, self._r_testplan_ppath),
                 label=f"link user-specified testplan path {remote_src} to "
@@ -474,7 +474,7 @@ class SourceTransferBuilder(RuntimeBuilder):
             )
         return remote_src
 
-    def remote_teardown_pyenv(self):
+    def remote_teardown_pyenv(self) -> None:
         # everything under runpath, should be auto removed
         pass
 

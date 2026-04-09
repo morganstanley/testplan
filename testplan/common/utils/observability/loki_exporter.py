@@ -4,7 +4,7 @@ import sys
 import time
 from typing import Sequence
 
-from opentelemetry.sdk._logs import LogData  # pylint: disable=import-error
+from opentelemetry.sdk._logs import LogData  # type: ignore[attr-defined]  # pylint: disable=import-error
 from opentelemetry.sdk._logs.export import LogExporter, LogExportResult  # pylint: disable=import-error
 
 
@@ -58,7 +58,7 @@ class LokiExporter(LogExporter):
     def shutdown(self) -> None:
         return
 
-    def export(self, batch: Sequence[LogData]) -> LogExportResult:
+    def export(self, batch: Sequence[LogData]) -> LogExportResult:  # type: ignore[override]
         formatted_logs = []
         for log_data in batch:
             record = log_data.log_record

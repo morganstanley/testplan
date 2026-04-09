@@ -2,7 +2,7 @@
 
 import threading
 from collections import OrderedDict
-from typing import Generator, List
+from typing import Any, Dict, Generator, List, Optional
 
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.utils.selector import Expr as SExpr
@@ -31,12 +31,12 @@ class Executor(Resource):
     CONFIG = ExecutorConfig
     _STOP_TIMEOUT = 10
 
-    def __init__(self, **options) -> None:
+    def __init__(self, **options: Any) -> None:
         super(Executor, self).__init__(**options)
-        self._loop_handler = None
-        self._input = OrderedDict()
-        self._results = OrderedDict()
-        self.ongoing = []
+        self._loop_handler: Optional[threading.Thread] = None
+        self._input: OrderedDict[str, Any] = OrderedDict()
+        self._results: OrderedDict[str, Any] = OrderedDict()
+        self.ongoing: List[str] = []
 
         self._discard_pending = False
 
@@ -123,7 +123,7 @@ class Executor(Resource):
 
     def discard_pending_tasks(
         self, report_status: Status = Status.NONE, report_reason: str = ""
-    ):
+    ) -> None:
         # NOTE: should discard currently running task as well
         # NOTE: currently Task class is defined under sub-package pool, which
         # NOTE: doesn't reflect the fact that LocalRunner is also able to
@@ -138,7 +138,7 @@ class Executor(Resource):
         exec_selector: SExpr,
         report_status: Status = Status.NONE,
         report_reason: str = "",
-    ):
+    ) -> None:
         # used by "skip-remaining" feature
         # should only be triggered when executors living under TestRunner
         from testplan.runnable.base import TestRunner
