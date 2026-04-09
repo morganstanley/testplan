@@ -22,34 +22,34 @@ from typing import (
 from schema import And, Or, Use
 
 from testplan.common import config, entity
-from testplan.common.utils import interface, strings, timing, watcher
-from testplan.common.utils.composer import compose_contexts
-from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.common.report import (
     ReportCategories,
     RuntimeStatus,
     Status,
 )
+from testplan.common.utils import interface, strings, timing, watcher
+from testplan.common.utils.composer import compose_contexts
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report import (
     TestCaseReport,
     TestGroupReport,
 )
-from testplan.testing import base as testing_base, result
-from testplan.testing import filtering, tagging
+from testplan.testing import base as testing_base
+from testplan.testing import filtering, result, tagging
+from testplan.testing.base import TestLifecycle
 from testplan.testing.common import (
     TEST_PART_PATTERN_FORMAT_STRING,
     SkipStrategy,
 )
 from testplan.testing.multitest import suite as mtest_suite
 from testplan.testing.multitest.entries import base as entries_base
-from testplan.testing.ordering import TypedSorter
-from testplan.testing.result import report_target
 from testplan.testing.multitest.suite import (
     get_suite_metadata,
     get_testcase_metadata,
 )
 from testplan.testing.multitest.test_metadata import TestMetadata
-from testplan.testing.base import TestLifecycle
+from testplan.testing.ordering import TypedSorter
+from testplan.testing.result import report_target
 
 
 def iterable_suites(obj: Any) -> List[Any]:
@@ -469,6 +469,7 @@ class MultiTest(testing_base.Test):
                         testcase.__func__.__xfail__ = {
                             "reason": data["reason"],
                             "strict": data["strict"],
+                            "condition": data.get("condition"),
                         }
 
                 ctx.append((suite, testcases_to_run))
@@ -891,7 +892,10 @@ class MultiTest(testing_base.Test):
 
             # if testsuite is marked xfail by user, override its status
             if hasattr(testsuite, "__xfail__"):
-                testsuite_report.xfail(testsuite.__xfail__["strict"])
+                testsuite_report.xfail(
+                    testsuite.__xfail__["strict"],
+                    testsuite.__xfail__["condition"],
+                )
 
             if testsuite_report.failed:
                 tracing.set_span_as_failed(testsuite_span)
@@ -1326,7 +1330,10 @@ class MultiTest(testing_base.Test):
 
             # If xfailed testcase, force set status_override and update result
             if hasattr(testcase, "__xfail__"):
-                testcase_report.xfail(testcase.__xfail__["strict"])
+                testcase_report.xfail(
+                    testcase.__xfail__["strict"],
+                    testcase.__xfail__["condition"],
+                )
 
             if not case_result.passed:
                 tracing.set_span_as_failed(testcase_span)
