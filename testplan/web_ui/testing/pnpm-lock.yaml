@@ -94,6 +94,9 @@ importers:
       eslint-plugin-react:
         specifier: ^7.32.2
         version: 7.37.5(eslint@8.57.1)
+      eslint:
+        specifier: ^8.57.1
+        version: 8.57.1
       history:
         specifier: ~4.10.1
         version: 4.10.1
