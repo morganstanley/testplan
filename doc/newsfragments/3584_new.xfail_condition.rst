@@ -1,0 +1,1 @@
+:ref:`Xfail` now supports a ``condition`` parameter for conditional xfail based on log messages or assertion entries.

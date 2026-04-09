@@ -908,15 +908,15 @@ class BaseReportGroup(Report):
             )
         )
 
-    def xfail(self, strict: bool, when: Optional[dict]) -> None:
+    def xfail(self, strict: bool, condition: Optional[dict]) -> None:
         """
         Override report status for test that is marked xfail by user
         :param strict: whether consider XPASS as failure
         """
-        if when:
+        if condition:
             warnings.warn(
                 "Conditional xfail is not supported on entries other than testcases, "
-                f"passed-in `when`: {when}."
+                f"passed-in `condition`: {condition}."
             )
 
         if self.failed:
@@ -931,7 +931,7 @@ class BaseReportGroup(Report):
 
         # propagate xfail down to testcase
         for child in self:
-            child.xfail(strict, when)
+            child.xfail(strict, condition)
 
     @property
     def hash(self) -> int:

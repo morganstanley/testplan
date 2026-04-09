@@ -1434,13 +1434,13 @@ If a test is expect to fail all the time, you can also use the `strict=True` the
     def fail_testcase(self, env, result):
         ...
 
-Each xfail entry can include an optional ``when`` parameter to indicate which
-failure should be expected. This is useful when a test may fail for different
-reasons and you only want to suppress a specific known failure. The ``when``
-parameter must contain exactly **one** of the following keys:
+Each xfail entry can include an optional ``condition`` parameter to indicate
+which failure should be expected. This is useful when a test may fail for
+different reasons and you only want to suppress a specific known failure. The
+``condition`` parameter must contain exactly **one** of the following keys:
 
-**Matching on log messages** - applies xfail only when a matching log message
-is found in the report entry's logs:
+**Matching on testcase errors** - applies xfail only when testcase reporting
+error status and a matching error message is found in the report entry's logs:
 
 .. code-block:: json
 
@@ -1448,12 +1448,12 @@ is found in the report entry's logs:
         "MyTest:Environment Start:Starting": {
             "reason": "known driver startup failure",
             "strict": false,
-            "when": {"logs": "While starting"}
+            "condition": {"error": "While starting"}
         }
     }
 
-The ``logs`` value is treated as a regular expression pattern and ``re.search``
-is used to match it against the log messages.
+The ``error`` value is treated as a regular expression pattern and ``re.search``
+is used to match it against the error messages.
 
 **Matching on assertion entries** - applies xfail only when a matching failed
 assertion is found in the report entry:
@@ -1464,8 +1464,8 @@ assertion is found in the report entry:
         "MyTest:MySuite:my_testcase": {
             "reason": "known dict comparison issue",
             "strict": false,
-            "when": {
-                "assertions": {
+            "condition": {
+                "failed": {
                     "type": "DictMatch",
                     "description": "expected vs actual"
                 }
@@ -1473,9 +1473,8 @@ assertion is found in the report entry:
         }
     }
 
-The ``assertions`` dict can contain any combination of the following optional
-keys: ``type`` (exact string match), ``description`` (regex pattern for
-``re.search``), and ``message`` (regex pattern for ``re.search``).
+The ``failed`` dict should contain both ``type`` (exact string match) and
+``description`` (regex pattern for ``re.search``).
 
 Skip if
 -------

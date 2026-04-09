@@ -942,7 +942,9 @@ class Test(Runnable):
         if getattr(self.cfg, "xfail_tests", None):
             found = self.cfg.xfail_tests.get(pattern)
             if found:
-                report.xfail(strict=found["strict"], when=found.get("when"))
+                report.xfail(
+                    strict=found["strict"], condition=found.get("condition")
+                )
 
     def _record_driver_timing(
         self, setup_or_teardown: str, case_report: TestCaseReport

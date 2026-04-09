@@ -469,7 +469,7 @@ class MultiTest(testing_base.Test):
                         testcase.__func__.__xfail__ = {
                             "reason": data["reason"],
                             "strict": data["strict"],
-                            "when": data.get("when"),
+                            "condition": data.get("condition"),
                         }
 
                 ctx.append((suite, testcases_to_run))
@@ -894,7 +894,7 @@ class MultiTest(testing_base.Test):
             if hasattr(testsuite, "__xfail__"):
                 testsuite_report.xfail(
                     testsuite.__xfail__["strict"],
-                    testsuite.__xfail__["when"],
+                    testsuite.__xfail__["condition"],
                 )
 
             if testsuite_report.failed:
@@ -1332,7 +1332,7 @@ class MultiTest(testing_base.Test):
             if hasattr(testcase, "__xfail__"):
                 testcase_report.xfail(
                     testcase.__xfail__["strict"],
-                    testcase.__xfail__["when"],
+                    testcase.__xfail__["condition"],
                 )
 
             if not case_result.passed:

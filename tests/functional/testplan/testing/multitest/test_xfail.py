@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from itertools import count
 
 import pytest
 from schema import SchemaError
@@ -20,7 +21,13 @@ class StrictXfailedSuite:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=tuple(range(10)))
-    @xfail("Should be fail", strict=True)
+    @xfail(
+        "Should be fail",
+        strict=True,
+        condition={
+            "failed": {"type": "IsTrue", "description": "Check if value"}
+        },
+    )
     def test_fail(self, env, result, val):
         result.true(val > 100, description="Check if value is true")
 
@@ -156,19 +163,19 @@ def test_dynamic_xfail():
     assert result.report.entries[2].entries[1].entries[2].unstable is True
 
 
-def test_dynamic_xfail_environment_start_when_logs():
+def test_dynamic_xfail_environment_start_condition_error():
     plan = TestplanMock(
-        name="dynamic_xfail_environment_start_when_logs",
+        name="dynamic_xfail_environment_start_condition_error",
         xfail_tests={
             "First Startup Error:Environment Start:Starting": {
-                "reason": "known startup failure with matching logs",
+                "reason": "known startup failure with matching error",
                 "strict": False,
-                "when": {"logs": "hahaha"},
+                "condition": {"error": "hahaha"},
             },
             "Second Startup Error:Environment Start:Starting": {
-                "reason": "known startup failure with non-matching logs",
+                "reason": "known startup failure with non-matching error",
                 "strict": False,
-                "when": {"logs": "hahaha"},
+                "condition": {"error": "hahaha"},
             },
         },
     )
@@ -218,7 +225,7 @@ def test_dynamic_xfail_environment_start_when_logs():
 class AssertionXfailSuite:
     @testcase
     def only_a1_fails(self, env, result):
-        """a1 fails, b1 passes; xfail when=b1 should not match."""
+        """a1 fails, b1 passes; xfail condition=b1 should not match."""
         result.dict.match(
             {"foo": 1},
             {"foo": 2},
@@ -231,7 +238,21 @@ class AssertionXfailSuite:
         )
 
     @testcase
-    def both_fail_when_b1(self, env, result):
+    def neither_fails(self, env, result):
+        """a1 and b1 both pass; xfail condition=b1 should not match."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 1},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 1},
+            description="b1 dict match",
+        )
+
+    @testcase
+    def both_fail_condition_b1(self, env, result):
         """Both a1 and b1 fail."""
         result.dict.match(
             {"foo": 1},
@@ -245,7 +266,7 @@ class AssertionXfailSuite:
         )
 
     @testcase
-    def both_fail_when_a1(self, env, result):
+    def both_fail_condition_a1(self, env, result):
         """Both a1 and b1 fail."""
         result.dict.match(
             {"foo": 1},
@@ -259,35 +280,45 @@ class AssertionXfailSuite:
         )
 
 
-def test_dynamic_xfail_testcase_when_assertions():
+def test_dynamic_xfail_testcase_condition_failed():
     plan = TestplanMock(
-        name="dynamic_xfail_testcase_when_assertions",
+        name="dynamic_xfail_testcase_condition_failed",
         xfail_tests={
             "Assertion Xfail MT:AssertionXfailSuite:only_a1_fails": {
-                "reason": "b1 not present so when should not match",
-                "strict": False,
-                "when": {
-                    "assertions": {
+                "reason": "b1 not present so condition should not match",
+                "strict": True,
+                "condition": {
+                    "failed": {
                         "type": "DictMatch",
                         "description": "b1 dict match",
                     }
                 },
             },
-            "Assertion Xfail MT:AssertionXfailSuite:both_fail_when_b1": {
-                "reason": "b1 present and failed so when should match",
-                "strict": False,
-                "when": {
-                    "assertions": {
+            "Assertion Xfail MT:AssertionXfailSuite:neither_fails": {
+                "reason": "neither failed, condition partially match",
+                "strict": True,
+                "condition": {
+                    "failed": {
                         "type": "DictMatch",
                         "description": "b1 dict match",
                     }
                 },
             },
-            "Assertion Xfail MT:AssertionXfailSuite:both_fail_when_a1": {
-                "reason": "a1 present and failed so when should match",
+            "Assertion Xfail MT:AssertionXfailSuite:both_fail_condition_b1": {
+                "reason": "b1 present and failed so condition should match",
                 "strict": False,
-                "when": {
-                    "assertions": {
+                "condition": {
+                    "failed": {
+                        "type": "DictMatch",
+                        "description": "b1 dict match",
+                    }
+                },
+            },
+            "Assertion Xfail MT:AssertionXfailSuite:both_fail_condition_a1": {
+                "reason": "a1 present and failed so condition should match",
+                "strict": True,
+                "condition": {
+                    "failed": {
                         "type": "DictMatch",
                         "description": "a1 dict match",
                     }
@@ -306,34 +337,37 @@ def test_dynamic_xfail_testcase_when_assertions():
 
     suite_report = result.report["Assertion Xfail MT"]["AssertionXfailSuite"]
     only_a1 = suite_report["only_a1_fails"]
-    both_b1 = suite_report["both_fail_when_b1"]
-    both_a1 = suite_report["both_fail_when_a1"]
+    neither = suite_report["neither_fails"]
+    both_b1 = suite_report["both_fail_condition_b1"]
+    both_a1 = suite_report["both_fail_condition_a1"]
 
-    # only_a1_fails: a1 fails but xfail when=b1 desc -> no b1 -> not xfail
+    # only_a1_fails: a1 fails but xfail condition=b1 desc -> no b1 -> not xfail
     assert only_a1.status == Status.FAILED
-    # both_fail_when_b1: a1+b1 fail, xfail when=b1 desc -> match -> xfail
+    # neither_fails: a1 and b1 both pass, xfail condition=b1 desc -> match but not failed -> not xfail
+    assert neither.status == Status.XPASS_STRICT
+    # both_fail_condition_b1: a1+b1 fail, xfail condition=b1 desc -> match -> xfail
     assert both_b1.status == Status.XFAIL
-    # both_fail_when_a1: a1+b1 fail, xfail when=a1 desc -> match -> xfail
+    # both_fail_condition_a1: a1+b1 fail, xfail condition=a1 desc -> match -> xfail
     assert both_a1.status == Status.XFAIL
 
 
 @pytest.mark.parametrize(
-    "bad_when",
+    "bad_condition",
     [
-        {"assertions": {"passed": False}},
-        {"assertions": {"type": "DictMatch"}, "logs": "some pattern"},
+        {"failed": {"passed": False}},
+        {"failed": {"type": "DictMatch"}, "error": "some pattern"},
     ],
-    ids=["invalid_assertions_key", "both_assertions_and_logs"],
+    ids=count(0),
 )
-def test_dynamic_xfail_bad_when_schema(bad_when):
+def test_dynamic_xfail_bad_condition_schema(bad_condition):
     with pytest.raises(SchemaError, match="Key 'xfail_tests' error"):
         _ = TestplanMock(
-            name="dynamic_xfail_bad_when_schema",
+            name="dynamic_xfail_bad_condition_schema",
             xfail_tests={
-                "Assertion Xfail MT:AssertionXfailSuite:both_fail_when_b1": {
-                    "reason": "invalid when schema should fail plan",
+                "Assertion Xfail MT:AssertionXfailSuite:both_fail_condition_b1": {
+                    "reason": "invalid condition schema should fail plan",
                     "strict": False,
-                    "when": bad_when,
+                    "condition": bad_condition,
                 },
             },
         )
@@ -396,8 +430,8 @@ def test_xfail_cli():
     1. Generates a failing plan script from examples/App/Basic/test_plan.py
        by replacing ``testplan`` with ``testplannn`` inside re.compile().
     2. First run: produces a JSON report from the failing plan.
-    3. Extracts xfail entries from the report, including a ``when.logs``
-       pattern from the first log entry containing "While starting".
+    3. Extracts xfail entries from the report, including a ``condition.error``
+       pattern from the first error entry containing "While starting".
     4. Second run: feeds the xfail JSON via --xfail-tests and verifies
        the resulting report has xfail status overrides.
     """
@@ -442,14 +476,19 @@ def test_xfail_cli():
                     case_name = case["name"]
                     if case["status"] == "error":
                         pattern = f"{mt_name}:{suite_name}:{case_name}"
-                        # "when" from first log containing "While starting"
+                        # we know we only have environment startup error here
+                        assert (
+                            suite_name == "Environment Start"
+                            and case_name == "Starting"
+                        )
+                        # "condition" from first log containing "While starting"
                         # we already know that so we hardcode it here
                         msg = case["logs"][0].get("message", "")
                         assert "While starting" in msg
                         entry = {
                             "reason": "known failure",
                             "strict": False,
-                            "when": {"logs": "While starting"},
+                            "condition": {"error": "While starting"},
                         }
                         xfail_tests[pattern] = entry
 

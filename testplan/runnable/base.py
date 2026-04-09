@@ -52,7 +52,7 @@ from testplan.common.entity import (
 )
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
 from testplan.common.utils.observability import TraceLevel, tracing
-from testplan.report.testing.base import TESTCASE_XFAIL_WHEN_SCHEMA
+from testplan.report.testing.base import TESTCASE_XFAIL_CONDITION_SCHEMA
 
 if TYPE_CHECKING:
     from testplan.common.remote.remote_service import RemoteService
@@ -283,7 +283,9 @@ class TestRunnerConfig(RunnableConfig):
                     str: {
                         "reason": str,
                         "strict": bool,
-                        schemaOptional("when"): TESTCASE_XFAIL_WHEN_SCHEMA,
+                        schemaOptional(
+                            "condition"
+                        ): TESTCASE_XFAIL_CONDITION_SCHEMA,
                     },
                 },
                 None,

@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from testplan import defaults
 from testplan.common.utils import interface, strings
-from testplan.report.testing.base import TESTCASE_XFAIL_WHEN_SCHEMA
+from testplan.report.testing.base import TESTCASE_XFAIL_CONDITION_SCHEMA
 from testplan.testing import tagging
 
 from . import parametrization
@@ -917,7 +917,7 @@ def skip_if_testcase(*predicates: Callable[..., bool]) -> Callable[..., Any]:
 
 
 def xfail(
-    reason: str, strict: bool = False, when: Optional[dict] = None
+    reason: str, strict: bool = False, condition: Optional[dict] = None
 ) -> Callable:
     """
     Mark a testcase/testsuit as XFail(known to fail) when not possible to fix
@@ -932,7 +932,7 @@ def xfail(
     :param reason: Explains why the test is marked as passed.
     :param strict: Should the test pass while we expect it to fail, the report
     will mark it as failed if strict is True,  default is False.
-    :param when: Optional match condition for xfail stating only such condition
+    :param condition: Optional match condition for xfail stating only such condition
         is considered as expected failure. Supported keys are ``logs`` for a
         regex matched against logs and ``assertions`` for a dict matched
         against serialized assertion entries.
@@ -942,8 +942,8 @@ def xfail(
         test.__xfail__ = {  # type: ignore[attr-defined]
             "reason": reason,
             "strict": strict,
-            "when": TESTCASE_XFAIL_WHEN_SCHEMA.validate(when)
-            if when is not None
+            "condition": TESTCASE_XFAIL_CONDITION_SCHEMA.validate(condition)
+            if condition is not None
             else None,
         }
         return test

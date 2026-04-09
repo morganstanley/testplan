@@ -351,16 +351,17 @@ Command line
                                 "Flaky GTest:SuiteName:CaseName": {
                                     "reason": "test not stable",
                                     "strict": false,
-                                    "when": {
-                                        "assertions": {
+                                    "condition": {
+                                        "failed": {
                                             "type": "Equal",
                                             "description": "some part of description of that failed assertion"
                                         }
                                     }
                                 },
-                                "Fatal MultiTest:\*:\*": {
+                                "Fatal MultiTest:Environment Start:Starting": {
                                     "reason": "env does not start",
-                                    "strict": true
+                                    "strict": true,
+                                    "condition": {"error": "While starting driver MyApp[app1]"}
                                 },
                                 "Flaky MultiTest:Suite Name:\*": {
                                     "reason": "everything under that suite flaky",
@@ -369,7 +370,7 @@ Command line
                             }
 
                             with each entry looks like:
-                            '{"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>[, "when": <value>]} }'
+                            '{"<Multitest>:<TestSuite>:<testcase>": {"reason": <value>, "strict": <value>[, "condition": <value>]} }'
       --runtime-data PATH   Historical runtime data which will be used for Multitest auto-part and weight-based Task smart-scheduling with entries looks like:
 
                             {
