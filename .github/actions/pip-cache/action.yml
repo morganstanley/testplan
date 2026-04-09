@@ -4,7 +4,7 @@ runs:
   using: "composite"
   steps:
     - name: Restore Pip Cache
-      uses: actions/cache@v4
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
         path: ${{ runner.os == 'Linux' && '~/.cache/pip' || '~\AppData\Local\pip\Cache' }}
         key: ${{ runner.os }}-${{ hashFiles('pyproject.toml') }}

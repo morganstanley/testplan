@@ -2,6 +2,12 @@
   "name": "@morgan-stanley/testplan",
   "version": "0.2.0",
   "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11.11.1",
+    "pnpm": ">=10.32.1"
+  },
   "pnpm": {
     "overrides": {
       "react": "^17.0.2",
@@ -36,6 +42,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-annotation": "^3.0.1",
     "date-fns": "^4.1.0",
+    "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.32.2",
     "history": "~4.10.1",
     "jotai": "^2.1.0",
