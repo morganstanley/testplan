@@ -762,7 +762,7 @@ const ResourceContainer = ({
         `${anchorPrefix}${selection}`
       );
       if (selectedDiv) {
-        selectedDiv.scrollIntoView({ hehavior: "smooth", block: "start" });
+        selectedDiv.scrollIntoView?.({ behavior: "smooth", block: "start" });
       }
     }
   }, [routeMatch]);
