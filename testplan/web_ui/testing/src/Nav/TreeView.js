@@ -74,7 +74,7 @@ const TreeViewNav = (props) => {
 
   React.useEffect(() => {
     if (!hasInitialized && selectedElement && transitionFinished) {
-      selectedElement.scrollIntoView({ block: "nearest" });
+      selectedElement.scrollIntoView?.({ block: "nearest" });
       setHasInitialized(true);
     }
   }, [selectedElement, transitionFinished, hasInitialized]);
