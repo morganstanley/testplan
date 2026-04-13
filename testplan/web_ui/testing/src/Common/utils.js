@@ -355,6 +355,50 @@ export const getAssertionsFileName = (mtUid) => {
 };
 
 /**
+ * Expand array-format assertion entries back to objects.
+ *
+ * Report version >= 4 encodes assertion entries as arrays:
+ *   [schema_id, val1, val2, ...]
+ * with a report_schemas mapping in the root report:
+ *   {"0": ["key1", "key2", ...], "1": [...]}
+ *
+ * This function converts them back to plain objects for rendering.
+ *
+ * @param {Object} data - Assertions dict: {testcase_uid: [entries], ...}
+ * @param {Object} schemas - Schema mapping: {"0": ["key1", ...], ...}
+ * @returns {Object} The same data object, with arrays replaced by objects
+ */
+export const expandArrayAssertions = (data, schemas) => {
+  if (!schemas || !data) return data;
+
+  const expand = (entryList) => {
+    for (let i = 0; i < entryList.length; i++) {
+      const entry = entryList[i];
+      if (!Array.isArray(entry) || entry.length < 2) continue;
+      const sid = String(entry[0]);
+      const keys = schemas[sid];
+      if (!keys) continue;
+      const obj = {};
+      for (let pos = 0; pos < keys.length; pos++) {
+        const val = entry[pos + 1];
+        if (keys[pos] === "entries" && Array.isArray(val)) {
+          expand(val);
+        }
+        obj[keys[pos]] = val;
+      }
+      entryList[i] = obj;
+    }
+  };
+
+  for (const uid of Object.keys(data)) {
+    if (Array.isArray(data[uid])) {
+      expand(data[uid]);
+    }
+  }
+  return data;
+};
+
+/**
  * Get the URL to retrieve the resource data from API.
  * @param {string} resourceUid
  * @param {string} attachment
