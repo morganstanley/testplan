@@ -13,6 +13,7 @@ import {
   formatMilliseconds,
   getAttachmentUrl,
   getAssertionsFileName,
+  expandArrayAssertions,
 } from "./../Common/utils";
 import { VIEW_TYPE } from "../Common/defaults";
 import { parseToJson } from "../Common/utils";
@@ -518,6 +519,13 @@ const CenterPane = ({
           axios
             .get(fetchUrl, { transformResponse: parseToJson })
             .then((response) => {
+              // Expand array-format assertions to objects (v4+)
+              const report = reportState.report;
+              if (report && report.version >= 4 && report.report_schemas) {
+                expandArrayAssertions(
+                  response.data, report.report_schemas
+                );
+              }
               const _assertions = getAssertions(
                 selectedEntries,
                 response.data[selectedEntry.uid],
