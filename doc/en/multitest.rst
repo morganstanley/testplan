@@ -1448,12 +1448,14 @@ error status and a matching error message is found in the report entry's logs:
         "MyTest:Environment Start:Starting": {
             "reason": "known driver startup failure",
             "strict": false,
-            "condition": {"error": "While starting"}
+            "condition": {"error": "While starting driver MyApp\\[app1\\]"}
         }
     }
 
 The ``error`` value is treated as a regular expression pattern and ``re.search``
-is used to match it against the error messages.
+is used to match it against the error messages. Please note that ``error`` value
+must have any regex special characters escaped if intending to match them
+literally.
 
 **Matching on assertion entries** - applies xfail only when a matching failed
 assertion is found in the report entry:
@@ -1474,7 +1476,9 @@ assertion is found in the report entry:
     }
 
 The ``failed`` dict should contain both ``type`` (exact string match) and
-``description`` (regex pattern for ``re.search``).
+``description`` (regex pattern for ``re.search``). As with ``error``, the
+``description`` value must have any regex special characters escaped if
+intending to match them literally.
 
 Skip if
 -------

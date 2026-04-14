@@ -202,7 +202,7 @@ A typical input JSON looks like below:
     "Fatal MultiTest:Environment Start:Starting": {
         "reason": "env does not start",
         "strict": true,
-        "condition": {"error": "While starting driver MyApp[app1]"}
+        "condition": {"error": "While starting driver MyApp\\[app1\\]"}
     },
     "Flaky MultiTest:Suite Name:*": {
         "reason": "everything under that suite flaky",
