@@ -43,11 +43,13 @@ import copy
 import getpass
 import hashlib
 import itertools
-import os
 import platform
+import re
 import sys
 from collections import Counter
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+
+import schema
 from typing_extensions import Self
 
 from testplan.common.report import (
@@ -58,9 +60,26 @@ from testplan.common.report import (
     RuntimeStatus,
     Status,
 )
+from testplan.common.report.base import ExceptionLoggerBase
 from testplan.common.utils.timing import iana_tz
 from testplan.testing import tagging
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
+
+TESTCASE_XFAIL_CONDITION_SCHEMA = schema.Schema(
+    schema.And(
+        {
+            schema.Optional("error"): schema.Use(re.compile),
+            schema.Optional("failed"): {
+                "type": str,
+                "description": schema.Use(re.compile),
+            },
+        },
+        schema.Or(
+            lambda d: "error" in d and len(d) == 1,
+            lambda d: "failed" in d and len(d) == 1,
+        ),
+    )
+)
 
 
 class TestReport(BaseReportGroup):
@@ -660,18 +679,67 @@ class TestCaseReport(Report):
             )
         )
 
-    def xfail(self, strict: bool) -> None:
+    def xfail(self, strict: bool, condition: Optional[dict]) -> None:
         """
         Override report status for test that is marked xfail by user
         :param strict: whether consider XPASS as failure
         """
-        if self.failed:
+        if self.failed and self._xfail_match_condition(condition):
             self.status_override = Status.XFAIL
-        elif self.passed:
+        elif self.passed and self._xfail_partial_match_condition(condition):
             if strict:
                 self.status_override = Status.XPASS_STRICT
             else:
                 self.status_override = Status.XPASS
+
+    @staticmethod
+    def _xfail_match_assertion(exp: dict, val: dict) -> bool:
+        if not isinstance(val, dict):
+            return False
+        for k, v in exp.items():
+            if k not in val:
+                return False
+            actual = val[k]
+            if isinstance(v, re.Pattern):
+                if not isinstance(actual, str) or not v.search(actual):
+                    return False
+            elif isinstance(v, dict):
+                if not TestCaseReport._xfail_match_assertion(v, actual):
+                    return False
+            elif actual != v:
+                return False
+        return True
+
+    def _xfail_match_condition(self, condition: Optional[dict]) -> bool:
+        if not condition:
+            return True
+
+        if "error" in condition:
+            return self.status == Status.ERROR and any(
+                condition["error"].search(log_record.get("message", ""))
+                for log_record in self.logs
+            )
+        return any(
+            TestCaseReport._xfail_match_assertion(condition["failed"], entry)
+            for entry in self.entries
+            if entry.get("passed") is False
+        )
+
+    def _xfail_partial_match_condition(
+        self, condition: Optional[dict]
+    ) -> bool:
+        if not condition:
+            return True
+
+        if "error" in condition:
+            return any(
+                condition["error"].search(log_record.get("message", ""))
+                for log_record in self.logs
+            )
+        return any(
+            TestCaseReport._xfail_match_assertion(condition["failed"], entry)
+            for entry in self.entries
+        )
 
     @property
     def counter(self) -> Counter:

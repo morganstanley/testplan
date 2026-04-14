@@ -12,6 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from testplan import defaults
 from testplan.common.utils import interface, strings
+from testplan.report.testing.base import TESTCASE_XFAIL_CONDITION_SCHEMA
 from testplan.testing import tagging
 
 from . import parametrization
@@ -915,7 +916,9 @@ def skip_if_testcase(*predicates: Callable[..., bool]) -> Callable[..., Any]:
     return _skip_if_testcase_inner
 
 
-def xfail(reason: str, strict: bool = False) -> Callable[..., Any]:
+def xfail(
+    reason: str, strict: bool = False, condition: Optional[dict] = None
+) -> Callable:
     """
     Mark a testcase/testsuit as XFail(known to fail) when not possible to fix
     immediately. This decorator mandates a reason that explains why the test is
@@ -927,14 +930,22 @@ def xfail(reason: str, strict: bool = False) -> Callable[..., Any]:
     decreases the value of the test.
 
     :param reason: Explains why the test is marked as passed.
-    :type reason: ``str``
     :param strict: Should the test pass while we expect it to fail, the report
     will mark it as failed if strict is True,  default is False.
-    :type strict: ``bool``
+    :param condition: Optional match condition for xfail stating only such condition
+        is considered as expected failure. Supported keys are ``logs`` for a
+        regex matched against logs and ``assertions`` for a dict matched
+        against serialized assertion entries.
     """
 
-    def _xfail_test(test: Any) -> Any:
-        test.__xfail__ = {"reason": reason, "strict": strict}
+    def _xfail_test(test: Callable) -> Callable:
+        test.__xfail__ = {  # type: ignore[attr-defined]
+            "reason": reason,
+            "strict": strict,
+            "condition": TESTCASE_XFAIL_CONDITION_SCHEMA.validate(condition)
+            if condition is not None
+            else None,
+        }
         return test
 
     return _xfail_test

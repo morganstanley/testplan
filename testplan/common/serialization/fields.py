@@ -6,7 +6,7 @@ import abc
 import pprint
 
 from datetime import timezone, datetime
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 from lxml import etree
 
@@ -264,7 +264,9 @@ class XMLElementField(fields.Field):
     def _serialize(
         self, value: Any, attr: Any, obj: Any, **kwargs: Any
     ) -> str:
-        return str(etree.tostring(value, pretty_print=True).decode("utf-8"))
+        return cast(
+            str, etree.tostring(value, pretty_print=True).decode("utf-8")
+        )
 
 
 class ClassName(fields.Field):
@@ -278,7 +280,7 @@ class ClassName(fields.Field):
     def _serialize(
         self, value: Any, attr: Any, obj: Any, **kwargs: Any
     ) -> str:
-        return str(obj.__class__.__name__)
+        return cast(str, obj.__class__.__name__)
 
 
 class DictMatch(fields.Field):

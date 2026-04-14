@@ -8,28 +8,31 @@ Later on these reports would be merged together to
 build the final report as the testplan result.
 """
 
-import copy
-import traceback
-import itertools
 import collections
+import copy
+import itertools
+import traceback
+import warnings
 from collections import Counter
 from enum import Enum, auto
-from functools import total_ordering, reduce
+from functools import reduce, total_ordering
 from typing import (
     Any,
+    Callable,
     Dict,
     Iterator,
     List,
     Optional,
-    Callable,
     Tuple,
     Type,
     Union,
 )
+
 from typing_extensions import Self
 
 from testplan.common.utils import strings, timing
 from testplan.testing import tagging
+
 from .log import create_logging_adapter
 
 
@@ -905,11 +908,16 @@ class BaseReportGroup(Report):
             )
         )
 
-    def xfail(self, strict: bool) -> None:
+    def xfail(self, strict: bool, condition: Optional[dict]) -> None:
         """
         Override report status for test that is marked xfail by user
         :param strict: whether consider XPASS as failure
         """
+        if condition:
+            warnings.warn(
+                "Conditional xfail is not supported on entries other than testcases, "
+                f"passed-in `condition`: {condition}."
+            )
 
         if self.failed:
             self.status_override = Status.XFAIL
@@ -923,7 +931,7 @@ class BaseReportGroup(Report):
 
         # propagate xfail down to testcase
         for child in self:
-            child.xfail(strict)
+            child.xfail(strict, condition)
 
     @property
     def hash(self) -> int:

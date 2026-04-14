@@ -1535,12 +1535,8 @@ class LogfileNamespace(AssertionNamespace):
         results = []
         failure = None
         m = log_matcher.match(regex, timeout, raise_on_timeout=False)
-        if log_matcher._debug_info_s is None:
-            raise RuntimeError("log_matcher._debug_info_s must not be None")
-        if log_matcher._debug_info_e is None:
-            raise RuntimeError("log_matcher._debug_info_e must not be None")
-        s_pos = log_matcher._debug_info_s[0]
-        e_pos = log_matcher._debug_info_e[0]
+        s_pos = log_matcher._debug_info_s[0]  # type: ignore[misc]
+        e_pos = log_matcher._debug_info_e[0]  # type: ignore[misc]
         if m is not None:
             results.append((m, regex, s_pos, e_pos))
         else:

@@ -1343,10 +1343,7 @@ Similarly, ``setup`` and ``teardown`` methods in a test suite can be limited to 
 
 It's useful when ``setup`` has much initialization work that takes long, e.g. connects to a server but has no response and makes program hanging. Note that this ``@timeout`` decorator can also be used for ``pre_testcase`` and ``post_testcase``, but that is not suggested because pre/post testcase methods are called everytime before/after each testcase runs, they should be written as simple as possible.
 
-Default Testcase Timeout
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Set a default timeout for testcases without explicit timeouts:
+To set a default timeout for testcases without explicit timeouts:
 
 .. code-block:: python
 
@@ -1436,6 +1433,52 @@ If a test is expect to fail all the time, you can also use the `strict=True` the
     @xfail(reason='api changes', strict=True)
     def fail_testcase(self, env, result):
         ...
+
+Each xfail entry can include an optional ``condition`` parameter to indicate
+which failure should be expected. This is useful when a test may fail for
+different reasons and you only want to suppress a specific known failure. The
+``condition`` parameter must contain exactly **one** of the following keys:
+
+**Matching on testcase errors** - applies xfail only when testcase reporting
+error status and a matching error message is found in the report entry's logs:
+
+.. code-block:: json
+
+    {
+        "MyTest:Environment Start:Starting": {
+            "reason": "known driver startup failure",
+            "strict": false,
+            "condition": {"error": "While starting driver MyApp\\[app1\\]"}
+        }
+    }
+
+The ``error`` value is treated as a regular expression pattern and ``re.search``
+is used to match it against the error messages. Please note that ``error`` value
+must have any regex special characters escaped if intending to match them
+literally.
+
+**Matching on assertion entries** - applies xfail only when a matching failed
+assertion is found in the report entry:
+
+.. code-block:: json
+
+    {
+        "MyTest:MySuite:my_testcase": {
+            "reason": "known dict comparison issue",
+            "strict": false,
+            "condition": {
+                "failed": {
+                    "type": "DictMatch",
+                    "description": "expected vs actual"
+                }
+            }
+        }
+    }
+
+The ``failed`` dict should contain both ``type`` (exact string match) and
+``description`` (regex pattern for ``re.search``). As with ``error``, the
+``description`` value must have any regex special characters escaped if
+intending to match them literally.
 
 Skip if
 -------

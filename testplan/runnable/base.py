@@ -4,17 +4,15 @@ import inspect
 import ipaddress
 import math
 import os
-import psutil
 import random
 import re
+import shutil
 import sys
 import tarfile
 import time
 import traceback
 import uuid
 import webbrowser
-import shutil
-
 from collections import OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass
@@ -35,10 +33,13 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
-import zstandard as zstd
 
+import psutil
+import zstandard as zstd
 from schema import And, Or, Use
+from schema import Optional as schemaOptional
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -51,12 +52,13 @@ from testplan.common.entity import (
 )
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
 from testplan.common.utils.observability import TraceLevel, tracing
+from testplan.report.testing.base import TESTCASE_XFAIL_CONDITION_SCHEMA
 
 if TYPE_CHECKING:
     from testplan.common.remote.remote_service import RemoteService
     from testplan.monitor.resource import (
-        ResourceMonitorServer,
         ResourceMonitorClient,
+        ResourceMonitorServer,
     )
 
 from testplan.common.utils import logger, strings
@@ -86,10 +88,10 @@ from testplan.runners.pools.tasks.base import (
     is_task_target,
 )
 from testplan.testing import common, filtering, listing, ordering, tagging
-from testplan.testing.result import Result
 from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
+from testplan.testing.result import Result
 
 if sys.version_info < (3, 11):
     from exceptiongroup import ExceptionGroup
@@ -105,7 +107,7 @@ class TaskInformation:
     target: TestTask
     materialized_test: Test
     uid: str
-    task_arguments: Optional[dict]
+    task_arguments: dict
     num_of_parts: Union[None, int, Literal["auto"]]
 
 
@@ -276,7 +278,18 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("reporting_exclude_filter", default=None): Or(
                 And(str, Use(ReportingFilter.parse)), None
             ),
-            ConfigOption("xfail_tests", default=None): Or(dict, None),
+            ConfigOption("xfail_tests", default=None): Or(
+                {
+                    str: {
+                        "reason": str,
+                        "strict": bool,
+                        schemaOptional(
+                            "condition"
+                        ): TESTCASE_XFAIL_CONDITION_SCHEMA,
+                    },
+                },
+                None,
+            ),
             ConfigOption("runtime_data", default={}): Or(dict, None),
             ConfigOption(
                 "auto_part_runtime_limit",
@@ -481,11 +494,9 @@ class TestRunner(Runnable):
         self.remote_services: Dict[str, "RemoteService"] = {}
         self.runid_filename: str = uuid.uuid4().hex
         self.define_runpath()
-        if self.result.report is None:
-            raise RuntimeError("self.result.report must not be None")
-        if self.runpath is None:
-            raise RuntimeError("self.runpath must not be None")
-        self.result.report.information.append(("runpath", self.runpath))
+        self.result.report.information.append(
+            ("runpath", cast(str, self.runpath))
+        )
         self._archive_path: Optional[str] = None
         self._define_archive_path()
         self._runnable_uids: Set[str] = set()
@@ -668,8 +679,10 @@ class TestRunner(Runnable):
                 return e
         return None
 
-    def _stop_remote_services(self) -> Optional[Exception]:
-        es: List[Exception] = []
+    def _stop_remote_services(
+        self,
+    ) -> Optional[Union[Exception, ExceptionGroup]]:
+        es = []
         for rmt_svc in self.remote_services.values():
             try:
                 rmt_svc.stop()
@@ -693,8 +706,6 @@ class TestRunner(Runnable):
         self, task_info: TaskInformation, part_tuple: Tuple[int, int]
     ) -> TaskInformation:
         task_arguments = task_info.task_arguments
-        if task_arguments is None:
-            raise RuntimeError("task_arguments must not be None")
         task_arguments["part"] = part_tuple
         self.logger.debug(
             "Task re-created with arguments: %s",
@@ -1135,8 +1146,6 @@ class TestRunner(Runnable):
 
             # by now we shall have a valid num_of_part, user specified or auto derived
             task_arguments = task_info.task_arguments
-            if task_arguments is None:
-                raise RuntimeError("task_arguments must not be None")
             if "weight" not in task_arguments:
                 task_arguments["weight"] = (
                     math.ceil(
@@ -1285,7 +1294,7 @@ class TestRunner(Runnable):
             target._uid = uid
 
         return TaskInformation(
-            target, materialized_test, uid, task_arguments, num_of_parts
+            target, materialized_test, uid, task_arguments or {}, num_of_parts
         )
 
     def _register_task_for_interactive(

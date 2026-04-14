@@ -5,10 +5,18 @@ This module provides tracing capabilities using OpenTelemetry to monitor
 and analyze test execution across distributed systems.
 """
 
-from contextlib import contextmanager
 import os
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Optional
+from contextlib import contextmanager
 from functools import wraps
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    Optional,
+    Union,
+)
 
 from testplan.common.utils.logger import Loggable
 
@@ -30,7 +38,7 @@ class RootTraceIdGenerator:
         :param tracing_instance: Reference to the Tracing instance
         :type tracing_instance: Tracing
         """
-        from opentelemetry.sdk.trace import RandomIdGenerator  # pylint: disable=import-error
+        from opentelemetry.sdk.trace.id_generator import RandomIdGenerator  # pylint: disable=import-error
 
         self._random_generator = RandomIdGenerator()
         self._tracing_instance = tracing_instance
@@ -151,6 +159,7 @@ class Tracing(Loggable):
                 f"Missing required OTEL environment variables: {', '.join(missing)}"
             )
 
+        exporter: Union[HttpSpanExporter, GrpcSpanExporter]
         if use_http:
             exporter = HttpSpanExporter()  # auto-fetch required vars from env
             self.logger.debug(f"Using HTTP exporter for endpoint: {endpoint}")
@@ -461,7 +470,10 @@ class Tracing(Loggable):
         if not self._tracing_enabled:
             yield
             return
-        from opentelemetry.context import attach, detach  # pylint: disable=import-error
+        from opentelemetry.context import (  # pylint: disable=import-error
+            attach,
+            detach,
+        )
 
         ctx = self._get_root_context()
         token = attach(ctx)

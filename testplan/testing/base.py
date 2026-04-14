@@ -38,13 +38,13 @@ from testplan.common.report import Status as ReportStatus
 from testplan.common.utils import interface, strings, validation
 from testplan.common.utils.composer import compose_contexts
 from testplan.common.utils.context import render
+from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.common.utils.process import (
     enforce_timeout,
     kill_process,
     subprocess_popen,
 )
 from testplan.common.utils.timing import format_duration, parse_duration
-from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report import TestCaseReport, TestGroupReport, test_styles
 from testplan.testing import common, filtering, ordering, result, tagging
 from testplan.testing.environment import TestEnvironment, parse_dependency
@@ -935,12 +935,16 @@ class Test(Runnable):
 
         self._discover_path = path
 
-    def _xfail(self, pattern: str, report: Any) -> None:
+    def _xfail(
+        self, pattern: str, report: "TestCaseReport | TestGroupReport"
+    ) -> None:
         """Utility xfail a report entry if found in xfail_tests"""
         if getattr(self.cfg, "xfail_tests", None):
             found = self.cfg.xfail_tests.get(pattern)
             if found:
-                report.xfail(strict=found["strict"])
+                report.xfail(
+                    strict=found["strict"], condition=found.get("condition")
+                )
 
     def _record_driver_timing(
         self, setup_or_teardown: str, case_report: TestCaseReport
