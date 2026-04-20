@@ -149,16 +149,16 @@ class ZookeeperStandalone(Driver):
         using the drivers context before starting zookeeper.
         """
         super(ZookeeperStandalone, self).pre_start()
-        self.zkdata_path = os.path.join(self.runpath, "zkdata")  # type: ignore[arg-type]
-        self.zklog_path = os.path.join(self.runpath, "zklog")  # type: ignore[arg-type]
-        self.etc_path = os.path.join(self.runpath, "etc")  # type: ignore[arg-type]
+        self.zkdata_path = os.path.join(self.runpath, "zkdata")
+        self.zklog_path = os.path.join(self.runpath, "zklog")
+        self.etc_path = os.path.join(self.runpath, "etc")
         self.env["ZOO_LOG_DIR"] = self.zklog_path
         for directory in (self.zkdata_path, self.zklog_path, self.etc_path):
             if self.cfg.path_cleanup is False:
                 makedirs(directory)
             else:
                 makeemptydirs(directory)
-        self.config = os.path.join(self.runpath, "etc", "zookeeper.cfg")  # type: ignore[arg-type]
+        self.config = os.path.join(self.runpath, "etc", "zookeeper.cfg")
         self._host = self._host or socket.getfqdn()
         if self._port == 0:
             raise RuntimeError("Zookeeper doesn't support random port")
@@ -168,8 +168,6 @@ class ZookeeperStandalone(Driver):
         """Starts the Zookeeper instance."""
         super(ZookeeperStandalone, self).starting()
         start_cmd = [self.cfg.binary, "start", self.config]
-        if self.runpath is None:
-            raise RuntimeError("self.runpath must not be None")
         self.std = StdFiles(self.runpath)
 
         execute_cmd(

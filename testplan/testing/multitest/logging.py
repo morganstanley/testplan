@@ -180,6 +180,4 @@ class AutoLogCaptureMixin(LogCaptureMixin):
         self._state = self._attach_handler(result)
 
     def post_testcase(self, name: str, env: Any, result: Any) -> None:
-        if self._state is None:
-            raise RuntimeError("self._state must not be None")
-        self._detach_handler(self._state)
+        self._detach_handler(self._state)  # type: ignore[arg-type]

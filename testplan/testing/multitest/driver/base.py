@@ -376,7 +376,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):  # type: ig
             raise RuntimeError("{}: File logger already exists".format(self))
 
         # Note that in unit test driver's runpath might not be set
-        if self.cfg.file_logger and self.runpath is not None:
+        if self.cfg.file_logger and self._runpath is not None:
             formatter = logging.Formatter(
                 "%(asctime)s %(levelname)s %(message)s"
             )
@@ -433,7 +433,7 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):  # type: ig
 
         logging_paths = {self.errpath, self.outpath, self.logpath}
         if self.cfg.file_logger:
-            file_log_path = os.path.join(self.runpath, self.cfg.file_logger)  # type: ignore[arg-type]
+            file_log_path = os.path.join(self.runpath, self.cfg.file_logger)
             if file_log_path not in logging_paths:
                 logging_paths.add(file_log_path)
 

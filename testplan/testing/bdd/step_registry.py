@@ -110,7 +110,8 @@ class StepRegistry:
 
 def import_steps(relative_path: str) -> None:
     registry = StepRegistry.get_target_registry()
-    assert registry
+    if registry is None:
+        raise RuntimeError("registry must not be None")
     parser = registry.actual_parser
     if parser is None:
         raise RuntimeError("parser must not be None")

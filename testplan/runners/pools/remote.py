@@ -225,7 +225,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             result["source_path"] = rebase_path(
                 result["source_path"],
                 self._remote_plan_runpath,
-                self._get_plan().runpath,  # type: ignore[arg-type]
+                self._get_plan().runpath,
             )
         else:
             entries = getattr(result, "entries", [])
@@ -239,7 +239,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             attachment.source_path = rebase_path(
                 attachment.source_path,
                 self._remote_plan_runpath,
-                self._get_plan().runpath,  # type: ignore[arg-type]
+                self._get_plan().runpath,
             )
         self._rebase_assertion(result.report)
 
@@ -382,10 +382,8 @@ class RemotePool(Pool):
 
     @property
     def resource_monitor_address(self) -> Optional[str]:
-        if self.parent is None:
-            raise RuntimeError("self.parent must not be None")
-        if self.parent.resource_monitor_server:  # type: ignore[attr-defined]
-            return self.parent.resource_monitor_server.address  # type: ignore[attr-defined, no-any-return]
+        if self.parent.resource_monitor_server:  # type: ignore[union-attr]
+            return self.parent.resource_monitor_server.address  # type: ignore[union-attr, no-any-return]
         return None
 
     @staticmethod

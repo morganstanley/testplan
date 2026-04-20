@@ -262,7 +262,7 @@ class RemoteResource(Entity):
 
     def _define_remote_dirs(self) -> None:
         """Define mandatory directories in remote host."""
-        plan_runpath = cast(str, self._get_plan().runpath)
+        plan_runpath = self._get_plan().runpath
 
         self._remote_plan_runpath = self.cfg.remote_runpath or (
             f"/var/tmp/{getpass.getuser()}/testplan/{self._get_plan().cfg.name}"
@@ -279,8 +279,6 @@ class RemoteResource(Entity):
             self._remote_plan_runpath, self._get_plan().runid_filename
         )
 
-        if self.runpath is None:
-            raise RuntimeError("runpath is not set")
         self._remote_resource_runpath = rebase_path(
             self.runpath,
             plan_runpath,
@@ -307,15 +305,11 @@ class RemoteResource(Entity):
 
     def _remote_working_dir(self) -> str:
         """Choose a working directory to use on the remote host."""
-        if self._working_dirs.local is None:
-            raise RuntimeError("local working directory is not set")
-        if self._workspace_paths.local is None:
-            raise RuntimeError("local workspace path is not set")
-        if self._workspace_paths.remote is None:
-            raise RuntimeError("remote workspace path is not set")
-        if not is_subdir(
-            self._working_dirs.local, self._workspace_paths.local
-        ):
+        local_working_dir = cast(str, self._working_dirs.local)
+        local_workspace_path = cast(str, self._workspace_paths.local)
+        remote_workspace_path = cast(str, self._workspace_paths.remote)
+
+        if not is_subdir(local_working_dir, local_workspace_path):
             raise RuntimeError(
                 f"Current working dir is not within the workspace.\n"
                 f"Workspace = {self._workspace_paths.local}\n"
@@ -325,9 +319,9 @@ class RemoteResource(Entity):
         # Current working directory is within the workspace - use the same
         # path relative to the remote workspace.
         return rebase_path(
-            self._working_dirs.local,
-            self._workspace_paths.local,
-            self._workspace_paths.remote,
+            local_working_dir,
+            local_workspace_path,
+            remote_workspace_path,
         )
 
     def _create_remote_dirs(self) -> None:
@@ -376,8 +370,6 @@ class RemoteResource(Entity):
         setup remote python runtime environment with RuntimeBuilder
         """
 
-        if self.runpath is None:
-            raise RuntimeError("runpath is not set")
         self._remote_runtime_builder.bootstrap(
             local_runpath=self.runpath,
             remote_runpath=self._remote_plan_runpath,
@@ -393,8 +385,6 @@ class RemoteResource(Entity):
         self.logger.info(
             "%s: picking remote python %s", self, self._remote_pybin
         )
-        if self._remote_pybin is None:
-            raise RuntimeError("remote python binary is not set")
         self._log_remote_python_ver(self._remote_pybin)
         paths_to_transfer = self._remote_runtime_builder.local_export_pyenv()
         remote_paths = self._push_files_to_dst(
@@ -658,11 +648,9 @@ class RemoteResource(Entity):
         directory.
 
         """
-        if self._working_dirs.local is None:
-            raise RuntimeError("local working directory is not set")
-        if self._working_dirs.remote is None:
-            raise RuntimeError("remote working directory is not set")
         push_locations = []
+        local_working_dir = cast(str, self._working_dirs.local)
+        remote_working_dir = cast(str, self._working_dirs.remote)
 
         if IS_WIN:
             for entry in push_sources:
@@ -670,8 +658,8 @@ class RemoteResource(Entity):
                     src = entry
                     dst = rebase_path(
                         src,
-                        self._working_dirs.local,
-                        self._working_dirs.remote,
+                        local_working_dir,
+                        remote_working_dir,
                     )
 
                 else:
@@ -679,8 +667,8 @@ class RemoteResource(Entity):
                     if not os.path.isabs(dst):
                         dst = rebase_path(
                             dst,
-                            self._working_dirs.local,
-                            self._working_dirs.remote,
+                            local_working_dir,
+                            remote_working_dir,
                         )
 
                 push_locations.append((src, dst))
@@ -692,13 +680,13 @@ class RemoteResource(Entity):
                     if os.path.isabs(src):
                         dst = src
                     else:
-                        dst = os.path.join(self._working_dirs.remote, src)
+                        dst = os.path.join(remote_working_dir, src)
                 else:
                     src, dst = entry
                     if not os.path.isabs(dst):
                         dst = os.path.join(
-                            self._working_dirs.remote,
-                            os.path.relpath(dst, self._working_dirs.local),
+                            remote_working_dir,
+                            os.path.relpath(dst, local_working_dir),
                         )
 
                 push_locations.append((src, dst))
@@ -748,12 +736,10 @@ class RemoteResource(Entity):
             )
         self.logger.debug("Fetch results stage - %s", self.ssh_cfg["host"])
         try:
-            if self.parent is None:
-                raise RuntimeError("parent is not set")
             self._transfer_data(
                 source=self._remote_resource_runpath,
                 remote_source=True,
-                target=cast(str, self.parent.runpath),
+                target=cast(Entity, self.parent).runpath,
                 exclude=self.cfg.fetch_runpath_exclude,
             )
             if self.cfg.pull:
@@ -797,8 +783,6 @@ class RemoteResource(Entity):
     def _pull_files(self) -> None:
         """Pull custom files from remote host."""
 
-        if self.runpath is None:
-            raise RuntimeError("runpath is not set")
         pull_dst = os.path.join(self.runpath, "pulled_files")
         makedirs(pull_dst)
 
@@ -819,11 +803,9 @@ class RemoteResource(Entity):
                 )
 
     def _remote_sys_path(self) -> List[str]:
-        if self._workspace_paths.local is None:
-            raise RuntimeError("local workspace path is not set")
-        if self._workspace_paths.remote is None:
-            raise RuntimeError("remote workspace path is not set")
         sys_path: List[str] = [cast(str, self._testplan_import_path.remote)]
+        local_workspace_path = cast(str, self._workspace_paths.local)
+        remote_workspace_path = cast(str, self._workspace_paths.remote)
 
         for path in sys.path:
             if path.startswith(sys.base_prefix):
@@ -832,11 +814,11 @@ class RemoteResource(Entity):
 
             path = fix_home_prefix(path)
 
-            if is_subdir(path, self._workspace_paths.local):
+            if is_subdir(path, local_workspace_path):
                 path = rebase_path(
                     path,
-                    self._workspace_paths.local,
-                    self._workspace_paths.remote,
+                    local_workspace_path,
+                    remote_workspace_path,
                 )
 
             sys_path.append(path)

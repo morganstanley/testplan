@@ -98,10 +98,8 @@ def test_send_receive_with_context(runpath, tcp_server):
 def assert_obj_runpath(obj, runpath):
     """Check runpath before and after starting a driver."""
     assert obj.cfg.runpath in runpath
-    assert obj.runpath is None
     assert obj._runpath is None
     with obj:
-        assert obj.runpath == runpath
         assert obj._runpath == runpath
         assert os.path.exists(obj.runpath)
 

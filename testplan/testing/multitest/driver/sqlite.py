@@ -82,7 +82,7 @@ class Sqlite3(Driver):
     def db_path(self) -> str:
         """Database file path."""
         # if self.cfg.db_path is an absolute path it will return self.cfg.db_path
-        return os.path.join(self.runpath, self.cfg.db_path)  # type: ignore[arg-type]
+        return os.path.join(self.runpath, self.cfg.db_path)
 
     def connect(self) -> None:
         """Connect to the database and set the internal db cursor."""
