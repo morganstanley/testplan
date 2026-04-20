@@ -627,18 +627,22 @@ class Entity(logger.Loggable):
         return self._should_abort is False and self._aborted is False
 
     @property
-    def runpath(self) -> Optional[str]:
+    def runpath(self) -> str:
         """
         Path to be used for temp/output files by entity.
         """
-        return self._runpath
+        # if self._runpath is None:
+        #     raise RuntimeError(f"runpath of {self} is not defined yet")
+        return self._runpath  # type: ignore[return-value]
 
     @property
-    def scratch(self) -> Optional[str]:
+    def scratch(self) -> str:
         """
         Path to be used for temp files by entity.
         """
-        return self._scratch
+        # if self._scratch is None:
+        #     raise RuntimeError(f"scratch of {self} is not defined yet")
+        return self._scratch  # type: ignore[return-value]
 
     @property
     def parent(self) -> Optional["Entity"]:
@@ -822,7 +826,7 @@ class Entity(logger.Loggable):
         self._scratch = os.path.join(self._runpath, "scratch")
 
         self.logger.info(
-            "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
+            "%s has %s runpath and pid %d", self, self._runpath, os.getpid()
         )
 
         if self.cfg.path_cleanup is False:
@@ -1814,7 +1818,7 @@ class RunnableManager(Entity):
         return self._runnable
 
     @property
-    def runpath(self) -> Optional[str]:
+    def runpath(self) -> str:
         """
         Expose the runnable runpath.
         """

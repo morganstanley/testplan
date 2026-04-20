@@ -57,10 +57,8 @@ class Watcher(Loggable):
 
     def _get_common_lines(self, data: CoverageData) -> Dict[str, Set[int]]:
         r = {}
-        if self._watching_lines is None:
-            raise RuntimeError("self._watching_lines must not be None")
         for covered_file in data.measured_files():
-            for f_name, f_lines in self._watching_lines.items():
+            for f_name, f_lines in (self._watching_lines or {}).items():
                 if covered_file.endswith(f_name):
                     covered_lines = set(data.lines(covered_file) or [])
                     if isinstance(f_lines, str) and f_lines == "*":

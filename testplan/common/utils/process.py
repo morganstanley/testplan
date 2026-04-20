@@ -200,7 +200,7 @@ def kill_process_psutil(
 
 
 def kill_proc_and_child_procs(
-    proc: subprocess.Popen,
+    proc: Optional[subprocess.Popen],
     child_procs: List[psutil.Process],
     log: Optional[Callable[[BaseException], None]] = None,
     timeout: int = 5,
@@ -213,15 +213,9 @@ def kill_proc_and_child_procs(
     attempts to kill any remaining child processes.
 
     :param proc: The main process to kill.
-    :type proc: subprocess.Popen
     :param child_procs: A list of child processes to kill.
-    :type child_procs: List[psutil.Process]
     :param log: A callable to log exceptions, defaults to None.
-    :type log: Callable[[BaseException], None], optional
     :param timeout: The timeout in seconds to wait for processes to terminate, defaults to 5.
-    :type timeout: int, optional
-    :return: The return code of the main process if it was terminated, otherwise None.
-    :rtype: Union[int, None]
     """
 
     if proc is not None and proc.poll() is None:

@@ -128,9 +128,7 @@ class QueueClient(Client):
         :param message: Message to be sent.
         """
         if self.active:
-            if self.requests is None:
-                raise RuntimeError("self.requests must not be None")
-            self.requests.put(message)
+            self.requests.put(message)  # type: ignore[union-attr]
 
     def receive(self) -> Optional[Message]:
         """
@@ -187,8 +185,6 @@ class ZMQClient(Client):
         # pylint: disable=abstract-class-instantiated
         self._context = zmq.Context()
         self._sock = self._context.socket(zmq.REQ)
-        if self._address is None:
-            raise RuntimeError("self._address must not be None")
         self._sock.connect("tcp://{}".format(self._address))
         self.active = True
 
@@ -210,9 +206,7 @@ class ZMQClient(Client):
         :param message: Message to be sent.
         """
         if self.active:
-            if self._sock is None:
-                raise RuntimeError("self._sock must not be None")
-            self._sock.send(serialize(message))
+            self._sock.send(serialize(message))  # type: ignore[union-attr]
 
     def receive(self) -> Optional[Message]:
         """
@@ -222,11 +216,9 @@ class ZMQClient(Client):
         """
         start_time = time.time()
 
-        if self._sock is None:
-            raise RuntimeError("self._sock must not be None")
         while self.active:
             try:
-                received = self._sock.recv(flags=zmq.NOBLOCK)
+                received = self._sock.recv(flags=zmq.NOBLOCK)  # type: ignore[union-attr]
                 try:
                     loaded: Message = deserialize(received)
                 except Exception as exc:
@@ -273,9 +265,7 @@ class ZMQClientProxy:
         :param message: Respond message.
         """
         if self.active:
-            if self.connection is None:
-                raise RuntimeError("self.connection must not be None")
-            self.connection.send(serialize(message))
+            self.connection.send(serialize(message))  # type: ignore[union-attr]
         else:
             raise RuntimeError("Responding to inactive worker")
 
@@ -350,10 +340,8 @@ class QueueServer(Server):
 
         :return: Message received from worker transport, or None.
         """
-        if self.requests is None:
-            raise RuntimeError("self.requests must not be None")
         try:
-            return self.requests.get_nowait()
+            return self.requests.get_nowait()  # type: ignore[union-attr]
         except queue.Empty:
             return None
 
@@ -443,10 +431,8 @@ class ZMQServer(Server):
 
         :return: Message received from worker transport, or None.
         """
-        if self._sock is None:
-            raise RuntimeError("self._sock must not be None")
         try:
-            result: Message = deserialize(self._sock.recv(flags=zmq.NOBLOCK))
+            result: Message = deserialize(self._sock.recv(flags=zmq.NOBLOCK))  # type: ignore[union-attr]
             return result
         except zmq.Again:
             return None

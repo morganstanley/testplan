@@ -1688,10 +1688,9 @@ class Result:
             entry_group = base.Group(
                 entries=self.entries, description=self._group_description
             )
-        if self._parent is None:
-            raise RuntimeError("self._parent must not be None")
-        self._parent.entries.append(entry_group)
-        self._parent.attachments.extend(self.attachments)
+        p: Result = self._parent  # type: ignore[assignment]
+        p.entries.append(entry_group)
+        p.attachments.extend(self.attachments)
         return exc_type is None  # re-raise errors if there is any
 
     def get_namespaces(self) -> Dict[str, Type[AssertionNamespace]]:

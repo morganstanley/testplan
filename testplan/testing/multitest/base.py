@@ -1218,7 +1218,7 @@ class MultiTest(testing_base.Test):
         )
         case_result: result.Result = self.cfg.result(
             stdout_style=self.stdout_style,
-            _scratch=self.scratch,
+            _scratch=self._scratch,
             _collect_code_context=self.collect_code_context,
         )
 

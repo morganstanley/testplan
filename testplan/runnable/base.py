@@ -325,17 +325,17 @@ class TestRunnerResult(RunnableResult):
     :py:class:`TestRunner <testplan.runnable.TestRunner>` runnable object.
     """
 
+    report: TestReport
+
     def __init__(self) -> None:
         super(TestRunnerResult, self).__init__()
         self.test_results: OrderedDict[str, TestResult] = OrderedDict()
         self.exporter_results: List[Any] = []
-        self.report: Optional[TestReport] = None
+        self.report = None  # type: ignore[assignment]
 
     @property
     def success(self) -> bool:
         """Run was successful."""
-        if self.report is None:
-            raise RuntimeError("self.report must not be None")
         return not self.report.failed and all(
             [
                 exporter_result.success
@@ -468,7 +468,6 @@ class TestRunner(Runnable):
     def __init__(self, **options: Any) -> None:
         # TODO: check options sanity?
         super(TestRunner, self).__init__(**options)
-        self.result = TestRunnerResult()
         # uid to resource, in definition order
         self._test_metadata: List[Any] = []
         self._tests: MutableMapping[str, str] = OrderedDict()
@@ -494,17 +493,15 @@ class TestRunner(Runnable):
         self.remote_services: Dict[str, "RemoteService"] = {}
         self.runid_filename: str = uuid.uuid4().hex
         self.define_runpath()
-        self.result.report.information.append(
-            ("runpath", cast(str, self.runpath))
-        )
-        self._archive_path: Optional[str] = None
+        self.result.report.information.append(("runpath", self.runpath))
+        self._archive_path: str
         self._define_archive_path()
         self._runnable_uids: Set[str] = set()
         self._verified_targets: Dict[
             int, str
         ] = {}  # target object id -> runnable uid
         self.resource_monitor_server: Optional["ResourceMonitorServer"] = None
-        self.resource_monitor_server_file_path: Optional[str] = None
+        self.resource_monitor_server_file_path: str
         self.resource_monitor_client: Optional["ResourceMonitorClient"] = None
 
     def __str__(self) -> str:
@@ -519,8 +516,6 @@ class TestRunner(Runnable):
     @property
     def report(self) -> TestReport:  # type: ignore[override]
         """Tests report."""
-        if self.result.report is None:
-            raise RuntimeError("self.result.report must not be None")
         return self.result.report
 
     @property
@@ -1443,8 +1438,6 @@ class TestRunner(Runnable):
             pass
 
         if self.cfg.resource_monitor:
-            if self.scratch is None:
-                raise RuntimeError("self.scratch must not be None")
             self.resource_monitor_server_file_path = os.path.join(
                 self.scratch, "resource_monitor"
             )
@@ -1463,10 +1456,6 @@ class TestRunner(Runnable):
         )
 
         if self.cfg.resource_monitor:
-            if self.resource_monitor_server_file_path is None:
-                raise RuntimeError(
-                    "self.resource_monitor_server_file_path must not be None"
-                )
             self.resource_monitor_server = ResourceMonitorServer(
                 self.resource_monitor_server_file_path,
                 detailed=self.cfg.logger_level == logger.DEBUG,
@@ -1493,16 +1482,10 @@ class TestRunner(Runnable):
             os.path.expandvars(os.path.expanduser(self.cfg.archive_runpath))
         )
         timestamp = time.strftime("%Y%m%d-%H%M%S")
-        if self.runpath is None:
-            raise RuntimeError("self.runpath must not be None")
         self._archive_path = os.path.join(
             archive_dir,
             f"{os.path.basename(self.runpath)}_{timestamp}.tar.zst",
         )
-        if self.result.report is None:
-            raise RuntimeError("self.result.report must not be None")
-        if self._archive_path is None:
-            raise RuntimeError("self._archive_path must not be None")
         self.result.report.information.append(
             ("runpath_archive", self._archive_path)
         )
@@ -1514,16 +1497,10 @@ class TestRunner(Runnable):
         if not self.cfg.archive_runpath:
             return
 
-        if self.result.report is None:
-            raise RuntimeError("self.result.report must not be None")
         if self.result.report.passed:
             self.logger.user_info("Testplan passed, skipping runpath archive")
             return
 
-        if self._archive_path is None:
-            raise RuntimeError("self._archive_path must not be None")
-        if self.runpath is None:
-            raise RuntimeError("self.runpath must not be None")
         archive_dir = os.path.dirname(self._archive_path)
         if not os.path.exists(archive_dir):
             os.makedirs(archive_dir, exist_ok=True)
@@ -1667,8 +1644,6 @@ class TestRunner(Runnable):
         step_result = True
         test_results = self.result.test_results
         plan_report = self.result.report
-        if plan_report is None:
-            raise RuntimeError("plan_report must not be None")
 
         for uid, resource in self._tests.items():
             if not isinstance(self.resources[resource], Executor):
@@ -1858,7 +1833,7 @@ class TestRunner(Runnable):
         will be created under the runpath (so runpath must be created before
         this method is called).
         """
-        if self.runpath is None:
+        if self._runpath is None:
             raise RuntimeError(
                 "Need to set up runpath before configuring logger"
             )
