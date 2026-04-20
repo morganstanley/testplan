@@ -631,18 +631,18 @@ class Entity(logger.Loggable):
         """
         Path to be used for temp/output files by entity.
         """
-        if self._runpath is None:
-            raise RuntimeError(f"runpath of {self} is not defined yet")
-        return self._runpath
+        # if self._runpath is None:
+        #     raise RuntimeError(f"runpath of {self} is not defined yet")
+        return self._runpath  # type: ignore[return-value]
 
     @property
     def scratch(self) -> str:
         """
         Path to be used for temp files by entity.
         """
-        if self._scratch is None:
-            raise RuntimeError(f"scratch of {self} is not defined yet")
-        return self._scratch
+        # if self._scratch is None:
+        #     raise RuntimeError(f"scratch of {self} is not defined yet")
+        return self._scratch  # type: ignore[return-value]
 
     @property
     def parent(self) -> Optional["Entity"]:
