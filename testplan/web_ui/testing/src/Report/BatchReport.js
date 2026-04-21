@@ -175,7 +175,7 @@ class BatchReportComponent extends BaseReport {
                   })
                 )
                 .catch(this.setError);
-            } else if (rawReport.version === 3) {
+            } else if (rawReport.version >= 3) {
                 axios.get(
                   `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
                   { transformResponse: parseToJson }
@@ -293,6 +293,7 @@ class BatchReportComponent extends BaseReport {
       selectedEntries={selectedEntries}
       displayTime={this.props.displayTime}
       UTCTime={this.props.UTCTime}
+      reportVersion={this.state.report?.version || 0}
     />;
 
     return (

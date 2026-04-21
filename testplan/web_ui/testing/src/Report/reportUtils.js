@@ -12,10 +12,10 @@ import Message from "../Common/Message";
 import {
   formatMilliseconds,
   getAttachmentUrl,
-  getAssertionsFileName,
+  parseToJson,
+  decompressGzipToText,
 } from "./../Common/utils";
 import { VIEW_TYPE } from "../Common/defaults";
-import { parseToJson } from "../Common/utils";
 import { filterEntries } from "./reportFilter";
 
 /**
@@ -73,9 +73,9 @@ function _mergeTags(tagsA, tagsB) {
 const _mergeCounters = (parts) => {
   return parts.reduce(
     (acc, part) => ({
-      passed: acc.passed + (part.counter.passed),
-      failed: acc.failed + (part.counter.failed),
-      total: acc.total + (part.counter.total),
+      passed: acc.passed + part.counter.passed,
+      failed: acc.failed + part.counter.failed,
+      total: acc.total + part.counter.total,
       error: acc.error + (part.counter.error || 0),
     }),
     { passed: 0, failed: 0, total: 0, error: 0 }
@@ -174,9 +174,7 @@ const _addEntryToMerged = (root, entry) => {
   if (isReportLeaf(entry)) {
     parent.entries.push(entry);
   } else {
-    const existing = parent.entries.find(
-      (e) => e.name === entry.name
-    );
+    const existing = parent.entries.find((e) => e.name === entry.name);
     if (existing) {
       Object.assign(existing, _mergeCommonFields([existing, entry]));
     } else {
@@ -287,8 +285,9 @@ const mergeMultitestParts = (entries) => {
     }
   }
 
-  for (const [baseName, { index, entries: group }] of
-    Object.entries(partGroups)) {
+  for (const [baseName, { index, entries: group }] of Object.entries(
+    partGroups
+  )) {
     const merged = _mergeParts(baseName, group);
     result[index] = merged;
   }
@@ -485,6 +484,7 @@ const CenterPane = ({
   selectedEntries,
   displayTime,
   UTCTime,
+  reportVersion = 0,
 }) => {
   const [assertions, setAssertions] = useState(null);
   const selectedEntry = _.last(selectedEntries);
@@ -504,7 +504,10 @@ const CenterPane = ({
         // Use _sourceMultitestUid if available (merged multitest parts)
         const multitestUid =
           selectedEntry._sourceMultitestUid || selectedEntries[1].uid;
-        const assertionFileName = getAssertionsFileName(multitestUid);
+        const assertionFileName =
+          reportVersion >= 4
+            ? `assertions_${multitestUid}.gz`
+            : `assertions_${multitestUid}`;
         if (assertionsCache.hasOwnProperty(assertionFileName)) {
           const _assertions = getAssertions(
             selectedEntries,
@@ -515,19 +518,30 @@ const CenterPane = ({
           setAssertions(_assertions);
         } else {
           const fetchUrl = getAttachmentUrl(assertionFileName, reportUid);
+          const axiosConfig =
+            reportVersion >= 4
+              ? { responseType: "arraybuffer" }
+              : { transformResponse: (d) => d };
           axios
-            .get(fetchUrl, { transformResponse: parseToJson })
-            .then((response) => {
+            .get(fetchUrl, axiosConfig)
+            .then(async (response) => {
+              let assertions;
+              if (reportVersion >= 4) {
+                const text = await decompressGzipToText(response.data);
+                assertions = parseToJson(text);
+              } else {
+                assertions = parseToJson(response.data);
+              }
               const _assertions = getAssertions(
                 selectedEntries,
-                response.data[selectedEntry.uid],
+                assertions[selectedEntry.uid],
                 displayTime,
                 UTCTime
               );
 
               // TODO: Improve caching strategy. Currently only one assertion file is cached.
               assertionsCache = {
-                [assertionFileName]: response.data,
+                [assertionFileName]: assertions,
               };
               setAssertions(_assertions);
             })
@@ -555,6 +569,7 @@ const CenterPane = ({
     displayTime,
     UTCTime,
     assertions,
+    reportVersion,
   ]);
 
   const logs = selectedEntry?.logs || [];
