@@ -1339,7 +1339,7 @@ class ProcessRunnerTest(Test):
         env = os.environ.copy()
 
         # override with hardcoded values
-        if self.runpath:
+        if self._runpath:
             json_ouput = os.path.join(self.runpath, "output.json")
             self.logger.debug("Json output: %s", json_ouput)
             env["JSON_REPORT"] = json_ouput

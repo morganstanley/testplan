@@ -128,20 +128,16 @@ def test_multitest_runpath():
     mtest = multitest.MultiTest(
         name="Mtest", suites=[], **MTEST_DEFAULT_PARAMS
     )
-    assert mtest.runpath is None
     assert mtest._runpath is None
     mtest.run()
-    assert mtest.runpath == path.default_runpath(mtest)
     assert mtest._runpath == path.default_runpath(mtest)
 
     # runpath in local cfg - take local cfg
     mtest = multitest.MultiTest(
         name="Mtest", suites=[], runpath=local_runpath, **MTEST_DEFAULT_PARAMS
     )
-    assert mtest.runpath is None
     assert mtest._runpath is None
     mtest.run()
-    assert mtest.runpath == local_runpath
     assert mtest._runpath == local_runpath
 
     # runpath in global cfg - take parent's runpath and append uid
@@ -149,19 +145,15 @@ def test_multitest_runpath():
         name="Mtest", suites=[], **MTEST_DEFAULT_PARAMS
     )
     mtest.parent = par
-    assert mtest.runpath is None
     assert mtest._runpath is None
     mtest.run()
-    assert mtest.runpath == os.path.join(global_runpath, "mtest")
     assert mtest._runpath == os.path.join(global_runpath, "mtest")
 
     # runpath in global cfg and local - take local cfg
     mtest = multitest.MultiTest(name="Mtest", suites=[], runpath=local_runpath)
     mtest.parent = par
-    assert mtest.runpath is None
     assert mtest._runpath is None
     mtest.run()
-    assert mtest.runpath == local_runpath
     assert mtest._runpath == local_runpath
 
 

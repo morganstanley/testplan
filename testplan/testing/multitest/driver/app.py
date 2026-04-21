@@ -279,8 +279,8 @@ class App(Driver):
     def app_path(self) -> str:
         """Application directory path."""
         if self.cfg.app_dir_name:
-            return os.path.join(self.runpath, self.cfg.app_dir_name)  # type: ignore[arg-type]
-        return self.runpath  # type: ignore[return-value]
+            return os.path.join(self.runpath, self.cfg.app_dir_name)
+        return self.runpath
 
     @emphasized  # type: ignore[prop-decorator]
     @property
@@ -460,8 +460,6 @@ class App(Driver):
                 self,
                 self.stop_timeout,
             )
-            if self.proc is None:
-                raise RuntimeError("self.proc must not be None")
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
@@ -471,8 +469,6 @@ class App(Driver):
                 return self.stopped_check()
             except OrphanedProcessException as exc:
                 self.logger.warning(exc)
-                if self.proc is None:
-                    raise RuntimeError("self.proc must not be None")
                 kill_proc_and_child_procs(
                     self.proc, self.alive_child_procs, log_fn
                 )
@@ -494,16 +490,12 @@ class App(Driver):
                 self,
                 self.stop_timeout,
             )
-            if self.proc is None:
-                raise RuntimeError("self.proc must not be None")
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
             self._mark_stopped()
         except OrphanedProcessException as exc:
             self.logger.warning(exc)
-            if self.proc is None:
-                raise RuntimeError("self.proc must not be None")
             kill_proc_and_child_procs(
                 self.proc, self.alive_child_procs, log_fn
             )
@@ -539,8 +531,6 @@ class App(Driver):
         """
         super(App, self).make_runpath_dirs()
 
-        if self.runpath is None:
-            raise RuntimeError("self.runpath must not be None")
         bin_dir = os.path.join(self.runpath, "bin")
         etc_dir = os.path.join(self.runpath, "etc")
         for directory in (bin_dir, etc_dir, self.app_path):

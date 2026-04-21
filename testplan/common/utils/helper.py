@@ -39,9 +39,7 @@ from testplan.testing.result import Result
 
 
 def _prev_all_green(env: Environment, result: Result) -> bool:
-    if env.parent is None:
-        raise RuntimeError("env.parent must not be None")
-    return env.parent.report.passed and reduce(  # type: ignore[attr-defined]
+    return env.parent.report.passed and reduce(  # type: ignore[union-attr]
         lambda x, y: x and y.get("passed", True),
         result.serialized_entries,
         True,
@@ -226,7 +224,7 @@ def clean_runpath_if_passed(
             # TODO: Define scratch as a constant
             if subfile != "scratch":
                 path = os.path.join(
-                    os.path.abspath(multitest.runpath),  # type: ignore[type-var, arg-type]
+                    os.path.abspath(multitest.runpath),
                     subfile,
                 )
                 if os.path.isfile(path) or os.path.islink(path):

@@ -142,7 +142,7 @@ class WorkerBase(entity.Resource):
     @property
     def outfile(self) -> str:
         """Stdout file."""
-        return os.path.join(self.parent.runpath, f"{self.uid()}_startup")  # type: ignore[union-attr, arg-type]
+        return os.path.join(self.parent.runpath, f"{self.uid()}_startup")  # type: ignore[union-attr]
 
     def uid(self) -> Union[int, str]:  # type: ignore[override]
         """Worker unique index."""
@@ -231,9 +231,7 @@ class Worker(WorkerBase):
     @property
     def is_alive(self) -> bool:
         """Poll the loop handler thread to check it is running as expected."""
-        if self._handler is None:
-            raise RuntimeError("self._handler must not be None")
-        return self._handler.is_alive()
+        return self._handler is not None and self._handler.is_alive()
 
     def _loop(self, transport: QueueClient) -> None:
         message = Message(**self.metadata)
@@ -266,7 +264,9 @@ class Worker(WorkerBase):
                     expect=(message.Ack, message.Stop),
                 )
                 if received_ is None:
-                    raise RuntimeError("received_ must not be None")
+                    raise RuntimeError(
+                        "Did not receive response for TaskResults message"
+                    )
                 if received_.cmd == Message.Stop:
                     break
                 if received_.cmd == Message.DiscardPending:
@@ -996,11 +996,7 @@ class Pool(Executor):
 
     def _append_temporary_task_result(self, task_result: TaskResult) -> None:
         """If a task should rerun, append the task result already fetched."""
-        if task_result.result is None:
-            raise RuntimeError("task_result.result must not be None")
-        if task_result.result.report is None:
-            raise RuntimeError("task_result.result.report must not be None")
-        test_report = task_result.result.report
+        test_report: TestGroupReport = task_result.result.report  # type: ignore[assignment, union-attr]
         if task_result.task is None:
             raise RuntimeError("task_result.task must not be None")
         uid = task_result.task.uid()
@@ -1014,9 +1010,7 @@ class Pool(Executor):
         test_report.status_override = Status.XFAIL
         new_uuid = strings.uuid4()
         self._results[new_uuid] = task_result
-        if self.parent is None:
-            raise RuntimeError("self.parent must not be None")
-        self.parent._tests[new_uuid] = self.cfg.name
+        self.parent._tests[new_uuid] = self.cfg.name  # type: ignore
         self.record_execution(new_uuid)
 
     def _print_test_result(self, task_result: TaskResult) -> None:
@@ -1063,7 +1057,7 @@ class Pool(Executor):
     def starting(self) -> None:
         """Starting the pool and workers."""
         self.make_runpath_dirs()
-        if self.runpath is None:
+        if self._runpath is None:
             raise RuntimeError("runpath was not set correctly")
         self._metadata = {"runpath": self.runpath}
 

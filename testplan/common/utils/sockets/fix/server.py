@@ -226,13 +226,11 @@ class Server:
         Listen for new inbound connections and messages from existing
         connections.
         """
-        if self._socket is None:
-            raise RuntimeError("self._socket must not be None")
-        self._socket.listen(1)
+        self._socket.listen(1)  # type: ignore[union-attr]
         self._listening = True
 
         self._pobj.register(
-            self._socket.fileno(),
+            self._socket.fileno(),  # type: ignore[union-attr]
             select.POLLIN | select.POLLNVAL | select.POLLHUP,
         )
 
@@ -240,7 +238,7 @@ class Server:
         while (not closed) and self._listening:
             events = self._pobj.poll(1.0)
             for fdesc, event in events:
-                if fdesc == self._socket.fileno():
+                if fdesc == self._socket.fileno():  # type: ignore[union-attr]
                     # Socket event received
                     if event in [select.POLLNVAL, select.POLLHUP]:
                         self.log_callback('"Close socket" event received.')
@@ -260,16 +258,14 @@ class Server:
                     self._process_connection_event(fdesc, event)
 
         self._remove_all_connections()
-        self._socket.shutdown(socket.SHUT_RDWR)
-        self._socket.close()
+        self._socket.shutdown(socket.SHUT_RDWR)  # type: ignore[union-attr]
+        self._socket.close()  # type: ignore[union-attr]
 
     def _add_connection(self) -> None:
         """
         Accept new inbound connection from socket.
         """
-        if self._socket is None:
-            raise RuntimeError("self._socket must not be None")
-        connection, _ = self._socket.accept()
+        connection, _ = self._socket.accept()  # type: ignore[union-attr]
         if self._ssl_context is not None:
             connection = self._ssl_context.wrap_socket(
                 connection, server_side=True
@@ -399,9 +395,7 @@ class Server:
                 )
                 conn_detail = self._conndetails_by_name[conn_name]
                 conn_detail.in_seqno += 1
-                if conn_detail.queue is None:
-                    raise RuntimeError("conn_detail.queue must not be None")
-                conn_detail.queue.put(msg, True, 1)
+                conn_detail.queue.put(msg, True, 1)  # type: ignore[union-attr]
         elif _has_logon_tag(msg):
             self._logon_connection(fdesc, conn_name)
             self._no_lock_send(msg, conn_name)
@@ -637,9 +631,7 @@ class Server:
         """
         validated_name = self._validate_connection_name(conn_name)
         conn_detail = self._conndetails_by_name[validated_name]
-        if conn_detail.queue is None:
-            raise RuntimeError("conn_detail.queue must not be None")
-        return conn_detail.queue.get(True, timeout)
+        return conn_detail.queue.get(True, timeout)  # type: ignore[union-attr]
 
     def flush(self) -> None:
         """

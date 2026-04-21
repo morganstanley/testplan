@@ -136,7 +136,7 @@ class KafkaStandalone(app.App):
 
     @property
     def log_path(self) -> str:
-        return os.path.join(self.runpath, "etc")  # type: ignore[arg-type]
+        return os.path.join(self.runpath, "etc")
 
     @property
     def etc_path(self) -> str:

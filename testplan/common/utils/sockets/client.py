@@ -44,9 +44,7 @@ class Client:
         """
         Returns the host and port information of socket.
         """
-        if self._client is None:
-            raise RuntimeError("self._client must not be None")
-        return self._client.getsockname()  # type: ignore[no-any-return]
+        return self._client.getsockname()  # type: ignore[no-any-return, union-attr]
 
     @property
     def port(self) -> Union[str, int]:
@@ -69,10 +67,8 @@ class Client:
         :return: Timestamp when msg sent (in microseconds from epoch) and
                  number of bytes sent
         """
-        if self._client is None:
-            raise RuntimeError("self._client must not be None")
         tsp = time.time() * 1000000
-        size = self._client.send(msg)
+        size = self._client.send(msg)  # type: ignore[union-attr]
         return tsp, size
 
     def receive(self, size: int, timeout: int = 30) -> bytes:
@@ -83,13 +79,11 @@ class Client:
         :param timeout: Timeout in seconds.
         :return: message received
         """
-        if self._client is None:
-            raise RuntimeError("self._client must not be None")
         if timeout != self._timeout:
             self._timeout = timeout
-        self._client.settimeout(timeout)
+        self._client.settimeout(timeout)  # type: ignore[union-attr]
         try:
-            msg = self._client.recv(size)
+            msg = self._client.recv(size)  # type: ignore[union-attr]
         except Exception:
             if timeout == 0:
                 raise socket.timeout
@@ -104,9 +98,7 @@ class Client:
         :param flags: Defaults to zero.
         :return: message received
         """
-        if self._client is None:
-            raise RuntimeError("self._client must not be None")
-        return self._client.recv(bufsize, flags)
+        return self._client.recv(bufsize, flags)  # type: ignore[union-attr]
 
     def close(self) -> None:
         """

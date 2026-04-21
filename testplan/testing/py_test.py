@@ -438,7 +438,7 @@ class _ReportPlugin:
         self._current_case_report = report
         self._current_result_obj = self._parent.cfg.result(
             stdout_style=self._parent.stdout_style,
-            _scratch=self._parent.scratch,
+            _scratch=self._parent._scratch,
         )
 
     def pytest_runtest_teardown(self, item: Any) -> None:

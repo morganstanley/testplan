@@ -112,8 +112,6 @@ class RemoteService(Resource, RemoteResource):
         Before service start.
         """
         self.make_runpath_dirs()
-        if self.runpath is None:
-            raise RuntimeError("runpath is not set")
         self.std = StdFiles(self.runpath)
         self._prepare_remote()
 
@@ -143,15 +141,11 @@ class RemoteService(Resource, RemoteResource):
             ),
         )
 
-        if self.std is None:
-            raise RuntimeError(
-                "std files not initialized, was pre_start called?"
-            )
         self.proc = subprocess_popen(
             cmd,
             stdin=subprocess.PIPE,
-            stdout=self.std.out,  # type: ignore[arg-type]
-            stderr=self.std.err,  # type: ignore[arg-type]
+            stdout=self.std.out,  # type: ignore[arg-type, union-attr]
+            stderr=self.std.err,  # type: ignore[arg-type, union-attr]
             cwd=self.runpath,
         )
 
@@ -165,8 +159,8 @@ class RemoteService(Resource, RemoteResource):
             " ".join(cmd),
             self.runpath,
             self.proc.pid,
-            self.std.out_path,
-            self.std.err_path,
+            self.std.out_path,  # type: ignore[union-attr]
+            self.std.err_path,  # type: ignore[union-attr]
         )
 
     def _wait_started(self, timeout: Optional[float] = None) -> None:
@@ -176,21 +170,17 @@ class RemoteService(Resource, RemoteResource):
         :param timeout: timeout in seconds
         :raises RuntimeError: if server startup fails
         """
-        if self.std is None:
-            raise RuntimeError(
-                "std files not initialized, was pre_start called?"
-            )
         effective_timeout: float = (
             timeout if timeout is not None else self.cfg.status_wait_timeout
         )
         sleeper = get_sleeper(
             interval=0.2,
             timeout=effective_timeout,
-            raise_timeout_with_msg=f"RPyC server start timeout, logfile = {self.std.err_path}",
+            raise_timeout_with_msg=f"RPyC server start timeout, logfile = {self.std.err_path}",  # type: ignore[union-attr]
         )
         while next(sleeper):
             done, extracts, _ = match_regexps_in_file(
-                self.std.err_path,
+                self.std.err_path,  # type: ignore[union-attr]
                 [re.compile(".*server started on .*:(?P<port>.*)")],
             )
 
@@ -206,7 +196,7 @@ class RemoteService(Resource, RemoteResource):
 
             if self.proc and self.proc.poll() is not None:
                 raise RuntimeError(
-                    f"{self} process exited: {self.proc.returncode} (logfile = {self.std.err_path})"
+                    f"{self} process exited: {self.proc.returncode} (logfile = {self.std.err_path})"  # type: ignore[union-attr]
                 )
 
     def post_start(self) -> None:
