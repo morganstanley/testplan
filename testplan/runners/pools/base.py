@@ -25,6 +25,7 @@ from schema import And, Or, Use
 
 from testplan.common import entity
 from testplan.common.config import ConfigOption
+from testplan.common.serialization import serialize
 from testplan.common.utils import selector, strings
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
@@ -524,6 +525,8 @@ class Pool(Executor):
             request.data,
         )
 
+        response = Message(**self._metadata)  # type: ignore[arg-type]
+
         if not worker.active:
             self.logger.warning(
                 "Message from inactive worker %s - %s, %s",
@@ -531,8 +534,17 @@ class Pool(Executor):
                 request.cmd,
                 request.data,
             )
-
-        response = Message(**self._metadata)  # type: ignore[arg-type]
+            stop_response = response.make(Message.Stop)
+            try:
+                worker.respond(stop_response)
+            except RuntimeError:
+                # Worker's transport was disconnected during abort. Reply
+                # on the pool's server socket to keep the ZMQ REQ/REP
+                # contract balanced.
+                conn_sock = getattr(self._conn, "sock", None)
+                if conn_sock is not None:
+                    conn_sock.send(serialize(stop_response))
+            return
 
         if not self.active or self.status == self.STATUS.STOPPING:
             worker.respond(response.make(Message.Stop))
