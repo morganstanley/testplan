@@ -215,8 +215,10 @@ class ChildLoop:
                     hb_resp = self._transport.send_and_receive(
                         message.make(message.Heartbeat, data=time.time())
                     )
-                    if hb_resp is None:
-                        self.logger.critical("Pool seems dead, child exits.")
+                    if hb_resp is None or hb_resp.cmd == Message.Stop:
+                        self.logger.critical(
+                            "Pool seems dead or stopping, child exits."
+                        )
                         self.exit_loop()
                         break
                     else:

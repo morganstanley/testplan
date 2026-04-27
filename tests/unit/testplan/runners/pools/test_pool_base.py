@@ -2,6 +2,7 @@
 
 import os
 import random
+import time
 
 from testplan import Task
 from testplan.common.utils.path import default_runpath
@@ -199,3 +200,81 @@ class TestPoolIsolated:
             worker = pool._workers["0"]
 
         assert worker._restart_count == 0
+
+    def test_inactive_worker_message_replies_stop(self):
+        """
+        A message from an inactive worker must not reach any _handle_* —
+        the pool must immediately reply Stop and leave scheduler state
+        intact.
+        """
+        pool = pools_base.Pool(
+            name="MyPool", size=1, worker_type=ControllableWorker
+        )
+        pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+        pool._start_monitor_thread = False
+
+        with pool:
+            worker = pool._workers["0"]
+            task = Task(target=Runnable(5))
+            pool.add(task, uid=task.uid())
+
+            # Flip the worker into the same state as a treadmill-aborted
+            # worker: entity.active returns False.
+            worker._should_abort = True
+            assert not worker.active
+
+            msg_factory = communication.Message(**worker.metadata)
+
+            # Heartbeat from inactive worker → expect Stop, last_heartbeat
+            # unchanged.
+            prev_hb = worker.last_heartbeat
+            received = worker.transport.send_and_receive(
+                msg_factory.make(msg_factory.Heartbeat, data=time.time())
+            )
+            assert received.cmd == communication.Message.Stop
+            assert worker.last_heartbeat == prev_hb
+
+            # TaskPullRequest from inactive worker → expect Stop, task
+            # stays in unassigned (i.e. not orphaned).
+            unassigned_before = pool.unassigned.size()
+            received = worker.transport.send_and_receive(
+                msg_factory.make(msg_factory.TaskPullRequest, data=1)
+            )
+            assert received.cmd == communication.Message.Stop
+            assert pool.unassigned.size() == unassigned_before
+
+    def test_inactive_worker_with_disconnected_transport(self):
+        """
+        If the worker's transport is already disconnected when the pool
+        processes a late message, worker.respond raises RuntimeError. The
+        pool must swallow it (for QueueServer there is no .sock to fall
+        back to) rather than propagate — scheduler state stays intact.
+        """
+        pool = pools_base.Pool(
+            name="MyPool", size=1, worker_type=ControllableWorker
+        )
+        pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+        pool._start_monitor_thread = False
+
+        with pool:
+            worker = pool._workers["0"]
+            task = Task(target=Runnable(5))
+            pool.add(task, uid=task.uid())
+
+            # Both entity and transport inactive — matches state after
+            # _decommission_worker + worker.abort().
+            worker._should_abort = True
+            worker.transport.disconnect()
+            assert not worker.active
+            assert not worker.transport.active
+
+            msg_factory = communication.Message(**worker.metadata)
+            request = msg_factory.make(msg_factory.TaskPullRequest, data=1)
+
+            unassigned_before = pool.unassigned.size()
+
+            # Drive handle_request directly — exceptions would propagate
+            # here (the _loop try/except would otherwise swallow them).
+            pool.handle_request(request)
+
+            assert pool.unassigned.size() == unassigned_before
