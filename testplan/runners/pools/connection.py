@@ -146,14 +146,17 @@ class QueueClient(Client):
     def respond(self, message: Message) -> None:
         """
         Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
-        worker request.
+        worker request. No-op once disconnected — the worker is gone and
+        there is no REP state machine to unwedge.
 
         :param message: Respond message.
         """
         if self.active:
             self.responses.append(message)
         else:
-            raise RuntimeError("Responding to inactive worker")
+            self.logger.debug(
+                "QueueClient inactive; dropping %s response", message.cmd
+            )
 
 
 class ZMQClient(Client):
@@ -237,12 +240,13 @@ class ZMQClient(Client):
         return None
 
 
-class ZMQClientProxy:
+class ZMQClientProxy(logger.Loggable):
     """
     Representative of a process worker's transport in local worker object.
     """
 
     def __init__(self) -> None:
+        super().__init__()
         self.active = False
         self.connection: Optional[zmq.Socket] = None
         self.address: Optional[str] = None
@@ -254,20 +258,30 @@ class ZMQClientProxy:
 
     def disconnect(self) -> None:
         self.active = False
-        self.connection = None
         self.address = None
+        # Retain self.connection so respond can unwedge the REP after
+        # the worker aborts. Socket is owned by ZMQServer.
 
     def respond(self, message: Message) -> None:
         """
         Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
-        worker request.
+        worker request. When the proxy is disconnected, send Stop on the
+        retained REP socket so it isn't left wedged waiting for a reply.
 
         :param message: Respond message.
         """
         if self.active:
             self.connection.send(serialize(message))  # type: ignore[union-attr]
         else:
-            raise RuntimeError("Responding to inactive worker")
+            self.logger.warning(
+                "ZMQClientProxy disconnected; sending Stop in place of"
+                " %s to keep pool REP unwedged",
+                message.cmd,
+            )
+            self.connection.send(  # type: ignore[union-attr]
+                serialize(Message().make(Message.Stop)),
+                flags=zmq.NOBLOCK,
+            )
 
 
 class Server(entity.Resource, metaclass=abc.ABCMeta):
