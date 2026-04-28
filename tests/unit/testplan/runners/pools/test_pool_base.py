@@ -1,13 +1,18 @@
 """TODO."""
 
 import os
+import queue
 import random
 import time
+from unittest import mock
+
+import zmq
 
 from testplan import Task
+from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils.path import default_runpath
 from testplan.runners.pools import base as pools_base
-from testplan.runners.pools import communication
+from testplan.runners.pools import communication, connection
 from testplan.runners.pools.base import TaskQueue
 from testplan.testing.common import SkipStrategy
 from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
@@ -246,9 +251,10 @@ class TestPoolIsolated:
     def test_inactive_worker_with_disconnected_transport(self):
         """
         If the worker's transport is already disconnected when the pool
-        processes a late message, worker.respond raises RuntimeError. The
-        pool must swallow it (for QueueServer there is no .sock to fall
-        back to) rather than propagate — scheduler state stays intact.
+        processes a late message, ``worker.respond`` is a silent no-op
+        on ``QueueClient`` (and unwedges the REP on ``ZMQClientProxy``).
+        ``handle_request`` must complete normally and leave scheduler
+        state intact.
         """
         pool = pools_base.Pool(
             name="MyPool", size=1, worker_type=ControllableWorker
@@ -278,3 +284,130 @@ class TestPoolIsolated:
             pool.handle_request(request)
 
             assert pool.unassigned.size() == unassigned_before
+
+    def test_handle_taskpull_inactive_under_pool_lock(self):
+        """
+        Re-check under _pool_lock catches a worker decommissioned
+        after the top-level active-check: reply Stop, no orphan.
+        """
+        pool = pools_base.Pool(
+            name="MyPool", size=1, worker_type=ControllableWorker
+        )
+        pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+        pool._start_monitor_thread = False
+
+        with pool:
+            worker = pool._workers["0"]
+            task = Task(target=Runnable(5))
+            pool.add(task, uid=task.uid())
+
+            worker._should_abort = True
+            assert not worker.active
+
+            msg_factory = communication.Message(**worker.metadata)
+            request = msg_factory.make(msg_factory.TaskPullRequest, data=1)
+            response = communication.Message(**pool._metadata)
+
+            unassigned_before = pool.unassigned.size()
+            pool._handle_taskpull_request(worker, request, response)
+
+            assert pool.unassigned.size() == unassigned_before
+            assert task.uid() not in worker.assigned
+
+            received = worker.transport.receive()
+            assert received.cmd == communication.Message.Stop
+
+    def test_handle_request_handler_raises_with_disconnected_transport(self):
+        """
+        Handler raises and disconnects mid-flight; handle_request must
+        swallow and the silent-drop in QueueClient.respond must leave
+        no stale response queued.
+        """
+        pool = pools_base.Pool(
+            name="MyPool", size=1, worker_type=ControllableWorker
+        )
+        pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+        pool._start_monitor_thread = False
+
+        with pool:
+            worker = pool._workers["0"]
+
+            def evil_handler(w, req, resp):
+                w.transport.disconnect()
+                raise RuntimeError("simulated handler failure")
+
+            pool._request_handlers[communication.Message.ConfigRequest] = (
+                evil_handler
+            )
+
+            msg_factory = communication.Message(**worker.metadata)
+            request = msg_factory.make(msg_factory.ConfigRequest, data=None)
+
+            pool.handle_request(request)
+
+            assert worker.transport.responses == []
+
+
+def test_zmq_proxy_respond_disconnected_sends_stop():
+    """
+    Disconnected proxy: respond unwedges the REP by sending Stop on
+    the retained socket instead of raising.
+    """
+    server = connection.ZMQServer()
+    server._sock = mock.MagicMock()
+    server._address = "127.0.0.1:0"
+
+    proxy = connection.ZMQClientProxy()
+    proxy.connect(server)
+    proxy.disconnect()
+
+    msg = communication.Message().make(
+        communication.Message.TaskSending, data=["task"]
+    )
+    proxy.respond(msg)
+
+    server._sock.send.assert_called_once()
+    decoded = deserialize(server._sock.send.call_args[0][0])
+    assert decoded.cmd == communication.Message.Stop
+
+
+def test_zmq_proxy_respond_after_disconnect_unwedges_real_rep():
+    """
+    Real REP/REQ pair: after recv, REP is in must-send-next. Disconnect +
+    respond must put the REP back into recv-state — a second cycle would
+    EFSM otherwise.
+    """
+    ctx = zmq.Context()
+    rep = ctx.socket(zmq.REP)
+    rep.RCVTIMEO = 1000
+    port = rep.bind_to_random_port("tcp://127.0.0.1")
+    req = ctx.socket(zmq.REQ)
+    req.RCVTIMEO = 1000
+    req.connect(f"tcp://127.0.0.1:{port}")
+    try:
+        heartbeat = communication.Message().make(
+            communication.Message.Heartbeat, data=1
+        )
+        req.send(serialize(heartbeat))
+        assert deserialize(rep.recv()).cmd == communication.Message.Heartbeat
+
+        proxy = connection.ZMQClientProxy()
+        proxy.connection = rep
+        proxy.active = True
+        proxy.disconnect()
+        proxy.respond(
+            communication.Message().make(
+                communication.Message.TaskSending, data=["task"]
+            )
+        )
+
+        # Drain the substituted Stop so REQ is back in send-state.
+        assert deserialize(req.recv()).cmd == communication.Message.Stop
+
+        # If REP weren't unwedged, this recv would raise EFSM.
+        req.send(serialize(heartbeat))
+        assert deserialize(rep.recv()).cmd == communication.Message.Heartbeat
+    finally:
+        req.close()
+        rep.close()
+        ctx.destroy()

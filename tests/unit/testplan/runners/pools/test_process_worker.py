@@ -1,13 +1,17 @@
 """Unit test for process pool."""
 
+import os
 import platform
 import psutil
 import pytest
 import time
 
-from testplan.runners.pools import process
-from testplan.runners.pools import tasks
+import zmq
+
+from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
+from testplan.runners.pools import communication, process, tasks
+from testplan.runners.pools.base import Worker
 from testplan.testing.common import SkipStrategy
 
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
@@ -77,3 +81,77 @@ class TestProcPool:
 
             assert proc_pool.status == proc_pool.status.STOPPED
             assert len(current_proc.children()) == len(start_children)
+
+
+def test_pool_zmq_heartbeat_from_inactive_worker():
+    """
+    Heartbeat from a disconnected worker gets Stop, REP stays unwedged
+    for a second cycle.
+    """
+
+    class StubWorker(process.ProcessWorker):
+        def starting(self):
+            self.status.change(self.STATUS.STARTED)
+
+        def stopping(self):
+            self.status.change(self.STATUS.STOPPED)
+
+        def aborting(self):
+            self._transport.disconnect()
+
+        def _wait_started(self, timeout=None):
+            # Skip ProcessWorker's logfile poll — there's no subprocess.
+            Worker._wait_started(self, timeout=timeout)
+
+        @property
+        def is_alive(self):
+            return self.status.tag == self.STATUS.STARTED
+
+    pool = process.ProcessPool(
+        name="ZMQHBPool",
+        size=1,
+        worker_type=StubWorker,
+        worker_heartbeat=None,
+        async_start=False,
+    )
+    pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+    pool._start_monitor_thread = False
+
+    with pool:
+        worker = pool._workers["0"]
+
+        ctx = zmq.Context()
+        req = ctx.socket(zmq.REQ)
+        req.RCVTIMEO = 2000
+        req.connect(f"tcp://{pool._conn.address}")
+        try:
+            worker._should_abort = True
+            worker.transport.disconnect()
+            assert not worker.active
+            assert not worker.transport.active
+
+            msg_factory = communication.Message(
+                index=worker.cfg.index, pid=os.getpid()
+            )
+
+            req.send(
+                serialize(
+                    msg_factory.make(
+                        communication.Message.Heartbeat, data=time.time()
+                    )
+                )
+            )
+            assert deserialize(req.recv()).cmd == communication.Message.Stop
+
+            # Second cycle: REP must still be usable.
+            req.send(
+                serialize(
+                    msg_factory.make(
+                        communication.Message.Heartbeat, data=time.time()
+                    )
+                )
+            )
+            assert deserialize(req.recv()).cmd == communication.Message.Stop
+        finally:
+            req.close()
+            ctx.destroy()
