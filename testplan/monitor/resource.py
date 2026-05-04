@@ -523,9 +523,9 @@ class ResourceMonitorServer:
         return str(meta_file_path.resolve())
 
     def start(self, timeout: int = 5) -> None:
-        shared_dict = multiprocessing.Manager().dict()
         tracing.force_flush()  # flush so that no grpc communication is happening while forking
         otel_logging.force_flush()
+        shared_dict = multiprocessing.Manager().dict()
         self._server_process = multiprocessing.Process(
             target=self._serve, args=(shared_dict,), daemon=True
         )
