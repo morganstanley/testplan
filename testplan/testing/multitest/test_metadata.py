@@ -19,12 +19,19 @@ class LocationMetadata:
             return getattr(obj, LOCATION_METADATA_ATTRIBUTE)  # type: ignore[no-any-return]
         try:
             object_name = obj.__name__  # type: ignore[attr-defined]
-            file = getsourcefile(obj)  # type: ignore[arg-type]
-            _, line_no = getsourcelines(obj)  # type: ignore[arg-type]
+            code = getattr(obj, "__code__", None)
+            if code is not None:
+                # Functions expose the defining file and first line directly
+                # on their code object — no file I/O or tokenization needed.
+                file = code.co_filename or ""
+                line_no = code.co_firstlineno
+            else:
+                file = getsourcefile(obj)  # type: ignore[arg-type]
+                _, line_no = getsourcelines(obj)  # type: ignore[arg-type]
         except Exception:
             return None  # we do best effort here
-        else:
-            return cls(object_name, file or "", line_no)
+
+        return cls(object_name, file, line_no)
 
 
 @dataclass

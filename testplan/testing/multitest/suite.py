@@ -693,6 +693,10 @@ def _testcase_meta(
                 raise err
 
             # Register generated functions as testcases
+            template_location = TestCaseStaticMetadata(
+                LocationMetadata.from_object(function)
+            )
+
             for func in functions:
                 # this has to be called before wrappers otherwise wrappers can
                 # fail if they rely on ``__testcase__``
@@ -710,12 +714,7 @@ def _testcase_meta(
 
                 __GENERATED_TESTCASES__.append(func)
 
-                add_testcase_metadata(
-                    func,
-                    TestCaseStaticMetadata(
-                        LocationMetadata.from_object(function)
-                    ),
-                )
+                add_testcase_metadata(func, template_location)
 
             return function
 
