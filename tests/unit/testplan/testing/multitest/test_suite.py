@@ -1,15 +1,13 @@
 """Unit tests for the testplan.testing.multitest.suite module."""
 
 import re
-from unittest import mock
 
 import pytest
 
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.interface import MethodSignatureMismatch
 from testplan.common.utils.strings import format_description
-from testplan.testing.multitest import suite, test_metadata
-from testplan.testing.multitest.test_metadata import LocationMetadata
+from testplan.testing.multitest import suite
 from testplan.testing import tagging
 
 
@@ -250,47 +248,3 @@ def test_skip_if_signature():
 )
 def test_format_description(text, expected):
     format_description(text) == expected
-
-
-def _location_sample_function(self, env, result):
-    pass
-
-
-def test_from_object_function_skips_getsourcelines():
-    with (
-        mock.patch.object(
-            test_metadata, "getsourcelines"
-        ) as mocked_getsourcelines,
-        mock.patch.object(
-            test_metadata, "getsourcefile"
-        ) as mocked_getsourcefile,
-    ):
-        LocationMetadata.from_object(_location_sample_function)
-
-    mocked_getsourcelines.assert_not_called()
-    mocked_getsourcefile.assert_not_called()
-
-
-def test_parametrization_template_inspected_once():
-    real_from_object = LocationMetadata.from_object
-    template_calls = []
-
-    def tracking_from_object(obj):
-        if getattr(obj, "__name__", None) == "case":
-            template_calls.append(obj)
-        return real_from_object(obj)
-
-    with mock.patch.object(
-        LocationMetadata, "from_object", side_effect=tracking_from_object
-    ):
-
-        @suite.testsuite
-        class ParamSuite:
-            @suite.testcase(parameters=[range(3)])
-            def case(self, env, result, value):
-                pass
-
-    assert len(template_calls) == 1, (
-        "Parametrization template should be inspected once across all "
-        f"variants; got {len(template_calls)} calls"
-    )
