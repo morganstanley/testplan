@@ -353,7 +353,7 @@ class App(Driver):
     @property
     def hostname(self) -> str:
         """
-        :return: hostname where the ETSApp is running
+        :return: hostname where the App is running
         """
         return socket.gethostname()
 
