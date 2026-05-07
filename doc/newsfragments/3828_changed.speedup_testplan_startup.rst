@@ -1,1 +1,0 @@
-Speed up testplan startup by avoiding repeated source-file tokenization in ``LocationMetadata.from_object``: functions now resolve their location directly from ``__code__``, and parametrized testcases reuse a single template lookup across all generated variants.
