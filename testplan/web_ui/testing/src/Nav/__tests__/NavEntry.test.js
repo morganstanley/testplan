@@ -1,5 +1,6 @@
 import React from "react";
-import { shallow } from "enzyme";
+import { render } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { StyleSheetTestUtils } from "aphrodite";
 import { getDefaultStore } from "jotai";
 
@@ -30,26 +31,42 @@ describe("NavEntry", () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it("shallow renders the correct HTML structure", () => {
-    const navEntry = shallow(<NavEntry {...props} />);
-    expect(navEntry).toMatchSnapshot();
+  it("renders the correct HTML structure", () => {
+    const { asFragment } = render(<NavEntry {...props} />);
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it('when prop status="failed" name div and Badge have correct styles', () => {
     const failProps = { ...props, status: "failed" };
-    const navEntry = shallow(<NavEntry {...failProps} />);
-    expect(navEntry).toMatchSnapshot();
+    const { asFragment } = render(<NavEntry {...failProps} />);
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it('when prop status="xfail" name div and Badge have correct styles', () => {
     const failProps = { ...props, status: "xfail" };
-    const navEntry = shallow(<NavEntry {...failProps} />);
-    expect(navEntry).toMatchSnapshot();
+    const { asFragment } = render(<NavEntry {...failProps} />);
+    expect(asFragment()).toMatchSnapshot();
   });
 
-  it("shallow renders the correct HTML structure with status icons enabled", () => {
+  it("renders the unstable counter when caseCountUnstable is non-zero", () => {
+    const unstableProps = {
+      ...props,
+      status: "xfail",
+      caseCountPassed: 4,
+      caseCountFailed: 1,
+      caseCountUnstable: 3,
+    };
+    const { getByTitle } = render(<NavEntry {...unstableProps} />);
+    const counter = getByTitle("passed/unstable/failed testcases");
+    const numbers = Array.from(counter.querySelectorAll("span")).map(
+      (s) => s.textContent
+    );
+    expect(numbers).toEqual(["4", "3", "1"]);
+  });
+
+  it("renders the correct HTML structure with status icons enabled", () => {
     getDefaultStore().set(showStatusIconsPreference, true);
-    const navEntry = shallow(<NavEntry {...props} />);
-    expect(navEntry).toMatchSnapshot();
+    const { asFragment } = render(<NavEntry {...props} />);
+    expect(asFragment()).toMatchSnapshot();
   });
 });

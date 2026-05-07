@@ -4,7 +4,12 @@ import base64url from "base64url";
 
 import InteractiveNavEntry from "./InteractiveNavEntry";
 import NavEntry from "./NavEntry";
-import { CreateNavButtons, GetNavColumn } from "./navUtils.js";
+import {
+  CreateNavButtons,
+  GetNavColumn,
+  computeUnstableCount,
+  computeFailedCount,
+} from "./navUtils.js";
 import { STATUS, RUNTIME_STATUS, NAV_ENTRY_ACTIONS, CATEGORIES } from "../Common/defaults";
 import { calcExecutionTime, calcElapsedTime } from "./../Common/utils";
 
@@ -26,7 +31,8 @@ const NavList = (props) => {
           envStatus={entry.env_status}
           type={entry.category}
           caseCountPassed={entry.counter.passed}
-          caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
+          caseCountUnstable={computeUnstableCount(entry.counter)}
+          caseCountFailed={computeFailedCount(entry.counter)}
           handleClick={(e, action) => props.handleClick(e, entry, action)}
           envCtrlCallback={(e, action) =>
             props.envCtrlCallback(e, entry, action)
@@ -51,7 +57,8 @@ const NavList = (props) => {
           status={entry.status}
           type={entry.category}
           caseCountPassed={entry.counter.passed}
-          caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
+          caseCountUnstable={computeUnstableCount(entry.counter)}
+          caseCountFailed={computeFailedCount(entry.counter)}
           executionTime={calcExecutionTime(entry)}
           setupTime={calcElapsedTime(entry?.timer?.setup)}
           teardownTime={calcElapsedTime(entry?.timer?.teardown)}

@@ -1,219 +1,220 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NavEntry shallow renders the correct HTML structure 1`] = `
-<div
-  className="d-flex justify-content-between align-items-center"
-  style={
-    Object {
-      "height": "1.5em",
-      "userSelect": "none",
-    }
-  }
->
-  <Badge
-    className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2-o_O-badge_1nusemj"
-    pill={true}
-    title="testplan"
-  >
-    TP
-  </Badge>
+exports[`NavEntry renders the correct HTML structure 1`] = `
+<DocumentFragment>
   <div
-    className="entryName_1u6ioda-o_O-passed_159jltg"
-    title="entry description - passed"
-  >
-    entry name
-  </div>
-  <div
-    className="entryIcons_9stzon"
+    class="d-flex justify-content-between align-items-center"
+    style="height: 1.5em; user-select: none;"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-passed_159jltg-o_O-navTime_rnvtmc"
-    />
-    <span
-      className="entryIcon_9gb3m5"
-      title="passed/failed testcases"
+      class="entryIcon_9gb3m5-o_O-passedBadge_1isorc2-o_O-badge_1nusemj badge bg-secondary rounded-pill"
+      title="testplan"
+    >
+      TP
+    </span>
+    <div
+      class="entryName_1u6ioda-o_O-passed_159jltg"
+      title="entry description - passed"
+    >
+      entry name
+    </div>
+    <div
+      class="entryIcons_9stzon"
     >
       <span
-        className="passed_159jltg"
-      >
-        0
-      </span>
-      /
+        class="entryIcon_9gb3m5-o_O-passed_159jltg-o_O-navTime_rnvtmc"
+      />
       <span
-        className="failed_fshwig"
+        class="entryIcon_9gb3m5"
+        title="passed/unstable/failed testcases"
       >
-        0
+        <span
+          class="passed_159jltg"
+        >
+          0
+        </span>
+        /
+        <span
+          class="unstable_zxs7ca"
+        />
+        /
+        <span
+          class="failed_fshwig"
+        >
+          0
+        </span>
       </span>
-    </span>
+    </div>
   </div>
-</div>
+</DocumentFragment>
 `;
 
-exports[`NavEntry shallow renders the correct HTML structure with status icons enabled 1`] = `
-<div
-  className="d-flex justify-content-between align-items-center"
-  style={
-    Object {
-      "height": "1.5em",
-      "userSelect": "none",
-    }
-  }
->
-  <Badge
-    className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2-o_O-badge_1nusemj"
-    pill={true}
-    title="testplan"
-  >
-    TP
-  </Badge>
+exports[`NavEntry renders the correct HTML structure with status icons enabled 1`] = `
+<DocumentFragment>
   <div
-    className="entryName_1u6ioda-o_O-passed_159jltg"
-    title="entry description - passed"
+    class="d-flex justify-content-between align-items-center"
+    style="height: 1.5em; user-select: none;"
   >
     <span
-      className="statusIcon_15gxpoi"
+      class="entryIcon_9gb3m5-o_O-passedBadge_1isorc2-o_O-badge_1nusemj badge bg-secondary rounded-pill"
+      title="testplan"
     >
-      <FontAwesomeIcon
-        className=""
-        icon={
-          Object {
-            "icon": Array [
-              512,
-              512,
-              Array [],
-              "f00c",
-              "M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z",
-            ],
-            "iconName": "check",
-            "prefix": "fas",
-          }
-        }
-        size="sm"
-        title="passed"
+      TP
+    </span>
+    <div
+      class="entryName_1u6ioda-o_O-passed_159jltg"
+      title="entry description - passed"
+    >
+      <span
+        class="statusIcon_15gxpoi"
+      >
+        <svg
+          aria-labelledby="svg-inline--fa-title-1"
+          class="svg-inline--fa fa-check fa-w-16 fa-sm "
+          data-icon="check"
+          data-prefix="fas"
+          role="img"
+          viewBox="0 0 512 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title
+            id="svg-inline--fa-title-1"
+          >
+            passed
+          </title>
+          <path
+            d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
+      entry name
+    </div>
+    <div
+      class="entryIcons_9stzon"
+    >
+      <span
+        class="entryIcon_9gb3m5-o_O-passed_159jltg-o_O-navTime_rnvtmc"
       />
-    </span>
-    entry name
-  </div>
-  <div
-    className="entryIcons_9stzon"
-  >
-    <span
-      className="entryIcon_9gb3m5-o_O-passed_159jltg-o_O-navTime_rnvtmc"
-    />
-    <span
-      className="entryIcon_9gb3m5"
-      title="passed/failed testcases"
-    >
       <span
-        className="passed_159jltg"
+        class="entryIcon_9gb3m5"
+        title="passed/unstable/failed testcases"
       >
-        0
+        <span
+          class="passed_159jltg"
+        >
+          0
+        </span>
+        /
+        <span
+          class="unstable_zxs7ca"
+        />
+        /
+        <span
+          class="failed_fshwig"
+        >
+          0
+        </span>
       </span>
-      /
-      <span
-        className="failed_fshwig"
-      >
-        0
-      </span>
-    </span>
+    </div>
   </div>
-</div>
+</DocumentFragment>
 `;
 
 exports[`NavEntry when prop status="failed" name div and Badge have correct styles 1`] = `
-<div
-  className="d-flex justify-content-between align-items-center"
-  style={
-    Object {
-      "height": "1.5em",
-      "userSelect": "none",
-    }
-  }
->
-  <Badge
-    className="entryIcon_9gb3m5-o_O-failedBadge_1i8mqax-o_O-badge_1nusemj"
-    pill={true}
-    title="testplan"
-  >
-    TP
-  </Badge>
+<DocumentFragment>
   <div
-    className="entryName_1u6ioda-o_O-failed_fshwig"
-    title="entry description - failed"
-  >
-    entry name
-  </div>
-  <div
-    className="entryIcons_9stzon"
+    class="d-flex justify-content-between align-items-center"
+    style="height: 1.5em; user-select: none;"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-failed_fshwig-o_O-navTime_rnvtmc"
-    />
-    <span
-      className="entryIcon_9gb3m5"
-      title="passed/failed testcases"
+      class="entryIcon_9gb3m5-o_O-failedBadge_1i8mqax-o_O-badge_1nusemj badge bg-secondary rounded-pill"
+      title="testplan"
+    >
+      TP
+    </span>
+    <div
+      class="entryName_1u6ioda-o_O-failed_fshwig"
+      title="entry description - failed"
+    >
+      entry name
+    </div>
+    <div
+      class="entryIcons_9stzon"
     >
       <span
-        className="passed_159jltg"
-      >
-        0
-      </span>
-      /
+        class="entryIcon_9gb3m5-o_O-failed_fshwig-o_O-navTime_rnvtmc"
+      />
       <span
-        className="failed_fshwig"
+        class="entryIcon_9gb3m5"
+        title="passed/unstable/failed testcases"
       >
-        0
+        <span
+          class="passed_159jltg"
+        >
+          0
+        </span>
+        /
+        <span
+          class="unstable_zxs7ca"
+        />
+        /
+        <span
+          class="failed_fshwig"
+        >
+          0
+        </span>
       </span>
-    </span>
+    </div>
   </div>
-</div>
+</DocumentFragment>
 `;
 
 exports[`NavEntry when prop status="xfail" name div and Badge have correct styles 1`] = `
-<div
-  className="d-flex justify-content-between align-items-center"
-  style={
-    Object {
-      "height": "1.5em",
-      "userSelect": "none",
-    }
-  }
->
-  <Badge
-    className="entryIcon_9gb3m5-o_O-unstableBadge_1e6avok-o_O-badge_1nusemj"
-    pill={true}
-    title="testplan"
-  >
-    TP
-  </Badge>
+<DocumentFragment>
   <div
-    className="entryName_1u6ioda-o_O-unstable_zxs7ca"
-    title="entry description - xfail"
-  >
-    entry name
-  </div>
-  <div
-    className="entryIcons_9stzon"
+    class="d-flex justify-content-between align-items-center"
+    style="height: 1.5em; user-select: none;"
   >
     <span
-      className="entryIcon_9gb3m5-o_O-unstable_zxs7ca-o_O-navTime_rnvtmc"
-    />
-    <span
-      className="entryIcon_9gb3m5"
-      title="passed/failed testcases"
+      class="entryIcon_9gb3m5-o_O-unstableBadge_1e6avok-o_O-badge_1nusemj badge bg-secondary rounded-pill"
+      title="testplan"
+    >
+      TP
+    </span>
+    <div
+      class="entryName_1u6ioda-o_O-unstable_zxs7ca"
+      title="entry description - xfail"
+    >
+      entry name
+    </div>
+    <div
+      class="entryIcons_9stzon"
     >
       <span
-        className="passed_159jltg"
-      >
-        0
-      </span>
-      /
+        class="entryIcon_9gb3m5-o_O-unstable_zxs7ca-o_O-navTime_rnvtmc"
+      />
       <span
-        className="failed_fshwig"
+        class="entryIcon_9gb3m5"
+        title="passed/unstable/failed testcases"
       >
-        0
+        <span
+          class="passed_159jltg"
+        >
+          0
+        </span>
+        /
+        <span
+          class="unstable_zxs7ca"
+        />
+        /
+        <span
+          class="failed_fshwig"
+        >
+          0
+        </span>
       </span>
-    </span>
+    </div>
   </div>
-</div>
+</DocumentFragment>
 `;

@@ -502,7 +502,7 @@ describe("BatchReport", () => {
       // Check the counter display shows correct merged values (3 passed / 1 failed)
       // Navigate from the merged multitest element to its parent label, then find the counter
       const mergedMtLabel = mergedMtText.closest(".MuiTreeItem-label");
-      const counterSpan = mergedMtLabel.querySelector('[title="passed/failed testcases"]');
+      const counterSpan = mergedMtLabel.querySelector('[title="passed/unstable/failed testcases"]');
       const passedCount = counterSpan.querySelector('[class*="passed"]');
       const failedCount = counterSpan.querySelector('[class*="failed"]');
 

@@ -381,6 +381,16 @@ const generateNavTimeInfo = (
   return [totalTimeElement, detailedTimeElement];
 };
 
+const computeUnstableCount = (counter) =>
+  (counter.xpass || 0)
+  + (counter.xfail || 0)
+  + (counter.skipped || 0);
+
+const computeFailedCount = (counter) =>
+  counter.failed
+  + (counter.error || 0)
+  + (counter["xpass-strict"] || 0);
+
 export {
   CreateNavButtons,
   generateNavTimeInfo,
@@ -392,4 +402,6 @@ export {
   GetNavColumn,
   applyAllFilters,
   applyNamedFilter,
+  computeUnstableCount,
+  computeFailedCount,
 };
