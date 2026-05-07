@@ -25,6 +25,7 @@ import {
 import { statusStyles } from "../Common/Styles";
 import { generateURLWithParameters } from "../Common/utils";
 import { isReportLeaf } from "../Report/reportUtils";
+import { computeUnstableCount, computeFailedCount } from "./navUtils";
 
 library.add(faHome);
 
@@ -212,8 +213,12 @@ const MenuEntry = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <span className={classes.passed}>{props.counter.passed}</span>
       <span className={classes.unknown}>/</span>
+      <span className={classes.unstable}>
+        {computeUnstableCount(props.counter)}
+      </span>
+      <span className={classes.unknown}>/</span>
       <span className={classes.failed}>
-        {props.counter.failed + (props.counter.error || 0)}
+        {computeFailedCount(props.counter)}
       </span>
     </>
   );

@@ -77,8 +77,22 @@ const _mergeCounters = (parts) => {
       failed: acc.failed + part.counter.failed,
       total: acc.total + part.counter.total,
       error: acc.error + (part.counter.error || 0),
+      xpass: acc.xpass + (part.counter.xpass || 0),
+      xfail: acc.xfail + (part.counter.xfail || 0),
+      skipped: acc.skipped + (part.counter.skipped || 0),
+      "xpass-strict":
+        acc["xpass-strict"] + (part.counter["xpass-strict"] || 0),
     }),
-    { passed: 0, failed: 0, total: 0, error: 0 }
+    {
+      passed: 0,
+      failed: 0,
+      total: 0,
+      error: 0,
+      xpass: 0,
+      xfail: 0,
+      skipped: 0,
+      "xpass-strict": 0,
+    }
   );
 };
 

@@ -767,6 +767,16 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                 /
               </span>
               <span
+                class="makeStyles-unstable-231"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-232"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-228"
               >
                 0
@@ -845,12 +855,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             4
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -930,12 +946,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -1005,12 +1027,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     3
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -1078,12 +1106,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -1141,12 +1175,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -1204,12 +1244,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -2019,6 +2065,16 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                 /
               </span>
               <span
+                class="makeStyles-unstable-231"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-232"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-228"
               >
                 0
@@ -2097,12 +2153,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -2182,12 +2244,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -2257,12 +2325,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -2330,12 +2404,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -2413,12 +2493,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -3220,6 +3306,16 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                 /
               </span>
               <span
+                class="makeStyles-unstable-59"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-60"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-56"
               >
                 1
@@ -3250,6 +3346,16 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                    
               <span
                 class="makeStyles-passed-55"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-60"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-59"
               >
                 0
               </span>
@@ -3298,6 +3404,16 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                 /
               </span>
               <span
+                class="makeStyles-unstable-59"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-60"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-56"
               >
                 1
@@ -3328,6 +3444,16 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                    
               <span
                 class="makeStyles-passed-55"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-60"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-59"
               >
                 0
               </span>
@@ -3416,10 +3542,16 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
+                          >
+                            0
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
                           >
                             0
                           </span>
@@ -3502,10 +3634,16 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
+                                  >
+                                    0
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
                                   >
                                     0
                                   </span>
@@ -3577,10 +3715,16 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
+                                          >
+                                            0
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
                                           >
                                             0
                                           </span>
@@ -4543,6 +4687,16 @@ exports[`BatchReport loads a more complex error report 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-95"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-96"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-92"
               >
                 1
@@ -4582,6 +4736,16 @@ exports[`BatchReport loads a more complex error report 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-95"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-96"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-92"
               >
                 1
@@ -4612,6 +4776,16 @@ exports[`BatchReport loads a more complex error report 1`] = `
                    
               <span
                 class="makeStyles-passed-91"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-96"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-95"
               >
                 0
               </span>
@@ -4699,12 +4873,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -4775,10 +4955,16 @@ exports[`BatchReport loads a more complex error report 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
+                          >
+                            0
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
                           >
                             0
                           </span>
@@ -4850,10 +5036,16 @@ exports[`BatchReport loads a more complex error report 1`] = `
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
+                                  >
+                                    0
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
                                   >
                                     0
                                   </span>
@@ -5678,6 +5870,16 @@ exports[`BatchReport loads a more complex report 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-77"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-78"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-74"
               >
                 1
@@ -5710,6 +5912,16 @@ exports[`BatchReport loads a more complex report 1`] = `
                 class="makeStyles-passed-73"
               >
                 2
+              </span>
+              <span
+                class="makeStyles-unknown-78"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-77"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-78"
@@ -5756,6 +5968,16 @@ exports[`BatchReport loads a more complex report 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-77"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-78"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-74"
               >
                 1
@@ -5786,6 +6008,16 @@ exports[`BatchReport loads a more complex report 1`] = `
                    
               <span
                 class="makeStyles-passed-73"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-78"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-77"
               >
                 0
               </span>
@@ -5874,12 +6106,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -5960,12 +6198,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -6033,12 +6277,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -6098,10 +6348,16 @@ exports[`BatchReport loads a more complex report 1`] = `
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
+                                          >
+                                            0
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
                                           >
                                             0
                                           </span>
@@ -6177,12 +6433,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -6256,12 +6518,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             1
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -7105,6 +7373,16 @@ exports[`BatchReport loads a passed simple report 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-41"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-42"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-38"
               >
                 0
@@ -7183,12 +7461,18 @@ exports[`BatchReport loads a passed simple report 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             1
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -7990,6 +8274,16 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-113"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-114"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-110"
               >
                 1
@@ -8022,6 +8316,16 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                 class="makeStyles-passed-109"
               >
                 2
+              </span>
+              <span
+                class="makeStyles-unknown-114"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-113"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-114"
@@ -8109,12 +8413,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -8184,12 +8494,18 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             1
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -8991,6 +9307,16 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-149"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-150"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-146"
               >
                 1
@@ -9023,6 +9349,16 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 class="makeStyles-passed-145"
               >
                 2
+              </span>
+              <span
+                class="makeStyles-unknown-150"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-149"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-150"
@@ -9069,6 +9405,16 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-149"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-150"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-146"
               >
                 1
@@ -9101,6 +9447,16 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                 class="makeStyles-passed-145"
               >
                 1
+              </span>
+              <span
+                class="makeStyles-unknown-150"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-149"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-150"
@@ -9187,12 +9543,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -9273,12 +9635,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -9348,12 +9716,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -9411,10 +9785,16 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                                         />
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
+                                          >
+                                            0
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
                                           >
                                             0
                                           </span>
@@ -9490,12 +9870,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -9569,12 +9955,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             1
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -10454,6 +10846,16 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 /
               </span>
               <span
+                class="makeStyles-unstable-185"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-186"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-182"
               >
                 1
@@ -10486,6 +10888,16 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 class="makeStyles-passed-181"
               >
                 2
+              </span>
+              <span
+                class="makeStyles-unknown-186"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-185"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-186"
@@ -10532,6 +10944,16 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 /
               </span>
               <span
+                class="makeStyles-unstable-185"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-186"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-182"
               >
                 1
@@ -10564,6 +10986,16 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                 class="makeStyles-passed-181"
               >
                 1
+              </span>
+              <span
+                class="makeStyles-unknown-186"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-185"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-186"
@@ -10663,12 +11095,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         </span>
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -10756,12 +11194,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                                 </span>
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -10838,12 +11282,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                                         </span>
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -10908,10 +11358,16 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                                         </span>
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
+                                          >
+                                            0
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
                                           >
                                             0
                                           </span>
@@ -10994,12 +11450,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                                 </span>
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -11086,12 +11548,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                         </span>
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             1
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -11993,6 +12461,16 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 /
               </span>
               <span
+                class="makeStyles-unstable-167"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-168"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-164"
               >
                 1
@@ -12025,6 +12503,16 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 class="makeStyles-passed-163"
               >
                 2
+              </span>
+              <span
+                class="makeStyles-unknown-168"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-167"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-168"
@@ -12071,6 +12559,16 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 /
               </span>
               <span
+                class="makeStyles-unstable-167"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-168"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-164"
               >
                 1
@@ -12103,6 +12601,16 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                 class="makeStyles-passed-163"
               >
                 1
+              </span>
+              <span
+                class="makeStyles-unknown-168"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-167"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-168"
@@ -12202,12 +12710,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         </span>
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -12295,12 +12809,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                                 </span>
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -12377,12 +12897,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                                         </span>
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
                                           >
                                             1
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
+                                          >
+                                            0
                                           </span>
                                           /
                                           <span
@@ -12447,10 +12973,16 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                                         </span>
                                         <span
                                           class="entryIcon_9gb3m5"
-                                          title="passed/failed testcases"
+                                          title="passed/unstable/failed testcases"
                                         >
                                           <span
                                             class="passed_159jltg"
+                                          >
+                                            0
+                                          </span>
+                                          /
+                                          <span
+                                            class="unstable_zxs7ca"
                                           >
                                             0
                                           </span>
@@ -12533,12 +13065,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                                 </span>
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -12625,12 +13163,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                         </span>
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             1
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -13497,6 +14041,16 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-131"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-132"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-128"
               >
                 1
@@ -13536,6 +14090,16 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 /
               </span>
               <span
+                class="makeStyles-unstable-131"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-132"
+              >
+                /
+              </span>
+              <span
                 class="makeStyles-failed-128"
               >
                 1
@@ -13568,6 +14132,16 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                 class="makeStyles-passed-127"
               >
                 1
+              </span>
+              <span
+                class="makeStyles-unknown-132"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-131"
+              >
+                0
               </span>
               <span
                 class="makeStyles-unknown-132"
@@ -13654,12 +14228,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             2
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -13741,12 +14321,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -13816,12 +14402,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                                 />
                                 <span
                                   class="entryIcon_9gb3m5"
-                                  title="passed/failed testcases"
+                                  title="passed/unstable/failed testcases"
                                 >
                                   <span
                                     class="passed_159jltg"
                                   >
                                     1
+                                  </span>
+                                  /
+                                  <span
+                                    class="unstable_zxs7ca"
+                                  >
+                                    0
                                   </span>
                                   /
                                   <span
@@ -13895,12 +14487,18 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                         />
                         <span
                           class="entryIcon_9gb3m5"
-                          title="passed/failed testcases"
+                          title="passed/unstable/failed testcases"
                         >
                           <span
                             class="passed_159jltg"
                           >
                             1
+                          </span>
+                          /
+                          <span
+                            class="unstable_zxs7ca"
+                          >
+                            0
                           </span>
                           /
                           <span
@@ -14693,6 +15291,16 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
                    
               <span
                 class="makeStyles-passed-213"
+              >
+                0
+              </span>
+              <span
+                class="makeStyles-unknown-218"
+              >
+                /
+              </span>
+              <span
+                class="makeStyles-unstable-217"
               >
                 0
               </span>

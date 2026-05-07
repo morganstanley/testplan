@@ -133,11 +133,11 @@ const STATUS_CATEGORY = {
   error: "error",
   failed: "failed",
   incomplete: "failed",
+  "xpass-strict": "failed",
   passed: "passed",
   skipped: "unstable",
   xfail: "unstable",
   xpass: "unstable",
-  "xpass-strict": "unstable",
   unstable: "unstable",
   unknown: "unknown",
 };
@@ -288,6 +288,10 @@ const FILTER_STATUS_GROUPS = [
 
 const FILTER_STATUSES = FILTER_STATUS_GROUPS.flatMap((g) => g.statuses);
 
+const NAV_ENTRY_TOOLTIPS = {
+  testcaseCounter: "passed/unstable/failed testcases",
+};
+
 export {
   BLUE,
   DARK_BLUE,
@@ -338,4 +342,5 @@ export {
   LOCALHOST,
   FILTER_STATUS_GROUPS,
   FILTER_STATUSES,
+  NAV_ENTRY_TOOLTIPS,
 };

@@ -21,6 +21,7 @@ import {
   RUNTIME_STATUS,
   ENV_STATUSES,
   NAV_ENTRY_ACTIONS,
+  NAV_ENTRY_TOOLTIPS,
 } from "../Common/defaults";
 import { navStyles } from "../Common/Styles";
 import { generateNavTimeInfo, GetStatusIcon } from "./navUtils";
@@ -109,8 +110,12 @@ const InteractiveNavEntry = (props) => {
         </span>
         <span className={
           css(navStyles.entryIcon)
-        } title="passed/failed testcases">
+        } title={NAV_ENTRY_TOOLTIPS.testcaseCounter}>
           <span className={css(navStyles.passed)}>{props.caseCountPassed}</span>
+          /
+          <span className={css(navStyles.unstable)}>
+            {props.caseCountUnstable}
+          </span>
           /
           <span className={css(navStyles.failed)}>{props.caseCountFailed}</span>
         </span>
@@ -440,6 +445,8 @@ InteractiveNavEntry.propTypes = {
   type: PropTypes.oneOf(ENTRY_TYPES),
   /** Number of passing testcases entry has */
   caseCountPassed: PropTypes.number,
+  /** Number of unstable (xpass + xfail + skipped) testcases entry has */
+  caseCountUnstable: PropTypes.number,
   /** Number of failing testcases entry has */
   caseCountFailed: PropTypes.number,
   /** Execution time measured in seconds */
