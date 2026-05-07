@@ -1,6 +1,5 @@
 import time
 from functools import reduce
-from unittest.mock import call
 
 from testplan.common.utils.timing import DEFAULT_INTERVAL
 from testplan.testing.multitest.driver import Driver
@@ -28,15 +27,22 @@ class MockDriver(Driver):
         mock=None,
         check_wait=0,
         check_interval=DEFAULT_INTERVAL,
-        total_wait=0,
+        starting_wait=0,
+        total_start_wait=0,
+        stopping_wait=0,
+        total_stop_wait=0,
         **options,
     ):
         super().__init__(name, **options)
         self._mock = mock
         self._check_wait = check_wait
         self._check_interval = check_interval
-        self._total_wait = total_wait
+        self._starting_wait = starting_wait
+        self._total_start_wait = total_start_wait
+        self._stopping_wait = stopping_wait
+        self._total_stop_wait = total_stop_wait
         self._start_time = None
+        self._stop_time = None
 
     def pre_start(self):
         self._mock.pre(self.name)
@@ -44,6 +50,8 @@ class MockDriver(Driver):
 
     def starting(self):
         self._start_time = time.time()
+        if self._starting_wait:
+            time.sleep(self._starting_wait)
         super().starting()
 
     @property
@@ -52,13 +60,25 @@ class MockDriver(Driver):
 
     def started_check(self):
         time.sleep(self._check_wait)
-        if time.time() >= self._start_time + self._total_wait:
-            return True
-        return False
+        return time.time() >= self._start_time + self._total_start_wait
 
     def post_start(self):
         self._mock.post(self.name)
         super().post_start()
+
+    def stopping(self):
+        self._stop_time = time.time()
+        if self._stopping_wait:
+            time.sleep(self._stopping_wait)
+        super().stopping()
+
+    @property
+    def stopped_check_interval(self):
+        return self._check_interval
+
+    def stopped_check(self):
+        time.sleep(self._check_wait)
+        return time.time() >= self._stop_time + self._total_stop_wait
 
     def custom_method(self, *args, **kwargs):
         self._mock.custom_method(*args, **kwargs)
