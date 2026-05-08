@@ -30,8 +30,17 @@ __PARAMETRIZATION_TEMPLATE__: List[str] = []
 __GENERATED_TESTCASES__: List[Any] = []
 
 
+# Cached resolved static metadata; populated lazily on first read in
+# ``get_testcase_metadata`` / ``get_suite_metadata``.
 TESTCASE_METADATA_ATTRIBUTE = "__testcase_metadata__"
 TESTSUITE_METADATA_ATTRIBUTE = "__testsuite_metadata__"
+
+# Reference to the object whose source location should be used when resolving
+# metadata. For non-parametrized testcases and suites this is the function /
+# class itself; for parametrized variants it points to the original template
+# function so all variants share one resolution.
+TESTCASE_METADATA_SOURCE_ATTRIBUTE = "__testcase_metadata_source__"
+TESTSUITE_METADATA_SOURCE_ATTRIBUTE = "__testsuite_metadata_source__"
 
 
 def _reset_globals() -> None:
@@ -249,8 +258,8 @@ def _gen_skipped_case(skip_reason: str, orig_case: Any) -> Any:
     _f.__should_skip__ = True  # type: ignore[attr-defined]
     setattr(
         _f,
-        TESTCASE_METADATA_ATTRIBUTE,
-        getattr(orig_case, TESTCASE_METADATA_ATTRIBUTE),
+        TESTCASE_METADATA_SOURCE_ATTRIBUTE,
+        getattr(orig_case, TESTCASE_METADATA_SOURCE_ATTRIBUTE),
     )
     # NOTE: interactive reloader will regenerate the skipped testcase
     #             so it will need the __skip__ attribute.
@@ -460,11 +469,7 @@ def _testsuite(klass: Any) -> Any:
     # Suite resolved, clear global variables for resolving the next suite.
     _reset_globals()
 
-    setattr(
-        klass,
-        TESTSUITE_METADATA_ATTRIBUTE,
-        TestSuiteStaticMetadata(LocationMetadata.from_object(klass)),
-    )
+    setattr(klass, TESTSUITE_METADATA_SOURCE_ATTRIBUTE, klass)
 
     return klass
 
@@ -610,12 +615,6 @@ def _testcase(function: Any) -> Any:
     return _testcase_meta()(function)
 
 
-def add_testcase_metadata(
-    func: Callable[..., Any], metadata: TestCaseStaticMetadata
-) -> None:
-    setattr(func, TESTCASE_METADATA_ATTRIBUTE, metadata)
-
-
 def _testcase_meta(
     name: Optional[str] = None,
     tags: Any = None,
@@ -710,12 +709,7 @@ def _testcase_meta(
 
                 __GENERATED_TESTCASES__.append(func)
 
-                add_testcase_metadata(
-                    func,
-                    TestCaseStaticMetadata(
-                        LocationMetadata.from_object(function)
-                    ),
-                )
+                setattr(func, TESTCASE_METADATA_SOURCE_ATTRIBUTE, function)
 
             return function
 
@@ -743,10 +737,7 @@ def _testcase_meta(
 
             __TESTCASES__.append(function.__name__)
 
-            add_testcase_metadata(
-                function,
-                TestCaseStaticMetadata(LocationMetadata.from_object(function)),
-            )
+            setattr(function, TESTCASE_METADATA_SOURCE_ATTRIBUTE, function)
             return function
 
     return wrapper
@@ -969,10 +960,15 @@ def timeout(seconds: int) -> Callable[..., Any]:
 
 
 def get_testcase_metadata(testcase: Any) -> TestCaseMetadata:
-    static_metadata = getattr(
-        testcase,
-        TESTCASE_METADATA_ATTRIBUTE,
-    )
+    # Cache on the source object so all parametrized variants of the same
+    # template share one resolution.
+    source = getattr(testcase, TESTCASE_METADATA_SOURCE_ATTRIBUTE)
+    static_metadata = getattr(source, TESTCASE_METADATA_ATTRIBUTE, None)
+    if static_metadata is None:
+        static_metadata = TestCaseStaticMetadata(
+            LocationMetadata.from_object(source)
+        )
+        setattr(source, TESTCASE_METADATA_ATTRIBUTE, static_metadata)
 
     return TestCaseMetadata(
         **dataclasses.asdict(static_metadata),
@@ -984,14 +980,19 @@ def get_testcase_metadata(testcase: Any) -> TestCaseMetadata:
 def get_suite_metadata(
     suite: Any, include_testcases: bool = True
 ) -> TestSuiteMetadata:
-    static_metadata: TestSuiteStaticMetadata = getattr(
-        suite, TESTSUITE_METADATA_ATTRIBUTE
-    )
+    source = getattr(type(suite), TESTSUITE_METADATA_SOURCE_ATTRIBUTE)
+    static_metadata = getattr(source, TESTSUITE_METADATA_ATTRIBUTE, None)
+    if static_metadata is None:
+        static_metadata = TestSuiteStaticMetadata(
+            LocationMetadata.from_object(source)
+        )
+        setattr(source, TESTSUITE_METADATA_ATTRIBUTE, static_metadata)
+
     testcase_metadata = (
         [
             get_testcase_metadata(tc)
             for _, tc in inspect.getmembers(suite)
-            if hasattr(tc, TESTCASE_METADATA_ATTRIBUTE)
+            if hasattr(tc, TESTCASE_METADATA_SOURCE_ATTRIBUTE)
         ]
         if include_testcases
         else []

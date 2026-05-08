@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from inspect import getsourcefile, getsourcelines
+from inspect import getsourcefile, getsourcelines, isclass, unwrap
 from typing import List, Optional, Union
 
 LOCATION_METADATA_ATTRIBUTE = "__location_metadata__"
@@ -19,8 +19,12 @@ class LocationMetadata:
             return getattr(obj, LOCATION_METADATA_ATTRIBUTE)  # type: ignore[no-any-return]
         try:
             object_name = obj.__name__  # type: ignore[attr-defined]
-            file = getsourcefile(obj)  # type: ignore[arg-type]
-            _, line_no = getsourcelines(obj)  # type: ignore[arg-type]
+            # ``getsourcelines`` follows ``functools.wraps``'s ``__wrapped__``
+            # chain but ``getsourcefile`` does not, so resolve both from the
+            # same unwrapped target.
+            target = obj if isclass(obj) else unwrap(obj)  # type: ignore[arg-type]
+            file = getsourcefile(target)
+            _, line_no = getsourcelines(target)
         except Exception:
             return None  # we do best effort here
         else:
