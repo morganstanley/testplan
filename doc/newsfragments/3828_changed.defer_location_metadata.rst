@@ -1,1 +1,1 @@
-Sped up testplan startup by deferring ``LocationMetadata`` resolution from import time to listing time, and skipping test metadata collection on runs where no lister is active. Also fixed ``LocationMetadata.from_object`` reporting a wrapper helper's file alongside the original function's line number when the testcase was decorated through ``functools.wraps``.
+Speed up testplan startup by skipping unnecessary source code location resolution, and fix source code location resolution for decorated testcases.
