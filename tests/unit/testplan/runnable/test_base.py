@@ -2,6 +2,7 @@ import pytest
 import os
 import psutil
 
+from testplan.base import TestplanMock
 from testplan.common.report import ReportCategories
 from testplan.common.utils.exceptions import RunpathInUseError
 from testplan.report import Status
@@ -11,6 +12,8 @@ from testplan.runnable.base import (
     result_for_failed_task,
     TestRunner,
 )
+from testplan.testing.listing import SimpleJsonLister
+from testplan.testing.multitest import MultiTest, suite
 
 
 def test_result_for_failed_task():
@@ -235,3 +238,31 @@ class TestRemovePidFile:
         """No error when _pidfile_path attribute was never set."""
         plan = TestRunner(name="test", parse_cmdline=False)
         plan._remove_pidfile()  # must not raise
+
+
+class TestMetadataCollection:
+    """Per-test metadata is only accumulated when a metadata-based lister is active."""
+
+    def _build_multitest(self, name="MT"):
+        @suite.testsuite
+        class Suite:
+            @suite.testcase
+            def case(self, env, result):
+                pass
+
+        return MultiTest(name=name, suites=[Suite()])
+
+    def test_no_lister_skips_metadata(self, mockplan):
+        """Without a lister, ``get_test_metadata`` stays empty after ``add``."""
+        mockplan.add(self._build_multitest("plain"))
+        assert mockplan.runnable.get_test_metadata() == []
+
+    def test_metadata_lister_populates_metadata(self, runpath):
+        """A metadata-based lister causes per-test metadata to be collected."""
+        plan = TestplanMock(
+            "metadata_listing", runpath=runpath, test_lister=SimpleJsonLister()
+        )
+        plan.add(self._build_multitest("listed"))
+        metadata = plan.runnable.get_test_metadata()
+        assert len(metadata) == 1
+        assert metadata[0].name == "listed"
