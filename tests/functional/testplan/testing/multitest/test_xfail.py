@@ -279,6 +279,18 @@ class AssertionXfailSuite:
             description="b1 dict match",
         )
 
+    @testcase
+    def both_fail_no_description(self, env, result):
+        """Both a1 and b1 fail."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 2},
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 2},
+        )
+
 
 def test_dynamic_xfail_testcase_condition_failed():
     plan = TestplanMock(
@@ -352,9 +364,54 @@ def test_dynamic_xfail_testcase_condition_failed():
 
 
 @pytest.mark.parametrize(
+    "condition, xfail_cases",
+    [
+        (
+            {"failed": {"type": "DictMatch", "description": ".*"}},
+            {
+                "only_a1_fails",
+                "both_fail_condition_b1",
+                "both_fail_condition_a1",
+            },
+        ),
+        (
+            {"failed": {"type": "DictMatch", "description": None}},
+            {"both_fail_no_description"},
+        ),
+    ],
+    ids=count(0),
+)
+def test_dynamic_xfail_special_condition(condition, xfail_cases):
+    xfail_tests = {
+        f"Assertion Xfail MT:AssertionXfailSuite:{case}": {
+            "reason": "",
+            "strict": True,
+            "condition": condition,
+        }
+        for case in xfail_cases
+    }
+    plan = TestplanMock(
+        name="dynamic_xfail_special_condition",
+        xfail_tests=xfail_tests,
+    )
+    plan.add(
+        MultiTest(
+            name="Assertion Xfail MT",
+            suites=[AssertionXfailSuite()],
+        )
+    )
+    result = plan.run()
+
+    suite_report = result.report["Assertion Xfail MT"]["AssertionXfailSuite"]
+    for case in xfail_cases:
+        assert suite_report[case].status == Status.XFAIL
+
+
+@pytest.mark.parametrize(
     "bad_condition",
     [
         {"failed": {"passed": False}},
+        {"failed": {"type": "DictMatch"}},
         {"failed": {"type": "DictMatch"}, "error": "some pattern"},
     ],
     ids=count(0),

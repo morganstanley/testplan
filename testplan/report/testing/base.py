@@ -71,7 +71,7 @@ TESTCASE_XFAIL_CONDITION_SCHEMA = schema.Schema(
             schema.Optional("error"): schema.Use(re.compile),
             schema.Optional("failed"): {
                 "type": str,
-                "description": schema.Use(re.compile),
+                "description": schema.Or(None, schema.Use(re.compile)),
             },
         },
         schema.Or(
