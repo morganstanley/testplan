@@ -184,12 +184,12 @@ class Status(Enum):
     XPASS_STRICT = 18.2
     FAILED = 19  # red
     UNKNOWN = 29  # black
-    PASSED = 39  # green
-    SKIPPED = 48.1
-    XFAIL = 48.2
-    XPASS = 48.3
-    UNSTABLE = 49  # yellow
-    NONE = 59  # maxium, "unset"
+    XFAIL = 39  # yellow
+    PASSED = 49  # green
+    SKIPPED = 58.1
+    XPASS = 58.2
+    UNSTABLE = 59  # yellow
+    NONE = 69  # maxium, "unset"
 
     @classmethod
     def precedent(cls, stats: List[Self]) -> Self:
@@ -504,6 +504,11 @@ class Report:
         Shortcut for checking if report status should be considered unstable.
         """
         return self.status.normalised() == Status.UNSTABLE
+
+    @property
+    def xfailed(self) -> bool:
+        """Shortcut for checking if report status is expected-failure."""
+        return self.status.normalised() == Status.XFAIL
 
     @property
     def unknown(self) -> bool:
