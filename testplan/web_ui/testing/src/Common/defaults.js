@@ -138,6 +138,7 @@ const STATUS_CATEGORY = {
   skipped: "unstable",
   xfail: "unstable",
   xpass: "unstable",
+  "xpass-strict": "failed",
   unstable: "unstable",
   unknown: "unknown",
 };
