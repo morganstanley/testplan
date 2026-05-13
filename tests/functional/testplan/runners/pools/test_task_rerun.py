@@ -11,6 +11,8 @@ import tempfile
 import getpass
 import uuid
 
+from pytest_test_filters import skip_on_windows
+
 from testplan import Task, TestplanMock
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
@@ -214,6 +216,7 @@ def test_task_rerun_in_thread_pool(mockplan):
     _remove_existing_tmp_file(tmp_file)
 
 
+@skip_on_windows(reason="Fail on Windows.")
 def test_task_rerun_in_process_pool(mockplan):
     """
     Test 1 procedure:

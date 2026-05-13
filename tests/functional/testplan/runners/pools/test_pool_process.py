@@ -356,6 +356,9 @@ def test_restart_worker(mockplan):
     assert res.run is False
     assert res.success is False
     assert mockplan.report.status == Status.ERROR
+    assert [
+        e.name for e in mockplan.report.entries if e.status == Status.ERROR
+    ] == ["MTestKiller"]
     assert mockplan.report.counter[Status.ERROR.to_json_compatible()] == 1
 
 
