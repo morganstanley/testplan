@@ -33,7 +33,7 @@ from testplan.testing.result import Result
 
 # Regex for parsing suite and case name and case parameters
 _CASE_REGEX = re.compile(
-    r"^(?P<suite_name>.+)::"
+    r"^(?P<suite_name>.?)::"
     r"(?P<case_name>[^\[]+)(?:\[(?P<case_params>.+)\])?$",
     re.DOTALL,
 )
