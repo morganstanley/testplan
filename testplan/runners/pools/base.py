@@ -402,9 +402,7 @@ class Pool(Executor):
         self._workers = entity.Environment(parent=self)
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
-        # RLock because _handle_taskpull_request holds the lock and may
-        # call self._early_stop_worker, which RemotePool re-acquires.
-        self._pool_lock = threading.RLock()
+        self._pool_lock = threading.Lock()
         self._metadata: Optional[Dict[str, str]] = None
         # Will set False when Pool is starting.
         self._exit_loop = True
@@ -585,73 +583,62 @@ class Pool(Executor):
                     worker.respond(response.make(Message.DiscardPending))
                     return
 
-            # Serialize with _handle_inactive so the monitor can't
-            # decommission `worker` mid-assignment and orphan the task.
-            with self._pool_lock:
-                # Re-check: active may have flipped between the
-                # top-level check and acquiring the lock.
-                if not worker.active:
-                    worker.respond(response.make(Message.Stop))
-                    return
+            for _ in range(request.data):
+                try:
+                    priority, uid = self.unassigned.get()
+                except queue.Empty:
+                    self.logger.debug("No tasks to assign to %s", worker)
+                    if self._early_stop_worker(worker):
+                        worker.respond(response.make(Message.Stop))
+                        return
+                    break
 
-                for _ in range(request.data):
-                    try:
-                        priority, uid = self.unassigned.get()
-                    except queue.Empty:
-                        self.logger.debug("No tasks to assign to %s", worker)
-                        if self._early_stop_worker(worker):
-                            worker.respond(response.make(Message.Stop))
-                            return
-                        break
+                task = self._input[uid]
+                worker.rebase_task_path(task)
 
-                    task = self._input[uid]
-                    worker.rebase_task_path(task)
-
-                    if self._can_assign_task(task):
-                        if (
-                            self._task_reassign_cnt[uid]
-                            > self._task_reassign_limit
-                        ):
-                            self._discard_task(
-                                uid,
-                                f"{self._input[uid]} already reached pool reassign limit:"
-                                f" {self._task_reassign_limit}",
-                            )
-                            continue
-                        else:
-                            if self._can_assign_task_to_worker(task, worker):
-                                self.logger.user_info(
-                                    "Scheduling %s to %s %s",
-                                    task,
-                                    worker,
-                                    "(rerun {})".format(task.rerun_cnt)
-                                    if task.rerun_cnt > 0
-                                    else "",
-                                )
-                                worker.assigned.add(uid)
-                                tasks.append(task)
-                                task.executors.setdefault(self.cfg.name, set())
-                                task.executors[self.cfg.name].add(worker.uid())
-                                self.record_execution(uid)
-                            else:
-                                self.logger.user_info(
-                                    "Cannot schedule %s to %s", task, worker
-                                )
-                                self.unassigned.put(task.priority, uid)
-                                self._task_reassign_cnt[uid] += 1
-                    else:
-                        # Later may create a default local pool as failover option
+                if self._can_assign_task(task):
+                    if (
+                        self._task_reassign_cnt[uid]
+                        > self._task_reassign_limit
+                    ):
                         self._discard_task(
                             uid,
-                            f"{self._input[uid]} cannot be executed in {self}",
+                            f"{self._input[uid]} already reached pool reassign limit:"
+                            f" {self._task_reassign_limit}",
                         )
-
-                if tasks:
-                    worker.respond(
-                        response.make(Message.TaskSending, data=tasks)
+                        continue
+                    else:
+                        if self._can_assign_task_to_worker(task, worker):
+                            self.logger.user_info(
+                                "Scheduling %s to %s %s",
+                                task,
+                                worker,
+                                "(rerun {})".format(task.rerun_cnt)
+                                if task.rerun_cnt > 0
+                                else "",
+                            )
+                            worker.assigned.add(uid)
+                            tasks.append(task)
+                            task.executors.setdefault(self.cfg.name, set())
+                            task.executors[self.cfg.name].add(worker.uid())
+                            self.record_execution(uid)
+                        else:
+                            self.logger.user_info(
+                                "Cannot schedule %s to %s", task, worker
+                            )
+                            self.unassigned.put(task.priority, uid)
+                            self._task_reassign_cnt[uid] += 1
+                else:
+                    # Later may create a default local pool as failover option
+                    self._discard_task(
+                        uid,
+                        f"{self._input[uid]} cannot be executed in {self}",
                     )
-                    worker.requesting = request.data - len(tasks)
-                    return
+
+            if tasks:
+                worker.respond(response.make(Message.TaskSending, data=tasks))
+                worker.requesting = request.data - len(tasks)
+                return
 
         worker.requesting = request.data
         worker.respond(response.make(Message.Ack))
