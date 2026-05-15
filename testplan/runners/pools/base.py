@@ -1009,7 +1009,7 @@ class Pool(Executor):
         test_report.name = f"{test_report.name}{postfix}"
         test_report.uid = f"{test_report.uid}{postfix}"
         test_report.category = ReportCategories.TASK_RERUN
-        test_report.status_override = Status.XFAIL
+        test_report.status_override = Status.UNSTABLE
         new_uuid = strings.uuid4()
         self._results[new_uuid] = task_result
         self.parent._tests[new_uuid] = self.cfg.name  # type: ignore

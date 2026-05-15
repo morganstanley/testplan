@@ -27,13 +27,17 @@ def test_report_status_basic_op():
     with pytest.raises(TypeError):
         Status.INCOMPLETE < Status.XPASS_STRICT
     with pytest.raises(TypeError):
-        Status.XFAIL >= Status.SKIPPED
+        Status.SKIPPED >= Status.XPASS
+    assert Status.FAILED < Status.XFAIL
+    assert Status.XFAIL < Status.PASSED
+    assert Status.PASSED < Status.SKIPPED
     assert Status.XFAIL != Status.XPASS
     assert Status.XFAIL is not Status.XPASS
     assert Status.UNKNOWN < Status.NONE
     assert not Status.NONE
 
     assert Status.XPASS_STRICT.normalised() is Status.FAILED
+    assert Status.XFAIL.normalised() is Status.XFAIL
     assert Status.PASSED.normalised() is Status.PASSED
 
     assert not Status.INCOMPLETE.precede(Status.XPASS_STRICT)
@@ -55,8 +59,10 @@ def test_report_status_precedent():
         [Status.XPASS_STRICT, Status.UNKNOWN]
     )
     assert Status.UNKNOWN == Status.precedent([Status.UNKNOWN, Status.PASSED])
+    assert Status.UNKNOWN == Status.precedent([Status.UNKNOWN, Status.XFAIL])
+    assert Status.XFAIL == Status.precedent([Status.PASSED, Status.XFAIL])
+    assert Status.FAILED == Status.precedent([Status.FAILED, Status.XFAIL])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.SKIPPED])
-    assert Status.PASSED == Status.precedent([Status.PASSED, Status.XFAIL])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.XPASS])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.UNSTABLE])
     assert Status.UNSTABLE == Status.precedent([Status.UNSTABLE, Status.NONE])
