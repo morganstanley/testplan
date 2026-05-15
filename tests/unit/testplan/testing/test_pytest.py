@@ -8,7 +8,8 @@ import pytest
 from testplan import defaults, report
 from testplan.report import TestCaseReport
 from testplan.report.testing.schemas import TestGroupReportSchema
-from testplan.testing import filtering, py_test as pytest_runner
+from testplan.testing import filtering
+from testplan.testing import py_test as pytest_runner
 from tests.unit.testplan.testing import pytest_expected_data
 
 
@@ -195,10 +196,14 @@ def _check_all_testcounts(counter):
     # One testcase is conditionally skipped when not running on a posix OS, so
     # we have to take this into account when checking the pass/fail/skip counts.
     if os.name == "posix":
-        assert counter["passed"] == 8
+        assert counter["passed"] == 6
+        assert counter["xfail"] == 1
+        assert counter["xpass"] == 1
         assert counter["skipped"] == 1
     else:
-        assert counter["passed"] == 7
+        assert counter["passed"] == 5
+        assert counter["xfail"] == 1
+        assert counter["xpass"] == 1
         assert counter["skipped"] == 2
 
     assert counter["failed"] == 4

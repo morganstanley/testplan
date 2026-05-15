@@ -503,11 +503,18 @@ class _ReportPlugin:
                 )
 
             if report.failed:
+                # TODO: XPASS_STRICT not distinguished yet, wasxfail wasn't
+                # TODO: actually set
+                # TODO: ref: _pytest/skipping.py::pytest_runtest_makereport
                 self._current_case_report.status_override = Status.FAILED
-            # XXX: report.skipped set to True when xfail, how to distinguish?
-            # elif report.skipped:
-            #     self._current_case_report.status_override = Status.SKIPPED
+            elif report.skipped:
+                if hasattr(report, "wasxfail"):
+                    self._current_case_report.status_override = Status.XFAIL
+                else:
+                    self._current_case_report.status_override = Status.SKIPPED
             else:
+                if hasattr(report, "wasxfail"):
+                    self._current_case_report.status_override = Status.XPASS
                 self._current_case_report.pass_if_empty()
             self._current_case_report.runtime_status = RuntimeStatus.FINISHED
 
@@ -614,6 +621,9 @@ class _ReportPlugin:
         """
         if self._quiet:
             config.pluginmanager.unregister(name="terminalreporter")
+            # NOTE: assertion plugin depends on terminalreporter for
+            # NOTE: highlighting certain expressions within assert...
+            config.pluginmanager.unregister(name="assertion")
 
     def pytest_unconfigure(self, config: Any) -> None:
         """
@@ -654,6 +664,8 @@ class _CollectPlugin:
         """
         if self._quiet:
             config.pluginmanager.unregister(name="terminalreporter")
+            # just be consistent with _ReportPlugin
+            config.pluginmanager.unregister(name="assertion")
 
     def pytest_collection_finish(self, session: Any) -> None:
         """
