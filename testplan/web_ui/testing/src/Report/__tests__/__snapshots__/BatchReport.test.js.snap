@@ -698,14 +698,14 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-219"
+      class="makeStyles-navBreadcrumbs-245"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-220"
+        class="makeStyles-breadcrumbContainer-246"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-222 makeStyles-breadcrumbMenuButton-223"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-248 makeStyles-breadcrumbMenuButton-249"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -715,7 +715,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-529"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-221"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-247"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -738,7 +738,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-222 makeStyles-breadcrumbMenuButton-223 makeStyles-passed-227"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-248 makeStyles-breadcrumbMenuButton-249 makeStyles-passed-253"
             tabindex="0"
             type="button"
           >
@@ -746,38 +746,38 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-226 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-252 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-passed-227 makeStyles-breadcrumbName-224"
+                class="makeStyles-passed-253 makeStyles-breadcrumbName-250"
               >
                 Multitest Parts Report
               </span>
                    
               <span
-                class="makeStyles-passed-227"
+                class="makeStyles-passed-253"
               >
                 4
               </span>
               <span
-                class="makeStyles-unknown-232"
+                class="makeStyles-unknown-260"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-231"
+                class="makeStyles-unstable-257"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-232"
+                class="makeStyles-unknown-260"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-228"
+                class="makeStyles-failed-254"
               >
                 0
               </span>
@@ -802,15 +802,15 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
           >
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-233"
+              class="MuiTreeItem-root makeStyles-root-261"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-234"
+                class="MuiTreeItem-content makeStyles-content-262"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                 >
                   <svg
                     aria-hidden="true"
@@ -824,7 +824,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -893,15 +893,15 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                   >
                     <li
                       aria-expanded="false"
-                      class="MuiTreeItem-root makeStyles-root-233"
+                      class="MuiTreeItem-root makeStyles-root-261"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-234"
+                        class="MuiTreeItem-content makeStyles-content-262"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                         >
                           <svg
                             aria-hidden="true"
@@ -915,7 +915,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -974,15 +974,15 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                     </li>
                     <li
                       aria-expanded="true"
-                      class="MuiTreeItem-root makeStyles-root-233 Mui-expanded"
+                      class="MuiTreeItem-root makeStyles-root-261 Mui-expanded"
                       role="treeitem"
                       tabindex="0"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-234"
+                        class="MuiTreeItem-content makeStyles-content-262"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                         >
                           <svg
                             aria-hidden="true"
@@ -996,7 +996,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -1064,18 +1064,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                             class="MuiCollapse-wrapperInner"
                           >
                             <li
-                              class="MuiTreeItem-root makeStyles-root-233"
+                              class="MuiTreeItem-root makeStyles-root-261"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-234"
+                                class="MuiTreeItem-content makeStyles-content-262"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -1133,18 +1133,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                               </div>
                             </li>
                             <li
-                              class="MuiTreeItem-root makeStyles-root-233"
+                              class="MuiTreeItem-root makeStyles-root-261"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-234"
+                                class="MuiTreeItem-content makeStyles-content-262"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -1202,18 +1202,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                               </div>
                             </li>
                             <li
-                              class="MuiTreeItem-root makeStyles-root-233"
+                              class="MuiTreeItem-root makeStyles-root-261"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-234"
+                                class="MuiTreeItem-content makeStyles-content-262"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -1996,14 +1996,14 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-219"
+      class="makeStyles-navBreadcrumbs-245"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-220"
+        class="makeStyles-breadcrumbContainer-246"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-222 makeStyles-breadcrumbMenuButton-223"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-248 makeStyles-breadcrumbMenuButton-249"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -2013,7 +2013,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-517"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-221"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-247"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -2036,7 +2036,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-222 makeStyles-breadcrumbMenuButton-223 makeStyles-passed-227"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-248 makeStyles-breadcrumbMenuButton-249 makeStyles-passed-253"
             tabindex="0"
             type="button"
           >
@@ -2044,38 +2044,38 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-226 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-252 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-passed-227 makeStyles-breadcrumbName-224"
+                class="makeStyles-passed-253 makeStyles-breadcrumbName-250"
               >
                 Multitest Parts Report
               </span>
                    
               <span
-                class="makeStyles-passed-227"
+                class="makeStyles-passed-253"
               >
                 4
               </span>
               <span
-                class="makeStyles-unknown-232"
+                class="makeStyles-unknown-260"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-231"
+                class="makeStyles-unstable-257"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-232"
+                class="makeStyles-unknown-260"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-228"
+                class="makeStyles-failed-254"
               >
                 0
               </span>
@@ -2100,15 +2100,15 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
           >
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-233 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-261 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-234"
+                class="MuiTreeItem-content makeStyles-content-262"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                 >
                   <svg
                     aria-hidden="true"
@@ -2122,7 +2122,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -2191,15 +2191,15 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                   >
                     <li
                       aria-expanded="false"
-                      class="MuiTreeItem-root makeStyles-root-233"
+                      class="MuiTreeItem-root makeStyles-root-261"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-234"
+                        class="MuiTreeItem-content makeStyles-content-262"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                         >
                           <svg
                             aria-hidden="true"
@@ -2213,7 +2213,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -2272,15 +2272,15 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                     </li>
                     <li
                       aria-expanded="true"
-                      class="MuiTreeItem-root makeStyles-root-233 Mui-expanded"
+                      class="MuiTreeItem-root makeStyles-root-261 Mui-expanded"
                       role="treeitem"
                       tabindex="0"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-234"
+                        class="MuiTreeItem-content makeStyles-content-262"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                         >
                           <svg
                             aria-hidden="true"
@@ -2294,7 +2294,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -2362,18 +2362,18 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                             class="MuiCollapse-wrapperInner"
                           >
                             <li
-                              class="MuiTreeItem-root makeStyles-root-233"
+                              class="MuiTreeItem-root makeStyles-root-261"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-234"
+                                class="MuiTreeItem-content makeStyles-content-262"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -2440,15 +2440,15 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
             </li>
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-233"
+              class="MuiTreeItem-root makeStyles-root-261"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-234"
+                class="MuiTreeItem-content makeStyles-content-262"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-235"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-263"
                 >
                   <svg
                     aria-hidden="true"
@@ -2462,7 +2462,7 @@ exports[`BatchReport Merge multitest merges multitest parts when clicking merge 
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-236 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-264 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -3237,14 +3237,14 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-47"
+      class="makeStyles-navBreadcrumbs-53"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-48"
+        class="makeStyles-breadcrumbContainer-54"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-50 makeStyles-breadcrumbMenuButton-51"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-56 makeStyles-breadcrumbMenuButton-57"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -3254,7 +3254,7 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-134"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-49"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-55"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -3277,7 +3277,7 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-50 makeStyles-breadcrumbMenuButton-51 makeStyles-failed-56"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-56 makeStyles-breadcrumbMenuButton-57 makeStyles-failed-62"
             tabindex="0"
             type="button"
           >
@@ -3285,38 +3285,38 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-54 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-60 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-failed-56 makeStyles-breadcrumbName-52"
+                class="makeStyles-failed-62 makeStyles-breadcrumbName-58"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-55"
+                class="makeStyles-passed-61"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-59"
+                class="makeStyles-unstable-65"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-56"
+                class="makeStyles-failed-62"
               >
                 1
               </span>
@@ -3326,7 +3326,7 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-50 makeStyles-breadcrumbMenuButton-51 makeStyles-failed-56"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-56 makeStyles-breadcrumbMenuButton-57 makeStyles-failed-62"
             tabindex="0"
             type="button"
           >
@@ -3334,38 +3334,38 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-54 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-60 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-failed-56 makeStyles-breadcrumbName-52"
+                class="makeStyles-failed-62 makeStyles-breadcrumbName-58"
               >
                 Primary
               </span>
                    
               <span
-                class="makeStyles-passed-55"
+                class="makeStyles-passed-61"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-59"
+                class="makeStyles-unstable-65"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-56"
+                class="makeStyles-failed-62"
               >
                 1
               </span>
@@ -3375,7 +3375,7 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-50 makeStyles-breadcrumbMenuButton-51 makeStyles-failed-56"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-56 makeStyles-breadcrumbMenuButton-57 makeStyles-failed-62"
             tabindex="0"
             type="button"
           >
@@ -3383,38 +3383,38 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-54 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-60 MuiAvatar-colorDefault"
               >
                 S
               </div>
               <span
-                class="makeStyles-failed-56 makeStyles-breadcrumbName-52"
+                class="makeStyles-failed-62 makeStyles-breadcrumbName-58"
               >
                 AlphaSuite
               </span>
                    
               <span
-                class="makeStyles-passed-55"
+                class="makeStyles-passed-61"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-59"
+                class="makeStyles-unstable-65"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-56"
+                class="makeStyles-failed-62"
               >
                 1
               </span>
@@ -3424,7 +3424,7 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-50 makeStyles-breadcrumbMenuButton-51 makeStyles-failed-56"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-56 makeStyles-breadcrumbMenuButton-57 makeStyles-failed-62"
             tabindex="0"
             type="button"
           >
@@ -3432,38 +3432,38 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-54 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-60 MuiAvatar-colorDefault"
               >
                 C
               </div>
               <span
-                class="makeStyles-failed-56 makeStyles-breadcrumbName-52"
+                class="makeStyles-failed-62 makeStyles-breadcrumbName-58"
               >
                 test_equality_passing
               </span>
                    
               <span
-                class="makeStyles-passed-55"
+                class="makeStyles-passed-61"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-59"
+                class="makeStyles-unstable-65"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-60"
+                class="makeStyles-unknown-68"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-56"
+                class="makeStyles-failed-62"
               >
                 1
               </span>
@@ -3488,15 +3488,15 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
           >
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-61 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-69 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-62"
+                class="MuiTreeItem-content makeStyles-content-70"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-63"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-71"
                 >
                   <svg
                     aria-hidden="true"
@@ -3510,7 +3510,7 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-64 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-72 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -3580,15 +3580,15 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                   >
                     <li
                       aria-expanded="true"
-                      class="MuiTreeItem-root makeStyles-root-61 Mui-expanded"
+                      class="MuiTreeItem-root makeStyles-root-69 Mui-expanded"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-62"
+                        class="MuiTreeItem-content makeStyles-content-70"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-63"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-71"
                         >
                           <svg
                             aria-hidden="true"
@@ -3602,7 +3602,7 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-64 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-72 MuiTypography-body1"
                         >
                           <a
                             aria-current="page"
@@ -3672,18 +3672,18 @@ exports[`BatchReport loads a failed simple report and navigates to first failure
                           >
                             <li
                               aria-selected="true"
-                              class="MuiTreeItem-root makeStyles-root-61 Mui-selected"
+                              class="MuiTreeItem-root makeStyles-root-69 Mui-selected"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-62"
+                                class="MuiTreeItem-content makeStyles-content-70"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-63"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-71"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-64 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-72 MuiTypography-body1"
                                 >
                                   <a
                                     aria-current="page"
@@ -4618,14 +4618,14 @@ exports[`BatchReport loads a more complex error report 1`] = `
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-83"
+      class="makeStyles-navBreadcrumbs-93"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-84"
+        class="makeStyles-breadcrumbContainer-94"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-86 makeStyles-breadcrumbMenuButton-87"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-96 makeStyles-breadcrumbMenuButton-97"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -4635,7 +4635,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-224"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-85"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-95"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -4658,7 +4658,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-86 makeStyles-breadcrumbMenuButton-87 makeStyles-error-93"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-96 makeStyles-breadcrumbMenuButton-97 makeStyles-error-103"
             tabindex="0"
             type="button"
           >
@@ -4666,38 +4666,38 @@ exports[`BatchReport loads a more complex error report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-90 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-100 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-error-93 makeStyles-breadcrumbName-88"
+                class="makeStyles-error-103 makeStyles-breadcrumbName-98"
               >
                 Sample Error Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-91"
+                class="makeStyles-passed-101"
               >
                 2
               </span>
               <span
-                class="makeStyles-unknown-96"
+                class="makeStyles-unknown-108"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-95"
+                class="makeStyles-unstable-105"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-96"
+                class="makeStyles-unknown-108"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-92"
+                class="makeStyles-failed-102"
               >
                 1
               </span>
@@ -4707,7 +4707,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-86 makeStyles-breadcrumbMenuButton-87 makeStyles-error-93"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-96 makeStyles-breadcrumbMenuButton-97 makeStyles-error-103"
             tabindex="0"
             type="button"
           >
@@ -4715,38 +4715,38 @@ exports[`BatchReport loads a more complex error report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-90 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-100 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-error-93 makeStyles-breadcrumbName-88"
+                class="makeStyles-error-103 makeStyles-breadcrumbName-98"
               >
                 Secondary
               </span>
                    
               <span
-                class="makeStyles-passed-91"
+                class="makeStyles-passed-101"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-96"
+                class="makeStyles-unknown-108"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-95"
+                class="makeStyles-unstable-105"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-96"
+                class="makeStyles-unknown-108"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-92"
+                class="makeStyles-failed-102"
               >
                 1
               </span>
@@ -4756,7 +4756,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-86 makeStyles-breadcrumbMenuButton-87 makeStyles-error-93"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-96 makeStyles-breadcrumbMenuButton-97 makeStyles-error-103"
             tabindex="0"
             type="button"
           >
@@ -4764,38 +4764,38 @@ exports[`BatchReport loads a more complex error report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-90 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-100 MuiAvatar-colorDefault"
               >
                 S
               </div>
               <span
-                class="makeStyles-error-93 makeStyles-breadcrumbName-88"
+                class="makeStyles-error-103 makeStyles-breadcrumbName-98"
               >
                 GammaSuite
               </span>
                    
               <span
-                class="makeStyles-passed-91"
+                class="makeStyles-passed-101"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-96"
+                class="makeStyles-unknown-108"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-95"
+                class="makeStyles-unstable-105"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-96"
+                class="makeStyles-unknown-108"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-92"
+                class="makeStyles-failed-102"
               >
                 1
               </span>
@@ -4820,15 +4820,15 @@ exports[`BatchReport loads a more complex error report 1`] = `
           >
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-97"
+              class="MuiTreeItem-root makeStyles-root-109"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-98"
+                class="MuiTreeItem-content makeStyles-content-110"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-99"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-111"
                 >
                   <svg
                     aria-hidden="true"
@@ -4842,7 +4842,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-100 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-112 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -4901,15 +4901,15 @@ exports[`BatchReport loads a more complex error report 1`] = `
             </li>
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-97 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-109 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-98"
+                class="MuiTreeItem-content makeStyles-content-110"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-99"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-111"
                 >
                   <svg
                     aria-hidden="true"
@@ -4923,7 +4923,7 @@ exports[`BatchReport loads a more complex error report 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-100 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-112 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -4993,18 +4993,18 @@ exports[`BatchReport loads a more complex error report 1`] = `
                   >
                     <li
                       aria-selected="true"
-                      class="MuiTreeItem-root makeStyles-root-97 Mui-selected"
+                      class="MuiTreeItem-root makeStyles-root-109 Mui-selected"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-98"
+                        class="MuiTreeItem-content makeStyles-content-110"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-99"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-111"
                         />
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-100 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-112 MuiTypography-body1"
                         >
                           <a
                             aria-current="page"
@@ -5801,14 +5801,14 @@ exports[`BatchReport loads a more complex report 1`] = `
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-65"
+      class="makeStyles-navBreadcrumbs-73"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-66"
+        class="makeStyles-breadcrumbContainer-74"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-68 makeStyles-breadcrumbMenuButton-69"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-76 makeStyles-breadcrumbMenuButton-77"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -5818,7 +5818,7 @@ exports[`BatchReport loads a more complex report 1`] = `
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-179"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-67"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-75"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -5841,7 +5841,7 @@ exports[`BatchReport loads a more complex report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-68 makeStyles-breadcrumbMenuButton-69 makeStyles-failed-74"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-76 makeStyles-breadcrumbMenuButton-77 makeStyles-failed-82"
             tabindex="0"
             type="button"
           >
@@ -5849,38 +5849,38 @@ exports[`BatchReport loads a more complex report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-72 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-80 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-failed-74 makeStyles-breadcrumbName-70"
+                class="makeStyles-failed-82 makeStyles-breadcrumbName-78"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-73"
+                class="makeStyles-passed-81"
               >
                 3
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-77"
+                class="makeStyles-unstable-85"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-74"
+                class="makeStyles-failed-82"
               >
                 1
               </span>
@@ -5890,7 +5890,7 @@ exports[`BatchReport loads a more complex report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-68 makeStyles-breadcrumbMenuButton-69 makeStyles-failed-74"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-76 makeStyles-breadcrumbMenuButton-77 makeStyles-failed-82"
             tabindex="0"
             type="button"
           >
@@ -5898,38 +5898,38 @@ exports[`BatchReport loads a more complex report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-72 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-80 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-failed-74 makeStyles-breadcrumbName-70"
+                class="makeStyles-failed-82 makeStyles-breadcrumbName-78"
               >
                 Primary
               </span>
                    
               <span
-                class="makeStyles-passed-73"
+                class="makeStyles-passed-81"
               >
                 2
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-77"
+                class="makeStyles-unstable-85"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-74"
+                class="makeStyles-failed-82"
               >
                 1
               </span>
@@ -5939,7 +5939,7 @@ exports[`BatchReport loads a more complex report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-68 makeStyles-breadcrumbMenuButton-69 makeStyles-failed-74"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-76 makeStyles-breadcrumbMenuButton-77 makeStyles-failed-82"
             tabindex="0"
             type="button"
           >
@@ -5947,38 +5947,38 @@ exports[`BatchReport loads a more complex report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-72 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-80 MuiAvatar-colorDefault"
               >
                 S
               </div>
               <span
-                class="makeStyles-failed-74 makeStyles-breadcrumbName-70"
+                class="makeStyles-failed-82 makeStyles-breadcrumbName-78"
               >
                 AlphaSuite
               </span>
                    
               <span
-                class="makeStyles-passed-73"
+                class="makeStyles-passed-81"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-77"
+                class="makeStyles-unstable-85"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-74"
+                class="makeStyles-failed-82"
               >
                 1
               </span>
@@ -5988,7 +5988,7 @@ exports[`BatchReport loads a more complex report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-68 makeStyles-breadcrumbMenuButton-69 makeStyles-failed-74"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-76 makeStyles-breadcrumbMenuButton-77 makeStyles-failed-82"
             tabindex="0"
             type="button"
           >
@@ -5996,38 +5996,38 @@ exports[`BatchReport loads a more complex report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-72 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-80 MuiAvatar-colorDefault"
               >
                 C
               </div>
               <span
-                class="makeStyles-failed-74 makeStyles-breadcrumbName-70"
+                class="makeStyles-failed-82 makeStyles-breadcrumbName-78"
               >
                 test_equality_passing2
               </span>
                    
               <span
-                class="makeStyles-passed-73"
+                class="makeStyles-passed-81"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-77"
+                class="makeStyles-unstable-85"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-78"
+                class="makeStyles-unknown-88"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-74"
+                class="makeStyles-failed-82"
               >
                 1
               </span>
@@ -6052,15 +6052,15 @@ exports[`BatchReport loads a more complex report 1`] = `
           >
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-79 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-89 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-80"
+                class="MuiTreeItem-content makeStyles-content-90"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-81"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-91"
                 >
                   <svg
                     aria-hidden="true"
@@ -6074,7 +6074,7 @@ exports[`BatchReport loads a more complex report 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-82 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-92 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -6144,15 +6144,15 @@ exports[`BatchReport loads a more complex report 1`] = `
                   >
                     <li
                       aria-expanded="true"
-                      class="MuiTreeItem-root makeStyles-root-79 Mui-expanded"
+                      class="MuiTreeItem-root makeStyles-root-89 Mui-expanded"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-80"
+                        class="MuiTreeItem-content makeStyles-content-90"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-81"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-91"
                         >
                           <svg
                             aria-hidden="true"
@@ -6166,7 +6166,7 @@ exports[`BatchReport loads a more complex report 1`] = `
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-82 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-92 MuiTypography-body1"
                         >
                           <a
                             aria-current="page"
@@ -6235,18 +6235,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                             class="MuiCollapse-wrapperInner"
                           >
                             <li
-                              class="MuiTreeItem-root makeStyles-root-79"
+                              class="MuiTreeItem-root makeStyles-root-89"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-80"
+                                class="MuiTreeItem-content makeStyles-content-90"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-81"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-91"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-82 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-92 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -6305,18 +6305,18 @@ exports[`BatchReport loads a more complex report 1`] = `
                             </li>
                             <li
                               aria-selected="true"
-                              class="MuiTreeItem-root makeStyles-root-79 Mui-selected"
+                              class="MuiTreeItem-root makeStyles-root-89 Mui-selected"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-80"
+                                class="MuiTreeItem-content makeStyles-content-90"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-81"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-91"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-82 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-92 MuiTypography-body1"
                                 >
                                   <a
                                     aria-current="page"
@@ -6380,15 +6380,15 @@ exports[`BatchReport loads a more complex report 1`] = `
                     </li>
                     <li
                       aria-expanded="false"
-                      class="MuiTreeItem-root makeStyles-root-79"
+                      class="MuiTreeItem-root makeStyles-root-89"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-80"
+                        class="MuiTreeItem-content makeStyles-content-90"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-81"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-91"
                         >
                           <svg
                             aria-hidden="true"
@@ -6402,7 +6402,7 @@ exports[`BatchReport loads a more complex report 1`] = `
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-82 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-92 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -6465,15 +6465,15 @@ exports[`BatchReport loads a more complex report 1`] = `
             </li>
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-79"
+              class="MuiTreeItem-root makeStyles-root-89"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-80"
+                class="MuiTreeItem-content makeStyles-content-90"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-81"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-91"
                 >
                   <svg
                     aria-hidden="true"
@@ -6487,7 +6487,7 @@ exports[`BatchReport loads a more complex report 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-82 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-92 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -7304,14 +7304,14 @@ exports[`BatchReport loads a passed simple report 1`] = `
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-29"
+      class="makeStyles-navBreadcrumbs-33"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-30"
+        class="makeStyles-breadcrumbContainer-34"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-32 makeStyles-breadcrumbMenuButton-33"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-36 makeStyles-breadcrumbMenuButton-37"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -7321,7 +7321,7 @@ exports[`BatchReport loads a passed simple report 1`] = `
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-89"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-31"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-35"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -7344,7 +7344,7 @@ exports[`BatchReport loads a passed simple report 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-32 makeStyles-breadcrumbMenuButton-33 makeStyles-passed-37"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-36 makeStyles-breadcrumbMenuButton-37 makeStyles-passed-41"
             tabindex="0"
             type="button"
           >
@@ -7352,38 +7352,38 @@ exports[`BatchReport loads a passed simple report 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-36 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-40 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-passed-37 makeStyles-breadcrumbName-34"
+                class="makeStyles-passed-41 makeStyles-breadcrumbName-38"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-37"
+                class="makeStyles-passed-41"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-42"
+                class="makeStyles-unknown-48"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-41"
+                class="makeStyles-unstable-45"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-42"
+                class="makeStyles-unknown-48"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-38"
+                class="makeStyles-failed-42"
               >
                 0
               </span>
@@ -7408,15 +7408,15 @@ exports[`BatchReport loads a passed simple report 1`] = `
           >
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-43"
+              class="MuiTreeItem-root makeStyles-root-49"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-44"
+                class="MuiTreeItem-content makeStyles-content-50"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-45"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-51"
                 >
                   <svg
                     aria-hidden="true"
@@ -7430,7 +7430,7 @@ exports[`BatchReport loads a passed simple report 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-46 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-52 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -8205,14 +8205,14 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-101"
+      class="makeStyles-navBreadcrumbs-113"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-102"
+        class="makeStyles-breadcrumbContainer-114"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-104 makeStyles-breadcrumbMenuButton-105"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-116 makeStyles-breadcrumbMenuButton-117"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -8222,7 +8222,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-258"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-103"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-115"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -8245,7 +8245,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-104 makeStyles-breadcrumbMenuButton-105 makeStyles-failed-110"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-116 makeStyles-breadcrumbMenuButton-117 makeStyles-failed-122"
             tabindex="0"
             type="button"
           >
@@ -8253,38 +8253,38 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-108 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-120 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-failed-110 makeStyles-breadcrumbName-106"
+                class="makeStyles-failed-122 makeStyles-breadcrumbName-118"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-109"
+                class="makeStyles-passed-121"
               >
                 3
               </span>
               <span
-                class="makeStyles-unknown-114"
+                class="makeStyles-unknown-128"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-113"
+                class="makeStyles-unstable-125"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-114"
+                class="makeStyles-unknown-128"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-110"
+                class="makeStyles-failed-122"
               >
                 1
               </span>
@@ -8294,7 +8294,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-104 makeStyles-breadcrumbMenuButton-105 makeStyles-failed-110"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-116 makeStyles-breadcrumbMenuButton-117 makeStyles-failed-122"
             tabindex="0"
             type="button"
           >
@@ -8302,38 +8302,38 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-108 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-120 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-failed-110 makeStyles-breadcrumbName-106"
+                class="makeStyles-failed-122 makeStyles-breadcrumbName-118"
               >
                 Primary
               </span>
                    
               <span
-                class="makeStyles-passed-109"
+                class="makeStyles-passed-121"
               >
                 2
               </span>
               <span
-                class="makeStyles-unknown-114"
+                class="makeStyles-unknown-128"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-113"
+                class="makeStyles-unstable-125"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-114"
+                class="makeStyles-unknown-128"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-110"
+                class="makeStyles-failed-122"
               >
                 1
               </span>
@@ -8359,15 +8359,15 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
             <li
               aria-expanded="false"
               aria-selected="true"
-              class="MuiTreeItem-root makeStyles-root-115 Mui-selected"
+              class="MuiTreeItem-root makeStyles-root-129 Mui-selected"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-116"
+                class="MuiTreeItem-content makeStyles-content-130"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-117"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-131"
                 >
                   <svg
                     aria-hidden="true"
@@ -8381,7 +8381,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-118 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-132 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -8441,15 +8441,15 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
             </li>
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-115"
+              class="MuiTreeItem-root makeStyles-root-129"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-116"
+                class="MuiTreeItem-content makeStyles-content-130"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-117"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-131"
                 >
                   <svg
                     aria-hidden="true"
@@ -8463,7 +8463,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-118 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-132 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -9238,14 +9238,14 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-137"
+      class="makeStyles-navBreadcrumbs-153"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-138"
+        class="makeStyles-breadcrumbContainer-154"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-140 makeStyles-breadcrumbMenuButton-141"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-156 makeStyles-breadcrumbMenuButton-157"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -9255,7 +9255,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-326"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-139"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-155"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -9278,7 +9278,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-140 makeStyles-breadcrumbMenuButton-141 makeStyles-failed-146"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-156 makeStyles-breadcrumbMenuButton-157 makeStyles-failed-162"
             tabindex="0"
             type="button"
           >
@@ -9286,38 +9286,38 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-144 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-160 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-failed-146 makeStyles-breadcrumbName-142"
+                class="makeStyles-failed-162 makeStyles-breadcrumbName-158"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-145"
+                class="makeStyles-passed-161"
               >
                 3
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-149"
+                class="makeStyles-unstable-165"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-146"
+                class="makeStyles-failed-162"
               >
                 1
               </span>
@@ -9327,7 +9327,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-140 makeStyles-breadcrumbMenuButton-141 makeStyles-failed-146"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-156 makeStyles-breadcrumbMenuButton-157 makeStyles-failed-162"
             tabindex="0"
             type="button"
           >
@@ -9335,38 +9335,38 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-144 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-160 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-failed-146 makeStyles-breadcrumbName-142"
+                class="makeStyles-failed-162 makeStyles-breadcrumbName-158"
               >
                 Primary
               </span>
                    
               <span
-                class="makeStyles-passed-145"
+                class="makeStyles-passed-161"
               >
                 2
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-149"
+                class="makeStyles-unstable-165"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-146"
+                class="makeStyles-failed-162"
               >
                 1
               </span>
@@ -9376,7 +9376,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-140 makeStyles-breadcrumbMenuButton-141 makeStyles-failed-146"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-156 makeStyles-breadcrumbMenuButton-157 makeStyles-failed-162"
             tabindex="0"
             type="button"
           >
@@ -9384,38 +9384,38 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-144 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-160 MuiAvatar-colorDefault"
               >
                 S
               </div>
               <span
-                class="makeStyles-failed-146 makeStyles-breadcrumbName-142"
+                class="makeStyles-failed-162 makeStyles-breadcrumbName-158"
               >
                 AlphaSuite
               </span>
                    
               <span
-                class="makeStyles-passed-145"
+                class="makeStyles-passed-161"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-149"
+                class="makeStyles-unstable-165"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-146"
+                class="makeStyles-failed-162"
               >
                 1
               </span>
@@ -9425,7 +9425,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-140 makeStyles-breadcrumbMenuButton-141 makeStyles-passed-145"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-156 makeStyles-breadcrumbMenuButton-157 makeStyles-passed-161"
             tabindex="0"
             type="button"
           >
@@ -9433,38 +9433,38 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-144 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-160 MuiAvatar-colorDefault"
               >
                 C
               </div>
               <span
-                class="makeStyles-passed-145 makeStyles-breadcrumbName-142"
+                class="makeStyles-passed-161 makeStyles-breadcrumbName-158"
               >
                 test_equality_passing
               </span>
                    
               <span
-                class="makeStyles-passed-145"
+                class="makeStyles-passed-161"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-149"
+                class="makeStyles-unstable-165"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-150"
+                class="makeStyles-unknown-168"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-146"
+                class="makeStyles-failed-162"
               >
                 0
               </span>
@@ -9489,15 +9489,15 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
           >
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-151 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-169 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-152"
+                class="MuiTreeItem-content makeStyles-content-170"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-153"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
                 >
                   <svg
                     aria-hidden="true"
@@ -9511,7 +9511,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-154 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -9581,15 +9581,15 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                   >
                     <li
                       aria-expanded="true"
-                      class="MuiTreeItem-root makeStyles-root-151 Mui-expanded"
+                      class="MuiTreeItem-root makeStyles-root-169 Mui-expanded"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-152"
+                        class="MuiTreeItem-content makeStyles-content-170"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-153"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
                         >
                           <svg
                             aria-hidden="true"
@@ -9603,7 +9603,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-154 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
                         >
                           <a
                             aria-current="page"
@@ -9673,18 +9673,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                           >
                             <li
                               aria-selected="true"
-                              class="MuiTreeItem-root makeStyles-root-151 Mui-selected"
+                              class="MuiTreeItem-root makeStyles-root-169 Mui-selected"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-152"
+                                class="MuiTreeItem-content makeStyles-content-170"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-153"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-154 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
                                 >
                                   <a
                                     aria-current="page"
@@ -9743,18 +9743,18 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                               </div>
                             </li>
                             <li
-                              class="MuiTreeItem-root makeStyles-root-151"
+                              class="MuiTreeItem-root makeStyles-root-169"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-152"
+                                class="MuiTreeItem-content makeStyles-content-170"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-153"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-154 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -9817,15 +9817,15 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                     </li>
                     <li
                       aria-expanded="false"
-                      class="MuiTreeItem-root makeStyles-root-151"
+                      class="MuiTreeItem-root makeStyles-root-169"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-152"
+                        class="MuiTreeItem-content makeStyles-content-170"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-153"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
                         >
                           <svg
                             aria-hidden="true"
@@ -9839,7 +9839,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-154 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -9902,15 +9902,15 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
             </li>
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-151"
+              class="MuiTreeItem-root makeStyles-root-169"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-152"
+                class="MuiTreeItem-content makeStyles-content-170"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-153"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
                 >
                   <svg
                     aria-hidden="true"
@@ -9924,7 +9924,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-154 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -10777,14 +10777,14 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-173"
+      class="makeStyles-navBreadcrumbs-193"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-174"
+        class="makeStyles-breadcrumbContainer-194"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-196 makeStyles-breadcrumbMenuButton-197"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -10794,7 +10794,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-394"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-175"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-195"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -10817,7 +10817,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-failed-182"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-196 makeStyles-breadcrumbMenuButton-197 makeStyles-failed-202"
             tabindex="0"
             type="button"
           >
@@ -10825,38 +10825,38 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-200 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-failed-182 makeStyles-breadcrumbName-178"
+                class="makeStyles-failed-202 makeStyles-breadcrumbName-198"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-181"
+                class="makeStyles-passed-201"
               >
                 3
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-185"
+                class="makeStyles-unstable-205"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-182"
+                class="makeStyles-failed-202"
               >
                 1
               </span>
@@ -10866,7 +10866,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-failed-182"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-196 makeStyles-breadcrumbMenuButton-197 makeStyles-failed-202"
             tabindex="0"
             type="button"
           >
@@ -10874,38 +10874,38 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-200 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-failed-182 makeStyles-breadcrumbName-178"
+                class="makeStyles-failed-202 makeStyles-breadcrumbName-198"
               >
                 Primary
               </span>
                    
               <span
-                class="makeStyles-passed-181"
+                class="makeStyles-passed-201"
               >
                 2
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-185"
+                class="makeStyles-unstable-205"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-182"
+                class="makeStyles-failed-202"
               >
                 1
               </span>
@@ -10915,7 +10915,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-failed-182"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-196 makeStyles-breadcrumbMenuButton-197 makeStyles-failed-202"
             tabindex="0"
             type="button"
           >
@@ -10923,38 +10923,38 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-200 MuiAvatar-colorDefault"
               >
                 S
               </div>
               <span
-                class="makeStyles-failed-182 makeStyles-breadcrumbName-178"
+                class="makeStyles-failed-202 makeStyles-breadcrumbName-198"
               >
                 AlphaSuite
               </span>
                    
               <span
-                class="makeStyles-passed-181"
+                class="makeStyles-passed-201"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-185"
+                class="makeStyles-unstable-205"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-182"
+                class="makeStyles-failed-202"
               >
                 1
               </span>
@@ -10964,7 +10964,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-passed-181"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-196 makeStyles-breadcrumbMenuButton-197 makeStyles-passed-201"
             tabindex="0"
             type="button"
           >
@@ -10972,38 +10972,38 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-200 MuiAvatar-colorDefault"
               >
                 C
               </div>
               <span
-                class="makeStyles-passed-181 makeStyles-breadcrumbName-178"
+                class="makeStyles-passed-201 makeStyles-breadcrumbName-198"
               >
                 test_equality_passing
               </span>
                    
               <span
-                class="makeStyles-passed-181"
+                class="makeStyles-passed-201"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-185"
+                class="makeStyles-unstable-205"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-186"
+                class="makeStyles-unknown-208"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-182"
+                class="makeStyles-failed-202"
               >
                 0
               </span>
@@ -11028,15 +11028,15 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
           >
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-187 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-209 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-188"
+                class="MuiTreeItem-content makeStyles-content-210"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-189"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-211"
                 >
                   <svg
                     aria-hidden="true"
@@ -11050,7 +11050,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-190 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-212 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -11133,15 +11133,15 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   >
                     <li
                       aria-expanded="true"
-                      class="MuiTreeItem-root makeStyles-root-187 Mui-expanded"
+                      class="MuiTreeItem-root makeStyles-root-209 Mui-expanded"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-188"
+                        class="MuiTreeItem-content makeStyles-content-210"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-189"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-211"
                         >
                           <svg
                             aria-hidden="true"
@@ -11155,7 +11155,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-190 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-212 MuiTypography-body1"
                         >
                           <a
                             aria-current="page"
@@ -11232,18 +11232,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           >
                             <li
                               aria-selected="true"
-                              class="MuiTreeItem-root makeStyles-root-187 Mui-selected"
+                              class="MuiTreeItem-root makeStyles-root-209 Mui-selected"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-188"
+                                class="MuiTreeItem-content makeStyles-content-210"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-189"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-211"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-190 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-212 MuiTypography-body1"
                                 >
                                   <a
                                     aria-current="page"
@@ -11309,18 +11309,18 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                               </div>
                             </li>
                             <li
-                              class="MuiTreeItem-root makeStyles-root-187"
+                              class="MuiTreeItem-root makeStyles-root-209"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-188"
+                                class="MuiTreeItem-content makeStyles-content-210"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-189"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-211"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-190 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-212 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -11390,15 +11390,15 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                     </li>
                     <li
                       aria-expanded="false"
-                      class="MuiTreeItem-root makeStyles-root-187"
+                      class="MuiTreeItem-root makeStyles-root-209"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-188"
+                        class="MuiTreeItem-content makeStyles-content-210"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-189"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-211"
                         >
                           <svg
                             aria-hidden="true"
@@ -11412,7 +11412,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-190 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-212 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -11482,15 +11482,15 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
             </li>
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-187"
+              class="MuiTreeItem-root makeStyles-root-209"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-188"
+                class="MuiTreeItem-content makeStyles-content-210"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-189"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-211"
                 >
                   <svg
                     aria-hidden="true"
@@ -11504,7 +11504,7 @@ exports[`BatchReport loads a report with selection at Testcase level and Time In
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-190 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-212 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -12392,14 +12392,14 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-155"
+      class="makeStyles-navBreadcrumbs-173"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-156"
+        class="makeStyles-breadcrumbContainer-174"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-158 makeStyles-breadcrumbMenuButton-159"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -12409,7 +12409,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-360"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-157"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-175"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -12432,7 +12432,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-158 makeStyles-breadcrumbMenuButton-159 makeStyles-failed-164"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-failed-182"
             tabindex="0"
             type="button"
           >
@@ -12440,38 +12440,38 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-162 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-failed-164 makeStyles-breadcrumbName-160"
+                class="makeStyles-failed-182 makeStyles-breadcrumbName-178"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-163"
+                class="makeStyles-passed-181"
               >
                 3
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-167"
+                class="makeStyles-unstable-185"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-164"
+                class="makeStyles-failed-182"
               >
                 1
               </span>
@@ -12481,7 +12481,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-158 makeStyles-breadcrumbMenuButton-159 makeStyles-failed-164"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-failed-182"
             tabindex="0"
             type="button"
           >
@@ -12489,38 +12489,38 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-162 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-failed-164 makeStyles-breadcrumbName-160"
+                class="makeStyles-failed-182 makeStyles-breadcrumbName-178"
               >
                 Primary
               </span>
                    
               <span
-                class="makeStyles-passed-163"
+                class="makeStyles-passed-181"
               >
                 2
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-167"
+                class="makeStyles-unstable-185"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-164"
+                class="makeStyles-failed-182"
               >
                 1
               </span>
@@ -12530,7 +12530,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-158 makeStyles-breadcrumbMenuButton-159 makeStyles-failed-164"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-failed-182"
             tabindex="0"
             type="button"
           >
@@ -12538,38 +12538,38 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-162 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
               >
                 S
               </div>
               <span
-                class="makeStyles-failed-164 makeStyles-breadcrumbName-160"
+                class="makeStyles-failed-182 makeStyles-breadcrumbName-178"
               >
                 AlphaSuite
               </span>
                    
               <span
-                class="makeStyles-passed-163"
+                class="makeStyles-passed-181"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-167"
+                class="makeStyles-unstable-185"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-164"
+                class="makeStyles-failed-182"
               >
                 1
               </span>
@@ -12579,7 +12579,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-158 makeStyles-breadcrumbMenuButton-159 makeStyles-passed-163"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-176 makeStyles-breadcrumbMenuButton-177 makeStyles-passed-181"
             tabindex="0"
             type="button"
           >
@@ -12587,38 +12587,38 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-162 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-180 MuiAvatar-colorDefault"
               >
                 C
               </div>
               <span
-                class="makeStyles-passed-163 makeStyles-breadcrumbName-160"
+                class="makeStyles-passed-181 makeStyles-breadcrumbName-178"
               >
                 test_equality_passing
               </span>
                    
               <span
-                class="makeStyles-passed-163"
+                class="makeStyles-passed-181"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-167"
+                class="makeStyles-unstable-185"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-168"
+                class="makeStyles-unknown-188"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-164"
+                class="makeStyles-failed-182"
               >
                 0
               </span>
@@ -12643,15 +12643,15 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
           >
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-169 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-189 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-170"
+                class="MuiTreeItem-content makeStyles-content-190"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-191"
                 >
                   <svg
                     aria-hidden="true"
@@ -12665,7 +12665,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-192 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -12748,15 +12748,15 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   >
                     <li
                       aria-expanded="true"
-                      class="MuiTreeItem-root makeStyles-root-169 Mui-expanded"
+                      class="MuiTreeItem-root makeStyles-root-189 Mui-expanded"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-170"
+                        class="MuiTreeItem-content makeStyles-content-190"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-191"
                         >
                           <svg
                             aria-hidden="true"
@@ -12770,7 +12770,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-192 MuiTypography-body1"
                         >
                           <a
                             aria-current="page"
@@ -12847,18 +12847,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           >
                             <li
                               aria-selected="true"
-                              class="MuiTreeItem-root makeStyles-root-169 Mui-selected"
+                              class="MuiTreeItem-root makeStyles-root-189 Mui-selected"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-170"
+                                class="MuiTreeItem-content makeStyles-content-190"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-191"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-192 MuiTypography-body1"
                                 >
                                   <a
                                     aria-current="page"
@@ -12924,18 +12924,18 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                               </div>
                             </li>
                             <li
-                              class="MuiTreeItem-root makeStyles-root-169"
+                              class="MuiTreeItem-root makeStyles-root-189"
                               role="treeitem"
                               tabindex="-1"
                             >
                               <div
-                                class="MuiTreeItem-content makeStyles-content-170"
+                                class="MuiTreeItem-content makeStyles-content-190"
                               >
                                 <div
-                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
+                                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-191"
                                 />
                                 <div
-                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
+                                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-192 MuiTypography-body1"
                                 >
                                   <a
                                     class="leafNode_15y551q"
@@ -13005,15 +13005,15 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                     </li>
                     <li
                       aria-expanded="false"
-                      class="MuiTreeItem-root makeStyles-root-169"
+                      class="MuiTreeItem-root makeStyles-root-189"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-170"
+                        class="MuiTreeItem-content makeStyles-content-190"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-191"
                         >
                           <svg
                             aria-hidden="true"
@@ -13027,7 +13027,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-192 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -13097,15 +13097,15 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
             </li>
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-169"
+              class="MuiTreeItem-root makeStyles-root-189"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-170"
+                class="MuiTreeItem-content makeStyles-content-190"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-171"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-191"
                 >
                   <svg
                     aria-hidden="true"
@@ -13119,7 +13119,7 @@ exports[`BatchReport loads a report with selection at Testcase level and UTC Tim
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-172 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-192 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -13972,14 +13972,14 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-119"
+      class="makeStyles-navBreadcrumbs-133"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-120"
+        class="makeStyles-breadcrumbContainer-134"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-122 makeStyles-breadcrumbMenuButton-123"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-136 makeStyles-breadcrumbMenuButton-137"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -13989,7 +13989,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-292"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-121"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-135"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -14012,7 +14012,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-122 makeStyles-breadcrumbMenuButton-123 makeStyles-failed-128"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-136 makeStyles-breadcrumbMenuButton-137 makeStyles-failed-142"
             tabindex="0"
             type="button"
           >
@@ -14020,38 +14020,38 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-126 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-140 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-failed-128 makeStyles-breadcrumbName-124"
+                class="makeStyles-failed-142 makeStyles-breadcrumbName-138"
               >
                 Sample Testplan
               </span>
                    
               <span
-                class="makeStyles-passed-127"
+                class="makeStyles-passed-141"
               >
                 3
               </span>
               <span
-                class="makeStyles-unknown-132"
+                class="makeStyles-unknown-148"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-131"
+                class="makeStyles-unstable-145"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-132"
+                class="makeStyles-unknown-148"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-128"
+                class="makeStyles-failed-142"
               >
                 1
               </span>
@@ -14061,7 +14061,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-122 makeStyles-breadcrumbMenuButton-123 makeStyles-failed-128"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-136 makeStyles-breadcrumbMenuButton-137 makeStyles-failed-142"
             tabindex="0"
             type="button"
           >
@@ -14069,38 +14069,38 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-126 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-140 MuiAvatar-colorDefault"
               >
                 MT
               </div>
               <span
-                class="makeStyles-failed-128 makeStyles-breadcrumbName-124"
+                class="makeStyles-failed-142 makeStyles-breadcrumbName-138"
               >
                 Primary
               </span>
                    
               <span
-                class="makeStyles-passed-127"
+                class="makeStyles-passed-141"
               >
                 2
               </span>
               <span
-                class="makeStyles-unknown-132"
+                class="makeStyles-unknown-148"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-131"
+                class="makeStyles-unstable-145"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-132"
+                class="makeStyles-unknown-148"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-128"
+                class="makeStyles-failed-142"
               >
                 1
               </span>
@@ -14110,7 +14110,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-122 makeStyles-breadcrumbMenuButton-123 makeStyles-failed-128"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-136 makeStyles-breadcrumbMenuButton-137 makeStyles-failed-142"
             tabindex="0"
             type="button"
           >
@@ -14118,38 +14118,38 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-126 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-140 MuiAvatar-colorDefault"
               >
                 S
               </div>
               <span
-                class="makeStyles-failed-128 makeStyles-breadcrumbName-124"
+                class="makeStyles-failed-142 makeStyles-breadcrumbName-138"
               >
                 AlphaSuite
               </span>
                    
               <span
-                class="makeStyles-passed-127"
+                class="makeStyles-passed-141"
               >
                 1
               </span>
               <span
-                class="makeStyles-unknown-132"
+                class="makeStyles-unknown-148"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-131"
+                class="makeStyles-unstable-145"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-132"
+                class="makeStyles-unknown-148"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-128"
+                class="makeStyles-failed-142"
               >
                 1
               </span>
@@ -14174,15 +14174,15 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
           >
             <li
               aria-expanded="true"
-              class="MuiTreeItem-root makeStyles-root-133 Mui-expanded"
+              class="MuiTreeItem-root makeStyles-root-149 Mui-expanded"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-134"
+                class="MuiTreeItem-content makeStyles-content-150"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-135"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-151"
                 >
                   <svg
                     aria-hidden="true"
@@ -14196,7 +14196,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-136 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-152 MuiTypography-body1"
                 >
                   <a
                     aria-current="page"
@@ -14267,15 +14267,15 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                     <li
                       aria-expanded="false"
                       aria-selected="true"
-                      class="MuiTreeItem-root makeStyles-root-133 Mui-selected"
+                      class="MuiTreeItem-root makeStyles-root-149 Mui-selected"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-134"
+                        class="MuiTreeItem-content makeStyles-content-150"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-135"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-151"
                         >
                           <svg
                             aria-hidden="true"
@@ -14289,7 +14289,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-136 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-152 MuiTypography-body1"
                         >
                           <a
                             aria-current="page"
@@ -14349,15 +14349,15 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                     </li>
                     <li
                       aria-expanded="false"
-                      class="MuiTreeItem-root makeStyles-root-133"
+                      class="MuiTreeItem-root makeStyles-root-149"
                       role="treeitem"
                       tabindex="-1"
                     >
                       <div
-                        class="MuiTreeItem-content makeStyles-content-134"
+                        class="MuiTreeItem-content makeStyles-content-150"
                       >
                         <div
-                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-135"
+                          class="MuiTreeItem-iconContainer makeStyles-iconContainer-151"
                         >
                           <svg
                             aria-hidden="true"
@@ -14371,7 +14371,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                           </svg>
                         </div>
                         <div
-                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-136 MuiTypography-body1"
+                          class="MuiTypography-root MuiTreeItem-label makeStyles-label-152 MuiTypography-body1"
                         >
                           <a
                             class="leafNode_15y551q"
@@ -14434,15 +14434,15 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
             </li>
             <li
               aria-expanded="false"
-              class="MuiTreeItem-root makeStyles-root-133"
+              class="MuiTreeItem-root makeStyles-root-149"
               role="treeitem"
               tabindex="-1"
             >
               <div
-                class="MuiTreeItem-content makeStyles-content-134"
+                class="MuiTreeItem-content makeStyles-content-150"
               >
                 <div
-                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-135"
+                  class="MuiTreeItem-iconContainer makeStyles-iconContainer-151"
                 >
                   <svg
                     aria-hidden="true"
@@ -14456,7 +14456,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
                   </svg>
                 </div>
                 <div
-                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-136 MuiTypography-body1"
+                  class="MuiTypography-root MuiTreeItem-label makeStyles-label-152 MuiTypography-body1"
                 >
                   <a
                     class="leafNode_15y551q"
@@ -15231,14 +15231,14 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
       </div>
     </nav>
     <div
-      class="makeStyles-navBreadcrumbs-205"
+      class="makeStyles-navBreadcrumbs-229"
     >
       <ul
-        class="makeStyles-breadcrumbContainer-206"
+        class="makeStyles-breadcrumbContainer-230"
       >
         <li>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-208 makeStyles-breadcrumbMenuButton-209"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-232 makeStyles-breadcrumbMenuButton-233"
             style="padding-left: 10px;"
             tabindex="0"
             type="button"
@@ -15248,7 +15248,7 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
             >
               <svg
                 aria-labelledby="svg-inline--fa-title-472"
-                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-207"
+                class="svg-inline--fa fa-home fa-w-18 makeStyles-homeIcon-231"
                 data-icon="home"
                 data-prefix="fas"
                 role="img"
@@ -15271,7 +15271,7 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
         <li>
           <button
             aria-haspopup="true"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-208 makeStyles-breadcrumbMenuButton-209 makeStyles-error-215"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-breadcrumbMenu-232 makeStyles-breadcrumbMenuButton-233 makeStyles-error-239"
             tabindex="0"
             type="button"
           >
@@ -15279,38 +15279,38 @@ exports[`BatchReport renders the correct HTML structure when report with errors 
               class="MuiButton-label"
             >
               <div
-                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-212 MuiAvatar-colorDefault"
+                class="MuiAvatar-root MuiAvatar-circular makeStyles-avatar-236 MuiAvatar-colorDefault"
               >
                 TP
               </div>
               <span
-                class="makeStyles-error-215 makeStyles-breadcrumbName-210"
+                class="makeStyles-error-239 makeStyles-breadcrumbName-234"
               >
                 Testplan with errors
               </span>
                    
               <span
-                class="makeStyles-passed-213"
+                class="makeStyles-passed-237"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-218"
+                class="makeStyles-unknown-244"
               >
                 /
               </span>
               <span
-                class="makeStyles-unstable-217"
+                class="makeStyles-unstable-241"
               >
                 0
               </span>
               <span
-                class="makeStyles-unknown-218"
+                class="makeStyles-unknown-244"
               >
                 /
               </span>
               <span
-                class="makeStyles-failed-214"
+                class="makeStyles-failed-238"
               >
                 1
               </span>
