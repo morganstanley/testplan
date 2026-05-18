@@ -4,9 +4,12 @@
 import { StyleSheet } from "aphrodite";
 import {
   faCheck,
+  faCheckCircle,
+  faForward,
   faInfo,
   faQuestionCircle,
   faTimes,
+  faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -41,11 +44,19 @@ export const statusStyles = {
   },
   skipped: {
     color: ORANGE,
-    icon: faQuestionCircle,
+    icon: faForward,
   },
   unstable: {
     color: ORANGE,
     icon: faQuestionCircle,
+  },
+  xfail: {
+    color: ORANGE,
+    icon: faTimesCircle,
+  },
+  xpass: {
+    color: ORANGE,
+    icon: faCheckCircle,
   },
   unknown: {
     color: BLACK,
@@ -148,7 +159,16 @@ export const navStyles = StyleSheet.create({
   errorBadge: {
     backgroundColor: RED,
   },
+  skippedBadge: {
+    backgroundColor: ORANGE,
+  },
   unstableBadge: {
+    backgroundColor: ORANGE,
+  },
+  xfailBadge: {
+    backgroundColor: ORANGE,
+  },
+  xpassBadge: {
     backgroundColor: ORANGE,
   },
   unknownBadge: {

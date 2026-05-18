@@ -572,6 +572,8 @@ const getToolbarStyle = (status) => {
     case "error":
       return css(styles.toolbar, styles.toolbarFailed);
     case "unstable":
+    case "xfail":
+    case "xpass":
       return css(styles.toolbar, styles.toolbarUnstable);
     default:
       return css(styles.toolbar, styles.toolbarUnknown);
@@ -589,6 +591,8 @@ const getToggledButtonStyle = (status) => {
     case "error":
       return css(styles.toolbarButton, styles.toolbarButtonToggledFailed);
     case "unstable":
+    case "xfail":
+    case "xpass":
       return css(styles.toolbarButton, styles.toolbarButtonToggledUnstable);
     default:
       return css(styles.toolbarButton, styles.toolbarButtonToggledUnknown);
