@@ -177,13 +177,13 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     style="height: 1.5em; user-select: none;"
   >
     <span
-      class="entryIcon_9gb3m5-o_O-unstableBadge_1e6avok-o_O-badge_1nusemj badge bg-secondary rounded-pill"
+      class="entryIcon_9gb3m5-o_O-xfailBadge_1e6avok-o_O-badge_1nusemj badge bg-secondary rounded-pill"
       title="testplan"
     >
       TP
     </span>
     <div
-      class="entryName_1u6ioda-o_O-unstable_zxs7ca"
+      class="entryName_1u6ioda-o_O-xfail_fe6c98"
       title="entry description - xfail"
     >
       entry name
@@ -192,7 +192,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
       class="entryIcons_9stzon"
     >
       <span
-        class="entryIcon_9gb3m5-o_O-unstable_zxs7ca-o_O-navTime_rnvtmc"
+        class="entryIcon_9gb3m5-o_O-xfail_fe6c98-o_O-navTime_rnvtmc"
       />
       <span
         class="entryIcon_9gb3m5"

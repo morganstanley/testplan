@@ -151,16 +151,16 @@ def test_dynamic_xfail():
     result = plan.run()
 
     dynamic_xfail_suite_report = result.report.entries[0].entries[0]
-    assert dynamic_xfail_suite_report.unstable is True
-    assert dynamic_xfail_suite_report.entries[0].unstable is True
+    assert dynamic_xfail_suite_report.xfailed is True
+    assert dynamic_xfail_suite_report.entries[0].xfailed is True
 
-    assert result.report.entries[1].unstable is True
+    assert result.report.entries[1].xfailed is True
     # after start
-    assert result.report.entries[2].entries[0].entries[0].unstable is True
+    assert result.report.entries[2].entries[0].entries[0].xfailed is True
     # setup
-    assert result.report.entries[2].entries[1].entries[0].unstable is True
+    assert result.report.entries[2].entries[1].entries[0].xfailed is True
     # teardown
-    assert result.report.entries[2].entries[1].entries[2].unstable is True
+    assert result.report.entries[2].entries[1].entries[2].xfailed is True
 
 
 def test_dynamic_xfail_environment_start_condition_error():
@@ -215,7 +215,7 @@ def test_dynamic_xfail_environment_start_condition_error():
         "Environment Start"
     ]["Starting"]
 
-    assert first_env_start.unstable is True
+    assert first_env_start.xfailed is True
     assert first_env_start.status == Status.XFAIL
     assert second_env_start.failed is True
     assert second_env_start.status == Status.ERROR
@@ -450,7 +450,7 @@ def test_xfail(mockplan):
         "xpass-strict": 10,
     }
     assert strict_xfail_suite_report.failed is True
-    assert strict_xfail_suite_report.entries[0].unstable is True
+    assert strict_xfail_suite_report.entries[0].xfailed is True
     assert strict_xfail_suite_report.entries[1].failed is True
 
     no_strict_xfail_suite_report = result.report.entries[0].entries[1]
@@ -461,8 +461,8 @@ def test_xfail(mockplan):
         "xfail": 10,
         "xpass": 10,
     }
-    assert no_strict_xfail_suite_report.unstable is True
-    assert no_strict_xfail_suite_report.entries[0].unstable is True
+    assert no_strict_xfail_suite_report.xfailed is True
+    assert no_strict_xfail_suite_report.entries[0].xfailed is True
     assert no_strict_xfail_suite_report.entries[1].unstable is True
 
 

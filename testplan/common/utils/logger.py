@@ -104,7 +104,7 @@ class TestplanLogger(logging.Logger):
             pass_label = Color.green(status.name.title())
         elif status <= Status.FAILED:
             pass_label = Color.red(status.name.title())
-        elif status.normalised() == Status.UNSTABLE:
+        elif status.normalised() in (Status.XFAIL, Status.UNSTABLE):
             pass_label = Color.yellow(status.name.title())
         else:  # unknown
             pass_label = status.name.title()
