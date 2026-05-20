@@ -1,0 +1,9 @@
+allowBuilds:
+  '@fortawesome/fontawesome-common-types': false
+  core-js: false
+  core-js-pure: false
+  es5-ext: false
+overrides:
+  react: ^17.0.2
+  '@types/react': ^17.0.2
+  cheerio: 1.0.0-rc.12
