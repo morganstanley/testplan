@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from testplan.testing.environment.graph import D
 
 MINIMUM_CHECK_INTERVAL = 0.1
-MAX_WORKER_THREADS = 32
+DEFAULT_CONCURRENT_DRIVER_OP_WORKER_UPPERLIMIT = 32
 
 
 @dataclass
@@ -236,7 +236,13 @@ class TestEnvironment(Environment):
                     v.start_timeout, v.started_check_interval
                 )
 
-        n_workers = max(min(MAX_WORKER_THREADS, len(self._rt_dependency)), 1)
+        n_workers = max(
+            min(
+                DEFAULT_CONCURRENT_DRIVER_OP_WORKER_UPPERLIMIT,
+                len(self._rt_dependency),
+            ),
+            1,
+        )
         futures: Dict[int, Future] = {}
         scheduling_halted = False
         with ThreadPoolExecutor(max_workers=n_workers) as pool:
@@ -304,7 +310,13 @@ class TestEnvironment(Environment):
                     v.stop_timeout, v.stopped_check_interval
                 )
 
-        n_workers = max(min(MAX_WORKER_THREADS, len(self._rt_dependency)), 1)
+        n_workers = max(
+            min(
+                DEFAULT_CONCURRENT_DRIVER_OP_WORKER_UPPERLIMIT,
+                len(self._rt_dependency),
+            ),
+            1,
+        )
         futures: Dict[int, Future] = {}
         with ThreadPoolExecutor(max_workers=n_workers) as pool:
             while not self._rt_dependency.all_drivers_processed():

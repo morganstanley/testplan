@@ -504,15 +504,18 @@ class TestThreadedScheduling:
 
     def test_pool_size_capping_with_late_joiner(self, mocker):
         """
-        Patch ``MAX_WORKER_THREADS`` to 4 with five independent drivers
-        a, b, c, d, e (a/c/d/e slow, b fast). The first scheduling round
-        fills all 4 slots with a, b, c, d. b finishes quickly and frees
-        a slot which e then takes; e runs alongside a, c, d for its own
-        slow duration. Total elapsed should not be less than ~slow_a
-        (the longest single window) and overall validates that the pool
-        cap is honored (e cannot start in parallel with a from t=0).
+        Patch ``DEFAULT_CONCURRENT_DRIVER_OP_WORKER_UPPERLIMIT`` to 4
+        with five independent drivers a, b, c, d, e (a/c/d/e slow, b fast).
+        The first scheduling round fills all 4 slots with a, b, c, d. b
+        finishes quickly and frees a slot which e then takes; e runs alongside
+        a, c, d for its own slow duration. Total elapsed should not be less
+        than ~slow_a (the longest single window) and overall validates that
+        the pool cap is honored (e cannot start in parallel with a from t=0).
         """
-        mocker.patch("testplan.testing.environment.base.MAX_WORKER_THREADS", 4)
+        mocker.patch(
+            "testplan.testing.environment.base.DEFAULT_CONCURRENT_DRIVER_OP_WORKER_UPPERLIMIT",
+            4,
+        )
         m = mocker.Mock()
         slow, fast = 1.0, 0.2
         env = TestEnvironment()
