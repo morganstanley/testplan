@@ -72,6 +72,10 @@ def main(plan):
             dependencies={
                 server_1: client_1,
                 server_2: (client_2, client_3),
+                # NOTE: client_2 should connect to server_2 before client_3,
+                # NOTE: since server accepts connection solely based on
+                # NOTE: sequence of connecting
+                client_2: client_3,
             },
         )
     )
