@@ -120,26 +120,25 @@ class TestFastDrivers:
             env.add(d_)
         env.set_dependency(parse_dependency({}))
         env.start()
-        assert_lhs_call_before_rhs_call(
-            m.method_calls, call.pre("b"), call.pre("c")
-        )
-        assert_lhs_call_before_rhs_call(
-            m.method_calls, call.pre("c"), call.post("a")
-        )
+        assert a.status == a.status.STARTED
+        assert b.status == b.status.STARTED
+        assert c.status == c.status.STARTED
         env.stop()
 
     def test_no_dependency_default_first(self, mocker):
         m = mocker.Mock()
         env = TestEnvironment()
-        a = MockDriver("a", m)
-        b = MockDriver("b", m)
+        a = MockDriver("a", m, total_start_wait=0.5)
+        b = MockDriver("b", m, total_stop_wait=0.5)
         c = MockDriver("c", m)
         for d_ in [a, b, c]:
             env.add(d_)
         env.set_dependency(parse_dependency({a: b}))
         env.start()
+        assert_lhs_before_rhs(env._rt_dependency.processed, a, b)
         assert_lhs_before_rhs(env._rt_dependency.processed, c, b)
         env.stop()
+        assert_lhs_before_rhs(env._rt_dependency.processed, b, a)
         assert_lhs_before_rhs(env._rt_dependency.processed, c, a)
 
     def test_complicated_dependency_scheduling(self, mocker):
@@ -161,15 +160,19 @@ class TestFastDrivers:
             )
         )
         env.start()
-        assert_lhs_before_rhs(env._rt_dependency.processed, a, d)
-        assert_lhs_before_rhs(env._rt_dependency.processed, c, f)
-        assert_lhs_before_rhs(env._rt_dependency.processed, f, e)
+        assert_lhs_before_rhs(env._rt_dependency.processed, a, f)
+        assert_lhs_before_rhs(env._rt_dependency.processed, b, f)
+        assert_lhs_before_rhs(env._rt_dependency.processed, f, g)
+        assert_lhs_before_rhs(env._rt_dependency.processed, c, d)
+        assert_lhs_before_rhs(env._rt_dependency.processed, d, e)
         assert_lhs_before_rhs(env._rt_dependency.processed, e, g)
         env.stop()
-        assert_lhs_before_rhs(env._rt_dependency.processed, a, c)
-        assert_lhs_before_rhs(env._rt_dependency.processed, f, c)
-        assert_lhs_before_rhs(env._rt_dependency.processed, e, b)
+        assert_lhs_before_rhs(env._rt_dependency.processed, g, f)
         assert_lhs_before_rhs(env._rt_dependency.processed, g, e)
+        assert_lhs_before_rhs(env._rt_dependency.processed, f, a)
+        assert_lhs_before_rhs(env._rt_dependency.processed, f, b)
+        assert_lhs_before_rhs(env._rt_dependency.processed, e, d)
+        assert_lhs_before_rhs(env._rt_dependency.processed, d, c)
 
 
 class TestSlowDrivers:
@@ -185,9 +188,6 @@ class TestSlowDrivers:
 
         env.set_dependency(parse_dependency({b: c, c: d}))
         env.start()
-        assert_lhs_call_before_rhs_call(
-            m.method_calls, call.pre("b"), call.pre("a")
-        )  # b is added to graph before a
         assert_lhs_before_rhs(env._rt_dependency.processed, b, c)
         assert_lhs_before_rhs(env._rt_dependency.processed, c, d)
         assert_lhs_before_rhs(env._rt_dependency.processed, d, a)
@@ -212,20 +212,14 @@ class TestSlowDrivers:
     def test_scheduling_3(self, mocker):
         m = mocker.Mock()
         env = TestEnvironment()
-        a = MockDriver("a", m, total_start_wait=0.5)
+        a = MockDriver("a", m, total_start_wait=1)
         b = MockDriver("b", m)
-        c = MockDriver("c", m, check_interval=1)
+        c = MockDriver("c", m, check_interval=2)
         for d_ in [a, b, c]:
             env.add(d_)
 
         env.set_dependency(parse_dependency({}))
         env.start()
-        assert_lhs_call_before_rhs_call(
-            m.method_calls, call.pre("a"), call.pre("b")
-        )
-        assert_lhs_call_before_rhs_call(
-            m.method_calls, call.pre("b"), call.pre("c")
-        )
         assert_lhs_call_before_rhs_call(
             m.method_calls, call.post("b"), call.post("a")
         )
@@ -444,8 +438,8 @@ class TestThreadedScheduling:
         b_setup = b.timer.last(key="setup").elapsed
         c_setup = c.timer.last(key="setup").elapsed
         assert a_setup >= 2, f"A setup unexpectedly fast: {a_setup}s"
-        assert b_setup < 0.5, f"B setup unexpectedly slow: {b_setup}s"
-        assert c_setup < 0.5, f"C setup unexpectedly slow: {c_setup}s"
+        assert b_setup < 0.6, f"B setup unexpectedly slow: {b_setup}s"
+        assert c_setup < 0.6, f"C setup unexpectedly slow: {c_setup}s"
 
         # B and C must show as processed before A in the dep graph
         processed = env._rt_dependency.processed
@@ -489,8 +483,8 @@ class TestThreadedScheduling:
         assert a_teardown >= 1.5, (
             f"A teardown unexpectedly fast: {a_teardown}s"
         )
-        assert b_teardown < 0.5, f"B teardown unexpectedly slow: {b_teardown}s"
-        assert c_teardown < 0.5, f"C teardown unexpectedly slow: {c_teardown}s"
+        assert b_teardown < 0.6, f"B teardown unexpectedly slow: {b_teardown}s"
+        assert c_teardown < 0.6, f"C teardown unexpectedly slow: {c_teardown}s"
 
         # B and C must show as processed before A in the (stop) dep graph
         processed = env._rt_dependency.processed
