@@ -378,7 +378,7 @@ class Server:
         :param msg: Fix message received.
         :type msg: ``FixMessage``
         """
-        conn_name = (msg[56], msg[49])
+        conn_name = self._extract_conn_name(fdesc, msg)
 
         if _has_logout_tag(msg):
             self._no_lock_send(msg, conn_name, fdesc)
@@ -403,6 +403,20 @@ class Server:
             raise Exception(
                 "Connection {} sent msg before logon".format(conn_name)
             )
+
+    def _extract_conn_name(self, fdesc: int, msg: Any) -> Tuple[str, str]:
+        """
+        Extract the ``(target, sender)`` connection name from an incoming
+        FIX message.
+
+        :param fdesc: File descriptor of the connection.
+        :type fdesc: ``int``
+        :param msg: Fix message received.
+        :type msg: ``FixMessage``
+        :return: Connection name as ``(target, sender)``.
+        :rtype: ``tuple`` of ``str`` and ``str``
+        """
+        return (msg[56], msg[49])
 
     def _conn_loggedon(self, conn_name: Tuple[str, str]) -> bool:
         """
@@ -537,10 +551,23 @@ class Server:
             conndetails = self._conndetails_by_name[(sender, target)]
         msg[34] = conndetails.out_seqno
         conndetails.out_seqno += 1
-        msg[49] = sender
-        msg[56] = target
+        self._stamp_session_tags(msg, sender, target)
         msg[52] = getattr(self.codec, "utc_timestamp", utc_timestamp)()
         return msg
+
+    def _stamp_session_tags(self, msg: Any, sender: str, target: str) -> None:
+        """
+        Stamp session-level identifiers on an outbound FIX message.
+
+        :param msg: Outbound FIX message
+        :type msg: ``FixMessage``
+        :param sender: Sender id.
+        :type sender: ``str``
+        :param target: Target id.
+        :type target: ``str``
+        """
+        msg[49] = sender
+        msg[56] = target
 
     def _no_lock_send(
         self, msg: Any, conn_name: Tuple[str, str], fdesc: Optional[int] = None
