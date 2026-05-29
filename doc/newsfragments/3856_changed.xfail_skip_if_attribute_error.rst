@@ -1,0 +1,1 @@
+Fix ``AttributeError: 'function' object has no attribute '__func__'`` raised in ``get_test_context`` when a testcase listed in ``--xfail-tests`` (or ``xfail_tests=``) is also skipped by a ``@skip_if`` predicate.
