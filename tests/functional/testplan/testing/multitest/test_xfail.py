@@ -292,6 +292,34 @@ class AssertionXfailSuite:
             {"bar": 2},
         )
 
+    @testcase
+    def passing_no_match(self, env, result):
+        """Both pass; xfail condition's type and description match nothing."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 1},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 1},
+            description="b1 dict match",
+        )
+
+    @testcase
+    def passing_type_only_match(self, env, result):
+        """Both pass; xfail condition's type matches, description doesn't."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 1},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 1},
+            description="b1 dict match",
+        )
+
 
 def test_dynamic_xfail_testcase_condition_failed():
     plan = TestplanMock(
@@ -337,6 +365,26 @@ def test_dynamic_xfail_testcase_condition_failed():
                     }
                 },
             },
+            "Assertion Xfail MT:AssertionXfailSuite:passing_no_match": {
+                "reason": "passing, condition matches no entry",
+                "strict": True,
+                "condition": {
+                    "failed": {
+                        "type": "IsTrue",
+                        "description": "c1 dict match",
+                    }
+                },
+            },
+            "Assertion Xfail MT:AssertionXfailSuite:passing_type_only_match": {
+                "reason": "passing, condition type matches but description doesn't",
+                "strict": True,
+                "condition": {
+                    "failed": {
+                        "type": "DictMatch",
+                        "description": "c1 dict match",
+                    }
+                },
+            },
         },
     )
     plan.add(
@@ -353,6 +401,8 @@ def test_dynamic_xfail_testcase_condition_failed():
     neither = suite_report["neither_fails"]
     both_b1 = suite_report["both_fail_condition_b1"]
     both_a1 = suite_report["both_fail_condition_a1"]
+    no_match = suite_report["passing_no_match"]
+    type_only_match = suite_report["passing_type_only_match"]
 
     # only_a1_fails: a1 fails but xfail condition=b1 desc -> no b1 -> not xfail
     assert only_a1.status == Status.FAILED
@@ -362,6 +412,10 @@ def test_dynamic_xfail_testcase_condition_failed():
     assert both_b1.status == Status.XFAIL
     # both_fail_condition_a1: a1+b1 fail, xfail condition=a1 desc -> match -> xfail
     assert both_a1.status == Status.XFAIL
+    # passing_no_match: passing, condition matches no entry -> xpass
+    assert no_match.status == Status.XPASS_STRICT
+    # passing_type_only_match: passing, only type matches (AND semantics) -> xpass
+    assert type_only_match.status == Status.XPASS_STRICT
 
 
 @pytest.mark.parametrize(
