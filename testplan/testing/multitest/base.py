@@ -4,6 +4,7 @@ import collections.abc
 import concurrent.futures
 import functools
 import itertools
+import types
 import warnings
 from typing import (
     Any,
@@ -466,7 +467,16 @@ class MultiTest(testing_base.Test):
                     )
                     data = xfail_data.get(testcase_instance, None)
                     if data is not None:
-                        testcase.__func__.__xfail__ = {
+                        # When a ``@skip_if`` predicate fires, the testcase
+                        # slot holds a plain function (a generated skipped
+                        # case) instead of a bound method, so ``__func__`` is
+                        # absent. Set ``__xfail__`` on whichever we have.
+                        func: Any = (
+                            testcase.__func__
+                            if isinstance(testcase, types.MethodType)
+                            else testcase
+                        )
+                        func.__xfail__ = {
                             "reason": data["reason"],
                             "strict": data["strict"],
                             "condition": data.get("condition"),
