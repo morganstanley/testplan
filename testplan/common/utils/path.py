@@ -70,14 +70,15 @@ def default_runpath(entity: Any) -> str:
 
 
 PWD = "PWD"
-CHDIR_LOCK = threading.Lock()
+CHDIR_LOCK = threading.RLock()
 
 
 @contextlib.contextmanager
 def change_directory(directory: Optional[str]) -> Generator[None, None, None]:
     """
     A context manager that changes working directory and returns to original on
-    exit.
+    exit. Note this context manager holds a ``threading.RLock`` during its
+    entire lifespan.
 
     :param directory: Directory to change into.
     :type directory: ``str``
