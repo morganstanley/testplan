@@ -686,7 +686,7 @@ class TestCaseReport(Report):
         """
         if self.failed and self._xfail_match_condition(condition):
             self.status_override = Status.XFAIL
-        elif self.passed and self._xfail_partial_match_condition(condition):
+        elif self.passed:
             if strict:
                 self.status_override = Status.XPASS_STRICT
             else:
@@ -723,22 +723,6 @@ class TestCaseReport(Report):
             TestCaseReport._xfail_match_assertion(condition["failed"], entry)
             for entry in self.entries
             if entry.get("passed") is False
-        )
-
-    def _xfail_partial_match_condition(
-        self, condition: Optional[dict]
-    ) -> bool:
-        if not condition:
-            return True
-
-        if "error" in condition:
-            return any(
-                condition["error"].search(log_record.get("message", ""))
-                for log_record in self.logs
-            )
-        return any(
-            TestCaseReport._xfail_match_assertion(condition["failed"], entry)
-            for entry in self.entries
         )
 
     @property
