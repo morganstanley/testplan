@@ -12,6 +12,7 @@ from schema import SchemaError
 from testplan import TestplanMock
 from testplan.common.report.base import Status
 from testplan.testing.multitest import MultiTest, testcase, testsuite, xfail
+from testplan.testing.multitest.suite import skip_if
 
 from .test_multitest_drivers import BaseDriver, VulnerableDriver1
 
@@ -588,3 +589,44 @@ def test_xfail_cli():
         starting = env_start["entries"][0]
         assert starting["name"] == "Starting"
         assert starting["status_override"] == "xfail"
+
+
+@testsuite
+class SkipIfXfailSuite:
+    """A suite whose xfail'd testcase is also skipped via ``@skip_if``."""
+
+    @skip_if(lambda testsuite: True)
+    @testcase
+    def skipped_case(self, env, result):
+        result.true(False, description="should never run")
+
+
+def test_dynamic_xfail_with_skip_if():
+    """
+    Regression test for the crash where a testcase listed in ``xfail_tests``
+    that is also skipped by a ``@skip_if`` predicate raised
+    ``AttributeError: 'function' object has no attribute '__func__'`` in
+    ``get_test_context``.
+
+    When ``@skip_if`` fires, the testcase slot on the suite instance holds a
+    plain function rather than a bound method, so ``__func__`` is absent.
+    Building/running the plan must not crash.
+    """
+    plan = TestplanMock(
+        name="dynamic_xfail_with_skip_if",
+        xfail_tests={
+            "Skip Xfail MT:SkipIfXfailSuite:skipped_case": {
+                "reason": "skipped and xfail'd at the same time",
+                "strict": False,
+            },
+        },
+    )
+    plan.add(MultiTest(name="Skip Xfail MT", suites=[SkipIfXfailSuite()]))
+
+    # Must not raise AttributeError during plan setup / run.
+    result = plan.run()
+
+    # A skipped testcase produces no result, so the xfail annotation is a
+    # no-op; the run simply completes without the testcase passing/failing.
+    suite_report = result.report["Skip Xfail MT"]["SkipIfXfailSuite"]
+    assert suite_report["skipped_case"] is not None
