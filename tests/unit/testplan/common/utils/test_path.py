@@ -61,3 +61,11 @@ def test_change_directory_thread_safe(tmpdir):
             assert result2[0] == result2[1], (
                 "thread 2 did not return to original directory"
             )
+
+
+def test_change_directory_rlock(tmpdir):
+    # as long as this test doesn't hang
+    cwd = os.getcwd()
+    with path.change_directory(str(tmpdir)):
+        with path.change_directory(cwd):
+            pass

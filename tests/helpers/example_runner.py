@@ -7,7 +7,7 @@ import traceback
 
 import pytest
 
-from testplan.common.utils.path import change_directory
+from testplan.common.utils.path import fix_home_prefix
 
 
 SUCCES_EXIT_CODES = (
@@ -27,6 +27,7 @@ def run_example_in_process(
     if caplog is not None:
         caplog.clear()
 
+    root = fix_home_prefix(root)
     sys_path = copy.copy(sys.path)
     sys_argv = copy.copy(sys.argv)
 
@@ -42,10 +43,22 @@ def run_example_in_process(
         sys.path.insert(0, root)
         sys.argv = [""] + cmdline_args
 
-        with change_directory(root), open(filename) as file_obj:
-            file_obj.readline()
-            second_line = file_obj.readline().strip()
-            runpy.run_path(os.path.join(root, filename), run_name="__main__")
+        cwd = os.getcwd()
+        old_pwd = os.environ.get("PWD", None)
+        os.chdir(root)
+        try:
+            with open(filename) as file_obj:
+                file_obj.readline()
+                second_line = file_obj.readline().strip()
+                runpy.run_path(
+                    os.path.join(root, filename), run_name="__main__"
+                )
+        finally:
+            os.chdir(cwd)
+            if old_pwd:
+                os.environ["PWD"] = old_pwd
+            elif "PWD" in os.environ:
+                del os.environ["PWD"]
 
     except SystemExit as e:
         if e.code not in SUCCES_EXIT_CODES:
