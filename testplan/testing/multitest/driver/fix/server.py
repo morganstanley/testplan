@@ -88,6 +88,7 @@ class FixServer(Driver):
 
     CONFIG = FixServerConfig
     EXTRACTORS = [ConnectionExtractor(Protocol.TCP, Direction.LISTENING)]
+    SERVER_CLASS = Server
 
     def __init__(
         self,
@@ -141,7 +142,7 @@ class FixServer(Driver):
     def starting(self) -> None:
         """Starts the TCP server."""
         super(FixServer, self).starting()
-        self._server = Server(
+        self._server = self.__class__.SERVER_CLASS(
             msgclass=self.cfg.msgclass,
             codec=self.cfg.codec,
             host=self.cfg.host,
