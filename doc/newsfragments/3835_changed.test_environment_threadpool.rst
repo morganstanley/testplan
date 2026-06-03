@@ -1,0 +1,1 @@
+Adjust test environment startup scheduling to avoid subprocess hangs in rare scenarios. Driver ``starting`` and ``stopping`` hooks now run outside the environment thread pool, while started/stopped readiness checks remain asynchronous.

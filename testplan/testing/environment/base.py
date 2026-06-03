@@ -107,30 +107,16 @@ class TestEnvironment(Environment):
             "TestEnvironment.stop_in_pool: Would not be invoked by design."
         )
 
-    def _run_single_driver_start(
+    def _run_single_driver_started_check(
         self, driver: "D", watch: DriverPocketwatch
     ) -> None:
         """
-        Worker invoked in a per-driver thread. Triggers driver start (which
-        returns quickly because `async_start=True`), then polls
-        ``started_check`` paced by ``watch`` until the driver is ready or a
-        timeout occurs. Records exceptions into ``self.start_exceptions``.
+        Worker invoked in a per-driver thread. Polls ``started_check`` paced by
+        the pocketwatch until it returns truthy, or raises on timeout or other
+        exception. Exceptions are caught and recorded.
 
-        Raises no exception; failure is signalled by recording into the
-        exception store and returning.
+        Raises ``_DriverStartFailure`` to signal a failure to the orchestrator.
         """
-        try:
-            watch.record_start()
-            driver.start()
-        except Exception:
-            self._record_resource_exception(
-                message="While starting driver {resource}:\n"
-                "{traceback_exc}\n{fetch_msg}",
-                resource=driver,  # type: ignore[arg-type]
-                msg_store=self.start_exceptions,
-            )
-            raise _DriverStartFailure()
-
         try:
             while True:
                 time.sleep(watch.sleep_interval)
@@ -162,34 +148,19 @@ class TestEnvironment(Environment):
             )
             raise _DriverStartFailure()
 
-    def _run_single_driver_stop(
+    def _run_single_driver_stopped_check(
         self, driver: "D", watch: DriverPocketwatch
     ) -> None:
         """
-        Worker invoked in a per-driver thread. Triggers driver stop, then
-        polls ``stopped_check_with_watch`` until the driver has stopped or
-        a timeout occurs. Records exceptions and force-stops the driver
-        on failure.
+        Worker invoked in a per-driver thread. Polls ``stopped_check_with_watch``
+        paced by the pocketwatch until it returns truthy, or raises on timeout
+        or other exception. Exceptions are caught and recorded.
 
         Raises ``_DriverStopFailure`` to signal a failure to the orchestrator.
         ---
         personally i don't quite like the idea of stopped_check_with_watch,
         but i don't come up with a better way
         """
-        try:
-            watch.record_start()
-            driver.stop()
-        except Exception:
-            self._record_resource_exception(
-                message="While stopping driver {resource}"
-                ":\n{traceback_exc}\n{fetch_msg}",
-                resource=driver,  # type: ignore[arg-type]
-                msg_store=self.stop_exceptions,
-            )
-            driver.force_stop()
-            driver.logger.info("%s force stopped", driver)
-            raise _DriverStopFailure()
-
         try:
             while True:
                 time.sleep(watch.sleep_interval)
@@ -244,21 +215,38 @@ class TestEnvironment(Environment):
             1,
         )
         futures: Dict[int, Future] = {}
-        scheduling_halted = False
         with ThreadPoolExecutor(max_workers=n_workers) as pool:
             while not self._rt_dependency.all_drivers_processed():
                 # schedule new drivers (unless a failure has halted scheduling)
-                if not scheduling_halted:
-                    for driver in self._rt_dependency.drivers_to_process():
-                        watch = self._pocketwatches[driver.uid()]
-                        futures[id(driver)] = pool.submit(
-                            self._run_single_driver_start, driver, watch
+                for driver in self._rt_dependency.drivers_to_process():
+                    watch: DriverPocketwatch = self._pocketwatches[
+                        driver.uid()
+                    ]
+                    try:
+                        watch.record_start()
+                        driver.start()
+                    except Exception:
+                        self._record_resource_exception(
+                            message="While starting driver {resource}:\n"
+                            "{traceback_exc}\n{fetch_msg}",
+                            resource=driver,  # type: ignore[arg-type]
+                            msg_store=self.start_exceptions,
                         )
+                        self._rt_dependency.purge_drivers_to_process()
                         self._rt_dependency.mark_processing(driver)
+                        self._rt_dependency.mark_failed_to_process(driver)
+                        break
+                    else:
+                        self._rt_dependency.mark_processing(driver)
+                        futures[id(driver)] = pool.submit(
+                            self._run_single_driver_started_check,
+                            driver,
+                            watch,
+                        )
 
                 # check current drivers
                 progressed = False
-                while not progressed:
+                while len(futures) and not progressed:
                     time.sleep(MINIMUM_CHECK_INTERVAL)
                     for driver in self._rt_dependency.drivers_processing():
                         fut = futures[id(driver)]
@@ -270,12 +258,8 @@ class TestEnvironment(Environment):
                         if exc is None:
                             self._rt_dependency.mark_processed(driver)
                         else:
-                            # exception details have already been recorded
-                            # by the worker. Halt new scheduling but let
-                            # in-flight drivers finish naturally.
-                            if not scheduling_halted:
-                                self._rt_dependency.purge_drivers_to_process()
-                                scheduling_halted = True
+                            # exception details already recorded by the worker
+                            self._rt_dependency.purge_drivers_to_process()
                             self._rt_dependency.mark_failed_to_process(driver)
 
     def stop(self, is_reversed: bool = False) -> None:
@@ -323,17 +307,35 @@ class TestEnvironment(Environment):
                 # schedule new drivers - unlike start(), failures do not
                 # stop scheduling (teardown is best-effort)
                 for driver in self._rt_dependency.drivers_to_process():
-                    watch = self._pocketwatches[driver.uid()]
-                    futures[id(driver)] = pool.submit(
-                        self._run_single_driver_stop, driver, watch
-                    )
-                    self._rt_dependency.mark_processing(driver)
+                    watch: DriverPocketwatch = self._pocketwatches[
+                        driver.uid()
+                    ]
+                    try:
+                        watch.record_start()
+                        driver.stop()
+                    except Exception:
+                        self._record_resource_exception(
+                            message="While stopping driver {resource}:\n"
+                            "{traceback_exc}\n{fetch_msg}",
+                            resource=driver,  # type: ignore[arg-type]
+                            msg_store=self.stop_exceptions,
+                        )
+                        driver.force_stop()
+                        driver.logger.info("%s force stopped", driver)
+                        self._rt_dependency.mark_processing(driver)
+                        self._rt_dependency.mark_failed_to_process(driver)
+                    else:
+                        self._rt_dependency.mark_processing(driver)
+                        futures[id(driver)] = pool.submit(
+                            self._run_single_driver_stopped_check,
+                            driver,
+                            watch,
+                        )
 
                 # check current drivers
                 progressed = False
-                while not progressed:
+                while len(futures) and not progressed:
                     time.sleep(MINIMUM_CHECK_INTERVAL)
-
                     for driver in self._rt_dependency.drivers_processing():
                         fut = futures[id(driver)]
                         if not fut.done():
