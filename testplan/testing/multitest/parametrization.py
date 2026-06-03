@@ -42,9 +42,13 @@ class ParametrizationError(ValueError):
 
 class ParametrizationNameError(ParametrizationError):
     """
-    Raised in strict mode when a proper parametrized testcase name cannot be
-    generated (e.g. it exceeds ``MAX_METHOD_NAME_LENGTH``).
+    Raised in strict mode when a generated parametrized testcase name cannot be used as it exceeds ``MAX_METHOD_NAME_LENGTH``.
     """
+
+    def __init__(self, name: str):
+        super().__init__(
+            f"Generated parametrized testcase name ({name}) exceeds {MAX_METHOD_NAME_LENGTH} characters."
+        )
 
 
 def _check_dict_keys(dictionary, args, required_args):
@@ -351,10 +355,7 @@ def _parametrization_name_func_wrapper(func_name: str, kwargs: dict):
         # Generated method name is a bit too long.
         # Index suffixed names, e.g. "{func_name}__1", "{func_name}__2", will be used.
         if _strict_param_names():
-            raise ParametrizationNameError(
-                f"Generated method name ({generated_name}) exceeds "
-                f"{MAX_METHOD_NAME_LENGTH} characters."
-            )
+            raise ParametrizationNameError(generated_name)
         return func_name
 
     return generated_name
@@ -383,10 +384,7 @@ def _parametrization_report_name_func_wrapper(
         if len(generated_name) <= MAX_METHOD_NAME_LENGTH:
             return generated_name
         elif _strict_param_names():
-            raise ParametrizationNameError(
-                f"Name returned by name_func ({generated_name}) exceeds "
-                f"{MAX_METHOD_NAME_LENGTH} characters."
-            )
+            raise ParametrizationNameError(generated_name)
         else:
             warnings.warn(
                 f"The name name_func returned ({generated_name}) is too long, using index suffixed names."
