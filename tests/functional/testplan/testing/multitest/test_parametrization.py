@@ -8,7 +8,9 @@ from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.parametrization import (
     MAX_METHOD_NAME_LENGTH,
+    STRICT_PARAM_NAMES_ENV,
     ParametrizationError,
+    ParametrizationNameError,
 )
 from testplan.report import (
     TestReport,
@@ -528,6 +530,65 @@ def test_unwanted_testcase_name(mockplan):
         multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
         mockplan.add(multitest)
         mockplan.run()
+
+
+def test_strict_param_names_report_name_too_long(monkeypatch):
+    """
+    In strict mode, an over-long name returned by ``name_func`` should raise
+    ``ParametrizationNameError`` at decoration time instead of warning.
+    """
+    monkeypatch.setenv(STRICT_PARAM_NAMES_ENV, "1")
+    long_string = "c" * (MAX_METHOD_NAME_LENGTH + 1)
+
+    with pytest.raises(ParametrizationNameError, match="exceeds"):
+
+        @testsuite
+        class MySuite:
+            @testcase(
+                parameters=(1,),
+                name_func=lambda func_name, kwargs: long_string,
+            )
+            def sample_test(self, env, result, val):
+                pass
+
+
+def test_strict_param_names_method_name_too_long(monkeypatch):
+    """
+    In strict mode, parameters that produce an over-long generated method
+    name should raise ``ParametrizationNameError`` at decoration time.
+    """
+    monkeypatch.setenv(STRICT_PARAM_NAMES_ENV, "1")
+
+    with pytest.raises(ParametrizationNameError, match="exceeds"):
+
+        @testsuite
+        class MySuite:
+            @testcase(parameters=("a" * MAX_METHOD_NAME_LENGTH,))
+            def sample_test(self, env, result, val):
+                pass
+
+
+def test_strict_param_names_disabled_still_warns(monkeypatch):
+    """
+    With the env var unset (default), the old warn + index-suffixed fallback
+    behavior should be preserved.
+    """
+    monkeypatch.delenv(STRICT_PARAM_NAMES_ENV, raising=False)
+    long_string = "c" * (MAX_METHOD_NAME_LENGTH + 1)
+
+    with pytest.warns(
+        UserWarning,
+        match=f"The name name_func returned \\({long_string}\\) is too long, using index suffixed names.",
+    ):
+
+        @testsuite
+        class MySuite:
+            @testcase(
+                parameters=(1,),
+                name_func=lambda func_name, kwargs: long_string,
+            )
+            def sample_test(self, env, result, val):
+                pass
 
 
 def test_custom_wrapper():

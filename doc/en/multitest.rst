@@ -1109,6 +1109,12 @@ In the above example, the custom testcase names should be
 ``'Add List 0'`` and ``'Add List 1'``, that is, integer suffixes appended to
 the original testcase names, without any argument showed.
 
+A generated name longer than 255 characters cannot be used, so Testplan warns
+and falls back to the integer-suffixed names described above. Set the
+``TESTPLAN_STRICT_PARAM_NAMES=1`` environment variable to instead raise
+``ParametrizationNameError`` at import time, failing fast rather than degrading
+to index-suffixed names.
+
 .. _parametrization_docstring_func:
 
 Testcase docstring generation

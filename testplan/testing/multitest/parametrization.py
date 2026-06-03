@@ -4,6 +4,7 @@ Parametrization support for test cases.
 
 import collections
 import itertools
+import os
 import re
 import warnings
 
@@ -23,9 +24,31 @@ PYTHON_VARIABLE_REGEX = re.compile(PYTHON_VARIABLE_PATTERN)
 # Python attribute names can be of unlimited length but we set a limit here
 MAX_METHOD_NAME_LENGTH = 255
 
+STRICT_PARAM_NAMES_ENV = "TESTPLAN_STRICT_PARAM_NAMES"
+
+
+def _strict_param_names() -> bool:
+    """
+    Whether strict parametrized name generation is enabled. Read from the
+    environment on each call (not cached at import time) so it reflects the
+    running environment and can be toggled in tests.
+    """
+    return os.environ.get(STRICT_PARAM_NAMES_ENV) == "1"
+
 
 class ParametrizationError(ValueError):
     pass
+
+
+class ParametrizationNameError(ParametrizationError):
+    """
+    Raised in strict mode when a generated parametrized testcase name cannot be used as it exceeds ``MAX_METHOD_NAME_LENGTH``.
+    """
+
+    def __init__(self, name: str):
+        super().__init__(
+            f"Generated parametrized testcase name ({name}) exceeds {MAX_METHOD_NAME_LENGTH} characters."
+        )
 
 
 def _check_dict_keys(dictionary, args, required_args):
@@ -331,6 +354,8 @@ def _parametrization_name_func_wrapper(func_name: str, kwargs: dict):
     if len(generated_name) > MAX_METHOD_NAME_LENGTH:
         # Generated method name is a bit too long.
         # Index suffixed names, e.g. "{func_name}__1", "{func_name}__2", will be used.
+        if _strict_param_names():
+            raise ParametrizationNameError(generated_name)
         return func_name
 
     return generated_name
@@ -358,6 +383,8 @@ def _parametrization_report_name_func_wrapper(
             )
         if len(generated_name) <= MAX_METHOD_NAME_LENGTH:
             return generated_name
+        elif _strict_param_names():
+            raise ParametrizationNameError(generated_name)
         else:
             warnings.warn(
                 f"The name name_func returned ({generated_name}) is too long, using index suffixed names."
