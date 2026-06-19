@@ -38,7 +38,6 @@ def test_hashfile(tmpdir):
 
 
 def test_change_directory_thread_safe(tmpdir):
-
     barrier = threading.Barrier(2)
 
     def racing_worker():
