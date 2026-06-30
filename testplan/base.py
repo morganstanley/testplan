@@ -238,6 +238,12 @@ class Testplan(entity.RunnableManager):
         otel_logs: bool = False,
         **options: Any,
     ) -> None:
+        if options:
+            unknown = ", ".join(f"'{k}'" for k in sorted(options))
+            raise TypeError(
+                f"Testplan.__init__() got unexpected keyword argument(s): {unknown}"
+            )
+
         # Set mutable defaults.
         if abort_signals is None:
             abort_signals = entity.DEFAULT_RUNNABLE_ABORT_SIGNALS[:]

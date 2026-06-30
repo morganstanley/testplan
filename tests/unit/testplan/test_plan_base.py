@@ -133,7 +133,6 @@ def test_testplan_decorator():
 
     @test_plan(
         name="MyPlan1",
-        port=800,
         parse_cmdline=False,
         runpath=default_runpath_mock,
     )
@@ -149,7 +148,7 @@ def test_testplan_decorator():
     pdf_path = "mypdf.pdf"
     with argv_overridden("--pdf", pdf_path):
 
-        @test_plan(name="MyPlan2", port=800, runpath=default_runpath_mock)
+        @test_plan(name="MyPlan2", runpath=default_runpath_mock)
         def main2(plan, parser):
             args = parser.parse_args()
 
@@ -170,12 +169,21 @@ def test_testplan_runpath():
     def runpath_maker(obj):
         return "{sep}tmp{sep}custom".format(sep=os.sep)
 
-    plan = Testplan(name="MyPlan", port=800, parse_cmdline=False)
+    plan = Testplan(name="MyPlan", parse_cmdline=False)
     assert plan.runpath == default_runpath(plan._runnable)
 
     path = "/var/tmp/user"
-    plan = TestplanMock(name="MyPlan", port=800, runpath=path)
+    plan = TestplanMock(name="MyPlan", runpath=path)
     assert plan.runpath == path
 
-    plan = TestplanMock(name="MyPlan", port=800, runpath=runpath_maker)
+    plan = TestplanMock(name="MyPlan", runpath=runpath_maker)
     assert plan.runpath == runpath_maker(plan._runnable)
+
+
+def test_testplan_unknown_kwargs():
+    """Unknown kwargs should raise TypeError immediately, not be silently ignored."""
+    with pytest.raises(TypeError, match="unexpected keyword argument"):
+        Testplan(name="MyPlan", parse_cmdline=False, foobarbaz=True)
+
+    with pytest.raises(TypeError, match="unexpected keyword argument"):
+        Testplan(name="MyPlan", parse_cmdline=False, foo=1, bar=2)
