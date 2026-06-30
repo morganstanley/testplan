@@ -5,6 +5,7 @@ This module contains logic for listing representing test context of a plan.
 import dataclasses
 import json
 import os
+import sys
 from argparse import Action, ArgumentParser, Namespace
 from enum import Enum
 from os import PathLike
@@ -21,7 +22,6 @@ from typing import (
 from urllib.parse import urlparse
 
 from testplan.common.utils.json import json_dumps
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.parser import ArgMixin
 from testplan.testing import tagging
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
@@ -59,7 +59,7 @@ class BaseLister(Listertype):
     def log_test_info(self, instance: "Test") -> None:
         output = self.get_output(instance)
         if output:
-            TESTPLAN_LOGGER.user_info(output)
+            print(output, file=sys.stderr)
 
     def get_output(self, instance: "Test") -> str:
         raise NotImplementedError
@@ -314,7 +314,7 @@ class MetadataBasedLister(Listertype):
     def log_test_info(self, metadata: TestPlanMetadata) -> None:
         output = self.get_output(metadata)
         if output:
-            TESTPLAN_LOGGER.user_info(output)
+            print(output, file=sys.stderr)
 
     def get_output(self, metadata: TestPlanMetadata) -> str:
         raise NotImplementedError
