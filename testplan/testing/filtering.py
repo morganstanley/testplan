@@ -5,6 +5,7 @@ import collections
 import fnmatch
 import operator
 import re
+from abc import ABCMeta, abstractmethod
 from enum import Enum, IntEnum, auto
 from typing import (
     TYPE_CHECKING,
@@ -48,7 +49,7 @@ class FilterCategory(IntEnum):
     TAG = auto()
 
 
-class BaseFilter:
+class BaseFilter(metaclass=ABCMeta):
     """
     Base class for filters, supports bitwise
     operators for composing multiple filters.
@@ -56,12 +57,15 @@ class BaseFilter:
     e.g. (FilterA(...) & FilterB(...)) | ~FilterC(...)
     """
 
+    @abstractmethod
     def map(self, f: Callable) -> "BaseFilter":
         raise NotImplementedError
 
+    @abstractmethod
     def filter_test(self, test: Any) -> bool:
         raise NotImplementedError
 
+    @abstractmethod
     def filter(self, test: Any, suite: Any, case: Any) -> bool:
         raise NotImplementedError
 
@@ -169,6 +173,7 @@ class MetaFilter(BaseFilter):
         self.filters = list(map(f, self.filters))
         return self
 
+    @abstractmethod
     def composed_filter(self, _test: Any, _suite: Any, _case: Any) -> bool:
         raise NotImplementedError
 
@@ -249,6 +254,7 @@ class BaseTagFilter(Filter):
     def __repr__(self) -> str:
         return '{}(tags="{}")'.format(self.__class__.__name__, self.tags_orig)
 
+    @abstractmethod
     def get_match_func(self) -> Callable:
         raise NotImplementedError
 

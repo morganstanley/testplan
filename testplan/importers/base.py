@@ -2,27 +2,31 @@
 Implements base importer classes.
 """
 
+from abc import ABCMeta, abstractmethod
 from typing import Any, TypeVar, Generic, List, Optional
 
 from testplan.report import TestGroupReport, TestReport
 
 
-class ImportedResult:
+class ImportedResult(metaclass=ABCMeta):
     """
     Base class for imported results.
     """
 
+    @abstractmethod
     def as_test_report(self) -> TestReport:
         raise NotImplementedError
 
+    @abstractmethod
     def category(self) -> str:
         raise NotImplementedError
 
+    @abstractmethod
     def results(self) -> List[TestGroupReport]:
         raise NotImplementedError
 
 
-class ResultImporter:
+class ResultImporter(metaclass=ABCMeta):
     """
     Base class for result importer.
     """
@@ -30,6 +34,7 @@ class ResultImporter:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         pass
 
+    @abstractmethod
     def import_result(self) -> ImportedResult:
         raise NotImplementedError
 
@@ -67,6 +72,7 @@ class ThreePhaseFileImporter(ResultImporter, Generic[T]):
 
     # TODO: this looks like a static method except for CPPUnitResultImporter
     #       maybe we can use self.path only?
+    @abstractmethod
     def _read_data(self, path: str) -> T:
         """
         Reads result from the source file.
@@ -75,6 +81,7 @@ class ThreePhaseFileImporter(ResultImporter, Generic[T]):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def _process_data(self, data: T) -> List[TestGroupReport]:
         """
         Processes data read from the source file.
@@ -84,6 +91,7 @@ class ThreePhaseFileImporter(ResultImporter, Generic[T]):
         raise NotImplementedError
 
     # TODO: raw_data, apparently, is never used maybe we can do without it
+    @abstractmethod
     def _create_result(
         self, raw_data: T, processed_data: List[TestGroupReport]
     ) -> ImportedResult:
