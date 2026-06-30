@@ -29,7 +29,7 @@ from testplan.common import entity
 from testplan.common.config import ConfigOption
 from testplan.common.utils import logger, path
 from testplan.common.utils.callable import arity
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+
 from testplan.common.utils.validation import has_method, is_subclass
 from testplan.environment import Environments
 from testplan.parser import TestplanParser, FailedTestLevel
@@ -605,7 +605,7 @@ class Testplan(entity.RunnableManager):
                 with open(plan.cfg.test_lister_output, "wt") as file:
                     file.write(output)
             else:
-                TESTPLAN_LOGGER.user_info(output)
+                print(output, file=sys.stderr)
 
 
 test_plan = Testplan.main_wrapper
