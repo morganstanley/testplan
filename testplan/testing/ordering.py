@@ -7,6 +7,7 @@ API is available for future compatibility.
 
 import operator
 import random
+from abc import ABCMeta, abstractmethod
 from enum import Enum
 
 from testplan.common.utils.convert import make_tuple
@@ -50,15 +51,18 @@ class SortType(Enum):
         return validate_single(value)
 
 
-class BaseSorter:
+class BaseSorter(metaclass=ABCMeta):
     """Base sorter class"""
 
+    @abstractmethod
     def should_sort_instances(self):
         raise NotImplementedError
 
+    @abstractmethod
     def should_sort_testsuites(self):
         raise NotImplementedError
 
+    @abstractmethod
     def should_sort_testcases(self):
         raise NotImplementedError
 
