@@ -69,7 +69,7 @@ importers:
         version: 2.2.3
       axios:
         specifier: ^1.12.0
-        version: 1.12.2
+        version: 1.12.2(debug@4.4.3)
       base64url:
         specifier: ^3.0.1
         version: 3.0.1
@@ -188,6 +188,9 @@ importers:
       '@wojtekmaj/enzyme-adapter-react-17':
         specifier: ^0.8.0
         version: 0.8.0(enzyme@3.11.0)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      baseline-browser-mapping:
+        specifier: ^2.10.38
+        version: 2.10.38
       enzyme:
         specifier: 3.11.0
         version: 3.11.0
@@ -205,7 +208,7 @@ importers:
         version: 1.5.1
       moxios:
         specifier: 0.4.0
-        version: 0.4.0(axios@1.12.2)
+        version: 0.4.0(axios@1.12.2(debug@4.4.3))
       npm-force-resolutions:
         specifier: 0.0.3
         version: 0.0.3
@@ -2345,8 +2348,9 @@ packages:
     resolution: {integrity: sha1-Y5nVcuK8P5CpqLItXbsKMtM/eI0=}
     engines: {node: '>=6.0.0'}
 
-  baseline-browser-mapping@2.8.16:
-    resolution: {integrity: sha512-OMu3BGQ4E7P1ErFsIPpbJh0qvDudM/UuJeHgkAvfWe+0HFJCXh+t/l8L6fVLR55RI/UbKrVLnAXZSVwd9ysWYw==}
+  baseline-browser-mapping@2.10.38:
+    resolution: {integrity: sha512-31/02mVB4yuQU6adKk5SlY6m+mxDwUq5KZkyYgnLrrKl7TEm1+3PyDtDBz2kOv/wxZz41GHsvV1A/u6RmiyBvw==}
+    engines: {node: '>=6.0.0'}
     hasBin: true
 
   batch@0.6.1:
@@ -10084,7 +10088,7 @@ snapshots:
 
   axe-core@4.11.0: {}
 
-  axios@1.12.2:
+  axios@1.12.2(debug@4.4.3):
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.3)
       form-data: 4.0.4
@@ -10229,7 +10233,7 @@ snapshots:
 
   base64url@3.0.1: {}
 
-  baseline-browser-mapping@2.8.16: {}
+  baseline-browser-mapping@2.10.38: {}
 
   batch@0.6.1: {}
 
@@ -10305,7 +10309,7 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.16
+      baseline-browser-mapping: 2.10.38
       caniuse-lite: 1.0.30001750
       electron-to-chromium: 1.5.235
       node-releases: 2.0.23
@@ -13667,9 +13671,9 @@ snapshots:
       signum: 1.0.0
       to-px: 1.0.1
 
-  moxios@0.4.0(axios@1.12.2):
+  moxios@0.4.0(axios@1.12.2(debug@4.4.3)):
     dependencies:
-      axios: 1.12.2
+      axios: 1.12.2(debug@4.4.3)
 
   ms@2.0.0: {}
 

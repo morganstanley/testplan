@@ -1228,6 +1228,346 @@ const MULTITEST_PARTS_REPORT = {
   ],
 };
 
+
+/**
+ * Report with one passed MultiTest and one MultiTest containing exception
+ */
+const MULTITEST_EXCEPTION_REPORT = {
+  "type": "TestReport",
+  "name": "Basic Assertions Example",
+  "description": null,
+  "definition_name": "Basic Assertions Example",
+  "uid": "c9b7b84a-b893-443b-8915-70bd92c15c16",
+  "entries": [
+    {
+      "type": "TestGroupReport",
+      "name": "Basic Assertions Test",
+      "description": null,
+      "definition_name": "Basic Assertions Test",
+      "uid": "e0d8469b-060d-46f7-affd-94d05461b57e",
+      "entries": [
+        {
+          "type": "TestGroupReport",
+          "name": "SampleSuite",
+          "description": null,
+          "definition_name": "SampleSuite",
+          "uid": "a026d947-5950-4bf1-b2bf-4346b07c9212",
+          "entries": [
+            {
+              "type": "TestCaseReport",
+              "name": "test_log_html",
+              "description": null,
+              "definition_name": "test_log_html",
+              "uid": "6944c62e-6126-4966-b914-0444f744bec5",
+              "entries": [
+                {
+                  "type": "Markdown",
+                  "meta_type": "entry",
+                  "timestamp": 0,
+                  "description": "HTML example",
+                  "message": "\n<div style=\"font-size:80px;font-family:Arial;font-weight:bold;\">\n    <i class=\"fa fa-check-square\" style=\"color:green;padding-right:5px;\"></i>\n    Testplan\n</div>\n        ",
+                  "escape": false
+                }
+              ],
+              "status": "passed",
+              "runtime_status": "finished",
+              "logs": [],
+              "hash": 0,
+              "parent_uids": [
+                "Basic Assertions Example",
+                "Basic Assertions Test",
+                "SampleSuite"
+              ],
+              "timer": {
+                "run": [
+                  {
+                    "start": 0,
+                    "end": 0
+                  }
+                ]
+              },
+              "category": "testcase",
+              "counter": {
+                "passed": 1,
+                "failed": 0,
+                "total": 1
+              },
+              "tags": {}
+            },
+            {
+              "type": "TestCaseReport",
+              "name": "test_basic_assertions",
+              "description": null,
+              "definition_name": "test_basic_assertions",
+              "uid": "9fab4c81-5dca-44ec-b812-1126511ca30a",
+              "entries": [
+                {
+                  "type": "GreaterEqual",
+                  "meta_type": "assertion",
+                  "timestamp": 0,
+                  "description": "2 >= 2",
+                  "passed": true,
+                  "first": 2,
+                  "second": 2,
+                  "label": ">="
+                },
+                {
+                  "type": "Fail",
+                  "meta_type": "assertion",
+                  "timestamp": 0,
+                  "description": "This is an explicit failure.",
+                  "passed": false,
+                  "message": "This is an explicit failure."
+                },
+              ],
+              "status": "failed",
+              "runtime_status": "finished",
+              "logs": [],
+              "hash": 0,
+              "parent_uids": [
+                "Basic Assertions Example",
+                "Basic Assertions Test",
+                "SampleSuite"
+              ],
+              "timer": {
+                "run": [
+                  {
+                    "start": 0,
+                    "end": 0
+                  }
+                ]
+              },
+              "category": "testcase",
+              "counter": {
+                "passed": 0,
+                "failed": 1,
+                "total": 1
+              },
+              "tags": {}
+            }
+          ],
+          "status": "failed",
+          "runtime_status": "finished",
+          "logs": [],
+          "hash": 0,
+          "parent_uids": [
+            "Basic Assertions Example",
+            "Basic Assertions Test"
+          ],
+          "timer": {
+            "run": [
+              {
+                "start": 0,
+                "end": 0
+              }
+            ]
+          },
+          "counter": {
+            "passed": 1,
+            "failed": 1,
+            "total": 2
+          },
+          "children": [],
+          "strict_order": false,
+          "category": "testsuite",
+          "tags": {}
+        }
+      ],
+      "status": "failed",
+      "runtime_status": "finished",
+      "logs": [],
+      "hash": 0,
+      "parent_uids": [
+        "Basic Assertions Example"
+      ],
+      "timer": {
+        "setup": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ],
+        "run": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ],
+        "teardown": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ]
+      },
+      "counter": {
+        "passed": 1,
+        "failed": 1,
+        "total": 2
+      },
+      "children": [],
+      "part": null,
+      "env_status": "STOPPED",
+      "timezone": "UTC",
+      "host": null,
+      "category": "multitest",
+      "tags": {}
+    },
+    {
+      "type": "TestGroupReport",
+      "name": "hohoo",
+      "description": null,
+      "definition_name": "hohoo",
+      "uid": "9b1d5ff7-5d01-4262-9aa3-468fb805c222",
+      "entries": [],
+      "status_override": "error",
+      "status": "error",
+      "runtime_status": "ready",
+      "logs": [
+        {
+          "message": "Traceback (most recent call last):\n    raise RuntimeError(\"This is a runtime error in a MultiTest.\")\nRuntimeError: This is a runtime error in a MultiTest.\n",
+          "levelname": "ERROR",
+          "levelno": 40,
+          "created": 0,
+          "funcName": "__exit__",
+          "lineno": 100,
+          "uid": "ee8e9780-5dae-4401-b111-bfb1ab7f9cc8"
+        }
+      ],
+      "hash": 0,
+      "parent_uids": [
+        "Basic Assertions Example"
+      ],
+      "timer": {
+        "setup": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ],
+        "teardown": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ]
+      },
+      "counter": {
+        "passed": 0,
+        "failed": 0,
+        "total": 0
+      },
+      "children": [],
+      "part": null,
+      "env_status": "STOPPED",
+      "timezone": "UTC",
+      "host": null,
+      "category": "multitest",
+      "tags": {}
+    }
+  ],
+  "status": "error",
+  "runtime_status": "ready",
+  "logs": [],
+  "hash": 0,
+  "parent_uids": [],
+  "timer": {
+    "run": [
+      {
+        "start": 0,
+        "end": 0
+      }
+    ]
+  },
+  "counter": {
+    "passed": 1,
+    "failed": 1,
+    "total": 2
+  },
+  "children": [
+    {
+      "name": "LocalRunner[local_runner]",
+      "timer": {
+        "lifespan": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ],
+        "setup": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ],
+        "teardown": [
+          {
+            "start": 0,
+            "end": null
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "name": "Environments[environments]",
+      "timer": {
+        "lifespan": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ],
+        "setup": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ],
+        "teardown": [
+          {
+            "start": 0,
+            "end": 0
+          }
+        ]
+      },
+      "children": []
+    }
+  ],
+  "category": "testplan",
+  "meta": {},
+  "label": null,
+  "tags_index": {},
+  "information": [
+    [
+      "testplan_version",
+      "25.8.0"
+    ],
+    [
+      "user",
+      "testuser"
+    ],
+    [
+      "command_line_string",
+      "./test_plan.py"
+    ],
+    [
+      "python_version",
+      "3.12.13"
+    ],
+    [
+      "runpath",
+      "/var/tmp/testuser/testplan/basic-assertions-example"
+    ]
+  ],
+  "resource_meta_path": null,
+  "timezone": "UTC",
+  "attachments": {},
+  "timeout": 14400,
+  "version": 1
+};
+
+
 export {
   TESTPLAN_REPORT,
   SIMPLE_PASSED_REPORT,
@@ -1236,4 +1576,5 @@ export {
   ERROR_REPORT,
   FakeInteractiveReport,
   MULTITEST_PARTS_REPORT,
+  MULTITEST_EXCEPTION_REPORT,
 };
