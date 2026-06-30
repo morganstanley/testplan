@@ -9,7 +9,7 @@ in your local environment!
 Supported Python Versions
 =========================
 
-Testplan is tested to work with Python 3.9+ so we recommend choosing one of those.
+Testplan is tested to work with Python 3.10+ so we recommend choosing one of those.
 
 .. _install_testplan:
 
