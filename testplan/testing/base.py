@@ -33,7 +33,11 @@ from testplan.common.entity import (
     RunnableResult,
 )
 from testplan.common.remote.remote_driver import RemoteDriver
-from testplan.common.report import ReportCategories, RuntimeStatus
+from testplan.common.report import (
+    BaseReportGroup,
+    ReportCategories,
+    RuntimeStatus,
+)
 from testplan.common.report import Status as ReportStatus
 from testplan.common.utils import interface, strings, validation
 from testplan.common.utils.composer import compose_contexts
@@ -558,7 +562,9 @@ class Test(Runnable):
             tracing.end_span(span, end_time=end_time)
 
     def _get_error_logs(self) -> Optional[List[Dict[str, Any]]]:
-        if "run_tests" in self.result.step_results:
+        if "run_tests" in self.result.step_results and isinstance(
+            self.result.step_results["run_tests"], BaseReportGroup
+        ):
             return [
                 log
                 for log in self.result.step_results["run_tests"].flattened_logs

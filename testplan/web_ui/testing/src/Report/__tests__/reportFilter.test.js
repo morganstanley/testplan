@@ -1,10 +1,16 @@
 import React from "react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import { MemoryRouter, Route } from "react-router-dom";
+import moxios from "moxios";
+import _ from "lodash";
 
 import { taggedReport } from "../../Common/fakeReport";
+import { MULTITEST_EXCEPTION_REPORT } from "../../Common/sampleReports";
 import { PropagateIndices } from "../reportUtils";
 import SearchFieldParser from "../../Parser/SearchFieldParser";
 import { filterEntries } from "../reportFilter";
-import _ from "lodash";
+import BatchReport from "../BatchReport";
 
 describe("Report/reportFilter", () => {
   let report;
@@ -269,5 +275,89 @@ describe("Report/reportFilter", () => {
       ["test_1 test_2 test_3", ...all],
       ["ary BlaBla", ...all],
     ])('should filter correctly with: "%s"', validate);
+  });
+});
+
+// End-to-end test that drives the filter through the real UI (BatchReport +
+// the toolbar search box) rather than calling filterEntries() directly. Uses a
+// sanitized copy of a real report.json, whose top-level "hohoo" multitest has
+// log output but no child entries (it errored during setup).
+describe("Report/reportFilter (e2e via BatchReport)", () => {
+  const uid = MULTITEST_EXCEPTION_REPORT.uid;
+  // The first failure lives in this multitest, so navigating to it on load
+  // triggers a fetch for its assertions file.
+  const failingMt = MULTITEST_EXCEPTION_REPORT.entries[0]; // "Basic Assertions Test"
+
+  const respondWithReport = () => {
+    moxios.stubRequest("/api/v1/metadata/fix-spec/tags", {
+      status: 200,
+      response: {},
+    });
+    moxios.stubRequest(
+      `/api/v1/reports/${uid}/attachments/assertions_${failingMt.uid}`,
+      { status: 200, response: {} }
+    );
+    return new Promise((resolve) => {
+      moxios.wait(() => {
+        moxios.requests
+          .get("GET", `/api/v1/reports/${uid}`)
+          .respondWith({ status: 200, response: MULTITEST_EXCEPTION_REPORT })
+          .then(resolve);
+      });
+    });
+  };
+
+  beforeEach(() => {
+    moxios.install();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    moxios.uninstall();
+  });
+
+  it("keeps a logs-only group when it matches the search filter", async () => {
+    render(
+      <MemoryRouter initialEntries={[`/testplan/${uid}`]}>
+        <Route
+          path="/testplan/:uid/:selection*"
+          render={(routeProps) => <BatchReport {...routeProps} />}
+        />
+      </MemoryRouter>
+    );
+    await respondWithReport();
+
+    // Both top-level multitests are visible before filtering.
+    await waitFor(() => {
+      expect(screen.getByTitle("hohoo - error")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByTitle("Basic Assertions Test - failed")
+    ).toBeInTheDocument();
+
+    // The toolbar search box is the only text input on screen.
+    const searchBox = screen.getByRole("textbox");
+
+    // Search for the logs-only group.
+    fireEvent.change(searchBox, { target: { value: "hohoo" } });
+
+    // "hohoo" has no child entries, only logs -- it must still be displayed,
+    // while the unrelated multitest gets filtered out of the nav.
+    await waitFor(() => {
+      expect(
+        screen.queryByTitle("Basic Assertions Test - failed")
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.getByTitle("hohoo - error")).toBeInTheDocument();
+
+    // Clearing the search box restores the full nav -- both multitests show.
+    fireEvent.change(searchBox, { target: { value: "" } });
+
+    await waitFor(() => {
+      expect(
+        screen.getByTitle("Basic Assertions Test - failed")
+      ).toBeInTheDocument();
+    });
+    expect(screen.getByTitle("hohoo - error")).toBeInTheDocument();
   });
 });
