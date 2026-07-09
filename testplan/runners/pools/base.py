@@ -797,7 +797,8 @@ class Pool(Executor):
                 "abort": [],
             }
 
-            for _worker in self._workers:
+            # Snapshot as workers may be added at runtime from another thread.
+            for _worker in list(self._workers):
                 worker: Worker = _worker  # type: ignore[assignment]
                 status, reason = self._query_worker_status(worker)
                 if status == "inactive":
