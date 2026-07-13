@@ -1,0 +1,1 @@
+Reduce ``testplan.log`` noise for remote resources: tolerated (``check=False``) non-zero exits from remote commands are now logged at debug as ``(non-fatal)`` rather than as failures. A failed result-fetch/pull now warns with the rsync exit code instead of being recorded as a resource error.
