@@ -355,10 +355,10 @@ def execute_cmd(
     :param stderr: Optional file-like object to redirect stderr to.
     :param logger: Optional logger object as logging destination.
     :param env: Optional dict object as environment variables.
-    :param detailed_log: Enum to determine when stdout and stderr outputs should
-           be logged.
+    :param detailed_log: Enum to determine what is logged when the command runs.
            LOG_ALWAYS - Outputs are logged on success and failure.
-           LOG_ON_ERROR - Outputs are logged on failure.
+           LOG_ON_ERROR - stdout/stderr logged on failure; a non-zero exit is a
+           failure warning when ``check`` is True, else logged plainly at debug.
            NEVER_LOG - Outputs are never logged.
     :return: Return code of the command.
     """
@@ -400,12 +400,23 @@ def execute_cmd(
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.warning(
-            "Failed executing command [%s] after %.2f sec.", label, elapsed
-        )
         output_s = output if output is not None else ""
         error_s = error if error is not None else ""
         if detailed_log is not LogDetailsOption.NEVER_LOG:
+            if check:
+                logger.warning(
+                    "Failed executing command [%s] after %.2f sec.",
+                    label,
+                    elapsed,
+                )
+            else:
+                # check=False => log it as non-fatal
+                logger.debug(
+                    "Command [%s] returned exit code %d in %.2f sec (non-fatal)",
+                    label,
+                    handler.returncode,
+                    elapsed,
+                )
             _log_subprocess_output(logger, output_s, error_s)
         if check:
             raise RuntimeError(
