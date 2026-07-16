@@ -444,10 +444,15 @@ class RemotePool(Pool):
                 )
 
     def _early_stop_worker(self, worker: RemoteWorker) -> bool:  # type: ignore[override]
-        if len(worker.assigned) != 0:
+        # Early stopping is an optional capacity optimization. Do not block
+        # the sole request-handling loop when worker recovery owns this lock.
+        if not self._pool_lock.acquire(blocking=False):
             return False
-        worker_uid: str = worker.uid()  # type: ignore[assignment]
-        with self._pool_lock:
+
+        try:
+            if len(worker.assigned) != 0:
+                return False
+            worker_uid: str = worker.uid()  # type: ignore[assignment]
             if self.pool and (worker_uid not in self._stopping_queue):
                 alive_worker_ids = set(
                     [worker.uid() for worker in self.worker_status["active"]]
@@ -464,7 +469,9 @@ class RemotePool(Pool):
                         (self._workers[worker_uid],),
                     )
                     return True
-        return False
+            return False
+        finally:
+            self._pool_lock.release()
 
     def starting(self) -> None:
         self._start_thread_pool()
