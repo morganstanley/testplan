@@ -1114,24 +1114,29 @@ class TestRunner(Runnable):
                 )
             )
 """
-                    try:
+                    available_execution_time = (
+                        auto_part_runtime_limit
+                        - time_info["setup_time"]
+                        - time_info["teardown_time"]
+                    )
+                    if available_execution_time <= 0:
+                        self.logger.error(
+                            f"Cannot calculate auto-part count for {uid} "
+                            "because setup and teardown take at least the "
+                            "entire part runtime; "
+                            f"set to cap {cap}. {formula}"
+                        )
+                        num_of_parts = cap
+                    else:
                         num_of_parts = math.ceil(
                             time_info["execution_time"]
-                            / (
-                                auto_part_runtime_limit
-                                - time_info["setup_time"]
-                                - time_info["teardown_time"]
-                            )
+                            / available_execution_time
                         )
-                    except ZeroDivisionError:
-                        self.logger.error(
-                            f"ZeroDivisionError occurred when calculating num_of_parts for {uid}, set to 1. {formula}"
-                        )
-                        num_of_parts = 1
 
                     if num_of_parts < 1:
                         self.logger.error(
-                            f"Calculated num_of_parts for {uid} is {num_of_parts}, set to 1. {formula}"
+                            f"Calculated num_of_parts for {uid} is "
+                            f"{num_of_parts}, set to 1. {formula}"
                         )
                         num_of_parts = 1
 
