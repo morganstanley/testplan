@@ -125,11 +125,11 @@ def test_auto_parts_zero_neg_parts():
             name_pattern=r".*auto_parts_tasks\.py$",
             resource="MyPool",
         )
-        assert len(pool.added_items) == 1
+        assert len(pool.added_items) == 3
         for task in pool.added_items.values():
-            assert task.weight == 100
+            assert task.weight == 67
         mockplan.run()
-        assert pool.size == 1
+        assert pool.size == 2
 
 
 def test_auto_parts_cap_parts():
@@ -275,11 +275,45 @@ def test_auto_parts_zero_neg_parts_with_teardown_time():
             name_pattern=r".*auto_parts_tasks\.py$",
             resource="MyPool",
         )
-        assert len(pool.added_items) == 1
+        assert len(pool.added_items) == 3
         for task in pool.added_items.values():
-            assert task.weight == 100
+            assert task.weight == 67
         mockplan.run()
-        assert pool.size == 1
+        assert pool.size == 2
+
+
+def test_auto_parts_runtime_limit_less_than_setup_and_teardown(monkeypatch):
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan",
+            runpath=runpath,
+            auto_part_runtime_limit="auto",
+            plan_runtime_target=200,
+            runtime_data={
+                "Proj1-suite": {
+                    "execution_time": 10739.373514,
+                    "setup_time": 1770.940957,
+                    "teardown_time": 29.46139,
+                }
+            },
+        )
+        pool = ProcessPool(name="MyPool", size="auto")
+        mockplan.add_resource(pool)
+        errors = []
+        monkeypatch.setattr(mockplan.runnable.logger, "error", errors.append)
+        current_folder = Path(__file__).resolve().parent
+        mockplan.schedule_all(
+            path=current_folder / "discover_tasks",
+            name_pattern=r".*auto_parts_tasks\.py$",
+            resource="MyPool",
+        )
+
+        assert len(pool.added_items) == 10
+        assert (
+            "Cannot calculate auto-part count for Proj1-suite because setup "
+            "and teardown take at least the entire part runtime; set to cap "
+            "10."
+        ) in errors[0]
 
 
 def test_auto_parts_cap_parts_with_teardown_time():
