@@ -1,0 +1,1 @@
+Resource monitor now reports the host context-switch rate (``host_ctx_switches``).

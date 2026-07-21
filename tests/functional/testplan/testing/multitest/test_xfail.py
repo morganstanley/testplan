@@ -12,6 +12,7 @@ from schema import SchemaError
 from testplan import TestplanMock
 from testplan.common.report.base import Status
 from testplan.testing.multitest import MultiTest, testcase, testsuite, xfail
+from testplan.testing.multitest.suite import skip_if
 
 from .test_multitest_drivers import BaseDriver, VulnerableDriver1
 
@@ -151,16 +152,16 @@ def test_dynamic_xfail():
     result = plan.run()
 
     dynamic_xfail_suite_report = result.report.entries[0].entries[0]
-    assert dynamic_xfail_suite_report.unstable is True
-    assert dynamic_xfail_suite_report.entries[0].unstable is True
+    assert dynamic_xfail_suite_report.xfailed is True
+    assert dynamic_xfail_suite_report.entries[0].xfailed is True
 
-    assert result.report.entries[1].unstable is True
+    assert result.report.entries[1].xfailed is True
     # after start
-    assert result.report.entries[2].entries[0].entries[0].unstable is True
+    assert result.report.entries[2].entries[0].entries[0].xfailed is True
     # setup
-    assert result.report.entries[2].entries[1].entries[0].unstable is True
+    assert result.report.entries[2].entries[1].entries[0].xfailed is True
     # teardown
-    assert result.report.entries[2].entries[1].entries[2].unstable is True
+    assert result.report.entries[2].entries[1].entries[2].xfailed is True
 
 
 def test_dynamic_xfail_environment_start_condition_error():
@@ -215,7 +216,7 @@ def test_dynamic_xfail_environment_start_condition_error():
         "Environment Start"
     ]["Starting"]
 
-    assert first_env_start.unstable is True
+    assert first_env_start.xfailed is True
     assert first_env_start.status == Status.XFAIL
     assert second_env_start.failed is True
     assert second_env_start.status == Status.ERROR
@@ -279,6 +280,46 @@ class AssertionXfailSuite:
             description="b1 dict match",
         )
 
+    @testcase
+    def both_fail_no_description(self, env, result):
+        """Both a1 and b1 fail."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 2},
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 2},
+        )
+
+    @testcase
+    def passing_no_match(self, env, result):
+        """Both pass; xfail condition's type and description match nothing."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 1},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 1},
+            description="b1 dict match",
+        )
+
+    @testcase
+    def passing_type_only_match(self, env, result):
+        """Both pass; xfail condition's type matches, description doesn't."""
+        result.dict.match(
+            {"foo": 1},
+            {"foo": 1},
+            description="a1 dict match",
+        )
+        result.dict.match(
+            {"bar": 1},
+            {"bar": 1},
+            description="b1 dict match",
+        )
+
 
 def test_dynamic_xfail_testcase_condition_failed():
     plan = TestplanMock(
@@ -324,6 +365,26 @@ def test_dynamic_xfail_testcase_condition_failed():
                     }
                 },
             },
+            "Assertion Xfail MT:AssertionXfailSuite:passing_no_match": {
+                "reason": "passing, condition matches no entry",
+                "strict": True,
+                "condition": {
+                    "failed": {
+                        "type": "IsTrue",
+                        "description": "c1 dict match",
+                    }
+                },
+            },
+            "Assertion Xfail MT:AssertionXfailSuite:passing_type_only_match": {
+                "reason": "passing, condition type matches but description doesn't",
+                "strict": True,
+                "condition": {
+                    "failed": {
+                        "type": "DictMatch",
+                        "description": "c1 dict match",
+                    }
+                },
+            },
         },
     )
     plan.add(
@@ -340,6 +401,8 @@ def test_dynamic_xfail_testcase_condition_failed():
     neither = suite_report["neither_fails"]
     both_b1 = suite_report["both_fail_condition_b1"]
     both_a1 = suite_report["both_fail_condition_a1"]
+    no_match = suite_report["passing_no_match"]
+    type_only_match = suite_report["passing_type_only_match"]
 
     # only_a1_fails: a1 fails but xfail condition=b1 desc -> no b1 -> not xfail
     assert only_a1.status == Status.FAILED
@@ -349,12 +412,61 @@ def test_dynamic_xfail_testcase_condition_failed():
     assert both_b1.status == Status.XFAIL
     # both_fail_condition_a1: a1+b1 fail, xfail condition=a1 desc -> match -> xfail
     assert both_a1.status == Status.XFAIL
+    # passing_no_match: passing, condition matches no entry -> xpass
+    assert no_match.status == Status.XPASS_STRICT
+    # passing_type_only_match: passing, only type matches (AND semantics) -> xpass
+    assert type_only_match.status == Status.XPASS_STRICT
+
+
+@pytest.mark.parametrize(
+    "condition, xfail_cases",
+    [
+        (
+            {"failed": {"type": "DictMatch", "description": ".*"}},
+            {
+                "only_a1_fails",
+                "both_fail_condition_b1",
+                "both_fail_condition_a1",
+            },
+        ),
+        (
+            {"failed": {"type": "DictMatch", "description": None}},
+            {"both_fail_no_description"},
+        ),
+    ],
+    ids=count(0),
+)
+def test_dynamic_xfail_special_condition(condition, xfail_cases):
+    xfail_tests = {
+        f"Assertion Xfail MT:AssertionXfailSuite:{case}": {
+            "reason": "",
+            "strict": True,
+            "condition": condition,
+        }
+        for case in xfail_cases
+    }
+    plan = TestplanMock(
+        name="dynamic_xfail_special_condition",
+        xfail_tests=xfail_tests,
+    )
+    plan.add(
+        MultiTest(
+            name="Assertion Xfail MT",
+            suites=[AssertionXfailSuite()],
+        )
+    )
+    result = plan.run()
+
+    suite_report = result.report["Assertion Xfail MT"]["AssertionXfailSuite"]
+    for case in xfail_cases:
+        assert suite_report[case].status == Status.XFAIL
 
 
 @pytest.mark.parametrize(
     "bad_condition",
     [
         {"failed": {"passed": False}},
+        {"failed": {"type": "DictMatch"}},
         {"failed": {"type": "DictMatch"}, "error": "some pattern"},
     ],
     ids=count(0),
@@ -393,7 +505,7 @@ def test_xfail(mockplan):
         "xpass-strict": 10,
     }
     assert strict_xfail_suite_report.failed is True
-    assert strict_xfail_suite_report.entries[0].unstable is True
+    assert strict_xfail_suite_report.entries[0].xfailed is True
     assert strict_xfail_suite_report.entries[1].failed is True
 
     no_strict_xfail_suite_report = result.report.entries[0].entries[1]
@@ -404,8 +516,8 @@ def test_xfail(mockplan):
         "xfail": 10,
         "xpass": 10,
     }
-    assert no_strict_xfail_suite_report.unstable is True
-    assert no_strict_xfail_suite_report.entries[0].unstable is True
+    assert no_strict_xfail_suite_report.xfailed is True
+    assert no_strict_xfail_suite_report.entries[0].xfailed is True
     assert no_strict_xfail_suite_report.entries[1].unstable is True
 
 
@@ -531,3 +643,44 @@ def test_xfail_cli():
         starting = env_start["entries"][0]
         assert starting["name"] == "Starting"
         assert starting["status_override"] == "xfail"
+
+
+@testsuite
+class SkipIfXfailSuite:
+    """A suite whose xfail'd testcase is also skipped via ``@skip_if``."""
+
+    @skip_if(lambda testsuite: True)
+    @testcase
+    def skipped_case(self, env, result):
+        result.true(False, description="should never run")
+
+
+def test_dynamic_xfail_with_skip_if():
+    """
+    Regression test for the crash where a testcase listed in ``xfail_tests``
+    that is also skipped by a ``@skip_if`` predicate raised
+    ``AttributeError: 'function' object has no attribute '__func__'`` in
+    ``get_test_context``.
+
+    When ``@skip_if`` fires, the testcase slot on the suite instance holds a
+    plain function rather than a bound method, so ``__func__`` is absent.
+    Building/running the plan must not crash.
+    """
+    plan = TestplanMock(
+        name="dynamic_xfail_with_skip_if",
+        xfail_tests={
+            "Skip Xfail MT:SkipIfXfailSuite:skipped_case": {
+                "reason": "skipped and xfail'd at the same time",
+                "strict": False,
+            },
+        },
+    )
+    plan.add(MultiTest(name="Skip Xfail MT", suites=[SkipIfXfailSuite()]))
+
+    # Must not raise AttributeError during plan setup / run.
+    result = plan.run()
+
+    # A skipped testcase produces no result, so the xfail annotation is a
+    # no-op; the run simply completes without the testcase passing/failing.
+    suite_report = result.report["Skip Xfail MT"]["SkipIfXfailSuite"]
+    assert suite_report["skipped_case"] is not None

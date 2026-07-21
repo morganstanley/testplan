@@ -5,14 +5,7 @@
   "engines": {
     "node": ">=22.0.0",
     "npm": ">=11.11.1",
-    "pnpm": ">=10.32.1"
-  },
-  "pnpm": {
-    "overrides": {
-      "react": "^17.0.2",
-      "@types/react": "^17.0.2",
-      "cheerio": "1.0.0-rc.12"
-    }
+    "pnpm": ">=11.1.2"
   },
   "dependencies": {
     "@babel/core": "^7.22.0",

@@ -1,6 +1,8 @@
 """Unit tests for the testplan.testing.multitest.suite module."""
 
+import functools
 import re
+from unittest import mock
 
 import pytest
 
@@ -8,6 +10,7 @@ from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.interface import MethodSignatureMismatch
 from testplan.common.utils.strings import format_description
 from testplan.testing.multitest import suite
+from testplan.testing.multitest import test_metadata
 from testplan.testing import tagging
 
 
@@ -248,3 +251,93 @@ def test_skip_if_signature():
 )
 def test_format_description(text, expected):
     format_description(text) == expected
+
+
+def test_location_metadata_not_resolved_at_decoration_time():
+    """Decorating a suite/testcase must not call ``LocationMetadata.from_object``."""
+    with mock.patch.object(
+        test_metadata.LocationMetadata,
+        "from_object",
+        wraps=test_metadata.LocationMetadata.from_object,
+    ) as spy:
+
+        @suite.testsuite
+        class LazyMetadataSuite:
+            @suite.testcase
+            def case_one(self, env, result):
+                pass
+
+            @suite.testcase(parameters=tuple(range(5)))
+            def case_param(self, env, result, value):
+                pass
+
+        assert spy.call_count == 0
+
+
+def test_parametrized_testcases_share_one_location_resolution():
+    """All variants of a parametrized template resolve metadata once."""
+
+    @suite.testsuite
+    class CachedParamSuite:
+        @suite.testcase(parameters=tuple(range(20)))
+        def case(self, env, result, value):
+            pass
+
+    instance = CachedParamSuite()
+    testcases = instance.get_testcases()
+    assert len(testcases) == 20
+
+    with mock.patch.object(
+        test_metadata.LocationMetadata,
+        "from_object",
+        wraps=test_metadata.LocationMetadata.from_object,
+    ) as spy:
+        for tc in testcases:
+            suite.get_testcase_metadata(tc)
+
+        assert spy.call_count == 1
+
+
+def test_skipped_case_reports_original_location():
+    """``_gen_skipped_case`` must preserve the original testcase's location."""
+
+    @suite.testsuite
+    class OriginalSuite:
+        @suite.testcase
+        def case_x(self, env, result):
+            pass
+
+    # ``_gen_skipped_case`` runs against the bound method
+    # taken from a suite instance.
+    instance = OriginalSuite()
+    orig_case = getattr(instance, "case_x")
+    original_metadata = suite.get_testcase_metadata(orig_case)
+
+    skipped = suite._gen_skipped_case("manual skip", orig_case)
+    skipped_metadata = suite.get_testcase_metadata(skipped)
+
+    assert skipped_metadata.location == original_metadata.location
+
+
+def test_location_metadata_unwraps_functools_wraps():
+    """``from_object`` resolves to the original through ``functools.wraps``."""
+
+    def deco(fn):
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return inner
+
+    def original():
+        pass
+
+    wrapped = deco(original)
+
+    loc_original = test_metadata.LocationMetadata.from_object(original)
+    loc_wrapped = test_metadata.LocationMetadata.from_object(wrapped)
+
+    assert loc_original is not None
+    assert loc_wrapped is not None
+    assert loc_wrapped.file == loc_original.file
+    assert loc_wrapped.line_no == loc_original.line_no

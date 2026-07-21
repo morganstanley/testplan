@@ -26,9 +26,7 @@ from testplan.common.utils.path import (
     pwd,
     rebase_path,
 )
-from testplan.common.utils.process import (
-    execute_cmd,
-)
+from testplan.common.utils.process import execute_cmd
 from testplan.common.utils.remote import (
     IS_WIN,
     copy_cmd,
@@ -734,23 +732,26 @@ class RemoteResource(Entity):
             self.logger.error(
                 "%s not properly set up, skip fetch results stage", self
             )
+            return
         self.logger.debug("Fetch results stage - %s", self.ssh_cfg["host"])
-        try:
-            self._transfer_data(
-                source=self._remote_resource_runpath,
-                remote_source=True,
-                target=cast(Entity, self.parent).runpath,
-                exclude=self.cfg.fetch_runpath_exclude,
-            )
-            if self.cfg.pull:
-                self._pull_files()
-        except Exception as exc:
-            self._error_exec.append(exc)
+        # check=False: a fetch failure does not abort teardown
+        retcode, _, _ = self._transfer_data(
+            source=self._remote_resource_runpath,
+            remote_source=True,
+            target=cast(Entity, self.parent).runpath,
+            exclude=self.cfg.fetch_runpath_exclude,
+            check=False,
+        )
+        if retcode != 0:
             self.logger.warning(
-                "While fetching result from remote resource [%s]: %s",
+                "Could not fetch '%s' from remote resource [%s] "
+                "(rsync exit %d) - results may be incomplete",
+                self._remote_resource_runpath,
                 self,
-                exc,
+                retcode,
             )
+        if self.cfg.pull:
+            self._pull_files()
 
     def _clean_remote(self) -> None:
         if self.cfg.clean_remote:
@@ -787,19 +788,20 @@ class RemoteResource(Entity):
         makedirs(pull_dst)
 
         for entry in self.cfg.pull:
-            try:
-                self._transfer_data(
-                    source=entry,
-                    remote_source=True,
-                    target=pull_dst,
-                    exclude=self.cfg.pull_exclude,
-                )
-            except Exception as exc:
-                self._error_exec.append(exc)
+            retcode, _, _ = self._transfer_data(
+                source=entry,
+                remote_source=True,
+                target=pull_dst,
+                exclude=self.cfg.pull_exclude,
+                check=False,
+            )
+            if retcode != 0:
                 self.logger.warning(
-                    "While fetching result from remote resource [%s]: %s",
+                    "Could not fetch '%s' from remote resource [%s] "
+                    "(rsync exit %d) - results may be incomplete",
+                    entry,
                     self,
-                    exc,
+                    retcode,
                 )
 
     def _remote_sys_path(self) -> List[str]:
@@ -853,8 +855,9 @@ class RemoteResource(Entity):
         target: str,
         remote_source: bool = False,
         remote_target: bool = False,
+        check: bool = True,
         **copy_args: Any,
-    ) -> None:
+    ) -> Tuple[int, Optional[str], Optional[str]]:
         if remote_source:
             source = self._remote_copy_path(source)
         if remote_target:
@@ -864,11 +867,12 @@ class RemoteResource(Entity):
             source, target, port=self.ssh_cfg["port"], **copy_args
         )
         with open(os.devnull, "w") as devnull:
-            execute_cmd(
+            return execute_cmd(
                 cmd,
                 "transfer data [..{}]".format(os.path.basename(source)),
                 stdout=devnull,  # type: ignore[arg-type]
                 logger=self.logger,
+                check=check,
             )
 
     def _check_remote_os(self) -> None:

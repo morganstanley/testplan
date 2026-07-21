@@ -410,6 +410,10 @@ describe("Report/reportUtils", () => {
         failed: 1,
         total: 5,
         error: 0,
+        xpass: 0,
+        xfail: 0,
+        skipped: 0,
+        "xpass-strict": 0,
       });
     });
 
@@ -449,6 +453,39 @@ describe("Report/reportUtils", () => {
         failed: 3,
         total: 11,
         error: 1,
+        xpass: 0,
+        xfail: 0,
+        skipped: 0,
+        "xpass-strict": 0,
+      });
+    });
+
+    it("merges xpass, xfail, skipped and xpass-strict counters across parts", () => {
+      const part0 = createPart(0, 2, {
+        counter: {
+          passed: 1, failed: 0, total: 6, error: 0,
+          xpass: 2, xfail: 1, skipped: 1, "xpass-strict": 1,
+        },
+      });
+      const part1 = createPart(1, 2, {
+        counter: {
+          passed: 0, failed: 0, total: 7, error: 0,
+          xpass: 1, xfail: 2, skipped: 2, "xpass-strict": 2,
+        },
+      });
+
+      const report = { uid: "testplan", entries: [part0, part1] };
+      const result = applyPartsMerge(report);
+
+      expect(result.entries[0].counter).toEqual({
+        passed: 1,
+        failed: 0,
+        total: 13,
+        error: 0,
+        xpass: 3,
+        xfail: 3,
+        skipped: 3,
+        "xpass-strict": 3,
       });
     });
 
@@ -538,6 +575,10 @@ describe("Report/reportUtils", () => {
         failed: 1,
         total: 4,
         error: 1,
+        xpass: 0,
+        xfail: 0,
+        skipped: 0,
+        "xpass-strict": 0,
       });
       expect(mergedSuite.status).toBe("error");
     });
@@ -614,6 +655,10 @@ describe("Report/reportUtils", () => {
         failed: 1,
         total: 7,
         error: 0,
+        xpass: 0,
+        xfail: 0,
+        skipped: 0,
+        "xpass-strict": 0,
       });
       expect(merged.entries).toHaveLength(3);
     });
@@ -670,6 +715,10 @@ describe("Report/reportUtils", () => {
         failed: 0,
         total: 3,
         error: 0,
+        xpass: 0,
+        xfail: 0,
+        skipped: 0,
+        "xpass-strict": 0,
       });
       expect(mergedSuite1._allPartUids).toEqual(["suite1_p1", "suite1_p0"]);
     });

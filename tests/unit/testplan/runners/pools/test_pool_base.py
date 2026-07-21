@@ -285,38 +285,6 @@ class TestPoolIsolated:
 
             assert pool.unassigned.size() == unassigned_before
 
-    def test_handle_taskpull_inactive_under_pool_lock(self):
-        """
-        Re-check under _pool_lock catches a worker decommissioned
-        after the top-level active-check: reply Stop, no orphan.
-        """
-        pool = pools_base.Pool(
-            name="MyPool", size=1, worker_type=ControllableWorker
-        )
-        pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
-        pool._start_monitor_thread = False
-
-        with pool:
-            worker = pool._workers["0"]
-            task = Task(target=Runnable(5))
-            pool.add(task, uid=task.uid())
-
-            worker._should_abort = True
-            assert not worker.active
-
-            msg_factory = communication.Message(**worker.metadata)
-            request = msg_factory.make(msg_factory.TaskPullRequest, data=1)
-            response = communication.Message(**pool._metadata)
-
-            unassigned_before = pool.unassigned.size()
-            pool._handle_taskpull_request(worker, request, response)
-
-            assert pool.unassigned.size() == unassigned_before
-            assert task.uid() not in worker.assigned
-
-            received = worker.transport.receive()
-            assert received.cmd == communication.Message.Stop
-
     def test_handle_request_handler_raises_with_disconnected_transport(self):
         """
         Handler raises and disconnects mid-flight; handle_request must

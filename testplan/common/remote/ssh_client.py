@@ -171,18 +171,31 @@ class SSHClient:
         stderr_str = stderr.read().decode("utf-8").strip()
 
         if exit_code != 0:
-            self.logger.warning(
-                "Failed executing command [%s] after %.2f sec.", label, elapsed
-            )
-            if stdout_str:
-                self.logger.warning("Stdout:\n%s", stdout_str)
-            if stderr_str:
-                self.logger.warning("Stderr:\n%s", stderr_str)
             if check:
+                self.logger.warning(
+                    "Failed executing command [%s] after %.2f sec.",
+                    label,
+                    elapsed,
+                )
+                if stdout_str:
+                    self.logger.warning("Stdout:\n%s", stdout_str)
+                if stderr_str:
+                    self.logger.warning("Stderr:\n%s", stderr_str)
                 raise RuntimeError(
                     f"Command '{cmd_string}' failed with exit code {exit_code}.\n"
                     f"Stdout:\n{stdout_str}\nStderr:\n{stderr_str}"
                 )
+            # check=False => log it as non-fatal
+            self.logger.debug(
+                "Command [%s] returned exit code %d in %.2f sec (non-fatal)",
+                label,
+                exit_code,
+                elapsed,
+            )
+            if stdout_str:
+                self.logger.debug("Stdout:\n%s", stdout_str)
+            if stderr_str:
+                self.logger.debug("Stderr:\n%s", stderr_str)
         else:
             self.logger.debug(
                 "Command [%s] executed successfully in %.2f sec.",

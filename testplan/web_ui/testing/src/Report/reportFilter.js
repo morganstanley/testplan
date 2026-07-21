@@ -100,18 +100,30 @@ const processFilter = (entry, filter) => {
 };
 
 const filterEntries = (entries, filters) => {
-  return _(entries)
-    .filter((entry) =>
-      _(filters).every((filter) => processFilter(entry, filter))
-    )
-    .map((entry) => ({
-      ...entry,
-      entries: isReportLeaf(entry)
-        ? entry.entries
-        : filterEntries(entry.entries, filters),
-    }))
-    .filter((entry) => isReportLeaf(entry) || entry.entries.length > 0)
-    .value();
+  return (
+    _(entries)
+      .filter((entry) =>
+        _(filters).every((filter) => processFilter(entry, filter))
+      )
+      .map((entry) => ({
+        ...entry,
+        entries: isReportLeaf(entry)
+          ? entry.entries
+          : filterEntries(entry.entries, filters),
+      }))
+      /**
+       * i suppose this won't be rigidly defined,
+       * but as long as we get something left to display,
+       * we display it
+       */
+      .filter(
+        (entry) =>
+          isReportLeaf(entry) ||
+          entry.entries.length > 0 ||
+          entry.logs.length > 0
+      )
+      .value()
+  );
 };
 
 export { filterEntries };

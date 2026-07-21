@@ -10,7 +10,11 @@ import { css, StyleSheet } from "aphrodite";
 import Column from "./Column";
 import NavEntry from "./NavEntry";
 import InteractiveNavEntry from "./InteractiveNavEntry";
-import { applyAllFilters } from "./navUtils";
+import {
+  applyAllFilters,
+  computeUnstableCount,
+  computeFailedCount,
+} from "./navUtils";
 import {
   STATUS,
   MEDIUM_GREY,
@@ -340,7 +344,8 @@ const createNavEntry = (props, entry) => {
         envStatus={entry.env_status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}
-        caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
+        caseCountUnstable={computeUnstableCount(entry.counter)}
+        caseCountFailed={computeFailedCount(entry.counter)}
         handleClick={(e, action) => props.handleClick(e, entry, action)}
         envCtrlCallback={(e, action) => props.envCtrlCallback(e, entry, action)}
         suiteRelated={entry.category === CATEGORIES.synthesized}
@@ -359,7 +364,8 @@ const createNavEntry = (props, entry) => {
         status={entry.status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}
-        caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
+        caseCountUnstable={computeUnstableCount(entry.counter)}
+        caseCountFailed={computeFailedCount(entry.counter)}
         executionTime={calcExecutionTime(entry)}
         setupTime={calcElapsedTime(entry?.timer?.setup)}
         teardownTime={calcElapsedTime(entry?.timer?.teardown)}

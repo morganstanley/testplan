@@ -321,6 +321,20 @@ export const parseToJson = (data) => {
   return result;
 };
 
+
+/**
+ * Decompress gzip-compressed bytes to text.
+ * @param {ArrayBuffer|Uint8Array|Blob} data - gzip-compressed bytes
+ * @returns {Promise<string>}
+ */
+export const decompressGzipToText = async (data) => {
+  const ds = new DecompressionStream("gzip");
+  const blob = data instanceof Blob ? data : new Blob([data]);
+  const decompressedStream = blob.stream().pipeThrough(ds);
+  return new Response(decompressedStream).text();
+};
+
+
 /**
  * Get the URL to retrieve the attachment from. Depending on whether we are
  * running in batch or interactive mode, the API for accessing attachments
@@ -338,20 +352,6 @@ export const getAttachmentUrl = (filePath, reportUid, prefix) => {
   } else {
     return `/api/v1/interactive/attachments/${prefix}${filePath}`;
   }
-};
-
-/**
- * Generates a standardized assertions file name based on the multitest uid.
- *
- * @param {string} mtUid - Multitest uid
- * @returns {string} The formatted assertions file name in the format "assertions_{mtUid}.json"
- *
- * @example
- * // Returns "assertions_myTest.json"
- * getAssertionsFileName("myTest");
- */
-export const getAssertionsFileName = (mtUid) => {
-  return `assertions_${mtUid}`;
 };
 
 /**

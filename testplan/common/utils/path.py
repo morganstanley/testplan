@@ -8,6 +8,7 @@ import getpass
 import contextlib
 import tempfile
 import hashlib
+import threading
 from functools import lru_cache
 from typing import Any, Dict, Generator, IO, List, Optional, Set
 
@@ -69,34 +70,37 @@ def default_runpath(entity: Any) -> str:
 
 
 PWD = "PWD"
+CHDIR_LOCK = threading.RLock()
 
 
 @contextlib.contextmanager
 def change_directory(directory: Optional[str]) -> Generator[None, None, None]:
     """
     A context manager that changes working directory and returns to original on
-    exit.
+    exit. Note this context manager holds a ``threading.RLock`` during its
+    entire lifespan.
 
     :param directory: Directory to change into.
     :type directory: ``str``
     """
 
-    if directory:  # in case we get a None directory, do nothing
-        old_directory = os.getcwd()
-        old_pwd = os.environ.get(PWD, None)
-        directory = fix_home_prefix(directory)
-        os.chdir(directory)
-        if old_pwd:
-            os.environ[PWD] = directory
-    try:
-        yield
-    finally:
-        if directory:
-            os.chdir(old_directory)
+    with CHDIR_LOCK:
+        if directory:  # in case we get a None directory, do nothing
+            old_directory = os.getcwd()
+            old_pwd = os.environ.get(PWD, None)
+            directory = fix_home_prefix(directory)
+            os.chdir(directory)
             if old_pwd:
-                os.environ[PWD] = old_pwd
-            elif PWD in os.environ:
-                del os.environ[PWD]
+                os.environ[PWD] = directory
+        try:
+            yield
+        finally:
+            if directory:
+                os.chdir(old_directory)
+                if old_pwd:
+                    os.environ[PWD] = old_pwd
+                elif PWD in os.environ:
+                    del os.environ[PWD]
 
 
 def makedirs(path: str) -> None:

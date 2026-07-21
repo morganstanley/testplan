@@ -1,17 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NavList shallow renders and matches snapshot 1`] = `
-<Column
-  width="22em"
->
-  <ListGroup
-    className="buttonList_mjw45f"
+exports[`NavList renders and matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    style="display: flex;"
   >
-    <ListGroupItem
-      className="navButton_1x055n9"
+    <div
+      class="column_8bpvrn-o_O-leftColumn_lzxz1z"
     >
-      No entries to display...
-    </ListGroupItem>
-  </ListGroup>
-</Column>
+      <ul
+        class="buttonList_mjw45f list-group"
+      >
+        <li
+          class="navButton_1x055n9 list-group-item"
+        >
+          No entries to display...
+        </li>
+      </ul>
+    </div>
+    <div
+      class="column_8bpvrn-o_O-rightColumn_kjdh6t"
+    >
+      <div
+        class="splitter_11em7wq"
+      />
+    </div>
+  </div>
+</DocumentFragment>
 `;

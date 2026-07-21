@@ -191,13 +191,7 @@ A typical input JSON looks like below:
     },
     "Flaky GTest:SuiteName:CaseName": {
         "reason": "test not stable",
-        "strict": false,
-        "condition": {
-            "failed": {
-                "type": "Equal",
-                "description": "some part of description of that failed assertion"
-            }
-        }
+        "strict": false
     },
     "Fatal MultiTest:Environment Start:Starting": {
         "reason": "env does not start",
@@ -207,7 +201,27 @@ A typical input JSON looks like below:
     "Flaky MultiTest:Suite Name:*": {
         "reason": "everything under that suite flaky",
         "strict": true
-    }
+    },
+    "Flaky MultiTest:Suite Name:Case 1": {
+        "reason": "test not stable",
+        "strict": false,
+        "condition": {
+            "failed": {
+                "type": "Equal",
+                "description": "pattern with number \\d+"
+            }
+        }
+    },
+    "Flaky MultiTest:Suite Name:Case 2": {
+        "reason": "test not stable",
+        "strict": false,
+        "condition": {
+            "failed": {
+                "type": "DictMatch",
+                "description": null
+            }
+        }
+    },
 }
 
 with each entry looks like:

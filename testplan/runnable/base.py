@@ -91,6 +91,7 @@ from testplan.testing import common, filtering, listing, ordering, tagging
 from testplan.testing.base import Test, TestResult
 from testplan.testing.listing import Lister
 from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.test_metadata import TestMetadata
 from testplan.testing.result import Result
 
 if sys.version_info < (3, 11):
@@ -469,7 +470,7 @@ class TestRunner(Runnable):
         # TODO: check options sanity?
         super(TestRunner, self).__init__(**options)
         # uid to resource, in definition order
-        self._test_metadata: List[Any] = []
+        self._test_metadata: List[TestMetadata] = []
         self._tests: MutableMapping[str, str] = OrderedDict()
         self.result.report = TestReport(
             name=self.cfg.name,
@@ -534,7 +535,8 @@ class TestRunner(Runnable):
                 exporter.parent = self  # type: ignore[attr-defined]
         return self._exporters
 
-    def get_test_metadata(self) -> List[Any]:
+    def get_test_metadata(self) -> List[TestMetadata]:
+        # Only populated when a metadata-based lister is active; empty otherwise.
         return self._test_metadata
 
     def disable_reset_report_uid(self) -> None:
@@ -1112,24 +1114,29 @@ class TestRunner(Runnable):
                 )
             )
 """
-                    try:
+                    available_execution_time = (
+                        auto_part_runtime_limit
+                        - time_info["setup_time"]
+                        - time_info["teardown_time"]
+                    )
+                    if available_execution_time <= 0:
+                        self.logger.error(
+                            f"Cannot calculate auto-part count for {uid} "
+                            "because setup and teardown take at least the "
+                            "entire part runtime; "
+                            f"set to cap {cap}. {formula}"
+                        )
+                        num_of_parts = cap
+                    else:
                         num_of_parts = math.ceil(
                             time_info["execution_time"]
-                            / (
-                                auto_part_runtime_limit
-                                - time_info["setup_time"]
-                                - time_info["teardown_time"]
-                            )
+                            / available_execution_time
                         )
-                    except ZeroDivisionError:
-                        self.logger.error(
-                            f"ZeroDivisionError occurred when calculating num_of_parts for {uid}, set to 1. {formula}"
-                        )
-                        num_of_parts = 1
 
                     if num_of_parts < 1:
                         self.logger.error(
-                            f"Calculated num_of_parts for {uid} is {num_of_parts}, set to 1. {formula}"
+                            f"Calculated num_of_parts for {uid} is "
+                            f"{num_of_parts}, set to 1. {formula}"
                         )
                         num_of_parts = 1
 
@@ -1238,19 +1245,27 @@ class TestRunner(Runnable):
         if self._is_interactive_run():
             self._register_task_for_interactive(task_info)
 
-        self._register_task(
-            resource, target, uid, task_info.materialized_test.get_metadata()
+        metadata = (
+            task_info.materialized_test.get_metadata()
+            if lister is not None and lister.metadata_based
+            else None
         )
+        self._register_task(resource, target, uid, metadata)
         return uid
 
     def _is_interactive_run(self) -> bool:
         return self.cfg.interactive_port is not None
 
     def _register_task(
-        self, resource: str, target: TestTask, uid: str, metadata: Any
+        self,
+        resource: str,
+        target: TestTask,
+        uid: str,
+        metadata: Optional[TestMetadata],
     ) -> None:
         self._tests[uid] = resource
-        self._test_metadata.append(metadata)
+        if metadata is not None:
+            self._test_metadata.append(metadata)
         self.resources[resource].add(target, uid)  # type: ignore[attr-defined]
 
     def _assemble_task_info(

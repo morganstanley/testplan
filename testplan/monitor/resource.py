@@ -45,6 +45,42 @@ class HostResourceData(ResourceData):
 
     disk_used: int
     system_load: float
+    host_ctx_switches: float
+
+    def to_row(self, timestamp: float) -> "HostResourceRow":
+        return HostResourceRow(
+            time=timestamp,
+            cpu=self.cpu_usage,
+            memory=self.memory_used,
+            disk=self.disk_used,
+            iops=self.iops,
+            io_read=self.io_read,
+            io_write=self.io_write,
+            system_load=self.system_load,
+            host_ctx_switches=self.host_ctx_switches,
+        )
+
+
+@dataclasses.dataclass
+class HostResourceRow:
+    """
+    CSV file row structure of host level resource.
+    """
+
+    time: float
+    cpu: float
+    memory: int
+    disk: int
+    iops: float
+    io_read: float
+    io_write: float
+    system_load: float
+    host_ctx_switches: float
+
+    def as_dict(self) -> Dict[str, float]:
+        return {
+            f.name: getattr(self, f.name) for f in dataclasses.fields(self)
+        }
 
 
 @dataclasses.dataclass
@@ -56,21 +92,6 @@ class ProcessResourceData(ResourceData):
     name: str
     cmdline: str
     pid: int
-
-
-class HostResourceRow(NamedTuple):
-    """
-    CSV file row structure of host level resource
-    """
-
-    timestamp: float
-    cpu_usage: float
-    memory_used: int
-    disk_used: int
-    iops: float
-    io_read: float
-    io_write: float
-    system_load: float
 
 
 class ProcessResourceRow(NamedTuple):
@@ -154,6 +175,14 @@ class ResourceMonitorClient:
     def collect_cpu_usage(self) -> float:
         return psutil.cpu_percent(0.1)  # type: ignore[no-any-return]
 
+    def make_host_resource(self, **base: Any) -> HostResourceData:
+        """
+        Build the host resource record from the always-collected base fields.
+        Subclasses override this to return a ``HostResourceData`` subclass that
+        carries extra typed metrics.
+        """
+        return HostResourceData(**base)
+
     def collect_memory_usage(self) -> int:
         return self.memory_size - psutil.virtual_memory().available  # type: ignore[no-any-return]
 
@@ -167,6 +196,7 @@ class ResourceMonitorClient:
         iops = _disk_io.read_count + _disk_io.write_count
         io_read = _disk_io.read_bytes
         io_write = _disk_io.write_bytes
+        ctx_switches = psutil.cpu_stats().ctx_switches
         if self.last_host_io_info:
             iops = self._ensure_positive(
                 (iops - self.last_host_io_info["iops"]) / self.poll_interval
@@ -179,7 +209,11 @@ class ResourceMonitorClient:
                 (io_write - self.last_host_io_info["io_write"])
                 / self.poll_interval
             )
-            host_resource = HostResourceData(
+            host_ctx_switches = self._ensure_positive(
+                (ctx_switches - self.last_host_io_info["ctx_switches"])
+                / self.poll_interval
+            )
+            host_resource = self.make_host_resource(
                 cpu_usage=self.collect_cpu_usage(),
                 memory_used=self.collect_memory_usage(),
                 disk_used=psutil.disk_usage(self.disk_path).used,
@@ -187,6 +221,7 @@ class ResourceMonitorClient:
                 io_read=io_read,
                 io_write=io_write,
                 system_load=psutil.getloadavg()[0],
+                host_ctx_switches=host_ctx_switches,
             )
             self.last_host_resource = host_resource
 
@@ -194,6 +229,7 @@ class ResourceMonitorClient:
             "iops": _disk_io.read_count + _disk_io.write_count,
             "io_read": _disk_io.read_bytes,
             "io_write": _disk_io.write_bytes,
+            "ctx_switches": ctx_switches,
         }
 
     def collect_process_data(self) -> None:
@@ -367,25 +403,20 @@ class ResourceMonitorServer:
                 f.write(json_dumps(message.data))
         elif message.cmd == communication.Message.Message:
             self.logger.info("Received resource data from %s.", client_id)
+            client_host_data: HostResourceData = message.data["host_resource"]
+            row = client_host_data.to_row(message.data["time"]).as_dict()
             if client_id not in self._file_handler:
                 self._file_handler[client_id] = {}
                 self._file_handler[client_id]["host_file"] = open(
-                    self.file_directory / f"{slugify(client_id)}.csv", "w"
+                    self.file_directory / f"{slugify(client_id)}.csv",
+                    "w",
+                    newline="",
                 )
-                self._file_handler[client_id]["host_csv"] = csv.writer(
-                    self._file_handler[client_id]["host_file"]
+                self._file_handler[client_id]["host_csv"] = csv.DictWriter(
+                    self._file_handler[client_id]["host_file"],
+                    fieldnames=list(row.keys()),
                 )
-            client_host_data: HostResourceData = message.data["host_resource"]
-            row = HostResourceRow(
-                message.data["time"],
-                client_host_data.cpu_usage,
-                client_host_data.memory_used,
-                client_host_data.disk_used,
-                client_host_data.iops,
-                client_host_data.io_read,
-                client_host_data.io_write,
-                client_host_data.system_load,
-            )
+                self._file_handler[client_id]["host_csv"].writeheader()
             self._file_handler[client_id]["host_csv"].writerow(row)
             self._file_handler[client_id]["host_file"].flush()
             if self.detailed:
@@ -457,51 +488,29 @@ class ResourceMonitorServer:
             client_host_path = (
                 self.file_directory / f"{slugify(client_id)}.csv"
             )
-            resource_data: Dict[str, List[Any]] = {
-                "time": [],
-                "cpu": [],
-                "memory": [],
-                "disk": [],
-                "iops": [],
-                "io_read": [],
-                "io_write": [],
-                "system_load": [],
-            }
-            with open(client_host_path) as client_file:
-                reader = csv.reader(client_file)
+            with open(client_host_path, newline="") as client_file:
+                reader = csv.DictReader(client_file)
+                resource_data: Dict[str, List[Any]] = {
+                    name: [] for name in (reader.fieldnames or [])
+                }
                 for row in reader:
-                    host_resource = HostResourceRow(*row)  # type: ignore[arg-type]
-                    resource_data["time"].append(
-                        float(host_resource.timestamp)
-                    )
-                    resource_data["cpu"].append(float(host_resource.cpu_usage))
-                    resource_data["memory"].append(
-                        float(host_resource.memory_used)
-                    )
-                    resource_data["disk"].append(int(host_resource.disk_used))
-                    resource_data["iops"].append(float(host_resource.iops))
-                    resource_data["io_read"].append(
-                        float(host_resource.io_read)
-                    )
-                    resource_data["io_write"].append(
-                        float(host_resource.io_write)
-                    )
-                    resource_data["system_load"].append(
-                        float(host_resource.system_load)
-                    )
+                    for name, value in row.items():
+                        resource_data[name].append(float(value))
+            if not resource_data.get("time"):
+                return None
             json_file_path = self.file_directory / f"{slugify(client_id)}.json"
             with open(json_file_path, "w") as json_file:
                 json_file.write(json_dumps(resource_data))
-            return {
+            # Summarize every series as max_<column>
+            summary: Dict[str, Any] = {
                 "resource_file": str(json_file_path.resolve()),
                 "time_start": min(resource_data["time"]),
                 "time_end": max(resource_data["time"]),
-                "max_cpu": max(resource_data["cpu"]),
-                "max_memory": max(resource_data["memory"]),
-                "max_disk": max(resource_data["disk"]),
-                "max_iops": max(resource_data["iops"]),
-                "max_system_load": max(resource_data["system_load"]),
             }
+            for name, values in resource_data.items():
+                if name != "time" and values:
+                    summary[f"max_{name}"] = max(values)
+            return summary
         except FileNotFoundError:
             return None
 
@@ -523,9 +532,9 @@ class ResourceMonitorServer:
         return str(meta_file_path.resolve())
 
     def start(self, timeout: int = 5) -> None:
-        shared_dict = multiprocessing.Manager().dict()
         tracing.force_flush()  # flush so that no grpc communication is happening while forking
         otel_logging.force_flush()
+        shared_dict = multiprocessing.Manager().dict()
         self._server_process = multiprocessing.Process(
             target=self._serve, args=(shared_dict,), daemon=True
         )
