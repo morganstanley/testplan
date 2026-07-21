@@ -206,7 +206,10 @@ class PipBasedBuilder(RuntimeBuilder):
                 # TODO: are svn/hg/... still valid?
                 p_ = p.split(" @ ")[1]
                 if p_.startswith("file://"):
-                    local.append(p_[7:])
+                    # strip any URL fragment (e.g. "#sha256=..." that newer
+                    # uv/pip append to local file URLs) so the path points to
+                    # a real file on disk
+                    local.append(p_[7:].split("#", 1)[0])
                 else:
                     # assuming package index reachable from remote
                     upstream.append(p_)
