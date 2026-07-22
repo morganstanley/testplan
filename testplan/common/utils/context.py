@@ -10,12 +10,13 @@ from jinja2 import Template
 def parse_template(template: str) -> Union[TempitaTemplate, Template]:
     tempita_failed = False
 
+    parsed_template: Union[TempitaTemplate, Template]
     try:
         parsed_template = Template(template)
     except Exception:
         try:
             # Jinja failed try with tempita
-            parsed_template = TempitaTemplate(template)  # type: ignore[assignment]
+            parsed_template = TempitaTemplate(template)
         except Exception:
             tempita_failed = True
         else:
