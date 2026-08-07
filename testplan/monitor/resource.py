@@ -173,7 +173,11 @@ class ResourceMonitorClient:
         self.zmq_socket.send(serialize(msg))
 
     def collect_cpu_usage(self) -> float:
-        return psutil.cpu_percent(0.1)  # type: ignore[no-any-return]
+        """
+        Host CPU usage now on the "one busy core equals 100%" scale,
+        matching the scale of the per-process ``cpu_percent`` values.
+        """
+        return psutil.cpu_percent(0.1) * self.cpu_count
 
     def make_host_resource(self, **base: Any) -> HostResourceData:
         """
@@ -184,7 +188,7 @@ class ResourceMonitorClient:
         return HostResourceData(**base)
 
     def collect_memory_usage(self) -> int:
-        return self.memory_size - psutil.virtual_memory().available  # type: ignore[no-any-return]
+        return self.memory_size - psutil.virtual_memory().available
 
     @staticmethod
     def _ensure_positive(num: float) -> float:
