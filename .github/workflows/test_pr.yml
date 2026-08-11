@@ -59,7 +59,7 @@ jobs:
           python-version: ${{ env.LINT_PYTHON_VERSION }}
       - name: Setup
         run: |
-          sudo apt-get install -y libkrb5-dev
+          sudo apt-get update && sudo apt-get install -y libkrb5-dev
           uv pip install --system . --group dev -c constraints.txt
       - name: Lint
         run: doit lint
@@ -115,16 +115,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest]
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
         package-extras: ['', '[all]']
         exclude:
           - os: windows-latest
             package-extras: ''
           - os: ubuntu-22.04
-            python-version: '3.10'
+            python-version: '3.11'
             package-extras: '[all]'
           - os: ubuntu-22.04
-            python-version: '3.11'
+            python-version: '3.12'
             package-extras: '[all]'
       fail-fast: false
 
@@ -149,10 +149,10 @@ jobs:
           path: testplan/web_ui/testing/build
       - name: Set up Linux package for tests
         if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: sudo apt-get install -y libkrb5-dev
+        run: sudo apt-get update && sudo apt-get install -y libkrb5-dev
       - name: Set up Zookeeper for tests
         if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
+        run: sudo apt-get update && sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
       - name: Set up Kafka for tests
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |

@@ -768,7 +768,7 @@ class RowData:
                 self._style_objs.append(style_obj)
 
         # This changes `self.end`, so needs to happen last
-        self.content.extend(content)  # type: ignore[arg-type]
+        self.content.extend(content)
 
 
 def split_line(

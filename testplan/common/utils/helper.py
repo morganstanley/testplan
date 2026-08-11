@@ -180,7 +180,12 @@ def attach_log(result: Result) -> None:
     """
     log_handlers = TESTPLAN_LOGGER.handlers
     for handler in log_handlers:
-        if isinstance(handler, logging.FileHandler):
+        # NOTE: filter out /dev/null handler added by pytest (#14375) since 9.1
+        # NOTE: this impl is basically a guess work, but it would just work and
+        # NOTE: i would leave it as is
+        if isinstance(handler, logging.FileHandler) and os.path.isfile(
+            handler.baseFilename
+        ):
             result.attach(handler.baseFilename, description="Testplan log")
             return
 
