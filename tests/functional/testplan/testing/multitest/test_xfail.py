@@ -164,6 +164,162 @@ def test_dynamic_xfail():
     assert result.report.entries[2].entries[1].entries[2].xfailed is True
 
 
+@testsuite(name=lambda cls_name, suite: f"{cls_name} - {suite.symbol}")
+class SharedClassSuite:
+    """Suite class instantiated twice, named after a per-instance param."""
+
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    @testcase
+    def test_fail(self, env, result):
+        result.dict.match(
+            {"foo": 1}, {"foo": 2}, description=f"{self.symbol} dict match"
+        )
+
+    @testcase(parameters=(1,))
+    def test_p(self, env, result, val):
+        result.dict.match(
+            {"foo": 1}, {"foo": 2}, description=f"{self.symbol} dict match"
+        )
+
+
+def test_dynamic_xfail_same_suite_class_twice():
+    """
+    Two instances of the same testsuite class, distinguished by their name
+    function. Only suite A is listed in ``xfail_tests``, thus suite B should
+    stay failed - for plain as well as for parameterized testcases.
+    """
+    plan = TestplanMock(
+        name="dynamic_xfail_same_suite_class_twice",
+        xfail_tests={
+            "MTest:SharedClassSuite - A:test_fail": {
+                "reason": "only listed for suite A",
+                "strict": False,
+            },
+            "MTest:SharedClassSuite - A:test_p <val=1>": {
+                "reason": "only listed for suite A",
+                "strict": False,
+            },
+        },
+    )
+    plan.add(
+        MultiTest(
+            name="MTest",
+            suites=[SharedClassSuite("A"), SharedClassSuite("B")],
+        )
+    )
+
+    result = plan.run()
+
+    suite_a = result.report["MTest"]["SharedClassSuite - A"]
+    suite_b = result.report["MTest"]["SharedClassSuite - B"]
+
+    for case_a, case_b in (
+        (suite_a["test_fail"], suite_b["test_fail"]),
+        (
+            suite_a["test_p"]["test_p__val_1"],
+            suite_b["test_p"]["test_p__val_1"],
+        ),
+    ):
+        assert case_a.status == Status.XFAIL
+        assert case_b.xfailed is False
+        assert case_b.failed is True
+
+
+def test_dynamic_xfail_same_suite_class_twice_different_conditions():
+    """
+    Both instances are listed for xfail, each with a condition matching its
+    own assertion, thus both should be xfailed.
+    """
+    plan = TestplanMock(
+        name="dynamic_xfail_same_suite_class_twice_different_conditions",
+        xfail_tests={
+            f"MTest:SharedClassSuite - {symbol}:test_p <val=1>": {
+                "reason": f"condition matching suite {symbol} assertion",
+                "strict": False,
+                "condition": {
+                    "failed": {
+                        "type": "DictMatch",
+                        "description": f"{symbol} dict match",
+                    }
+                },
+            }
+            for symbol in ("A", "B")
+        },
+    )
+    plan.add(
+        MultiTest(
+            name="MTest",
+            suites=[SharedClassSuite("A"), SharedClassSuite("B")],
+        )
+    )
+
+    result = plan.run()
+
+    for symbol in ("A", "B"):
+        suite_report = result.report["MTest"][f"SharedClassSuite - {symbol}"]
+        case = suite_report["test_p"]["test_p__val_1"]
+        assert case.status == Status.XFAIL
+
+
+@testsuite(name=lambda cls_name, suite: f"{cls_name} - {suite.symbol}")
+class SharedClassDecoratedSuite:
+    """Suite class with a ``@xfail`` decorated testcase, instantiated twice."""
+
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    @testcase
+    @xfail(
+        "decorated as known to fail",
+        strict=False,
+        condition={
+            "failed": {"type": "DictMatch", "description": "no such assertion"}
+        },
+    )
+    def test_fail(self, env, result):
+        result.dict.match(
+            {"foo": 1}, {"foo": 2}, description=f"{self.symbol} dict match"
+        )
+
+
+def test_decorator_xfail_takes_precedence():
+    """
+    The ``@xfail`` decorator takes precedence over ``xfail_tests`` entries,
+    and its data must not be clobbered by them either. Here the decorator's
+    condition never matches, so both instances stay failed even though suite
+    A is listed for an unconditional xfail.
+    """
+    plan = TestplanMock(
+        name="decorator_xfail_takes_precedence",
+        xfail_tests={
+            "MTest:SharedClassDecoratedSuite - A:test_fail": {
+                "reason": "shadowed by the decorator",
+                "strict": False,
+            },
+        },
+    )
+    plan.add(
+        MultiTest(
+            name="MTest",
+            suites=[
+                SharedClassDecoratedSuite("A"),
+                SharedClassDecoratedSuite("B"),
+            ],
+        )
+    )
+
+    result = plan.run()
+
+    for symbol in ("A", "B"):
+        case = result.report["MTest"][f"SharedClassDecoratedSuite - {symbol}"][
+            "test_fail"
+        ]
+        assert case.xfailed is False
+        assert case.failed is True
+
+
 def test_dynamic_xfail_environment_start_condition_error():
     plan = TestplanMock(
         name="dynamic_xfail_environment_start_condition_error",

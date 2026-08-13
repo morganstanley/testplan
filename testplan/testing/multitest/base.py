@@ -4,7 +4,6 @@ import collections.abc
 import concurrent.futures
 import functools
 import itertools
-import types
 import warnings
 from typing import (
     Any,
@@ -426,11 +425,6 @@ class MultiTest(testing_base.Test):
             )
         sorted_suites = self.cfg.test_sorter.sorted_testsuites(self.cfg.suites)
 
-        if hasattr(self.cfg, "xfail_tests") and self.cfg.xfail_tests:
-            xfail_data = self.cfg.xfail_tests
-        else:
-            xfail_data = {}
-
         for suite in sorted_suites:
             testcases = suite.get_testcases()
 
@@ -457,31 +451,6 @@ class MultiTest(testing_base.Test):
                 testcases_to_run = sorted_testcases
 
             if testcases_to_run:
-                for testcase in testcases_to_run:
-                    testcase_instance = ":".join(
-                        [
-                            self.name,
-                            suite.name,
-                            testcase.name,
-                        ]
-                    )
-                    data = xfail_data.get(testcase_instance, None)
-                    if data is not None:
-                        # When a ``@skip_if`` predicate fires, the testcase
-                        # slot holds a plain function (a generated skipped
-                        # case) instead of a bound method, so ``__func__`` is
-                        # absent. Set ``__xfail__`` on whichever we have.
-                        func: Any = (
-                            testcase.__func__
-                            if isinstance(testcase, types.MethodType)
-                            else testcase
-                        )
-                        func.__xfail__ = {
-                            "reason": data["reason"],
-                            "strict": data["strict"],
-                            "condition": data.get("condition"),
-                        }
-
                 ctx.append((suite, testcases_to_run))
 
         if self.cfg.part:
@@ -680,6 +649,14 @@ class MultiTest(testing_base.Test):
             description=self.cfg.description,
             test_suites=suites,
         )
+
+    @functools.cached_property
+    def _dynamic_xfail_tests(self) -> Dict[str, dict]:
+        """
+        Testcase patterns to be xfailed, as specified via ``--xfail-tests``
+        or ``@test_plan(xfail_tests=...)``.
+        """
+        return getattr(self.cfg, "xfail_tests", None) or {}
 
     def apply_xfail_tests(self) -> None:
         """
@@ -1339,10 +1316,17 @@ class MultiTest(testing_base.Test):
             testcase_report.attachments.extend(case_result.attachments)
 
             # If xfailed testcase, force set status_override and update result
-            if hasattr(testcase, "__xfail__"):
+            # the ``@xfail`` decorator takes precedence over ``xfail_tests``
+            # entries, the latter are matched per suite instance
+            xfail_data = getattr(testcase, "__xfail__", None)
+            if xfail_data is None and self._dynamic_xfail_tests:
+                xfail_data = self._dynamic_xfail_tests.get(
+                    ":".join([self.name, testsuite.name, testcase.name])
+                )
+            if xfail_data is not None:
                 testcase_report.xfail(
-                    testcase.__xfail__["strict"],
-                    testcase.__xfail__["condition"],
+                    xfail_data["strict"],
+                    xfail_data.get("condition"),
                 )
 
             if not case_result.passed:
