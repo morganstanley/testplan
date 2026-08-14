@@ -152,7 +152,7 @@ class ResourceMonitorClient:
         Enrich host hardware info
         """
         self.uid = socket.getfqdn()
-        self.cpu_count = psutil.cpu_count()
+        self.cpu_count = psutil.cpu_count() or 1
         self.memory_size = psutil.virtual_memory().total
         self.disk_size = psutil.disk_usage(self.disk_path).total
 
@@ -197,9 +197,17 @@ class ResourceMonitorClient:
 
     def collect_host_data(self) -> None:
         _disk_io = psutil.disk_io_counters()
-        iops = _disk_io.read_count + _disk_io.write_count
-        io_read = _disk_io.read_bytes
-        io_write = _disk_io.write_bytes
+        if _disk_io is None:
+            raw_iops = 0
+            raw_io_read = 0
+            raw_io_write = 0
+        else:
+            raw_iops = _disk_io.read_count + _disk_io.write_count
+            raw_io_read = _disk_io.read_bytes
+            raw_io_write = _disk_io.write_bytes
+        iops: float = raw_iops
+        io_read: float = raw_io_read
+        io_write: float = raw_io_write
         ctx_switches = psutil.cpu_stats().ctx_switches
         if self.last_host_io_info:
             iops = self._ensure_positive(
@@ -230,9 +238,9 @@ class ResourceMonitorClient:
             self.last_host_resource = host_resource
 
         self.last_host_io_info = {
-            "iops": _disk_io.read_count + _disk_io.write_count,
-            "io_read": _disk_io.read_bytes,
-            "io_write": _disk_io.write_bytes,
+            "iops": raw_iops,
+            "io_read": raw_io_read,
+            "io_write": raw_io_write,
             "ctx_switches": ctx_switches,
         }
 
