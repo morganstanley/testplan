@@ -331,6 +331,56 @@ class Graph(BaseEntry):
                     )
 
 
+class Timeline(BaseEntry):
+    """Display a timeline (Gantt) chart in the report."""
+
+    ROW_KEYS = frozenset(("name", "start", "end"))
+
+    def __init__(self, timeline_data, description=None):
+        self.timeline_data = {
+            series: [self._normalize_row(row) for row in rows]
+            for series, rows in timeline_data.items()
+        }
+
+        super(Timeline, self).__init__(description=description)
+
+    def _normalize_row(self, row):
+        if not isinstance(row, dict):
+            raise TypeError(
+                "Timeline row {!r} should be a dict".format(row)
+            )
+
+        missing = self.ROW_KEYS - set(row)
+        if missing:
+            raise ValueError(
+                "Timeline row {!r} is missing required key(s) {}".format(
+                    row, sorted(missing)
+                )
+            )
+
+        unexpected = set(row) - self.ROW_KEYS
+        if unexpected:
+            raise ValueError(
+                "Timeline row key(s) {} are not valid".format(
+                    sorted(unexpected)
+                )
+            )
+
+        normalized = dict(row)
+        for key in ("start", "end"):
+            value = normalized[key]
+            if isinstance(value, datetime.datetime):
+                normalized[key] = value.isoformat()
+            elif not isinstance(value, str):
+                raise TypeError(
+                    "Timeline row {!r} key {!r} should be a "
+                    "datetime.datetime or str, got {}".format(
+                        row, key, type(value).__name__
+                    )
+                )
+        return normalized
+
+
 class Attachment(BaseEntry):
     """Entry representing a file attached to the report."""
 

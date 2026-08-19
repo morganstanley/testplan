@@ -137,6 +137,13 @@ class GraphSchema(BaseSchema):
     discrete_chart = fields.Bool()
 
 
+@registry.bind(base.Timeline)
+class TimelineSchema(BaseSchema):
+    timeline_data = fields.Dict(
+        keys=fields.String(), values=fields.List(fields.Dict())
+    )
+
+
 @registry.bind(base.Attachment, base.MatPlot)
 class AttachmentSchema(BaseSchema):
     source_path = fields.String()

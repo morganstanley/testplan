@@ -34,6 +34,7 @@ import LogfileMatchAssertion from "./AssertionTypes/LogfileMatchAssertion";
 import { EXPAND_STATUS } from "../Common/defaults";
 import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 import FlowChartAssertion from "./AssertionTypes/FlowChartAssertion";
+import TimelineAssertion from "./AssertionTypes/TimelineAssertion";
 import { showStatusIconsPreference } from "../UserSettings/UserSettings";
 
 /**
@@ -92,6 +93,7 @@ function Assertion({
       XMLCheck: XMLCheckAssertion,
       LogfileMatch: LogfileMatchAssertion,
       FlowChart: FlowChartAssertion,
+      Timeline: TimelineAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];

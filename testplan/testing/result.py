@@ -2647,6 +2647,19 @@ class Result:
         return entry
 
     @assertion
+    def timeline(
+        self,
+        timeline_data: Dict[str, List[Dict[str, Any]]],
+        description: Optional[str] = None,
+    ) -> base.Timeline:
+        entry = base.Timeline(
+            timeline_data=timeline_data,
+            description=description,
+        )
+
+        return entry
+
+    @assertion
     def attach(
         self,
         path: str,
