@@ -114,7 +114,9 @@ class CPPUnitResultImporter(ThreePhaseFileImporter[Element]):
         :param path: path to source file
         :return: root node of parsed raw test data
         """
-        with open(path) as report_file:
+        # Binary: cppunit_to_junit accepts bytes and encodes str to UTF-8
+        # anyway, so this drops a locale-dependent decode/encode round trip.
+        with open(path, "rb") as report_file:
             return objectify.fromstring(
                 self.cppunit_to_junit(
                     report_file.read(), self._DEFAULT_SUITE_NAME
