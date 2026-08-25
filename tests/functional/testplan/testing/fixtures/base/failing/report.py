@@ -83,8 +83,12 @@ expected_report_with_failing_driver_and_driver_info_flag = TestReport(
                                     "meta_type": "entry",
                                 },
                                 {
-                                    "type": "Timeline",
-                                    "timeline_data": {"Drivers": []},
+                                    "type": "Graph",
+                                    "graph_type": "Timeline",
+                                    "series_options": None,
+                                    "graph_options": None,
+                                    "discrete_chart": False,
+                                    "graph_data": {"Drivers": []},
                                     "description": "Driver Setup Timeline",
                                     "meta_type": "entry",
                                 },
@@ -145,8 +149,12 @@ expected_report_with_failing_driver_and_driver_info_flag = TestReport(
                                     "meta_type": "entry",
                                 },
                                 {
-                                    "type": "Timeline",
-                                    "timeline_data": {
+                                    "type": "Graph",
+                                    "graph_type": "Timeline",
+                                    "series_options": None,
+                                    "graph_options": None,
+                                    "discrete_chart": False,
+                                    "graph_data": {
                                         "Drivers": [
                                             {
                                                 "name": "driver",

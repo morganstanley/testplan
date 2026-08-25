@@ -114,17 +114,17 @@ test_plan.py
 .. literalinclude:: ../../../examples/Assertions/Plotly/test_plan.py
 
 
-Timeline
---------
+Graph
+-----
 
-.. _example_assertions_timeline:
+.. _example_assertions_graph:
 
 Required files:
-  - :download:`test_plan.py <../../../examples/Assertions/Timeline/test_plan.py>`
+  - :download:`test_plan.py <../../../examples/Assertions/Graph/test_plan.py>`
 
 test_plan.py
 ++++++++++++
-.. literalinclude:: ../../../examples/Assertions/Timeline/test_plan.py
+.. literalinclude:: ../../../examples/Assertions/Graph/test_plan.py
 
 
 Marking

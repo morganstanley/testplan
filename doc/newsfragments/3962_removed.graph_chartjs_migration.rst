@@ -1,1 +1,1 @@
-``result.graph()`` now renders via ``chart.js`` instead of ``react-vis``, which has been removed as a dependency. The ``Whisker``, ``Contour`` and ``Hexbin`` graph types have been removed.
+``react-vis`` has been removed as a web UI dependency. The ``Whisker``, ``Contour`` and ``Hexbin`` graph types have been removed.

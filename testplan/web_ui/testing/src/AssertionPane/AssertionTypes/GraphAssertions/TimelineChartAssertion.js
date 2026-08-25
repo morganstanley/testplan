@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import {
   Chart as ChartJS,
@@ -12,8 +11,8 @@ import {
 import { format as dateFormat, addMinutes as dateAddMinutes } from "date-fns";
 import { Bar } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
-import { timeToTimestamp } from "../../Common/utils";
-import { GREEN, LIGHT_GREEN } from "../../Common/defaults";
+import { timeToTimestamp } from "../../../Common/utils";
+import * as GraphUtil from "./graphUtils";
 
 ChartJS.register(
   BarElement,
@@ -24,39 +23,54 @@ ChartJS.register(
   TimeSeriesScale
 );
 
-export default function TimelineAssertion(props) {
+/**
+ * Component used to render a Timeline chart. Every series in
+ * graph_data is drawn as its own coloured floating-bar dataset, keeping the
+ * bars for different series aligned to the shared row labels.
+ */
+export default function TimelineChartAssertion({ assertion }) {
   const timezoneOffset = new Date().getTimezoneOffset();
-  const rows = Object.values(props.assertion.timeline_data).flat();
+  const data = assertion.graph_data;
+  const graph_options = assertion.graph_options;
+  const seriesColour = GraphUtil.returnColour(assertion.series_options, data);
 
-  const labels = [];
-  const datasets = [
-    {
-      data: [],
-      backgroundColor: LIGHT_GREEN,
-      borderColor: GREEN,
+  const labels = Object.values(data)
+    .flat()
+    .map((row) => row.name);
+
+  let minTime;
+  let maxTime;
+  let offset = 0;
+  const datasets = Object.entries(data).map(([series, rows]) => {
+    const values = new Array(labels.length).fill(null);
+
+    rows.forEach((row, i) => {
+      const start = timeToTimestamp(row.start);
+      const end = timeToTimestamp(row.end);
+      values[offset + i] = [start, end];
+
+      minTime = minTime === undefined ? start : Math.min(minTime, start);
+      maxTime = maxTime === undefined ? end : Math.max(maxTime, end);
+    });
+    offset += rows.length;
+
+    return {
+      label: series,
+      data: values,
+      backgroundColor: seriesColour[series],
+      borderColor: seriesColour[series],
       borderWidth: 2,
       borderRadius: Number.MAX_VALUE,
       borderSkipped: false,
       barThickness: 6,
       minBarLength: 2,
-    },
-  ];
-
-  let minTime;
-  let maxTime;
-
-  rows.forEach((row) => {
-    labels.push(row.name);
-
-    const start = timeToTimestamp(row.start);
-    const end = timeToTimestamp(row.end);
-    datasets[0].data.push([start, end]);
-
-    minTime = minTime === undefined ? start : Math.min(minTime, start);
-    maxTime = maxTime === undefined ? end : Math.max(maxTime, end);
+    };
   });
 
-  const height = 10 + rows.length * 5;
+  const xAxisTitle = GraphUtil.returnXAxisTitle(graph_options);
+  const yAxisTitle = GraphUtil.returnYAxisTitle(graph_options);
+
+  const height = 10 + labels.length * 5;
 
   return (
     <div style={{ width: "100%" }}>
@@ -71,9 +85,14 @@ export default function TimelineAssertion(props) {
           scales: {
             x: {
               type: "time",
+              stacked: true,
               beginAtZero: false,
               min: minTime,
               max: maxTime,
+              title: {
+                display: Boolean(xAxisTitle),
+                text: xAxisTitle,
+              },
               ticks: {
                 autoSkip: true,
                 maxTicksLimit: 10,
@@ -86,6 +105,11 @@ export default function TimelineAssertion(props) {
               },
             },
             y: {
+              stacked: true,
+              title: {
+                display: Boolean(yAxisTitle),
+                text: yAxisTitle,
+              },
               ticks: {
                 autoSkip: false,
               },
@@ -93,7 +117,7 @@ export default function TimelineAssertion(props) {
           },
           plugins: {
             legend: {
-              display: false,
+              display: Boolean(graph_options?.legend),
             },
             tooltip: {
               callbacks: {
@@ -126,6 +150,6 @@ export default function TimelineAssertion(props) {
   );
 }
 
-TimelineAssertion.propTypes = {
+TimelineChartAssertion.propTypes = {
   assertion: PropTypes.object,
 };

@@ -88,9 +88,6 @@ def get_matlib_plot(source):
         "Line",
         "Scatter",
         "Bar",
-        "Whisker",
-        "Contour",
-        "Hexbin",
     ]
     valid_chart_types = ["Pie"]
 

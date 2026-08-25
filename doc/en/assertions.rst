@@ -1944,6 +1944,8 @@ Sample output:
           Pattern: `.*passed.*`
         ...
 
+.. _graph_visualisation:
+
 Graph Visualisation
 ===================
 This graphing tool will allow you to produce interactive data visualisations
@@ -1981,12 +1983,13 @@ This method takes 5 arguments:
 graph_type - `string`
 ----------------------
 
-Specifies the type of graph displayed, there are currently four choices:
+Specifies the type of graph displayed, there are currently five choices:
 
 ``Line``,
 ``Scatter``,
 ``Bar``,
-``Pie``
+``Pie``,
+``Timeline``
 
 .. note::
     ``Hexbin``, ``Contour`` and ``Whisker`` have been deprecated and are no
@@ -2041,6 +2044,26 @@ The data format required for each type is shown below:
             ]
 
     `**N.B.** - angle represents proportion of bar graph e.g car will be 1/8th of the pie chart`
+
+    **Timeline**: `Array[ Dict{ 'name': str, 'start': datetime.datetime or str, 'end': datetime.datetime or str } ]`
+
+        .. code-block:: python
+
+            import datetime
+
+            start = datetime.datetime.now()
+            end = start + datetime.timedelta(seconds=1)
+
+            [
+             {'name': 'server', 'start': start, 'end': end},
+             {'name': 'client', 'start': start, 'end': end},
+            ]
+
+        A ``Timeline`` graph draws a Gantt-style chart, with each series
+        drawn as its own colour. It is used internally to display driver
+        setup/teardown timings when ``driver_info`` is enabled, and can
+        also be called directly. ``start``/``end`` accept either a
+        ``datetime.datetime`` object or an ISO 8601 ``str``.
 
 description - `string`
 -----------------------
@@ -2106,62 +2129,8 @@ The options for the entire graph
 
         e.g {'legend': True}
 
-
-.. _timeline_visualisation:
-
-Timeline Visualisation
-======================
-This tool displays a Gantt-style timeline chart in the web UI.
-It is used internally to display driver setup/teardown timings
-when ``driver_info`` is enabled, and can also be called directly.
-
-This method takes 2 arguments:
-
-            ``result.timeline(timeline_data, description)``
-
-    .. code-block:: python
-
-        import datetime
-
-        start = datetime.datetime.now()
-        end = start + datetime.timedelta(seconds=1)
-
-        result.timeline(
-            {
-                'Drivers': [
-                    {'name': 'server', 'start': start, 'end': end},
-                    {'name': 'client', 'start': start, 'end': end},
-                ]
-            },
-            description='Driver Setup Timeline',
-        )
-
-Downloadable examples that use timeline assertion can be found
-:ref:`here <example_assertions_timeline>`.
-
-timeline_data - `dict`
------------------------
-
-This contains the data for each series and follows the same
-``{ 'series name': rows }`` shape as
-:py:meth:`result.graph <testplan.testing.result.Result.graph>`'s
-``graph_data``.
-
-Each row is a `dict` with exactly these keys:
-
-    **Timeline row**: `Dict{ 'name': str, 'start': datetime.datetime or str, 'end': datetime.datetime or str }`
-
-        .. code-block:: python
-
-            {'name': 'server', 'start': start, 'end': end}
-
-``start``/``end`` accept either a ``datetime.datetime`` object or an ISO
-8601 ``str``.
-
-description - `string`
------------------------
-
-The title of your timeline.
+Downloadable examples that use the graph assertion can be found
+:ref:`here <example_assertions_graph>`.
 
 
 .. _Custom_Comparators:

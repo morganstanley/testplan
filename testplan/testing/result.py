@@ -2596,9 +2596,9 @@ class Result:
         self,
         graph_type: str,
         graph_data: Dict[str, List[Any]],
-        description: str,
-        series_options: Optional[Dict[str, Dict[str, Any]]],
-        graph_options: Optional[Dict[str, Any]],
+        description: Optional[str] = None,
+        series_options: Optional[Dict[str, Dict[str, Any]]] = None,
+        graph_options: Optional[Dict[str, Any]] = None,
     ) -> base.Graph:
         """
         Displays a Graph in the report.
@@ -2615,9 +2615,13 @@ class Result:
 
         :param graph_type: Type of graph user wants to create.
                           Currently implemented:
-                          'Line', 'Scatter', 'Bar', 'Pie'
+                          'Line', 'Scatter', 'Bar', 'Pie', 'Timeline'
         :type graph_type: ``str``
         :param graph_data: Data to plot on the graph, for each series.
+                          For a 'Timeline' graph, each row is a dict with
+                          keys 'name', 'start' and 'end', where 'start'/
+                          'end' are a ``datetime.datetime`` or ISO 8601
+                          ``str``.
         :type graph_data: ``dict[str, list]``
         :param description: Text description for the graph.
         :type description: ``str``
@@ -2641,19 +2645,6 @@ class Result:
             description=description,
             series_options=series_options,
             graph_options=graph_options,
-        )
-
-        return entry
-
-    @assertion
-    def timeline(
-        self,
-        timeline_data: Dict[str, List[Dict[str, Any]]],
-        description: Optional[str] = None,
-    ) -> base.Timeline:
-        entry = base.Timeline(
-            timeline_data=timeline_data,
-            description=description,
         )
 
         return entry

@@ -3,6 +3,7 @@
 These examples show usage of graphs
 """
 
+import datetime
 import sys
 import os
 
@@ -94,6 +95,37 @@ class SampleSuite:
             description="Pie Chart",
             series_options={"Data Name": {"colour": "literal"}},
             graph_options=None,
+        )
+
+        # A Timeline (Gantt) chart. 'start'/'end' accept datetime objects or
+        # ISO 8601 strings, and each series is drawn in its own colour.
+        start = datetime.datetime.now()
+        result.graph(
+            "Timeline",
+            {
+                "Drivers": [
+                    {
+                        "name": "server",
+                        "start": start,
+                        "end": start + datetime.timedelta(seconds=1),
+                    },
+                    {
+                        "name": "client",
+                        "start": start + datetime.timedelta(milliseconds=200),
+                        "end": start + datetime.timedelta(seconds=2),
+                    },
+                ],
+                "Workers": [
+                    {
+                        "name": "worker",
+                        "start": start + datetime.timedelta(seconds=1),
+                        "end": start + datetime.timedelta(seconds=3),
+                    },
+                ],
+            },
+            description="Timeline Chart",
+            series_options={"Drivers": {"colour": "red"}},
+            graph_options={"legend": True},
         )
 
     # Some examples of multi series graphs:

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TimelineAssertion renders the correct HTML structure 1`] = `
+exports[`TimelineChartAssertion renders the correct HTML structure 1`] = `
 <DocumentFragment>
   <div
     style="width: 100%;"

@@ -276,12 +276,21 @@ class Graph(BaseEntry):
             "Line",
             "Scatter",
             "Bar",
+            "Timeline",
         ]
         self.VALID_CHART_TYPES = ["Pie"]
         self.VALID_GRAPH_OPTIONS = ["xAxisTitle", "yAxisTitle", "legend"]
         self.VALID_SERIES_OPTIONS = ["colour"]
 
         self.graph_type = graph_type
+
+        if graph_type == "Timeline":
+            graph_data = {
+                series: [
+                    self._normalize_timeline_row(row) for row in rows
+                ]
+                for series, rows in graph_data.items()
+            }
         self.graph_data = graph_data
 
         if series_options is not None:
@@ -331,25 +340,13 @@ class Graph(BaseEntry):
                         "{!r})".format(series_option, series_name)
                     )
 
+    def _normalize_timeline_row(self, row):
+        row_keys = frozenset(("name", "start", "end"))
 
-class Timeline(BaseEntry):
-    """Display a timeline (Gantt) chart in the report."""
-
-    ROW_KEYS = frozenset(("name", "start", "end"))
-
-    def __init__(self, timeline_data, description=None):
-        self.timeline_data = {
-            series: [self._normalize_row(row) for row in rows]
-            for series, rows in timeline_data.items()
-        }
-
-        super(Timeline, self).__init__(description=description)
-
-    def _normalize_row(self, row):
         if not isinstance(row, dict):
             raise TypeError("Timeline row {!r} should be a dict".format(row))
 
-        missing = self.ROW_KEYS - set(row)
+        missing = row_keys - set(row)
         if missing:
             raise ValueError(
                 "Timeline row {!r} is missing required key(s) {}".format(
@@ -357,7 +354,7 @@ class Timeline(BaseEntry):
                 )
             )
 
-        unexpected = set(row) - self.ROW_KEYS
+        unexpected = set(row) - row_keys
         if unexpected:
             raise ValueError(
                 "Timeline row key(s) {} are not valid".format(

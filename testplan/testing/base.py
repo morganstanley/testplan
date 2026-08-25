@@ -1011,7 +1011,8 @@ class Test(Runnable):
             for driver in table
             if driver[END_TIME]
         ]
-        case_result.timeline(
+        case_result.graph(
+            "Timeline",
             {"Drivers": timeline_rows},
             description=f"Driver {setup_or_teardown.capitalize()} Timeline",
         )

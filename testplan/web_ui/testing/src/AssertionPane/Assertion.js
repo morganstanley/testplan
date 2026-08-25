@@ -22,6 +22,7 @@ import AssertionGroup from "./AssertionGroup";
 import { BASIC_ASSERTION_TYPES } from "../Common/defaults";
 import XYGraphAssertion from "./AssertionTypes/GraphAssertions/XYGraphAssertion";
 import DiscreteChartAssertion from "./AssertionTypes/GraphAssertions/DiscreteChartAssertion";
+import TimelineChartAssertion from "./AssertionTypes/GraphAssertions/TimelineChartAssertion";
 import SummaryBaseAssertion from "./AssertionSummary";
 import AttachmentAssertion from "./AssertionTypes/AttachmentAssertions";
 import PlotlyAssertion from "./AssertionTypes/PlotlyAssertion";
@@ -34,7 +35,6 @@ import LogfileMatchAssertion from "./AssertionTypes/LogfileMatchAssertion";
 import { EXPAND_STATUS } from "../Common/defaults";
 import XMLCheckAssertion from "./AssertionTypes/XMLCheckAssertion";
 import FlowChartAssertion from "./AssertionTypes/FlowChartAssertion";
-import TimelineAssertion from "./AssertionTypes/TimelineAssertion";
 import { showStatusIconsPreference } from "../UserSettings/UserSettings";
 
 /**
@@ -60,7 +60,9 @@ function Assertion({
    */
   const assertionComponent = (assertionType) => {
     let graphAssertion;
-    if (assertion.discrete_chart) {
+    if (assertion.graph_type === "Timeline") {
+      graphAssertion = TimelineChartAssertion;
+    } else if (assertion.discrete_chart) {
       graphAssertion = DiscreteChartAssertion;
     } else {
       graphAssertion = XYGraphAssertion;
@@ -93,7 +95,6 @@ function Assertion({
       XMLCheck: XMLCheckAssertion,
       LogfileMatch: LogfileMatchAssertion,
       FlowChart: FlowChartAssertion,
-      Timeline: TimelineAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];

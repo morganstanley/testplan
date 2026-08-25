@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -69,6 +70,17 @@ def test_graph():
         assert len(testcase4["graph_data"]) == 1
         assert type(testcase4["series_options"]) is dict
         assert testcase4["graph_options"] is None
+
+        testcase5 = report["entries"][0]["entries"][0]["entries"][0][
+            "entries"
+        ][4]
+        assert testcase5["type"] == "Graph"
+        assert testcase5["graph_type"] == "Timeline"
+        assert type(testcase5["graph_data"]) is dict
+        assert len(testcase5["graph_data"]) == 2
+        for row in testcase5["graph_data"]["Drivers"]:
+            assert re.match(r"^\d{4}-\d{2}-\d{2}T", row["start"])
+            assert re.match(r"^\d{4}-\d{2}-\d{2}T", row["end"])
 
     finally:
         os.remove(output_json)
