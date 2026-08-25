@@ -1992,7 +1992,7 @@ Specifies the type of graph displayed, there are currently five choices:
 ``Timeline``
 
 .. note::
-    ``Hexbin``, ``Contour`` and ``Whisker`` have been deprecated and are no
+    ``Hexbin``, ``Contour`` and ``Whisker`` have been removed and are no
     longer rendered in the web report.
 
 graph_data - `dict`

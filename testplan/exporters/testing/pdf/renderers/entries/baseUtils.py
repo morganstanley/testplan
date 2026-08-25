@@ -137,25 +137,6 @@ def plot_graph(source, graph_type):
             starting_placement += single_bar_width
             ax.set_xticks(x)
             ax.set_xticklabels(x_values)
-        elif graph_type == "Hexbin":
-            plot.hexbin(x_values, y_values, color=colour, label=entry)
-        elif graph_type == "Contour":
-            plot.contour([x_values, y_values])
-        elif graph_type == "Whisker":
-            x_err = []
-            y_err = []
-            for point in data[entry]:
-                x_err.append(point["xVariance"])
-                y_err.append(point["yVariance"])
-            plot.errorbar(
-                x_values,
-                y_values,
-                color=colour,
-                label=entry,
-                xerr=x_err,
-                yerr=y_err,
-                fmt="x",
-            )
 
     x_axis_label, y_axis_label = get_axis_labels(graph_options)
 

@@ -286,9 +286,7 @@ class Graph(BaseEntry):
 
         if graph_type == "Timeline":
             graph_data = {
-                series: [
-                    self._normalize_timeline_row(row) for row in rows
-                ]
+                series: [self._normalize_timeline_row(row) for row in rows]
                 for series, rows in graph_data.items()
             }
         self.graph_data = graph_data

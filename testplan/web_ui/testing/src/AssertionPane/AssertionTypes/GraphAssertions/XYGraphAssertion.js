@@ -60,7 +60,7 @@ function XYGraphAssertion({ assertion }) {
   if (!GraphComponent) {
     return (
       <div>
-        Graph type "{graph_type}" is deprecated and is no longer rendered
+        Graph type "{graph_type}" is removed and is no longer rendered
         in the web report.
       </div>
     );
