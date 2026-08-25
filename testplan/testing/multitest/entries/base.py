@@ -276,9 +276,6 @@ class Graph(BaseEntry):
             "Line",
             "Scatter",
             "Bar",
-            "Whisker",
-            "Contour",
-            "Hexbin",
         ]
         self.VALID_CHART_TYPES = ["Pie"]
         self.VALID_GRAPH_OPTIONS = ["xAxisTitle", "yAxisTitle", "legend"]
@@ -302,7 +299,11 @@ class Graph(BaseEntry):
             self.discrete_chart = False
         else:
             raise ValueError(
-                "Graph of type {!r} cannot be rendered".format(graph_type)
+                "Graph of type {!r} cannot be rendered, available "
+                "types are: {}".format(
+                    graph_type,
+                    self.VALID_GRAPH_TYPES + self.VALID_CHART_TYPES,
+                )
             )
 
         super(Graph, self).__init__(description=description)
@@ -346,9 +347,7 @@ class Timeline(BaseEntry):
 
     def _normalize_row(self, row):
         if not isinstance(row, dict):
-            raise TypeError(
-                "Timeline row {!r} should be a dict".format(row)
-            )
+            raise TypeError("Timeline row {!r} should be a dict".format(row))
 
         missing = self.ROW_KEYS - set(row)
         if missing:

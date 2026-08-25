@@ -1128,11 +1128,7 @@ class TestResultBaseNamespace:
 
         with pytest.raises(TypeError):
             result.timeline(
-                {
-                    "Drivers": [
-                        {"name": "server", "start": 123, "end": 456}
-                    ]
-                },
+                {"Drivers": [{"name": "server", "start": 123, "end": 456}]},
                 description="Bad start/end type",
             )
 

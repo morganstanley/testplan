@@ -3,36 +3,6 @@
  * chart assertions.
  */
 
-/**
- * Return the JSX for the 'style' parameter for the graph component
- * to help render nicer graphs, not currently set by the user
- *
- * @param {str} graph_type - The type of graph being rendered
- * @return {dict[key: object]} Returns any style required for the graph
- */
-export function returnStyle(graph_type) {
-  if (graph_type === "Contour") {
-    return {
-      stroke: "#125C77",
-      strokeLinejoin: "round",
-    };
-  }
-}
-
-/**
- * Return the JSX for the 'XType' parameter for the XYPlot
- * component to be make the x axis increment either numerical or ordinal
- *
- * @param {str} graph_type - The type of graph being rendered
- * @return {str} Returns ordinal if x-axis should be
- *               letters instead of numerical
- */
-export function returnXType(graph_type) {
-  if (graph_type === "Bar") {
-    return "ordinal";
-  }
-}
-
 const COLOUR_PALETTE = [
   "#1c5c9c",
   "#68caea",

@@ -1,55 +1,58 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
-import "react-vis/dist/style.css";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie } from "react-chartjs-2";
 import * as GraphUtil from "./graphUtils";
-import { RadialChart, Hint, DiscreteColorLegend } from "react-vis";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const PIE_OPTIONS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: true },
+  },
+};
 
 /**
  * Component that are used to render a Chart (Data visualisations that don't
- * require an XY axis). Currently will only render radial charts
+ * require an XY axis). Currently will only render pie charts
  * correctly (not generalised for other charts).
  */
-function  DiscreteChartAssertion({ assertion }) {
-  const [value, setValue] = useState(null);
-
-  const components = {Pie: RadialChart};
+function DiscreteChartAssertion({ assertion }) {
+  const components = { Pie };
   const data = assertion.graph_data;
   const graph_type = assertion.graph_type;
+  const seriesColour = GraphUtil.returnColour(assertion.series_options, data);
   const GraphComponent = components[graph_type];
-  const series_options = assertion.series_options;
-  let series_colours = GraphUtil.returnColour(series_options, data);
-  let plots = [];
-  let legend = [];
+
+  const plots = [];
 
   for (let key in data) {
+    const slices = data[key];
+    const colour = seriesColour[key];
     plots.push(
-      <GraphComponent
-        colorType={series_colours[key]}
-        key={key}
-        data={data[key]}
-        width={400}
-        height={300}
-        onValueMouseOver={(v) => setValue({ Label: v.name })}
-        onSeriesMouseOut={(v) => setValue(null)}
-      >
-        {value !== null && <Hint value={value} />}
-      </GraphComponent>
+      <div key={key} style={{ width: 400, height: 300 }}>
+        <GraphComponent
+          data={{
+            labels: slices.map((slice) => slice.name),
+            datasets: [
+              {
+                data: slices.map((slice) => slice.angle),
+                backgroundColor: slices.map((slice) =>
+                  colour === "literal" ? slice.color : colour
+                ),
+              },
+            ],
+          }}
+          options={PIE_OPTIONS}
+        />
+      </div>
     );
-
-    legend = data[key].map((slice) => {
-      return { title: slice.name, color: slice.color };
-    });
   }
 
   return (
     <div>
       {plots}
-      <DiscreteColorLegend
-        orientation="horizontal"
-        width={750}
-        items={legend}
-      />
-      <br />
       <p>(Hover over chart to see labels)</p>
     </div>
   );

@@ -2615,8 +2615,7 @@ class Result:
 
         :param graph_type: Type of graph user wants to create.
                           Currently implemented:
-                          'Line', 'Scatter', 'Bar', 'Hexbin',
-                          'Pie', 'Whisker', 'Contour'
+                          'Line', 'Scatter', 'Bar', 'Pie'
         :type graph_type: ``str``
         :param graph_data: Data to plot on the graph, for each series.
         :type graph_data: ``dict[str, list]``
