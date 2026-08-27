@@ -378,10 +378,6 @@ class GraphRenderer(SerializedEntryRenderer):
         """
         header = self.get_header(source, depth, row_idx)
 
-        if source["graph_type"] == "Timeline":
-            # Timeline graphs are not rendered in PDF reports.
-            return header
-
         styles = [
             RowStyle(
                 font=(constants.FONT, constants.FONT_SIZE_SMALL),

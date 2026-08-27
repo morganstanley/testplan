@@ -1101,8 +1101,8 @@ class TestResultBaseNamespace:
         assert entry.graph_type == "Timeline"
         assert type(entry.graph_data) is dict
         rows = entry.graph_data["Drivers"]
-        assert rows[0]["start"] == start.isoformat()
-        assert rows[0]["end"] == end.isoformat()
+        assert rows[0]["start"] == start.astimezone().isoformat()
+        assert rows[0]["end"] == end.astimezone().isoformat()
         assert rows[1]["start"] == start.isoformat()
         assert entry.series_options == {"Drivers": {"colour": "red"}}
         assert entry.graph_options == {"legend": True}

@@ -364,6 +364,8 @@ class Graph(BaseEntry):
         for key in ("start", "end"):
             value = normalized[key]
             if isinstance(value, datetime.datetime):
+                if value.tzinfo is None:
+                    value = value.astimezone()
                 normalized[key] = value.isoformat()
             elif not isinstance(value, str):
                 raise TypeError(

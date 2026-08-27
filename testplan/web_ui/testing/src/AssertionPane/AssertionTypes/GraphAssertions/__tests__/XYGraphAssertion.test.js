@@ -89,10 +89,10 @@ describe("XYGraphAssertion", () => {
     expect(() => fireEvent.doubleClick(chartContainer)).not.toThrow();
   });
 
-  it("renders a fallback message for a deprecated/unsupported graph type", () => {
+  it("renders a fallback message for a removed graph type", () => {
     props.assertion.graph_type = "Whisker";
     const component = render(<XYGraphAssertion {...props} />);
     expect(component.container.querySelector("canvas")).not.toBeInTheDocument();
-    expect(component.getByText(/deprecated/)).toBeInTheDocument();
+    expect(component.getByText(/removed/)).toBeInTheDocument();
   });
 });
