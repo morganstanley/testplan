@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   is_source_changed:
     name: Check if sources has changed
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       is_source_changed: ${{steps.check_source_change.outputs.changed}}
     steps:
@@ -31,7 +31,7 @@ jobs:
   success:
     name: PR Test Completed
     needs: [is_source_changed, test]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: always() && needs.is_source_changed.result == 'success' && (needs.is_source_changed.outputs.is_source_changed == 'false' || needs.Test.result == 'success')
     steps:
       - run: echo ${{needs.is_source_changed.result}} ${{needs.is_source_changed.outputs.is_source_changed}} ${{needs.Test.result}}
@@ -40,7 +40,7 @@ jobs:
   lint_python:
     name: Run lint on python code
     needs: [is_source_changed]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
       LINT_PYTHON_VERSION: "3.10"
@@ -67,7 +67,7 @@ jobs:
   build_ui:
     name: Build UI (with test and lint)
     needs: [is_source_changed]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: needs.is_source_changed.outputs.is_source_changed == 'true'
     env:
       REACT_APP_API_BASE_URL: "/fake/api/endpoint"
@@ -114,16 +114,16 @@ jobs:
       CI: ""
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: ['3.10', '3.11', '3.12', '3.13']
         package-extras: ['', '[all]']
         exclude:
           - os: windows-latest
             package-extras: ''
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             python-version: '3.11'
             package-extras: '[all]'
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             python-version: '3.12'
             package-extras: '[all]'
       fail-fast: false
@@ -148,13 +148,18 @@ jobs:
           name: ui_bundle
           path: testplan/web_ui/testing/build
       - name: Set up Linux package for tests
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt-get update && sudo apt-get install -y libkrb5-dev
       - name: Set up Zookeeper for tests
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: sudo apt-get update && sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install zookeeper zookeeper-bin
+          zookeeper_log_dir="$RUNNER_TEMP/zookeeper"
+          mkdir -p "$zookeeper_log_dir"
+          echo "ZOO_LOG_DIR=$zookeeper_log_dir" | sudo tee -a /etc/zookeeper/conf/environment
       - name: Set up Kafka for tests
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           wget https://archive.apache.org/dist/kafka/3.9.2/kafka_2.13-3.9.2.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
