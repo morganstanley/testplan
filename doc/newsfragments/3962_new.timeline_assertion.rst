@@ -1,0 +1,3 @@
+Add a ``Timeline`` graph type to ``result.graph()``, see :ref:`here <graph_visualisation>` for more details. ``driver_info`` now uses it to display driver setup/teardown timings, replacing the previous ``plotly`` chart.
+
+``result.graph()`` now renders via ``chart.js`` instead of ``react-vis`` in the web report.

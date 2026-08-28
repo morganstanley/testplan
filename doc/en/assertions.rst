@@ -1944,6 +1944,8 @@ Sample output:
           Pattern: `.*passed.*`
         ...
 
+.. _graph_visualisation:
+
 Graph Visualisation
 ===================
 This graphing tool will allow you to produce interactive data visualisations
@@ -1981,15 +1983,17 @@ This method takes 5 arguments:
 graph_type - `string`
 ----------------------
 
-Specifies the type of graph displayed, there are currently six choices:
+Specifies the type of graph displayed, there are currently five choices:
 
 ``Line``,
 ``Scatter``,
 ``Bar``,
 ``Pie``,
-``Hexbin``,
-``Contour``,
-``Whisker``
+``Timeline``
+
+.. note::
+    ``Hexbin``, ``Contour`` and ``Whisker`` have been removed and are no
+    longer rendered in the web report.
 
 graph_data - `dict`
 -------------------
@@ -2007,7 +2011,7 @@ For one data set, this format is still required:
 
 The data format required for each type is shown below:
 
-    **Line, Scatter, Hexbin and Contour**: `Array[ Dict{ 'x': int, 'y':int } ]`
+    **Line and Scatter**: `Array[ Dict{ 'x': int, 'y':int } ]`
 
         .. code-block:: python
 
@@ -2041,15 +2045,25 @@ The data format required for each type is shown below:
 
     `**N.B.** - angle represents proportion of bar graph e.g car will be 1/8th of the pie chart`
 
-    **Whisker**: `Array[ Dict{ 'x': int, 'y': int, 'xVariance': int, 'yVariance': int } ]`
+    **Timeline**: `Array[ Dict{ 'name': str, 'start': datetime.datetime or str, 'end': datetime.datetime or str } ]`
 
         .. code-block:: python
 
+            import datetime
+
+            start = datetime.datetime.now()
+            end = start + datetime.timedelta(seconds=1)
+
             [
-             {'x': 1, 'y': 10, 'xVariance': 0.5, 'yVariance': 2},
-             {'x': 1.7, 'y': 12, 'xVariance': 1, 'yVariance': 1},
-             {'x': 2, 'y': 5, 'xVariance': 0, 'yVariance': 0}
+             {'name': 'server', 'start': start, 'end': end},
+             {'name': 'client', 'start': start, 'end': end},
             ]
+
+        A ``Timeline`` graph draws a Gantt-style chart, with each series
+        drawn as its own colour. It is used internally to display driver
+        setup/teardown timings when ``driver_info`` is enabled, and can
+        also be called directly. ``start``/``end`` accept either a
+        ``datetime.datetime`` object or an ISO 8601 ``str``.
 
 description - `string`
 -----------------------
@@ -2114,6 +2128,9 @@ The options for the entire graph
         (DEFAULT: False)
 
         e.g {'legend': True}
+
+Downloadable examples that use the graph assertion can be found
+:ref:`here <example_assertions_graph>`.
 
 
 .. _Custom_Comparators:

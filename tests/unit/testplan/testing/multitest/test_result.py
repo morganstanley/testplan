@@ -1066,6 +1066,81 @@ class TestResultBaseNamespace:
         assert type(result.entries[0].series_options) is dict
         assert result.entries[0].graph_options is None
 
+    def test_timeline_graph_assertion(self):
+        """Unit testcase for the result.graph('Timeline', ...) method."""
+        import datetime
+
+        start = datetime.datetime(2024, 1, 1, 0, 0, 0)
+        end = datetime.datetime(2024, 1, 1, 0, 0, 1)
+
+        result = result_mod.Result()
+        timeline_assertion = result.graph(
+            "Timeline",
+            {
+                "Drivers": [
+                    {
+                        "name": "server",
+                        "start": start,
+                        "end": end,
+                    },
+                    {
+                        "name": "client",
+                        "start": start.isoformat(),
+                        "end": end.isoformat(),
+                    },
+                ]
+            },
+            description="Driver Setup Timeline",
+            series_options={"Drivers": {"colour": "red"}},
+            graph_options={"legend": True},
+        )
+
+        assert bool(timeline_assertion) is True
+        assert len(result.entries) == 1
+        entry = result.entries[0]
+        assert entry.graph_type == "Timeline"
+        assert type(entry.graph_data) is dict
+        rows = entry.graph_data["Drivers"]
+        assert rows[0]["start"] == start.astimezone().isoformat()
+        assert rows[0]["end"] == end.astimezone().isoformat()
+        assert rows[1]["start"] == start.isoformat()
+        assert entry.series_options == {"Drivers": {"colour": "red"}}
+        assert entry.graph_options == {"legend": True}
+
+    def test_timeline_graph_assertion_invalid_row(self):
+        """A Timeline graph should validate its row keys."""
+        result = result_mod.Result()
+
+        with pytest.raises(ValueError):
+            result.graph(
+                "Timeline",
+                {"Drivers": [{"name": "server"}]},
+                description="Missing keys",
+            )
+
+        with pytest.raises(ValueError):
+            result.graph(
+                "Timeline",
+                {
+                    "Drivers": [
+                        {
+                            "name": "server",
+                            "start": "2024-01-01T00:00:00",
+                            "end": "2024-01-01T00:00:01",
+                            "bogus": "nope",
+                        }
+                    ]
+                },
+                description="Unexpected key",
+            )
+
+        with pytest.raises(TypeError):
+            result.graph(
+                "Timeline",
+                {"Drivers": [{"name": "server", "start": 123, "end": 456}]},
+                description="Bad start/end type",
+            )
+
     def test_attach(self, tmpdir):
         """UT for result.attach method."""
         tmpfile = str(tmpdir.join("attach_me.txt"))

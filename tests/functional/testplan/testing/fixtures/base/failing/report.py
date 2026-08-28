@@ -83,12 +83,12 @@ expected_report_with_failing_driver_and_driver_info_flag = TestReport(
                                     "meta_type": "entry",
                                 },
                                 {
-                                    "style": None,
-                                    "type": "Plotly",
-                                    "filesize": lambda x: isinstance(x, int),
-                                    "dst_path": re.compile(r".*\.json"),
-                                    "source_path": re.compile(r".*\.json"),
-                                    "orig_filename": re.compile(r".*\.json"),
+                                    "type": "Graph",
+                                    "graph_type": "Timeline",
+                                    "series_options": None,
+                                    "graph_options": None,
+                                    "discrete_chart": False,
+                                    "graph_data": {"Drivers": []},
                                     "description": "Driver Setup Timeline",
                                     "meta_type": "entry",
                                 },
@@ -149,12 +149,24 @@ expected_report_with_failing_driver_and_driver_info_flag = TestReport(
                                     "meta_type": "entry",
                                 },
                                 {
-                                    "style": None,
-                                    "type": "Plotly",
-                                    "filesize": lambda x: isinstance(x, int),
-                                    "dst_path": re.compile(r".*\.json"),
-                                    "source_path": re.compile(r".*\.json"),
-                                    "orig_filename": re.compile(r".*\.json"),
+                                    "type": "Graph",
+                                    "graph_type": "Timeline",
+                                    "series_options": None,
+                                    "graph_options": None,
+                                    "discrete_chart": False,
+                                    "graph_data": {
+                                        "Drivers": [
+                                            {
+                                                "name": "driver",
+                                                "start": re.compile(
+                                                    r"^\d{4}-\d{2}-\d{2}T"
+                                                ),
+                                                "end": re.compile(
+                                                    r"^\d{4}-\d{2}-\d{2}T"
+                                                ),
+                                            },
+                                        ]
+                                    },
                                     "description": "Driver Teardown Timeline",
                                     "meta_type": "entry",
                                 },

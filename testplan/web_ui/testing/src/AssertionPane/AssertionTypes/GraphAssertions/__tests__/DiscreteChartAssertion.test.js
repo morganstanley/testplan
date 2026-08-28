@@ -1,6 +1,6 @@
 import React from "react";
-import { shallow } from "enzyme";
-import { StyleSheetTestUtils } from "aphrodite";
+import { render } from "@testing-library/react";
+import "@testing-library/jest-dom";
 
 import DiscreteChartAssertion from "../DiscreteChartAssertion.js";
 
@@ -56,21 +56,26 @@ function defaultProps() {
 
 describe("DiscreteChartAssertion", () => {
   let props;
-  let shallowComponent;
 
   beforeEach(() => {
-    // Stop Aphrodite from injecting styles, this crashes the tests.
-    StyleSheetTestUtils.suppressStyleInjection();
     props = defaultProps();
-    shallowComponent = undefined;
   });
 
-  it("can render basic markup without error", () => {
-    shallow(<DiscreteChartAssertion {...props} />).html();
+  it("renders the correct HTML structure", () => {
+    const component = render(<DiscreteChartAssertion {...props} />);
+    expect(component.asFragment()).toMatchSnapshot();
   });
 
-  it("shallow renders the correct HTML structure", () => {
-    shallowComponent = shallow(<DiscreteChartAssertion {...props} />);
-    expect(shallowComponent).toMatchSnapshot();
+  it("renders one canvas per series", () => {
+    props.assertion.graph_data = {
+      "Series A": props.assertion.graph_data["Data Name"],
+      "Series B": props.assertion.graph_data["Data Name"],
+    };
+    props.assertion.series_options = {
+      "Series A": { colour: "literal" },
+      "Series B": { colour: "red" },
+    };
+    const component = render(<DiscreteChartAssertion {...props} />);
+    expect(component.container.querySelectorAll("canvas")).toHaveLength(2);
   });
 });
