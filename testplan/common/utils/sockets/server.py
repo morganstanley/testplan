@@ -157,11 +157,9 @@ class Server:
         :return: ``None``
         :rtype: ``NoneType``
         """
-        fdesc = self._fds[conn_idx]
-        self._connection_by_fd[fdesc].close()
-
-        del self._connection_by_fd[fdesc]
-        del self._fds[conn_idx]
+        fdesc = self._fds.pop(conn_idx)
+        conn = self._connection_by_fd.pop(fdesc)
+        conn.close()
 
     def receive(
         self, size=1024, conn_idx=None, timeout=30, wait_full_size=True
