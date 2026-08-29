@@ -349,6 +349,8 @@ const HostResourceGraphContainer = ({
   const systemLoadData = [];
 
   for (let t in time) {
+    // cpu is on the "one busy core equals 100%" scale, dividing by 100 turns
+    // it into cores so the percent formatter renders e.g. 340%.
     cpuData.push({ x: time[t] * 1000, y: cpu[t] / 100 });
     memoryData.push({ x: time[t] * 1000, y: memory[t] });
     diskData.push({ x: time[t] * 1000, y: disk[t] });
@@ -552,7 +554,7 @@ const HostResource = ({
                 {...response.data}
                 startTime={startTime}
                 endTime={endTime}
-                memorySize={resourceEntry.memory_size}
+                memorySize={resourceEntry.metaData.memory_size}
               />
             </>
           );
@@ -646,7 +648,7 @@ const TopBanner = ({
 
   const cpuDiv = _.isNil(maxCPU?.value, true) ? null : (
     <div style={itemBlueStyle} title={maxCPU.uid}>
-      Max CPU Usage: {maxCPU.value}%
+      Max CPU Usage: {maxCPU.value.toFixed(2)}%
     </div>
   );
 

@@ -102,6 +102,8 @@ def test_resource(runpath):
     memory_used = int(float(last_host_row["memory"]))
     print(f"Current memory used: {memory_used}")
 
+    # Host CPU now bounded by cpu_count * 100 rather than by 100.
+    assert 0 <= float(last_host_row["cpu"]) <= psutil.cpu_count() * 100
     # Core host context-switch rate is collected for every client.
     assert float(last_host_row["host_ctx_switches"]) >= 0
     # Extra typed metric from the HostResourceRow subclass flows through as its
