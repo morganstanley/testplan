@@ -89,7 +89,7 @@ class GroupSchema(Schema):
 
 @registry.bind(base.Log)
 class LogSchema(BaseSchema):
-    message = custom_fields.SanitizedRaw()
+    message = fields.String()
 
 
 @registry.bind(base.CodeLog)

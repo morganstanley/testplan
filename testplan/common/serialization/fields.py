@@ -9,6 +9,7 @@ import pprint
 from datetime import timezone, datetime
 from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
+from boltons.iterutils import is_scalar, remap
 from lxml import etree
 
 from marshmallow import fields
@@ -55,38 +56,18 @@ def _sanitize_json_scalar(value: Any) -> Any:
     return value
 
 
+def _sanitize_visit(path: Any, key: Any, value: Any):
+    if is_scalar(value):
+        sv = _sanitize_json_scalar(value)
+        if sv is not value:
+            return key, sv
+    return True
+
+
 def sanitize_for_json(value: Any) -> Any:
-    if isinstance(value, dict):
-        new_dict = None
-        for k, v in value.items():
-            sv = sanitize_for_json(v)
-            if sv is not v:
-                if new_dict is None:
-                    new_dict = dict(value)
-                new_dict[k] = sv
-        return value if new_dict is None else new_dict
-
-    if isinstance(value, list):
-        new_list = None
-        for i, v in enumerate(value):
-            sv = sanitize_for_json(v)
-            if sv is not v:
-                if new_list is None:
-                    new_list = list(value)
-                new_list[i] = sv
-        return value if new_list is None else new_list
-
-    if isinstance(value, tuple):
-        new_items = None
-        for i, v in enumerate(value):
-            sv = sanitize_for_json(v)
-            if sv is not v:
-                if new_items is None:
-                    new_items = list(value)
-                new_items[i] = sv
-        return value if new_items is None else tuple(new_items)
-
-    return _sanitize_json_scalar(value)
+    if is_scalar(value):
+        return _sanitize_json_scalar(value)
+    return remap(value, visit=_sanitize_visit)
 
 
 class Serializable(metaclass=abc.ABCMeta):

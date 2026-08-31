@@ -51,7 +51,7 @@ class EqualSchema(FuncAssertionSchema):
 
 @registry.bind(asr.Fail)
 class FailSchema(AssertionSchema):
-    message = custom_fields.SanitizedRaw()
+    message = fields.String()
 
 
 @registry.bind(asr.IsClose)
