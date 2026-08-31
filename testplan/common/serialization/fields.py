@@ -3,6 +3,7 @@ Custom marshmallow fields.
 """
 
 import abc
+import math
 import pprint
 
 from datetime import timezone, datetime
@@ -16,6 +17,7 @@ from marshmallow.schema import Schema
 from marshmallow.utils import missing as missing_
 
 from testplan.common.utils import comparison
+from testplan.common.utils.json import json_dumps
 
 # We explicitly enumerate types that are known to be safe to serialize by
 # pickle. All other types will be converted to strings before pickling.
@@ -23,6 +25,68 @@ from testplan.common.utils import comparison
 COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 
 # pylint: disable=unused-argument
+
+_JSON_ALWAYS_SAFE = (str, int, bool, type(None))
+
+
+def _json_serializable(v: Any) -> bool:
+    try:
+        json_dumps(v)
+    except (UnicodeDecodeError, TypeError):
+        return False
+    else:
+        return True
+
+
+def _sanitize_json_scalar(value: Any) -> Any:
+    if isinstance(value, float):
+        if math.isnan(value):
+            return "NaN"
+        if math.isinf(value):
+            return "Infinity" if value > 0 else "-Infinity"
+        return value
+
+    if isinstance(value, _JSON_ALWAYS_SAFE):
+        return value
+
+    if not _json_serializable(value):
+        return str(value)
+
+    return value
+
+
+def sanitize_for_json(value: Any) -> Any:
+    if isinstance(value, dict):
+        new_dict = None
+        for k, v in value.items():
+            sv = sanitize_for_json(v)
+            if sv is not v:
+                if new_dict is None:
+                    new_dict = dict(value)
+                new_dict[k] = sv
+        return value if new_dict is None else new_dict
+
+    if isinstance(value, list):
+        new_list = None
+        for i, v in enumerate(value):
+            sv = sanitize_for_json(v)
+            if sv is not v:
+                if new_list is None:
+                    new_list = list(value)
+                new_list[i] = sv
+        return value if new_list is None else new_list
+
+    if isinstance(value, tuple):
+        new_items = None
+        for i, v in enumerate(value):
+            sv = sanitize_for_json(v)
+            if sv is not v:
+                if new_items is None:
+                    new_items = list(value)
+                new_items[i] = sv
+        return value if new_items is None else tuple(new_items)
+
+    return _sanitize_json_scalar(value)
 
 
 class Serializable(metaclass=abc.ABCMeta):
@@ -111,6 +175,12 @@ def native_or_pformat(value: Any) -> Any:
     # For basic builtin types we return the value unchanged. All other types
     # will be formatted as strings.
     if type(value) in COMPATIBLE_TYPES:
+        # orjson silently turns NaN/Infinity into `null` rather than raising
+        if isinstance(value, float):
+            if math.isnan(value):
+                return "NaN"
+            if math.isinf(value):
+                return "Infinity" if value > 0 else "-Infinity"
         result = value
     else:
         result = pprint.pformat(value)
@@ -207,6 +277,26 @@ class NativeOrPrettyDict(fields.Field):
                 )
 
         return native_or_pformat_dict(value)
+
+
+class NaNFloat(fields.Float):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+        if isinstance(value, float):
+            if math.isnan(value):
+                return "NaN"
+            if math.isinf(value):
+                return "Infinity" if value > 0 else "-Infinity"
+        return super()._serialize(value, attr, obj, **kwargs)
+
+
+class SanitizedRaw(fields.Raw):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+        return sanitize_for_json(value)
+
+
+class SanitizedDict(fields.Dict):
+    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+        return sanitize_for_json(super()._serialize(value, attr, obj, **kwargs))
 
 
 # TODO: Move to entries

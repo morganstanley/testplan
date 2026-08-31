@@ -51,7 +51,7 @@ class EqualSchema(FuncAssertionSchema):
 
 @registry.bind(asr.Fail)
 class FailSchema(AssertionSchema):
-    message = fields.Raw()
+    message = custom_fields.SanitizedRaw()
 
 
 @registry.bind(asr.IsClose)
@@ -166,7 +166,7 @@ class XMLCheckSchema(AssertionSchema):
 
     xml = custom_fields.XMLElementField(attribute="element")
 
-    namespaces = fields.Dict()
+    namespaces = custom_fields.SanitizedDict()
     data = fields.List(fields.List(custom_fields.NativeOrPretty()))
     message = fields.String()
 
@@ -186,7 +186,7 @@ class DictMatchSchema(AssertionSchema):
     exclude_keys = fields.List(custom_fields.NativeOrPretty())
     actual_description = fields.String()
     expected_description = fields.String()
-    comparison = fields.Raw()
+    comparison = custom_fields.SanitizedRaw()
 
     @post_dump
     def compress_level(
@@ -198,8 +198,8 @@ class DictMatchSchema(AssertionSchema):
 
 @registry.bind(asr.DictMatchAll, asr.FixMatchAll)
 class DictMatchAllSchema(AssertionSchema):
-    key_weightings = fields.Raw()
-    matches = fields.Raw()
+    key_weightings = custom_fields.SanitizedRaw()
+    matches = custom_fields.SanitizedRaw()
 
     @post_dump
     def compress_level(
@@ -239,7 +239,7 @@ class AtMostOneList(fields.List):
 
 @registry.bind(asr.LogfileMatch)
 class LogfileMatchSchema(AssertionSchema):
-    timeout = fields.Float()
+    timeout = custom_fields.NaNFloat()
     results = fields.List(fields.Nested(LogfileMatchResultSchema()))
     failure = AtMostOneList(fields.Nested(LogfileMatchResultSchema()))
 
