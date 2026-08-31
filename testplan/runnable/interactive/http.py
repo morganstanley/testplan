@@ -65,6 +65,7 @@ def generate_interactive_api(ihandler):
     api = flask_restx.Api(api_blueprint)
     app = flask.Flask("testplan", static_folder=static_dir)
     app.json = OrjsonProvider(app)
+    app.json.default = str
     app.register_blueprint(api_blueprint, url_prefix=api_prefix)
 
     post_export_model = api.model(

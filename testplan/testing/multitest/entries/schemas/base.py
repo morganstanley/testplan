@@ -2,11 +2,12 @@
 Base classes / logic for marshalling go here.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from marshmallow import Schema, fields, post_dump
 
 from testplan.common.serialization import fields as custom_fields
+from testplan.common.serialization.fields import sanitize_for_json
 from testplan.common.serialization.schemas import SchemaRegistry
 from testplan.common.utils.convert import delta_encode_level
 from testplan.testing.multitest.entries.base import (
@@ -34,6 +35,9 @@ class GenericEntryList(fields.Field):
 
 @registry.bind_default()
 class BaseSchema(Schema):
+    # fields needing normalization for JSON-safety
+    fields_to_normalize: Tuple[str, ...] = ()
+
     type = custom_fields.ClassName()
     meta_type = fields.String()
     timestamp = fields.DateTime("timestamp")
@@ -53,6 +57,14 @@ class BaseSchema(Schema):
 
     def load(self, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError("Only serialization is supported.")
+
+    @post_dump
+    def _normalize_fields(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
+        for name in self.fields_to_normalize:
+            data[name] = sanitize_for_json(data[name])
+        return data
 
     @post_dump
     def streamline(
@@ -89,7 +101,7 @@ class GroupSchema(Schema):
 
 @registry.bind(base.Log)
 class LogSchema(BaseSchema):
-    message = fields.Raw()
+    message = fields.String()
 
 
 @registry.bind(base.CodeLog)
@@ -113,6 +125,8 @@ class TableLogSchema(BaseSchema):
 
 @registry.bind(base.DictLog, base.FixLog)
 class DictLogSchema(BaseSchema):
+    fields_to_normalize = ("flattened_dict",)
+
     flattened_dict = fields.Raw()
 
     @post_dump
@@ -125,6 +139,8 @@ class DictLogSchema(BaseSchema):
 
 @registry.bind(base.Graph)
 class GraphSchema(BaseSchema):
+    fields_to_normalize = ("graph_data", "series_options", "graph_options")
+
     graph_type = fields.String()
     graph_data = fields.Dict(
         keys=fields.String(), values=fields.List(fields.Dict())
@@ -147,6 +163,8 @@ class AttachmentSchema(BaseSchema):
 
 @registry.bind(base.Plotly)
 class PlotlySchema(AttachmentSchema):
+    fields_to_normalize = ("style",)
+
     style = fields.Dict(allow_none=True)
 
 
