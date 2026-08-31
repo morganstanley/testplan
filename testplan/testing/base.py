@@ -960,9 +960,14 @@ class Test(Runnable):
         )
 
         def _try_asutc(dt_or_none: Optional[datetime]) -> Optional[datetime]:
-            if dt_or_none:
-                return dt_or_none.astimezone(tz=timezone.utc)
-            return None
+            if not dt_or_none:
+                return None
+            # ``dt_or_none`` can be an rpyc netref (e.g. from ``RemoteDriver``
+            # ), then a local tzinfo passed to the remote ``astimezone`` fails
+            # CPython's tzinfo type check as it would be netref on remote.
+            # timer records tz-aware timestamps, so going through a plain float
+            # keeps this equivalent.
+            return datetime.fromtimestamp(dt_or_none.timestamp(), timezone.utc)
 
         # column names
         D_CLASS = "Driver Class"

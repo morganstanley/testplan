@@ -389,7 +389,7 @@ tomli==2.4.1
     #   sphinx
 tomlkit==0.15.1
     # via pylint
-types-paramiko==5.0.0.20260724
+types-paramiko==4.0.0.20260518
 types-requests==2.33.0.20260712
 typing-extensions==4.16.0
     # via
