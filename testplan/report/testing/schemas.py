@@ -1,10 +1,8 @@
 """Schema classes for test Reports."""
 
 import functools
-import math
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-from boltons.iterutils import is_scalar, remap
 from marshmallow import Schema, fields, post_load, post_dump, pre_load
 from marshmallow.utils import EXCLUDE
 
@@ -18,7 +16,6 @@ from testplan.common.report.schemas import (
 )
 from testplan.common.serialization import fields as custom_fields
 from testplan.common.serialization.schemas import load_tree_data
-from testplan.common.utils.json import json_dumps
 from testplan.report.testing.base import (
     TestCaseReport,
     TestGroupReport,
@@ -57,46 +54,12 @@ class TagField(fields.Field):
 
 
 class EntriesField(fields.Field):
-    """
-    Handle encoding problems gracefully
-    """
-
-    @staticmethod
-    def _json_serializable(v: Any) -> bool:
-        try:
-            json_dumps(v)
-        except (UnicodeDecodeError, TypeError):
-            return False
-        else:
-            return True
-
+    # entries are sanitized for JSON-safety when each assertion is dumped
+    # (testing.multitest.entries.schemas.base), so this is a pass-through
     def _serialize(
         self, value: Any, attr: Any, obj: Any, **kwargs: Any
     ) -> Any:
-        # we don't need a _deserialize() here as we don't (and can't)
-        # convert str back to non-json-serializable.
-        def visit(
-            parent: Any, key: Any, _value: Any
-        ) -> Union[bool, Tuple[Any, Any]]:
-            """
-            return
-                True - keep the node unchange
-                False - remove the node
-                tuple - update the node data.
-            """
-            if is_scalar(_value):
-                if isinstance(_value, float):
-                    if math.isnan(_value):
-                        return key, "NaN"
-                    elif math.isinf(_value):
-                        if _value > 0:
-                            return key, "Infinity"
-                        return key, "-Infinity"
-                elif not self._json_serializable(_value):
-                    return key, str(_value)
-            return True
-
-        return remap(value, visit=visit)
+        return value
 
 
 class TestCaseReportSchema(ReportSchema):
@@ -192,7 +155,7 @@ class TestReportSchema(BaseReportGroupSchema):
     source_class = TestReport
 
     category = fields.String(dump_only=True)
-    meta = fields.Dict()
+    meta = custom_fields.SanitizedDict()
     label = fields.String(allow_none=True)
     tags_index = TagField(dump_only=True)
     information = fields.List(fields.Tuple([fields.String(), fields.String()]))
@@ -200,7 +163,7 @@ class TestReportSchema(BaseReportGroupSchema):
     counter = fields.Dict(dump_only=True)
     timezone = fields.String(load_default=_IANA_UTC)
 
-    attachments = fields.Dict()
+    attachments = custom_fields.SanitizedDict()
     timeout = fields.Integer(allow_none=True)
 
     entries = custom_fields.GenericNested(
@@ -302,7 +265,7 @@ class ShallowTestReportSchema(Schema):
     category = fields.String(dump_only=True)
     timezone = fields.String(load_default=_IANA_UTC)
     timer = TimerField(required=True)
-    meta = fields.Dict()
+    meta = custom_fields.SanitizedDict()
     status = fields.Function(lambda x: x.status.to_json_compatible())
     runtime_status = fields.Function(
         lambda x: x.runtime_status.to_json_compatible()
@@ -313,7 +276,7 @@ class ShallowTestReportSchema(Schema):
         lambda x: x.status_override.to_json_compatible(), allow_none=True
     )
     counter = fields.Dict(dump_only=True)
-    attachments = fields.Dict()
+    attachments = custom_fields.SanitizedDict()
     entry_uids = fields.List(fields.String(), dump_only=True)
     parent_uids = fields.List(fields.String())
     logs = fields.Nested(ReportLogSchema, many=True)

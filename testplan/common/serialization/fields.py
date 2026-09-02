@@ -3,11 +3,13 @@ Custom marshmallow fields.
 """
 
 import abc
+import math
 import pprint
 
 from datetime import timezone, datetime
 from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
+from boltons.iterutils import is_scalar, remap
 from lxml import etree
 
 from marshmallow import fields
@@ -16,6 +18,7 @@ from marshmallow.schema import Schema
 from marshmallow.utils import missing as missing_
 
 from testplan.common.utils import comparison
+from testplan.common.utils.json import json_dumps
 
 # We explicitly enumerate types that are known to be safe to serialize by
 # pickle. All other types will be converted to strings before pickling.
@@ -23,6 +26,48 @@ from testplan.common.utils import comparison
 COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 
 # pylint: disable=unused-argument
+
+_JSON_ALWAYS_SAFE = (str, int, bool, type(None))
+
+
+def _json_serializable(v: Any) -> bool:
+    try:
+        json_dumps(v)
+    except (UnicodeDecodeError, TypeError):
+        return False
+    else:
+        return True
+
+
+def _sanitize_json_scalar(value: Any) -> Any:
+    if isinstance(value, float):
+        if math.isnan(value):
+            return "NaN"
+        if math.isinf(value):
+            return "Infinity" if value > 0 else "-Infinity"
+        return value
+
+    if isinstance(value, _JSON_ALWAYS_SAFE):
+        return value
+
+    if not _json_serializable(value):
+        return str(value)
+
+    return value
+
+
+def _sanitize_visit(path: Any, key: Any, value: Any):
+    if is_scalar(value):
+        sv = _sanitize_json_scalar(value)
+        if sv is not value:
+            return key, sv
+    return True
+
+
+def sanitize_for_json(value: Any) -> Any:
+    if is_scalar(value):
+        return _sanitize_json_scalar(value)
+    return remap(value, visit=_sanitize_visit)
 
 
 class Serializable(metaclass=abc.ABCMeta):
@@ -108,9 +153,16 @@ def native_or_pformat(value: Any) -> Any:
     elif callable(value):
         value = getattr(value, "__name__", _repr_obj(value))
 
-    # For basic builtin types we return the value unchanged. All other types
-    # will be formatted as strings.
-    if type(value) in COMPATIBLE_TYPES:
+    # For basic builtin types we return the value unchanged. All other types but bytes will be formatted as strings.
+    # `bytes` is in COMPATIBLE_TYPES (safe to pickle) but is NOT JSON-safe, so it's excluded here and
+    # falls through to pformat like any other non-JSON-safe type.
+    if type(value) in COMPATIBLE_TYPES and not isinstance(value, bytes):
+        # orjson silently turns NaN/Infinity into `null` rather than raising
+        if isinstance(value, float):
+            if math.isnan(value):
+                return "NaN"
+            if math.isinf(value):
+                return "Infinity" if value > 0 else "-Infinity"
         result = value
     else:
         result = pprint.pformat(value)
@@ -207,6 +259,34 @@ class NativeOrPrettyDict(fields.Field):
                 )
 
         return native_or_pformat_dict(value)
+
+
+class NaNFloat(fields.Float):
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
+        if isinstance(value, float):
+            if math.isnan(value):
+                return "NaN"
+            if math.isinf(value):
+                return "Infinity" if value > 0 else "-Infinity"
+        return super()._serialize(value, attr, obj, **kwargs)
+
+
+class SanitizedRaw(fields.Raw):
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
+        return sanitize_for_json(value)
+
+
+class SanitizedDict(fields.Dict):
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
+        return sanitize_for_json(
+            super()._serialize(value, attr, obj, **kwargs)
+        )
 
 
 # TODO: Move to entries

@@ -89,7 +89,7 @@ class GroupSchema(Schema):
 
 @registry.bind(base.Log)
 class LogSchema(BaseSchema):
-    message = fields.Raw()
+    message = fields.String()
 
 
 @registry.bind(base.CodeLog)
@@ -113,7 +113,7 @@ class TableLogSchema(BaseSchema):
 
 @registry.bind(base.DictLog, base.FixLog)
 class DictLogSchema(BaseSchema):
-    flattened_dict = fields.Raw()
+    flattened_dict = custom_fields.SanitizedRaw()
 
     @post_dump
     def compress_level(
@@ -126,14 +126,14 @@ class DictLogSchema(BaseSchema):
 @registry.bind(base.Graph)
 class GraphSchema(BaseSchema):
     graph_type = fields.String()
-    graph_data = fields.Dict(
+    graph_data = custom_fields.SanitizedDict(
         keys=fields.String(), values=fields.List(fields.Dict())
     )
-    series_options = fields.Dict(
+    series_options = custom_fields.SanitizedDict(
         keys=fields.String(), values=fields.Dict(), allow_none=True
     )
     type = fields.String()  # type: ignore[assignment]
-    graph_options = fields.Dict(allow_none=True)
+    graph_options = custom_fields.SanitizedDict(allow_none=True)
     discrete_chart = fields.Bool()
 
 
@@ -147,7 +147,7 @@ class AttachmentSchema(BaseSchema):
 
 @registry.bind(base.Plotly)
 class PlotlySchema(AttachmentSchema):
-    style = fields.Dict(allow_none=True)
+    style = custom_fields.SanitizedDict(allow_none=True)
 
 
 @registry.bind(base.Directory)
