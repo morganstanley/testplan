@@ -153,9 +153,10 @@ def native_or_pformat(value: Any) -> Any:
     elif callable(value):
         value = getattr(value, "__name__", _repr_obj(value))
 
-    # For basic builtin types we return the value unchanged. All other types
-    # will be formatted as strings.
-    if type(value) in COMPATIBLE_TYPES:
+    # For basic builtin types we return the value unchanged. All other types but bytes will be formatted as strings.
+    # `bytes` is in COMPATIBLE_TYPES (safe to pickle) but is NOT JSON-safe, so it's excluded here and
+    # falls through to pformat like any other non-JSON-safe type.
+    if type(value) in COMPATIBLE_TYPES and not isinstance(value, bytes):
         # orjson silently turns NaN/Infinity into `null` rather than raising
         if isinstance(value, float):
             if math.isnan(value):
@@ -261,7 +262,9 @@ class NativeOrPrettyDict(fields.Field):
 
 
 class NaNFloat(fields.Float):
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
         if isinstance(value, float):
             if math.isnan(value):
                 return "NaN"
@@ -271,13 +274,19 @@ class NaNFloat(fields.Float):
 
 
 class SanitizedRaw(fields.Raw):
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
         return sanitize_for_json(value)
 
 
 class SanitizedDict(fields.Dict):
-    def _serialize(self, value: Any, attr: Any, obj: Any, **kwargs: Any) -> Any:
-        return sanitize_for_json(super()._serialize(value, attr, obj, **kwargs))
+    def _serialize(
+        self, value: Any, attr: Any, obj: Any, **kwargs: Any
+    ) -> Any:
+        return sanitize_for_json(
+            super()._serialize(value, attr, obj, **kwargs)
+        )
 
 
 # TODO: Move to entries

@@ -155,7 +155,7 @@ class TestReportSchema(BaseReportGroupSchema):
     source_class = TestReport
 
     category = fields.String(dump_only=True)
-    meta = fields.Dict()
+    meta = custom_fields.SanitizedDict()
     label = fields.String(allow_none=True)
     tags_index = TagField(dump_only=True)
     information = fields.List(fields.Tuple([fields.String(), fields.String()]))
@@ -163,7 +163,7 @@ class TestReportSchema(BaseReportGroupSchema):
     counter = fields.Dict(dump_only=True)
     timezone = fields.String(load_default=_IANA_UTC)
 
-    attachments = fields.Dict()
+    attachments = custom_fields.SanitizedDict()
     timeout = fields.Integer(allow_none=True)
 
     entries = custom_fields.GenericNested(
@@ -265,7 +265,7 @@ class ShallowTestReportSchema(Schema):
     category = fields.String(dump_only=True)
     timezone = fields.String(load_default=_IANA_UTC)
     timer = TimerField(required=True)
-    meta = fields.Dict()
+    meta = custom_fields.SanitizedDict()
     status = fields.Function(lambda x: x.status.to_json_compatible())
     runtime_status = fields.Function(
         lambda x: x.runtime_status.to_json_compatible()
@@ -276,7 +276,7 @@ class ShallowTestReportSchema(Schema):
         lambda x: x.status_override.to_json_compatible(), allow_none=True
     )
     counter = fields.Dict(dump_only=True)
-    attachments = fields.Dict()
+    attachments = custom_fields.SanitizedDict()
     entry_uids = fields.List(fields.String(), dump_only=True)
     parent_uids = fields.List(fields.String())
     logs = fields.Nested(ReportLogSchema, many=True)
