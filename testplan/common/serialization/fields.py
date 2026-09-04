@@ -3,11 +3,13 @@ Custom marshmallow fields.
 """
 
 import abc
+import math
 import pprint
 
 from datetime import timezone, datetime
 from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
+from boltons.iterutils import is_scalar, remap
 from lxml import etree
 
 from marshmallow import fields
@@ -23,6 +25,31 @@ from testplan.common.utils import comparison
 COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 
 # pylint: disable=unused-argument
+
+def _nan_safe(value: float) -> Any:
+    # orjson turns NaN/Infinity into `null` and never calls `default`
+    if math.isnan(value):
+        return "NaN"
+    if math.isinf(value):
+        return "Infinity" if value > 0 else "-Infinity"
+    return value
+
+
+def _sanitize_visit(path: Any, key: Any, value: Any):
+    if isinstance(value, float):
+        sv = _nan_safe(value)
+        if sv is not value:
+            return key, sv
+    return True
+
+
+def sanitize_for_json(value: Any) -> Any:
+    """Replace NaN/Infinity; other types are handled by json_dumps."""
+    if isinstance(value, float):
+        return _nan_safe(value)
+    if is_scalar(value):
+        return value
+    return remap(value, visit=_sanitize_visit)
 
 
 class Serializable(metaclass=abc.ABCMeta):
@@ -108,10 +135,12 @@ def native_or_pformat(value: Any) -> Any:
     elif callable(value):
         value = getattr(value, "__name__", _repr_obj(value))
 
-    # For basic builtin types we return the value unchanged. All other types
-    # will be formatted as strings.
-    if type(value) in COMPATIBLE_TYPES:
-        result = value
+    # For basic builtin types we return the value unchanged. All other
+    # types will be formatted as strings. `bytes` is in COMPATIBLE_TYPES
+    # (safe to pickle) but is NOT JSON-safe, so it's excluded here and
+    # falls through to pformat like any other non-JSON-safe type.
+    if type(value) in COMPATIBLE_TYPES and not isinstance(value, bytes):
+        result = _nan_safe(value) if isinstance(value, float) else value
     else:
         result = pprint.pformat(value)
 

@@ -11,8 +11,9 @@ def json_loads(data: str) -> Any:
 def json_dumps(
     data: Any,
     indent_2: bool = False,
-    default: Optional[Callable[[Any], Any]] = None,
+    default: Optional[Callable[[Any], Any]] = str,
 ) -> str:
+    """Unserializable values fall back to str."""
     return orjson.dumps(
         data,
         default=default,
