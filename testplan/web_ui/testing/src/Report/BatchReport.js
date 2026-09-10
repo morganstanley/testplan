@@ -65,6 +65,9 @@ class BatchReportComponent extends BaseReport {
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.updatePanelView = this.updatePanelView.bind(this);
+    this.handleExtendedSearchNavigate = this.handleExtendedSearchNavigate.bind(
+      this
+    );
 
     this.state = {
       ...this.state,
@@ -243,6 +246,15 @@ class BatchReportComponent extends BaseReport {
     this.props.history.push(newUrl);
   }
 
+  /**
+   * Handle navigation from extended search.
+   * @param {Array} uids - Array of UIDs from report root to target entry
+   */
+  handleExtendedSearchNavigate(uids) {
+    if (!uids || uids.length === 0) return;
+    const newPath = generateSelectionPath(this.props.match.path, uids);
+    this.props.history.push(newPath);
+  }
 
   getSelectedUIDsFromPath() {
     const { uid, selection } = this.props.match.params;
@@ -310,6 +322,7 @@ class BatchReportComponent extends BaseReport {
           updateTagsDisplayFunc={this.updateTagsDisplay}
           current_pannel={this.state.currentPanelView}
           switchPanelViewFunc={this.updatePanelView}
+          onExtendedSearchNavigate={this.handleExtendedSearchNavigate}
         />
         <NavBreadcrumbs entries={selectedEntries} url={this.props.match.path} />
         <div

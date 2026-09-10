@@ -8,8 +8,10 @@ import {
   faSearch,
   faExclamationCircle,
   faQuestionCircle,
+  faSearchPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import SearchFieldParser from "../Parser/SearchFieldParser";
+import ExtendedSearchDropdown from "./ExtendedSearchDropdown";
 import { RED } from "../Common/defaults";
 import { Popover, PopoverHeader, PopoverBody, Table } from "reactstrap";
 
@@ -22,11 +24,23 @@ class FilterBox extends Component {
     super(props);
     this.inputField = createRef();
     this.helpIcon = createRef();
+    this.extendedSearchIcon = createRef();
     this.state = {
       parserError: null,
       showHelp: false,
+      showExtendedSearch: false,
+      // Persist Extended Search selections across open/close
+      extendedSearchState: {
+        selectedTest: "",
+        selectedTestsuite: "",
+        selectedTestcase: "",
+        selectedParams: {},
+      },
     };
     this.toggleHelp = this.toggleHelp.bind(this);
+    this.toggleExtendedSearch = this.toggleExtendedSearch.bind(this);
+    this.closeExtendedSearch = this.closeExtendedSearch.bind(this);
+    this.updateExtendedSearchState = this.updateExtendedSearchState.bind(this);
     this.helpText = (
       <>
         <p>
@@ -60,7 +74,46 @@ class FilterBox extends Component {
   }
 
   toggleHelp() {
-    this.setState({ showHelp: !this.state.showHelp });
+    this.setState((prev) => ({ showHelp: !prev.showHelp }));
+  }
+
+  toggleExtendedSearch() {
+    this.setState((prev) => ({
+      showExtendedSearch: !prev.showExtendedSearch,
+    }));
+  }
+
+  closeExtendedSearch() {
+    this.setState({ showExtendedSearch: false });
+  }
+
+  resetExtendedSearchState() {
+    this.setState({
+      showExtendedSearch: false,
+      extendedSearchState: {
+        selectedTest: "",
+        selectedTestsuite: "",
+        selectedTestcase: "",
+        selectedParams: {},
+      },
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.report?.uid !== this.props.report?.uid
+    ) {
+      this.resetExtendedSearchState();
+    }
+  }
+
+  updateExtendedSearchState(newState) {
+    this.setState((prev) => ({
+      extendedSearchState: {
+        ...prev.extendedSearchState,
+        ...newState,
+      },
+    }));
   }
 
   hasError() {
@@ -72,39 +125,12 @@ class FilterBox extends Component {
   }
 
   render() {
+    const supportsExtendedSearch = this.props.onExtendedSearchNavigate;
+
     return (
       <div className={css(styles.searchBox)}>
-        <span>
-          <span className={css(styles.searchBoxIcon)}>
-            <FontAwesomeIcon key="search" icon={faSearch} title="Search" />
-          </span>
-          <span
-            className={css(styles.searchBoxInfoIcon, this.errorHighlight())}
-            onClick={this.toggleHelp}
-            ref={this.helpIcon}
-          >
-            <FontAwesomeIcon
-              key="toolbar-info"
-              icon={this.hasError() ? faExclamationCircle : faQuestionCircle}
-              title={
-                (this.hasError() ? this.state.parserError + " " : "") +
-                "Click for help"
-              }
-            />
-          </span>
-          <Popover
-            placement="bottom"
-            className={css(styles.widePopover)}
-            isOpen={this.state.showHelp}
-            target={this.helpIcon}
-            toggle={this.toggleHelp}
-            fade={false}
-          >
-            <PopoverHeader>How to search</PopoverHeader>
-            <PopoverBody className={css(styles.scrollablePopover)}>
-              {this.helpText}
-            </PopoverBody>
-          </Popover>
+        <span className={css(styles.searchBoxIcon)}>
+          <FontAwesomeIcon key="search" icon={faSearch} title="Search" />
         </span>
         <div className={css(styles.searchBoxInner)} ref={this.inputField}>
           <DebounceInput
@@ -116,6 +142,58 @@ class FilterBox extends Component {
             onChange={(event) => this.onFilterChange(event)}
           />
         </div>
+        <span
+          className={css(styles.searchBoxInfoIcon, this.errorHighlight())}
+          onClick={this.toggleHelp}
+          ref={this.helpIcon}
+        >
+          <FontAwesomeIcon
+            key="toolbar-info"
+            icon={this.hasError() ? faExclamationCircle : faQuestionCircle}
+            title={
+              (this.hasError() ? this.state.parserError + " " : "") +
+              "Click for help"
+            }
+          />
+        </span>
+        <Popover
+          placement="bottom"
+          className={css(styles.widePopover)}
+          isOpen={this.state.showHelp}
+          target={this.helpIcon}
+          toggle={this.toggleHelp}
+          fade={false}
+        >
+          <PopoverHeader>How to search</PopoverHeader>
+          <PopoverBody className={css(styles.scrollablePopover)}>
+            {this.helpText}
+          </PopoverBody>
+        </Popover>
+        {supportsExtendedSearch && (
+          <span
+            className={css(styles.searchBoxExtendedIcon)}
+            onClick={this.toggleExtendedSearch}
+            ref={this.extendedSearchIcon}
+          >
+            <FontAwesomeIcon
+              key="extended-search"
+              icon={faSearchPlus}
+              title="Extended Search - Search by parameters"
+            />
+          </span>
+        )}
+        {this.state.showExtendedSearch && supportsExtendedSearch && (
+          <ExtendedSearchDropdown
+            key={this.props.report?.uid || ""}
+            report={this.props.report}
+            onNavigate={this.props.onExtendedSearchNavigate}
+            onClose={this.closeExtendedSearch}
+            handleNavFilter={this.props.handleNavFilter}
+            persistedState={this.state.extendedSearchState}
+            onStateChange={this.updateExtendedSearchState}
+            triggerRef={this.extendedSearchIcon}
+          />
+        )}
       </div>
     );
   }
@@ -127,10 +205,9 @@ class FilterBox extends Component {
       this.setState({ parserError: null });
       this.props.handleNavFilter({ text: e.target.value, filters });
     } catch (error) {
-      this.setState({ parserError: error });
-      console.log("Could not parse seach string: " + error);
-      console.log(e.target.value);
-      this.props.handleNavFilter({ text: e.target.values, filters: [] });
+      this.setState({ parserError: error?.message || String(error) });
+      console.log("Could not parse search string:", error);
+      this.props.handleNavFilter({ text: e.target.value, filters: [] });
     }
   }
 
@@ -244,22 +321,34 @@ FilterBox.propTypes = {
   /** Function to handle expressions entered into the Filter box */
   handleNavFilter: PropTypes.func,
   filterText: PropTypes.string,
+  /** Report object for extended search */
+  report: PropTypes.object,
+  /** Callback for extended search navigation, receives array of UIDs */
+  onExtendedSearchNavigate: PropTypes.func,
 };
 
 const styles = StyleSheet.create({
   searchBox: {
     height: "100%",
     padding: "0.4em",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    position: "relative",
   },
   searchBoxInner: {
-    paddingLeft: "20px",
-    paddingRight: "20px",
+    flex: 1,
   },
   searchBoxIcon: {
-    float: "left",
+    flexShrink: 0,
   },
   searchBoxInfoIcon: {
-    float: "right",
+    flexShrink: 0,
+    cursor: "pointer",
+  },
+  searchBoxExtendedIcon: {
+    flexShrink: 0,
+    cursor: "pointer",
   },
   searchBoxInput: {
     width: "100%",

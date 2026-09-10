@@ -476,7 +476,13 @@ const ToolbarInfoButton = ({ report }) => {
   );
 };
 
-const ToolbarFilterBox = ({ filterBoxWidth, filterText, handleNavFilter }) => {
+const ToolbarFilterBox = ({
+  filterBoxWidth,
+  filterText,
+  handleNavFilter,
+  report,
+  onExtendedSearchNavigate,
+}) => {
   return (
     <div
       className={css(styles.filterBox)}
@@ -484,7 +490,12 @@ const ToolbarFilterBox = ({ filterBoxWidth, filterText, handleNavFilter }) => {
         width: filterBoxWidth,
       }}
     >
-      <FilterBox handleNavFilter={handleNavFilter} filterText={filterText} />
+      <FilterBox
+        handleNavFilter={handleNavFilter}
+        filterText={filterText}
+        report={report}
+        onExtendedSearchNavigate={onExtendedSearchNavigate}
+      />
     </div>
   );
 };
@@ -509,6 +520,8 @@ const Toolbar = function (props) {
         filterBoxWidth={props.filterBoxWidth}
         handleNavFilter={props.handleNavFilter}
         filterText={props.filterText}
+        report={props.report}
+        onExtendedSearchNavigate={props.onExtendedSearchNavigate}
       />
       <Collapse isOpen={false} navbar className={toolbarStyle}>
         <Nav navbar className="ms-auto">
@@ -688,6 +701,8 @@ Toolbar.propTypes = {
   current_pannel: PropTypes.string,
   /** Function to hanndle panel view switching */
   switchPanelViewFunc: PropTypes.func,
+  /** Function to handle extended search navigation, receives array of UIDs */
+  onExtendedSearchNavigate: PropTypes.func,
 };
 
 export default Toolbar;

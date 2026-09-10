@@ -1,7 +1,9 @@
 import functools
 import json
 from collections import OrderedDict
+from enum import Enum
 
+import dill
 import pytest
 from boltons.iterutils import get_path
 
@@ -155,6 +157,96 @@ class TestTestCaseReport:
             assert rep.hash == rep.hash
 
         assert rep_1.hash != rep_2.hash
+
+    def test_parametrization_kwargs_serialization(self):
+        """Parametrization values should be safe before report transport."""
+
+        class Side(Enum):
+            BUY = "Buy"
+
+            def __str__(self):
+                return self.value
+
+        class UnpicklableProduct:
+            def __str__(self):
+                return "GAV1GK1V1A12"
+
+            def __reduce__(self):
+                raise TypeError("cannot pickle test product")
+
+        report = TestCaseReport(
+            name="parametrized",
+            parametrization_kwargs=OrderedDict(
+                (
+                    ("quantity", 1000),
+                    ("side", Side.BUY),
+                    ("product", UnpicklableProduct()),
+                )
+            ),
+        )
+
+        dill.dumps(report)
+        data = report.serialize()
+
+        assert data["parametrization_kwargs"] == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+        assert json_loads(json_dumps(data))["parametrization_kwargs"] == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+        assert TestCaseReport.deserialize(data).parametrization_kwargs == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+
+    def test_parametrization_kwargs_serialization_is_bounded_and_safe(self):
+        """Hostile or very large parameter values must not break reports."""
+
+        class BrokenString:
+            def __str__(self):
+                raise RuntimeError("cannot render")
+
+        recursive = []
+        recursive.append(recursive)
+        nested = value = []
+        for _ in range(12):
+            child = []
+            value.append(child)
+            value = child
+
+        report = TestCaseReport(
+            name="parametrized",
+            parametrization_kwargs={
+                "broken": BrokenString(),
+                "large": "x" * 2000,
+                "recursive": recursive,
+                "nested": nested,
+                "unordered": {"third", "first", "second"},
+                "many": list(range(150)),
+            },
+        )
+
+        kwargs = report.parametrization_kwargs
+        assert kwargs["broken"] == "<BrokenString>"
+        assert kwargs["large"].startswith("x" * 1000 + "...<sha256:")
+        assert len(kwargs["large"]) < 1040
+        assert kwargs["recursive"] == ["<recursive list>"]
+        assert "<list max depth>" in repr(kwargs["nested"])
+        assert kwargs["unordered"] == ["first", "second", "third"]
+        assert kwargs["many"] == list(range(100)) + ["<50 more items>"]
+        dill.dumps(report)
+
+    def test_ordinary_testcase_omits_parametrization_kwargs(self):
+        """Ordinary testcase reports should not grow a null field."""
+        assert (
+            "parametrization_kwargs"
+            not in TestCaseReport(name="ordinary").serialize()
+        )
 
 
 def generate_dummy_testgroup():

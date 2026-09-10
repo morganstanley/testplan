@@ -132,6 +132,38 @@ def test_basic_parametrization(mockplan):
     )
 
 
+def test_parametrization_kwargs_are_added_to_report(mockplan):
+    """Reports retain kwargs even when testcase names do not contain them."""
+
+    @testsuite
+    class MySuite:
+        @testcase(
+            parameters=(
+                {"quantity": 1000, "side": "Buy"},
+                {"quantity": 5000, "side": "Sell"},
+            ),
+            name_func=None,
+        )
+        def test_order(self, env, result, quantity, side):
+            result.true(quantity > 0 and side in ("Buy", "Sell"))
+
+    multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
+    mockplan.add(multitest)
+    mockplan.run()
+
+    parametrization_report = mockplan.report.entries[0].entries[0].entries[0]
+    testcase_reports = parametrization_report.entries
+
+    assert [report.name for report in testcase_reports] == [
+        "test_order 0",
+        "test_order 1",
+    ]
+    assert [report.parametrization_kwargs for report in testcase_reports] == [
+        {"quantity": 1000, "side": "Buy"},
+        {"quantity": 5000, "side": "Sell"},
+    ]
+
+
 def test_combinatorial_parametrization(mockplan):
     @testsuite
     class MySuite:

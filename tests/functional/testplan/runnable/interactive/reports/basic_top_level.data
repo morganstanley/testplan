@@ -156,6 +156,9 @@
                                     "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=0>",
+                                    "parametrization_kwargs": {
+                                        "arg": 0
+                                    },
                                     "parent_uids": [
                                         "InteractivePlan",
                                         "Test1",
@@ -195,6 +198,9 @@
                                     "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=1>",
+                                    "parametrization_kwargs": {
+                                        "arg": 1
+                                    },
                                     "parent_uids": [
                                         "InteractivePlan",
                                         "Test1",
@@ -234,6 +240,9 @@
                                     "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=2>",
+                                    "parametrization_kwargs": {
+                                        "arg": 2
+                                    },
                                     "parent_uids": [
                                         "InteractivePlan",
                                         "Test1",
@@ -638,6 +647,9 @@
                                     "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=0>",
+                                    "parametrization_kwargs": {
+                                        "arg": 0
+                                    },
                                     "parent_uids": [
                                         "InteractivePlan",
                                         "Test2",
@@ -677,6 +689,9 @@
                                     "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=1>",
+                                    "parametrization_kwargs": {
+                                        "arg": 1
+                                    },
                                     "parent_uids": [
                                         "InteractivePlan",
                                         "Test2",
@@ -716,6 +731,9 @@
                                     "hash": 0,
                                     "logs": [],
                                     "name": "basic_case <arg=2>",
+                                    "parametrization_kwargs": {
+                                        "arg": 2
+                                    },
                                     "parent_uids": [
                                         "InteractivePlan",
                                         "Test2",

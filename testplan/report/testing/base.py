@@ -61,6 +61,7 @@ from testplan.common.report import (
     Status,
 )
 from testplan.common.report.base import ExceptionLoggerBase
+from testplan.common.utils.json import json_dumps, json_safe_scalar
 from testplan.common.utils.timing import iana_tz
 from testplan.testing import tagging
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
@@ -80,6 +81,88 @@ TESTCASE_XFAIL_CONDITION_SCHEMA = schema.Schema(
         ),
     )
 )
+
+
+_PARAMETRIZATION_MAX_DEPTH = 10
+_PARAMETRIZATION_MAX_ITEMS = 100
+_PARAMETRIZATION_MAX_STRING_LENGTH = 1000
+
+
+def _bounded_string(value: Any) -> str:
+    """Stringify safely and bound report growth from arbitrary objects."""
+    try:
+        result = str(value)
+    except Exception:  # pylint: disable=broad-except
+        return "<{}>".format(type(value).__name__)
+    if len(result) <= _PARAMETRIZATION_MAX_STRING_LENGTH:
+        return result
+    digest = hashlib.sha256(
+        result.encode("utf-8", errors="replace")
+    ).hexdigest()[:12]
+    return "{}...<sha256:{}>".format(
+        result[:_PARAMETRIZATION_MAX_STRING_LENGTH], digest
+    )
+
+
+def _serialize_parametrization_value(
+    value: Any, depth: int = 0, seen: Optional[set] = None
+) -> Any:
+    """Convert parametrization values before reports cross process boundaries."""
+    if type(value) is str:
+        return _bounded_string(value)
+
+    if value is None or type(value) in (bool, int, float):
+        return json_safe_scalar(value, stringify=_bounded_string)
+
+    if not isinstance(value, (dict, list, tuple, set, frozenset)):
+        return _bounded_string(value)
+
+    if depth >= _PARAMETRIZATION_MAX_DEPTH:
+        return "<{} max depth>".format(type(value).__name__)
+
+    seen = set() if seen is None else seen
+    value_id = id(value)
+    if value_id in seen:
+        return "<recursive {}>".format(type(value).__name__)
+    seen.add(value_id)
+    try:
+        if isinstance(value, dict):
+            items = list(
+                itertools.islice(value.items(), _PARAMETRIZATION_MAX_ITEMS + 1)
+            )
+            result = {
+                _bounded_string(key): _serialize_parametrization_value(
+                    item, depth + 1, seen
+                )
+                for key, item in items[:_PARAMETRIZATION_MAX_ITEMS]
+            }
+            if len(items) > _PARAMETRIZATION_MAX_ITEMS:
+                result["<truncated>"] = "{} more items".format(
+                    len(value) - _PARAMETRIZATION_MAX_ITEMS
+                )
+            return result
+        if isinstance(value, (set, frozenset)):
+            result = [
+                _serialize_parametrization_value(item, depth + 1, seen)
+                for item in value
+            ]
+            result.sort(key=json_dumps)
+        else:
+            result = [
+                _serialize_parametrization_value(item, depth + 1, seen)
+                for item in itertools.islice(
+                    value, _PARAMETRIZATION_MAX_ITEMS + 1
+                )
+            ]
+        if len(result) > _PARAMETRIZATION_MAX_ITEMS:
+            result[_PARAMETRIZATION_MAX_ITEMS:] = [
+                "<{} more items>".format(
+                    len(value) - _PARAMETRIZATION_MAX_ITEMS
+                )
+            ]
+        return result
+    finally:
+        seen.remove(value_id)
 
 
 class TestReport(BaseReportGroup):
@@ -524,6 +607,7 @@ class TestCaseReport(Report):
         name: str,
         tags: Optional[Union[Dict[str, Any], str]] = None,
         category: str = ReportCategories.TESTCASE,
+        parametrization_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         super(TestCaseReport, self).__init__(name=name, **kwargs)
@@ -533,6 +617,9 @@ class TestCaseReport(Report):
         self.attachments: List[Any] = []
         self.category = category
         self.covered_lines: Optional[dict] = None
+        self.parametrization_kwargs = _serialize_parametrization_value(
+            parametrization_kwargs
+        )
 
     def _get_comparison_attrs(self) -> List[str]:
         return super(TestCaseReport, self)._get_comparison_attrs() + [
