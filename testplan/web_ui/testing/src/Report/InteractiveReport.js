@@ -81,6 +81,9 @@ class InteractiveReportComponent extends BaseReport {
     this.reloadCode = this.reloadCode.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.handleExtendedSearchNavigate = this.handleExtendedSearchNavigate.bind(
+      this
+    );
     this.firstGet = props.firstGet !== undefined
       ? props.firstGet
       : true; // Initialize from props
@@ -699,6 +702,17 @@ class InteractiveReportComponent extends BaseReport {
   }
 
   /**
+   * Handle navigation from extended search.
+   * @param {Array} uids - Array of UIDs from report root to target entry
+   */
+  handleExtendedSearchNavigate(uids) {
+    if (!uids || uids.length === 0) return;
+    const [uid, ...selection] = uids.map((entryUid) => base64url(entryUid));
+    const newPath = generatePath(this.props.match.path, { uid, selection });
+    this.props.history.push(newPath);
+  }
+
+  /**
    * Render the InteractiveReport component based on its current state.
    */
   render() {
@@ -748,6 +762,7 @@ class InteractiveReportComponent extends BaseReport {
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
+          onExtendedSearchNavigate={this.handleExtendedSearchNavigate}
           extraButtons={[
             <ReloadButton
               key="reload-button"

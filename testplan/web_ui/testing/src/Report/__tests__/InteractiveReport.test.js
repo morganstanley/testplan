@@ -315,6 +315,22 @@ describe("InteractiveReport", () => {
     moxios.uninstall();
   });
 
+  it("navigates to encoded extended search results", () => {
+    const interactiveReport = renderInteractiveReport();
+    const historyPush = jest.spyOn(interactiveReport.instance().props.history, "push");
+
+    interactiveReport.instance().handleExtendedSearchNavigate([
+      "TestplanUID",
+      "MultiTestUID",
+      "SuiteUID",
+      "testcaseUID",
+    ]);
+
+    expect(historyPush).toHaveBeenCalledWith(
+      "/interactive/VGVzdHBsYW5VSUQ/TXVsdGlUZXN0VUlE/U3VpdGVVSUQ/dGVzdGNhc2VVSUQ"
+    );
+  });
+
   it("Handles 'full' parameter for report serialization", (done) => {
     const interactiveReport = renderInteractiveReport(true);
     const report = initialReport();

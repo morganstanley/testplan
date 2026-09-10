@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExtendedSearchDropdown shallow renders the correct HTML structure 1`] = `
+<div
+  aria-label="Extended Search"
+  className="extended-search-dropdown"
+  role="dialog"
+>
+  <div
+    className="extended-search-section"
+  >
+    <label
+      className="extended-search-label"
+    >
+      Test (Optional)
+    </label>
+    <select
+      className="extended-search-select"
+      onChange={[Function]}
+      value=""
+    >
+      <option
+        value=""
+      >
+        -- All Tests --
+      </option>
+      <option
+        key="MyTest"
+        value="MyTest"
+      >
+        MyTest
+      </option>
+    </select>
+  </div>
+  <div
+    className="extended-search-section"
+  >
+    <label
+      className="extended-search-label"
+    >
+      Testsuite (Optional)
+    </label>
+    <select
+      className="extended-search-select"
+      onChange={[Function]}
+      value=""
+    >
+      <option
+        value=""
+      >
+        -- All Testsuites --
+      </option>
+      <option
+        key="MySuite"
+        value="MySuite"
+      >
+        MySuite
+      </option>
+    </select>
+  </div>
+  <div
+    className="extended-search-section"
+  >
+    <label
+      className="extended-search-label"
+    >
+      Testcase
+    </label>
+    <div
+      className="extended-search-testcase-picker"
+    >
+      <input
+        aria-controls="ext-search-tc-list"
+        aria-expanded={false}
+        autoComplete="off"
+        className="extended-search-select"
+        onChange={[Function]}
+        onClick={[Function]}
+        onFocus={[Function]}
+        placeholder="Type to search or select..."
+        role="combobox"
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+  <div
+    className="extended-search-no-results"
+  >
+    Select a testcase to see permutations
+  </div>
+</div>
+`;

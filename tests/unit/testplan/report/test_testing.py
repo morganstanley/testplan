@@ -1,7 +1,9 @@
 import functools
 import json
 from collections import OrderedDict
+from enum import Enum
 
+import dill
 import pytest
 from boltons.iterutils import get_path
 
@@ -155,6 +157,59 @@ class TestTestCaseReport:
             assert rep.hash == rep.hash
 
         assert rep_1.hash != rep_2.hash
+
+    def test_parametrization_kwargs_serialization(self):
+        """Parametrization values should be safe before report transport."""
+
+        class Side(Enum):
+            BUY = "Buy"
+
+            def __str__(self):
+                return self.value
+
+        class UnpicklableProduct:
+            def __str__(self):
+                return "GAV1GK1V1A12"
+
+            def __reduce__(self):
+                raise TypeError("cannot pickle test product")
+
+        report = TestCaseReport(
+            name="parametrized",
+            parametrization_kwargs=OrderedDict(
+                (
+                    ("quantity", 1000),
+                    ("side", Side.BUY),
+                    ("product", UnpicklableProduct()),
+                )
+            ),
+        )
+
+        dill.dumps(report)
+        data = report.serialize()
+
+        assert data["parametrization_kwargs"] == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+        assert json_loads(json_dumps(data))["parametrization_kwargs"] == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+        assert TestCaseReport.deserialize(data).parametrization_kwargs == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+
+    def test_ordinary_testcase_omits_parametrization_kwargs(self):
+        """Ordinary testcase reports should not grow a null field."""
+        assert (
+            "parametrization_kwargs"
+            not in TestCaseReport(name="ordinary").serialize()
+        )
 
 
 def generate_dummy_testgroup():
