@@ -1405,7 +1405,23 @@ class TestRunner(Runnable):
         except ValueError:
             return False
 
-        for conn in psutil.net_connections(kind="tcp"):
+        try:
+            connections = psutil.net_connections(kind="tcp")
+        except psutil.AccessDenied:
+            # Enumerating system-wide sockets is privileged on some platforms
+            # (notably macOS, where it requires root). We cannot confirm the
+            # remote instance either way, so fall through to the local PID
+            # check rather than blocking the run outright.
+            self.logger.debug(
+                "Cannot enumerate TCP connections to check whether a remote "
+                "testplan instance on %s:%s is still alive - insufficient "
+                "privileges. Falling back to the local PID check.",
+                host,
+                port,
+            )
+            return False
+
+        for conn in connections:
             if (
                 conn.status == psutil.CONN_ESTABLISHED
                 and conn.raddr

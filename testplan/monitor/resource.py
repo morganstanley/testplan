@@ -23,6 +23,21 @@ from testplan.common.utils.timing import wait
 from testplan.runners.pools import communication
 from testplan.common.serialization.base import serialize, deserialize
 
+# psutil does not implement Process.io_counters on every platform - notably it
+# is absent on macOS. Asking as_dict() for an attribute psutil does not define
+# raises ValueError, so only request it where it actually exists; the per-
+# process IO metrics are then simply reported as zero.
+_HAS_PROC_IO_COUNTERS = hasattr(psutil.Process, "io_counters")
+
+_PROC_ATTRS = [
+    "pid",
+    "name",
+    "memory_info",
+    "cpu_percent",
+    "cmdline",
+    "create_time",
+] + (["io_counters"] if _HAS_PROC_IO_COUNTERS else [])
+
 
 @dataclasses.dataclass
 class ResourceData:
@@ -250,17 +265,7 @@ class ResourceMonitorClient:
         self.last_process_resource = {}
         for proc in processes:
             try:
-                raw_data = proc.as_dict(
-                    attrs=[
-                        "pid",
-                        "name",
-                        "memory_info",
-                        "cpu_percent",
-                        "cmdline",
-                        "io_counters",
-                        "create_time",
-                    ]
-                )
+                raw_data = proc.as_dict(attrs=_PROC_ATTRS)
             except psutil.NoSuchProcess:
                 continue
             cpu_percent = float(raw_data["cpu_percent"])

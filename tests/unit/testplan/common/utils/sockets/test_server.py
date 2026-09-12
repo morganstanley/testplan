@@ -6,7 +6,7 @@ import threading
 
 from testplan.common.utils.sockets import Server, Client
 
-from pytest_test_filters import skip_on_windows
+from pytest_test_filters import skip_on_macos, skip_on_windows
 
 
 def test_basic_server_client():
@@ -157,6 +157,10 @@ def _run_test_reconnect_while_closing_connection():
 
 
 @skip_on_windows(reason="no real fd on windows")
+@skip_on_macos(
+    reason="Closing a connection while a client reconnects raises "
+    "OSError(EBADF) on macOS, see #1351."
+)
 def test_reconnect_while_closing_connection():
     process = multiprocessing.get_context("spawn").Process(
         target=_run_test_reconnect_while_closing_connection
