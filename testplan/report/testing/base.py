@@ -43,6 +43,7 @@ import copy
 import getpass
 import hashlib
 import itertools
+import math
 import platform
 import re
 import sys
@@ -80,6 +81,26 @@ TESTCASE_XFAIL_CONDITION_SCHEMA = schema.Schema(
         ),
     )
 )
+
+
+def _serialize_parametrization_value(value: Any) -> Any:
+    """Convert parametrization values before reports cross process boundaries."""
+    if value is None or type(value) in (bool, int, str):
+        return value
+    if type(value) is float:
+        if math.isnan(value):
+            return "NaN"
+        if math.isinf(value):
+            return "Infinity" if value > 0 else "-Infinity"
+        return value
+    if isinstance(value, dict):
+        return {
+            str(key): _serialize_parametrization_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_serialize_parametrization_value(item) for item in value]
+    return str(value)
 
 
 class TestReport(BaseReportGroup):
@@ -524,6 +545,7 @@ class TestCaseReport(Report):
         name: str,
         tags: Optional[Union[Dict[str, Any], str]] = None,
         category: str = ReportCategories.TESTCASE,
+        parametrization_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         super(TestCaseReport, self).__init__(name=name, **kwargs)
@@ -533,6 +555,9 @@ class TestCaseReport(Report):
         self.attachments: List[Any] = []
         self.category = category
         self.covered_lines: Optional[dict] = None
+        self.parametrization_kwargs = _serialize_parametrization_value(
+            parametrization_kwargs
+        )
 
     def _get_comparison_attrs(self) -> List[str]:
         return super(TestCaseReport, self)._get_comparison_attrs() + [

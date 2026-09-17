@@ -63,6 +63,16 @@ class TestCaseReportSchema(ReportSchema):
     category = fields.String()
     counter = fields.Dict(dump_only=True)
     tags = TagField()
+    parametrization_kwargs = fields.Dict(allow_none=True)
+
+    @post_dump
+    def strip_empty_parametrization_kwargs(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
+        """Omit parametrization data from ordinary testcase reports."""
+        if data.get("parametrization_kwargs") is None:
+            data.pop("parametrization_kwargs", None)
+        return data
 
     @post_load
     def make_report(
