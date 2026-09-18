@@ -380,15 +380,15 @@ class Environment:
 
         :param pool: thread pool
         """
-        # async_start is meaningless here...
-        # in practice, stop_in_pool must be called in pair of start_in_pool
-        for r in self._resources.values():
-            if r.auto_start:
-                r.cfg.set_local("async_start", False)
+
+        def stop_resource(resource: "Resource") -> None:
+            resource.stop()
+            if resource.status == resource.STATUS.STOPPING:
+                resource.wait(resource.STATUS.STOPPED)
 
         async_r = pool.map_async(
             self._apply_resource_exception_logged(
-                self.stop_exceptions, lambda r: r.stop()
+                self.stop_exceptions, stop_resource
             ),
             self._resources.values(),
         )
