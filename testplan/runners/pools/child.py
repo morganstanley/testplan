@@ -396,7 +396,7 @@ def child_logic(args: argparse.Namespace) -> None:
         def make_runpath_dirs(self) -> None:
             self._runpath = self.cfg.runpath
 
-    transport = ZMQClient(address=args.address, recv_timeout=30)
+    transport = ZMQClient(address=args.address, recv_timeout=60)
 
     if args.type == "process_worker":
         loop = ChildLoop(

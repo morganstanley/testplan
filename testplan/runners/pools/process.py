@@ -120,24 +120,29 @@ class ProcessWorker(Worker):
         self._handler.stdin.write(bytes("y\n".encode("utf-8")))
 
     def _wait_started(self, timeout: Optional[float] = None) -> None:
-        """"""
+        """Wait for child readiness and complete the startup lifecycle."""
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
             timeout=timeout,  # type: ignore[arg-type]
             raise_timeout_with_msg=f"Worker start timeout, logfile = {self.outfile}",
         )
         while next(sleeper):
-            if match_regexps_in_file(
-                self.outfile, [re.compile("Starting child process worker on")]
-            )[0]:
+            if self.started_check():
                 super(ProcessWorker, self)._wait_started(timeout=timeout)
                 return
 
-            if self._handler and self._handler.poll() is not None:
-                raise RuntimeError(
-                    f"{self} process exited: {self._handler.returncode}"
-                    f" (logfile = {self.outfile})"
-                )
+    def started_check(self) -> bool:
+        """Check child readiness without waiting or changing lifecycle state."""
+        if match_regexps_in_file(
+            self.outfile, [re.compile("Starting child process worker on")]
+        )[0]:
+            return True
+        if self._handler and self._handler.poll() is not None:
+            raise RuntimeError(
+                f"{self} process exited: {self._handler.returncode}"
+                f" (logfile = {self.outfile})"
+            )
+        return False
 
     @property
     def is_alive(self) -> bool:
