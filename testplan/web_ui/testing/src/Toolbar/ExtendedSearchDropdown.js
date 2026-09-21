@@ -14,7 +14,8 @@ const collectTestcases = (
   testName = "",
   testsuiteName = "",
   parametrization = null,
-  result = []
+  result = [],
+  reportTestName = ""
 ) => {
   _.forEach(entries || [], (entry) => {
     const curTest =
@@ -23,6 +24,8 @@ const collectTestcases = (
           ? entry.definition_name || entry.name
           : entry.name
         : testName;
+    const curReportTest =
+      entry.category === "multitest" ? entry.name : reportTestName;
     const curSuite =
       entry.category === "testsuite" ? entry.name : testsuiteName;
     const curParametrization =
@@ -34,6 +37,7 @@ const collectTestcases = (
         baseName: curParametrization?.name || entry.name,
         parametrizationUid: curParametrization?.uid || "",
         testName: curTest,
+        reportTestName: curReportTest,
         testsuiteName: curSuite,
       });
     }
@@ -43,7 +47,8 @@ const collectTestcases = (
         curTest,
         curSuite,
         curParametrization,
-        result
+        result,
+        curReportTest
       );
     }
   });
@@ -63,36 +68,10 @@ const getUniqueField = (list, field, filters = {}) => {
   return _(filtered).map(field).compact().uniq().sortBy().value();
 };
 
-/**
- * Get permutations matching test, testsuite and
- * base testcase name.
- */
-const getPermutations = (testcases, testName, testsuiteName, baseName) =>
-  _.filter(
-    testcases,
-    (tc) =>
-      (!testName || tc.testName === testName) &&
-      (!testsuiteName || tc.testsuiteName === testsuiteName) &&
-      tc.baseName === baseName
-  );
-
-const enrichWithParams = (perms) =>
-  _.map(perms, (p) => ({
-    ...p,
-    params: p.entry.parametrization_kwargs || {},
-  }));
-
 const paramValueToken = (value) => `${typeof value}:${JSON.stringify(value)}`;
 
 const formatParamValue = (value) =>
   typeof value === "string" ? value : JSON.stringify(value);
-
-const compareParamValues = (left, right) => {
-  if (typeof left === "number" && typeof right === "number") {
-    return left - right;
-  }
-  return formatParamValue(left).localeCompare(formatParamValue(right));
-};
 
 /**
  * Build { paramKey: [uniqueValues] } from
@@ -103,7 +82,15 @@ const buildFilterOptions = (perms) =>
     .flatMap((p) => _.toPairs(p.params))
     .groupBy(0)
     .mapValues((pairs) =>
-      _(pairs).map(1).uniqBy(paramValueToken).sort(compareParamValues).value()
+      _(pairs)
+        .map(1)
+        .uniqBy(paramValueToken)
+        .sort((left, right) =>
+          String(left).localeCompare(String(right), undefined, {
+            numeric: true,
+          })
+        )
+        .value()
     )
     .value();
 
@@ -128,35 +115,23 @@ const ExtendedSearchDropdown = ({
   onNavigate,
   onClose,
   handleNavFilter,
-  persistedState,
+  value,
   onStateChange,
   triggerRef,
 }) => {
   const testcaseOptionsId = "ext-search-tc-list";
-
-  // State initialised from persisted values
-  const [selectedTest, setSelectedTest] = useState(
-    persistedState?.selectedTest || ""
-  );
-  const [selectedTestsuite, setSelectedTestsuite] = useState(
-    persistedState?.selectedTestsuite || ""
-  );
-  const [selectedTestcase, setSelectedTestcase] = useState(
-    persistedState?.selectedTestcase || ""
-  );
-  const [searchText, setSearchText] = useState(
-    persistedState?.selectedTestcase || ""
-  );
+  const {
+    selectedTest,
+    selectedTestsuite,
+    selectedTestcase,
+    selectedParams,
+    searchText,
+  } = value;
   const [showTestcaseOptions, setShowTestcaseOptions] = useState(false);
-  const [selectedParams, setSelectedParams] = useState(
-    persistedState?.selectedParams || {}
-  );
 
   const dropdownRef = useRef(null);
   const reportUid = report?.uid;
   const reportIdentity = report?.hash || report;
-
-  // --- Derived data (memoised) ---
 
   const allTestcases = useMemo(() => {
     if (!report || !report.entries) return [];
@@ -185,25 +160,27 @@ const ExtendedSearchDropdown = ({
     [allTestcases, selectedTest, selectedTestsuite]
   );
 
-  const filteredTestcaseNames = useMemo(() => {
-    if (!searchText.trim()) {
-      return uniqueTestcaseNames;
-    }
-    const lower = searchText.toLowerCase();
-    return _.filter(uniqueTestcaseNames, (name) =>
-      name.toLowerCase().includes(lower)
-    );
-  }, [uniqueTestcaseNames, searchText]);
+  const filteredTestcaseNames = searchText.trim()
+    ? _.filter(uniqueTestcaseNames, (name) =>
+        name.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : uniqueTestcaseNames;
 
   const permutations = useMemo(() => {
     if (!selectedTestcase) return [];
-    const raw = getPermutations(
-      allTestcases,
-      selectedTest,
-      selectedTestsuite,
-      selectedTestcase
-    );
-    return enrichWithParams(raw);
+    return _(allTestcases)
+      .filter(
+        (testcase) =>
+          (!selectedTest || testcase.testName === selectedTest) &&
+          (!selectedTestsuite ||
+            testcase.testsuiteName === selectedTestsuite) &&
+          testcase.baseName === selectedTestcase
+      )
+      .map((testcase) => ({
+        ...testcase,
+        params: testcase.entry.parametrization_kwargs || {},
+      }))
+      .value();
   }, [allTestcases, selectedTest, selectedTestsuite, selectedTestcase]);
 
   const filterOptions = useMemo(
@@ -215,8 +192,6 @@ const ExtendedSearchDropdown = ({
     () => applyParamFilters(permutations, selectedParams),
     [permutations, selectedParams]
   );
-
-  // --- Click outside / Escape to close ---
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -241,63 +216,44 @@ const ExtendedSearchDropdown = ({
     };
   }, [onClose, triggerRef]);
 
-  // --- Handlers ---
-
-  const persistState = (patch) => {
-    if (onStateChange) {
-      onStateChange(patch);
-    }
-  };
-
   const handleTestChange = (e) => {
     const value = e.target.value;
-    setSelectedTest(value);
-    setSelectedTestsuite("");
-    setSelectedTestcase("");
-    setSelectedParams({});
-    setSearchText("");
     setShowTestcaseOptions(false);
-    persistState({
+    onStateChange({
       selectedTest: value,
       selectedTestsuite: "",
       selectedTestcase: "",
       selectedParams: {},
+      searchText: "",
     });
   };
 
   const handleTestsuiteChange = (e) => {
     const value = e.target.value;
-    setSelectedTestsuite(value);
-    setSelectedTestcase("");
-    setSelectedParams({});
-    setSearchText("");
     setShowTestcaseOptions(false);
-    persistState({
+    onStateChange({
       selectedTestsuite: value,
       selectedTestcase: "",
       selectedParams: {},
+      searchText: "",
     });
   };
 
   const handleTestcaseSearch = (e) => {
     const value = e.target.value;
     if (_.includes(uniqueTestcaseNames, value)) {
-      setSelectedTestcase(value);
-      setSearchText("");
       setShowTestcaseOptions(false);
-      setSelectedParams({});
-      persistState({
+      onStateChange({
         selectedTestcase: value,
         selectedParams: {},
+        searchText: value,
       });
     } else {
-      setSelectedTestcase("");
-      setSearchText(value);
       setShowTestcaseOptions(true);
-      setSelectedParams({});
-      persistState({
+      onStateChange({
         selectedTestcase: "",
         selectedParams: {},
+        searchText: value,
       });
     }
   };
@@ -307,13 +263,11 @@ const ExtendedSearchDropdown = ({
   };
 
   const handleTestcaseSelect = (value) => {
-    setSelectedTestcase(value);
-    setSearchText(value);
     setShowTestcaseOptions(false);
-    setSelectedParams({});
-    persistState({
+    onStateChange({
       selectedTestcase: value,
       selectedParams: {},
+      searchText: value,
     });
   };
 
@@ -327,8 +281,7 @@ const ExtendedSearchDropdown = ({
         (value) => paramValueToken(value) === token
       );
     }
-    setSelectedParams(newParams);
-    persistState({ selectedParams: newParams });
+    onStateChange({ selectedParams: newParams });
   };
 
   /**
@@ -338,30 +291,30 @@ const ExtendedSearchDropdown = ({
    * permutation, then navigates via UID path.
    */
   const handleResultClick = (permutation) => {
-    if (!onNavigate || !reportUid) return;
+    if (!reportUid) return;
 
     if (handleNavFilter) {
       const name = permutation.entry.name;
-      const test = permutation.testName;
+      const test = permutation.reportTestName || permutation.testName;
       const suite = permutation.testsuiteName;
       const filters = [];
       const textTerms = [];
       if (test) {
         filters.push({
-          type: "test",
-          search: [test],
+          type: "regexp",
+          search: `^${_.escapeRegExp(test)}$`,
         });
         if (!test.includes('"')) {
-          textTerms.push(`mt:"${test}"`);
+          textTerms.push(`re:"^${_.escapeRegExp(test)}$"`);
         }
       }
       if (suite) {
         filters.push({
-          type: "suite",
-          search: [suite],
+          type: "regexp",
+          search: `^${_.escapeRegExp(suite)}$`,
         });
         if (!suite.includes('"')) {
-          textTerms.push(`s:"${suite}"`);
+          textTerms.push(`re:"^${_.escapeRegExp(suite)}$"`);
         }
       }
       filters.push({
@@ -388,8 +341,6 @@ const ExtendedSearchDropdown = ({
     }
   };
 
-  // --- Render ---
-
   const paramKeys = _.keys(filterOptions);
   const hasTestcases = uniqueTestcaseNames.length > 0;
   const isParametrized = _.some(
@@ -406,7 +357,7 @@ const ExtendedSearchDropdown = ({
     >
       {/* Test/Multitest (Optional) */}
       <div className={css(styles.section)}>
-        <label className={css(styles.label)} data-testid="section-label">
+        <label className={css(styles.label)}>
           Test (Optional)
         </label>
         <select
@@ -425,7 +376,7 @@ const ExtendedSearchDropdown = ({
 
       {/* Testsuite (Optional) */}
       <div className={css(styles.section)}>
-        <label className={css(styles.label)} data-testid="section-label">
+        <label className={css(styles.label)}>
           Testsuite (Optional)
         </label>
         <select
@@ -444,7 +395,7 @@ const ExtendedSearchDropdown = ({
 
       {/* Testcase (Mandatory) */}
       <div className={css(styles.section)}>
-        <label className={css(styles.label)} data-testid="section-label">
+        <label className={css(styles.label)}>
           Testcase
         </label>
         <div>
@@ -480,7 +431,6 @@ const ExtendedSearchDropdown = ({
                       styles.testcaseOption,
                       name === selectedTestcase && styles.selectedOption
                     )}
-                    data-testid="testcase-option"
                     role="option"
                     aria-selected={name === selectedTestcase}
                     onMouseDown={(e) => e.preventDefault()}
@@ -498,16 +448,13 @@ const ExtendedSearchDropdown = ({
       {/* Parameter Filters */}
       {selectedTestcase && paramKeys.length > 0 && (
         <div className={css(styles.section)}>
-          <label className={css(styles.label)} data-testid="section-label">
+          <label className={css(styles.label)}>
             Filter by Parameters
           </label>
           <div className={css(styles.paramsGrid)}>
             {paramKeys.map((key) => (
               <div key={key} className={css(styles.paramItem)}>
-                <label
-                  className={css(styles.paramLabel)}
-                  data-testid="param-label"
-                >
+                <label className={css(styles.paramLabel)}>
                   {key.replace(/_/g, " ")}
                 </label>
                 <select
@@ -550,7 +497,7 @@ const ExtendedSearchDropdown = ({
       {/* Results */}
       {selectedTestcase && (
         <div className={css(styles.section, styles.lastSection)}>
-          <label className={css(styles.label)} data-testid="section-label">
+          <label className={css(styles.label)}>
             Permutations ({filteredPermutations.length})
           </label>
           <div
@@ -571,7 +518,6 @@ const ExtendedSearchDropdown = ({
                     index === filteredPermutations.length - 1 &&
                       styles.lastResultItem
                   )}
-                  data-testid="result-item"
                   role="option"
                   aria-selected={false}
                   tabIndex={0}
@@ -730,15 +676,16 @@ ExtendedSearchDropdown.propTypes = {
   onClose: PropTypes.func.isRequired,
   /** Callback to filter report (like search) */
   handleNavFilter: PropTypes.func,
-  /** Persisted state from parent */
-  persistedState: PropTypes.shape({
+  /** Current selection state */
+  value: PropTypes.shape({
     selectedTest: PropTypes.string,
     selectedTestsuite: PropTypes.string,
     selectedTestcase: PropTypes.string,
     selectedParams: PropTypes.object,
-  }),
-  /** Callback to persist state to parent */
-  onStateChange: PropTypes.func,
+    searchText: PropTypes.string,
+  }).isRequired,
+  /** Callback to update selection state */
+  onStateChange: PropTypes.func.isRequired,
   /** Ref to the button that toggles the dropdown */
   triggerRef: PropTypes.shape({ current: PropTypes.any }),
 };
@@ -747,10 +694,8 @@ export default ExtendedSearchDropdown;
 
 export {
   collectTestcases,
-  getPermutations,
-  enrichWithParams,
   paramValueToken,
-  formatParamValue,
+  getUniqueField,
   buildFilterOptions,
   applyParamFilters,
 };

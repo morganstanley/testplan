@@ -921,7 +921,7 @@ describe("InteractiveReport", () => {
     });
   });
 
-  it("Run filtered tests", (done) => {
+  it("Run filtered tests with an empty display string", (done) => {
     const interactiveReport = renderInteractiveReport();
 
     const report = initialReport();
@@ -935,7 +935,7 @@ describe("InteractiveReport", () => {
     interactiveReport.setState({
       filteredReport: {
         report: report,
-        filter: { text: "something" },
+        filter: { text: "", filters: [{ type: "regexp", search: "case" }] },
       },
     });
     interactiveReport.update();

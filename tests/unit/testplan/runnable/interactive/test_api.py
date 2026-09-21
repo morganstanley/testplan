@@ -7,6 +7,8 @@ import pytest
 from testplan import report
 from testplan.common import entity
 from testplan.runnable.interactive import base, http
+from testplan.testing.multitest.entries import assertions
+from testplan.testing.multitest.entries.schemas.base import registry
 
 
 class TestRunnerIHandlerConfig(base.TestRunnerIHandlerConfig):
@@ -152,6 +154,68 @@ def api_env(example_report):
             "attached_log.txt": "/path/to/attached_log.txt",
             "attached_image.png": "/path/to/attached_image.png",
         }
+
+        app, _ = http.generate_interactive_api(ihandler)
+        app.config["TESTING"] = True
+
+        with app.test_client() as client:
+            yield client, ihandler
+
+
+@pytest.fixture
+def unsafe_report():
+    """Report with a testcase entry carrying non-JSON-safe values."""
+    dict_match = assertions.DictMatch(
+        {b"key\xb1": 2**100}, {b"key\xb1": 2**100}, description="unsafe"
+    )
+    entry = registry[dict_match]().dump(dict_match)
+
+    return report.TestReport(
+        name="Unsafe API Test",
+        entries=[
+            report.TestGroupReport(
+                name="MTestU",
+                category=report.ReportCategories.MULTITEST,
+                env_status=entity.ResourceStatus.STOPPED,
+                parent_uids=["Unsafe API Test"],
+                entries=[
+                    report.TestGroupReport(
+                        name="SuiteU",
+                        uid="MTUSuiteU",
+                        category=report.ReportCategories.TESTSUITE,
+                        parent_uids=["Unsafe API Test", "MTestU"],
+                        entries=[
+                            report.TestCaseReport(
+                                name="UnsafeTC",
+                                uid="UnsafeTC",
+                                parent_uids=[
+                                    "Unsafe API Test",
+                                    "MTestU",
+                                    "MTUSuiteU",
+                                ],
+                                entries=[entry],
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
+
+
+@pytest.fixture()
+def unsafe_api_env(unsafe_report):
+    """Client/handler pair backed by ``unsafe_report``."""
+    mock_target = mock.MagicMock()
+    mock_target.cfg.name = "Unsafe API Test"
+
+    with mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
+        ihandler = TestRunnerIHandler(target=mock_target)
+        ihandler._report = unsafe_report
 
         app, _ = http.generate_interactive_api(ihandler)
         app.config["TESTING"] = True
@@ -584,6 +648,25 @@ class TestSingleTestcase:
             raise TypeError("Unexpected report type.")
 
         compare_json(json_rsp, testcase_json)
+
+    def test_get_non_json_safe_values(self, unsafe_api_env):
+        """
+        A testcase entry with bytes/huge-int values must serialize via
+        flask_restx without raising (regression for a real 500: bytes
+        surviving into a DictMatch comparison hit flask_restx's own
+        json.dumps, which has no `default` fallback).
+        """
+        client, _ = unsafe_api_env
+        rsp = client.get(
+            "/api/v1/interactive/report/tests/MTestU/suites/MTUSuiteU/"
+            "testcases/UnsafeTC"
+        )
+        assert rsp.status_code == 200
+
+        comparison = rsp.get_json()["entries"][0]["comparison"]
+        assert comparison[0][0] == str(b"key\xb1")
+        assert comparison[0][2][1] == str(2**100)
+        assert comparison[0][3][1] == str(2**100)
 
     @pytest.mark.parametrize("testcase_uid", ["MT1S1TC1", "MT1S1TC2"])
     def test_put(self, api_env, testcase_uid):

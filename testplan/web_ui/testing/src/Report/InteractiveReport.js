@@ -534,8 +534,8 @@ class InteractiveReportComponent extends BaseReport {
 
     shallowEntry.entry_uids = entries.map((entry) => entry.uid);
 
-    // the filter text is either "null" or an empty string, use truthy-falsy
-    if (this.state.filteredReport.filter.text) {
+    const filter = this.state.filteredReport.filter;
+    if (filter.text || filter.filters?.length) {
       shallowEntry.entries = entries
         .map((entry) => this.pruneReportEntry(entry))
         .filter((entry) => entry !== null);

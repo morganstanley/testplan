@@ -51,7 +51,7 @@ class EqualSchema(FuncAssertionSchema):
 
 @registry.bind(asr.Fail)
 class FailSchema(AssertionSchema):
-    message = fields.Raw()
+    message = fields.String()
 
 
 @registry.bind(asr.IsClose)
@@ -161,6 +161,8 @@ class TableMatchSchema(AssertionSchema):
 
 @registry.bind(asr.XMLCheck)
 class XMLCheckSchema(AssertionSchema):
+    fields_to_normalize = ("namespaces",)
+
     xpath = fields.String()
     tags = fields.List(fields.String())
 
@@ -182,6 +184,8 @@ class DictCheckSchema(AssertionSchema):
 
 @registry.bind(asr.DictMatch, asr.FixMatch)
 class DictMatchSchema(AssertionSchema):
+    fields_to_normalize = ("comparison",)
+
     include_keys = fields.List(custom_fields.NativeOrPretty())
     exclude_keys = fields.List(custom_fields.NativeOrPretty())
     actual_description = fields.String()
@@ -198,6 +202,8 @@ class DictMatchSchema(AssertionSchema):
 
 @registry.bind(asr.DictMatchAll, asr.FixMatchAll)
 class DictMatchAllSchema(AssertionSchema):
+    fields_to_normalize = ("key_weightings", "matches")
+
     key_weightings = fields.Raw()
     matches = fields.Raw()
 
@@ -239,7 +245,7 @@ class AtMostOneList(fields.List):
 
 @registry.bind(asr.LogfileMatch)
 class LogfileMatchSchema(AssertionSchema):
-    timeout = fields.Float()
+    timeout = custom_fields.NativeOrPretty()
     results = fields.List(fields.Nested(LogfileMatchResultSchema()))
     failure = AtMostOneList(fields.Nested(LogfileMatchResultSchema()))
 

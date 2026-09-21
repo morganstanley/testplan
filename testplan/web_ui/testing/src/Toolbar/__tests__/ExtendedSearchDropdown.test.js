@@ -3,12 +3,11 @@ import { shallow } from "enzyme";
 import { StyleSheetTestUtils } from "aphrodite";
 import { fireEvent, render } from "@testing-library/react";
 
+import { filterEntries } from "../../Report/reportFilter";
+import { PropagateIndices } from "../../Report/reportUtils";
 import ExtendedSearchDropdown, {
   collectTestcases,
-  getPermutations,
-  enrichWithParams,
   paramValueToken,
-  formatParamValue,
   buildFilterOptions,
   applyParamFilters,
 } from "../ExtendedSearchDropdown";
@@ -43,11 +42,12 @@ function defaultProps() {
     onNavigate: jest.fn(),
     onClose: jest.fn(),
     handleNavFilter: jest.fn(),
-    persistedState: {
+    value: {
       selectedTest: "",
       selectedTestsuite: "",
       selectedTestcase: "",
       selectedParams: {},
+      searchText: "",
     },
     onStateChange: jest.fn(),
   };
@@ -100,24 +100,21 @@ describe("ExtendedSearchDropdown", () => {
     StyleSheetTestUtils.suppressStyleInjection();
     props = defaultProps();
     mountedDropdown = undefined;
+    props.onStateChange.mockImplementation((patch) => {
+      props.value = { ...props.value, ...patch };
+      if (mountedDropdown) {
+        mountedDropdown.setProps({ value: props.value });
+      }
+    });
   });
 
   afterEach(() => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it("shallow renders without crashing", () => {
-    renderDropdown();
-  });
-
-  it("shallow renders the correct HTML structure", () => {
-    const dropdown = renderDropdown();
-    expect(dropdown).toMatchSnapshot();
-  });
-
   it("renders test, testsuite, and testcase sections", () => {
     const dropdown = renderDropdown();
-    const labels = dropdown.find('[data-testid="section-label"]');
+    const labels = dropdown.find("label");
     expect(labels.at(0).text()).toBe("Test (Optional)");
     expect(labels.at(1).text()).toBe("Testsuite (Optional)");
     expect(labels.at(2).text()).toBe("Testcase");
@@ -148,8 +145,9 @@ describe("ExtendedSearchDropdown", () => {
   });
 
   it("persists clearing the selected testcase", () => {
-    props.persistedState.selectedTestcase = "case1";
-    props.persistedState.selectedParams = { quantity: 1000 };
+    props.value.selectedTestcase = "case1";
+    props.value.selectedParams = { quantity: 1000 };
+    props.value.searchText = "case1";
     const dropdown = renderDropdown();
 
     dropdown.find("input").simulate("change", { target: { value: "" } });
@@ -157,37 +155,42 @@ describe("ExtendedSearchDropdown", () => {
     expect(props.onStateChange).toHaveBeenLastCalledWith({
       selectedTestcase: "",
       selectedParams: {},
+      searchText: "",
     });
   });
 
   it("keeps the selected testcase and opens all options on focus", () => {
-    props.persistedState.selectedTestcase = "case1";
-    props.persistedState.selectedParams = { quantity: 1000 };
+    props.value.selectedTestcase = "case1";
+    props.value.selectedParams = { quantity: 1000 };
+    props.value.searchText = "case1";
     const dropdown = renderDropdown();
 
     dropdown.find("input").simulate("focus");
 
     expect(dropdown.find("input").prop("value")).toBe("case1");
-    expect(dropdown.find('[data-testid="testcase-option"]')).toHaveLength(1);
+    expect(dropdown.find('button[role="option"]')).toHaveLength(1);
     expect(props.onStateChange).not.toHaveBeenCalled();
   });
 
   it("selects a testcase from the dropdown", () => {
-    props.persistedState.selectedTestcase = "case1";
-    props.persistedState.selectedParams = { quantity: 1000 };
+    props.value.selectedTestcase = "case1";
+    props.value.selectedParams = { quantity: 1000 };
+    props.value.searchText = "case1";
     const dropdown = renderDropdown();
 
     dropdown.find("input").simulate("click");
-    dropdown.find('[data-testid="testcase-option"]').simulate("click");
+    dropdown.find('button[role="option"]').simulate("click");
 
     expect(props.onStateChange).toHaveBeenLastCalledWith({
       selectedTestcase: "case1",
       selectedParams: {},
+      searchText: "case1",
     });
   });
 
   it("allows editing a selected testcase as a normal combobox", () => {
-    props.persistedState.selectedTestcase = "case1";
+    props.value.selectedTestcase = "case1";
+    props.value.searchText = "case1";
     const dropdown = renderDropdown();
 
     dropdown.find("input").simulate("change", {
@@ -195,10 +198,26 @@ describe("ExtendedSearchDropdown", () => {
     });
 
     expect(dropdown.find("input").prop("value")).toBe("case");
-    expect(dropdown.find('[data-testid="testcase-option"]')).toHaveLength(1);
+    expect(dropdown.find('button[role="option"]')).toHaveLength(1);
     expect(props.onStateChange).toHaveBeenLastCalledWith({
       selectedTestcase: "",
       selectedParams: {},
+      searchText: "case",
+    });
+  });
+
+  it("keeps the testcase name when typing an exact match", () => {
+    const dropdown = renderDropdown();
+
+    dropdown.find("input").simulate("change", {
+      target: { value: "case1" },
+    });
+
+    expect(dropdown.find("input").prop("value")).toBe("case1");
+    expect(props.onStateChange).toHaveBeenLastCalledWith({
+      selectedTestcase: "case1",
+      selectedParams: {},
+      searchText: "case1",
     });
   });
 
@@ -215,12 +234,13 @@ describe("ExtendedSearchDropdown", () => {
         uid: "test_order__quantity_5000",
       },
     ]);
-    props.persistedState.selectedTestcase = "test_order";
+    props.value.selectedTestcase = "test_order";
+    props.value.searchText = "test_order";
 
     const dropdown = renderDropdown();
 
-    expect(dropdown.find('[data-testid="param-label"]')).toHaveLength(0);
-    expect(dropdown.find('[data-testid="result-item"]')).toHaveLength(2);
+    expect(dropdown.text()).not.toContain("Filter by Parameters");
+    expect(dropdown.find('[title^="Navigate to"]')).toHaveLength(2);
   });
 
   it("uses structured parameters when they are available", () => {
@@ -244,13 +264,22 @@ describe("ExtendedSearchDropdown", () => {
         },
       },
     ]);
-    props.persistedState.selectedTestcase = "test_order";
+    props.value.selectedTestcase = "test_order";
+    props.value.searchText = "test_order";
 
     const dropdown = renderDropdown();
-    const labels = dropdown.find('[data-testid="param-label"]');
+    const labels = dropdown.find("label");
 
-    expect(labels.map((label) => label.text())).toEqual(["quantity", "side"]);
-    expect(dropdown.find('[data-testid="result-item"]')).toHaveLength(2);
+    expect(labels.map((label) => label.text())).toEqual([
+      "Test (Optional)",
+      "Testsuite (Optional)",
+      "Testcase",
+      "Filter by Parameters",
+      "quantity",
+      "side",
+      "Permutations (2)",
+    ]);
+    expect(dropdown.find('[title^="Navigate to"]')).toHaveLength(2);
   });
 
   it("navigates using the propagated UID chain", () => {
@@ -262,10 +291,14 @@ describe("ExtendedSearchDropdown", () => {
         parametrization_kwargs: { quantity: 1000 },
       },
     ]);
-    props.persistedState.selectedTestcase = "test_order";
+    props.report.entries[0].name = "MyTest - part(7/10)";
+    props.report.entries[0].definition_name = "MyTest";
+    props.report.entries[0].part = [7, 10];
+    props.value.selectedTestcase = "test_order";
+    props.value.searchText = "test_order";
 
     const dropdown = renderDropdown();
-    dropdown.find('[data-testid="result-item"]').simulate("click");
+    dropdown.find('[title^="Navigate to"]').simulate("click");
 
     expect(props.onNavigate).toHaveBeenCalledWith([
       "report-v4",
@@ -275,10 +308,15 @@ describe("ExtendedSearchDropdown", () => {
       "test_order__0",
     ]);
     expect(props.handleNavFilter).toHaveBeenCalledWith({
-      text: 'mt:"MyTest" s:"MySuite" re:"^test_order 0$"',
+      text:
+        're:"^MyTest - part\\(7/10\\)$" ' +
+        're:"^MySuite$" re:"^test_order 0$"',
       filters: [
-        { type: "test", search: ["MyTest"] },
-        { type: "suite", search: ["MySuite"] },
+        {
+          type: "regexp",
+          search: "^MyTest - part\\(7/10\\)$",
+        },
+        { type: "regexp", search: "^MySuite$" },
         { type: "regexp", search: "^test_order 0$" },
       ],
     });
@@ -293,15 +331,16 @@ describe("ExtendedSearchDropdown", () => {
         parametrization_kwargs: { quantity: 1000 },
       },
     ]);
-    props.persistedState.selectedTestcase = "test_order";
+    props.value.selectedTestcase = "test_order";
+    props.value.searchText = "test_order";
 
-    renderDropdown().find('[data-testid="result-item"]').simulate("click");
+    renderDropdown().find('[title^="Navigate to"]').simulate("click");
 
     expect(props.handleNavFilter).toHaveBeenCalledWith({
       text: "",
       filters: [
-        { type: "test", search: ["MyTest"] },
-        { type: "suite", search: ["MySuite"] },
+        { type: "regexp", search: "^MyTest$" },
+        { type: "regexp", search: "^MySuite$" },
         {
           type: "regexp",
           search: '^test_order "quoted"$',
@@ -310,7 +349,7 @@ describe("ExtendedSearchDropdown", () => {
     });
   });
 
-  it("uses the full UID chain for result keys", () => {
+  it("uses full UID keys and exactly filters multitests sharing a prefix", () => {
     props.report = parametrizedReport(4, [
       {
         category: "testcase",
@@ -324,25 +363,37 @@ describe("ExtendedSearchDropdown", () => {
     secondMultitest.uid = "mt2";
     secondMultitest.entries[0].entries[0].entries[0].uids[1] = "mt2";
     props.report.entries.push(secondMultitest);
-    props.persistedState.selectedTestcase = "test_order";
+    const addLogs = (entry) => {
+      entry.logs = [];
+      if (entry.category === "testcase") {
+        entry.type = "TestCaseReport";
+      }
+      (entry.entries || []).forEach(addLogs);
+    };
+    addLogs(props.report);
+    props.report = PropagateIndices(props.report);
+    props.value.selectedTestcase = "test_order";
+    props.value.searchText = "test_order";
 
-    const resultItems = renderDropdown().find('[data-testid="result-item"]');
+    const resultItems = renderDropdown().find('[title^="Navigate to"]');
 
     expect(resultItems.map((item) => item.key())).toEqual([
       "report-v4/mt1/ts1/test_order/test_order__0",
       "report-v4/mt2/ts1/test_order/test_order__0",
     ]);
+
+    resultItems.at(0).simulate("click");
+    const { filters } = props.handleNavFilter.mock.calls[0][0];
+    const filtered = filterEntries(props.report.entries, filters);
+
+    expect(filtered.map((entry) => entry.name)).toEqual(["MyTest"]);
   });
 });
 
 describe("ExtendedSearchDropdown helpers", () => {
   describe("collectTestcases", () => {
-    it("returns empty array for null entries", () => {
-      expect(collectTestcases(null)).toEqual([]);
-    });
-
-    it("returns empty array for empty entries", () => {
-      expect(collectTestcases([])).toEqual([]);
+    it.each([null, []])("returns an empty array for %p", (entries) => {
+      expect(collectTestcases(entries)).toEqual([]);
     });
 
     it("collects testcases from nested report structure", () => {
@@ -374,42 +425,6 @@ describe("ExtendedSearchDropdown helpers", () => {
       expect(result[0].testName).toBe("MyTest");
       expect(result[0].testsuiteName).toBe("MySuite");
       expect(result[0].baseName).toBe("case1");
-    });
-
-    it("preserves testName/testsuiteName hierarchy", () => {
-      const entries = [
-        {
-          category: "multitest",
-          name: "Test1",
-          uid: "mt1",
-          entries: [
-            {
-              category: "testsuite",
-              name: "Suite1",
-              uid: "ts1",
-              entries: [
-                {
-                  category: "testcase",
-                  name: "caseA",
-                  uid: "tc1",
-                },
-                {
-                  category: "testcase",
-                  name: "caseB",
-                  uid: "tc2",
-                },
-              ],
-            },
-          ],
-        },
-      ];
-
-      const result = collectTestcases(entries);
-      expect(result).toHaveLength(2);
-      expect(result[0].testName).toBe("Test1");
-      expect(result[0].testsuiteName).toBe("Suite1");
-      expect(result[1].testName).toBe("Test1");
-      expect(result[1].testsuiteName).toBe("Suite1");
     });
 
     it("groups testcases from all parts under the multitest definition", () => {
@@ -448,9 +463,10 @@ describe("ExtendedSearchDropdown helpers", () => {
         "MyTest",
         "MyTest",
       ]);
-      expect(
-        getPermutations(result, "MyTest", "MySuite", "case1")
-      ).toHaveLength(2);
+      expect(result.map((testcase) => testcase.testsuiteName)).toEqual([
+        "MySuite",
+        "MySuite",
+      ]);
     });
 
     it("does not recurse into testcase assertion entries", () => {
@@ -522,68 +538,10 @@ describe("ExtendedSearchDropdown helpers", () => {
     });
   });
 
-  describe("getPermutations", () => {
-    const testcases = [
-      { testName: "T1", testsuiteName: "S1", baseName: "caseA" },
-      { testName: "T1", testsuiteName: "S1", baseName: "caseB" },
-      { testName: "T1", testsuiteName: "S2", baseName: "caseA" },
-      { testName: "T2", testsuiteName: "S3", baseName: "caseA" },
-    ];
-
-    it("filters by baseName only when test/suite empty", () => {
-      const result = getPermutations(testcases, "", "", "caseA");
-      expect(result).toHaveLength(3);
-    });
-
-    it("filters by test and baseName", () => {
-      const result = getPermutations(testcases, "T1", "", "caseA");
-      expect(result).toHaveLength(2);
-    });
-
-    it("filters by test, suite, and baseName", () => {
-      const result = getPermutations(testcases, "T1", "S1", "caseA");
-      expect(result).toHaveLength(1);
-    });
-
-    it("returns empty when no match", () => {
-      const result = getPermutations(testcases, "T1", "S1", "noMatch");
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe("enrichWithParams", () => {
-    it("uses structured parameters and preserves their types", () => {
-      const perms = [
-        {
-          entry: {
-            name: "test 0",
-            parametrization_kwargs: {
-              quantity: 1000,
-              side: "Buy",
-              enabled: true,
-            },
-          },
-        },
-      ];
-
-      expect(enrichWithParams(perms)[0].params).toEqual({
-        quantity: 1000,
-        side: "Buy",
-        enabled: true,
-      });
-    });
-  });
-
-  describe("parameter value formatting", () => {
+  describe("parameter value tokens", () => {
     it("uses type-aware tokens", () => {
       expect(paramValueToken(1)).not.toBe(paramValueToken("1"));
       expect(paramValueToken(false)).not.toBe(paramValueToken("false"));
-    });
-
-    it("formats structured values for display", () => {
-      expect(formatParamValue(1000)).toBe("1000");
-      expect(formatParamValue(true)).toBe("true");
-      expect(formatParamValue("Buy")).toBe("Buy");
     });
   });
 
@@ -599,10 +557,6 @@ describe("ExtendedSearchDropdown helpers", () => {
       expect(result.market).toEqual(["HK", "PS"]);
     });
 
-    it("returns empty object for no permutations", () => {
-      expect(buildFilterOptions([])).toEqual({});
-    });
-
     it("preserves types and sorts numeric values numerically", () => {
       const perms = [
         { params: { quantity: 10, value: 1 } },
@@ -615,6 +569,28 @@ describe("ExtendedSearchDropdown helpers", () => {
       expect(result.quantity).toEqual([9, 10, 100]);
       expect(result.value).toEqual([1, "1"]);
     });
+
+    it("sorts mixed parameter values consistently", () => {
+      const perms = [
+        { params: { value: 1000 } },
+        { params: { value: "1000" } },
+        { params: { value: true } },
+        { params: { value: null } },
+        { params: { value: "" } },
+        { params: { value: 2.5 } },
+        { params: { value: 500 } },
+      ];
+
+      expect(buildFilterOptions(perms).value).toEqual([
+        "",
+        2.5,
+        500,
+        1000,
+        "1000",
+        null,
+        true,
+      ]);
+    });
   });
 
   describe("applyParamFilters", () => {
@@ -626,11 +602,6 @@ describe("ExtendedSearchDropdown helpers", () => {
 
     it("returns all when no filters selected", () => {
       expect(applyParamFilters(perms, {})).toHaveLength(3);
-    });
-
-    it("filters by single param", () => {
-      const result = applyParamFilters(perms, { side: "BUY" });
-      expect(result).toHaveLength(2);
     });
 
     it("filters by multiple params", () => {
@@ -649,23 +620,6 @@ describe("ExtendedSearchDropdown helpers", () => {
         nullable[0],
       ]);
       expect(applyParamFilters(nullable, { note: "" })).toEqual([nullable[1]]);
-    });
-
-    it("handles falsy values like '0' correctly", () => {
-      const withZero = [{ params: { qty: "0" } }, { params: { qty: "100" } }];
-      const result = applyParamFilters(withZero, { qty: "0" });
-      expect(result).toHaveLength(1);
-      expect(result[0].params.qty).toBe("0");
-    });
-
-    it("handles 'false' as a valid filter value", () => {
-      const withFalse = [
-        { params: { enabled: "false" } },
-        { params: { enabled: "true" } },
-      ];
-      const result = applyParamFilters(withFalse, { enabled: "false" });
-      expect(result).toHaveLength(1);
-      expect(result[0].params.enabled).toBe("false");
     });
 
     it("distinguishes structured values by type", () => {

@@ -35,6 +35,7 @@ class FilterBox extends Component {
         selectedTestsuite: "",
         selectedTestcase: "",
         selectedParams: {},
+        searchText: "",
       },
     };
     this.toggleHelp = this.toggleHelp.bind(this);
@@ -74,7 +75,7 @@ class FilterBox extends Component {
   }
 
   toggleHelp() {
-    this.setState((prev) => ({ showHelp: !prev.showHelp }));
+    this.setState({ showHelp: !this.state.showHelp });
   }
 
   toggleExtendedSearch() {
@@ -95,6 +96,7 @@ class FilterBox extends Component {
         selectedTestsuite: "",
         selectedTestcase: "",
         selectedParams: {},
+        searchText: "",
       },
     });
   }
@@ -184,12 +186,11 @@ class FilterBox extends Component {
         )}
         {this.state.showExtendedSearch && supportsExtendedSearch && (
           <ExtendedSearchDropdown
-            key={this.props.report?.uid || ""}
             report={this.props.report}
             onNavigate={this.props.onExtendedSearchNavigate}
             onClose={this.closeExtendedSearch}
             handleNavFilter={this.props.handleNavFilter}
-            persistedState={this.state.extendedSearchState}
+            value={this.state.extendedSearchState}
             onStateChange={this.updateExtendedSearchState}
             triggerRef={this.extendedSearchIcon}
           />

@@ -410,10 +410,6 @@ describe("Report/reportUtils", () => {
         failed: 1,
         total: 5,
         error: 0,
-        xpass: 0,
-        xfail: 0,
-        skipped: 0,
-        "xpass-strict": 0,
       });
     });
 
@@ -453,10 +449,6 @@ describe("Report/reportUtils", () => {
         failed: 3,
         total: 11,
         error: 1,
-        xpass: 0,
-        xfail: 0,
-        skipped: 0,
-        "xpass-strict": 0,
       });
     });
 
@@ -575,10 +567,6 @@ describe("Report/reportUtils", () => {
         failed: 1,
         total: 4,
         error: 1,
-        xpass: 0,
-        xfail: 0,
-        skipped: 0,
-        "xpass-strict": 0,
       });
       expect(mergedSuite.status).toBe("error");
     });
@@ -654,11 +642,6 @@ describe("Report/reportUtils", () => {
         passed: 6,
         failed: 1,
         total: 7,
-        error: 0,
-        xpass: 0,
-        xfail: 0,
-        skipped: 0,
-        "xpass-strict": 0,
       });
       expect(merged.entries).toHaveLength(3);
     });
@@ -715,10 +698,6 @@ describe("Report/reportUtils", () => {
         failed: 0,
         total: 3,
         error: 0,
-        xpass: 0,
-        xfail: 0,
-        skipped: 0,
-        "xpass-strict": 0,
       });
       expect(mergedSuite1._allPartUids).toEqual(["suite1_p1", "suite1_p0"]);
     });
@@ -763,6 +742,78 @@ describe("Report/reportUtils", () => {
       expect(mergedParam.entries).toHaveLength(2);
       expect(mergedParam.entries[0].uid).toBe("test_x1");
       expect(mergedParam.entries[1].uid).toBe("test_x2");
+    });
+
+    it("merges nested suite/param when parent_uids holds uids that diverge from names", () => {
+      // For custom-named entries.
+      const buildBranch = (partUid) => {
+        const testCase = createTestCase("case", `case_uid_${partUid}`);
+        const param = createParametrization("Custom Param", {
+          uid: `param_uid_${partUid}`,
+          entries: [testCase],
+          parent_uids: ["testplan", partUid, `suite_uid_${partUid}`],
+        });
+        testCase.parent_uids = [...param.parent_uids, param.uid];
+        return createSuite("Custom Suite", {
+          uid: `suite_uid_${partUid}`,
+          entries: [param],
+          parent_uids: ["testplan", partUid],
+        });
+      };
+
+      const part0 = createPart(0, 2, {
+        entries: [buildBranch("multitest_part0")],
+      });
+      const part1 = createPart(1, 2, {
+        entries: [buildBranch("multitest_part1")],
+      });
+
+      const report = { uid: "testplan", entries: [part0, part1] };
+      const result = applyPartsMerge(report);
+
+      const mergedSuite = result.entries[0].entries[0];
+      expect(mergedSuite.name).toBe("Custom Suite");
+      expect(mergedSuite.entries).toHaveLength(1);
+
+      const mergedParam = mergedSuite.entries[0];
+      expect(mergedParam.name).toBe("Custom Param");
+      expect(mergedParam.entries).toHaveLength(2);
+    });
+
+    it("merges status across the full precedence order", () => {
+      const cases = [
+        ["error", "incomplete", "error"],
+        ["incomplete", "xpass-strict", "incomplete"],
+        ["xpass-strict", "failed", "xpass-strict"],
+        ["failed", "unknown", "failed"],
+        ["unknown", "xfail", "unknown"],
+        ["xfail", "passed", "xfail"],
+        ["passed", "skipped", "passed"],
+        ["skipped", "xpass", "skipped"],
+        ["xpass", "unstable", "xpass"],
+      ];
+
+      for (const [statusA, statusB, expected] of cases) {
+        const part0 = createPart(0, 2, { status: statusA });
+        const part1 = createPart(1, 2, { status: statusB });
+        const report = { uid: "testplan", entries: [part0, part1] };
+        const result = applyPartsMerge(report);
+        expect(result.entries[0].status).toBe(expected);
+      }
+    });
+
+    it("merges unstable counter across parts", () => {
+      const part0 = createPart(0, 2, {
+        counter: { passed: 1, failed: 0, total: 2, unstable: 1 },
+      });
+      const part1 = createPart(1, 2, {
+        counter: { passed: 1, failed: 0, total: 2, unstable: 2 },
+      });
+
+      const report = { uid: "testplan", entries: [part0, part1] };
+      const result = applyPartsMerge(report);
+
+      expect(result.entries[0].counter.unstable).toBe(3);
     });
   });
 });

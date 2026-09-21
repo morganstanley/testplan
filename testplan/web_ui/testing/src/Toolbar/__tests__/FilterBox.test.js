@@ -68,6 +68,7 @@ describe("FilterBox", () => {
         selectedTestsuite: "suite",
         selectedTestcase: "case",
         selectedParams: { quantity: 1000 },
+        searchText: "case",
       },
     });
 
@@ -79,6 +80,7 @@ describe("FilterBox", () => {
       selectedTestsuite: "",
       selectedTestcase: "",
       selectedParams: {},
+      searchText: "",
     });
   });
 
