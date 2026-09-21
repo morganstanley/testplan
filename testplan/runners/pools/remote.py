@@ -2,6 +2,7 @@
 
 import copy
 import os
+import posixpath
 import shlex
 import shutil
 import signal
@@ -152,7 +153,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         super(RemoteWorker, self)._write_syspath(
             sys_path=self._remote_sys_path()
         )
-        self._remote_syspath_file = os.path.join(
+        self._remote_syspath_file = posixpath.join(
             self._remote_plan_runpath,
             f"sys_path_{os.path.basename(self._syspath_file)}",
         )
