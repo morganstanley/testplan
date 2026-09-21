@@ -1,5 +1,6 @@
 """Remote worker bootstrap tests."""
 
+import os
 import shlex
 from unittest.mock import MagicMock, call
 
@@ -50,7 +51,9 @@ def test_syspath_transfer_reuses_ssh_connection(tmp_path, failure):
         timeout=30,
     )
     worker._transfer_data.assert_not_called()
-    stdin.write.assert_called_once_with(b"/workspace\n/testplan with spaces")
+    stdin.write.assert_called_once_with(
+        f"/workspace{os.linesep}/testplan with spaces".encode()
+    )
     if failure != "write":
         channel.assert_has_calls(
             [
