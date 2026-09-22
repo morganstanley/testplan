@@ -5,6 +5,7 @@ import os
 import re
 import threading
 import queue
+import tempfile
 
 import pytest
 import requests
@@ -34,12 +35,16 @@ _URL_RE = re.compile(
     ],
     ids=["webserver_exporter_programmatic", "webserver_exporter_cli_arg"],
 )
-def dummy_testplan(request):
+def dummy_testplan(request, runpath_module):
     """
     Start the dummy testplan in a separate process. Terminate the dummy testplan
     and wait for the process to end.
     """
-    cmd = [sys.executable] + request.param
+    cmd = (
+        [sys.executable]
+        + request.param
+        + ["--runpath", tempfile.mkdtemp(dir=runpath_module)]
+    )
     cwd = os.path.dirname(os.path.abspath(__file__))
 
     testplan_proc = subprocess.Popen(
