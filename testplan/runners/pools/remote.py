@@ -2,6 +2,9 @@
 
 import copy
 import os
+import posixpath
+import shlex
+import shutil
 import signal
 import socket
 from multiprocessing import cpu_count
@@ -150,18 +153,34 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         super(RemoteWorker, self)._write_syspath(
             sys_path=self._remote_sys_path()
         )
-        self._remote_syspath_file = os.path.join(
+        self._remote_syspath_file = posixpath.join(
             self._remote_plan_runpath,
             f"sys_path_{os.path.basename(self._syspath_file)}",
         )
-        self._transfer_data(
-            source=self._syspath_file,
-            target=self._remote_syspath_file,
-            remote_target=True,
-        )
+        with open(self._syspath_file, "rb") as source:
+            stdin, stdout, stderr = self._ssh_client.ssh_client.exec_command(
+                command=f"/bin/cat > {shlex.quote(self._remote_syspath_file)}",
+                timeout=30,
+            )
+            try:
+                shutil.copyfileobj(source, stdin)
+                stdin.flush()
+                stdin.channel.shutdown_write()
+                exit_code = stdout.channel.recv_exit_status()
+                error = stderr.read().decode("utf-8").strip()
+            finally:
+                stdin.close()
+                stdout.close()
+                stderr.close()
+
+        if exit_code:
+            raise RuntimeError(
+                f"Transferring sys.path to {self._remote_syspath_file} "
+                f"failed with exit code {exit_code}: {error}"
+            )
 
         self.logger.debug(
-            "Transferred sys.path to remote host at: %s",
+            "Transferred sys.path over existing SSH connection to %s",
             self._remote_syspath_file,
         )
 

@@ -5,16 +5,114 @@ import platform
 import psutil
 import pytest
 import time
+from argparse import Namespace
+from unittest import mock
 
 import zmq
 
 from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
-from testplan.runners.pools import communication, process, tasks
+from testplan.common.utils.timing import TimeoutException
+from testplan.runners.pools import (
+    child,
+    communication,
+    connection,
+    process,
+    tasks,
+)
 from testplan.runners.pools.base import Worker
 from testplan.testing.common import SkipStrategy
 
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
+
+
+@pytest.fixture
+def starting_worker(tmp_path):
+    worker = process.ProcessWorker(index="worker-0")
+    worker.parent = mock.Mock(runpath=str(tmp_path))
+    worker.status.change(worker.STATUS.STARTING)
+    worker._handler = mock.Mock(returncode=17)
+    worker._handler.poll.return_value = None
+    worker.last_heartbeat = None
+    worker._after_started = mock.Mock()
+    return worker
+
+
+def test_started_check_does_not_complete_lifecycle(starting_worker):
+    worker = starting_worker
+    with open(worker.outfile, "w") as logfile:
+        logfile.write("Child is still initializing\n")
+    assert not worker.started_check()
+    with open(worker.outfile, "a") as logfile:
+        logfile.write("Starting child process worker on host\n")
+    assert worker.started_check()
+    assert worker.status == worker.STATUS.STARTING
+    assert worker.last_heartbeat is None
+    worker._after_started.assert_not_called()
+
+
+def test_blocking_wait_reuses_readiness_check(starting_worker):
+    worker = starting_worker
+    worker.started_check = mock.Mock(side_effect=[False, True])
+
+    worker._wait_started(timeout=1)
+
+    assert worker.started_check.call_count == 2
+    worker._after_started.assert_called_once_with()
+    assert worker.last_heartbeat is not None
+
+
+@pytest.mark.parametrize("failure", ["timeout", "process_exit"])
+def test_blocking_wait_failure(starting_worker, failure):
+    worker = starting_worker
+    with open(worker.outfile, "w") as logfile:
+        logfile.write("Child is still initializing\n")
+    if failure == "process_exit":
+        worker._handler.poll.return_value = 17
+
+    error = RuntimeError if failure == "process_exit" else TimeoutException
+    message = (
+        "process exited: 17"
+        if failure == "process_exit"
+        else "Worker start timeout"
+    )
+    with pytest.raises(error, match=message):
+        worker._wait_started(timeout=0)
+
+    worker._after_started.assert_not_called()
+    assert worker.last_heartbeat is None
+
+
+@pytest.mark.parametrize(
+    "worker_type,pool_type,loop_name",
+    [
+        ("process_worker", "thread", "ChildLoop"),
+        ("remote_worker", "thread", "RemoteChildLoop"),
+        ("remote_worker", "process", "RemoteChildLoop"),
+    ],
+)
+def test_child_response_timeout(worker_type, pool_type, loop_name):
+    args = Namespace(
+        address="127.0.0.1:12345",
+        index="worker-1",
+        log_level=logger.DEBUG,
+        runpath=None,
+        type=worker_type,
+        remote_pool_type=pool_type,
+        remote_pool_size=2,
+        otel_traceparent="",
+        otel_logs=False,
+    )
+    with (
+        mock.patch.object(connection, "ZMQClient") as client,
+        mock.patch.object(child, loop_name) as loop,
+        mock.patch.object(logger, "TESTPLAN_LOGGER"),
+    ):
+        child.child_logic(args)
+
+    client.assert_called_once_with(address=args.address, recv_timeout=60)
+    assert loop.call_args.args[1] is client.return_value
+    loop.return_value.worker_loop.assert_called_once_with()
 
 
 @pytest.fixture
