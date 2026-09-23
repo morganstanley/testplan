@@ -1,5 +1,6 @@
 """Worker pool executor base classes."""
 
+import copy
 import datetime
 import os
 import pprint
@@ -9,6 +10,7 @@ import time
 import traceback
 from multiprocessing.pool import ThreadPool
 from typing import (
+    cast,
     Any,
     Callable,
     Dict,
@@ -29,7 +31,7 @@ from testplan.common.utils import selector, strings
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.common.utils.observability import TraceLevel
-from testplan.common.report import Status, ReportCategories
+from testplan.common.report import Status, ReportCategories, RuntimeStatus
 from testplan.report.testing.base import TestGroupReport
 from testplan.runners.base import Executor, ExecutorConfig
 from testplan.testing.base import Test, TestResult
@@ -37,6 +39,12 @@ from testplan.testing.base import Test, TestResult
 from .communication import Message
 from .connection import QueueClient, QueueServer
 from .tasks import Task, TaskResult
+from .tasks.base import (
+    ALL_CASES,
+    PlannedCases,
+    collect_planned_cases,
+    unresolved_selection,
+)
 
 
 class TaskQueue:
@@ -283,6 +291,7 @@ class Worker(WorkerBase):
         :param task: Task that worker pulled for execution.
         :return: Task result.
         """
+        planned: PlannedCases = ALL_CASES
         try:
             with self._curr_runnable_lock:
                 runnable: Test = task.materialize()
@@ -293,6 +302,7 @@ class Worker(WorkerBase):
                     if not runnable.cfg.parent:
                         runnable.cfg.parent = self.cfg
                 self._curr_runnable = runnable
+            planned = collect_planned_cases(runnable)
             result = runnable.run()
             with self._curr_runnable_lock:
                 self._curr_runnable = None
@@ -303,9 +313,15 @@ class Worker(WorkerBase):
                 result=None,
                 status=False,
                 reason=traceback.format_exc(),
+                planned_cases=planned,
             )
         else:
-            task_result = TaskResult(task=task, result=result, status=True)  # type: ignore[arg-type]
+            task_result = TaskResult(
+                task=task,
+                result=result,  # type: ignore[arg-type]
+                status=True,
+                planned_cases=planned,
+            )
 
         return task_result
 
@@ -399,6 +415,7 @@ class Pool(Executor):
         self._executed_tests: List[str] = []
         self._task_reassign_cnt: Dict[str, int] = {}
         self._task_reassign_limit = 2
+        self._pending_reruns: set[str] = set()
         self._workers = entity.Environment(parent=self)
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
@@ -456,6 +473,8 @@ class Pool(Executor):
         # FIXME: signature mismatch with ``Executor.add``
         if not isinstance(task, Task):
             raise ValueError(f"Task was expected, got {type(task)} instead.")
+        if self.cfg.allow_task_rerun:
+            task.resolve_rerun_policy(self.cfg)
         super(Pool, self).add(task, uid)
         self.unassigned.put(task.priority, uid)
         self._task_reassign_cnt[uid] = 0
@@ -481,6 +500,20 @@ class Pool(Executor):
         """
         # TODO: always returns True, what is the point?
         return True
+
+    def _has_rerun_worker(self, task: Task) -> bool:
+        return any(
+            (self.uid(), candidate.uid()) not in task._failed_runners
+            and candidate.active
+            and candidate.status
+            not in (
+                entity.ResourceStatus.STOPPING,
+                entity.ResourceStatus.STOPPED,
+            )
+            and candidate.uid() not in self._stopping_queue
+            and self._can_assign_task_to_worker(task, cast(Worker, candidate))
+            for candidate in self._workers
+        )
 
     def _loop(self) -> None:
         """
@@ -574,7 +607,7 @@ class Pool(Executor):
         self, worker: Worker, request: Message, response: Message
     ) -> None:
         """Handle a TaskPullRequest from a worker."""
-        tasks = []
+        tasks: list[Task] = []
 
         if self.status == self.status.STARTED:  # type: ignore[attr-defined]
             with self._discard_pending_lock:
@@ -583,17 +616,50 @@ class Pool(Executor):
                     worker.respond(response.make(Message.DiscardPending))
                     return
 
-            for _ in range(request.data):
+            # Set aside tasks this worker cannot run; requeue after scanning.
+            deferred: list[tuple[int, str]] = []
+            queued = self.unassigned.size()
+            for _ in range(queued + 1):
+                if len(tasks) >= request.data:
+                    break
                 try:
                     priority, uid = self.unassigned.get()
                 except queue.Empty:
                     self.logger.debug("No tasks to assign to %s", worker)
-                    if self._early_stop_worker(worker):
+                    if not deferred and self._early_stop_worker(worker):
                         worker.respond(response.make(Message.Stop))
                         return
                     break
 
                 task = self._input[uid]
+                if (
+                    uid in self._pending_reruns
+                    and task._rerun_on_different_runner
+                    and not self._has_rerun_worker(task)
+                ):
+                    reason = "Rerun not started: no eligible runner remains."
+                    result = TestResult()
+                    unstarted_report = TestGroupReport(
+                        name=task.uid(), category=ReportCategories.ERROR
+                    )
+                    unstarted_report.status_override = Status.INCOMPLETE
+                    unstarted_report.runtime_status = RuntimeStatus.NOT_RUN
+                    unstarted_report.logger.error(reason)
+                    result.report = unstarted_report  # type: ignore[assignment]
+                    self._results[uid] = TaskResult(
+                        task=task, result=result, status=False, reason=reason
+                    )
+                    self._pending_reruns.remove(uid)
+                    self.ongoing.remove(uid)
+                    self.logger.user_info("%s Task: %s", reason, task)
+                    self._print_test_result(self._results[uid])
+                    continue
+                if (
+                    task._rerun_on_different_runner
+                    and (self.uid(), worker.uid()) in task._failed_runners
+                ):
+                    deferred.append((priority, uid))
+                    continue
                 worker.rebase_task_path(task)
 
                 if self._can_assign_task(task):
@@ -617,6 +683,9 @@ class Pool(Executor):
                                 if task.rerun_cnt > 0
                                 else "",
                             )
+                            if uid in self._pending_reruns:
+                                task.rerun_cnt += 1
+                                self._pending_reruns.remove(uid)
                             worker.assigned.add(uid)
                             tasks.append(task)
                             task.executors.setdefault(self.cfg.name, set())
@@ -635,6 +704,8 @@ class Pool(Executor):
                         f"{self._input[uid]} cannot be executed in {self}",
                     )
 
+            for priority, uid in deferred:
+                self.unassigned.put(priority, uid)
             if tasks:
                 worker.respond(response.make(Message.TaskSending, data=tasks))
                 worker.requesting = request.data - len(tasks)
@@ -654,14 +725,24 @@ class Pool(Executor):
                 # real clean up done in ``discard_pending_tasks``
                 return
 
+        # Case/suite skipping is local to each attempt and allows reruns.
+        skip_remaining_tests = self.cfg.skip_strategy.to_option() in (
+            "tests-on-error",
+            "tests-on-failed",
+        )
+
         def task_should_rerun() -> bool:
             if not self.cfg.allow_task_rerun:
                 return False
-            if self.cfg.skip_strategy:
+            if skip_remaining_tests:
                 return False
             if not task_result.task:
                 return False
-            if task_result.task.rerun_limit == 0:
+            if (
+                task.rerun_limit == 0
+                or task.case_selection == {}
+                or selection == {}
+            ):
                 return False
 
             result = task_result.result
@@ -673,13 +754,21 @@ class Pool(Executor):
             ):
                 return False
 
-            if task_result.task.rerun_cnt >= task_result.task.rerun_limit:
+            if task._rerun_on_different_runner:
+                task._failed_runners.add((self.uid(), worker.uid()))
+                if not self._has_rerun_worker(task):
+                    self.logger.user_info(
+                        "No eligible runner remains for rerun of %s", task
+                    )
+                    return False
+
+            if task.rerun_cnt >= task.rerun_limit:
                 self.logger.user_info(
                     "Will not rerun %(input)s again as it already "
                     "reached max rerun limit %(reruns)d",
                     {
                         "input": self._input[uid],
-                        "reruns": task_result.task.rerun_limit,
+                        "reruns": task.rerun_limit,
                     },
                 )
                 return False
@@ -699,26 +788,58 @@ class Pool(Executor):
             )
 
             if isinstance(task_result.result, TestResult):
-                report = task_result.result.report
-                report.host = worker.host  # type: ignore[attr-defined]
+                report = cast(TestGroupReport, task_result.result.report)
+                report.host = worker.host
                 worker.rebase_attachment(task_result.result)
+
+            task = self._input[uid]
+            if self.cfg.allow_task_rerun:
+                task_result._task = task
+            selection: PlannedCases = ALL_CASES
+            if (
+                self.cfg.allow_task_rerun
+                and task.rerun_limit
+                and not skip_remaining_tests
+                and isinstance(task_result.result, TestResult)
+            ):
+                report = cast(TestGroupReport, task_result.result.report)
+                selection = unresolved_selection(
+                    task_result.planned_cases, report
+                )
+                if (
+                    selection is not ALL_CASES
+                    and selection
+                    and not report.failed
+                ):
+                    # Preserve the actual entries, but do not count an
+                    # unfinished selection as a successful attempt.
+                    report.status_override = Status.INCOMPLETE
 
             if task_should_rerun():
                 self.logger.user_info(
                     "Will rerun %(task)s for max %(rerun)d more times",
                     {
                         "task": task_result.task,
-                        "rerun": task_result.task.rerun_limit
-                        - task_result.task.rerun_cnt,
+                        "rerun": task.rerun_limit - task.rerun_cnt,
                     },
                 )
-                self.unassigned.put(task_result.task.priority, uid)
-                self._task_reassign_cnt[uid] = 0
-                self._input[uid].rerun_cnt += 1
-                # Will rerun task, but still need to retain the result
+                self._pending_reruns.add(uid)
                 self._append_temporary_task_result(task_result)
+                if not task._rerun_entire_task and selection is not ALL_CASES:
+                    task.case_selection = selection
+                self.unassigned.put(task.priority, uid)
+                self._task_reassign_cnt[uid] = 0
                 continue
 
+            if (
+                self.cfg.allow_task_rerun
+                and task.rerun_cnt
+                and task_result.status
+                and task_result.result
+                and task_result.result.run
+                and task_result.result.report.passed
+            ):
+                task_result.result.report.status_override = Status.UNSTABLE
             self._print_test_result(task_result)
             self._results[uid] = task_result
             self.ongoing.remove(uid)
@@ -935,6 +1056,7 @@ class Pool(Executor):
         return False
 
     def _discard_task(self, uid: str, reason: str) -> None:
+        self._pending_reruns.discard(uid)
         self.logger.critical(
             "Discard task %s of %s - %s", self._input[uid], self, reason
         )
@@ -996,9 +1118,28 @@ class Pool(Executor):
                 self.logger.warning("Discarding %s %s.", task, report_reason)
             self.ongoing.pop(0)
         self.unassigned = TaskQueue()
+        self._pending_reruns.clear()
 
     def _append_temporary_task_result(self, task_result: TaskResult) -> None:
         """If a task should rerun, append the task result already fetched."""
+        if not isinstance(task_result.result, TestResult):
+            from testplan.runnable.base import result_for_failed_task
+
+            task_result = TaskResult(
+                task=task_result.task,
+                status=task_result.status,
+                reason=task_result.reason,
+                result=result_for_failed_task(task_result),
+            )
+        else:
+            copied_result = copy.copy(task_result.result)
+            copied_result.report = copy.deepcopy(task_result.result.report)
+            task_result = TaskResult(
+                task=task_result.task,
+                status=task_result.status,
+                reason=task_result.reason,
+                result=copied_result,
+            )
         test_report: TestGroupReport = task_result.result.report  # type: ignore[assignment, union-attr]
         if task_result.task is None:
             raise RuntimeError("task_result.task must not be None")
@@ -1006,7 +1147,7 @@ class Pool(Executor):
         if uid not in self._task_reassign_cnt:
             return
 
-        postfix = f" => Run {task_result.task.rerun_cnt}"
+        postfix = f" => Run {self._input[uid].rerun_cnt + 1}"
         test_report.name = f"{test_report.name}{postfix}"
         test_report.uid = f"{test_report.uid}{postfix}"
         test_report.category = ReportCategories.TASK_RERUN

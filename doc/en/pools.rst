@@ -79,17 +79,67 @@ and many Test instances can be created from the same target function:
                     path=os.path.dirname(os.path.abspath(__file__)),
                     args=(idx,))  # or kwargs={'index': idx}
 
-With argument `rerun` testplan can rerun the task up to user specified times
-until it passes:
+Pool tasks support sequential reruns until they pass. ``rerun_limit`` counts
+additional attempts (0-3); ``rerun_limit=2`` allows three total executions.
+A recovered task is reported as ``UNSTABLE`` and the plan can exit successfully.
+Exhausted reruns retain their failure. Each attempt has its own report, retaining its own timings, logs and cases.
+Reports are never merged across attempts.
 
 .. code-block:: python
 
-    # ./test_plan.py
+    from testplan import Task
+    from testplan.testing.common import ALL_CASES
 
-    task = Task(target='make_multitest',
-                module='tasks',
-                path=os.path.dirname(os.path.abspath(__file__)),
-                rerun=3)  # default value 0 means no rerun
+    task = Task(
+        target="make_multitest",
+        module="tasks",
+        rerun_limit=2,
+        rerun_entire_task=False,
+        rerun_on_different_runner=True,
+        case_selection={"SuiteOne": ALL_CASES, "SuiteTwo": ["case_1_param1"]},
+    )
+
+The same three rerun options are available on ``@test_plan`` and ``Testplan``,
+and through ``--rerun-limit``, ``--[no-]rerun-entire-task`` and
+``--[no-]rerun-on-different-runner``. Explicit Task options override global
+values; CLI arguments override decorator defaults. Task defaults of ``None``
+inherit the global policy. The framework defaults are ``0``, ``False``, ``False``.
+``@task_target`` accepts these Task options as well. The existing ``rerun``
+argument is deprecated; use ``rerun_limit`` instead. It remains a working
+alias and emits a warning when supplied; do not supply both.
+
+``rerun_entire_task=True`` repeats the original selection. With the default ``False``, a
+MultiTest rerun executes only failed or unfinished selected cases. Previously
+successful cases remain in their original attempt reports. Suite/environment lifecycle failures, strict-order suites,
+and unsupported test types fall back to rerunning the current task selection.
+If no selected testcase has reached a terminal outcome (passed, expected
+failure, unstable, or skipped) and the report is failed or unknown, the rerun
+keeps the current task selection unchanged. A group status override alone does not force
+a full rerun when some cases have reached terminal outcomes.
+Setup and teardown run normally on each attempt. Targets must support repeated
+materialization; factories should return fresh tests.
+
+``rerun_on_different_runner=True`` excludes every worker where this task has
+failed, while allowing that worker to run other tasks. Busy eligible workers
+are waited for. If none remain, the failure is final even if rerun budget
+remains. If a rerun was queued but loses its eligible workers before assignment,
+it gets a separate ``INCOMPLETE`` / ``NOT_RUN`` report explaining why it could
+not start. The previous attempt is preserved once, and the rerun count does
+not increase. A worker is identified by its pool and worker ID.
+
+``case_selection`` defaults to the typed sentinel ``ALL_CASES``. Alternatively, it is a
+mapping from exact suite IDs to ``ALL_CASES`` or lists of exact testcase IDs,
+including expanded parametrized case IDs. ``None`` and glob expressions are
+not supported (glob characters in IDs are matched literally). An empty mapping
+selects nothing. The subset is applied after existing filters and partitioning.
+Subsets require a MultiTest target.
+
+Automatic reruns are supported by pools only; LocalRunner behavior is
+unchanged. Case- and suite-level skip strategies apply separately to each
+attempt and allow reruns, whether configured globally or on the MultiTest.
+Partial reruns include failed and unexecuted cases; explicitly skipped cases
+are terminal. The ``tests-on-failed`` and ``tests-on-error`` strategies disable
+pool task reruns. Plan timeout continues to limit execution.
 
 Task rerun can be disabled at pool level with ``allow_task_rerun`` parameter.
 
@@ -363,7 +413,7 @@ It is possible to create multiple task objects out of one target with
             ),
         ),
         # additional arguments of Task class
-        rerun=1,
+        rerun_limit=1,
         weight=1,
     )
     def make_multitest(name, part_tuple=None, suites=None):

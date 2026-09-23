@@ -162,6 +162,10 @@ class Testplan(entity.RunnableManager):
     :param interactive_handler: Handler for interactive mode execution.
     :param extra_deps: Extra module dependencies for interactive reload, or
         paths of these modules.
+    :param rerun_limit: Default maximum additional pool task attempts (0-3).
+    :param rerun_entire_task: Rerun all originally selected cases; default False.
+    :param rerun_on_different_runner: Rerun only on workers where the task has
+        not failed; default False. Explicit Task values override these defaults.
     :param label: Label the test report with the given name, useful to
         categorize or classify similar reports .
     :param driver_info: Display driver setup / teardown time and driver
@@ -236,6 +240,9 @@ class Testplan(entity.RunnableManager):
         otel_traces: TraceLevel = defaults.TRACE_LEVEL,
         otel_traceparent: Optional[str] = None,
         otel_logs: bool = False,
+        rerun_limit: int = 0,
+        rerun_entire_task: bool = False,
+        rerun_on_different_runner: bool = False,
         **options: Any,
     ) -> None:
         # Set mutable defaults.
@@ -303,6 +310,9 @@ class Testplan(entity.RunnableManager):
             verbose=verbose,
             debug=debug,
             timeout=timeout,
+            rerun_limit=rerun_limit,
+            rerun_entire_task=rerun_entire_task,
+            rerun_on_different_runner=rerun_on_different_runner,
             interactive_handler=interactive_handler,
             extra_deps=extra_deps,
             label=label,
@@ -491,6 +501,9 @@ class Testplan(entity.RunnableManager):
         otel_traces: TraceLevel = defaults.TRACE_LEVEL,
         otel_traceparent: Optional[str] = None,
         otel_logs: bool = False,
+        rerun_limit: int = 0,
+        rerun_entire_task: bool = False,
+        rerun_on_different_runner: bool = False,
         **options: Any,
     ) -> Callable[..., Callable[..., TestplanResult]]:
         """
@@ -550,6 +563,9 @@ class Testplan(entity.RunnableManager):
                     verbose=verbose,
                     debug=debug,
                     timeout=timeout,
+                    rerun_limit=rerun_limit,
+                    rerun_entire_task=rerun_entire_task,
+                    rerun_on_different_runner=rerun_on_different_runner,
                     interactive_handler=interactive_handler,
                     extra_deps=extra_deps,
                     label=label,

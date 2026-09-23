@@ -252,6 +252,11 @@ class TestRunnerConfig(RunnableConfig):
                 None, listing.BaseLister, listing.MetadataBasedLister
             ),
             ConfigOption("test_lister_output", default=None): Or(str, None),
+            ConfigOption("rerun_limit", default=0): And(
+                int, lambda value: 0 <= value <= Task.MAX_RERUN_LIMIT
+            ),
+            ConfigOption("rerun_entire_task", default=False): bool,
+            ConfigOption("rerun_on_different_runner", default=False): bool,
             ConfigOption("verbose", default=False): bool,
             ConfigOption("debug", default=False): bool,
             ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
