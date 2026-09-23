@@ -1,9 +1,8 @@
-"""CURVE security for the trusted pool and resource-monitor channels.
+"""CURVE authentication for pool and resource-monitor channels.
 
-Workers in a pool share a client identity. They are trusted to execute Python;
-CURVE excludes outsiders, not malicious workers. Keys live only in memory and
-are delivered over child stdin (over SSH for remote workers), never argv or
-logged environment assignments. The bootstrap channel must itself be trusted.
+Each channel uses a shared client identity for its trusted workers.
+Credentials are delivered through child stdin, over SSH for remote workers.
+Keep credentials out of command-line arguments and logs.
 """
 
 import dataclasses

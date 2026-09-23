@@ -126,7 +126,7 @@ class ProcessWorker(Worker):
         write_curve_keys(self._handler.stdin, self._child_curve_keys())
 
     def _child_curve_keys(self) -> Dict[str, CurveClientKeys]:
-        """Deliver credentials through stdin, not argv or environment logs."""
+        """Collect channel credentials for the child bootstrap."""
         transport = cast(ZMQClientProxy, self.transport)
         assert transport.curve_keys is not None
         return {POOL_CHANNEL: transport.curve_keys}
