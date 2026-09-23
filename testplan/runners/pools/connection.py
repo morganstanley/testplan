@@ -7,10 +7,12 @@ import warnings
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 import zmq
+from zmq.auth.thread import ThreadAuthenticator
 
 from testplan.common import entity
 from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
+from testplan.common.utils.zmq_security import CurveClientKeys, CurveServerKeys
 from testplan.runners.pools.communication import Message
 
 if TYPE_CHECKING:
@@ -165,17 +167,20 @@ class ZMQClient(Client):
     with its pool.
 
     :param address: Pool server address to connect to.
+    :param curve_keys: Client credentials and pinned pool server public key.
     :param recv_sleep: Sleep duration in msg receive loop.
     """
 
     def __init__(
         self,
         address: str,
+        curve_keys: CurveClientKeys,
         recv_sleep: float = 0.05,
         recv_timeout: float = 5,
     ) -> None:
         super(ZMQClient, self).__init__()
         self._address: Optional[str] = address
+        self._curve_keys = curve_keys
         self._recv_sleep = recv_sleep
         self._recv_timeout = recv_timeout
         self._context: Optional[zmq.Context] = None
@@ -188,7 +193,13 @@ class ZMQClient(Client):
         # pylint: disable=abstract-class-instantiated
         self._context = zmq.Context()
         self._sock = self._context.socket(zmq.REQ)
-        self._sock.connect("tcp://{}".format(self._address))
+        self._sock.linger = 0
+        try:
+            self._curve_keys.configure(self._sock)
+            self._sock.connect("tcp://{}".format(self._address))
+        except Exception:
+            self.disconnect()
+            raise
         self.active = True
 
     def disconnect(self) -> None:
@@ -250,10 +261,12 @@ class ZMQClientProxy(logger.Loggable):
         self.active = False
         self.connection: Optional[zmq.Socket] = None
         self.address: Optional[str] = None
+        self.curve_keys: Optional[CurveClientKeys] = None
 
     def connect(self, server: "ZMQServer") -> None:
         self.connection = server.sock
         self.address = server.address
+        self.curve_keys = server.client_keys
         self.active = True
 
     def disconnect(self) -> None:
@@ -375,6 +388,8 @@ class ZMQServer(Server):
         self._zmq_context: Optional[zmq.Context] = None
         self._sock: Optional[zmq.Socket] = None
         self._address: Optional[str] = None
+        self._curve = CurveServerKeys()
+        self._authenticator: Optional[ThreadAuthenticator] = None
 
     @property
     def sock(self) -> Optional[zmq.Socket]:
@@ -384,6 +399,10 @@ class ZMQServer(Server):
     def address(self) -> Optional[str]:
         return self._address
 
+    @property
+    def client_keys(self) -> CurveClientKeys:
+        return self._curve.client_keys
+
     def starting(self) -> None:
         """Create a ZMQ context and socket to handle TCP communication."""
         if self.parent is None:
@@ -392,17 +411,23 @@ class ZMQServer(Server):
         # pylint: disable=abstract-class-instantiated
         self._zmq_context = zmq.Context()
         self._sock = self._zmq_context.socket(zmq.REP)
-        if self.parent.cfg.port == 0:
-            port_selected = self._sock.bind_to_random_port(
-                "tcp://{}".format(self.parent.cfg.host)
-            )
-        else:
-            self._sock.bind(
-                "tcp://{}:{}".format(
-                    self.parent.cfg.host, self.parent.cfg.port
+        self._sock.linger = 0
+        try:
+            self._authenticator = self._curve.start(self._sock)
+            if self.parent.cfg.port == 0:
+                port_selected = self._sock.bind_to_random_port(
+                    "tcp://{}".format(self.parent.cfg.host)
                 )
-            )
-            port_selected = self.parent.cfg.port
+            else:
+                self._sock.bind(
+                    "tcp://{}:{}".format(
+                        self.parent.cfg.host, self.parent.cfg.port
+                    )
+                )
+                port_selected = self.parent.cfg.port
+        except Exception:
+            self._close()
+            raise
         self._address = "{}:{}".format(self.parent.cfg.host, port_selected)
         super(ZMQServer, self).starting()
 
@@ -412,6 +437,9 @@ class ZMQServer(Server):
         if self._sock is not None:
             self._sock.close()
             self._sock = None
+        if self._authenticator is not None:
+            self._authenticator.stop()
+            self._authenticator = None
         if self._zmq_context is not None:
             self._zmq_context.destroy()
             self._zmq_context = None

@@ -23,6 +23,7 @@ from testplan.common.utils.path import fix_home_prefix, rebase_path
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.remote import copy_cmd, ssh_cmd
 from testplan.common.utils.timing import get_sleeper, wait
+from testplan.common.utils.zmq_security import MONITOR_CHANNEL, CurveClientKeys
 
 from testplan.testing.base import TestResult
 
@@ -135,6 +136,13 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             )
 
         return cmd
+
+    def _child_curve_keys(self) -> Dict[str, CurveClientKeys]:
+        channels = super()._child_curve_keys()
+        monitor_keys = self.parent.resource_monitor_curve_keys  # type: ignore[union-attr]
+        if monitor_keys is not None:
+            channels[MONITOR_CHANNEL] = monitor_keys
+        return channels
 
     def _proc_cmd(self) -> str:  # type: ignore[override]
         """Command to start child process."""
@@ -384,6 +392,12 @@ class RemotePool(Pool):
     def resource_monitor_address(self) -> Optional[str]:
         if self.parent.resource_monitor_server:  # type: ignore[union-attr]
             return self.parent.resource_monitor_server.address  # type: ignore[union-attr, no-any-return]
+        return None
+
+    @property
+    def resource_monitor_curve_keys(self) -> Optional[CurveClientKeys]:
+        if self.parent.resource_monitor_server:  # type: ignore[union-attr]
+            return self.parent.resource_monitor_server.client_keys  # type: ignore[union-attr, no-any-return]
         return None
 
     @staticmethod

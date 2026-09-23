@@ -12,7 +12,10 @@ import sys
 import threading
 import time
 import traceback
-from typing import Any, List, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
+
+if TYPE_CHECKING:
+    from testplan.common.utils.zmq_security import CurveClientKeys
 
 
 def parse_cmdline() -> argparse.Namespace:
@@ -336,13 +339,16 @@ class RemoteChildLoop(ChildLoop):
                 raise RuntimeError("Setup script exited with non 0 code.")
 
 
-def child_logic(args: argparse.Namespace) -> None:
+def child_logic(
+    args: argparse.Namespace, curve_keys: Dict[str, "CurveClientKeys"]
+) -> None:
     """Able to be imported child logic."""
 
     import psutil
     from testplan.runners.pools.base import Pool, Worker
     from testplan.runners.pools.process import ProcessPool, ProcessWorker
     from testplan.runners.pools.connection import ZMQClient
+    from testplan.common.utils.zmq_security import POOL_CHANNEL
 
     if args.log_level:
         from testplan.common.utils.logger import (
@@ -396,7 +402,11 @@ def child_logic(args: argparse.Namespace) -> None:
         def make_runpath_dirs(self) -> None:
             self._runpath = self.cfg.runpath
 
-    transport = ZMQClient(address=args.address, recv_timeout=30)
+    transport = ZMQClient(
+        address=args.address,
+        curve_keys=curve_keys[POOL_CHANNEL],
+        recv_timeout=30,
+    )
 
     if args.type == "process_worker":
         loop = ChildLoop(
@@ -484,16 +494,23 @@ if __name__ == "__main__":
         STDOUT_HANDLER,
     )
     from testplan.common.utils.observability import otel_logging, tracing
+    from testplan.common.utils.zmq_security import (
+        MONITOR_CHANNEL,
+        read_curve_keys,
+    )
+
+    CURVE_KEYS = read_curve_keys(sys.stdin.buffer)
 
     resource_monitor_client = None
     if ARGS.resource_monitor_server:
         from testplan.monitor.resource import ResourceMonitorClient
 
         resource_monitor_client = ResourceMonitorClient(
-            ARGS.resource_monitor_server
+            ARGS.resource_monitor_server,
+            curve_keys=CURVE_KEYS[MONITOR_CHANNEL],
         )
         resource_monitor_client.start()
-    child_logic(ARGS)
+    child_logic(ARGS, CURVE_KEYS)
     print("child.py exiting")
     tracing.force_flush()
     otel_logging.force_flush()

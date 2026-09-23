@@ -1,7 +1,10 @@
 """Unit test for process pool."""
 
 import os
+import io
 import platform
+from types import SimpleNamespace
+from unittest.mock import PropertyMock
 import psutil
 import pytest
 import time
@@ -10,11 +13,49 @@ import zmq
 
 from testplan.common.serialization import deserialize, serialize
 from testplan.common.utils import logger
+from testplan.common.utils.zmq_security import CurveServerKeys, read_curve_keys
 from testplan.runners.pools import communication, process, tasks
 from testplan.runners.pools.base import Worker
+from testplan.runners.pools.remote import RemoteWorker
 from testplan.testing.common import SkipStrategy
 
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
+
+
+@pytest.mark.parametrize("kind", ["process", "remote", "remote-monitor"])
+def test_worker_sends_keys_on_private_stdin(kind, tmp_path, mocker):
+    server = process.ZMQServer()
+    monitor_keys = (
+        CurveServerKeys().client_keys if kind == "remote-monitor" else None
+    )
+    worker = (
+        process.ProcessWorker(index="0")
+        if kind == "process"
+        else RemoteWorker(index="0", remote_host="localhost", workers=1)
+    )
+    worker.parent = SimpleNamespace(resource_monitor_curve_keys=monitor_keys)
+    worker.transport.connect(server)
+    mocker.patch.object(
+        worker, "_proc_cmd", return_value=["python", "child.py"]
+    )
+    mocker.patch.object(
+        type(worker),
+        "outfile",
+        new_callable=PropertyMock,
+        return_value=str(tmp_path / "child.log"),
+    )
+    stream = io.BytesIO()
+    popen = mocker.patch.object(process.subprocess, "Popen")
+    popen.return_value.stdin = stream
+    worker.starting()
+    stream.seek(0)
+    expected = {"pool": server.client_keys}
+    if monitor_keys is not None:
+        expected["resource_monitor"] = monitor_keys
+    assert read_curve_keys(stream) == expected
+    assert popen.call_args.args == (["python", "child.py"],)
+    assert "env" not in popen.call_args.kwargs
+    assert server.client_keys.client_secret not in repr(popen.call_args)
 
 
 @pytest.fixture
@@ -123,6 +164,7 @@ def test_pool_zmq_heartbeat_from_inactive_worker():
         ctx = zmq.Context()
         req = ctx.socket(zmq.REQ)
         req.RCVTIMEO = 2000
+        pool._conn.client_keys.configure(req)
         req.connect(f"tcp://{pool._conn.address}")
         try:
             worker._should_abort = True
