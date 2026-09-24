@@ -7,29 +7,111 @@ import warnings
 from collections import OrderedDict
 from dataclasses import dataclass
 from typing import (
+    Literal,
     Optional,
     Tuple,
     Union,
     Dict,
-    List,
     Sequence,
     Callable,
     Any,
 )
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
-
 
 from testplan.common.entity import Runnable
 from testplan.common.serialization import SelectiveSerializable
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import is_subdir, pwd, rebase_path
+from testplan.report import ReportCategories, TestCaseReport, TestGroupReport
+from testplan.testing.common import ALL_CASES, AllCaseSelection
 from testplan.testing.base import Test, TestResult
 from testplan.testing.multitest import MultiTest
+
+
+CaseSelection = AllCaseSelection | dict[str, AllCaseSelection | list[str]]
+
+
+# Worker snapshots always expand suite-level ALL_CASES into concrete case IDs.
+PlannedCases = AllCaseSelection | dict[str, list[str]]
+
+
+def collect_planned_cases(test: Test) -> PlannedCases:
+    """Capture execution IDs without constructing or modifying reports."""
+    if not isinstance(test, MultiTest):
+        return ALL_CASES
+    return {
+        suite.uid(): [case.__name__ for case in cases]
+        for suite, cases in test.test_context
+    }
+
+
+def unresolved_selection(
+    planned: PlannedCases,
+    report: TestGroupReport,
+) -> PlannedCases:
+    """Select failed/missing cases while retaining terminal case outcomes."""
+
+    def _case_reports(suite: TestGroupReport) -> dict[str, TestCaseReport]:
+        """Index expanded testcase reports without including lifecycle hooks."""
+        cases: dict[str, TestCaseReport] = {}
+        for entry in suite:
+            if (
+                isinstance(entry, TestCaseReport)
+                and entry.category == ReportCategories.TESTCASE
+            ):
+                cases[entry.uid] = entry
+            elif (
+                isinstance(entry, TestGroupReport)
+                and entry.category == ReportCategories.PARAMETRIZATION
+            ):
+                cases.update(_case_reports(entry))
+        return cases
+
+    if report.category != ReportCategories.MULTITEST:
+        return ALL_CASES
+    group_unresolved = report.failed or report.unknown
+    selection = {}
+    suites = {}
+    for suite in report:
+        if (
+            not isinstance(suite, TestGroupReport)
+            or suite.category != ReportCategories.TESTSUITE
+        ):
+            if suite.failed or suite.unknown:
+                return ALL_CASES
+            continue
+        if suite.strict_order:
+            return ALL_CASES
+        group_unresolved = group_unresolved or suite.failed or suite.unknown
+        if any(
+            entry.category == ReportCategories.SYNTHESIZED
+            and (entry.failed or entry.unknown)
+            for entry in suite
+        ):
+            return ALL_CASES
+        suites[suite.uid] = _case_reports(suite)
+
+    expected = (
+        planned
+        if isinstance(planned, dict)
+        else {uid: list(cases) for uid, cases in suites.items()}
+    )
+    has_terminal_case = False
+    for suite_id, case_ids in expected.items():
+        cases = suites.get(suite_id, {})
+        unresolved = []
+        for uid in case_ids:
+            case = cases.get(uid)
+            if case is None or case.failed or case.unknown:
+                unresolved.append(uid)
+            elif case.passed or case.xfailed or case.unstable:
+                # SKIPPED and XPASS also normalize to UNSTABLE.
+                has_terminal_case = True
+        if unresolved:
+            selection[suite_id] = unresolved
+    if not has_terminal_case and group_unresolved:
+        return ALL_CASES
+    return selection
 
 
 class TaskMaterializationError(Exception):
@@ -49,9 +131,16 @@ class Task(SelectiveSerializable):
     :param args: Args of target for task materialization.
     :param kwargs: Kwargs of target for task materialization.
     :param uid: Task uid.
-    :param rerun: Rerun the task up to user specified times until it passes,
-        by default 0 (no rerun). To enable task rerun feature, set to positive
-        value no greater than 3.
+    :param rerun: Deprecated alias for ``rerun_limit``. Use ``rerun_limit``
+        instead; do not supply both.
+    :param rerun_limit: Maximum additional attempts; None inherits the plan
+        default.
+    :param rerun_entire_task: Rerun the entire original selection when True,
+        or only unresolved cases (default). None inherits the plan default.
+    :param rerun_on_different_runner: Exclude workers on which this task has
+        failed. None inherits the plan default.
+    :param case_selection: ALL_CASES, or exact suite IDs mapped to ALL_CASES or lists
+        of testcase IDs. Applied after existing filters and partitioning.
     :param weight: Affects task scheduling - the larger the weight, the sooner
         task will be assigned to a worker. Default weight is 0, tasks with the
         same weight will be scheduled in the order they are added.
@@ -68,9 +157,13 @@ class Task(SelectiveSerializable):
         args: Optional[tuple] = None,
         kwargs: Optional[dict] = None,
         uid: Optional[str] = None,
-        rerun: int = 0,
+        rerun: int | None = None,
         weight: int = 0,
         part: Optional[Tuple[int, int]] = None,
+        rerun_limit: int | None = None,
+        rerun_entire_task: bool | None = None,
+        rerun_on_different_runner: bool | None = None,
+        case_selection: CaseSelection = ALL_CASES,
     ) -> None:
         self._target = target
         self._module = module
@@ -84,17 +177,34 @@ class Task(SelectiveSerializable):
         self._executors: Dict[str, Any] = OrderedDict()
         self.priority = -weight
 
-        if rerun < 0:
-            raise ValueError("Value of `rerun` cannot be negative.")
-        elif rerun > self.MAX_RERUN_LIMIT:
+        if rerun is not None and rerun_limit is not None:
+            raise ValueError("Specify only one of rerun and rerun_limit")
+        if rerun is not None:
             warnings.warn(
-                "Value of `rerun` cannot exceed {}".format(
-                    self.MAX_RERUN_LIMIT
-                )
+                "Task's rerun parameter is deprecated; use rerun_limit instead.",
+                FutureWarning,
+                stacklevel=2,
             )
-            self._max_rerun_limit = self.MAX_RERUN_LIMIT
-        else:
-            self._max_rerun_limit = rerun
+        limit = rerun if rerun is not None else rerun_limit
+        if limit is not None:
+            if type(limit) is not int or limit < 0:
+                raise ValueError("rerun_limit must be a nonnegative integer")
+            if limit > self.MAX_RERUN_LIMIT:
+                warnings.warn(
+                    f"Value of `rerun_limit` cannot exceed {self.MAX_RERUN_LIMIT}"
+                )
+                limit = self.MAX_RERUN_LIMIT
+        for value in (rerun_entire_task, rerun_on_different_runner):
+            if value is not None and type(value) is not bool:
+                raise ValueError("Rerun switches must be bool or None")
+        self._max_rerun_limit = limit
+        self._rerun_entire_task: bool | None = rerun_entire_task
+        self._rerun_on_different_runner: bool | None = (
+            rerun_on_different_runner
+        )
+        self._case_selection: CaseSelection = ALL_CASES
+        self.case_selection = case_selection
+        self._failed_runners: set[tuple[str, str]] = set()
 
         self._part = part
 
@@ -108,6 +218,42 @@ class Task(SelectiveSerializable):
             name = self._target
 
         return f"{self.__class__.__name__}[{name}(uid={self._uid})]"
+
+    @property
+    def case_selection(self) -> CaseSelection:
+        """Exact suite/case IDs, or ALL_CASES; intersected with existing selection."""
+        return self._case_selection
+
+    @case_selection.setter
+    def case_selection(self, value: Any) -> None:
+        if value is not ALL_CASES:
+            if not isinstance(value, dict) or any(
+                not isinstance(suite, str)
+                or not (
+                    cases is ALL_CASES
+                    or isinstance(cases, list)
+                    and all(isinstance(case, str) for case in cases)
+                )
+                for suite, cases in value.items()
+            ):
+                raise ValueError(
+                    "case_selection must be ALL_CASES or a mapping of suite IDs "
+                    "to ALL_CASES or lists of testcase IDs"
+                )
+        self._case_selection = copy.deepcopy(value)
+
+    def resolve_rerun_policy(self, config: Any) -> None:
+        """Resolve pool defaults once, preserving explicit task overrides."""
+        if self._max_rerun_limit is None:
+            self._max_rerun_limit = getattr(config, "rerun_limit", 0)
+        if self._rerun_entire_task is None:
+            self._rerun_entire_task = getattr(
+                config, "rerun_entire_task", False
+            )
+        if self._rerun_on_different_runner is None:
+            self._rerun_on_different_runner = getattr(
+                config, "rerun_on_different_runner", False
+            )
 
     @property
     def weight(self) -> int:
@@ -127,6 +273,8 @@ class Task(SelectiveSerializable):
             "_kwargs",
             "_module",
             "_uid",
+            "_case_selection",
+            "_part",
         )
 
     def uid(self) -> str:
@@ -154,7 +302,7 @@ class Task(SelectiveSerializable):
     @property
     def rerun_limit(self) -> int:
         """how many times the task is allowed to rerun."""
-        return self._max_rerun_limit
+        return self._max_rerun_limit or 0
 
     @property
     def rerun_cnt(self) -> int:
@@ -165,7 +313,7 @@ class Task(SelectiveSerializable):
     def rerun_cnt(self, value: int) -> None:
         if value < 0:
             raise ValueError("Value of `rerun_cnt` cannot be negative")
-        elif value > self._max_rerun_limit:
+        elif value > self.rerun_limit:
             raise ValueError(
                 f"Value of `rerun_cnt` cannot exceed {self._max_rerun_limit}"
             )
@@ -217,6 +365,17 @@ class Task(SelectiveSerializable):
                     f"Target {name} must have both `run` and `uid` methods"
                 )
             else:
+                if self.case_selection is not ALL_CASES:
+                    if not isinstance(target, MultiTest):
+                        raise TaskMaterializationError(
+                            "case_selection requires a MultiTest target"
+                        )
+                if isinstance(target, MultiTest):
+                    target._task_case_selection = copy.deepcopy(
+                        self.case_selection
+                    )
+                    target.reset_context()
+
                 # propagate part tuple from task to multitest
                 if isinstance(target, MultiTest) and self._part:
                     target.set_part(self._part)
@@ -288,6 +447,9 @@ class TaskResult(SelectiveSerializable):
     information that happened during task execution.
 
     May contain follow up tasks.
+
+    :param planned_cases: Actual suite/case IDs selected before execution,
+        or ALL_CASES when unavailable. Independent of mutable scheduling state.
     """
 
     def __init__(
@@ -297,12 +459,14 @@ class TaskResult(SelectiveSerializable):
         status: bool = False,
         reason: Optional[str] = None,
         follow: Optional[Task] = None,
+        planned_cases: PlannedCases = ALL_CASES,
     ):
         self._task: Optional[Task] = task
         self._result: Optional[TestResult] = result
         self._status: bool = status
         self._reason: Optional[str] = reason
         self._follow: Optional[Task] = follow
+        self.planned_cases = copy.deepcopy(planned_cases)
         self._uid: str = strings.uuid4()
 
     def uid(self) -> str:
@@ -336,7 +500,15 @@ class TaskResult(SelectiveSerializable):
 
     @property
     def serializable_attrs(self) -> Tuple:
-        return "_task", "_status", "_reason", "_result", "_follow", "_uid"
+        return (
+            "_task",
+            "_status",
+            "_reason",
+            "_result",
+            "_follow",
+            "_uid",
+            "planned_cases",
+        )
 
     def __str__(self) -> str:
         return "TaskResult[{}, {}]".format(self.status, self.reason)

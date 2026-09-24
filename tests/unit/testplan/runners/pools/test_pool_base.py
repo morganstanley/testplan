@@ -6,6 +6,7 @@ import random
 import time
 from unittest import mock
 
+import pytest
 import zmq
 
 from testplan import Task
@@ -379,3 +380,111 @@ def test_zmq_proxy_respond_after_disconnect_unwedges_real_rep():
         req.close()
         rep.close()
         ctx.destroy()
+
+
+def test_rerun_exclusion_does_not_block_other_tasks():
+    pool = pools_base.Pool(
+        name="MyPool", size=1, worker_type=ControllableWorker
+    )
+    pool.cfg.set_local("skip_strategy", SkipStrategy.noop())
+    with pool:
+        worker = pool._workers["0"]
+        blocked = Task(target=Runnable(5), rerun_on_different_runner=True)
+        blocked._failed_runners.add((pool.uid(), worker.uid()))
+        available = Task(target=Runnable(10))
+        pool.add(blocked, blocked.uid())
+        pool.add(available, available.uid())
+        msg = communication.Message(**worker.metadata)
+        response = worker.transport.send_and_receive(
+            msg.make(msg.TaskPullRequest, data=1)
+        )
+        assert response.cmd == msg.TaskSending
+        assert response.data == [available]
+        assert pool.unassigned.size() == 1
+        assert pool._task_reassign_cnt[blocked.uid()] == 0
+        assert blocked.rerun_cnt == 0
+
+
+@pytest.mark.parametrize("eligible", [False, True])
+def test_queued_rerun_after_worker_availability_changes(eligible):
+    from testplan import TestplanMock
+    from testplan.common.report import RuntimeStatus, Status
+    from testplan.report import (
+        ReportCategories,
+        TestCaseReport,
+        TestGroupReport,
+    )
+    from testplan.runners.pools.tasks import TaskResult
+    from testplan.testing.base import TestResult
+
+    plan = TestplanMock("rerun-report")
+    pool = pools_base.Pool(name="pool", size=2)
+    plan.add_resource(pool)
+    task = Task(
+        target=Runnable(5), rerun_limit=2, rerun_on_different_runner=True
+    )
+    uid = plan.schedule(task=task, resource="pool")
+    # Drive pool handlers directly, without worker threads or transport.
+    pool.status.change(pool.status.STARTING)
+    pool.status.change(pool.status.STARTED)
+    assert pool.unassigned.get()[1] == uid
+    worker = mock.Mock()
+    worker.uid.return_value = "first"
+    worker.host = "host"
+    worker.assigned = {uid}
+
+    report = TestGroupReport(
+        name="attempt", category=ReportCategories.MULTITEST
+    )
+    suite = TestGroupReport(name="suite", category=ReportCategories.TESTSUITE)
+    suite.append(TestCaseReport(name="case", status_override=Status.FAILED))
+    report.append(suite)
+    with report.timer.record("run"):
+        pass
+    result = TestResult()
+    result.run = True
+    result.report = report
+    failed = TaskResult(task=task, result=result, status=True)
+    message = communication.Message()
+    with mock.patch.object(pool, "_has_rerun_worker", return_value=True):
+        pool._handle_taskresults(
+            worker,
+            message.make(message.TaskResults, data=[failed]),
+            communication.Message(),
+        )
+    assert pool._pending_reruns == {uid}
+    assert task.rerun_cnt == 0
+    assert pool.unassigned.size() == 1
+    history = list(pool.results.values())
+    assert len(history) == 1
+    historical_report = history[0].result.report
+    before = historical_report.serialize()
+
+    worker.uid.return_value = "second"
+    with mock.patch.object(pool, "_has_rerun_worker", return_value=eligible):
+        pool._handle_taskpull_request(
+            worker,
+            message.make(message.TaskPullRequest, data=1),
+            communication.Message(),
+        )
+    assert not pool._pending_reruns
+    assert historical_report.serialize() == before
+    if eligible:
+        assert task.rerun_cnt == 1
+        assert uid not in pool.results
+        assert uid in worker.assigned
+        assert worker.respond.call_args.args[0].data == [task]
+    else:
+        assert task.rerun_cnt == 0
+        assert uid not in pool.ongoing
+        assert pool.unassigned.size() == 0
+        assert len(pool.results) == 2
+        final = pool.results[uid]
+        assert final is not failed
+        assert not final.status
+        assert not final.result.run
+        assert final.result.report.status == Status.INCOMPLETE
+        assert final.result.report.runtime_status == RuntimeStatus.NOT_RUN
+        assert not final.result.report.entries
+        assert not final.result.report.timer
+        assert "Rerun not started: no eligible runner remains" in final.reason
