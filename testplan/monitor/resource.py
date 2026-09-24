@@ -20,6 +20,7 @@ from testplan.common.utils.json import json_dumps, json_loads
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.logger import LOGFILE_FORMAT
 from testplan.common.utils.timing import wait
+from testplan.common.utils.zmq_security import CurveClientKeys, CurveServerKeys
 from testplan.runners.pools import communication
 from testplan.common.serialization.base import serialize, deserialize
 
@@ -114,6 +115,7 @@ class ResourceMonitorClient:
     def __init__(
         self,
         server_address: str,
+        curve_keys: CurveClientKeys,
         disk_path: Optional[str] = None,
         is_local: bool = False,
     ) -> None:
@@ -121,9 +123,11 @@ class ResourceMonitorClient:
         Client for collecting resource data and sending them to Resource Monitor Server.
 
         :param server_address: ZMQ binding address, e.g. tcp://127.0.0.1:8888.
+        :param curve_keys: Client credentials and pinned collector public key.
         :param disk_path: Directory to measure disk space.
         """
         self.server_address: str = server_address
+        self._curve_keys = curve_keys
         self.parent_pid: int = os.getpid()
         self.uid: Optional[str] = None
         self.cpu_count: int = 0
@@ -330,6 +334,8 @@ class ResourceMonitorClient:
         self.parent_process = psutil.Process(pid=self.parent_pid)
         self._zmq_context = zmq.Context()
         self.zmq_socket = self._zmq_context.socket(zmq.PUSH)
+        self.zmq_socket.linger = 0
+        self._curve_keys.configure(self.zmq_socket)
         self.zmq_socket.connect(self.server_address)
         self.send_metadata()
         start_time = time.time()
@@ -387,10 +393,15 @@ class ResourceMonitorServer:
         self.logger.setLevel(logging.INFO)
         self._zmq_context: Optional[zmq.asyncio.Context] = None
         self._zmq_socket: Optional[zmq.asyncio.Socket] = None
+        self._curve = CurveServerKeys()
 
     @property
     def address(self) -> str:
         return self._address
+
+    @property
+    def client_keys(self) -> CurveClientKeys:
+        return self._curve.client_keys
 
     async def handle_request(self, msg: bytes) -> None:
         message: communication.Message = deserialize(msg)
@@ -473,15 +484,27 @@ class ResourceMonitorServer:
 
         self._zmq_context = zmq.asyncio.Context()
         self._zmq_socket = self._zmq_context.socket(zmq.PULL)
-        self.collector_port = self._zmq_socket.bind_to_random_port(
-            "tcp://0.0.0.0"
-        )
-        shared_dict["collector_port"] = self.collector_port
-        self.logger.info("Resource monitor server started!")
-        self.logger.info(
-            "Listening port %d, PID: %d!", self.collector_port, os.getpid()
-        )
-        asyncio.run(self.collector_service())
+        self._zmq_socket.linger = 0
+        # Create the ZAP thread here, not in the parent before fork/spawn.
+        authenticator = None
+        try:
+            authenticator = self._curve.start(self._zmq_socket)
+            self.collector_port = self._zmq_socket.bind_to_random_port(
+                "tcp://0.0.0.0"
+            )
+            shared_dict["collector_port"] = self.collector_port
+            self.logger.info("Resource monitor server started!")
+            self.logger.info(
+                "Listening port %d, PID: %d!", self.collector_port, os.getpid()
+            )
+            asyncio.run(self.collector_service())
+        finally:
+            self._zmq_socket.close()
+            if authenticator is not None:
+                authenticator.stop()
+            self._zmq_context.term()
+            self.logger.removeHandler(fhandler)
+            fhandler.close()
 
     def normalize_data(self, client_id: str) -> Optional[Dict[str, Any]]:
         try:
