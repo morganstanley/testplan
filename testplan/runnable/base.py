@@ -1482,7 +1482,9 @@ class TestRunner(Runnable):
             )
             self.resource_monitor_server.start()
             self.resource_monitor_client = ResourceMonitorClient(
-                self.resource_monitor_server.address, is_local=True
+                self.resource_monitor_server.address,
+                curve_keys=self.resource_monitor_server.client_keys,
+                is_local=True,
             )
             self.resource_monitor_client.start()
 

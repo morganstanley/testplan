@@ -1,13 +1,22 @@
 import csv
 import dataclasses
 import json
+import multiprocessing
 import os
 import socket
+import subprocess
+import sys
 import typing
 
 import psutil
+import pytest
+import zmq
 
 from pytest_test_filters import skip_on_windows
+from testplan.common.serialization import serialize
+from testplan.common.utils.zmq_security import CurveServerKeys
+from testplan.monitor import resource
+from testplan.runners.pools.communication import Message
 from testplan.monitor.resource import (
     ResourceMonitorServer,
     ResourceMonitorClient,
@@ -47,12 +56,15 @@ def test_resource(runpath):
     current_pid = os.getpid()
     print(f"Current PID: {current_pid}")
     server = ResourceMonitorServer(file_directory=runpath, detailed=True)
+    server.collector_server = "127.0.0.1"
     assert server.address == ""
     server.start()
     assert server.address != ""
     assert server.file_directory.exists()
 
-    client = _ProbeResourceMonitorClient(server_address=server.address)
+    client = _ProbeResourceMonitorClient(
+        server_address=server.address, curve_keys=server.client_keys
+    )
     assert client.uid
     assert client.disk_size
     client.poll_interval = 5
@@ -148,3 +160,76 @@ def test_resource(runpath):
 
     client.stop()
     server.stop()
+
+
+@pytest.mark.parametrize(
+    "start_method", multiprocessing.get_all_start_methods()
+)
+def test_curve_monitor_rejects_outsiders(tmp_path, start_method):
+    # spawn/forkserver leave interpreter-wide helper processes alive until
+    # exit. Isolate them so later process-cleanup tests see no extra children.
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from pathlib import Path; import sys; "
+            "from tests.functional.testplan.test_resource_monitor import "
+            "_check_curve_monitor_rejects_outsiders; "
+            "_check_curve_monitor_rejects_outsiders("
+            "Path(sys.argv[1]), sys.argv[2])",
+            str(tmp_path),
+            start_method,
+        ],
+        env={**os.environ, "PYTHONPATH": os.pathsep.join(sys.path)},
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def _check_curve_monitor_rejects_outsiders(tmp_path, start_method):
+    """Exercise real collector/client processes, including spawn/forkserver."""
+    resource.multiprocessing = multiprocessing.get_context(start_method)
+    server = ResourceMonitorServer(tmp_path)
+    server.collector_server = "127.0.0.1"
+    client = None
+    context = zmq.Context()
+    sockets = []
+    try:
+        server.start(timeout=15)
+        for identity in (None, CurveServerKeys().client_keys):
+            rogue = context.socket(zmq.PUSH)
+            rogue.linger = 0
+            sockets.append(rogue)
+            if identity is not None:
+                dataclasses.replace(
+                    identity, server_public=server.client_keys.server_public
+                ).configure(rogue)
+            rogue.connect(server.address)
+            rogue.send(
+                serialize(
+                    Message(uid="intruder").make(
+                        Message.Metadata, {"hostname": "forged"}
+                    )
+                )
+            )
+
+        client = ResourceMonitorClient(server.address, server.client_keys)
+        client.start()
+        metadata = tmp_path / f"{slugify(client.uid)}.meta"
+        samples = tmp_path / f"{slugify(client.uid)}.csv"
+        wait(
+            lambda: samples.exists() and samples.stat().st_size > 0, timeout=15
+        )
+        assert json.loads(metadata.read_text())["hostname"] == client.hostname
+        assert not (tmp_path / "intruder.meta").exists()
+        assert server._server_process.is_alive()
+        assert client._monitor_worker.is_alive()
+    finally:
+        if client is not None:
+            client.stop()
+        server.stop()
+        for sock in sockets:
+            sock.close()
+        context.term()
