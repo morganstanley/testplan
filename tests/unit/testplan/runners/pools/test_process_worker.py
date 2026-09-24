@@ -22,6 +22,14 @@ from testplan.testing.common import SkipStrategy
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
 
 
+def test_worker_requires_curve_keys():
+    worker = process.ProcessWorker(index="0")
+    with pytest.raises(
+        RuntimeError, match="^Worker transport requires CURVE credentials$"
+    ):
+        worker._child_curve_keys()
+
+
 @pytest.mark.parametrize("kind", ["process", "remote", "remote-monitor"])
 def test_worker_sends_keys_on_private_stdin(kind, tmp_path, mocker):
     server = process.ZMQServer()

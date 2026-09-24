@@ -128,7 +128,8 @@ class ProcessWorker(Worker):
     def _child_curve_keys(self) -> Dict[str, CurveClientKeys]:
         """Collect channel credentials for the child bootstrap."""
         transport = cast(ZMQClientProxy, self.transport)
-        assert transport.curve_keys is not None
+        if transport.curve_keys is None:
+            raise RuntimeError("Worker transport requires CURVE credentials")
         return {POOL_CHANNEL: transport.curve_keys}
 
     def _wait_started(self, timeout: Optional[float] = None) -> None:
