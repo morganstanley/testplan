@@ -3,6 +3,7 @@ Unit tests for the testplan.common.serialization.fields module.
 """
 
 import pytest
+import re
 
 from testplan.common.serialization import fields
 
@@ -163,3 +164,40 @@ class TestNativeOrPformat:
     def test_bool_is_not_treated_as_int(self):
         assert fields.native_or_pformat(True) is True
         assert fields.native_or_pformat(False) is False
+
+
+class TestNativeOrText:
+    """Tests for ``fields.native_or_text``."""
+
+    def test_preserves_primitives_and_formats_known_types(self):
+        def my_order():
+            pass
+
+        assert fields.native_or_text(1000) == 1000
+        assert fields.native_or_text(True) is True
+        assert fields.native_or_text(None) is None
+        assert fields.native_or_text(re.compile("a.*b")) == "REGEX(a.*b)"
+        assert fields.native_or_text(my_order) == "my_order"
+
+    def test_renders_complex_values_as_text(self):
+        assert fields.native_or_text({"a": [1, 2]}) == "{'a': [1, 2]}"
+        assert fields.native_or_text({"third", "first", "second"}) == (
+            "['first', 'second', 'third']"
+        )
+
+    def test_handles_recursive_and_broken_values(self):
+        class BrokenString:
+            def __str__(self):
+                raise RuntimeError("cannot render")
+
+        recursive = []
+        recursive.append(recursive)
+
+        assert fields.native_or_text(recursive) == "[[...]]"
+        assert fields.native_or_text(BrokenString()) == "<BrokenString>"
+
+    def test_truncation_is_idempotent(self):
+        result = fields.native_or_text("x" * 2000)
+
+        assert result == "x" * 1000 + "..."
+        assert fields.native_or_text(result) == result

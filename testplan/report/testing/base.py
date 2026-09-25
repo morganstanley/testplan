@@ -41,7 +41,6 @@ We will have a report tree like:
 
 import copy
 import getpass
-import hashlib
 import itertools
 import platform
 import re
@@ -61,6 +60,7 @@ from testplan.common.report import (
     Status,
 )
 from testplan.common.report.base import ExceptionLoggerBase
+from testplan.common.serialization.fields import native_or_text
 from testplan.common.utils.timing import iana_tz
 from testplan.testing import tagging
 from testplan.testing.common import TEST_PART_PATTERN_FORMAT_STRING
@@ -524,6 +524,7 @@ class TestCaseReport(Report):
         name: str,
         tags: Optional[Union[Dict[str, Any], str]] = None,
         category: str = ReportCategories.TESTCASE,
+        parametrization_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         super(TestCaseReport, self).__init__(name=name, **kwargs)
@@ -533,6 +534,14 @@ class TestCaseReport(Report):
         self.attachments: List[Any] = []
         self.category = category
         self.covered_lines: Optional[dict] = None
+        self.parametrization_kwargs = (
+            {
+                key: native_or_text(value)
+                for key, value in parametrization_kwargs.items()
+            }
+            if parametrization_kwargs
+            else None
+        )
 
     def _get_comparison_attrs(self) -> List[str]:
         return super(TestCaseReport, self)._get_comparison_attrs() + [

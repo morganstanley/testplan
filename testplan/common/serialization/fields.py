@@ -7,7 +7,17 @@ import math
 import pprint
 
 from datetime import timezone, datetime
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 from boltons.iterutils import is_scalar, remap
 from lxml import etree
@@ -24,6 +34,7 @@ JSON_SAFE_SCALARS = (bool, type(None), str)
 # orjson's native int range; outside this it raises
 _INT64_MIN = -(2**63)
 _UINT64_MAX = 2**64 - 1
+_MAX_TEXT_LENGTH = 1000
 
 # pylint: disable=unused-argument
 
@@ -140,7 +151,9 @@ def _repr_obj(obj: object) -> str:
         return object.__repr__(obj)
 
 
-def native_or_pformat(value: Any) -> Any:
+def native_or_pformat(
+    value: Any, formatter: Callable[[Any], Any] = pprint.pformat
+) -> Any:
     """Generic serialization compatible value formatter."""
     if comparison.is_regex(value):
         value = "REGEX({})".format(value.pattern)
@@ -159,8 +172,21 @@ def native_or_pformat(value: Any) -> Any:
     elif type(value) in JSON_SAFE_SCALARS:
         result = value
     else:
-        result = pprint.pformat(value)
+        result = formatter(value)
 
+    return result
+
+
+def native_or_text(value: Any) -> Any:
+    """Preserve primitive values and render other values as bounded text."""
+    try:
+        if isinstance(value, (set, frozenset)):
+            value = sorted(value, key=repr)
+        result = native_or_pformat(value, formatter=str)
+    except Exception:  # pylint: disable=broad-except
+        return "<{}>".format(type(value).__name__)
+    if isinstance(result, str) and len(result) > _MAX_TEXT_LENGTH:
+        return result[:_MAX_TEXT_LENGTH] + "..."
     return result
 
 
