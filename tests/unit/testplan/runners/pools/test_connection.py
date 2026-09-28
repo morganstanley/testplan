@@ -124,7 +124,9 @@ def test_bind_failure_closes_authenticator(server):
     assert other.sock is None
 
 
-@pytest.mark.parametrize("prefix", [b"", b"y\n"])
+@pytest.mark.parametrize(
+    "prefix", [b"", b"y\n"], ids=["no-prefix", "confirmation-prefix"]
+)
 def test_bootstrap_roundtrip_without_server_secret(prefix):
     pool, monitor = CurveServerKeys(), CurveServerKeys()
     channels = {
@@ -149,6 +151,13 @@ def test_bootstrap_roundtrip_without_server_secret(prefix):
         b"TESTPLAN_CURVE secret-not-json\n",
         b"TESTPLAN_CURVE []\n",
         b'TESTPLAN_CURVE {"pool": {"client_secret": "exposed-secret"}}\n',
+    ],
+    ids=[
+        "empty",
+        "confirmation-only",
+        "invalid-json",
+        "array",
+        "missing-keys",
     ],
 )
 def test_invalid_bootstrap_fails_without_disclosing_keys(payload):
