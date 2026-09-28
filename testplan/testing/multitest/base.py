@@ -771,6 +771,9 @@ class MultiTest(testing_base.Test):
             definition_name=testcase.name,
             uid=testcase.__name__,
             tags=testcase.__tags__,
+            parametrization_kwargs=getattr(
+                testcase, "_parametrization_kwargs", None
+            ),
         )
 
     def _new_parametrized_group_report(
