@@ -2,6 +2,8 @@
 
 import dataclasses
 import io
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 
 import pytest
@@ -26,11 +28,44 @@ def server():
     srv.stop()
 
 
+@pytest.fixture
+def deserialize_spy(mocker):
+    # A pool worker running these tests also deserializes heartbeat replies.
+    # The test's accept()/receive() calls all run on this thread.
+    owner = threading.get_ident()
+    original = connection.deserialize
+    spy = mocker.Mock(wraps=original)
+
+    def deserialize(data):
+        if threading.get_ident() == owner:
+            return spy(data)
+        return original(data)
+
+    mocker.patch.object(connection, "deserialize", new=deserialize)
+    return spy
+
+
+def test_deserialize_spy_ignores_background_traffic(deserialize_spy):
+    background = connection.serialize(Message().make(Message.Ack, 17))
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        reply = executor.submit(connection.deserialize, background).result()
+    assert reply.cmd == Message.Ack
+    assert reply.data == 17
+    deserialize_spy.assert_not_called()
+
+    foreground = connection.serialize(Message().make(Message.Heartbeat, 29))
+    request = connection.deserialize(foreground)
+    assert request.cmd == Message.Heartbeat
+    assert request.data == 29
+    deserialize_spy.assert_called_once_with(foreground)
+
+
 @pytest.mark.parametrize(
     "intruder", ["plaintext", "wrong-client", "wrong-pin"]
 )
-def test_rejects_intruders_before_deserialization(server, intruder, mocker):
-    spy = mocker.spy(connection, "deserialize")
+def test_rejects_intruders_before_deserialization(
+    server, intruder, deserialize_spy
+):
     context = zmq.Context()
     rogue = context.socket(zmq.REQ)
     rogue.linger = 0
@@ -59,7 +94,7 @@ def test_rejects_intruders_before_deserialization(server, intruder, mocker):
         event = recv_monitor_message(monitor)["event"]
         assert event != zmq.EVENT_HANDSHAKE_SUCCEEDED
         assert server.accept() is None
-        spy.assert_not_called()
+        deserialize_spy.assert_not_called()
 
         client = connection.ZMQClient(server.address, server.client_keys)
         for value in (17, 29):
@@ -74,7 +109,7 @@ def test_rejects_intruders_before_deserialization(server, intruder, mocker):
             reply = client.receive()
             assert reply.cmd == Message.Ack
             assert reply.data == value + 1
-        assert spy.call_count == 4
+        assert deserialize_spy.call_count == 4
     finally:
         if client is not None:
             client.disconnect()
@@ -84,8 +119,7 @@ def test_rejects_intruders_before_deserialization(server, intruder, mocker):
         context.term()
 
 
-def test_client_rejects_impostor_server(server, mocker):
-    spy = mocker.spy(connection, "deserialize")
+def test_client_rejects_impostor_server(server, deserialize_spy):
     # Correct client identity but the public key of a different server.
     keys = dataclasses.replace(
         server.client_keys,
@@ -96,7 +130,7 @@ def test_client_rejects_impostor_server(server, mocker):
         client.send(Message(index="worker").make(Message.Heartbeat))
         assert client.receive() is None
         assert server.accept() is None
-        spy.assert_not_called()
+        deserialize_spy.assert_not_called()
     finally:
         client.disconnect()
 
