@@ -55,7 +55,46 @@ class DummyResource(Resource):
         super()._wait_stopped(timeout)
 
 
+class AlwaysAsyncResource(DummyResource):
+    @property
+    def async_start(self):
+        return True
+
+
 class TestConcurrentResourceOps:
+    @pytest.mark.parametrize(
+        "resource_type", [DummyResource, AlwaysAsyncResource]
+    )
+    @pytest.mark.parametrize(
+        "status", [None, "STARTED", "STOPPING", "STOPPED"]
+    )
+    def test_stop_async_resource_in_pool(
+        self, environment, mocker, resource_type, status
+    ):
+        post_stop = mocker.Mock()
+        resource = resource_type(async_start=True, post_stop=post_stop)
+        environment.add(resource)
+        if status is not None:
+            resource.start()
+            resource.wait(resource.STATUS.STARTED)
+        if status in ("STOPPING", "STOPPED"):
+            resource.stop()
+        if status == "STOPPED":
+            resource.wait(resource.STATUS.STOPPED)
+
+        with mp.ThreadPool(5) as pool:
+            environment.stop_in_pool(pool, timeout=2)
+            environment.stop_in_pool(pool, timeout=2)
+
+        assert not environment.stop_exceptions
+        assert resource.cfg.async_start is True
+        if status is None:
+            assert resource.status == resource.STATUS.NONE
+            post_stop.assert_not_called()
+        else:
+            assert resource.status == resource.STATUS.STOPPED
+            post_stop.assert_called_once_with(resource)
+
     def test_basic(self, environment, pool, mocker):
         pre, post = mocker.Mock(), mocker.Mock()
         environment.add(

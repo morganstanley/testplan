@@ -405,7 +405,7 @@ def child_logic(
     transport = ZMQClient(
         address=args.address,
         curve_keys=curve_keys[POOL_CHANNEL],
-        recv_timeout=30,
+        recv_timeout=60,
     )
 
     if args.type == "process_worker":
