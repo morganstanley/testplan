@@ -1,0 +1,1 @@
+Added an Extended Search button for filtering and navigating parametrized testcase permutations in reports.

@@ -183,7 +183,7 @@ def test_curve_monitor_rejects_outsiders(tmp_path, start_method):
         env={**os.environ, "PYTHONPATH": os.pathsep.join(sys.path)},
         capture_output=True,
         text=True,
-        timeout=60,
+        timeout=180,
     )
     assert result.returncode == 0, result.stdout + result.stderr
 
@@ -197,7 +197,7 @@ def _check_curve_monitor_rejects_outsiders(tmp_path, start_method):
     context = zmq.Context()
     sockets = []
     try:
-        server.start(timeout=15)
+        server.start(timeout=60)
         for identity in (None, CurveServerKeys().client_keys):
             rogue = context.socket(zmq.PUSH)
             rogue.linger = 0
@@ -219,8 +219,16 @@ def _check_curve_monitor_rejects_outsiders(tmp_path, start_method):
         client.start()
         metadata = tmp_path / f"{slugify(client.uid)}.meta"
         samples = tmp_path / f"{slugify(client.uid)}.csv"
-        wait(
-            lambda: samples.exists() and samples.stat().st_size > 0, timeout=15
+        # Allow for spawned interpreter startup as well as two sampling polls.
+        assert wait(
+            lambda: samples.exists() and samples.stat().st_size > 0,
+            timeout=60,
+            raise_on_timeout=False,
+        ), (
+            f"Collector exit code: {server._server_process.exitcode}; "
+            f"client exit code: {client._monitor_worker.exitcode}; "
+            f"metadata received: {metadata.exists()}\n"
+            + (tmp_path / "resource.log").read_text(encoding="utf-8")
         )
         assert json.loads(metadata.read_text())["hostname"] == client.hostname
         assert not (tmp_path / "intruder.meta").exists()
