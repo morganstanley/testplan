@@ -114,6 +114,34 @@ class TestplanParser:
         )
 
         general_group.add_argument(
+            "--rerun-limit",
+            type=int,
+            choices=range(4),
+            default=self._default_options.get("rerun_limit", 0),
+            help="Maximum additional runs for pool tasks (default: %(default)s).",
+        )
+        general_group.add_argument(
+            "--rerun-entire-task",
+            action=argparse.BooleanOptionalAction,
+            default=self._default_options.get("rerun_entire_task", False),
+            help="Rerun all originally selected cases in a pool task. "
+            "When disabled, rerun only failed or unexecuted cases where "
+            "supported. Existing filters still apply. Default: %(default)s. "
+            "Explicit Task settings take precedence.",
+        )
+        general_group.add_argument(
+            "--rerun-on-different-runner",
+            action=argparse.BooleanOptionalAction,
+            default=self._default_options.get(
+                "rerun_on_different_runner", False
+            ),
+            help="Rerun a pool task only on workers where it has not failed. "
+            "If no eligible worker remains, stop rerunning even if the rerun "
+            "limit has not been reached. Default: %(default)s. "
+            "Explicit Task settings take precedence.",
+        )
+
+        general_group.add_argument(
             "--timeout",
             metavar="TIMEOUT",
             default=self._default_options["timeout"],

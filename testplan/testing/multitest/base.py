@@ -6,6 +6,7 @@ import functools
 import itertools
 import warnings
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -38,6 +39,7 @@ from testplan.testing import base as testing_base
 from testplan.testing import filtering, result, tagging
 from testplan.testing.base import TestLifecycle
 from testplan.testing.common import (
+    ALL_CASES,
     TEST_PART_PATTERN_FORMAT_STRING,
     SkipStrategy,
 )
@@ -50,6 +52,10 @@ from testplan.testing.multitest.suite import (
 from testplan.testing.multitest.test_metadata import TestMetadata
 from testplan.testing.ordering import TypedSorter
 from testplan.testing.result import report_target
+
+
+if TYPE_CHECKING:
+    from testplan.runners.pools.tasks.base import CaseSelection
 
 
 def iterable_suites(obj: Any) -> List[Any]:
@@ -297,6 +303,8 @@ class MultiTest(testing_base.Test):
         filtering.FilterLevel.TESTCASE,
     ]
 
+    _task_case_selection: "CaseSelection" = ALL_CASES
+
     def __init__(
         self,
         name: str,
@@ -467,8 +475,22 @@ class MultiTest(testing_base.Test):
                 ofst = (ofst + len(cases)) % denom
                 if cases_:
                     ctx_.append((suite, cases_))
-            return ctx_
+            ctx = ctx_
 
+        selection = self._task_case_selection
+        if isinstance(selection, dict):
+            selected = []
+            for suite, cases in ctx:
+                case_ids = selection.get(suite.uid(), [])
+                cases = [
+                    case
+                    for case in cases
+                    if not isinstance(case_ids, list)
+                    or case.__name__ in case_ids
+                ]
+                if cases:
+                    selected.append((suite, cases))
+            ctx = selected
         return ctx
 
     def _dry_run_testsuites(self) -> None:

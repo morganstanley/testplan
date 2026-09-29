@@ -314,6 +314,11 @@ Example Testplan initialization where all input parameters
 Command line
 ============
 
+The ``--rerun-*`` options apply to pool tasks; ``LocalRunner`` does not rerun
+tests. Defaults below are the framework defaults and may be overridden by
+``Testplan`` or ``@test_plan`` parameters. See :ref:`Pools` for rerun behavior
+and per-task overrides.
+
     Arguments can be provided in a ``test_plan.py`` application:
 
     Information:
@@ -334,6 +339,12 @@ Command line
     General:
       --runpath             Directory path under which all temp files and logs will be created.
       --archive-runpath     Archive the runpath directory after test execution if test fails or timeout.
+      --rerun-limit {0,1,2,3}
+                            Maximum additional runs for pool tasks (default: 0).
+      --rerun-entire-task, --no-rerun-entire-task
+                            Rerun all originally selected cases in a pool task. When disabled, rerun only failed or unexecuted cases where supported. Existing filters still apply. Default: False. Explicit Task settings take precedence.
+      --rerun-on-different-runner, --no-rerun-on-different-runner
+                            Rerun a pool task only on workers where it has not failed. If no eligible worker remains, stop rerunning even if the rerun limit has not been reached. Default: False. Explicit Task settings take precedence.
       --timeout             Expiry timeout on test execution.
       -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
       --pre-start-environments     Enable pre-start of environments in interactive mode. MultiTest names are to be passed as whitespace separated list of strings. Defaults to no pre-start.

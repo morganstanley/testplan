@@ -16,6 +16,17 @@ TEST_PART_PATTERN_REGEX = re.compile(
 )
 
 
+class AllCaseSelection:
+    """Marker selecting every case within the existing filters."""
+
+    def __reduce__(self) -> str:
+        # Copying and serialization resolve back to the module singleton.
+        return "ALL_CASES"
+
+
+ALL_CASES = AllCaseSelection()
+
+
 class _SkipStrategyOffset(IntEnum):
     NONE = auto()  # empty
     CASES = auto()
