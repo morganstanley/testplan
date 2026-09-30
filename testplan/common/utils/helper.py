@@ -97,13 +97,13 @@ class DriverLogCollector:
                 )
 
 
-def get_hardware_info() -> Dict:
+def get_hardware_info() -> dict[str, Any]:
     """
     Return a variety of host hardware information.
 
     :return: dictionary of hardware information
     """
-    data = {
+    data: dict[str, Any] = {
         "CPU count": psutil.cpu_count(),
         "CPU frequence": str(psutil.cpu_freq()),
         "CPU percent": psutil.cpu_percent(interval=1, percpu=True),
@@ -114,7 +114,11 @@ def get_hardware_info() -> Dict:
         "PID": os.getpid(),
     }
 
-    load_avg = ("N/A", "N/A", "N/A")
+    load_avg: tuple[float | str, float | str, float | str] = (
+        "N/A",
+        "N/A",
+        "N/A",
+    )
     try:
         load_avg = psutil.getloadavg()
     except Exception as exc:

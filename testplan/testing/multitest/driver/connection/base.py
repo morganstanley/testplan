@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Set, DefaultDict
+from typing import DefaultDict, List, Set
 from collections import defaultdict
 
 
@@ -12,7 +12,7 @@ class Direction(Enum):
 @dataclass
 class BaseConnectionInfo:
     protocol: str  # tcp, udp, file
-    identifier: str
+    identifier: str | int
     direction: Direction
 
     @property

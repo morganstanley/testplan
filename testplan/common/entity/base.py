@@ -556,7 +556,7 @@ class EntityConfig(Config):
             ConfigOption("path_cleanup", default=False): bool,
             ConfigOption("status_wait_timeout", default=600): int,
             ConfigOption("abort_wait_timeout", default=300): int,
-            ConfigOption("active_loop_sleep", default=0.005): float,
+            ConfigOption("active_loop_sleep", default=0.01): float,
         }
 
 
