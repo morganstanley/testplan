@@ -1,0 +1,1 @@
+Report output normalization is now scoped to the specific fields that need it, instead of a full recursive sweep at the end of the run.

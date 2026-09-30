@@ -22,6 +22,7 @@ import AssertionGroup from "./AssertionGroup";
 import { BASIC_ASSERTION_TYPES } from "../Common/defaults";
 import XYGraphAssertion from "./AssertionTypes/GraphAssertions/XYGraphAssertion";
 import DiscreteChartAssertion from "./AssertionTypes/GraphAssertions/DiscreteChartAssertion";
+import TimelineChartAssertion from "./AssertionTypes/GraphAssertions/TimelineChartAssertion";
 import SummaryBaseAssertion from "./AssertionSummary";
 import AttachmentAssertion from "./AssertionTypes/AttachmentAssertions";
 import PlotlyAssertion from "./AssertionTypes/PlotlyAssertion";
@@ -59,7 +60,9 @@ function Assertion({
    */
   const assertionComponent = (assertionType) => {
     let graphAssertion;
-    if (assertion.discrete_chart) {
+    if (assertion.graph_type === "Timeline") {
+      graphAssertion = TimelineChartAssertion;
+    } else if (assertion.discrete_chart) {
       graphAssertion = DiscreteChartAssertion;
     } else {
       graphAssertion = XYGraphAssertion;

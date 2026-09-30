@@ -252,6 +252,11 @@ class TestRunnerConfig(RunnableConfig):
                 None, listing.BaseLister, listing.MetadataBasedLister
             ),
             ConfigOption("test_lister_output", default=None): Or(str, None),
+            ConfigOption("rerun_limit", default=0): And(
+                int, lambda value: 0 <= value <= Task.MAX_RERUN_LIMIT
+            ),
+            ConfigOption("rerun_entire_task", default=False): bool,
+            ConfigOption("rerun_on_different_runner", default=False): bool,
             ConfigOption("verbose", default=False): bool,
             ConfigOption("debug", default=False): bool,
             ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
@@ -1477,7 +1482,9 @@ class TestRunner(Runnable):
             )
             self.resource_monitor_server.start()
             self.resource_monitor_client = ResourceMonitorClient(
-                self.resource_monitor_server.address, is_local=True
+                self.resource_monitor_server.address,
+                curve_keys=self.resource_monitor_server.client_keys,
+                is_local=True,
             )
             self.resource_monitor_client.start()
 

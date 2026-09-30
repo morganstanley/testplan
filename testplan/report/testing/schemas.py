@@ -1,10 +1,8 @@
 """Schema classes for test Reports."""
 
 import functools
-import math
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-from boltons.iterutils import is_scalar, remap
 from marshmallow import Schema, fields, post_load, post_dump, pre_load
 from marshmallow.utils import EXCLUDE
 
@@ -18,7 +16,6 @@ from testplan.common.report.schemas import (
 )
 from testplan.common.serialization import fields as custom_fields
 from testplan.common.serialization.schemas import load_tree_data
-from testplan.common.utils.json import json_dumps
 from testplan.report.testing.base import (
     TestCaseReport,
     TestGroupReport,
@@ -56,58 +53,26 @@ class TagField(fields.Field):
         }
 
 
-class EntriesField(fields.Field):
-    """
-    Handle encoding problems gracefully
-    """
-
-    @staticmethod
-    def _json_serializable(v: Any) -> bool:
-        try:
-            json_dumps(v)
-        except (UnicodeDecodeError, TypeError):
-            return False
-        else:
-            return True
-
-    def _serialize(
-        self, value: Any, attr: Any, obj: Any, **kwargs: Any
-    ) -> Any:
-        # we don't need a _deserialize() here as we don't (and can't)
-        # convert str back to non-json-serializable.
-        def visit(
-            parent: Any, key: Any, _value: Any
-        ) -> Union[bool, Tuple[Any, Any]]:
-            """
-            return
-                True - keep the node unchange
-                False - remove the node
-                tuple - update the node data.
-            """
-            if is_scalar(_value):
-                if isinstance(_value, float):
-                    if math.isnan(_value):
-                        return key, "NaN"
-                    elif math.isinf(_value):
-                        if _value > 0:
-                            return key, "Infinity"
-                        return key, "-Infinity"
-                elif not self._json_serializable(_value):
-                    return key, str(_value)
-            return True
-
-        return remap(value, visit=visit)
-
-
 class TestCaseReportSchema(ReportSchema):
     """Schema for ``testing.TestCaseReport``"""
 
     source_class = TestCaseReport  # type: ignore[assignment]
 
-    entries = fields.List(EntriesField())
+    # entries are already normalized for JSON-safety when each assertion is dumped
+    entries = fields.List(fields.Raw())
     category = fields.String()
     counter = fields.Dict(dump_only=True)
     tags = TagField()
+    parametrization_kwargs = fields.Dict(allow_none=True)
+
+    @post_dump
+    def strip_empty_parametrization_kwargs(
+        self, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
+        """Omit parametrization data from ordinary testcase reports."""
+        if data.get("parametrization_kwargs") is None:
+            data.pop("parametrization_kwargs", None)
+        return data
 
     @post_load
     def make_report(

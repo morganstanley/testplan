@@ -71,44 +71,41 @@ function _mergeTags(tagsA, tagsB) {
  * @private
  */
 const _mergeCounters = (parts) => {
-  return parts.reduce(
-    (acc, part) => ({
-      passed: acc.passed + part.counter.passed,
-      failed: acc.failed + part.counter.failed,
-      total: acc.total + part.counter.total,
-      error: acc.error + (part.counter.error || 0),
-      xpass: acc.xpass + (part.counter.xpass || 0),
-      xfail: acc.xfail + (part.counter.xfail || 0),
-      skipped: acc.skipped + (part.counter.skipped || 0),
-      "xpass-strict":
-        acc["xpass-strict"] + (part.counter["xpass-strict"] || 0),
-    }),
-    {
-      passed: 0,
-      failed: 0,
-      total: 0,
-      error: 0,
-      xpass: 0,
-      xfail: 0,
-      skipped: 0,
-      "xpass-strict": 0,
+  const merged = { passed: 0, failed: 0, total: 0 };
+  for (const part of parts) {
+    for (const [key, value] of Object.entries(part.counter || {})) {
+      if (typeof value === "number") {
+        merged[key] = (merged[key] || 0) + value;
+      }
     }
-  );
+  }
+  return merged;
 };
+
+const STATUS_PRECEDENCE = [
+  "error",
+  "incomplete",
+  "xpass-strict",
+  "failed",
+  "unknown",
+  "xfail",
+  "passed",
+  "skipped",
+  "xpass",
+  "unstable",
+];
 
 /**
  * Compute combined status from multiple report entries.
- * Priority: error > failed > passed > unknown
  *
  * @param {Array} parts - Array of report entries.
  * @returns {string} - Combined status.
  * @private
  */
 const _mergeStatus = (parts) => {
-  const statuses = parts.map((p) => p.status);
-  if (statuses.includes("error")) return "error";
-  if (statuses.includes("failed")) return "failed";
-  if (statuses.includes("passed")) return "passed";
+  for (const status of STATUS_PRECEDENCE) {
+    if (parts.some((p) => p.status === status)) return status;
+  }
   return "unknown";
 };
 
@@ -135,65 +132,55 @@ const _mergeCommonFields = (group) => ({
 });
 
 /**
- * Flatten a report entry tree into a pre-order list.
- * Synthesized entries are skipped.
+ * Flatten a report entry tree pre-order, recording each entry's real
+ * parent as we walk. Synthesized entries are skipped.
+ *
+ * Tracks parentage by object reference.
  *
  * @param {Object} entry - The entry to flatten.
- * @returns {Array} - Flattened array of entries.
+ * @param {Object|null} sourceParent - The original parent entry, if any.
+ * @returns {Array} - Flattened array of {source, cleaned, sourceParent}.
  * @private
  */
-const _preOrderFlatten = (entry) => {
+const _preOrderFlatten = (entry, sourceParent = null) => {
   if (entry.category === "synthesized") return [];
 
-  const cleanedEntry = { ...entry, entries: [] };
-  const result = [cleanedEntry];
+  const cleaned = { ...entry, entries: [] };
+  const result = [{ source: entry, cleaned, sourceParent }];
   for (const child of entry.entries) {
-    result.push(..._preOrderFlatten(child));
+    result.push(..._preOrderFlatten(child, entry));
   }
 
   return result;
 };
 
 /**
- * Find the parent node in the merged tree using parentPath.
- * Since we process entries in pre-order, parents are always added before children.
+ * Add a flattened item to the merged tree.
+ * If a structure entry (suite/parametrization) already exists, merge
+ * metadata. If a test case, always append.
  *
  * @param {Object} root - The root of the merged tree.
- * @param {Array} parentPath - Array of ancestor definition_names.
- * @returns {Object} - The parent node where the entry should be added.
+ * @param {Object} item - {source, cleaned, sourceParent} from the flatten.
+ * @param {Map} sourceToMerged - Source group node -> its merged node.
  * @private
  */
-const _findParent = (root, parentPath) => {
-  let current = root;
-  for (const name of parentPath) {
-    current = current.entries.find((e) => e.name === name);
+const _addEntryToMerged = (root, item, sourceToMerged) => {
+  const { source, cleaned, sourceParent } = item;
+  const parent =
+    sourceParent === null ? root : sourceToMerged.get(sourceParent);
+
+  if (isReportLeaf(cleaned)) {
+    parent.entries.push(cleaned);
+    return;
   }
-  return current;
-};
 
-/**
- * Add an entry to the merged tree, creating parent structure as needed.
- * If a structure entry (suite/parametrization) already exists, merge metadata.
- * If a test case, always append.
- *
- * @param {Object} root - The root of the merged tree.
- * @param {Object} entry - The entry to add.
- * @private
- */
-const _addEntryToMerged = (root, entry) => {
-  // parent_uids = [testplan_name, mt_name, ...]
-  const parentPath = entry.parent_uids.slice(2);
-  const parent = _findParent(root, parentPath);
-
-  if (isReportLeaf(entry)) {
-    parent.entries.push(entry);
+  const existing = parent.entries.find((e) => e.name === cleaned.name);
+  if (existing) {
+    Object.assign(existing, _mergeCommonFields([existing, cleaned]));
+    sourceToMerged.set(source, existing);
   } else {
-    const existing = parent.entries.find((e) => e.name === entry.name);
-    if (existing) {
-      Object.assign(existing, _mergeCommonFields([existing, entry]));
-    } else {
-      parent.entries.push(entry);
-    }
+    parent.entries.push(cleaned);
+    sourceToMerged.set(source, cleaned);
   }
 };
 
@@ -248,6 +235,9 @@ const _mergeParts = (baseName, parts) => {
     ..._mergeCommonFields(sortedParts),
   };
 
+  // Source node -> merged node, shared across parts.
+  const sourceToMerged = new Map();
+
   const hasMoreEntries = () =>
     pointers.some((cursor, i) => cursor < flattenedParts[i].length);
 
@@ -256,12 +246,12 @@ const _mergeParts = (baseName, parts) => {
       const flat = flattenedParts[partIdx];
 
       while (pointers[partIdx] < flat.length) {
-        const entry = flat[pointers[partIdx]];
+        const item = flat[pointers[partIdx]];
         pointers[partIdx]++;
 
-        _addEntryToMerged(merged, entry);
+        _addEntryToMerged(merged, item, sourceToMerged);
 
-        if (isReportLeaf(entry)) {
+        if (isReportLeaf(item.cleaned)) {
           break;
         }
       }

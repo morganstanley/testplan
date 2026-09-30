@@ -3,11 +3,23 @@ Custom marshmallow fields.
 """
 
 import abc
+import math
 import pprint
 
 from datetime import timezone, datetime
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
+from boltons.iterutils import is_scalar, remap
 from lxml import etree
 
 from marshmallow import fields
@@ -17,12 +29,52 @@ from marshmallow.utils import missing as missing_
 
 from testplan.common.utils import comparison
 
-# We explicitly enumerate types that are known to be safe to serialize by
-# pickle. All other types will be converted to strings before pickling.
 # types.NoneType is gone in python3 so we inspect the type of None directly.
-COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
+JSON_SAFE_SCALARS = (bool, type(None), str)
+# orjson's native int range; outside this it raises
+_INT64_MIN = -(2**63)
+_UINT64_MAX = 2**64 - 1
+_MAX_TEXT_LENGTH = 1000
 
 # pylint: disable=unused-argument
+
+
+def _norm_nan_inf(value: float) -> Any:
+    # orjson turns NaN/Infinity into `null` and never calls `default`
+    if math.isnan(value):
+        return "NaN"
+    if math.isinf(value):
+        return "Infinity" if value > 0 else "-Infinity"
+    return value
+
+
+def _int_safe(value: int) -> Any:
+    return value if _INT64_MIN <= value <= _UINT64_MAX else str(value)
+
+
+def _normalize_visit(path: Any, key: Any, value: Any):
+    if isinstance(value, float):
+        sv = _norm_nan_inf(value)
+        if sv is not value:
+            return key, sv
+    elif type(value) is int:
+        sv = _int_safe(value)
+        if sv is not value:
+            return key, sv
+    elif is_scalar(value) and not isinstance(value, JSON_SAFE_SCALARS):
+        return key, str(value)
+    return True
+
+
+def normalize_for_json(value: Any) -> Any:
+    """Replace NaN/Infinity and non-JSON-safe scalars."""
+    if isinstance(value, float):
+        return _norm_nan_inf(value)
+    if type(value) is int:
+        return _int_safe(value)
+    if is_scalar(value):
+        return value if isinstance(value, JSON_SAFE_SCALARS) else str(value)
+    return remap(value, visit=_normalize_visit)
 
 
 class Serializable(metaclass=abc.ABCMeta):
@@ -99,7 +151,9 @@ def _repr_obj(obj: object) -> str:
         return object.__repr__(obj)
 
 
-def native_or_pformat(value: Any) -> Any:
+def native_or_pformat(
+    value: Any, formatter: Callable[[Any], Any] = pprint.pformat
+) -> Any:
     """Generic serialization compatible value formatter."""
     if comparison.is_regex(value):
         value = "REGEX({})".format(value.pattern)
@@ -108,13 +162,31 @@ def native_or_pformat(value: Any) -> Any:
     elif callable(value):
         value = getattr(value, "__name__", _repr_obj(value))
 
-    # For basic builtin types we return the value unchanged. All other types
-    # will be formatted as strings.
-    if type(value) in COMPATIBLE_TYPES:
+    # normalize to JSON-safe scalars, or pretty format for other types
+    if isinstance(value, bytes):
+        result = str(value)
+    elif isinstance(value, float):
+        result = _norm_nan_inf(value)
+    elif type(value) is int:
+        result = _int_safe(value)
+    elif type(value) in JSON_SAFE_SCALARS:
         result = value
     else:
-        result = pprint.pformat(value)
+        result = formatter(value)
 
+    return result
+
+
+def native_or_text(value: Any) -> Any:
+    """Preserve primitive values and render other values as bounded text."""
+    try:
+        if isinstance(value, (set, frozenset)):
+            value = sorted(value, key=repr)
+        result = native_or_pformat(value, formatter=str)
+    except Exception:  # pylint: disable=broad-except
+        return "<{}>".format(type(value).__name__)
+    if isinstance(result, str) and len(result) > _MAX_TEXT_LENGTH:
+        return result[:_MAX_TEXT_LENGTH] + "..."
     return result
 
 

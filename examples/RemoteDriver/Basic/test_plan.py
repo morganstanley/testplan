@@ -57,7 +57,7 @@ class TCPTestsuite:
         result.equal(received, response, "Client received")
 
 
-@test_plan(name="RemoteDriverBasic", json_path="report.json")
+@test_plan(name="RemoteDriverBasic", json_path="report.json", driver_info=True)
 def main(plan):
     # remote_service represents the RPyC server that runs on remote host
     remote_service = RemoteService(

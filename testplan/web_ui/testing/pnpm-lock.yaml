@@ -69,7 +69,7 @@ importers:
         version: 2.2.3
       axios:
         specifier: ^1.12.0
-        version: 1.12.2(debug@4.4.3)
+        version: 1.12.2
       base64url:
         specifier: ^3.0.1
         version: 3.0.1
@@ -88,6 +88,9 @@ importers:
       chartjs-plugin-annotation:
         specifier: ^3.0.1
         version: 3.1.0(chart.js@4.5.1)
+      chartjs-plugin-zoom:
+        specifier: ^2.2.0
+        version: 2.2.0(chart.js@4.5.1)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -102,7 +105,7 @@ importers:
         version: 4.10.1
       jotai:
         specifier: ^2.1.0
-        version: 2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@17.0.89)(react@17.0.2)
+        version: 2.15.0(@babel/core@7.28.4)(@babel/template@7.29.7)(@types/react@17.0.89)(react@17.0.2)
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -166,9 +169,6 @@ importers:
       react-test-renderer:
         specifier: '17'
         version: 17.0.2(react@17.0.2)
-      react-vis:
-        specifier: ^1.11.12
-        version: 1.12.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       reactflow:
         specifier: ^11.11.4
         version: 11.11.4(@types/react@17.0.89)(immer@9.0.21)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -205,7 +205,7 @@ importers:
         version: 1.5.1
       moxios:
         specifier: 0.4.0
-        version: 0.4.0(axios@1.12.2(debug@4.4.3))
+        version: 0.4.0(axios@1.12.2)
       npm-force-resolutions:
         specifier: 0.0.3
         version: 0.0.3
@@ -1784,6 +1784,9 @@ packages:
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha1-Kga8D2iiCrN7PjaqI4vmq99J6LQ=}
 
+  '@types/hammerjs@2.0.46':
+    resolution: {integrity: sha1-OB2qyhNg/4p8jf9j8y5pdFufseE=}
+
   '@types/hast@2.3.10':
     resolution: {integrity: sha1-XJ2eCzBLu4h5uFciXF66stgddkM=}
 
@@ -2571,6 +2574,11 @@ packages:
     peerDependencies:
       chart.js: '>=4.0.0'
 
+  chartjs-plugin-zoom@2.2.0:
+    resolution: {integrity: sha1-eZKKzy0ivWC1RC4O9zE5smHGXRk=}
+    peerDependencies:
+      chart.js: '>=3.2.0'
+
   check-types@11.2.3:
     resolution: {integrity: sha1-H/32j6rk6UH84lKECxeHuO3JO3E=}
 
@@ -2953,22 +2961,11 @@ packages:
   d3-array@1.2.4:
     resolution: {integrity: sha1-Y1zk1e6nWfb2BYY9vPww7cc39x8=}
 
-  d3-array@2.12.1:
-    resolution: {integrity: sha1-4gtBqvzf/fXVCSgATs7PgVpGXoE=}
-
-  d3-array@3.2.4:
-    resolution: {integrity: sha1-Ff7DOyN/l6xdfJhtx32ic6jtC7U=}
-    engines: {node: '>=12'}
-
   d3-collection@1.0.7:
     resolution: {integrity: sha1-NJvSqpl32wcQkcExRNXk8WtbMQ4=}
 
   d3-color@3.1.0:
     resolution: {integrity: sha1-OVsoM9+scVB/EqwvevI7+BneJOI=}
-    engines: {node: '>=12'}
-
-  d3-contour@4.0.2:
-    resolution: {integrity: sha1-u5IGO8jFZjrLJCL5nHPLtsauO8w=}
     engines: {node: '>=12'}
 
   d3-dispatch@1.0.6:
@@ -2992,10 +2989,6 @@ packages:
   d3-format@1.4.5:
     resolution: {integrity: sha1-N08roTIONxfrdKk1bGfa7hen7bQ=}
 
-  d3-format@3.1.0:
-    resolution: {integrity: sha1-kmDiOijqXLEJ6TshoG4k4uvVVkE=}
-    engines: {node: '>=12'}
-
   d3-geo-projection@2.9.0:
     resolution: {integrity: sha1-gm22L3SOjs1nzQCs7UwmojbsAww=}
     hasBin: true
@@ -3003,19 +2996,8 @@ packages:
   d3-geo@1.12.1:
     resolution: {integrity: sha1-f8KrdBS3Lln7y9YD6A2a3AKbA18=}
 
-  d3-geo@3.1.1:
-    resolution: {integrity: sha1-YCfPUSRvmy69ZPmeAdx8M2QDOk0=}
-    engines: {node: '>=12'}
-
-  d3-hexbin@0.2.2:
-    resolution: {integrity: sha1-nFg32s/UcasFM3qeke8Qv8T5iDE=}
-
   d3-hierarchy@1.1.9:
     resolution: {integrity: sha1-L2vuJMqupD+Nw3VF+gFihVlkeoM=}
-
-  d3-hierarchy@3.1.2:
-    resolution: {integrity: sha1-sBzULB7tPUbbd6WWbPcm+MCRYMY=}
-    engines: {node: '>=12'}
 
   d3-interpolate@3.0.1:
     resolution: {integrity: sha1-PEeqWzLFs9+1bvP9Q0IHimMrQA0=}
@@ -3024,19 +3006,8 @@ packages:
   d3-path@1.0.9:
     resolution: {integrity: sha1-SMBQux/owmJJOoyvVSTj6VkXAc8=}
 
-  d3-path@3.1.0:
-    resolution: {integrity: sha1-It+TkDL7WnGuixgA1h3beFHEJSY=}
-    engines: {node: '>=12'}
-
   d3-quadtree@1.0.7:
     resolution: {integrity: sha1-youE33u1N2P+PC8kvUNRN/TlMTU=}
-
-  d3-sankey@0.12.3:
-    resolution: {integrity: sha1-s8JoYnvXLl2AM26N5qy/7J0V0B0=}
-
-  d3-scale@4.0.2:
-    resolution: {integrity: sha1-grOOjo/3CAdk+Nzsd71L45Nok5Y=}
-    engines: {node: '>=12'}
 
   d3-selection@3.0.0:
     resolution: {integrity: sha1-wlM4IH76csxbm9FFihpBkB8eGzE=}
@@ -3045,23 +3016,11 @@ packages:
   d3-shape@1.3.7:
     resolution: {integrity: sha1-32OAG+B7yYa8VPY3ibT+UCmStdc=}
 
-  d3-shape@3.2.0:
-    resolution: {integrity: sha1-oag5y9m6RfKGdMadf4Vbz5HfxqU=}
-    engines: {node: '>=12'}
-
   d3-time-format@2.3.0:
     resolution: {integrity: sha1-EHvcAoZneIqJJLoED68fvM1aeFA=}
 
-  d3-time-format@4.1.0:
-    resolution: {integrity: sha1-erUlelBB0R7LT+cKXH0WoZW7QIo=}
-    engines: {node: '>=12'}
-
   d3-time@1.1.0:
     resolution: {integrity: sha1-seGdMH2unJALflsl/8XcwkmooPE=}
-
-  d3-time@3.1.0:
-    resolution: {integrity: sha1-kxDbVumS48AXXh7zheVF5Iqbtcc=}
-    engines: {node: '>=12'}
 
   d3-timer@1.0.10:
     resolution: {integrity: sha1-3+dripF0iDGxO22ceT/71QjdneU=}
@@ -3075,9 +3034,6 @@ packages:
     engines: {node: '>=12'}
     peerDependencies:
       d3-selection: 2 - 3
-
-  d3-voronoi@1.1.4:
-    resolution: {integrity: sha1-3Tx412U9K7NZKErkeGRdlZRMgpc=}
 
   d3-zoom@3.0.0:
     resolution: {integrity: sha1-0T9BZccyF//qpUKVzWlps+eu6PM=}
@@ -3139,10 +3095,6 @@ packages:
 
   dedent@0.7.0:
     resolution: {integrity: sha512-Q6fKUPqnAHAyhiUgFU7BUzLiv0kd8saH9al7tnu5Q/okj6dnupxyTgFIBjVzJATdfIAm9NAsvXNzjaKa+bxVyA==}
-
-  deep-equal@1.1.2:
-    resolution: {integrity: sha1-eKVht4MO7zE0x/bzo9avJypnh2E=}
-    engines: {node: '>= 0.4'}
 
   deep-equal@2.2.3:
     resolution: {integrity: sha1-r4na+yOjlsfaPoYqvAvifPUdVuE=}
@@ -3258,9 +3210,6 @@ packages:
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha1-5BuALh7t+fbK4YPOXmIteJ19jlM=}
-
-  dom-walk@0.1.2:
-    resolution: {integrity: sha1-DFSL7wSPTR8qlySQAiNgYNqj/YQ=}
 
   domelementtype@1.3.1:
     resolution: {integrity: sha1-0EjESzew0Qp/Kj1f7j9DM9eQSB8=}
@@ -3950,9 +3899,6 @@ packages:
     resolution: {integrity: sha1-6cx5qrm+HQMofhVqP5Et0IlUY+0=}
     engines: {node: '>=16'}
 
-  global@4.4.0:
-    resolution: {integrity: sha512-wv/LAoHdRE3BeTGz53FAamhGlPLhlssK45usmGFThIi4XqnBmjKQ16u+RNbP7WvigRZDxUsM0J3gcQ5yicaL0w==}
-
   globals@13.24.0:
     resolution: {integrity: sha1-hDKhnXjODB6DOUnDats0VAC7EXE=}
     engines: {node: '>=8'}
@@ -4027,6 +3973,10 @@ packages:
   gzip-size@6.0.0:
     resolution: {integrity: sha1-BlNn/VDCOcBnHLy61b4+LusQ5GI=}
     engines: {node: '>=10'}
+
+  hammerjs@2.0.8:
+    resolution: {integrity: sha1-BO93hiz/K7edMPdpIJWTAiK/YPE=}
+    engines: {node: '>=0.8.0'}
 
   handle-thing@2.0.1:
     resolution: {integrity: sha1-hX95zjWVgMNA1DCBzGSJcNC7I04=}
@@ -4280,13 +4230,6 @@ packages:
   internal-slot@1.1.0:
     resolution: {integrity: sha1-HqyRdilH0vcFa8g42T4TsulgSWE=}
     engines: {node: '>= 0.4'}
-
-  internmap@1.0.1:
-    resolution: {integrity: sha1-ABfMijuZYF8DAvKxmNJy4BXl35U=}
-
-  internmap@2.0.3:
-    resolution: {integrity: sha1-ZoXyN1XkPFJOJR0py8lySOMGEAk=}
-    engines: {node: '>=12'}
 
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
@@ -5101,9 +5044,6 @@ packages:
     resolution: {integrity: sha1-ftLCzMyvhNP/y3pptXcR/CCDQBs=}
     engines: {node: '>=6'}
 
-  min-document@2.19.0:
-    resolution: {integrity: sha1-e9KC4/WELtKVu3SM3Z8f+iyCRoU=}
-
   min-indent@1.0.1:
     resolution: {integrity: sha1-pj9oFnOzBXH76LwlaGrnRu76mGk=}
     engines: {node: '>=4'}
@@ -5462,9 +5402,6 @@ packages:
     resolution: {integrity: sha1-T25EUjHMNp+YYKCZmmhaec7FIKs=}
     engines: {node: '>= 6'}
     hasBin: true
-
-  performance-now@0.2.0:
-    resolution: {integrity: sha1-M+8wxcd9TqIcWlOGnZG1bY8lVeU=}
 
   performance-now@2.1.0:
     resolution: {integrity: sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=}
@@ -6003,10 +5940,6 @@ packages:
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
 
-  process@0.11.10:
-    resolution: {integrity: sha1-czIwDoQBYb2j5podHZGn1LwW8YI=}
-    engines: {node: '>= 0.6.0'}
-
   promise@8.3.0:
     resolution: {integrity: sha1-jLMz0e3rYe8jhp+7ik6gJ5q2Dgo=}
 
@@ -6141,11 +6074,6 @@ packages:
       '@types/react': ^17.0.2
       react: ^17.0.2
 
-  react-motion@0.5.2:
-    resolution: {integrity: sha512-9q3YAvHoUiWlP3cK0v+w1N5Z23HXMj4IF4YuvjvWegWqNPfLXsOBE/V7UvQGpXxHFKRQQcNcVQE31g9SB/6qgQ==}
-    peerDependencies:
-      react: ^17.0.2
-
   react-plotly.js@2.6.0:
     resolution: {integrity: sha1-rWto7mTxtc+hQu6SxZaH+cLAkgk=}
     peerDependencies:
@@ -6208,13 +6136,6 @@ packages:
     peerDependencies:
       react: ^17.0.2
       react-dom: '>=16.6.0'
-
-  react-vis@1.12.1:
-    resolution: {integrity: sha1-ICDGAlzrEOrOU9I2amuOnZCkfFQ=}
-    engines: {node: '>=14.18.0', npm: '>=6.13.0'}
-    peerDependencies:
-      react: ^17.0.2
-      react-dom: ^16.8.3
 
   react@17.0.2:
     resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
@@ -9595,6 +9516,8 @@ snapshots:
     dependencies:
       '@types/node': 24.7.2
 
+  '@types/hammerjs@2.0.46': {}
+
   '@types/hast@2.3.10':
     dependencies:
       '@types/unist': 2.0.11
@@ -10205,7 +10128,7 @@ snapshots:
 
   axe-core@4.11.0: {}
 
-  axios@1.12.2(debug@4.4.3):
+  axios@1.12.2:
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.3)
       form-data: 4.0.4
@@ -10525,6 +10448,12 @@ snapshots:
   chartjs-plugin-annotation@3.1.0(chart.js@4.5.1):
     dependencies:
       chart.js: 4.5.1
+
+  chartjs-plugin-zoom@2.2.0(chart.js@4.5.1):
+    dependencies:
+      '@types/hammerjs': 2.0.46
+      chart.js: 4.5.1
+      hammerjs: 2.0.8
 
   check-types@11.2.3: {}
 
@@ -10934,21 +10863,9 @@ snapshots:
 
   d3-array@1.2.4: {}
 
-  d3-array@2.12.1:
-    dependencies:
-      internmap: 1.0.1
-
-  d3-array@3.2.4:
-    dependencies:
-      internmap: 2.0.3
-
   d3-collection@1.0.7: {}
 
   d3-color@3.1.0: {}
-
-  d3-contour@4.0.2:
-    dependencies:
-      d3-array: 3.2.4
 
   d3-dispatch@1.0.6: {}
 
@@ -10970,8 +10887,6 @@ snapshots:
 
   d3-format@1.4.5: {}
 
-  d3-format@3.1.0: {}
-
   d3-geo-projection@2.9.0:
     dependencies:
       commander: 2.20.3
@@ -10983,15 +10898,7 @@ snapshots:
     dependencies:
       d3-array: 1.2.4
 
-  d3-geo@3.1.1:
-    dependencies:
-      d3-array: 3.2.4
-
-  d3-hexbin@0.2.2: {}
-
   d3-hierarchy@1.1.9: {}
-
-  d3-hierarchy@3.1.2: {}
 
   d3-interpolate@3.0.1:
     dependencies:
@@ -10999,22 +10906,7 @@ snapshots:
 
   d3-path@1.0.9: {}
 
-  d3-path@3.1.0: {}
-
   d3-quadtree@1.0.7: {}
-
-  d3-sankey@0.12.3:
-    dependencies:
-      d3-array: 2.12.1
-      d3-shape: 1.3.7
-
-  d3-scale@4.0.2:
-    dependencies:
-      d3-array: 3.2.4
-      d3-format: 3.1.0
-      d3-interpolate: 3.0.1
-      d3-time: 3.1.0
-      d3-time-format: 4.1.0
 
   d3-selection@3.0.0: {}
 
@@ -11022,23 +10914,11 @@ snapshots:
     dependencies:
       d3-path: 1.0.9
 
-  d3-shape@3.2.0:
-    dependencies:
-      d3-path: 3.1.0
-
   d3-time-format@2.3.0:
     dependencies:
       d3-time: 1.1.0
 
-  d3-time-format@4.1.0:
-    dependencies:
-      d3-time: 3.1.0
-
   d3-time@1.1.0: {}
-
-  d3-time@3.1.0:
-    dependencies:
-      d3-array: 3.2.4
 
   d3-timer@1.0.10: {}
 
@@ -11052,8 +10932,6 @@ snapshots:
       d3-interpolate: 3.0.1
       d3-selection: 3.0.0
       d3-timer: 3.0.1
-
-  d3-voronoi@1.1.4: {}
 
   d3-zoom@3.0.0:
     dependencies:
@@ -11111,15 +10989,6 @@ snapshots:
   decimal.js@10.6.0: {}
 
   dedent@0.7.0: {}
-
-  deep-equal@1.1.2:
-    dependencies:
-      is-arguments: 1.2.0
-      is-date-object: 1.1.0
-      is-regex: 1.2.1
-      object-is: 1.1.6
-      object-keys: 1.1.1
-      regexp.prototype.flags: 1.5.4
 
   deep-equal@2.2.3:
     dependencies:
@@ -11242,8 +11111,6 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
       entities: 4.5.0
-
-  dom-walk@0.1.2: {}
 
   domelementtype@1.3.1: {}
 
@@ -12225,11 +12092,6 @@ snapshots:
       kind-of: 6.0.3
       which: 4.0.0
 
-  global@4.4.0:
-    dependencies:
-      min-document: 2.19.0
-      process: 0.11.10
-
   globals@13.24.0:
     dependencies:
       type-fest: 0.20.2
@@ -12341,6 +12203,8 @@ snapshots:
   gzip-size@6.0.0:
     dependencies:
       duplexer: 0.1.2
+
+  hammerjs@2.0.8: {}
 
   handle-thing@2.0.1: {}
 
@@ -12646,10 +12510,6 @@ snapshots:
       es-errors: 1.3.0
       hasown: 2.0.2
       side-channel: 1.1.0
-
-  internmap@1.0.1: {}
-
-  internmap@2.0.3: {}
 
   ipaddr.js@1.9.1: {}
 
@@ -13330,10 +13190,10 @@ snapshots:
 
   jiti@1.21.7: {}
 
-  jotai@2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@17.0.89)(react@17.0.2):
+  jotai@2.15.0(@babel/core@7.28.4)(@babel/template@7.29.7)(@types/react@17.0.89)(react@17.0.2):
     optionalDependencies:
       '@babel/core': 7.28.4
-      '@babel/template': 7.27.2
+      '@babel/template': 7.29.7
       '@types/react': 17.0.89
       react: 17.0.2
 
@@ -13734,10 +13594,6 @@ snapshots:
 
   mimic-fn@2.1.0: {}
 
-  min-document@2.19.0:
-    dependencies:
-      dom-walk: 0.1.2
-
   min-indent@1.0.1: {}
 
   mini-css-extract-plugin@2.9.4(webpack@5.102.1):
@@ -13788,9 +13644,9 @@ snapshots:
       signum: 1.0.0
       to-px: 1.0.1
 
-  moxios@0.4.0(axios@1.12.2(debug@4.4.3)):
+  moxios@0.4.0(axios@1.12.2):
     dependencies:
-      axios: 1.12.2(debug@4.4.3)
+      axios: 1.12.2
 
   ms@2.0.0: {}
 
@@ -14106,8 +13962,6 @@ snapshots:
       resolve-protobuf-schema: 2.1.0
 
   pegjs@0.11.0-master.f69239d: {}
-
-  performance-now@0.2.0: {}
 
   performance-now@2.1.0: {}
 
@@ -14670,8 +14524,6 @@ snapshots:
 
   process-nextick-args@2.0.1: {}
 
-  process@0.11.10: {}
-
   promise@8.3.0:
     dependencies:
       asap: 2.0.6
@@ -14852,13 +14704,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react-motion@0.5.2(react@17.0.2):
-    dependencies:
-      performance-now: 0.2.0
-      prop-types: 15.8.1
-      raf: 3.4.1
-      react: 17.0.2
-
   react-plotly.js@2.6.0(plotly.js@3.3.1(mapbox-gl@1.13.3))(react@17.0.2):
     dependencies:
       plotly.js: 3.3.1(mapbox-gl@1.13.3)
@@ -15025,28 +14870,6 @@ snapshots:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
-
-  react-vis@1.12.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
-    dependencies:
-      d3-array: 3.2.4
-      d3-collection: 1.0.7
-      d3-color: 3.1.0
-      d3-contour: 4.0.2
-      d3-format: 3.1.0
-      d3-geo: 3.1.1
-      d3-hexbin: 0.2.2
-      d3-hierarchy: 3.1.2
-      d3-interpolate: 3.0.1
-      d3-sankey: 0.12.3
-      d3-scale: 4.0.2
-      d3-shape: 3.2.0
-      d3-voronoi: 1.1.4
-      deep-equal: 1.1.2
-      global: 4.4.0
-      prop-types: 15.8.1
-      react: 17.0.2
-      react-dom: 17.0.2(react@17.0.2)
-      react-motion: 0.5.2(react@17.0.2)
 
   react@17.0.2:
     dependencies:

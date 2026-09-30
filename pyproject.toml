@@ -39,6 +39,8 @@
         "termcolor",
         "colorama",
         "pyzmq",
+        # pyzmq's authenticator needs selector support on Windows.
+        "tornado>=6.1; sys_platform == 'win32'",
         "terminaltables",
         "requests>=2.31.0",
         "boltons",

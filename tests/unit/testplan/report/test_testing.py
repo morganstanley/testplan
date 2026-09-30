@@ -1,7 +1,9 @@
 import functools
 import json
 from collections import OrderedDict
+from enum import Enum
 
+import dill
 import pytest
 from boltons.iterutils import get_path
 
@@ -12,6 +14,7 @@ from testplan.common.report import (
     Status,
 )
 from testplan.common.report.log import LOGGER as report_logger
+from testplan.common.utils.comparison import Expected
 from testplan.common.utils.json import json_dumps, json_loads
 from testplan.common.utils.testing import check_report, disable_log_propagation
 from testplan.report.testing.base import (
@@ -155,6 +158,59 @@ class TestTestCaseReport:
             assert rep.hash == rep.hash
 
         assert rep_1.hash != rep_2.hash
+
+    def test_parametrization_kwargs_serialization(self):
+        """Parametrization values should be safe before report transport."""
+
+        class Side(Enum):
+            BUY = "Buy"
+
+            def __str__(self):
+                return self.value
+
+        class UnpicklableProduct:
+            def __str__(self):
+                return "GAV1GK1V1A12"
+
+            def __reduce__(self):
+                raise TypeError("cannot pickle test product")
+
+        report = TestCaseReport(
+            name="parametrized",
+            parametrization_kwargs=OrderedDict(
+                (
+                    ("quantity", 1000),
+                    ("side", Side.BUY),
+                    ("product", UnpicklableProduct()),
+                )
+            ),
+        )
+
+        dill.dumps(report)
+        data = report.serialize()
+
+        assert data["parametrization_kwargs"] == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+        assert json_loads(json_dumps(data))["parametrization_kwargs"] == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+        assert TestCaseReport.deserialize(data).parametrization_kwargs == {
+            "quantity": 1000,
+            "side": "Buy",
+            "product": "GAV1GK1V1A12",
+        }
+
+    def test_ordinary_testcase_omits_parametrization_kwargs(self):
+        """Ordinary testcase reports should not grow a null field."""
+        assert (
+            "parametrization_kwargs"
+            not in TestCaseReport(name="ordinary").serialize()
+        )
 
 
 def generate_dummy_testgroup():
@@ -328,6 +384,60 @@ def test_report_json_binary_serialization(
     assert comps[3][SECOND_INDEX][1] == str(b"binary\xb1")
     assert comps[7][FIRST_INDEX][1] == str(b"binary\xb1")
     assert comps[7][SECOND_INDEX][1] == str(b"binary\xb1")
+
+
+@pytest.fixture
+@disable_log_propagation(report_logger)
+def dummy_test_plan_report_with_unsafe_asserts():
+    tg_2 = generate_dummy_testgroup()
+
+    res = Result()
+    res.equal(float("nan"), float("inf"))
+    res.equal(2**64, -(2**63) - 1)
+    res.dict.match_all(
+        values=[{"a": 1}],
+        comparisons=[Expected({"a": int})],
+        key_weightings={"a": 2**100},
+    )
+
+    utc_1 = TestCaseReport(
+        name="unsafe_test_case_1",
+        description="unsafe test case 1 description",
+        entries=res.serialized_entries,
+    )
+
+    utg_1 = TestGroupReport(
+        name="Unsafe Test Group 2",
+        description="Unsafe Test Group 1 description",
+        category=ReportCategories.TESTGROUP,
+        entries=[utc_1],
+        tags={},
+    )
+
+    return TestReport(
+        name="My Unsafe Plan",
+        description="Plan executing normalization edge cases",
+        entries=[tg_2, utg_1],
+    )
+
+
+def test_report_json_normalization(dummy_test_plan_report_with_unsafe_asserts):
+    """NaN/Infinity/huge-int values must normalize, not crash the dump."""
+    test_plan_schema = TestReportSchema()
+    data = test_plan_schema.dumps(dummy_test_plan_report_with_unsafe_asserts)
+
+    j = json.loads(data)
+
+    nan_inf = get_path(j, "entries.1.entries.0.entries.0")
+    assert nan_inf["first"] == "NaN"
+    assert nan_inf["second"] == "Infinity"
+
+    huge_int = get_path(j, "entries.1.entries.0.entries.1")
+    assert huge_int["first"] == str(2**64)
+    assert huge_int["second"] == str(-(2**63) - 1)
+
+    match_all = get_path(j, "entries.1.entries.0.entries.2")
+    assert match_all["key_weightings"] == {"a": str(2**100)}
 
 
 class TestReportTags:

@@ -276,15 +276,19 @@ class Graph(BaseEntry):
             "Line",
             "Scatter",
             "Bar",
-            "Whisker",
-            "Contour",
-            "Hexbin",
+            "Timeline",
         ]
         self.VALID_CHART_TYPES = ["Pie"]
         self.VALID_GRAPH_OPTIONS = ["xAxisTitle", "yAxisTitle", "legend"]
         self.VALID_SERIES_OPTIONS = ["colour"]
 
         self.graph_type = graph_type
+
+        if graph_type == "Timeline":
+            graph_data = {
+                series: [self._normalize_timeline_row(row) for row in rows]
+                for series, rows in graph_data.items()
+            }
         self.graph_data = graph_data
 
         if series_options is not None:
@@ -302,7 +306,11 @@ class Graph(BaseEntry):
             self.discrete_chart = False
         else:
             raise ValueError(
-                "Graph of type {!r} cannot be rendered".format(graph_type)
+                "Graph of type {!r} cannot be rendered, available "
+                "types are: {}".format(
+                    graph_type,
+                    self.VALID_GRAPH_TYPES + self.VALID_CHART_TYPES,
+                )
             )
 
         super(Graph, self).__init__(description=description)
@@ -329,6 +337,44 @@ class Graph(BaseEntry):
                         "valid (found in series "
                         "{!r})".format(series_option, series_name)
                     )
+
+    def _normalize_timeline_row(self, row):
+        row_keys = frozenset(("name", "start", "end"))
+
+        if not isinstance(row, dict):
+            raise TypeError("Timeline row {!r} should be a dict".format(row))
+
+        missing = row_keys - set(row)
+        if missing:
+            raise ValueError(
+                "Timeline row {!r} is missing required key(s) {}".format(
+                    row, sorted(missing)
+                )
+            )
+
+        unexpected = set(row) - row_keys
+        if unexpected:
+            raise ValueError(
+                "Timeline row key(s) {} are not valid".format(
+                    sorted(unexpected)
+                )
+            )
+
+        normalized = dict(row)
+        for key in ("start", "end"):
+            value = normalized[key]
+            if isinstance(value, datetime.datetime):
+                if value.tzinfo is None:
+                    value = value.astimezone()
+                normalized[key] = value.isoformat()
+            elif not isinstance(value, str):
+                raise TypeError(
+                    "Timeline row {!r} key {!r} should be a "
+                    "datetime.datetime or str, got {}".format(
+                        row, key, type(value).__name__
+                    )
+                )
+        return normalized
 
 
 class Attachment(BaseEntry):

@@ -1,31 +1,47 @@
-import { useState } from "react";
+import { useRef } from "react";
 import PropTypes from "prop-types";
-import "react-vis/dist/style.css";
-import * as GraphUtil from "./graphUtils";
-import { css, StyleSheet } from "aphrodite";
 import {
-  XAxis,
-  YAxis,
-  DiscreteColorLegend,
-  HorizontalGridLines,
-  XYPlot,
-  LineSeries,
-  VerticalBarSeries,
-  Highlight,
-  HexbinSeries,
-  ContourSeries,
-  WhiskerSeries,
-  MarkSeries,
-  ChartLabel,
-} from "react-vis";
+  Chart as ChartJS,
+  LineController,
+  BarController,
+  ScatterController,
+  LineElement,
+  PointElement,
+  BarElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import zoomPlugin from "chartjs-plugin-zoom";
+import { Line, Bar, Scatter } from "react-chartjs-2";
+import * as GraphUtil from "./graphUtils";
+
+ChartJS.register(
+  LineController,
+  BarController,
+  ScatterController,
+  LineElement,
+  PointElement,
+  BarElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Legend,
+  zoomPlugin
+);
 
 const components = {
-  Line: LineSeries,
-  Hexbin: HexbinSeries,
-  Contour: ContourSeries,
-  Whisker: WhiskerSeries,
-  Bar: VerticalBarSeries,
-  Scatter: MarkSeries,
+  Line,
+  Scatter,
+  Bar,
+};
+
+const ZOOM_OPTIONS = {
+  zoom: {
+    drag: { enabled: true },
+    mode: "xy",
+  },
 };
 
 /**
@@ -33,106 +49,75 @@ const components = {
  * an XY axis).
  */
 function XYGraphAssertion({ assertion }) {
-    const [lastDrawLocation, setLastDrawLocation] = useState(null);
+  const chartRef = useRef(null);
 
-    const data = assertion.graph_data;
-    const seriesColour = GraphUtil.returnColour(assertion.series_options, data);
-    const graph_options = assertion.graph_options;
-    const graph_type = assertion.graph_type;
-    const GraphComponent = components[graph_type];
+  const data = assertion.graph_data;
+  const seriesColour = GraphUtil.returnColour(assertion.series_options, data);
+  const graph_options = assertion.graph_options;
+  const graph_type = assertion.graph_type;
+  const GraphComponent = components[graph_type];
 
-    let legend = [];
-    let plots = [];
-
-    for (let key in data) {
-      let series_colour = seriesColour[key];
-      plots.push(
-        <GraphComponent
-          key={key}
-          data={data[key]}
-          color={series_colour}
-          style={GraphUtil.returnStyle(graph_type)}
-        />
-      );
-      if (graph_options !== null && graph_options.legend) {
-        legend.push({ title: key, color: series_colour });
-      }
-    }
-
+  if (!GraphComponent) {
     return (
-      <div className={css(styles.centreComponent)}>
-        <XYPlot
-          animation
-          xDomain={
-            lastDrawLocation && [lastDrawLocation.left, lastDrawLocation.right]
-          }
-          yDomain={
-            lastDrawLocation && [lastDrawLocation.bottom, lastDrawLocation.top]
-          }
-          width={750}
-          height={500}
-          xType={GraphUtil.returnXType(graph_type)}
-        >
-          <HorizontalGridLines />
-
-          <XAxis />
-          <ChartLabel
-            text={GraphUtil.returnXAxisTitle(graph_options)}
-            className="x-axis-label"
-            includeMargin={false}
-            xPercent={0.5}
-            yPercent={1.107}
-            style={{
-              transform: "rotate(0)",
-              textAnchor: "middle",
-            }}
-          />
-
-          <YAxis />
-          <ChartLabel
-            text={GraphUtil.returnYAxisTitle(graph_options)}
-            className="y-axis-label"
-            includeMargin={false}
-            xPercent={-0.0455}
-            yPercent={0.5}
-            style={{
-              transform: "rotate(270)",
-              textAnchor: "middle",
-            }}
-          />
-
-          {plots}
-
-          <Highlight
-            onBrushEnd={(area) => setLastDrawLocation(area)}
-            onDrag={(area) => {
-              setLastDrawLocation({
-                bottom: lastDrawLocation.bottom + (area.top - area.bottom),
-                left: lastDrawLocation.left - (area.right - area.left),
-                right: lastDrawLocation.right - (area.right - area.left),
-                top: lastDrawLocation.top + (area.top - area.bottom),
-              });
-            }}
-          />
-        </XYPlot>
-        <DiscreteColorLegend
-          orientation="horizontal"
-          width={750}
-          items={legend}
-        />
+      <div>
+        Graph type "{graph_type}" is removed and is no longer rendered
+        in the web report.
       </div>
     );
   }
+
+  const datasets = Object.entries(data).map(([series, values]) => ({
+    label: series,
+    data: values,
+    borderColor: seriesColour[series],
+    backgroundColor: seriesColour[series],
+    tension: 0,
+  }));
+
+  const xAxisTitle = GraphUtil.returnXAxisTitle(graph_options);
+  const yAxisTitle = GraphUtil.returnYAxisTitle(graph_options);
+
+  return (
+    <div
+      style={{ width: 750, height: 500 }}
+      onDoubleClick={() => chartRef.current?.resetZoom?.()}
+    >
+      <GraphComponent
+        ref={chartRef}
+        data={{ datasets }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: graph_type === "Bar" ? "category" : "linear",
+              title: {
+                display: Boolean(xAxisTitle),
+                text: xAxisTitle,
+              },
+            },
+            y: {
+              title: {
+                display: Boolean(yAxisTitle),
+                text: yAxisTitle,
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: Boolean(graph_options?.legend),
+            },
+            zoom: ZOOM_OPTIONS,
+          },
+        }}
+      />
+    </div>
+  );
+}
 
 XYGraphAssertion.propTypes = {
   /** Assertion being rendered */
   assertion: PropTypes.object,
 };
-
-const styles = StyleSheet.create({
-  centreComponent: {
-    alignItems: "center",
-  },
-});
 
 export default XYGraphAssertion;

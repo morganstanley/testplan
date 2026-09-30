@@ -114,6 +114,19 @@ test_plan.py
 .. literalinclude:: ../../../examples/Assertions/Plotly/test_plan.py
 
 
+Graph
+-----
+
+.. _example_assertions_graph:
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Assertions/Graph/test_plan.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../examples/Assertions/Graph/test_plan.py
+
+
 Marking
 -------
 These examples demonstrate the usage of the `report_target` decorator

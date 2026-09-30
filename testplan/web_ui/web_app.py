@@ -36,7 +36,10 @@ MONITOR_REPORT = "monitor_report.json"
 app = Flask(__name__)
 _provider = OrjsonProvider(app)
 _provider.option |= orjson.OPT_NON_STR_KEYS
+_provider.default = str
 app.json = _provider
+# flask_restx bypasses app.json, uses stdlib json.dumps directly
+app.config["RESTX_JSON"] = {"default": str}
 _api = Api(app)
 
 

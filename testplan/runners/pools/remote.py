@@ -2,6 +2,9 @@
 
 import copy
 import os
+import posixpath
+import shlex
+import shutil
 import signal
 import socket
 from multiprocessing import cpu_count
@@ -23,6 +26,7 @@ from testplan.common.utils.path import fix_home_prefix, rebase_path
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.remote import copy_cmd, ssh_cmd
 from testplan.common.utils.timing import get_sleeper, wait
+from testplan.common.utils.zmq_security import MONITOR_CHANNEL, CurveClientKeys
 
 from testplan.testing.base import TestResult
 
@@ -136,6 +140,13 @@ class RemoteWorker(ProcessWorker, RemoteResource):
 
         return cmd
 
+    def _child_curve_keys(self) -> Dict[str, CurveClientKeys]:
+        channels = super()._child_curve_keys()
+        monitor_keys = self.parent.resource_monitor_curve_keys  # type: ignore[union-attr]
+        if monitor_keys is not None:
+            channels[MONITOR_CHANNEL] = monitor_keys
+        return channels
+
     def _proc_cmd(self) -> str:  # type: ignore[override]
         """Command to start child process."""
 
@@ -150,18 +161,34 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         super(RemoteWorker, self)._write_syspath(
             sys_path=self._remote_sys_path()
         )
-        self._remote_syspath_file = os.path.join(
+        self._remote_syspath_file = posixpath.join(
             self._remote_plan_runpath,
             f"sys_path_{os.path.basename(self._syspath_file)}",
         )
-        self._transfer_data(
-            source=self._syspath_file,
-            target=self._remote_syspath_file,
-            remote_target=True,
-        )
+        with open(self._syspath_file, "rb") as source:
+            stdin, stdout, stderr = self._ssh_client.ssh_client.exec_command(
+                command=f"/bin/cat > {shlex.quote(self._remote_syspath_file)}",
+                timeout=30,
+            )
+            try:
+                shutil.copyfileobj(source, stdin)
+                stdin.flush()
+                stdin.channel.shutdown_write()
+                exit_code = stdout.channel.recv_exit_status()
+                error = stderr.read().decode("utf-8").strip()
+            finally:
+                stdin.close()
+                stdout.close()
+                stderr.close()
+
+        if exit_code:
+            raise RuntimeError(
+                f"Transferring sys.path to {self._remote_syspath_file} "
+                f"failed with exit code {exit_code}: {error}"
+            )
 
         self.logger.debug(
-            "Transferred sys.path to remote host at: %s",
+            "Transferred sys.path over existing SSH connection to %s",
             self._remote_syspath_file,
         )
 
@@ -384,6 +411,12 @@ class RemotePool(Pool):
     def resource_monitor_address(self) -> Optional[str]:
         if self.parent.resource_monitor_server:  # type: ignore[union-attr]
             return self.parent.resource_monitor_server.address  # type: ignore[union-attr, no-any-return]
+        return None
+
+    @property
+    def resource_monitor_curve_keys(self) -> Optional[CurveClientKeys]:
+        if self.parent.resource_monitor_server:  # type: ignore[union-attr]
+            return self.parent.resource_monitor_server.client_keys  # type: ignore[union-attr, no-any-return]
         return None
 
     @staticmethod

@@ -3,6 +3,7 @@
 These examples show usage of graphs
 """
 
+import datetime
 import sys
 import os
 
@@ -78,68 +79,6 @@ class SampleSuite:
             graph_options=None,
         )
 
-        # A single series Hexbin series, with no options specified
-        result.graph(
-            "Hexbin",
-            {
-                "Data Name": [
-                    {"x": 0, "y": 8},
-                    {"x": 1, "y": 5},
-                    {"x": 2, "y": 4},
-                    {"x": 3, "y": 9},
-                    {"x": 4, "y": 1},
-                    {"x": 5, "y": 7},
-                    {"x": 6, "y": 6},
-                    {"x": 7, "y": 3},
-                    {"x": 8, "y": 2},
-                    {"x": 9, "y": 0},
-                ]
-            },
-            description="Hexbin Graph",
-            series_options=None,
-            graph_options=None,
-        )
-
-        # A Whisker graph where the data structure expects an 'xVariance' and 'yVariance' to produce the whiskers
-        result.graph(
-            "Whisker",
-            {
-                "Data Name": [
-                    {"x": 1, "y": 10, "xVariance": 0.5, "yVariance": 2},
-                    {"x": 1.7, "y": 12, "xVariance": 1, "yVariance": 1},
-                    {"x": 2, "y": 5, "xVariance": 0, "yVariance": 0},
-                    {"x": 3, "y": 15, "xVariance": 0, "yVariance": 2},
-                    {"x": 2.5, "y": 7, "xVariance": 0.25, "yVariance": 2},
-                    {"x": 1.8, "y": 7, "xVariance": 0.25, "yVariance": 1},
-                ]
-            },
-            description="Whisker Graph",
-            series_options=None,
-            graph_options=None,
-        )
-
-        # A simple contour graph. Note: the data structure is simply (x, y) coordinates
-        result.graph(
-            "Contour",
-            {
-                "Data Name": [
-                    {"x": 0, "y": 8},
-                    {"x": 1, "y": 50},
-                    {"x": 2, "y": 4},
-                    {"x": -10, "y": 9},
-                    {"x": 4, "y": 1},
-                    {"x": 5, "y": 7},
-                    {"x": 6, "y": -3},
-                    {"x": 7, "y": 3},
-                    {"x": 100, "y": 2},
-                    {"x": 9, "y": 0},
-                ]
-            },
-            description="Contour Graph",
-            series_options=None,
-            graph_options=None,
-        )
-
         # A simple Pie chart. Note: the colour can be set as 'literal' to make the colour
         # the same as that specified in the data structure
         result.graph(
@@ -156,6 +95,37 @@ class SampleSuite:
             description="Pie Chart",
             series_options={"Data Name": {"colour": "literal"}},
             graph_options=None,
+        )
+
+        # A Timeline (Gantt) chart. 'start'/'end' accept datetime objects or
+        # ISO 8601 strings, and each series is drawn in its own colour.
+        start = datetime.datetime.now()
+        result.graph(
+            "Timeline",
+            {
+                "Drivers": [
+                    {
+                        "name": "server",
+                        "start": start,
+                        "end": start + datetime.timedelta(seconds=1),
+                    },
+                    {
+                        "name": "client",
+                        "start": start + datetime.timedelta(milliseconds=200),
+                        "end": start + datetime.timedelta(seconds=2),
+                    },
+                ],
+                "Workers": [
+                    {
+                        "name": "worker",
+                        "start": start + datetime.timedelta(seconds=1),
+                        "end": start + datetime.timedelta(seconds=3),
+                    },
+                ],
+            },
+            description="Timeline Chart",
+            series_options={"Drivers": {"colour": "red"}},
+            graph_options={"legend": True},
         )
 
     # Some examples of multi series graphs:

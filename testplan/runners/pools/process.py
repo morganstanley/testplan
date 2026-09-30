@@ -6,7 +6,7 @@ import signal
 import subprocess
 import sys
 import tempfile
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from schema import Or
 
@@ -16,6 +16,11 @@ from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.observability import tracing
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.timing import get_sleeper
+from testplan.common.utils.zmq_security import (
+    POOL_CHANNEL,
+    CurveClientKeys,
+    write_curve_keys,
+)
 
 from . import tasks
 from .base import Pool, PoolConfig, Worker, WorkerBase, WorkerConfig
@@ -118,26 +123,39 @@ class ProcessWorker(Worker):
         if self._handler.stdin is None:
             raise RuntimeError("self._handler.stdin must not be None")
         self._handler.stdin.write(bytes("y\n".encode("utf-8")))
+        write_curve_keys(self._handler.stdin, self._child_curve_keys())
+
+    def _child_curve_keys(self) -> Dict[str, CurveClientKeys]:
+        """Collect channel credentials for the child bootstrap."""
+        transport = cast(ZMQClientProxy, self.transport)
+        if transport.curve_keys is None:
+            raise RuntimeError("Worker transport requires CURVE credentials")
+        return {POOL_CHANNEL: transport.curve_keys}
 
     def _wait_started(self, timeout: Optional[float] = None) -> None:
-        """"""
+        """Wait for child readiness and complete the startup lifecycle."""
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
             timeout=timeout,  # type: ignore[arg-type]
             raise_timeout_with_msg=f"Worker start timeout, logfile = {self.outfile}",
         )
         while next(sleeper):
-            if match_regexps_in_file(
-                self.outfile, [re.compile("Starting child process worker on")]
-            )[0]:
+            if self.started_check():
                 super(ProcessWorker, self)._wait_started(timeout=timeout)
                 return
 
-            if self._handler and self._handler.poll() is not None:
-                raise RuntimeError(
-                    f"{self} process exited: {self._handler.returncode}"
-                    f" (logfile = {self.outfile})"
-                )
+    def started_check(self) -> bool:
+        """Check child readiness without waiting or changing lifecycle state."""
+        if match_regexps_in_file(
+            self.outfile, [re.compile("Starting child process worker on")]
+        )[0]:
+            return True
+        if self._handler and self._handler.poll() is not None:
+            raise RuntimeError(
+                f"{self} process exited: {self._handler.returncode}"
+                f" (logfile = {self.outfile})"
+            )
+        return False
 
     @property
     def is_alive(self) -> bool:

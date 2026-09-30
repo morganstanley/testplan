@@ -377,6 +377,7 @@ class GraphRenderer(SerializedEntryRenderer):
         Load the graph as a static image using MatPlotLib
         """
         header = self.get_header(source, depth, row_idx)
+
         styles = [
             RowStyle(
                 font=(constants.FONT, constants.FONT_SIZE_SMALL),

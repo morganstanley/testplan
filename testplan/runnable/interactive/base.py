@@ -574,7 +574,6 @@ class TestRunnerIHandler(entity.Entity):
     def get_driver_info_report(
         self, test_uid: str, start_or_stop: str
     ) -> None:
-        # get the plotly graph attachment
         if (
             len(self.test(test_uid).resources) > 0
             and self.test(test_uid).driver_info

@@ -1014,12 +1014,12 @@ parameterized testcases an empty dictionary is passed for ``kwargs``.
     def sample_test(self, env, result, x, y):
         pass
 
-    def pre_testcase(name, self, env, result, kwargs):
+    def pre_testcase(self, name, env, result, kwargs):
         result.log("Param 1 is {}".format(kwargs.get("x")))
         result.log("Param 2 is {}".format(kwargs.get("y")))
         ...
 
-    def post_testcase(name, self, env, result, kwargs):
+    def post_testcase(self, name, env, result, kwargs):
         ...
 
 .. _parametrization_default_values:

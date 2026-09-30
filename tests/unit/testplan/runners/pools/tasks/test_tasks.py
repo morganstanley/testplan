@@ -2,6 +2,7 @@
 
 import os
 import sys
+import warnings
 
 import pytest
 
@@ -360,3 +361,27 @@ class TestTaskSerialization:
             DeserializationError, match=r".*bytes-like.*required.*"
         ):
             Task().loads(inspect.currentframe())
+
+
+@pytest.mark.parametrize("limit", [0, 2])
+def test_rerun_alias_is_deprecated(limit):
+    with pytest.warns(
+        FutureWarning, match="rerun.*deprecated.*rerun_limit"
+    ) as captured:
+        task = Task(rerun=limit)
+    assert task.rerun_limit == limit
+    assert captured[0].filename == __file__
+
+
+def test_rerun_limit_does_not_warn():
+    with warnings.catch_warnings(record=True) as captured:
+        warnings.simplefilter("always")
+        Task()
+        task = Task(rerun_limit=2)
+    assert task.rerun_limit == 2
+    assert not captured
+
+
+def test_rerun_alias_conflicts_with_rerun_limit():
+    with pytest.raises(ValueError, match="Specify only one"):
+        Task(rerun=0, rerun_limit=1)

@@ -960,9 +960,14 @@ class Test(Runnable):
         )
 
         def _try_asutc(dt_or_none: Optional[datetime]) -> Optional[datetime]:
-            if dt_or_none:
-                return dt_or_none.astimezone(tz=timezone.utc)
-            return None
+            if not dt_or_none:
+                return None
+            # ``dt_or_none`` can be an rpyc netref (e.g. from ``RemoteDriver``
+            # ), then a local tzinfo passed to the remote ``astimezone`` fails
+            # CPython's tzinfo type check as it would be netref on remote.
+            # timer records tz-aware timestamps, so going through a plain float
+            # keeps this equivalent.
+            return datetime.fromtimestamp(dt_or_none.timestamp(), timezone.utc)
 
         # column names
         D_CLASS = "Driver Class"
@@ -1002,46 +1007,20 @@ class Test(Runnable):
             description=f"Driver {setup_or_teardown.capitalize()} Info",
         )
 
-        try:
-            import plotly.express as px
-        except ImportError:
-            case_result.log(
-                "Skip plotting timeline chart due to missing plotly package. "
-                "Please install Testplan package with `plotly` extra "
-                "if timeline chart is needed."
-            )
-        else:
-            # input for plotly
-            px_input: Dict[str, List[Any]] = {
-                D_NAME: [],
-                START_TIME: [],
-                END_TIME: [],
+        timeline_rows = [
+            {
+                "name": driver[D_NAME],
+                "start": driver[START_TIME],
+                "end": driver[END_TIME],
             }
-            for driver in table:
-                if driver[END_TIME]:
-                    px_input[D_NAME].append(driver[D_NAME])
-                    px_input[START_TIME].append(driver[START_TIME])
-                    px_input[END_TIME].append(driver[END_TIME])
-
-            # empirical values
-            padding = 150
-            row_size = 25
-            height = padding + row_size * len(px_input[D_NAME])
-            if height == padding:
-                # min height
-                height = padding + row_size
-            fig = px.timeline(
-                px_input,
-                x_start=START_TIME,
-                x_end=END_TIME,
-                y=D_NAME,
-                height=height,
-            )
-            fig.update_yaxes(autorange="reversed", automargin=True)
-            case_result.plotly(
-                fig,
-                description=f"Driver {setup_or_teardown.capitalize()} Timeline",
-            )
+            for driver in table
+            if driver[END_TIME]
+        ]
+        case_result.graph(
+            "Timeline",
+            {"Drivers": timeline_rows},
+            description=f"Driver {setup_or_teardown.capitalize()} Timeline",
+        )
 
         case_report.extend(case_result.serialized_entries)
         case_report.attachments.extend(case_result.attachments)

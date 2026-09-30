@@ -33,6 +33,7 @@
     "chart.js": "^4.4.2",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-annotation": "^3.0.1",
+    "chartjs-plugin-zoom": "^2.2.0",
     "date-fns": "^4.1.0",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.32.2",
@@ -59,7 +60,6 @@
     "react-scripts": "^5",
     "react-syntax-highlighter": "^15.5.0",
     "react-test-renderer": "17",
-    "react-vis": "^1.11.12",
     "reactflow": "^11.11.4",
     "reactstrap": "^9.0.0",
     "rehype-raw": "^6.1.1"

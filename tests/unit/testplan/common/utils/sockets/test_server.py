@@ -1,6 +1,12 @@
 """TODO."""
 
+import multiprocessing
+import socket
+import threading
+
 from testplan.common.utils.sockets import Server, Client
+
+from pytest_test_filters import skip_on_windows
 
 
 def test_basic_server_client():
@@ -82,3 +88,86 @@ def test_two_clients():
     client1.close()
     client2.close()
     server.close()
+
+
+def _run_test_reconnect_while_closing_connection():
+    server = Server()
+    server.bind()
+    server.serve()
+
+    # new fd
+    first_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # new fd
+    second_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    close_started = threading.Event()
+    resume_close = threading.Event()
+    close_errors = []
+
+    first_client.connect((server.ip, server.port))
+    first_conn_idx = server.accept_connection()
+    # this fd should be reused
+    first_fdesc = server._fds[first_conn_idx]
+    first_conn = server._connection_by_fd[first_fdesc]
+
+    class _SlowCloseDouble:
+        def close(self):
+            first_conn.close()
+            close_started.set()
+            if not resume_close.wait(timeout=5):
+                raise TimeoutError("Timed out waiting to finish socket close")
+
+    server._connection_by_fd[first_fdesc] = _SlowCloseDouble()
+
+    def close_connection():
+        try:
+            server.close_connection(first_conn_idx)
+        except Exception as exc:  # pylint: disable=broad-except
+            close_errors.append(exc)
+
+    close_thread = threading.Thread(target=close_connection)
+    close_thread.start()
+
+    try:
+        assert close_started.wait(timeout=5)
+
+        # This socket was created before the first connection closed, leaving
+        # the server-side fd of first connection as the lowest available fd
+        # for accept()
+        second_client.connect((server.ip, server.port))
+        second_conn_idx = server.accept_connection(
+            timeout=5, accept_connection_sleep=0.01
+        )
+        assert second_conn_idx != -1
+        assert server._fds[second_conn_idx] == first_fdesc
+
+        resume_close.set()
+        close_thread.join(timeout=5)
+        assert not close_thread.is_alive()
+        assert not close_errors
+
+        message = b"reconnected"
+        second_client.sendall(message)
+        assert server.receive(len(message), second_conn_idx) == message
+    finally:
+        resume_close.set()
+        close_thread.join(timeout=5)
+        first_client.close()
+        second_client.close()
+        server.close()
+
+
+@skip_on_windows(reason="no real fd on windows")
+def test_reconnect_while_closing_connection():
+    process = multiprocessing.get_context("spawn").Process(
+        target=_run_test_reconnect_while_closing_connection
+    )
+    process.start()
+    try:
+        process.join(timeout=30)
+        assert not process.is_alive(), "Isolated socket test timed out"
+    finally:
+        if process.is_alive():
+            process.kill()
+            process.join()
+
+    assert process.exitcode == 0

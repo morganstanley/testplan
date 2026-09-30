@@ -45,7 +45,7 @@ def zookeeper_server(runpath_module):
     server = zookeeper.ZookeeperStandalone(
         "zk",
         cfg_template=zk_cfg_template,
-        runpath=runpath_module,
+        runpath=os.path.join(runpath_module, "zookeeper"),
         host="localhost",
     )
     with server:
@@ -57,7 +57,7 @@ def kafka_server(zookeeper_server, runpath_module):
     server = kafka.KafkaStandalone(
         "kafka",
         cfg_template=kafka_cfg_template,
-        runpath=runpath_module,
+        runpath=os.path.join(runpath_module, "kafka"),
         host="localhost",
     )
 
@@ -105,7 +105,7 @@ def kraft_kafka_server(runpath_module):
     server = kafka.KafkaStandalone(
         "kafka",
         cfg_template=kraft_kafka_cfg_template,
-        runpath=runpath_module,
+        runpath=os.path.join(runpath_module, "kraft-kafka"),
         host="localhost",
         port=9092,
         controller_port=9093,
