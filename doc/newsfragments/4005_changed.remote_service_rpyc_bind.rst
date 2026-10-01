@@ -1,0 +1,1 @@
+:py:class:`~testplan.common.remote.remote_service.RemoteService` now secures its RPyC connection with mutual TLS. Each run makes new self-signed certs, and deletes them after the connection starts. Requires ``cryptography`` on the remote host.
