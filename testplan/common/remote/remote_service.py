@@ -11,6 +11,8 @@ from typing import Any, Dict, Optional
 
 import rpyc
 import rpyc.core.protocol
+import rpyc.core.stream
+import rpyc.utils.factory
 from rpyc import Connection
 from schema import Use
 
@@ -134,7 +136,7 @@ class RemoteService(Resource, RemoteResource):
                     "-uB",
                     rpyc_bin,
                     "--host",
-                    "0.0.0.0",
+                    "127.0.0.1",
                     "-p",
                     str(self.cfg.rpyc_port),
                 ]
@@ -209,12 +211,12 @@ class RemoteService(Resource, RemoteResource):
         """
         Configures rpyc connection.
         """
-        self.rpyc_connection = rpyc.classic.factory.connect(
-            host=self.cfg.remote_host,
-            port=self.rpyc_port,
+        channel = self._ssh_client.open_channel("127.0.0.1", self.rpyc_port)
+        stream = rpyc.core.stream.SocketStream(channel)
+        self.rpyc_connection = rpyc.utils.factory.connect_stream(
+            stream,
             service=rpyc.classic.SlaveService,
             config=self.rpyc_config,
-            keepalive=True,
         )
 
         self.rpyc_pid = self.rpyc_connection.modules.os.getpid()
