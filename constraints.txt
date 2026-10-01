@@ -60,6 +60,7 @@ coverage==7.15.3
 cryptography==50.0.0
     # via
     #   paramiko
+    #   testplan
     #   types-paramiko
 cycler==0.12.1
     # via matplotlib
