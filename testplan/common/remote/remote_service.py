@@ -5,14 +5,16 @@ Module implementing RemoteService class. Based on RPyC package.
 import re
 import shlex
 import signal
+import ssl
 import subprocess
 import warnings
 from typing import Any, Dict, Optional
 
 import rpyc
 import rpyc.core.protocol
+import rpyc.utils.factory
 from rpyc import Connection
-from schema import Use
+from schema import Or, Use
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
@@ -42,6 +44,16 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
             ConfigOption("rpyc_bin", default=None): str,
             ConfigOption("rpyc_port", default=0): int,
             ConfigOption("stop_timeout", default=5): Use(float),
+            ConfigOption("ssl_server_keyfile", default=None): Or(str, None),
+            ConfigOption("ssl_server_certfile", default=None): Or(str, None),
+            ConfigOption("ssl_server_ca_certfile", default=None): Or(
+                str, None
+            ),
+            ConfigOption("ssl_client_keyfile", default=None): Or(str, None),
+            ConfigOption("ssl_client_certfile", default=None): Or(str, None),
+            ConfigOption("ssl_client_ca_certfile", default=None): Or(
+                str, None
+            ),
         }
 
 
@@ -56,6 +68,12 @@ class RemoteService(Resource, RemoteResource):
     :param rpyc_port: Specific port for rpyc connection on the remote host. Defaults to 0
         which start the rpyc server on a random port.
     :param stop_timeout: Timeout of graceful shutdown (in seconds).
+
+    By default the RPyC connection is unauthenticated. Pass
+    ``ssl_server_keyfile``, ``ssl_server_certfile``, ``ssl_server_ca_certfile``,
+    ``ssl_client_keyfile``, ``ssl_client_certfile`` and ``ssl_client_ca_certfile``
+    to secure it with mutual TLS instead (``server_*`` paths must already
+    exist on the remote host, ``client_*`` paths must exist locally).
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` and
@@ -95,6 +113,13 @@ class RemoteService(Resource, RemoteResource):
         self.rpyc_pid: Optional[int] = None
         self.std: Optional[StdFiles] = None
 
+        self._server_ssl_keyfile: Optional[str] = None
+        self._server_ssl_certfile: Optional[str] = None
+        self._server_ssl_ca_certfile: Optional[str] = None
+        self._client_ssl_keyfile: Optional[str] = None
+        self._client_ssl_certfile: Optional[str] = None
+        self._client_ssl_ca_certfile: Optional[str] = None
+
     def __repr__(self) -> str:
         """
         String representation.
@@ -114,6 +139,38 @@ class RemoteService(Resource, RemoteResource):
         self.make_runpath_dirs()
         self.std = StdFiles(self.runpath)
         self._prepare_remote()
+        self._prepare_tls_credentials()
+
+    def _prepare_tls_credentials(self) -> None:
+        """
+        Read TLS credentials from config, if supplied.
+        """
+        custom = (
+            self.cfg.ssl_server_keyfile,
+            self.cfg.ssl_server_certfile,
+            self.cfg.ssl_server_ca_certfile,
+            self.cfg.ssl_client_keyfile,
+            self.cfg.ssl_client_certfile,
+            self.cfg.ssl_client_ca_certfile,
+        )
+        if not any(custom):
+            return
+        if not all(custom):
+            raise ValueError(
+                f"{self}: ssl_server_keyfile, ssl_server_certfile, "
+                "ssl_server_ca_certfile, ssl_client_keyfile, "
+                "ssl_client_certfile and ssl_client_ca_certfile must all be "
+                "set together, or all left unset to connect without "
+                "authentication."
+            )
+        (
+            self._server_ssl_keyfile,
+            self._server_ssl_certfile,
+            self._server_ssl_ca_certfile,
+            self._client_ssl_keyfile,
+            self._client_ssl_certfile,
+            self._client_ssl_ca_certfile,
+        ) = custom
 
     def starting(self) -> None:
         """
@@ -124,22 +181,28 @@ class RemoteService(Resource, RemoteResource):
             or self._remote_runtime_builder.get_remote_rpyc_bin()
         )
 
+        args = [
+            self.remote_python_bin,
+            "-uB",
+            rpyc_bin,
+            "--host",
+            "0.0.0.0",
+            "-p",
+            str(self.cfg.rpyc_port),
+        ]
+        if self._server_ssl_keyfile:
+            args += [
+                "--ssl-keyfile",
+                self._server_ssl_keyfile,
+                "--ssl-certfile",
+                self._server_ssl_certfile,
+                "--ssl-cafile",
+                self._server_ssl_ca_certfile,
+            ]
+
         # TODO: refactor, use self._ssh_client instead
         # TODO: make use of paramiko Channel, add apis to our wrapper class
-        cmd = self.cfg.ssh_cmd(
-            self.ssh_cfg,
-            shlex.join(
-                [
-                    self.remote_python_bin,
-                    "-uB",
-                    rpyc_bin,
-                    "--host",
-                    "0.0.0.0",
-                    "-p",
-                    str(self.cfg.rpyc_port),
-                ]
-            ),
-        )
+        cmd = self.cfg.ssh_cmd(self.ssh_cfg, shlex.join(args))
 
         self.proc = subprocess_popen(
             cmd,
@@ -209,13 +272,26 @@ class RemoteService(Resource, RemoteResource):
         """
         Configures rpyc connection.
         """
-        self.rpyc_connection = rpyc.classic.factory.connect(
-            host=self.cfg.remote_host,
-            port=self.rpyc_port,
-            service=rpyc.classic.SlaveService,
-            config=self.rpyc_config,
-            keepalive=True,
-        )
+        if self._client_ssl_keyfile:
+            self.rpyc_connection = rpyc.utils.factory.ssl_connect(
+                host=self.cfg.remote_host,
+                port=self.rpyc_port,
+                keyfile=self._client_ssl_keyfile,
+                certfile=self._client_ssl_certfile,
+                ca_certs=self._client_ssl_ca_certfile,
+                ssl_version=ssl.PROTOCOL_TLS,
+                service=rpyc.classic.SlaveService,
+                config=self.rpyc_config,
+                keepalive=True,
+            )
+        else:
+            self.rpyc_connection = rpyc.classic.factory.connect(
+                host=self.cfg.remote_host,
+                port=self.rpyc_port,
+                service=rpyc.classic.SlaveService,
+                config=self.rpyc_config,
+                keepalive=True,
+            )
 
         self.rpyc_pid = self.rpyc_connection.modules.os.getpid()
 
