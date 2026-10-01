@@ -20,6 +20,13 @@ remote service is started, we can instantiate
 :py:class:`~testplan.common.remote.remote_driver.RemoteDriver` that run remotely
 via the remote service.
 
+By default the RPyC connection between local and remote host is
+unauthenticated. Pass ``ssl_server_keyfile``, ``ssl_server_certfile``,
+``ssl_server_ca_certfile``, ``ssl_client_keyfile``, ``ssl_client_certfile``
+and ``ssl_client_ca_certfile`` to
+:py:class:`~testplan.common.remote.remote_service.RemoteService` to secure
+it with mutual TLS instead.
+
 Please note for now this feature is only tested for Linux(local) to
 Linux(remote) use case, we plan to support Windows(local) to Linux(remote)
 in future.

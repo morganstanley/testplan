@@ -1,0 +1,1 @@
+Added optional mutual TLS support to :py:class:`~testplan.common.remote.remote_service.RemoteService`. Set ``ssl_server_keyfile``, ``ssl_server_certfile``, ``ssl_server_ca_certfile``, ``ssl_client_keyfile``, ``ssl_client_certfile`` and ``ssl_client_ca_certfile`` to secure the RPyC connection; leave them unset to connect without authentication as before.
