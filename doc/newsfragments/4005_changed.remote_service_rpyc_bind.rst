@@ -1,0 +1,1 @@
+:py:class:`~testplan.common.remote.remote_service.RemoteService`'s RPyC server now binds to ``127.0.0.1`` on the remote host instead of ``0.0.0.0``, and the client reaches it via a ``direct-tcpip`` channel tunneled through the existing SSH connection rather than a raw, unauthenticated socket connection.
