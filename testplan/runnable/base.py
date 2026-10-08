@@ -51,6 +51,7 @@ from testplan.common.entity import (
     RunnableStatus,
 )
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
+from testplan.common.report.cache import report_cache
 from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report.testing.base import TESTCASE_XFAIL_CONDITION_SCHEMA
 
@@ -1796,19 +1797,21 @@ class TestRunner(Runnable):
             self.report.bubble_up_attachments()
 
         export_context = ExportContext()
-        for exporter in self.exporters:
-            if isinstance(exporter, test_exporters.Exporter):
-                run_exporter(
-                    exporter=exporter,
-                    source=self.report,
-                    export_context=export_context,
-                )
-            else:
-                raise NotImplementedError(
-                    "Exporter logic not implemented for: {}".format(
-                        type(exporter)
+        # Report must stay fixed while cached
+        with report_cache():
+            for exporter in self.exporters:
+                if isinstance(exporter, test_exporters.Exporter):
+                    run_exporter(
+                        exporter=exporter,
+                        source=self.report,
+                        export_context=export_context,
                     )
-                )
+                else:
+                    raise NotImplementedError(
+                        "Exporter logic not implemented for: {}".format(
+                            type(exporter)
+                        )
+                    )
 
         self.result.exporter_results = export_context.results
 
