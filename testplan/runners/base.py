@@ -83,6 +83,18 @@ class Executor(Resource):
     def _loop(self) -> None:
         raise NotImplementedError()
 
+    def _notify_task_done(self, report: Any) -> None:
+        """Pass a finished task report to the parent runner."""
+        # avoid circular import
+        from testplan.runnable.base import TestRunner
+
+        if not isinstance(self.parent, TestRunner):
+            return
+        try:
+            self.parent._on_task_done(report)
+        except Exception:
+            self.logger.exception("Task done hook failed for %s", report)
+
     def _prepopulate_runnables(self) -> None:
         # _discard_pending can be set any time
         if self._discard_pending:

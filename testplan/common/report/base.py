@@ -33,6 +33,7 @@ from typing_extensions import Self
 from testplan.common.utils import strings, timing
 from testplan.testing import tagging
 
+from .cache import cached
 from .log import create_logging_adapter
 
 
@@ -575,6 +576,7 @@ class BaseReportGroup(Report):
             self.set_parent_uids(child)
 
     @Report.status.getter  # type: ignore[attr-defined]
+    @cached
     def status(self) -> Status:
         """
         Status of the report, will be used to decide
@@ -939,6 +941,7 @@ class BaseReportGroup(Report):
             child.xfail(strict, condition)
 
     @property
+    @cached
     def hash(self) -> int:
         """
         Generate a hash of this report object, including its entries. This
@@ -1022,6 +1025,7 @@ class BaseReportGroup(Report):
         return report_obj
 
     @property
+    @cached
     def counter(self) -> Counter:
         """
         Return counts for each status, will recursively get aggregates from
