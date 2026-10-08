@@ -249,6 +249,43 @@ class SSHClient:
         self.logger.debug("Opening remote file: %s in mode %s", path, mode)
         return self.sftp_client.open(path, mode)
 
+    def open_channel(
+        self,
+        dest_host: str,
+        dest_port: int,
+        src_host: str = "127.0.0.1",
+        src_port: int = 0,
+    ) -> paramiko.Channel:
+        """
+        Open a direct-tcpip channel tunneled through this SSH connection.
+
+        :param dest_host: Destination host as seen from the remote end
+        :type dest_host: ``str``
+        :param dest_port: Destination port as seen from the remote end
+        :type dest_port: ``int``
+        :param src_host: Host to report as the forwarding origin
+        :type src_host: ``str``
+        :param src_port: Port to report as the forwarding origin
+        :type src_port: ``int``
+        :return: Channel behaving like a connected socket
+        :rtype: ``paramiko.Channel``
+        """
+        self.logger.debug(
+            "Opening direct-tcpip channel to %s:%s via %s:%s",
+            dest_host,
+            dest_port,
+            self.host,
+            self.port,
+        )
+        transport = self.ssh_client.get_transport()
+        if transport is None:
+            raise RuntimeError("SSH transport is not available")
+        return transport.open_channel(
+            "direct-tcpip",
+            (dest_host, dest_port),
+            (src_host, src_port),
+        )
+
     def close(self) -> None:
         """
         Close the SSH and SFTP connections.
