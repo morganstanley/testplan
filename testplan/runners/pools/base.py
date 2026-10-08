@@ -842,6 +842,9 @@ class Pool(Executor):
                 task_result.result.report.status_override = Status.UNSTABLE
             self._print_test_result(task_result)
             self._results[uid] = task_result
+            # Before remove, runner waits on ongoing
+            if isinstance(task_result.result, TestResult):
+                self._notify_task_done(task_result.result.report)
             self.ongoing.remove(uid)
 
         if self.cfg.skip_strategy.should_skip_rest_tests(agg_report_status):
@@ -1156,6 +1159,7 @@ class Pool(Executor):
         self._results[new_uuid] = task_result
         self.parent._tests[new_uuid] = self.cfg.name  # type: ignore
         self.record_execution(new_uuid)
+        self._notify_task_done(test_report)
 
     def _print_test_result(self, task_result: TaskResult) -> None:
         if (not isinstance(task_result.result, entity.RunnableResult)) or (
