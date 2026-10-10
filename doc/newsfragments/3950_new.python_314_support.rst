@@ -1,0 +1,1 @@
+Add Python 3.14 to the PR test matrix and declare 3.14 support in the package classifiers.
