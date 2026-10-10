@@ -1,6 +1,8 @@
-import pytest
+import collections
 import os
+
 import psutil
+import pytest
 
 from testplan.base import TestplanMock
 from testplan.common.report import ReportCategories
@@ -14,6 +16,20 @@ from testplan.runnable.base import (
 )
 from testplan.testing.listing import SimpleJsonLister
 from testplan.testing.multitest import MultiTest, suite
+
+
+# Only the fields _is_remote_process_alive() looks at. Declared here rather
+# than reusing psutil's own namedtuple, whose location is a private detail
+# that has moved between psutil releases.
+_Addr = collections.namedtuple("_Addr", ["ip", "port"])
+_Conn = collections.namedtuple("_Conn", ["status", "raddr"])
+
+
+def _established_conn(host: str, port: int) -> _Conn:
+    """Build an ESTABLISHED connection record pointing at host:port."""
+    return _Conn(
+        status=psutil.CONN_ESTABLISHED, raddr=_Addr(ip=host, port=port)
+    )
 
 
 def test_result_for_failed_task():
@@ -122,7 +138,7 @@ class TestPidFileCheck:
         ):
             plan._check_pidfile()
 
-    def test_check_pidfile_stale_remote_process(self, tmpdir):
+    def test_check_pidfile_stale_remote_process(self, tmpdir, mocker):
         """
         Test PID file with stale remote process {host}:{port};{pid} format.
 
@@ -134,16 +150,14 @@ class TestPidFileCheck:
         plan._runpath = str(tmpdir)
         plan._pidfile_path = os.path.join(plan._runpath, "testplan.pid")
 
-        existing_connections = set()
-        for conn in psutil.net_connections(kind="tcp"):
-            if conn.status == psutil.CONN_ESTABLISHED and conn.raddr:
-                existing_connections.add((conn.raddr.ip, conn.raddr.port))
+        # Stub out the connection table rather than reading the real one:
+        # enumerating system-wide sockets needs root on macOS, and on any
+        # platform the result depends on whatever the host happens to be
+        # doing at the time.
+        mocker.patch.object(psutil, "net_connections", return_value=[])
 
         fake_host = "192.0.2.1"
         fake_port = 65432
-
-        while (fake_host, fake_port) in existing_connections:
-            fake_port += 1
 
         fake_pid = 999999
         while psutil.pid_exists(fake_pid):
@@ -154,7 +168,7 @@ class TestPidFileCheck:
 
         plan._check_pidfile()
 
-    def test_check_pidfile_active_remote_process(self, tmpdir):
+    def test_check_pidfile_active_remote_process(self, tmpdir, mocker):
         """
         Test PID file with active remote process {host}:{port};{pid} format.
 
@@ -167,19 +181,14 @@ class TestPidFileCheck:
         plan._runpath = str(tmpdir)
         plan._pidfile_path = os.path.join(plan._runpath, "testplan.pid")
 
-        active_conn = None
-        for conn in psutil.net_connections(kind="tcp"):
-            if (
-                conn.status == psutil.CONN_ESTABLISHED
-                and conn.raddr
-                and conn.raddr.ip
-                and conn.raddr.port
-            ):
-                active_conn = conn
-                break
-
-        if active_conn is None:
-            pytest.skip("No active TCP connection found for testing")
+        # Present a single ESTABLISHED connection to the address recorded in
+        # the PID file. Using the real connection table would need root on
+        # macOS and would skip entirely on an otherwise idle host.
+        active_host, active_port = "192.0.2.1", 65432
+        active_conn = _established_conn(active_host, active_port)
+        mocker.patch.object(
+            psutil, "net_connections", return_value=[active_conn]
+        )
 
         fake_pid = 999999
         while psutil.pid_exists(fake_pid):
