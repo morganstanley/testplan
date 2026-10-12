@@ -2,12 +2,16 @@
 Module implementing RemoteService class. Based on RPyC package.
 """
 
+import os
 import re
 import shlex
+import shutil
 import signal
+import ssl
 import subprocess
+import tempfile
 import warnings
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional
 
 import rpyc
 import rpyc.core.protocol
@@ -18,6 +22,7 @@ from schema import Use
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
+from testplan.common.remote import gen_cert
 from testplan.common.remote.remote_resource import (
     RemoteResource,
     RemoteResourceConfig,
@@ -25,6 +30,7 @@ from testplan.common.remote.remote_resource import (
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import StdFiles
 from testplan.common.utils.process import kill_process, subprocess_popen
+from testplan.common.utils.remote import rm_cmd
 from testplan.common.utils.timing import get_sleeper
 
 
@@ -50,7 +56,8 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
 class RemoteService(Resource, RemoteResource):
     """
     Spawns RPyC service on remote host via ssh and create RPyC connection for
-    remote drivers.
+    remote drivers. The connection uses mutual TLS with ephemeral self-signed
+    certs made for each run.
 
     :param name: Name of the remote service.
     :param remote_host: Remote host name or IP address.
@@ -96,6 +103,8 @@ class RemoteService(Resource, RemoteResource):
         self.rpyc_port: Optional[int] = None
         self.rpyc_pid: Optional[int] = None
         self.std: Optional[StdFiles] = None
+        self._tls_local_dir: Optional[str] = None
+        self._tls_remote_dir: Optional[str] = None
 
     def __repr__(self) -> str:
         """
@@ -117,6 +126,101 @@ class RemoteService(Resource, RemoteResource):
         self.std = StdFiles(self.runpath)
         self._prepare_remote()
 
+    def _setup_tls(self) -> None:
+        """
+        Make both cert pairs locally, copy the needed files over.
+        We cannot generate certs on remote host as cryptography package may not be installed there.
+        """
+        local_dir = tempfile.mkdtemp(prefix="testplan_tls_")
+        remote_dir = "/".join([self._remote_resource_runpath, "tls"])
+        self._tls_local_dir = local_dir
+        self._tls_remote_dir = remote_dir
+
+        client_dir = os.path.join(local_dir, "client")
+        server_dir = os.path.join(local_dir, "server")
+        gen_cert.generate(client_dir, "testplan-client")
+        gen_cert.generate(server_dir, "testplan-server")
+
+        self._ssh_client.exec_command(
+            ["/bin/mkdir", "-p", "-m", "700", remote_dir],
+            label="create remote tls dir",
+        )
+        sftp = self._ssh_client.sftp_client
+        key, cert = gen_cert.KEY_NAME, gen_cert.CERT_NAME
+        for local_path, name, mode in (
+            (os.path.join(server_dir, key), "server_key.pem", 0o600),
+            (os.path.join(server_dir, cert), "server.pem", 0o644),
+            (os.path.join(client_dir, cert), "client.pem", 0o644),
+        ):
+            remote_path = f"{remote_dir}/{name}"
+            sftp.put(local_path, remote_path)
+            sftp.chmod(remote_path, mode)
+
+    def _discard_tls(self) -> None:
+        """
+        Delete all key and cert files, local and remote.
+        """
+        if self._tls_local_dir:
+            shutil.rmtree(self._tls_local_dir, ignore_errors=True)
+            self._tls_local_dir = None
+        if self._tls_remote_dir:
+            try:
+                rc, _, err = self._ssh_client.exec_command(
+                    rm_cmd(self._tls_remote_dir),
+                    label="delete remote tls dir",
+                    check=False,
+                )
+            except Exception as exc:
+                rc, err = -1, str(exc)
+            if rc:
+                self.logger.warning(
+                    "%s: cannot delete remote tls dir %s: %s",
+                    self,
+                    self._tls_remote_dir,
+                    err,
+                )
+            else:
+                self._tls_remote_dir = None
+
+    def _connect_tls(self) -> Connection:
+        """
+        Connect to the server, both sides check the peer cert.
+        """
+        assert self._tls_local_dir is not None
+        assert self.rpyc_port is not None
+
+        server_dir = os.path.join(self._tls_local_dir, "server")
+        client_dir = os.path.join(self._tls_local_dir, "client")
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        # trust only the pinned server cert, no hostname in it
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.load_verify_locations(
+            cafile=os.path.join(server_dir, gen_cert.CERT_NAME)
+        )
+        context.load_cert_chain(
+            certfile=os.path.join(client_dir, gen_cert.CERT_NAME),
+            keyfile=os.path.join(client_dir, gen_cert.KEY_NAME),
+        )
+
+        plain = rpyc.core.stream.SocketStream.connect(
+            self.cfg.remote_host, self.rpyc_port, keepalive=True
+        )
+        try:
+            tls_sock = context.wrap_socket(plain.sock)
+        except BaseException:
+            plain.close()
+            raise
+        tls_sock.settimeout(None)
+        stream = rpyc.core.stream.SocketStream(tls_sock)
+
+        return rpyc.utils.factory.connect_stream(
+            stream,
+            service=rpyc.classic.SlaveService,
+            config=self.rpyc_config,
+        )
+
     def starting(self) -> None:
         """
         Starting the rpyc service on remote host.
@@ -125,6 +229,8 @@ class RemoteService(Resource, RemoteResource):
             self.cfg.rpyc_bin
             or self._remote_runtime_builder.get_remote_rpyc_bin()
         )
+        self._setup_tls()
+        remote_dir = self._tls_remote_dir
 
         # TODO: refactor, use self._ssh_client instead
         # TODO: make use of paramiko Channel, add apis to our wrapper class
@@ -136,9 +242,15 @@ class RemoteService(Resource, RemoteResource):
                     "-uB",
                     rpyc_bin,
                     "--host",
-                    "127.0.0.1",
+                    "0.0.0.0",
                     "-p",
                     str(self.cfg.rpyc_port),
+                    "--ssl-keyfile",
+                    f"{remote_dir}/server_key.pem",
+                    "--ssl-certfile",
+                    f"{remote_dir}/server.pem",
+                    "--ssl-cafile",
+                    f"{remote_dir}/client.pem",
                 ]
             ),
         )
@@ -211,15 +323,11 @@ class RemoteService(Resource, RemoteResource):
         """
         Configures rpyc connection.
         """
-        channel = self._ssh_client.open_channel(
-            "127.0.0.1", cast(int, self.rpyc_port)
-        )
-        stream = rpyc.core.stream.SocketStream(channel)
-        self.rpyc_connection = rpyc.utils.factory.connect_stream(
-            stream,
-            service=rpyc.classic.SlaveService,
-            config=self.rpyc_config,
-        )
+        try:
+            self.rpyc_connection = self._connect_tls()
+        finally:
+            # server has read the files by now
+            self._discard_tls()
 
         self.rpyc_pid = self.rpyc_connection.modules.os.getpid()
 
@@ -238,6 +346,7 @@ class RemoteService(Resource, RemoteResource):
         """
         Before stopping the service.
         """
+        self._discard_tls()
         self._fetch_results()
 
     def post_stop(self) -> None:

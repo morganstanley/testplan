@@ -53,6 +53,7 @@
         "dill",
         "parse",
         "paramiko[gssapi]<5.0.0",
+        "cryptography",
         "orjson",
         "exceptiongroup>=1.2.2 ; python_full_version < '3.11'",
         "jinja2>=3.1.6",
