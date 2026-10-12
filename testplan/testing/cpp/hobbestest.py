@@ -93,7 +93,7 @@ class HobbesTest(ProcessRunnerTest):
         :return: Json object of parsed raw test data
         :rtype: ``dict`` ot ``list``
         """
-        with open(self.report_path) as report_file:
+        with open(self.report_path, encoding="utf-8") as report_file:
             return json_loads(report_file.read())
 
     def process_test_data(self, test_data):
