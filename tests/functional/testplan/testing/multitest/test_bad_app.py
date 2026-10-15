@@ -86,6 +86,14 @@ def test_basic_loose(app_args, driver_args, suite_cls):
         else contextlib.nullcontext()
     )
 
+    # Python's own multiprocessing helpers -- the resource_tracker, and under
+    # forkserver the server process -- are children of this interpreter and
+    # live for its lifetime, so any earlier test in the session that touched
+    # multiprocessing leaves them behind. Since 3.14 defaults to forkserver on
+    # Linux they are routinely present, so compare against a snapshot rather
+    # than asserting this process has no children at all.
+    pre_existing = {p.pid for p in psutil.Process().children(recursive=True)}
+
     with ctx:
         mockplan = Mockplan(
             name="bad_app_mock_test",
@@ -101,7 +109,11 @@ def test_basic_loose(app_args, driver_args, suite_cls):
 
     # force_stop triggered, direct child terminated
     curr_proc = psutil.Process()
-    child_procs = curr_proc.children(recursive=True)
+    child_procs = [
+        proc
+        for proc in curr_proc.children(recursive=True)
+        if proc.pid not in pre_existing
+    ]
     assert len(child_procs) == 0
 
     assert report.status != report.status.ERROR
