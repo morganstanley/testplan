@@ -83,6 +83,16 @@ class Executor(Resource):
     def _loop(self) -> None:
         raise NotImplementedError()
 
+    def _notify_task_done(self, report: Any) -> None:
+        """Pass a finished task report to the parent runner."""
+        on_task_done = getattr(self.parent, "_on_task_done", None)
+        if on_task_done is None:
+            return
+        try:
+            on_task_done(report)  # pylint: disable=not-callable
+        except Exception:
+            self.logger.exception("Task done hook failed for %s", report)
+
     def _prepopulate_runnables(self) -> None:
         # _discard_pending can be set any time
         if self._discard_pending:

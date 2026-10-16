@@ -10,10 +10,10 @@ import AssertionPane from "../AssertionPane/AssertionPane";
 import ResourcePanel from "../AssertionPane/ResourcePanel";
 import Message from "../Common/Message";
 import {
+  decompressGzipToText,
   formatMilliseconds,
   getAttachmentUrl,
   parseToJson,
-  decompressGzipToText,
 } from "./../Common/utils";
 import { VIEW_TYPE } from "../Common/defaults";
 import { filterEntries } from "./reportFilter";
@@ -531,6 +531,7 @@ const CenterPane = ({
             .then(async (response) => {
               let assertions;
               if (reportVersion >= 4) {
+                // Gzip bytes if the server did not set Content-Encoding
                 const text = await decompressGzipToText(response.data);
                 assertions = parseToJson(text);
               } else {

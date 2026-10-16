@@ -98,6 +98,8 @@ class LocalRunner(Executor):
                             if not self._discard_pending:
                                 # otherwise result from aborted test is used
                                 self._results[next_uid] = result
+                                # Before pop, runner waits on ongoing
+                                self._notify_task_done(result.report)
                                 self.ongoing.pop(0)
 
                     if self.cfg.skip_strategy.should_skip_rest_tests(

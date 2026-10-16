@@ -51,6 +51,7 @@ from testplan.common.entity import (
     RunnableStatus,
 )
 from testplan.common.exporters import BaseExporter, ExportContext, run_exporter
+from testplan.common.report.cache import report_cache
 from testplan.common.utils.observability import TraceLevel, tracing
 from testplan.report.testing.base import TESTCASE_XFAIL_CONDITION_SCHEMA
 
@@ -71,6 +72,7 @@ from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
 from testplan.exporters.testing.failed_tests import FailedTestLevel
+from testplan.exporters.testing.task import TaskExporter
 from testplan.report import (
     ReportCategories,
     Status,
@@ -486,6 +488,8 @@ class TestRunner(Runnable):
             information=[("testplan_version", self.get_testplan_version())],
         )
         self._exporters: Optional[List[BaseExporter]] = None
+        # Ids of reports already reset per task
+        self._uid_reset: Set[int] = set()
         self._web_server_thread: Any = None
         self._file_log_handler: Optional[Any] = None
         self._configure_stdout_logger()
@@ -539,6 +543,26 @@ class TestRunner(Runnable):
                     exporter.cfg.parent = self.cfg
                 exporter.parent = self  # type: ignore[attr-defined]
         return self._exporters
+
+    def _on_task_done(self, report: TestGroupReport) -> None:
+        """
+        Hand a finished task report to task exporters. Called from the
+        executor thread which stored the task result.
+        """
+        if self._is_interactive_run():
+            return
+        task_exporters = [
+            exporter
+            for exporter in self.exporters
+            if isinstance(exporter, TaskExporter)
+        ]
+        if not task_exporters:
+            return
+        if self._reset_report_uid:
+            report.reset_uid()
+            self._uid_reset.add(id(report))
+        for exporter in task_exporters:
+            exporter.submit_task(report)
 
     def get_test_metadata(self) -> List[TestMetadata]:
         # Only populated when a metadata-based lister is active; empty otherwise.
@@ -1730,7 +1754,15 @@ class TestRunner(Runnable):
 
         # Reset UIDs of the test report and all of its children in UUID4 format
         if self._reset_report_uid:
-            plan_report.reset_uid()
+            if self._uid_reset:
+                # Uploaded reports keep their uids
+                plan_report.uid = strings.uuid4()
+                for entry in plan_report:
+                    if id(entry) not in self._uid_reset:
+                        entry.reset_uid()
+                plan_report.build_index()
+            else:
+                plan_report.reset_uid()
 
         return step_result
 
@@ -1765,19 +1797,21 @@ class TestRunner(Runnable):
             self.report.bubble_up_attachments()
 
         export_context = ExportContext()
-        for exporter in self.exporters:
-            if isinstance(exporter, test_exporters.Exporter):
-                run_exporter(
-                    exporter=exporter,
-                    source=self.report,
-                    export_context=export_context,
-                )
-            else:
-                raise NotImplementedError(
-                    "Exporter logic not implemented for: {}".format(
-                        type(exporter)
+        # Report must stay fixed while cached
+        with report_cache():
+            for exporter in self.exporters:
+                if isinstance(exporter, test_exporters.Exporter):
+                    run_exporter(
+                        exporter=exporter,
+                        source=self.report,
+                        export_context=export_context,
                     )
-                )
+                else:
+                    raise NotImplementedError(
+                        "Exporter logic not implemented for: {}".format(
+                            type(exporter)
+                        )
+                    )
 
         self.result.exporter_results = export_context.results
 
@@ -1840,6 +1874,9 @@ class TestRunner(Runnable):
         """Stop the web server if it is running."""
         if self._web_server_thread is not None:
             self._web_server_thread.stop()
+        for exporter in self._exporters or []:
+            if isinstance(exporter, TaskExporter):
+                exporter.stop()
         # XXX: to be refactored after aborting logic implemented for rmt svcs
         self._stop_remote_services()
         self._stop_resource_monitor()
