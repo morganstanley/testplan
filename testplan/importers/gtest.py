@@ -36,7 +36,9 @@ class GTestResultImporter(ThreePhaseFileImporter[Element]):
         :param path: path to source file
         :return: root node of parsed raw test data
         """
-        with open(path) as report_file:
+        # Binary, so lxml honours the document's own encoding declaration
+        # rather than the reader's locale codec having already decoded it.
+        with open(path, "rb") as report_file:
             return objectify.parse(report_file).getroot()
 
     def _process_data(self, data: Element) -> List[TestGroupReport]:

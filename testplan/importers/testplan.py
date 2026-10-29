@@ -44,7 +44,7 @@ class TestplanResultImporter(ResultImporter):
 
     def import_result(self) -> ImportedResult:
         """ """
-        with open(self.path) as fp:
+        with open(self.path, encoding="utf-8") as fp:
             result_json = json_loads(fp.read())
             self.fix_attachments_path(result_json)
             result = self.schema.load(result_json)
