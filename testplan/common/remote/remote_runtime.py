@@ -196,6 +196,27 @@ class PipBasedBuilder(RuntimeBuilder):
         self._remote_python_bin: str
         self._skip_install_deps = False
 
+    @property
+    def _uv_global_args(self) -> List[str]:
+        """
+        arguments for ``uv`` itself, i.e. before the ``pip`` subcommand
+        """
+        return []
+
+    @property
+    def _bootstrap_env(self) -> Dict[str, str]:
+        """
+        environment variables for ``pip install uv`` on remote
+        """
+        return {}
+
+    @property
+    def _install_env(self) -> Dict[str, str]:
+        """
+        environment variables for ``uv pip install`` on remote
+        """
+        return self.cfg.extra_install_env_vars or {}
+
     @staticmethod
     def group_freezed(packages: List[str]) -> Tuple[List[str], List[str]]:
         # NOTE: impl relies on behaviour of "uv pip freeze"
@@ -293,7 +314,14 @@ class PipBasedBuilder(RuntimeBuilder):
             import uv  # so that usage of uv noticed by linter
 
             _, stdout, _ = self._lcmd_exec(
-                [sys.executable, "-m", uv.__name__, "pip", "freeze"],
+                [
+                    sys.executable,
+                    "-m",
+                    uv.__name__,
+                    *self._uv_global_args,
+                    "pip",
+                    "freeze",
+                ],
                 label="execute uv pip freeze on local",
             )
             self._upstream_pkgs, local_paths = self.group_freezed(
@@ -329,6 +357,7 @@ class PipBasedBuilder(RuntimeBuilder):
             self._rcmd_exec(
                 [self._remote_python_bin, "-m", "pip", "install", uv.__name__],
                 label="install uv on remote",
+                env=self._bootstrap_env or None,
             )
             # NOTE: is it necessary to add self._upstream_pkgs to requirements.txt?
             self._rcmd_exec(
@@ -336,6 +365,7 @@ class PipBasedBuilder(RuntimeBuilder):
                     self._remote_python_bin,
                     "-m",
                     uv.__name__,
+                    *self._uv_global_args,
                     "pip",
                     "install",
                     *(self.cfg.extra_install_args or []),
@@ -343,7 +373,7 @@ class PipBasedBuilder(RuntimeBuilder):
                     *self._local_pkgs,
                 ],
                 label="install packages on remote",
-                env=self.cfg.extra_install_env_vars or None,
+                env=self._install_env or None,
             )
         _, r_testplan_parent, _ = self._rcmd_exec(
             [

@@ -12,8 +12,12 @@ R_RUNPATH = "/remote/runpath"
 R_PYTHON = "/remote/venv/bin/python3"
 
 
-def _make_builder(overridden_deps, **options):
-    builder = PipBasedBuilder(overridden_deps=overridden_deps, **options)
+def _make_builder(
+    overridden_deps=None, builder_cls=PipBasedBuilder, **options
+):
+    if overridden_deps is not None:
+        options["overridden_deps"] = overridden_deps
+    builder = builder_cls(**options)
     builder._r_runpath = R_RUNPATH
     builder._remote_python_bin = R_PYTHON
     builder._lcmd_exec = Mock()
@@ -21,11 +25,15 @@ def _make_builder(overridden_deps, **options):
     return builder
 
 
-def _install_cmd(builder):
+def _rcmd_call(builder, label):
     for call in builder._rcmd_exec.call_args_list:
-        if call.kwargs.get("label") == "install packages on remote":
-            return call.args[0]
-    raise AssertionError("install packages command not executed")
+        if call.kwargs.get("label") == label:
+            return call
+    raise AssertionError(f"command {label!r} not executed")
+
+
+def _install_cmd(builder):
+    return _rcmd_call(builder, "install packages on remote").args[0]
 
 
 @pytest.mark.parametrize(
@@ -112,3 +120,42 @@ def test_pip_builder_extra_install_args_not_shell_interpreted():
     cmd = _install_cmd(builder)
     assert "evil; rm -rf /tmp/x" in cmd
     assert "'evil; rm -rf /tmp/x'" in shlex.join(cmd)
+
+
+class _CustomisedBuilder(PipBasedBuilder):
+    @property
+    def _uv_global_args(self):
+        return ["--no-cache"]
+
+    @property
+    def _bootstrap_env(self):
+        return {"PIP_CONFIG_FILE": "/tmp/pip.conf"}
+
+    @property
+    def _install_env(self):
+        return {"UV_CACHE_DIR": "/tmp/uv"} | super()._install_env
+
+
+def test_pip_builder_subclass_hooks():
+    builder = _make_builder(
+        None,
+        builder_cls=_CustomisedBuilder,
+        extra_install_env_vars={"UV_OFFLINE": "1"},
+    )
+    builder._lcmd_exec = Mock(return_value=(0, "pkgA==1.0", ""))
+
+    builder.local_export_pyenv()
+    builder.remote_setup_pyenv([])
+
+    freeze_cmd = builder._lcmd_exec.call_args.args[0]
+    assert freeze_cmd[freeze_cmd.index("pip") - 1] == "--no-cache"
+
+    bootstrap = _rcmd_call(builder, "install uv on remote")
+    assert bootstrap.kwargs["env"] == {"PIP_CONFIG_FILE": "/tmp/pip.conf"}
+
+    install = _rcmd_call(builder, "install packages on remote")
+    assert install.args[0][: install.args[0].index("pip")][-1] == "--no-cache"
+    assert install.kwargs["env"] == {
+        "UV_CACHE_DIR": "/tmp/uv",
+        "UV_OFFLINE": "1",
+    }
