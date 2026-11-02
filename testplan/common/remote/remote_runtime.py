@@ -139,6 +139,9 @@ class PipBasedBuilderConfig(RuntimeBuilderConfig):
             ConfigOption("skip_install_deps_if_exist", default=False): bool,
             ConfigOption("use_sys_env", default=False): bool,
             ConfigOption("extra_install_env_vars", default=None): dict,
+            ConfigOption("extra_install_args", default=None): And(
+                list, lambda x: all(isinstance(i, str) for i in x)
+            ),
             ConfigOption("overridden_deps", default=None): And(
                 list, lambda x: all(isinstance(i, str) for i in x)
             ),
@@ -175,6 +178,8 @@ class PipBasedBuilder(RuntimeBuilder):
         creation
     :param extra_install_env_vars: dict of extra environment variables to set
         during ``uv pip install`` on remote
+    :param extra_install_args: list of extra command line arguments to pass to
+        ``uv pip install`` on remote, e.g. ``["--only-binary=:all:"]``
     :param overridden_deps: list of package requirement strings to override
         (replace) the dependencies detected from local venv, should be alike
         the format of ``uv pip freeze`` output, e.g.
@@ -333,6 +338,7 @@ class PipBasedBuilder(RuntimeBuilder):
                     uv.__name__,
                     "pip",
                     "install",
+                    *(self.cfg.extra_install_args or []),
                     *self._upstream_pkgs,
                     *self._local_pkgs,
                 ],

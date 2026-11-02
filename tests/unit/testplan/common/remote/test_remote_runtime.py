@@ -1,4 +1,5 @@
 import os
+import shlex
 from unittest.mock import Mock
 
 import pytest
@@ -11,8 +12,8 @@ R_RUNPATH = "/remote/runpath"
 R_PYTHON = "/remote/venv/bin/python3"
 
 
-def _make_builder(overridden_deps):
-    builder = PipBasedBuilder(overridden_deps=overridden_deps)
+def _make_builder(overridden_deps, **options):
+    builder = PipBasedBuilder(overridden_deps=overridden_deps, **options)
     builder._r_runpath = R_RUNPATH
     builder._remote_python_bin = R_PYTHON
     builder._lcmd_exec = Mock()
@@ -79,3 +80,35 @@ def test_pip_builder_install_cmd(deps, expected_local):
         *[d for d in deps if "file://" not in d],
         *expected_local,
     ]
+
+
+def test_pip_builder_extra_install_args():
+    extra = ["--only-binary=:all:", "--no-binary=qpython"]
+    builder = _make_builder(["pkgA==1.0"], extra_install_args=extra)
+
+    builder.local_export_pyenv()
+    builder.remote_setup_pyenv([])
+
+    cmd = _install_cmd(builder)
+    assert cmd == [
+        R_PYTHON,
+        "-m",
+        uv.__name__,
+        "pip",
+        "install",
+        *extra,
+        "pkgA==1.0",
+    ]
+
+
+def test_pip_builder_extra_install_args_not_shell_interpreted():
+    builder = _make_builder(
+        ["pkgA==1.0"], extra_install_args=["evil; rm -rf /tmp/x"]
+    )
+
+    builder.local_export_pyenv()
+    builder.remote_setup_pyenv([])
+
+    cmd = _install_cmd(builder)
+    assert "evil; rm -rf /tmp/x" in cmd
+    assert "'evil; rm -rf /tmp/x'" in shlex.join(cmd)
