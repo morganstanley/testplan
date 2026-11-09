@@ -60,6 +60,7 @@ from testplan.common.report import (
     Status,
 )
 from testplan.common.report.base import ExceptionLoggerBase
+from testplan.common.report.cache import cached
 from testplan.common.serialization.fields import native_or_text
 from testplan.common.utils.timing import iana_tz
 from testplan.testing import tagging
@@ -433,6 +434,7 @@ class TestGroupReport(BaseReportGroup):
         )
 
     @property
+    @cached
     def hash(self) -> int:
         """
         Generate a hash of this report object, including its entries. This
@@ -552,6 +554,7 @@ class TestCaseReport(Report):
         ]
 
     @Report.status.getter  # type: ignore[attr-defined]
+    @cached
     def status(self) -> Status:
         """
         Entries in this context correspond to serialized (raw)
@@ -666,6 +669,7 @@ class TestCaseReport(Report):
         return TestCaseReportSchema().load(data)  # type: ignore[no-any-return]
 
     @property
+    @cached
     def hash(self) -> int:
         """
         Generate a hash of this report object, including its entries. This
@@ -735,6 +739,7 @@ class TestCaseReport(Report):
         )
 
     @property
+    @cached
     def counter(self) -> Counter:
         """
         Return counts for current status.

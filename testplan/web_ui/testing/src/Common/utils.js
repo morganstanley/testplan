@@ -323,13 +323,23 @@ export const parseToJson = (data) => {
 
 
 /**
- * Decompress gzip-compressed bytes to text.
+ * Decode gzip or plain bytes to text.
  * @param {ArrayBuffer|Uint8Array|Blob} data - gzip-compressed bytes
+ * @param {string} [encoding] - the `Content-Encoding` response header
  * @returns {Promise<string>}
  */
-export const decompressGzipToText = async (data) => {
-  const ds = new DecompressionStream("gzip");
+export const decompressGzipToText = async (data, encoding) => {
   const blob = data instanceof Blob ? data : new Blob([data]);
+  // Browser already unzipped it
+  if ((encoding || "").toLowerCase().includes("gzip")) {
+    return blob.text();
+  }
+  // No gzip magic, so plain text
+  const head = new Uint8Array(await blob.slice(0, 2).arrayBuffer());
+  if (head[0] !== 0x1f || head[1] !== 0x8b) {
+    return blob.text();
+  }
+  const ds = new DecompressionStream("gzip");
   const decompressedStream = blob.stream().pipeThrough(ds);
   return new Response(decompressedStream).text();
 };

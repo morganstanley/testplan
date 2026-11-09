@@ -388,6 +388,21 @@ class GenericNested(fields.Field):
         self.schema_context = schema_context
         self.type_field = type_field
         self.many = kwargs.get("many", False)
+        # Class name to declared schema, resolved one time
+        self.schema_values: Dict[str, Any] = {}
+        for object_type, schema_value in schema_context.items():
+            if isinstance(object_type, str):
+                key = object_type
+            elif isinstance(object_type, type):
+                key = object_type.__name__
+            else:
+                raise ValueError(
+                    "Invalid value for object type ({}), strings"
+                    " and class objects are allowed.".format(object_type)
+                )
+            self.schema_values[key] = schema_value
+        # One schema per node class, built on first use
+        self._schema_cache: Dict[str, Schema] = {}
         super(GenericNested, self).__init__(default=default, metadata=kwargs)
 
     def _get_schema_obj(self, schema_value: Any) -> Schema:
@@ -424,23 +439,18 @@ class GenericNested(fields.Field):
             )
         )
 
-    @property
-    def schemas(self) -> Dict[str, Schema]:
-        """Return schema mapping in `<CLASS_NAME>: <SCHEMA_OBJECT>` format."""
-        result: Dict[str, Schema] = {}
-        for object_type, schema_value in self.schema_context.items():
-            if isinstance(object_type, str):
-                key = object_type
-            elif isinstance(object_type, type):
-                key = object_type.__name__
-            else:
-                raise ValueError(
-                    "Invalid value for object type ({}), strings"
-                    " and class objects are allowed.".format(object_type)
+    def _schema_for(self, class_name: str) -> Schema:
+        """Return the schema of a node class, build it one time."""
+        schema_obj = self._schema_cache.get(class_name)
+        if schema_obj is None:
+            if class_name not in self.schema_values:
+                raise KeyError(
+                    "No schema declaration found in"
+                    " `schema_context` for : {}".format(class_name)
                 )
-
-            result[key] = self._get_schema_obj(schema_value)
-        return result
+            schema_obj = self._get_schema_obj(self.schema_values[class_name])
+            self._schema_cache[class_name] = schema_obj
+        return schema_obj
 
     def _serialize(
         self, value: Any, attr: Any, obj: Any, **kwargs: Any
@@ -448,21 +458,12 @@ class GenericNested(fields.Field):
         if value is None:
             return None
 
-        schemas = self.schemas
-
         if isinstance(value, (list, tuple)):
             return [self._serialize(nobj, attr, obj) for nobj in value]
 
-        class_name = value.__class__.__name__
-
-        if class_name not in schemas:
-            raise KeyError(
-                "No schema declaration found in"
-                " `schema_context` for : {}".format(class_name)
-            )
-
-        schema_obj = schemas[class_name]
-        return schema_obj.dump(value, many=False)
+        return self._schema_for(value.__class__.__name__).dump(
+            value, many=False
+        )
 
 
 class UTCDateTime(fields.DateTime):
