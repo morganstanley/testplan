@@ -1689,7 +1689,10 @@ class TestRunner(Runnable):
             report: Any = test_results[uid].report
 
             plan_report.append(report)
-            step_result = step_result and run is True  # boolean or exception
+            if report.category != ReportCategories.TASK_RERUN:
+                step_result = (
+                    step_result and run is True
+                )  # boolean or exception
 
         if hasattr(self, "_timeout_info"):
             msg = f"Testplan timed out after {self.cfg.timeout} seconds"
