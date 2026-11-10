@@ -14,6 +14,7 @@ def service():
     svc._remote_resource_runpath = "/remote/run"
     svc._ssh_client = mock.MagicMock()
     svc._ssh_client.exec_command.return_value = (0, "", "")
+    svc._transfer_data = mock.MagicMock(return_value=(0, None, None))
     svc.proc = None
     svc.rpyc_connection = None
     return svc
