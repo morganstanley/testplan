@@ -145,16 +145,17 @@ class RemoteService(Resource, RemoteResource):
             ["/bin/mkdir", "-p", "-m", "700", remote_dir],
             label="create remote tls dir",
         )
-        sftp = self._ssh_client.sftp_client
         key, cert = gen_cert.KEY_NAME, gen_cert.CERT_NAME
-        for local_path, name, mode in (
-            (os.path.join(server_dir, key), "server_key.pem", 0o600),
-            (os.path.join(server_dir, cert), "server.pem", 0o644),
-            (os.path.join(client_dir, cert), "client.pem", 0o644),
+        for local_path, name in (
+            (os.path.join(server_dir, key), "server_key.pem"),
+            (os.path.join(server_dir, cert), "server.pem"),
+            (os.path.join(client_dir, cert), "client.pem"),
         ):
-            remote_path = f"{remote_dir}/{name}"
-            sftp.put(local_path, remote_path)
-            sftp.chmod(remote_path, mode)
+            self._transfer_data(
+                source=local_path,
+                target=f"{remote_dir}/{name}",
+                remote_target=True,
+            )
 
     def _discard_tls(self) -> None:
         """

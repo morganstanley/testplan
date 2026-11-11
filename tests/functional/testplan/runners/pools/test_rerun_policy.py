@@ -1,5 +1,6 @@
 """Rerun policies across thread and process workers."""
 
+from functools import partial
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -46,6 +47,78 @@ def make_rerun_test(log, always_fail=False, failures_before_pass=1):
         name="rerun",
         suites=[RerunCases(log, always_fail, failures_before_pass)],
     )
+
+
+def fail_after_stop(log, always_fail, env, result):
+    marker = Path(log)
+    if always_fail or not marker.exists():
+        marker.touch()
+        raise RuntimeError("environment stop failed")
+
+
+def make_stop_failure_test(log, always_fail):
+    return MultiTest(
+        name="stop-failure",
+        suites=[RerunCases(log + ".cases")],
+        after_stop=partial(fail_after_stop, log, always_fail),
+    )
+
+
+@pytest.mark.parametrize("pool_type", [Pool, ProcessPool])
+@pytest.mark.parametrize("always_fail", [False, True])
+def test_rerun_after_environment_stop_exception(
+    tmp_path, pool_type, always_fail
+):
+    plan = TestplanMock(
+        "stop-rerun",
+        runpath=str(tmp_path / "run"),
+        rerun_limit=1,
+        rerun_on_different_runner=True,
+    )
+    plan.add_resource(pool_type(name="pool", size=2))
+    task = Task(
+        target=make_stop_failure_test,
+        args=(str(tmp_path / "stop"), always_fail),
+    )
+    uid = plan.schedule(task=task, resource="pool")
+
+    outcome = plan.run()
+
+    assert task.rerun_cnt == 1
+    assert outcome.test_results[uid].run is not always_fail
+    history = [
+        result
+        for result in outcome.test_results.values()
+        if result.report.category == ReportCategories.TASK_RERUN
+    ]
+    assert len(history) == 1
+    assert history[0].run is False
+    assert history[0].report.status == Status.UNSTABLE
+    assert isinstance(
+        history[0].step_results["_run_resource_hook"], RuntimeError
+    )
+    assert (
+        next(
+            entry.status
+            for entry in history[0].report.pre_order_iterate()
+            if entry.uid == "flaky__value_1"
+        )
+        == Status.FAILED
+    )
+    assert (
+        next(
+            entry.status
+            for entry in outcome.test_results[uid].report.pre_order_iterate()
+            if entry.uid == "flaky__value_1"
+        )
+        == Status.PASSED
+    )
+    expected_status = Status.ERROR if always_fail else Status.UNSTABLE
+    assert outcome.test_results[uid].report.status == expected_status
+    assert outcome.report.status == expected_status
+    assert outcome.run is not always_fail
+    assert outcome.success is not always_fail
+    assert outcome.exit_code == int(always_fail)
 
 
 @pytest.mark.parametrize("pool_type", [Pool, ProcessPool])
