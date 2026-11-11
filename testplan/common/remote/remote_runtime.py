@@ -8,7 +8,6 @@ XXX: support pathlib
 """
 
 import os.path
-import shlex
 import sys
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Tuple
@@ -140,6 +139,9 @@ class PipBasedBuilderConfig(RuntimeBuilderConfig):
             ConfigOption("skip_install_deps_if_exist", default=False): bool,
             ConfigOption("use_sys_env", default=False): bool,
             ConfigOption("extra_install_env_vars", default=None): dict,
+            ConfigOption("extra_install_args", default=None): And(
+                list, lambda x: all(isinstance(i, str) for i in x)
+            ),
             ConfigOption("overridden_deps", default=None): And(
                 list, lambda x: all(isinstance(i, str) for i in x)
             ),
@@ -176,6 +178,8 @@ class PipBasedBuilder(RuntimeBuilder):
         creation
     :param extra_install_env_vars: dict of extra environment variables to set
         during ``uv pip install`` on remote
+    :param extra_install_args: list of extra command line arguments to pass to
+        ``uv pip install`` on remote, e.g. ``["--only-binary=:all:"]``
     :param overridden_deps: list of package requirement strings to override
         (replace) the dependencies detected from local venv, should be alike
         the format of ``uv pip freeze`` output, e.g.
@@ -191,6 +195,27 @@ class PipBasedBuilder(RuntimeBuilder):
         self._local_pkgs: list[str]  # local from the perspective of remote
         self._remote_python_bin: str
         self._skip_install_deps = False
+
+    @property
+    def _uv_global_args(self) -> List[str]:
+        """
+        arguments for ``uv`` itself, i.e. before the ``pip`` subcommand
+        """
+        return []
+
+    @property
+    def _bootstrap_env(self) -> Dict[str, str]:
+        """
+        environment variables for ``pip install uv`` on remote
+        """
+        return {}
+
+    @property
+    def _install_env(self) -> Dict[str, str]:
+        """
+        environment variables for ``uv pip install`` on remote
+        """
+        return self.cfg.extra_install_env_vars or {}
 
     @staticmethod
     def group_freezed(packages: List[str]) -> Tuple[List[str], List[str]]:
@@ -289,7 +314,14 @@ class PipBasedBuilder(RuntimeBuilder):
             import uv  # so that usage of uv noticed by linter
 
             _, stdout, _ = self._lcmd_exec(
-                [sys.executable, "-m", uv.__name__, "pip", "freeze"],
+                [
+                    sys.executable,
+                    "-m",
+                    uv.__name__,
+                    *self._uv_global_args,
+                    "pip",
+                    "freeze",
+                ],
                 label="execute uv pip freeze on local",
             )
             self._upstream_pkgs, local_paths = self.group_freezed(
@@ -300,7 +332,7 @@ class PipBasedBuilder(RuntimeBuilder):
             os.path.join(
                 self._r_runpath,
                 self.cfg._runpath_local_package_dir,
-                x.rsplit(os.sep, 1)[1],
+                os.path.basename(x),
             )
             for x in local_paths
         ]
@@ -325,35 +357,23 @@ class PipBasedBuilder(RuntimeBuilder):
             self._rcmd_exec(
                 [self._remote_python_bin, "-m", "pip", "install", uv.__name__],
                 label="install uv on remote",
-            )
-            local_pkgs_pattern = (
-                shlex.quote(
-                    os.path.join(
-                        self._r_runpath, self.cfg._runpath_local_package_dir
-                    )
-                )
-                + os.sep
-                + "*"
+                env=self._bootstrap_env or None,
             )
             # NOTE: is it necessary to add self._upstream_pkgs to requirements.txt?
-            # NOTE: we need a glob here given possible multiple local
-            # NOTE: packages. since shlex.quote only applied on list, we pass a
-            # NOTE: string
             self._rcmd_exec(
-                shlex.join(
-                    [
-                        self._remote_python_bin,
-                        "-m",
-                        uv.__name__,
-                        "pip",
-                        "install",
-                        *self._upstream_pkgs,
-                    ]
-                )
-                + " "
-                + local_pkgs_pattern,
+                [
+                    self._remote_python_bin,
+                    "-m",
+                    uv.__name__,
+                    *self._uv_global_args,
+                    "pip",
+                    "install",
+                    *(self.cfg.extra_install_args or []),
+                    *self._upstream_pkgs,
+                    *self._local_pkgs,
+                ],
                 label="install packages on remote",
-                env=self.cfg.extra_install_env_vars or None,
+                env=self._install_env or None,
             )
         _, r_testplan_parent, _ = self._rcmd_exec(
             [
