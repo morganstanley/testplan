@@ -531,7 +531,11 @@ const CenterPane = ({
             .then(async (response) => {
               let assertions;
               if (reportVersion >= 4) {
-                const text = await decompressGzipToText(response.data);
+                // Header says if browser unzipped
+                const text = await decompressGzipToText(
+                  response.data,
+                  response.headers?.["content-encoding"]
+                );
                 assertions = parseToJson(text);
               } else {
                 assertions = parseToJson(response.data);
