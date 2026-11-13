@@ -4,6 +4,7 @@ import subprocess
 import re
 import os
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
@@ -38,28 +39,34 @@ def test_hashfile(tmpdir):
 
 
 def test_change_directory_thread_safe(tmpdir):
-    barrier = threading.Barrier(2)
+    original = os.getcwd()
+    targets = [
+        os.path.realpath(str(tmpdir.mkdir(name))) for name in ("a", "b")
+    ]
 
-    def racing_worker():
-        cwd = os.getcwd()
+    def racing_worker(target, barrier):
         barrier.wait()
-        with path.change_directory(str(tmpdir)):
-            pass
-        probably_tmpdir = os.getcwd()
-        return probably_tmpdir, cwd
+        with path.change_directory(target):
+            # Widen the window for another thread to chdir concurrently.
+            time.sleep(0.001)
+            return os.path.realpath(os.getcwd())
 
-    for _ in range(50):
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            future1 = executor.submit(racing_worker)
-            future2 = executor.submit(racing_worker)
-            result1 = future1.result()
-            result2 = future2.result()
-            assert result1[0] == result1[1], (
-                "thread 1 did not return to original directory"
+    try:
+        for _ in range(50):
+            barrier = threading.Barrier(2)
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                seen = list(
+                    executor.map(racing_worker, targets, [barrier, barrier])
+                )
+            assert seen == targets, (
+                "another thread changed directory concurrently"
             )
-            assert result2[0] == result2[1], (
-                "thread 2 did not return to original directory"
+            assert os.getcwd() == original, (
+                "did not return to original directory"
             )
+    finally:
+        # Keep a failed restore from leaking into later tests.
+        os.chdir(original)
 
 
 def test_change_directory_rlock(tmpdir):
