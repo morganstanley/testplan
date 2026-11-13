@@ -30,11 +30,11 @@ jobs:
 
   success:
     name: PR Test Completed
-    needs: [is_source_changed, test]
+    needs: [is_source_changed, test, test_macos]
     runs-on: ubuntu-latest
-    if: always() && needs.is_source_changed.result == 'success' && (needs.is_source_changed.outputs.is_source_changed == 'false' || needs.Test.result == 'success')
+    if: always() && needs.is_source_changed.result == 'success' && (needs.is_source_changed.outputs.is_source_changed == 'false' || (needs.Test.result == 'success' && needs.test_macos.result == 'success'))
     steps:
-      - run: echo ${{needs.is_source_changed.result}} ${{needs.is_source_changed.outputs.is_source_changed}} ${{needs.Test.result}}
+      - run: echo ${{needs.is_source_changed.result}} ${{needs.is_source_changed.outputs.is_source_changed}} ${{needs.Test.result}} ${{needs.test_macos.result}}
       - run: true
 
   lint_python:
@@ -169,3 +169,36 @@ jobs:
         run: uv pip install --system .${{ matrix.package-extras }} --group test -c constraints.txt
       - name: Test Python
         run: doit test
+
+  test_macos:
+    name: Test (macOS)
+    needs: [lint_python]
+    runs-on: macos-latest
+    env:
+      CI: ""
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.13']
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up uv & Python
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+          python-version: ${{ matrix.python-version }}
+      - name: Install Python dependencies
+        run: uv pip install --system ".[all]" --group test -c constraints.txt
+      # Unit tests only for now. The functional suite needs Zookeeper/Kafka and
+      # the built UI bundle, and parts of it additionally depend on the host
+      # resolving its own FQDN, which is not reliable on macOS. Widening this
+      # to `doit test` is follow-up work.
+      - name: Test Python
+        run: pytest tests/unit --verbose
