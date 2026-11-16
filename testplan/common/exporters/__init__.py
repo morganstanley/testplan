@@ -175,7 +175,8 @@ def run_exporter(
             else:
                 exp_result.result = result
         export_context.results.append(exp_result)
-        return exp_result
+
+    return exp_result
 
 
 def format_cell_data(data: List[Any], limit: int) -> List[str]:
