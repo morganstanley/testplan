@@ -200,7 +200,7 @@ class GTest(ProcessRunnerTest):
         super(GTest, self).update_test_report()
 
         try:
-            with open(self.report_path) as report_xml:
+            with open(self.report_path, encoding="utf-8") as report_xml:
                 self.result.report.xml_string = report_xml.read()
         except Exception:
             self.result.report.xml_string = ""

@@ -1,0 +1,1 @@
+xUnit report importers (GoogleTest, JUnit, CppUnit) now read report files as the documents declare themselves rather than through the host locale codec, which crashed on DBCS Windows and silently produced mojibake on cp1252.
