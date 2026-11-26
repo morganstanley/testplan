@@ -195,9 +195,12 @@ class TestDriverTiming:
         assert isinstance(
             driver.timer[ResourceTimings.RESOURCE_SETUP][0], Interval
         )
-        # there is some UnicodeEncodeError when using pytest.approx
+        # there is some UnicodeEncodeError when using pytest.approx.
+        # Upper bounds are loose on purpose: this checks that an interval was
+        # recorded around the sleep, not how fast the runner is. A busy CI
+        # host can add a couple of hundred milliseconds of scheduling delay.
         assert (
-            0.1 < driver.timer[ResourceTimings.RESOURCE_SETUP][0].elapsed < 0.3
+            0.1 < driver.timer[ResourceTimings.RESOURCE_SETUP][0].elapsed < 0.6
         )
 
         driver.stop()
@@ -208,5 +211,5 @@ class TestDriverTiming:
         assert (
             0
             < driver.timer[ResourceTimings.RESOURCE_TEARDOWN][0].elapsed
-            < 0.2
+            < 0.5
         )
