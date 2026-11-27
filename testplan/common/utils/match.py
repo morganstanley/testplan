@@ -33,7 +33,6 @@ from .logfile import (
     MTimeBasedLogRotationStrategy,
     RemoteMTimeBasedLogRotationStrategy,
 )
-from testplan.common.remote.ssh_client import SSHClient
 
 
 LOG_MATCHER_INTERVAL = 0.25
@@ -585,6 +584,8 @@ class RemoteLogMatcher(LogMatcher):
         port: int = 22,
         **args: Any,
     ) -> None:
+        from testplan.common.remote.ssh_client import SSHClient
+
         self._ssh_client = SSHClient(host, port, **args)
         super().__init__(log_path, binary)
 
